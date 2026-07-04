@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const mockPost = vi.fn()
 const mockGet = vi.fn()
 const mockLoggerError = vi.fn()
+const mockLoggerWarn = vi.fn()
 
 vi.mock('@molecule/api-http', () => ({
   post: mockPost,
@@ -20,7 +21,7 @@ vi.mock('@molecule/api-bond', () => ({
   getLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
-    warn: vi.fn(),
+    warn: mockLoggerWarn,
     error: mockLoggerError,
   }),
 }))
@@ -244,8 +245,9 @@ describe('Twitter OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.email).toBeUndefined()
-      expect(result.username).toBe('testuser@twitter')
+      expect(result).not.toBeNull()
+      expect(result!.email).toBeUndefined()
+      expect(result!.username).toBe('testuser@twitter')
     })
 
     it('should handle user without id', async () => {
@@ -270,7 +272,8 @@ describe('Twitter OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.oauthId).toBe('')
+      expect(result).not.toBeNull()
+      expect(result!.oauthId).toBe('')
     })
 
     it('should handle token exchange failure', async () => {
@@ -298,6 +301,9 @@ describe('Twitter OAuth Provider', () => {
     })
 
     it('should handle invalid grant error', async () => {
+      // NOTE: this description does NOT match X's real rejected-code message
+      // (it lacks the words "authorization code"), so the deliberately-narrow
+      // rejected-code guard leaves it on the throw path.
       mockPost.mockRejectedValue({
         response: {
           status: 400,
@@ -308,6 +314,90 @@ describe('Twitter OAuth Provider', () => {
       const { verify } = await import('../verify.js')
 
       await expect(verify('expired-code')).rejects.toBeDefined()
+    })
+
+    it('returns null (NOT a throw) when X rejects the code — 400 invalid_request with the authorization-code description', async () => {
+      // X's token endpoint responds HTTP 400 `invalid_request` (rather than
+      // the RFC 6749 `invalid_grant`) with this exact description when the
+      // code is forged/expired/reused — the provider AFFIRMATIVELY rejecting
+      // the code. Per the OAuthVerifier contract that is a `null` return
+      // (consumer responds 403), never a throw (which would surface as a
+      // misleading 500).
+      mockPost.mockRejectedValue({
+        response: {
+          status: 400,
+          data: {
+            error: 'invalid_request',
+            error_description: 'Value passed for the authorization code was invalid, or expired.',
+          },
+        },
+      })
+
+      const { verify } = await import('../verify.js')
+
+      const result = await verify('forged-code')
+
+      expect(result).toBeNull()
+      // The user-info endpoint must never be hit after a rejected exchange.
+      expect(mockGet).not.toHaveBeenCalled()
+      // A rejected code is a client-side event — warn, never error.
+      expect(mockLoggerError).not.toHaveBeenCalled()
+      expect(mockLoggerWarn).toHaveBeenCalled()
+    })
+
+    it('returns null for an RFC 6749 invalid_grant rejection', async () => {
+      mockPost.mockRejectedValue({
+        response: {
+          status: 400,
+          data: { error: 'invalid_grant' },
+        },
+      })
+
+      const { verify } = await import('../verify.js')
+
+      const result = await verify('expired-code')
+
+      expect(result).toBeNull()
+      expect(mockGet).not.toHaveBeenCalled()
+      expect(mockLoggerError).not.toHaveBeenCalled()
+    })
+
+    it('still throws for a 400 invalid_request with an unrelated error_description (malformed request — a bug)', async () => {
+      // A missing parameter is OUR bug, not the provider rejecting the user's
+      // code — it must stay on the throw path (surfaces as a 500), never be
+      // silently converted into a 403.
+      mockPost.mockRejectedValue({
+        response: {
+          status: 400,
+          data: {
+            error: 'invalid_request',
+            error_description: 'Missing required parameter: redirect_uri',
+          },
+        },
+      })
+
+      const { verify } = await import('../verify.js')
+
+      await expect(verify('test-auth-code')).rejects.toBeDefined()
+      expect(mockLoggerError).toHaveBeenCalled()
+    })
+
+    it('returns null when a 200 token response lacks an access_token (never Bearer undefined)', async () => {
+      mockPost.mockResolvedValue({
+        data: {
+          token_type: 'bearer',
+          scope: 'users.read tweet.read',
+        },
+      })
+
+      const { verify } = await import('../verify.js')
+
+      const result = await verify('test-auth-code')
+
+      expect(result).toBeNull()
+      expect(mockGet).not.toHaveBeenCalled()
+      expect(mockLoggerError).not.toHaveBeenCalled()
+      expect(mockLoggerWarn).toHaveBeenCalled()
     })
 
     it('should handle unauthorized access token', async () => {
@@ -449,8 +539,70 @@ describe('Twitter OAuth Provider', () => {
       const { verify } = await import('../verify.js')
       const result = await verify('good-code')
 
-      expect(result.username).toBe('legit@twitter')
+      expect(result).not.toBeNull()
+      expect(result!.username).toBe('legit@twitter')
       expect(mockLoggerError).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getAuthorizeUrl', () => {
+    it('builds the X authorize URL with response_type, client_id, redirect_uri, scope, state, and PKCE', async () => {
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({
+        redirectUri: 'http://localhost:5173/login',
+        state: 'state-abc',
+        codeChallenge: 'challenge-xyz',
+        codeChallengeMethod: 'S256',
+      })
+
+      expect(raw).not.toBeNull()
+      const url = new URL(raw!)
+      expect(url.origin + url.pathname).toBe('https://x.com/i/oauth2/authorize')
+      expect(url.searchParams.get('response_type')).toBe('code')
+      expect(url.searchParams.get('client_id')).toBe('test-twitter-client-id')
+      expect(url.searchParams.get('redirect_uri')).toBe('http://localhost:5173/login')
+      // Exactly what verify's GET /2/users/me requires — deliberately no
+      // offline.access (verify never refreshes tokens).
+      expect(url.searchParams.get('scope')).toBe('users.read tweet.read')
+      expect(url.searchParams.get('state')).toBe('state-abc')
+      expect(url.searchParams.get('code_challenge')).toBe('challenge-xyz')
+      expect(url.searchParams.get('code_challenge_method')).toBe('S256')
+    })
+
+    it('omits redirect_uri when absent so X uses the registered callback URL', async () => {
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+
+      expect(raw).not.toBeNull()
+      expect(new URL(raw!).searchParams.has('redirect_uri')).toBe(false)
+    })
+
+    it('defaults the PKCE method to S256 when a challenge is given without one', async () => {
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+
+      expect(new URL(raw!).searchParams.get('code_challenge_method')).toBe('S256')
+    })
+
+    it('returns null when OAUTH_TWITTER_CLIENT_ID is unset (unconfigured, not a crash)', async () => {
+      delete process.env.OAUTH_TWITTER_CLIENT_ID
+
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      expect(getAuthorizeUrl({ state: 's' })).toBeNull()
+    })
+
+    it('honours the OAUTH_TWITTER_AUTHORIZE_URL override (E2E mocks)', async () => {
+      process.env.OAUTH_TWITTER_AUTHORIZE_URL = 'http://127.0.0.1:9999/i/oauth2/authorize'
+
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({ state: 's' })
+      expect(raw).not.toBeNull()
+      expect(raw!.startsWith('http://127.0.0.1:9999/i/oauth2/authorize?')).toBe(true)
     })
   })
 
@@ -460,6 +612,7 @@ describe('Twitter OAuth Provider', () => {
 
       expect(exports.serverName).toBeDefined()
       expect(exports.verify).toBeDefined()
+      expect(exports.getAuthorizeUrl).toBeDefined()
     })
   })
 })

@@ -4,7 +4,12 @@
  * @module
  */
 
-export type { OAuthUserProps, OAuthVerifier } from '@molecule/api-oauth'
+export type {
+  OAuthAuthorizeUrlBuilder,
+  OAuthAuthorizeUrlParams,
+  OAuthUserProps,
+  OAuthVerifier,
+} from '@molecule/api-oauth'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

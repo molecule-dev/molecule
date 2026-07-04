@@ -186,6 +186,40 @@ interface MicrosoftTokenSet {
 }
 ```
 
+#### `OAuthAuthorizeUrlParams`
+
+Parameters for building a provider authorization (initiation) URL —
+the URL the user's browser is redirected to so the provider can
+authenticate them and send back an authorization code.
+
+```typescript
+interface OAuthAuthorizeUrlParams {
+    /**
+     * Absolute URI the provider should redirect the user back to after
+     * authorization (the app origin, optionally with a path). When omitted,
+     * the builder leaves `redirect_uri` off the URL so the provider falls
+     * back to its registered callback URL.
+     */
+    redirectUri?: string;
+    /**
+     * The CSRF `state` parameter bound to the initiating session (stored in
+     * an httpOnly cookie by the initiation endpoint and validated by the
+     * login handler on callback).
+     */
+    state: string;
+    /**
+     * PKCE code challenge derived (S256) from the per-session code verifier.
+     * Omit only for providers that do not support PKCE.
+     */
+    codeChallenge?: string;
+    /**
+     * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
+     * for providers that cannot hash.
+     */
+    codeChallengeMethod?: 'S256' | 'plain';
+}
+```
+
 #### `OAuthProvider`
 
 Microsoft Identity Platform OAuth provider surface.
@@ -209,11 +243,23 @@ interface OAuthProvider {
 
   /**
    * Exchange an authorization code for an access/id/refresh token set.
+   *
+   * When the authorization request carried a PKCE `code_challenge`, the
+   * matching `codeVerifier` MUST be supplied — the Microsoft identity
+   * platform requires `code_verifier` at redemption for such codes and
+   * otherwise rejects with `invalid_grant` (AADSTS501481).
+   *
    * @param code - Authorization code returned by Microsoft.
    * @param redirectUri - Redirect URI matching the authorization request.
+   * @param codeVerifier - PKCE code verifier matching the authorization
+   *   request's `code_challenge`, when PKCE was used.
    * @returns The token set.
    */
-  exchangeCodeForTokens(code: string, redirectUri: string): Promise<MicrosoftTokenSet>
+  exchangeCodeForTokens(
+    code: string,
+    redirectUri: string,
+    codeVerifier?: string,
+  ): Promise<MicrosoftTokenSet>
 
   /**
    * Fetch normalized user info from Microsoft Graph (`/v1.0/me`).
@@ -319,6 +365,17 @@ interface OAuthUserProps {
 
 ### Types
 
+#### `OAuthAuthorizeUrlBuilder`
+
+Builds the provider's authorization URL for OAuth initiation
+(`GET /users/oauth/:provider` → 302 to this URL). Implementations embed
+their own client id, scopes, and authorize endpoint so no consumer ever
+hardcodes provider knowledge.
+
+```typescript
+type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null;
+```
+
 #### `OAuthVerifier`
 
 Exchanges an OAuth authorization code for user profile information.
@@ -326,9 +383,31 @@ Exchanges an OAuth authorization code for user profile information.
 Implementations call the provider's token and user-info endpoints,
 then return normalized `OAuthUserProps` for account creation or login.
 
+Returning `null` means the provider AFFIRMATIVELY rejected the code
+(e.g. GitHub's `bad_verification_code`, an expired/forged code) — the
+consumer (`logInOAuth`) surfaces that as a clean 403 "verification
+failed". A thrown error means an infrastructure failure (network,
+provider outage) and surfaces as a 500. Implementations MUST NOT throw
+for a rejected code — that would misreport a client mistake (or an
+attack) as a server fault.
+
 ```typescript
-type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps>;
+type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps | null>;
 ```
+
+### Classes
+
+#### `MicrosoftOAuthCodeRejectedError`
+
+Thrown by `exchangeCodeForTokens` when the Microsoft identity platform
+v2.0 token endpoint AFFIRMATIVELY rejects the authorization code or PKCE
+verifier — HTTP 400 with `{"error":"invalid_grant"}` (e.g. AADSTS70008
+expired/already-redeemed code, AADSTS501481 `code_verifier` mismatch).
+
+This is a client-side failure (or an attack), NOT an infrastructure
+fault: `verify` catches this error and returns `null` per the
+`OAuthVerifier` contract so the consumer responds with a clean 403
+"verification failed" instead of a misleading 500.
 
 ### Functions
 
@@ -382,6 +461,40 @@ function createMicrosoftProvider(overrides?: MicrosoftOAuthConfig): OAuthProvide
 - `overrides` — Optional configuration overrides.
 
 **Returns:** A typed `OAuthProvider`.
+
+#### `getAuthorizeUrl(params)`
+
+Builds the Microsoft authorization URL for OAuth initiation
+(`GET /users/oauth/:provider` 302s the browser here) per the core
+`OAuthAuthorizeUrlBuilder` contract. Embeds this bond's client id,
+default scopes (`openid email profile User.Read` — exactly what
+`verify`'s Microsoft Graph `/me` call needs), and the tenant-derived
+authorize endpoint
+(`https://login.microsoftonline.com/<tenant>/oauth2/v2.0/authorize`,
+tenant from `OAUTH_MICROSOFT_TENANT_ID`, default `common`), so no
+consumer hardcodes Microsoft knowledge.
+
+Includes the caller's CSRF `state`, `response_mode=query` (the v2.0
+auth-code flow's query-string callback), and — when a `codeChallenge`
+is supplied — the PKCE `code_challenge` + `code_challenge_method`
+(default `S256`). PKCE with a confidential client is supported and
+recommended by the Microsoft identity platform: the client secret and
+`code_verifier` are complementary, and `exchangeCodeForTokens` MUST
+then be given the matching verifier (see AADSTS501481).
+
+```typescript
+function getAuthorizeUrl({
+  redirectUri,
+  state,
+  codeChallenge,
+  codeChallengeMethod,
+}: OAuthAuthorizeUrlParams): string | null
+```
+
+- `params` — State, PKCE challenge, and optional redirect URI.
+
+**Returns:** The Microsoft authorize URL, or `null` when
+ *   `OAUTH_MICROSOFT_CLIENT_ID` is unset (unconfigured).
 
 #### `getJwks(tenantId, options)`
 
@@ -438,22 +551,30 @@ function sanitizeError(error: unknown, secrets: string[]): Error
 
 **Returns:** A sanitized error suitable for logging or surfacing.
 
-#### `verify(code, _codeVerifier, redirectUri)`
+#### `verify(code, codeVerifier, redirectUri)`
 
 Verifies a Microsoft OAuth code and responds with normalized
 `OAuthUserProps` for compatibility with the core `@molecule/api-oauth`
-`OAuthVerifier` contract — exchanges the code, fetches `/me` from
-Microsoft Graph, and shapes the result.
+`OAuthVerifier` contract — exchanges the code (passing the PKCE
+verifier through to the token endpoint), fetches `/me` from Microsoft
+Graph, and shapes the result.
+
+Returns `null` (never throws) when Microsoft AFFIRMATIVELY rejects the
+code or verifier — the token endpoint's HTTP 400 `invalid_grant`
+(AADSTS70008 expired/redeemed code, AADSTS501481 verifier mismatch) —
+so the consumer responds 403 "verification failed". Infrastructure
+failures (network, outage, malformed 2xx) still throw and surface as 500.
 
 ```typescript
-function verify(code: string, _codeVerifier?: string, redirectUri?: string): Promise<{ username: string; name: string | undefined; email: string | undefined; emailVerified: false; oauthServer: "microsoft"; oauthId: string; oauthData: Record<string, unknown>; }>
+function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; name: string | undefined; email: string | undefined; emailVerified: false; oauthServer: "microsoft"; oauthId: string; oauthData: Record<string, unknown>; } | null>
 ```
 
 - `code` — The authorization code from the OAuth callback.
-- `_codeVerifier` — PKCE code verifier (currently unused; reserved
+- `codeVerifier` — PKCE code verifier matching the `code_challenge`
 - `redirectUri` — The redirect URI used in the authorization
 
-**Returns:** Normalized `OAuthUserProps`.
+**Returns:** Normalized `OAuthUserProps`, or `null` when the provider
+ *   rejected the code.
 
 #### `verifyMicrosoftIdToken(idToken, config, options)`
 

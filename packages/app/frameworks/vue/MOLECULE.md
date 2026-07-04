@@ -1013,9 +1013,25 @@ OAuth configuration options.
 
 ```typescript
 interface UseOAuthOptions {
+  /** Base URL for the API server (e.g. `https://api.example.com`). */
   baseURL?: string
+  /** List of supported OAuth provider names (e.g. `['google', 'github']`). */
   oauthProviders?: string[]
+  /** Path prefix for OAuth initiation routes. Defaults to `/oauth`. */
   oauthEndpoint?: string
+  /** Path for the OAuth login POST endpoint. Defaults to `/users/log-in/oauth`. */
+  loginEndpoint?: string
+  /** Callback fired after a successful OAuth login. */
+  onSuccess?: () => void
+  /** Callback fired with an error message when the OAuth login fails. */
+  onError?: (error: string) => void
+  /**
+   * Explicit auth client used to establish the session after the callback
+   * exchange. Defaults to the injected client ({@link AuthKey}) when the
+   * composable runs during component setup — pass one explicitly for
+   * callers/tests outside an auth provider.
+   */
+  authClient?: AuthClient<unknown>
 }
 ```
 
@@ -1025,9 +1041,20 @@ Return type for the {@link useOAuth} composable.
 
 ```typescript
 interface UseOAuthReturn {
+  /** Available OAuth provider names. */
   providers: ComputedRef<string[]>
+  /** Builds the OAuth initiation URL for a provider. */
   getOAuthUrl: (provider: string) => string
+  /** Full-page redirect to the provider's OAuth initiation endpoint. */
   redirect: (provider: string) => void
+  /**
+   * Handles an OAuth callback: when the current URL carries a `code` param and
+   * a provider was stashed by {@link redirect}, exchanges the code for a
+   * session. A guarded no-op otherwise. Runs automatically on mount when the
+   * composable is used inside a component; exposed for manual invocation
+   * outside components (e.g. tests or custom callback screens).
+   */
+  handleCallback: () => Promise<void>
 }
 ```
 
@@ -1095,7 +1122,7 @@ interface UsePushReturn {
   token: ShallowRef<PushToken | null>
   checkPermission: () => Promise<PermissionStatus>
   requestPermission: () => Promise<PermissionStatus>
-  register: () => Promise<PushToken>
+  register: (options?: PushRegisterOptions) => Promise<PushToken>
   unregister: () => Promise<void>
   onNotificationReceived: (listener: NotificationReceivedListener) => () => void
   onNotificationAction: (listener: NotificationActionListener) => () => void
@@ -1602,13 +1629,25 @@ function useNavigate(): (path: string, options?: NavigateOptions) => void
 
 Composable for OAuth authentication.
 
+Reads OAuth configuration from the provided options and provides helpers to
+build OAuth URLs and start a login. When used inside a component, it
+automatically handles OAuth callbacks on mount by detecting `code` and
+`state` URL parameters and exchanging them for a session.
+
+Session establishment: the exchange result is applied to the resolved auth
+client (an explicit `options.authClient`, else the injected {@link AuthKey}
+client when running during component setup). When NO client is available,
+the server has already established the httpOnly-cookie session via the
+exchange, so a user-carrying response still counts as success —
+`options.onSuccess` fires; a response with no user fires `options.onError`.
+
 ```typescript
 function useOAuth(options?: UseOAuthOptions): UseOAuthReturn
 ```
 
-- `options` — OAuth configuration (base URL, providers, endpoint path).
+- `options` — OAuth configuration (base URL, providers, endpoint paths, callbacks, auth client).
 
-**Returns:** Available providers, a URL builder, and a redirect method for OAuth flows.
+**Returns:** Available providers, a URL builder, a redirect method, and a callback handler.
 
 #### `useParams()`
 

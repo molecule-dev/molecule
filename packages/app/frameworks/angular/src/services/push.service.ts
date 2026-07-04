@@ -9,6 +9,7 @@ import type {
   NotificationActionListener,
   NotificationReceivedListener,
   PermissionStatus,
+  PushRegisterOptions,
   PushToken,
   TokenChangeListener,
 } from '@molecule/app-push'
@@ -24,7 +25,7 @@ export interface PushService {
   getToken: () => PushToken | null
   checkPermission: () => Promise<PermissionStatus>
   requestPermission: () => Promise<PermissionStatus>
-  register: () => Promise<PushToken>
+  register: (options?: PushRegisterOptions) => Promise<PushToken>
   unregister: () => Promise<void>
   onNotificationReceived: (listener: NotificationReceivedListener) => () => void
   onNotificationAction: (listener: NotificationActionListener) => () => void
@@ -71,8 +72,8 @@ export const createPushService = (): PushService => {
       permissionSubject.next(status)
       return status
     },
-    register: async () => {
-      const token = await provider.register()
+    register: async (options?: PushRegisterOptions) => {
+      const token = await provider.register(options)
       tokenSubject.next(token)
       return token
     },

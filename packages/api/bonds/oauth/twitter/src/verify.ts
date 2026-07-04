@@ -94,6 +94,19 @@ export const verify: OAuthVerifier = async (
 
     const token = response.data.access_token
 
+    // Defensive: a 2xx token response without an `access_token` means the
+    // exchange did not actually succeed — the provider rejected it in the
+    // body. Per the `OAuthVerifier` contract return `null` (consumer responds
+    // 403 "verification failed") instead of blundering on to `/2/users/me`
+    // with `Bearer undefined` and surfacing X's 401 as a misleading 500.
+    if (!token) {
+      const exchangeError = (response.data as { error?: string }).error
+      logger.warn('Twitter OAuth code exchange rejected', {
+        error: exchangeError ?? 'no access_token in token response',
+      })
+      return null
+    }
+
     const {
       data: { data: oauthData },
     } = await get<{ data: Record<string, unknown> }>(`https://api.twitter.com/2/users/me`, {
@@ -117,6 +130,32 @@ export const verify: OAuthVerifier = async (
       oauthData,
     }
   } catch (error) {
+    // X's token endpoint responds HTTP 400 for a rejected authorization code —
+    // the provider AFFIRMATIVELY rejecting the code (forged/expired/reused), a
+    // client-side failure rather than an infrastructure fault. X reports it as
+    // `invalid_request` with a "Value passed for the authorization code was
+    // invalid, or expired." description (rather than the RFC 6749
+    // `invalid_grant`) — handle both. The `error_description` guard keeps
+    // genuinely-malformed requests (e.g. a missing parameter — a bug in our
+    // request) on the throw path. Per the `OAuthVerifier` contract return
+    // `null` (consumer responds 403 "verification failed") instead of
+    // throwing, which would misreport it as a 500.
+    const response = (error as { response?: { status?: number; data?: unknown } } | null)?.response
+    if (response?.status === 400) {
+      const data = (response.data ?? {}) as { error?: string; error_description?: unknown }
+      const isRejectedCode =
+        data.error === 'invalid_grant' ||
+        (data.error === 'invalid_request' &&
+          /authorization code/i.test(String(data.error_description ?? '')))
+      if (isRejectedCode) {
+        logger.warn('Twitter OAuth code exchange rejected', {
+          error: data.error,
+          errorDescription: data.error_description,
+        })
+        return null
+      }
+    }
+
     const safe = sanitizeError(error, [process.env.OAUTH_TWITTER_CLIENT_SECRET, code])
     logger.error('Twitter OAuth verify error:', safe.message)
     throw safe

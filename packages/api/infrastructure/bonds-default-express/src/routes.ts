@@ -22,14 +22,20 @@ type DeviceMap = DeviceRequestHandlerMap
 type UserMap = UserRequestHandlerMap
 
 /**
- * Mounts the standard 4-method device CRUD routes:
+ * Mounts the standard device routes:
  *
+ * - `GET /devices/push/public-key` (public — the VAPID public key browsers
+ *   need for `pushManager.subscribe({ applicationServerKey })`; bond-gated
+ *   404/503 when no push provider is bonded/configured)
  * - `GET /devices` (auth+query)
  * - `GET /devices/:id` (authUser+read)
  * - `PATCH /devices/:id` (authUser+update)
  * - `DELETE /devices/:id` (authUser+del)
  */
 export function mountDefaultDeviceRoutes(router: Router, device: DeviceMap): void {
+  // Mounted before /devices/:id so the literal "push" segment can never be
+  // captured as an :id.
+  router.get('/devices/push/public-key', device.pushPublicKey)
   router.get('/devices', device.auth, device.query)
   router.get('/devices/:id', device.authUser, device.read)
   router.patch('/devices/:id', device.authUser, device.update)
@@ -64,12 +70,17 @@ export function mountDefaultUserAuthRoutes(router: Router, user: UserMap): void 
 /**
  * Optional OAuth routes — BOTH halves of the flow:
  *
- * - `GET /users/oauth/:provider` (oauthAuthorize) — initiation: sets the
- *   CSRF `oauth_state` + PKCE `oauth_verifier` httpOnly cookies and
- *   302-redirects to the bonded provider's authorization URL. Without this
- *   half the state cookie `logInOAuth` validates is never set, so every
- *   callback fails 403 (this is exactly how the generated-app fleet shipped
- *   an exchange endpoint with no way to start the dance).
+ * - `GET /users/oauth/:provider` (rateLimitAuth + oauthAuthorize) —
+ *   initiation: sets the CSRF `oauth_state` + PKCE `oauth_verifier` httpOnly
+ *   cookies and 302-redirects to the bonded provider's authorization URL.
+ *   Without this half the state cookie `logInOAuth` validates is never set,
+ *   so every callback fails 403 (this is exactly how the generated-app fleet
+ *   shipped an exchange endpoint with no way to start the dance). The GET
+ *   carries the same `rateLimitAuth` throttle as the POST: it has no body, so
+ *   only the generous per-IP bucket applies — an abuse ceiling on cookie-mint/
+ *   redirect flooding that a legitimate login (one GET + one POST) never
+ *   approaches. A trip is a 429 JSON on a top-level navigation, which is
+ *   acceptable for that ceiling.
  * - `POST /users/log-in/oauth` (rateLimitAuth + logInOAuth) — callback
  *   exchange: verifies state + code with the bonded provider and logs the
  *   user in.
@@ -79,7 +90,7 @@ export function mountDefaultUserAuthRoutes(router: Router, user: UserMap): void 
  */
 export function mountDefaultUserOAuthLoginRoute(router: Router, user: UserMap): void {
   if (user.oauthAuthorize) {
-    router.get('/users/oauth/:provider', user.oauthAuthorize)
+    router.get('/users/oauth/:provider', user.rateLimitAuth, user.oauthAuthorize)
   }
   if (!user.logInOAuth) return
   router.post('/users/log-in/oauth', user.rateLimitAuth, user.logInOAuth)

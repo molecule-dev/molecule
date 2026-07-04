@@ -10,6 +10,7 @@
 import './secrets.js'
 
 import { getLogger } from '@molecule/api-bond'
+import type { HttpError } from '@molecule/api-http'
 import { get, post } from '@molecule/api-http'
 import type { OAuthVerifier } from '@molecule/api-oauth'
 
@@ -71,7 +72,10 @@ const DEFAULT_USER_URL = `https://www.googleapis.com/oauth2/v3/userinfo`
  * @param code - The authorization code from the OAuth callback.
  * @param codeVerifier - The PKCE code verifier (if PKCE was used).
  * @param redirectUri - The redirect URI used in the authorization request.
- * @returns An `OAuthUserInfo` with the user's Google email/sub, and OAuth ID.
+ * @returns An `OAuthUserInfo` with the user's Google email/sub, and OAuth ID —
+ * or `null` when Google affirmatively rejected the code (HTTP 400
+ * `invalid_grant`: bad/expired/already-redeemed code or PKCE verifier
+ * mismatch), which the consumer surfaces as a 403 rather than a 500.
  */
 export const verify: OAuthVerifier = async (
   code: string,
@@ -105,6 +109,19 @@ export const verify: OAuthVerifier = async (
 
     const token = response.data.access_token
 
+    // Defensive: a 2xx token response with no `access_token` means the
+    // exchange did not actually succeed (e.g. a proxy or mock responding 200
+    // with an error body). Treat it as the provider rejecting the code and
+    // return `null` — never call the userinfo endpoint with `Bearer
+    // undefined` and surface Google's 401 as a misleading 500.
+    if (!token) {
+      const exchangeError = (response.data as { error?: string }).error
+      logger.warn('Google OAuth token response had no access_token', {
+        error: exchangeError ?? 'no access_token in token response',
+      })
+      return null
+    }
+
     const { data: oauthData } = await get<Record<string, unknown>>(userUrl, {
       headers: {
         accept: `application/json`,
@@ -131,6 +148,23 @@ export const verify: OAuthVerifier = async (
       oauthData,
     }
   } catch (error) {
+    // Google's token endpoint responds HTTP 400 `{"error":"invalid_grant"}`
+    // for a bad/expired/already-redeemed code (and for a PKCE verifier
+    // mismatch) — the provider AFFIRMATIVELY rejecting the code, a
+    // client-side failure rather than an infrastructure fault. Per the
+    // `OAuthVerifier` contract that is a `null` return (consumer responds
+    // 403 "verification failed"), never a throw (which would surface as a
+    // misleading 500). Every other error keeps the sanitize-and-throw path.
+    const rejection =
+      error && typeof error === 'object' ? (error as Partial<HttpError>).response : undefined
+    if (
+      rejection?.status === 400 &&
+      (rejection.data as { error?: string } | null)?.error === 'invalid_grant'
+    ) {
+      logger.warn('Google OAuth code exchange rejected', { error: 'invalid_grant' })
+      return null
+    }
+
     const safe = sanitizeError(error, [process.env.OAUTH_GOOGLE_CLIENT_SECRET, code])
     logger.error('Google OAuth verify error:', safe.message)
     throw safe

@@ -54,7 +54,7 @@ describe('mountDefaultUserVerifyPaymentRoutes (M3-1)', () => {
 })
 
 describe('mountDefaultUserOAuthLoginRoute — both halves of the flow', () => {
-  it('mounts GET /users/oauth/:provider (initiation) AND rate-limited POST /users/log-in/oauth', () => {
+  it('mounts rate-limited GET /users/oauth/:provider (initiation) AND rate-limited POST /users/log-in/oauth', () => {
     const oauthAuthorize = vi.fn()
     const logInOAuth = vi.fn()
     const rateLimitAuth = vi.fn()
@@ -67,9 +67,12 @@ describe('mountDefaultUserOAuthLoginRoute — both halves of the flow', () => {
     } as unknown as UserArg)
 
     // The initiation half — without it the oauth_state cookie logInOAuth
-    // validates is never set, so every callback fails 403.
+    // validates is never set, so every callback fails 403. It carries the
+    // same rateLimitAuth throttle as the POST: bodiless GET means only the
+    // generous per-IP bucket applies, bounding cookie-mint/redirect flooding
+    // without any per-account lockout risk.
     const initiation = calls.find((c) => c.method === 'get' && c.path === '/users/oauth/:provider')
-    expect(initiation?.handlers).toEqual([oauthAuthorize])
+    expect(initiation?.handlers).toEqual([rateLimitAuth, oauthAuthorize])
 
     const exchange = calls.find((c) => c.method === 'post' && c.path === '/users/log-in/oauth')
     expect(exchange?.handlers).toEqual([rateLimitAuth, logInOAuth])

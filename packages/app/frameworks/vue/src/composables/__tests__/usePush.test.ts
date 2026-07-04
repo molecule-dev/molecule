@@ -106,6 +106,21 @@ describe('usePush', () => {
     scope.stop()
   })
 
+  it('forwards register options (runtime VAPID public key) to the provider', async () => {
+    const scope = effectScope()
+    let result!: UsePushReturn
+
+    scope.run(() => {
+      result = usePush()
+    })
+
+    await result.register({ vapidPublicKey: 'runtime-key' })
+
+    expect(mockProvider.register).toHaveBeenCalledWith({ vapidPublicKey: 'runtime-key' })
+
+    scope.stop()
+  })
+
   it('clears token ref on unregister', async () => {
     const scope = effectScope()
     let result!: UsePushReturn

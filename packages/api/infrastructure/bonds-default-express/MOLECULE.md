@@ -91,8 +91,11 @@ function internalError(res: Response<any, Record<string, any>>, error?: unknown)
 
 #### `mountDefaultDeviceRoutes(router, device)`
 
-Mounts the standard 4-method device CRUD routes:
+Mounts the standard device routes:
 
+- `GET /devices/push/public-key` (public — the VAPID public key browsers
+  need for `pushManager.subscribe({ applicationServerKey })`; bond-gated
+  404/503 when no push provider is bonded/configured)
 - `GET /devices` (auth+query)
 - `GET /devices/:id` (authUser+read)
 - `PATCH /devices/:id` (authUser+update)
@@ -153,12 +156,17 @@ function mountDefaultUserCrudRoutes(router: Router, user: UserRequestHandlerMap)
 
 Optional OAuth routes — BOTH halves of the flow:
 
-- `GET /users/oauth/:provider` (oauthAuthorize) — initiation: sets the
-  CSRF `oauth_state` + PKCE `oauth_verifier` httpOnly cookies and
-  302-redirects to the bonded provider's authorization URL. Without this
-  half the state cookie `logInOAuth` validates is never set, so every
-  callback fails 403 (this is exactly how the generated-app fleet shipped
-  an exchange endpoint with no way to start the dance).
+- `GET /users/oauth/:provider` (rateLimitAuth + oauthAuthorize) —
+  initiation: sets the CSRF `oauth_state` + PKCE `oauth_verifier` httpOnly
+  cookies and 302-redirects to the bonded provider's authorization URL.
+  Without this half the state cookie `logInOAuth` validates is never set,
+  so every callback fails 403 (this is exactly how the generated-app fleet
+  shipped an exchange endpoint with no way to start the dance). The GET
+  carries the same `rateLimitAuth` throttle as the POST: it has no body, so
+  only the generous per-IP bucket applies — an abuse ceiling on cookie-mint/
+  redirect flooding that a legitimate login (one GET + one POST) never
+  approaches. A trip is a 429 JSON on a top-level navigation, which is
+  acceptable for that ceiling.
 - `POST /users/log-in/oauth` (rateLimitAuth + logInOAuth) — callback
   exchange: verifies state + code with the bonded provider and logs the
   user in.

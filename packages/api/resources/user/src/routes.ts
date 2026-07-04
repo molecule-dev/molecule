@@ -17,10 +17,16 @@ export const routes = [
   // 302-redirects to the bonded provider's authorization URL. The first half
   // of the flow whose second half is POST /users/log-in/oauth below; without
   // it the state cookie logInOAuth requires is never set.
+  //
+  // rateLimitAuth: the GET has no body, so only the generous per-IP bucket
+  // applies (no per-account lockout risk) — it bounds cookie-mint/redirect
+  // flooding from a single source. A trip is a 429 JSON on a top-level
+  // navigation, which is acceptable for an abuse ceiling a legitimate user
+  // never reaches (a login is one GET + one POST against a 60/15min bucket).
   {
     method: 'get' as const,
     path: '/users/oauth/:provider',
-    middlewares: [],
+    middlewares: ['rateLimitAuth'],
     handler: 'oauthAuthorize',
     optional: 'oauth',
   },

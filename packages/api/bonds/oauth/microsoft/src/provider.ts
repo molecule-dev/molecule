@@ -11,7 +11,7 @@ import './secrets.js'
 
 import { getLogger } from '@molecule/api-bond'
 import { get, post } from '@molecule/api-http'
-import type { OAuthVerifier } from '@molecule/api-oauth'
+import type { OAuthAuthorizeUrlBuilder, OAuthVerifier } from '@molecule/api-oauth'
 
 import { verifyMicrosoftIdToken } from './jwks.js'
 import type {
@@ -92,6 +92,50 @@ export const sanitizeError = (error: unknown, secrets: string[]): Error => {
     }
   }
   return sanitized
+}
+
+/**
+ * Thrown by `exchangeCodeForTokens` when the Microsoft identity platform
+ * v2.0 token endpoint AFFIRMATIVELY rejects the authorization code or PKCE
+ * verifier — HTTP 400 with `{"error":"invalid_grant"}` (e.g. AADSTS70008
+ * expired/already-redeemed code, AADSTS501481 `code_verifier` mismatch).
+ *
+ * This is a client-side failure (or an attack), NOT an infrastructure
+ * fault: `verify` catches this error and returns `null` per the
+ * `OAuthVerifier` contract so the consumer responds with a clean 403
+ * "verification failed" instead of a misleading 500.
+ */
+export class MicrosoftOAuthCodeRejectedError extends Error {
+  /**
+   * Creates the typed rejection error thrown for a 400 `invalid_grant`.
+   *
+   * @param message - Sanitized (secret-redacted) description of the rejection.
+   */
+  constructor(message: string) {
+    super(message)
+    this.name = 'MicrosoftOAuthCodeRejectedError'
+  }
+}
+
+/**
+ * True when an upstream HTTP error is the token endpoint affirmatively
+ * rejecting the grant: HTTP 400 with `{"error":"invalid_grant"}` in the
+ * body (per the `HttpError.response` shape from `@molecule/api-http`).
+ *
+ * Deliberately narrow: anything without a 400 `invalid_grant` response —
+ * network failures, 5xx, other 400 error codes like `invalid_client`, and
+ * the missing-`access_token`-on-2xx throw from `normalizeTokenResponse`
+ * (Microsoft does not 200-encode failures) — stays an infrastructure error.
+ */
+const isInvalidGrantRejection = (error: unknown): boolean => {
+  if (!error || typeof error !== 'object') {
+    return false
+  }
+  const response = (error as { response?: { status?: number; data?: unknown } }).response
+  if (!response || response.status !== 400) {
+    return false
+  }
+  return (response.data as { error?: string } | undefined)?.error === 'invalid_grant'
 }
 
 const formEncode = (record: Record<string, string | undefined>): string => {
@@ -175,12 +219,17 @@ export const createMicrosoftProvider = (overrides?: MicrosoftOAuthConfig): OAuth
       return `${authorizeEndpointFor(cfg.tenantId)}?${params.toString()}`
     },
 
-    async exchangeCodeForTokens(code, redirectUri) {
+    async exchangeCodeForTokens(code, redirectUri, codeVerifier) {
       const cfg = resolveConfig(overrides)
+      // Entra REQUIRES `code_verifier` at redemption whenever the
+      // authorization request carried a `code_challenge` — omitting it
+      // fails with invalid_grant (AADSTS501481). PKCE is complementary to
+      // the confidential-client secret, so both are sent when present.
       const body = formEncode({
         client_id: cfg.clientId,
         client_secret: cfg.clientSecret,
         code,
+        code_verifier: codeVerifier,
         grant_type: 'authorization_code',
         redirect_uri: redirectUri,
       })
@@ -195,6 +244,14 @@ export const createMicrosoftProvider = (overrides?: MicrosoftOAuthConfig): OAuth
         return normalizeTokenResponse(response.data)
       } catch (error) {
         const safe = sanitizeError(error, [cfg.clientSecret, code])
+        if (isInvalidGrantRejection(error)) {
+          // Microsoft AFFIRMATIVELY rejected the code/verifier (HTTP 400
+          // invalid_grant: expired/redeemed code, PKCE mismatch). A client
+          // mistake or an attack — not an outage — so warn (not error) and
+          // throw the typed rejection for `verify` to map to `null`.
+          logger.warn('Microsoft OAuth token exchange rejected (invalid_grant):', safe.message)
+          throw new MicrosoftOAuthCodeRejectedError(safe.message)
+        }
         logger.error('Microsoft OAuth token exchange error:', safe.message)
         throw safe
       }
@@ -268,26 +325,95 @@ export const createMicrosoftProvider = (overrides?: MicrosoftOAuthConfig): OAuth
 export const provider: OAuthProvider = createMicrosoftProvider()
 
 /**
+ * Builds the Microsoft authorization URL for OAuth initiation
+ * (`GET /users/oauth/:provider` 302s the browser here) per the core
+ * `OAuthAuthorizeUrlBuilder` contract. Embeds this bond's client id,
+ * default scopes (`openid email profile User.Read` — exactly what
+ * `verify`'s Microsoft Graph `/me` call needs), and the tenant-derived
+ * authorize endpoint
+ * (`https://login.microsoftonline.com/<tenant>/oauth2/v2.0/authorize`,
+ * tenant from `OAUTH_MICROSOFT_TENANT_ID`, default `common`), so no
+ * consumer hardcodes Microsoft knowledge.
+ *
+ * Includes the caller's CSRF `state`, `response_mode=query` (the v2.0
+ * auth-code flow's query-string callback), and — when a `codeChallenge`
+ * is supplied — the PKCE `code_challenge` + `code_challenge_method`
+ * (default `S256`). PKCE with a confidential client is supported and
+ * recommended by the Microsoft identity platform: the client secret and
+ * `code_verifier` are complementary, and `exchangeCodeForTokens` MUST
+ * then be given the matching verifier (see AADSTS501481).
+ *
+ * @param params - State, PKCE challenge, and optional redirect URI.
+ * @returns The Microsoft authorize URL, or `null` when
+ *   `OAUTH_MICROSOFT_CLIENT_ID` is unset (unconfigured).
+ */
+export const getAuthorizeUrl: OAuthAuthorizeUrlBuilder = ({
+  redirectUri,
+  state,
+  codeChallenge,
+  codeChallengeMethod,
+}) => {
+  const cfg = resolveConfig()
+  if (!cfg.clientId) {
+    return null
+  }
+  const url = new URL(authorizeEndpointFor(cfg.tenantId))
+  url.searchParams.set('client_id', cfg.clientId)
+  url.searchParams.set('response_type', 'code')
+  if (redirectUri) {
+    url.searchParams.set('redirect_uri', redirectUri)
+  }
+  url.searchParams.set('response_mode', 'query')
+  url.searchParams.set('scope', cfg.defaultScope)
+  url.searchParams.set('state', state)
+  if (codeChallenge) {
+    url.searchParams.set('code_challenge', codeChallenge)
+    url.searchParams.set('code_challenge_method', codeChallengeMethod ?? 'S256')
+  }
+  return url.toString()
+}
+
+/**
  * Verifies a Microsoft OAuth code and responds with normalized
  * `OAuthUserProps` for compatibility with the core `@molecule/api-oauth`
- * `OAuthVerifier` contract — exchanges the code, fetches `/me` from
- * Microsoft Graph, and shapes the result.
+ * `OAuthVerifier` contract — exchanges the code (passing the PKCE
+ * verifier through to the token endpoint), fetches `/me` from Microsoft
+ * Graph, and shapes the result.
+ *
+ * Returns `null` (never throws) when Microsoft AFFIRMATIVELY rejects the
+ * code or verifier — the token endpoint's HTTP 400 `invalid_grant`
+ * (AADSTS70008 expired/redeemed code, AADSTS501481 verifier mismatch) —
+ * so the consumer responds 403 "verification failed". Infrastructure
+ * failures (network, outage, malformed 2xx) still throw and surface as 500.
  *
  * @param code - The authorization code from the OAuth callback.
- * @param _codeVerifier - PKCE code verifier (currently unused; reserved
- *   for forward compatibility — Microsoft confidential clients use the
- *   client secret rather than PKCE).
+ * @param codeVerifier - PKCE code verifier matching the `code_challenge`
+ *   sent by `getAuthorizeUrl`. Required by Microsoft at redemption
+ *   whenever the authorization request carried a challenge.
  * @param redirectUri - The redirect URI used in the authorization
  *   request. Falls back to `APP_ORIGIN`.
- * @returns Normalized `OAuthUserProps`.
+ * @returns Normalized `OAuthUserProps`, or `null` when the provider
+ *   rejected the code.
  */
 export const verify: OAuthVerifier = async (
   code: string,
-  _codeVerifier?: string,
+  codeVerifier?: string,
   redirectUri?: string,
 ) => {
   const effectiveRedirect = redirectUri || process.env.APP_ORIGIN || ''
-  const tokenSet = await provider.exchangeCodeForTokens(code, effectiveRedirect)
+  let tokenSet: MicrosoftTokenSet
+  try {
+    tokenSet = await provider.exchangeCodeForTokens(code, effectiveRedirect, codeVerifier)
+  } catch (error) {
+    if (error instanceof MicrosoftOAuthCodeRejectedError) {
+      // Provider affirmatively rejected the code/verifier — per the
+      // OAuthVerifier contract this is a null return (consumer 403), not
+      // a throw (which would misreport a client mistake as a 500). Already
+      // logged at warn level by exchangeCodeForTokens.
+      return null
+    }
+    throw error
+  }
   const userInfo = await provider.getUserInfo(tokenSet.accessToken)
   const oauthData: Record<string, unknown> = { ...userInfo }
   return {

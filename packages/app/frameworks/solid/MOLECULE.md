@@ -316,9 +316,26 @@ OAuth configuration options.
 
 ```typescript
 interface CreateOAuthOptions {
+  /** Base URL for the API server (e.g. `https://api.example.com`). */
   baseURL?: string
+  /** List of supported OAuth provider names (e.g. `['github', 'google']`). */
   oauthProviders?: string[]
+  /** Path prefix for OAuth initiation routes. Defaults to `/oauth`. */
   oauthEndpoint?: string
+  /** Path for the OAuth login POST endpoint. Defaults to `/users/log-in/oauth`. */
+  loginEndpoint?: string
+  /** Called after a successful OAuth login (session established). */
+  onSuccess?: () => void
+  /** Called with a failure message when the OAuth login fails. */
+  onError?: (error: string) => void
+  /**
+   * Auth client used to establish the session after the code exchange.
+   * Overrides context resolution — when omitted, the client is resolved from
+   * the surrounding `MoleculeProvider` (tolerated when absent; see the
+   * cookie-session fallback documented on
+   * {@link CreateOAuthReturn.handleCallback}).
+   */
+  authClient?: AuthClient<unknown>
 }
 ```
 
@@ -328,9 +345,25 @@ Return type for createOAuth primitive.
 
 ```typescript
 interface CreateOAuthReturn {
+  /** Accessor for the configured OAuth provider names. */
   providers: Accessor<string[]>
+  /** Builds the OAuth initiation URL for a provider. */
   getOAuthUrl: (provider: string) => string
+  /** Starts the full-page redirect flow for a provider. */
   redirect: (provider: string) => void
+  /**
+   * Handles the OAuth callback: exchanges the `code` URL parameter for a
+   * session. Invoked automatically at creation (see {@link createOAuth});
+   * exposed for callers that need to re-run it manually. No-ops unless
+   * running in a browser with a `code` URL parameter and a stashed provider.
+   *
+   * When an auth client is available (explicit option or context), the
+   * session is established locally (`setAccessToken` + `setUser` +
+   * `initialize`). When no client is available, the server has already
+   * established the httpOnly-cookie session during the exchange, so a
+   * user-carrying response still counts as success.
+   */
+  handleCallback: () => Promise<void>
 }
 ```
 
@@ -887,7 +920,7 @@ interface PushPrimitives {
   token: Accessor<PushToken | null>
   checkPermission: () => Promise<PermissionStatus>
   requestPermission: () => Promise<PermissionStatus>
-  register: () => Promise<PushToken>
+  register: (options?: PushRegisterOptions) => Promise<PushToken>
   unregister: () => Promise<void>
   onNotificationReceived: (listener: NotificationReceivedListener) => () => void
   onNotificationAction: (listener: NotificationActionListener) => () => void
@@ -1552,6 +1585,13 @@ function createLogin(): CreateLoginReturn<T>
 #### `createOAuth(options)`
 
 Creates OAuth helpers.
+
+Automatically handles OAuth callbacks by detecting `code` and `state` URL
+parameters and exchanging them for a session:
+  - Inside a Solid owner (component setup / `createRoot`), the callback
+    handling is deferred to `onMount` so it runs client-side after mount.
+  - Outside an owner (a plain function call, e.g. bootstrap code), it runs
+    immediately at creation, browser-guarded.
 
 ```typescript
 function createOAuth(options?: CreateOAuthOptions): CreateOAuthReturn

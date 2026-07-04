@@ -10,6 +10,7 @@ import type {
   NotificationActionListener,
   NotificationReceivedListener,
   PermissionStatus,
+  PushRegisterOptions,
   PushToken,
   TokenChangeListener,
 } from '@molecule/app-push'
@@ -40,7 +41,7 @@ export function createPushStores(): {
   token: Readable<PushToken | null>
   checkPermission: () => Promise<PermissionStatus>
   requestPermission: () => Promise<PermissionStatus>
-  register: () => Promise<PushToken>
+  register: (options?: PushRegisterOptions) => Promise<PushToken>
   unregister: () => Promise<void>
   onNotificationReceived: (listener: NotificationReceivedListener) => () => void
   onNotificationAction: (listener: NotificationActionListener) => () => void
@@ -66,8 +67,8 @@ export function createPushStores(): {
     return status
   }
 
-  const register = async (): Promise<PushToken> => {
-    const pushToken = await provider.register()
+  const register = async (options?: PushRegisterOptions): Promise<PushToken> => {
+    const pushToken = await provider.register(options)
     tokenStore.set(pushToken)
     return pushToken
   }

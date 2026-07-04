@@ -62,6 +62,40 @@ npm install @molecule/api-oauth-twitter
 
 ### Interfaces
 
+#### `OAuthAuthorizeUrlParams`
+
+Parameters for building a provider authorization (initiation) URL —
+the URL the user's browser is redirected to so the provider can
+authenticate them and send back an authorization code.
+
+```typescript
+interface OAuthAuthorizeUrlParams {
+    /**
+     * Absolute URI the provider should redirect the user back to after
+     * authorization (the app origin, optionally with a path). When omitted,
+     * the builder leaves `redirect_uri` off the URL so the provider falls
+     * back to its registered callback URL.
+     */
+    redirectUri?: string;
+    /**
+     * The CSRF `state` parameter bound to the initiating session (stored in
+     * an httpOnly cookie by the initiation endpoint and validated by the
+     * login handler on callback).
+     */
+    state: string;
+    /**
+     * PKCE code challenge derived (S256) from the per-session code verifier.
+     * Omit only for providers that do not support PKCE.
+     */
+    codeChallenge?: string;
+    /**
+     * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
+     * for providers that cannot hash.
+     */
+    codeChallengeMethod?: 'S256' | 'plain';
+}
+```
+
 #### `OAuthUserProps`
 
 The properties returned when verifying an OAuth code.
@@ -115,6 +149,17 @@ interface OAuthUserProps {
 
 ### Types
 
+#### `OAuthAuthorizeUrlBuilder`
+
+Builds the provider's authorization URL for OAuth initiation
+(`GET /users/oauth/:provider` → 302 to this URL). Implementations embed
+their own client id, scopes, and authorize endpoint so no consumer ever
+hardcodes provider knowledge.
+
+```typescript
+type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null;
+```
+
 #### `OAuthVerifier`
 
 Exchanges an OAuth authorization code for user profile information.
@@ -122,18 +167,56 @@ Exchanges an OAuth authorization code for user profile information.
 Implementations call the provider's token and user-info endpoints,
 then return normalized `OAuthUserProps` for account creation or login.
 
+Returning `null` means the provider AFFIRMATIVELY rejected the code
+(e.g. GitHub's `bad_verification_code`, an expired/forged code) — the
+consumer (`logInOAuth`) surfaces that as a clean 403 "verification
+failed". A thrown error means an infrastructure failure (network,
+provider outage) and surfaces as a 500. Implementations MUST NOT throw
+for a rejected code — that would misreport a client mistake (or an
+attack) as a server fault.
+
 ```typescript
-type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps>;
+type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps | null>;
 ```
 
 ### Functions
+
+#### `getAuthorizeUrl(params)`
+
+Builds the X (Twitter) authorization URL for OAuth initiation
+(`GET /users/oauth/:provider` 302s the browser here). Embeds this bond's
+client id and scopes (`users.read tweet.read` — exactly what `verify`'s
+`GET /2/users/me` requires) plus the caller's CSRF `state` and PKCE S256
+challenge. The authorize endpoint defaults to `https://x.com/i/oauth2/authorize`
+but can be overridden via `OAUTH_TWITTER_AUTHORIZE_URL` for E2E mocks.
+
+X **mandates PKCE** on every authorization request — a URL built without a
+`code_challenge` will be rejected by X. The shared initiation endpoint
+always supplies an S256 challenge.
+
+Deliberately does NOT request the `offline.access` scope: `verify` never
+refreshes tokens — the two-hour access token is used exactly once to fetch
+the user's profile.
+
+```typescript
+function getAuthorizeUrl({
+  redirectUri,
+  state,
+  codeChallenge,
+  codeChallengeMethod,
+}: OAuthAuthorizeUrlParams): string | null
+```
+
+- `params` — State, PKCE challenge, and optional redirect URI.
+
+**Returns:** The X authorize URL, or `null` when `OAUTH_TWITTER_CLIENT_ID` is unset.
 
 #### `verify(code, codeVerifier, redirectUri)`
 
 Verifies a Twitter OAuth code and responds with OAuth-related user props.
 
 ```typescript
-function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: false; oauthServer: "twitter"; oauthId: string; oauthData: Record<string, unknown>; }>
+function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: false; oauthServer: "twitter"; oauthId: string; oauthData: Record<string, unknown>; } | null>
 ```
 
 - `code` — The authorization code from the OAuth callback.

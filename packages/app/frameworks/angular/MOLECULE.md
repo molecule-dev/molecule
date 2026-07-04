@@ -712,9 +712,29 @@ OAuth configuration options.
 
 ```typescript
 interface OAuthOptions {
+  /** Base URL for the API server (e.g. `https://api.example.com`). */
   baseURL?: string
+  /** List of supported OAuth provider names (e.g. `['github', 'google']`). */
   oauthProviders?: string[]
+  /** Path prefix for OAuth initiation routes. Defaults to `/oauth`. */
   oauthEndpoint?: string
+  /** Path for the OAuth login POST endpoint. Defaults to `/users/log-in/oauth`. */
+  loginEndpoint?: string
+  /** Called after a successful OAuth login (session established). */
+  onSuccess?: () => void
+  /**
+   * Called with a failure message when the OAuth login fails. Failures are
+   * also emitted on {@link OAuthStateManager.error$}.
+   */
+  onError?: (error: string) => void
+  /**
+   * Auth client used to establish the session after the code exchange. This
+   * is THE way to wire session establishment in Angular: inject the
+   * `AUTH_CLIENT` token and pass the client here. When omitted, the helper
+   * falls back to the server-established httpOnly-cookie session (see
+   * {@link OAuthStateManager.handleCallback}).
+   */
+  authClient?: AuthClient<unknown>
 }
 ```
 
@@ -724,10 +744,33 @@ OAuth state manager.
 
 ```typescript
 interface OAuthStateManager {
+  /** Observable of the configured OAuth provider names. */
   providers$: Observable<string[]>
+  /**
+   * Observable of OAuth failure messages (from the callback code exchange).
+   * Completed by {@link OAuthStateManager.destroy}.
+   */
+  error$: Observable<string>
+  /** Returns the configured OAuth provider names. */
   getProviders: () => string[]
+  /** Builds the OAuth initiation URL for a provider. */
   getOAuthUrl: (provider: string) => string
+  /** Starts the full-page redirect flow for a provider. */
   redirect: (provider: string) => void
+  /**
+   * Handles the OAuth callback: exchanges the `code` URL parameter for a
+   * session. Invoked automatically at creation (see {@link createOAuthState});
+   * exposed for callers that need to re-run it manually. No-ops unless
+   * running in a browser with a `code` URL parameter and a stashed provider.
+   *
+   * When an auth client was provided, the session is established locally
+   * (`setAccessToken` + `setUser` + `initialize`). When no client is
+   * available, the server has already established the httpOnly-cookie
+   * session during the exchange, so a user-carrying response still counts
+   * as success.
+   */
+  handleCallback: () => Promise<void>
+  /** Completes the `providers$` and `error$` observables. */
   destroy: () => void
 }
 ```
@@ -793,7 +836,7 @@ interface PushService {
   getToken: () => PushToken | null
   checkPermission: () => Promise<PermissionStatus>
   requestPermission: () => Promise<PermissionStatus>
-  register: () => Promise<PushToken>
+  register: (options?: PushRegisterOptions) => Promise<PushToken>
   unregister: () => Promise<void>
   onNotificationReceived: (listener: NotificationReceivedListener) => () => void
   onNotificationAction: (listener: NotificationActionListener) => () => void
@@ -1296,6 +1339,10 @@ function createLoginState(client: AuthClient<T>): LoginStateManager<T>
 #### `createOAuthState(options)`
 
 Creates an OAuth state manager.
+
+Automatically handles OAuth callbacks: when created in a browser, it
+invokes {@link OAuthStateManager.handleCallback} immediately (a guarded
+no-op when the URL carries no `code` parameter).
 
 ```typescript
 function createOAuthState(options?: OAuthOptions): OAuthStateManager

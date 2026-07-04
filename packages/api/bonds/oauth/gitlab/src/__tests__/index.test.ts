@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const mockPost = vi.fn()
 const mockGet = vi.fn()
 const mockLoggerError = vi.fn()
+const mockLoggerWarn = vi.fn()
 
 vi.mock('@molecule/api-http', () => ({
   post: mockPost,
@@ -20,7 +21,7 @@ vi.mock('@molecule/api-bond', () => ({
   getLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
-    warn: vi.fn(),
+    warn: mockLoggerWarn,
     error: mockLoggerError,
   }),
 }))
@@ -137,8 +138,9 @@ describe('GitLab OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.email).toBe('unconfirmed@example.com')
-      expect(result.emailVerified).toBe(false)
+      expect(result).not.toBeNull()
+      expect(result!.email).toBe('unconfirmed@example.com')
+      expect(result!.emailVerified).toBe(false)
     })
 
     it('should handle code_verifier for PKCE flow', async () => {
@@ -223,8 +225,9 @@ describe('GitLab OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.email).toBeUndefined()
-      expect(result.username).toBe('testuser@gitlab')
+      expect(result).not.toBeNull()
+      expect(result!.email).toBeUndefined()
+      expect(result!.username).toBe('testuser@gitlab')
     })
 
     it('should handle user without id', async () => {
@@ -248,7 +251,8 @@ describe('GitLab OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.oauthId).toBe('')
+      expect(result).not.toBeNull()
+      expect(result!.oauthId).toBe('')
     })
 
     it('should handle token exchange failure', async () => {
@@ -275,7 +279,12 @@ describe('GitLab OAuth Provider', () => {
       await expect(verify('test-auth-code')).rejects.toThrow('User not found')
     })
 
-    it('should handle invalid grant error', async () => {
+    it('returns null (NOT a throw) when the token endpoint rejects with HTTP 400 invalid_grant', async () => {
+      // GitLab's token endpoint (Doorkeeper) responds HTTP 400 with
+      // `{ "error": "invalid_grant" }` for a bad/expired/reused code — the
+      // provider affirmatively rejecting it. Per the OAuthVerifier contract
+      // that is a `null` return (consumer responds 403), never a throw
+      // (which would surface as a misleading 500).
       mockPost.mockRejectedValue({
         response: {
           status: 400,
@@ -285,7 +294,48 @@ describe('GitLab OAuth Provider', () => {
 
       const { verify } = await import('../provider.js')
 
-      await expect(verify('expired-code')).rejects.toBeDefined()
+      const result = await verify('expired-code')
+
+      expect(result).toBeNull()
+      // The user-info endpoint must never be hit after a rejected exchange.
+      expect(mockGet).not.toHaveBeenCalled()
+      // A rejected code is a client-side event — warn, never error.
+      expect(mockLoggerError).not.toHaveBeenCalled()
+      expect(mockLoggerWarn).toHaveBeenCalledWith('GitLab OAuth code exchange rejected', {
+        error: 'invalid_grant',
+      })
+    })
+
+    it('returns null when a 200 token response carries no access_token', async () => {
+      // Defensive: never call the user endpoint with `Bearer undefined`.
+      mockPost.mockResolvedValue({
+        data: { error: 'invalid_request' },
+      })
+
+      const { verify } = await import('../provider.js')
+
+      const result = await verify('weird-code')
+
+      expect(result).toBeNull()
+      expect(mockGet).not.toHaveBeenCalled()
+      expect(mockLoggerError).not.toHaveBeenCalled()
+      expect(mockLoggerWarn).toHaveBeenCalled()
+    })
+
+    it('still throws (does not return null) for a 400 that is not invalid_grant', async () => {
+      // Only the provider's affirmative code rejection maps to null; any
+      // other 4xx/5xx keeps the sanitize + rethrow (infrastructure) path.
+      mockPost.mockRejectedValue({
+        response: {
+          status: 400,
+          data: { error: 'invalid_client' },
+        },
+      })
+
+      const { verify } = await import('../provider.js')
+
+      await expect(verify('some-code')).rejects.toBeDefined()
+      expect(mockLoggerError).toHaveBeenCalled()
     })
 
     it('should handle unauthorized access token', async () => {
@@ -307,6 +357,33 @@ describe('GitLab OAuth Provider', () => {
       const { verify } = await import('../provider.js')
 
       await expect(verify('test-auth-code')).rejects.toBeDefined()
+    })
+
+    it('should honour OAUTH_GITLAB_TOKEN_URL / OAUTH_GITLAB_USER_URL overrides', async () => {
+      process.env.OAUTH_GITLAB_TOKEN_URL = 'http://127.0.0.1:9999/token'
+      process.env.OAUTH_GITLAB_USER_URL = 'http://127.0.0.1:9999/user'
+
+      mockPost.mockResolvedValue({
+        data: { access_token: 'mock-token', token_type: 'bearer', scope: 'read_user' },
+      })
+      mockGet.mockResolvedValue({
+        data: { id: 999, username: 'mockuser', email: 'mock@example.com' },
+      })
+
+      const { verify } = await import('../provider.js')
+      await verify('mock-auth-code')
+
+      expect(mockPost).toHaveBeenCalledWith(
+        'http://127.0.0.1:9999/token',
+        expect.objectContaining({ code: 'mock-auth-code' }),
+        expect.anything(),
+      )
+      expect(mockGet).toHaveBeenCalledWith(
+        'http://127.0.0.1:9999/user',
+        expect.objectContaining({
+          headers: expect.objectContaining({ authorization: 'Bearer mock-token' }),
+        }),
+      )
     })
   })
 
@@ -354,6 +431,9 @@ describe('GitLab OAuth Provider', () => {
       })
 
     it('redacts client_secret from logged output and the rethrown error on token-exchange failure', async () => {
+      // NOTE: deliberately NOT `invalid_grant` — a 400 invalid_grant now maps
+      // to the null-return (rejected code) path; this test exercises the
+      // sanitize + rethrow path for every OTHER failure.
       const leak = Object.assign(
         new Error('token exchange failed for client_secret=test-gitlab-client-secret'),
         {
@@ -363,7 +443,7 @@ describe('GitLab OAuth Provider', () => {
             body: { client_secret: 'test-gitlab-client-secret', code: 'attacker-code' },
             headers: { authorization: 'Basic dGVzdA==' },
           },
-          response: { status: 400, data: { error: 'invalid_grant' } },
+          response: { status: 400, data: { error: 'invalid_client' } },
         },
       )
       mockPost.mockRejectedValue(leak)
@@ -400,8 +480,68 @@ describe('GitLab OAuth Provider', () => {
       const { verify } = await import('../provider.js')
       const result = await verify('good-code')
 
-      expect(result.username).toBe('legit@gitlab')
+      expect(result).not.toBeNull()
+      expect(result!.username).toBe('legit@gitlab')
       expect(mockLoggerError).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getAuthorizeUrl', () => {
+    it('builds the GitLab authorize URL with client_id, state, redirect_uri, response_type, scope, and PKCE', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      const raw = getAuthorizeUrl({
+        redirectUri: 'http://localhost:5173/login',
+        state: 'state-abc',
+        codeChallenge: 'challenge-xyz',
+        codeChallengeMethod: 'S256',
+      })
+
+      expect(raw).not.toBeNull()
+      const url = new URL(raw!)
+      expect(url.origin + url.pathname).toBe('https://gitlab.com/oauth/authorize')
+      expect(url.searchParams.get('client_id')).toBe('test-gitlab-client-id')
+      expect(url.searchParams.get('redirect_uri')).toBe('http://localhost:5173/login')
+      expect(url.searchParams.get('response_type')).toBe('code')
+      expect(url.searchParams.get('state')).toBe('state-abc')
+      expect(url.searchParams.get('scope')).toBe('read_user')
+      expect(url.searchParams.get('code_challenge')).toBe('challenge-xyz')
+      expect(url.searchParams.get('code_challenge_method')).toBe('S256')
+    })
+
+    it('omits redirect_uri when absent so GitLab uses its registered redirect URI', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+
+      expect(raw).not.toBeNull()
+      expect(new URL(raw!).searchParams.has('redirect_uri')).toBe(false)
+    })
+
+    it('defaults the PKCE method to S256 when a challenge is given without one', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+
+      expect(new URL(raw!).searchParams.get('code_challenge_method')).toBe('S256')
+    })
+
+    it('returns null when OAUTH_GITLAB_CLIENT_ID is unset (unconfigured, not a crash)', async () => {
+      delete process.env.OAUTH_GITLAB_CLIENT_ID
+
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      expect(getAuthorizeUrl({ state: 's' })).toBeNull()
+    })
+
+    it('honours the OAUTH_GITLAB_AUTHORIZE_URL override (self-managed GitLab)', async () => {
+      process.env.OAUTH_GITLAB_AUTHORIZE_URL = 'https://gitlab.example.com/oauth/authorize'
+
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      const raw = getAuthorizeUrl({ state: 's' })
+      expect(raw).not.toBeNull()
+      expect(raw!.startsWith('https://gitlab.example.com/oauth/authorize?')).toBe(true)
     })
   })
 
@@ -411,6 +551,7 @@ describe('GitLab OAuth Provider', () => {
 
       expect(exports.serverName).toBeDefined()
       expect(exports.verify).toBeDefined()
+      expect(exports.getAuthorizeUrl).toBeDefined()
     })
   })
 })

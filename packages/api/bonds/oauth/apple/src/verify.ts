@@ -71,7 +71,9 @@ export const getUserInfo = async (idToken: string): Promise<AppleIdTokenClaims> 
 
 /**
  * Verifies an Apple OAuth authorization code and returns normalized
- * `OAuthUserProps`.
+ * `OAuthUserProps`, or `null` when Apple affirmatively rejects the code
+ * (HTTP 400 `invalid_grant` from `/auth/token` — invalid/expired/reused) so
+ * the consumer surfaces a clean 403 instead of a misleading 500.
  *
  * Note: Apple only includes the user's `name` in the *initial* form-post
  * callback (not in the ID token), so callers wanting display-name capture
@@ -80,7 +82,7 @@ export const getUserInfo = async (idToken: string): Promise<AppleIdTokenClaims> 
  * @param code - The authorization code from the OAuth callback.
  * @param _codeVerifier - Unused; included for {@link OAuthVerifier} signature compatibility.
  * @param redirectUri - The redirect URI used in the authorization request.
- * @returns Normalized OAuth user props.
+ * @returns Normalized OAuth user props, or `null` when Apple rejected the code.
  */
 export const verify: OAuthVerifier = async (
   code: string,
@@ -117,6 +119,25 @@ export const verify: OAuthVerifier = async (
       oauthData: { ...claims },
     }
   } catch (error) {
+    // Apple's `/auth/token` endpoint responds HTTP 400 with
+    // `{ "error": "invalid_grant" }` for an invalid/expired/reused
+    // authorization code — the provider AFFIRMATIVELY rejecting the code (a
+    // client-side failure, not an infrastructure fault). Per the
+    // `OAuthVerifier` contract return `null` (consumer responds 403
+    // "verification failed") instead of throwing, which would misreport it
+    // as a 500. Everything else — missing env configuration (requireEnv),
+    // an id_token failing signature/claims verification (an anomaly/attack
+    // signal, not a code rejection), network errors — keeps the
+    // sanitize + logger.error + throw path below.
+    const response = (error as { response?: { status?: number; data?: unknown } } | null)?.response
+    if (response?.status === 400) {
+      const providerError = (response.data as { error?: string } | undefined)?.error
+      if (providerError === `invalid_grant`) {
+        logger.warn(`Apple OAuth code exchange rejected`, { error: providerError })
+        return null
+      }
+    }
+
     const safe = sanitizeError(error, [code])
     logger.error(`Apple OAuth verify error:`, safe.message)
     throw safe

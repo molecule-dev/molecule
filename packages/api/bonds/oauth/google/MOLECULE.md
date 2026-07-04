@@ -64,6 +64,40 @@ npm install @molecule/api-oauth-google
 
 ### Interfaces
 
+#### `OAuthAuthorizeUrlParams`
+
+Parameters for building a provider authorization (initiation) URL —
+the URL the user's browser is redirected to so the provider can
+authenticate them and send back an authorization code.
+
+```typescript
+interface OAuthAuthorizeUrlParams {
+    /**
+     * Absolute URI the provider should redirect the user back to after
+     * authorization (the app origin, optionally with a path). When omitted,
+     * the builder leaves `redirect_uri` off the URL so the provider falls
+     * back to its registered callback URL.
+     */
+    redirectUri?: string;
+    /**
+     * The CSRF `state` parameter bound to the initiating session (stored in
+     * an httpOnly cookie by the initiation endpoint and validated by the
+     * login handler on callback).
+     */
+    state: string;
+    /**
+     * PKCE code challenge derived (S256) from the per-session code verifier.
+     * Omit only for providers that do not support PKCE.
+     */
+    codeChallenge?: string;
+    /**
+     * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
+     * for providers that cannot hash.
+     */
+    codeChallengeMethod?: 'S256' | 'plain';
+}
+```
+
 #### `OAuthUserProps`
 
 The properties returned when verifying an OAuth code.
@@ -117,6 +151,17 @@ interface OAuthUserProps {
 
 ### Types
 
+#### `OAuthAuthorizeUrlBuilder`
+
+Builds the provider's authorization URL for OAuth initiation
+(`GET /users/oauth/:provider` → 302 to this URL). Implementations embed
+their own client id, scopes, and authorize endpoint so no consumer ever
+hardcodes provider knowledge.
+
+```typescript
+type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null;
+```
+
 #### `OAuthVerifier`
 
 Exchanges an OAuth authorization code for user profile information.
@@ -124,11 +169,51 @@ Exchanges an OAuth authorization code for user profile information.
 Implementations call the provider's token and user-info endpoints,
 then return normalized `OAuthUserProps` for account creation or login.
 
+Returning `null` means the provider AFFIRMATIVELY rejected the code
+(e.g. GitHub's `bad_verification_code`, an expired/forged code) — the
+consumer (`logInOAuth`) surfaces that as a clean 403 "verification
+failed". A thrown error means an infrastructure failure (network,
+provider outage) and surfaces as a 500. Implementations MUST NOT throw
+for a rejected code — that would misreport a client mistake (or an
+attack) as a server fault.
+
 ```typescript
-type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps>;
+type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps | null>;
 ```
 
 ### Functions
+
+#### `getAuthorizeUrl(params)`
+
+Builds the Google authorization URL for OAuth initiation
+(`GET /users/oauth/:provider` 302s the browser here). Embeds this bond's
+client id and OpenID scopes (`openid email profile` — exactly what
+`verify`'s OpenID userinfo call reads: `sub`, `email`, `email_verified`,
+and profile fields) plus the caller's CSRF `state` and PKCE S256
+challenge, so no consumer hardcodes Google knowledge. The authorize
+endpoint defaults to Google's v2 endpoint but can be overridden via
+`OAUTH_GOOGLE_AUTHORIZE_URL` for proxy deployments or E2E mock OAuth
+servers (consistent with `OAUTH_GOOGLE_TOKEN_URL` / `OAUTH_GOOGLE_USER_URL`).
+
+Deliberately does NOT request `access_type=offline`: `verify` uses the
+access token exactly once (a single userinfo fetch) and never stores or
+uses a refresh token, so requesting standing offline access would ask
+users to consent to access this bond never exercises. Do not "helpfully"
+add it back unless the bond actually starts persisting and refreshing
+tokens.
+
+```typescript
+function getAuthorizeUrl({
+  redirectUri,
+  state,
+  codeChallenge,
+  codeChallengeMethod,
+}: OAuthAuthorizeUrlParams): string | null
+```
+
+- `params` — State, PKCE challenge, and optional redirect URI.
+
+**Returns:** The Google authorize URL, or `null` when `OAUTH_GOOGLE_CLIENT_ID` is unset.
 
 #### `verify(code, codeVerifier, redirectUri)`
 
@@ -138,14 +223,17 @@ Endpoints can be overridden via `OAUTH_GOOGLE_TOKEN_URL` and
 `OAUTH_GOOGLE_USER_URL` for testing (E2E mocks) or proxy deployments.
 
 ```typescript
-function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "google"; oauthId: string; oauthData: Record<string, unknown>; }>
+function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "google"; oauthId: string; oauthData: Record<string, unknown>; } | null>
 ```
 
 - `code` — The authorization code from the OAuth callback.
 - `codeVerifier` — The PKCE code verifier (if PKCE was used).
 - `redirectUri` — The redirect URI used in the authorization request.
 
-**Returns:** An `OAuthUserInfo` with the user's Google email/sub, and OAuth ID.
+**Returns:** An `OAuthUserInfo` with the user's Google email/sub, and OAuth ID —
+ * or `null` when Google affirmatively rejected the code (HTTP 400
+ * `invalid_grant`: bad/expired/already-redeemed code or PKCE verifier
+ * mismatch), which the consumer surfaces as a 403 rather than a 500.
 
 ### Constants
 

@@ -270,7 +270,7 @@ Routes marked optional require additional packages to be installed.
 Declarative route definitions used by the injection engine.
 
 ```typescript
-const routes: ({ method: "post"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "post"; path: string; middlewares: string[]; handler: string; optional: string; } | { method: "get"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "patch"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "delete"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "get"; path: string; middlewares: string[]; handler: string; optional: string; })[]
+const routes: ({ method: "post"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "get"; path: string; middlewares: string[]; handler: string; optional: string; } | { method: "post"; path: string; middlewares: string[]; handler: string; optional: string; } | { method: "get"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "patch"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "delete"; path: string; middlewares: string[]; handler: string; optional?: undefined; })[]
 ```
 
 #### `secretPropsSchema`

@@ -33,6 +33,14 @@
  *
  * > **Your users should now be able to log in via GitLab!**
  *
+ * ### Self-managed GitLab
+ *
+ * The bond defaults to GitLab.com endpoints. For a self-managed GitLab
+ * instance (or an E2E mock OAuth server), override the initiation and
+ * verification endpoints via the `OAUTH_GITLAB_AUTHORIZE_URL`,
+ * `OAUTH_GITLAB_TOKEN_URL`, and `OAUTH_GITLAB_USER_URL` environment
+ * variables.
+ *
  * @module
  */
 
@@ -43,7 +51,7 @@ import './secrets.js'
 
 import { getLogger } from '@molecule/api-bond'
 import { get, post } from '@molecule/api-http'
-import type { OAuthVerifier } from '@molecule/api-oauth'
+import type { OAuthAuthorizeUrlBuilder, OAuthVerifier } from '@molecule/api-oauth'
 
 const logger = getLogger()
 
@@ -89,8 +97,57 @@ const sanitizeError = (error: unknown, secrets: Array<string | undefined>): Erro
   return sanitized
 }
 
+/** Default GitLab access-token endpoint. Overridable via `OAUTH_GITLAB_TOKEN_URL`. */
+const DEFAULT_TOKEN_URL = `https://gitlab.com/oauth/token`
+/** Default GitLab user-info endpoint. Overridable via `OAUTH_GITLAB_USER_URL`. */
+const DEFAULT_USER_URL = `https://gitlab.com/api/v4/user`
+/** Default GitLab authorization endpoint. Overridable via `OAUTH_GITLAB_AUTHORIZE_URL`. */
+const DEFAULT_AUTHORIZE_URL = `https://gitlab.com/oauth/authorize`
+
+/**
+ * Builds the GitLab authorization URL for OAuth initiation
+ * (`GET /users/oauth/:provider` 302s the browser here). Embeds this bond's
+ * client id and scope (`read_user` — exactly what `verify`'s
+ * `GET /api/v4/user` call requires) plus the caller's CSRF `state` and PKCE
+ * S256 challenge, so no consumer hardcodes GitLab knowledge. The authorize
+ * endpoint defaults to GitLab.com but can be overridden via
+ * `OAUTH_GITLAB_AUTHORIZE_URL` for self-managed GitLab instances.
+ *
+ * @param params - State, PKCE challenge, and optional redirect URI.
+ * @returns The GitLab authorize URL, or `null` when `OAUTH_GITLAB_CLIENT_ID` is unset.
+ */
+export const getAuthorizeUrl: OAuthAuthorizeUrlBuilder = ({
+  redirectUri,
+  state,
+  codeChallenge,
+  codeChallengeMethod,
+}) => {
+  const clientId = process.env.OAUTH_GITLAB_CLIENT_ID
+  if (!clientId) {
+    return null
+  }
+  const url = new URL(process.env.OAUTH_GITLAB_AUTHORIZE_URL || DEFAULT_AUTHORIZE_URL)
+  url.searchParams.set(`client_id`, clientId)
+  if (redirectUri) {
+    url.searchParams.set(`redirect_uri`, redirectUri)
+  }
+  url.searchParams.set(`response_type`, `code`)
+  url.searchParams.set(`state`, state)
+  url.searchParams.set(`scope`, `read_user`)
+  if (codeChallenge) {
+    url.searchParams.set(`code_challenge`, codeChallenge)
+    url.searchParams.set(`code_challenge_method`, codeChallengeMethod ?? `S256`)
+  }
+  return url.toString()
+}
+
 /**
  * Verifies a GitLab OAuth code and responds with OAuth-related user props.
+ *
+ * The token and user-info URLs default to GitLab.com, but can be overridden
+ * via `OAUTH_GITLAB_TOKEN_URL` and `OAUTH_GITLAB_USER_URL` for self-managed
+ * GitLab deployments or E2E mock servers.
+ *
  * @param code - The authorization code from the OAuth callback.
  * @param codeVerifier - The PKCE code verifier (if PKCE was used).
  * @param redirectUri - The redirect URI used in the authorization request.
@@ -102,12 +159,15 @@ export const verify: OAuthVerifier = async (
   redirectUri?: string,
 ) => {
   try {
+    const tokenUrl = process.env.OAUTH_GITLAB_TOKEN_URL || DEFAULT_TOKEN_URL
+    const userUrl = process.env.OAUTH_GITLAB_USER_URL || DEFAULT_USER_URL
+
     const response = await post<{
       access_token: string
       token_type: string
       scope: string
     }>(
-      `https://gitlab.com/oauth/token`,
+      tokenUrl,
       {
         client_id: process.env.OAUTH_GITLAB_CLIENT_ID,
         client_secret: process.env.OAUTH_GITLAB_CLIENT_SECRET,
@@ -126,16 +186,26 @@ export const verify: OAuthVerifier = async (
 
     const token = response.data.access_token
 
-    const { data: oauthData } = await get<Record<string, unknown>>(
-      `https://gitlab.com/api/v4/user`,
-      {
-        headers: {
-          accept: `application/json`,
-          authorization: `Bearer ${token}`,
-        },
-        timeout: 15_000,
+    // Defensive: a 2xx token response with no `access_token` means the
+    // exchange did not actually succeed. Per the `OAuthVerifier` contract
+    // that is a rejected code (`null` → consumer responds 403), never a
+    // reason to blunder on and hit the user endpoint with `Bearer undefined`
+    // (which would surface GitLab's 401 as a misleading 500).
+    if (!token) {
+      const exchangeError = (response.data as { error?: string }).error
+      logger.warn('GitLab OAuth code exchange rejected', {
+        error: exchangeError ?? 'no access_token in token response',
+      })
+      return null
+    }
+
+    const { data: oauthData } = await get<Record<string, unknown>>(userUrl, {
+      headers: {
+        accept: `application/json`,
+        authorization: `Bearer ${token}`,
       },
-    )
+      timeout: 15_000,
+    })
 
     const email = (oauthData.email as string) || undefined
 
@@ -155,6 +225,21 @@ export const verify: OAuthVerifier = async (
       oauthData,
     }
   } catch (error) {
+    // GitLab's token endpoint (Doorkeeper) responds HTTP 400 with
+    // `{ "error": "invalid_grant" }` for a bad/expired/reused authorization
+    // code — the provider AFFIRMATIVELY rejecting the code (a client-side
+    // failure, not an infrastructure fault). Per the `OAuthVerifier`
+    // contract return `null` (consumer responds 403 "verification failed")
+    // instead of throwing, which would misreport it as a 500.
+    const response = (error as { response?: { status?: number; data?: unknown } } | null)?.response
+    if (response?.status === 400) {
+      const providerError = (response.data as { error?: string } | undefined)?.error
+      if (providerError === 'invalid_grant') {
+        logger.warn('GitLab OAuth code exchange rejected', { error: providerError })
+        return null
+      }
+    }
+
     const safe = sanitizeError(error, [process.env.OAUTH_GITLAB_CLIENT_SECRET, code])
     logger.error('GitLab OAuth verify error:', safe.message)
     throw safe

@@ -674,9 +674,20 @@ OAuth helpers returned by {@link createOAuthHelpers}.
 
 ```typescript
 interface OAuthHelpers {
+  /** Readable store of available OAuth provider names. */
   providers: Readable<string[]>
+  /** Builds the OAuth initiation URL for a provider. */
   getOAuthUrl: (provider: string) => string
+  /** Full-page redirect to the provider's OAuth initiation endpoint. */
   redirect: (provider: string) => void
+  /**
+   * Handles an OAuth callback: when the current URL carries a `code` param and
+   * a provider was stashed by {@link redirect}, exchanges the code for a
+   * session. A guarded no-op otherwise. Runs automatically when
+   * {@link createOAuthHelpers} is called in a browser; exposed for manual
+   * invocation (e.g. tests or custom callback screens).
+   */
+  handleCallback: () => Promise<void>
 }
 ```
 
@@ -686,9 +697,25 @@ OAuth configuration options.
 
 ```typescript
 interface OAuthOptions {
+  /** Base URL for the API server (e.g. `https://api.example.com`). */
   baseURL?: string
+  /** List of supported OAuth provider names (e.g. `['google', 'github']`). */
   oauthProviders?: string[]
+  /** Path prefix for OAuth initiation routes. Defaults to `/oauth`. */
   oauthEndpoint?: string
+  /** Path for the OAuth login POST endpoint. Defaults to `/users/log-in/oauth`. */
+  loginEndpoint?: string
+  /** Callback fired after a successful OAuth login. */
+  onSuccess?: () => void
+  /** Callback fired with an error message when the OAuth login fails. */
+  onError?: (error: string) => void
+  /**
+   * Explicit auth client used to establish the session after the callback
+   * exchange. Defaults to the client in Svelte context (only resolvable when
+   * called during component initialization) — pass one explicitly for
+   * callers/tests outside a component/context.
+   */
+  authClient?: AuthClient<unknown>
 }
 ```
 
@@ -1323,13 +1350,24 @@ function createLoginStore(): LoginStore<T>
 
 Creates OAuth helpers for provider-based authentication flows.
 
+When created in a browser, automatically handles OAuth callbacks by
+detecting `code` and `state` URL parameters and exchanging them for a
+session (a guarded no-op when there is no callback code in the URL).
+
+Session establishment: the exchange result is applied to the resolved auth
+client (an explicit `options.authClient`, else the Svelte-context client
+when created during component initialization). When NO client is available,
+the server has already established the httpOnly-cookie session via the
+exchange, so a user-carrying response still counts as success —
+`options.onSuccess` fires; a response with no user fires `options.onError`.
+
 ```typescript
 function createOAuthHelpers(options?: OAuthOptions): OAuthHelpers
 ```
 
-- `options` — OAuth configuration including base URL, providers, and endpoint path.
+- `options` — OAuth configuration (base URL, providers, endpoint paths, callbacks, auth client).
 
-**Returns:** An object containing a readable providers store, URL builder, and redirect function.
+**Returns:** An object containing a readable providers store, URL builder, redirect function, and callback handler.
 
 #### `createPasswordResetStores()`
 
@@ -1397,7 +1435,7 @@ function createPromiseStore(asyncFn: T): PromiseStore<Awaited<ReturnType<T>>>
 Create push notification stores from the module-level push provider.
 
 ```typescript
-function createPushStores(): { permission: Readable<PermissionStatus | null>; token: Readable<PushToken | null>; checkPermission: () => Promise<PermissionStatus>; requestPermission: () => Promise<PermissionStatus>; register: () => Promise<PushToken>; unregister: () => Promise<void>; onNotificationReceived: (listener: NotificationReceivedListener) => () => void; onNotificationAction: (listener: NotificationActionListener) => () => void; onTokenChange: (listener: TokenChangeListener) => () => void; setBadge: (count: number) => Promise<void>; clearBadge: () => Promise<void>; }
+function createPushStores(): { permission: Readable<PermissionStatus | null>; token: Readable<PushToken | null>; checkPermission: () => Promise<PermissionStatus>; requestPermission: () => Promise<PermissionStatus>; register: (options?: PushRegisterOptions) => Promise<PushToken>; unregister: () => Promise<void>; onNotificationReceived: (listener: NotificationReceivedListener) => () => void; onNotificationAction: (listener: NotificationActionListener) => () => void; onTokenChange: (listener: TokenChangeListener) => () => void; setBadge: (count: number) => Promise<void>; clearBadge: () => Promise<void>; }
 ```
 
 **Returns:** Push notification stores and actions

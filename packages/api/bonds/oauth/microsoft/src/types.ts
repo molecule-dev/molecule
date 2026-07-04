@@ -4,7 +4,12 @@
  * @module
  */
 
-export type { OAuthUserProps, OAuthVerifier } from '@molecule/api-oauth'
+export type {
+  OAuthAuthorizeUrlBuilder,
+  OAuthAuthorizeUrlParams,
+  OAuthUserProps,
+  OAuthVerifier,
+} from '@molecule/api-oauth'
 
 /**
  * Normalized user info returned by OAuth providers.
@@ -126,11 +131,23 @@ export interface OAuthProvider {
 
   /**
    * Exchange an authorization code for an access/id/refresh token set.
+   *
+   * When the authorization request carried a PKCE `code_challenge`, the
+   * matching `codeVerifier` MUST be supplied — the Microsoft identity
+   * platform requires `code_verifier` at redemption for such codes and
+   * otherwise rejects with `invalid_grant` (AADSTS501481).
+   *
    * @param code - Authorization code returned by Microsoft.
    * @param redirectUri - Redirect URI matching the authorization request.
+   * @param codeVerifier - PKCE code verifier matching the authorization
+   *   request's `code_challenge`, when PKCE was used.
    * @returns The token set.
    */
-  exchangeCodeForTokens(code: string, redirectUri: string): Promise<MicrosoftTokenSet>
+  exchangeCodeForTokens(
+    code: string,
+    redirectUri: string,
+    codeVerifier?: string,
+  ): Promise<MicrosoftTokenSet>
 
   /**
    * Fetch normalized user info from Microsoft Graph (`/v1.0/me`).

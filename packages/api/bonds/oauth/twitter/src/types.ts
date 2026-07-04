@@ -4,7 +4,12 @@
  * @module
  */
 
-export type { OAuthUserProps, OAuthVerifier } from '@molecule/api-oauth'
+export type {
+  OAuthAuthorizeUrlBuilder,
+  OAuthAuthorizeUrlParams,
+  OAuthUserProps,
+  OAuthVerifier,
+} from '@molecule/api-oauth'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -28,6 +33,14 @@ declare global {
        * @see https://developer.twitter.com/en/portal/projects-and-apps
        */
       OAUTH_TWITTER_CLIENT_SECRET?: string
+
+      /**
+       * Override for the X (Twitter) authorization endpoint (OAuth
+       * initiation). Defaults to `https://x.com/i/oauth2/authorize`.
+       *
+       * Use this to point the bond at an E2E mock OAuth server.
+       */
+      OAUTH_TWITTER_AUTHORIZE_URL?: string
 
       /**
        * The app origin for OAuth redirect.

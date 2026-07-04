@@ -162,6 +162,40 @@ interface AppleTokenResponse {
 }
 ```
 
+#### `OAuthAuthorizeUrlParams`
+
+Parameters for building a provider authorization (initiation) URL —
+the URL the user's browser is redirected to so the provider can
+authenticate them and send back an authorization code.
+
+```typescript
+interface OAuthAuthorizeUrlParams {
+    /**
+     * Absolute URI the provider should redirect the user back to after
+     * authorization (the app origin, optionally with a path). When omitted,
+     * the builder leaves `redirect_uri` off the URL so the provider falls
+     * back to its registered callback URL.
+     */
+    redirectUri?: string;
+    /**
+     * The CSRF `state` parameter bound to the initiating session (stored in
+     * an httpOnly cookie by the initiation endpoint and validated by the
+     * login handler on callback).
+     */
+    state: string;
+    /**
+     * PKCE code challenge derived (S256) from the per-session code verifier.
+     * Omit only for providers that do not support PKCE.
+     */
+    codeChallenge?: string;
+    /**
+     * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
+     * for providers that cannot hash.
+     */
+    codeChallengeMethod?: 'S256' | 'plain';
+}
+```
+
 #### `OAuthUserProps`
 
 The properties returned when verifying an OAuth code.
@@ -215,6 +249,17 @@ interface OAuthUserProps {
 
 ### Types
 
+#### `OAuthAuthorizeUrlBuilder`
+
+Builds the provider's authorization URL for OAuth initiation
+(`GET /users/oauth/:provider` → 302 to this URL). Implementations embed
+their own client id, scopes, and authorize endpoint so no consumer ever
+hardcodes provider knowledge.
+
+```typescript
+type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null;
+```
+
 #### `OAuthVerifier`
 
 Exchanges an OAuth authorization code for user profile information.
@@ -222,8 +267,16 @@ Exchanges an OAuth authorization code for user profile information.
 Implementations call the provider's token and user-info endpoints,
 then return normalized `OAuthUserProps` for account creation or login.
 
+Returning `null` means the provider AFFIRMATIVELY rejected the code
+(e.g. GitHub's `bad_verification_code`, an expired/forged code) — the
+consumer (`logInOAuth`) surfaces that as a clean 403 "verification
+failed". A thrown error means an infrastructure failure (network,
+provider outage) and surfaces as a 500. Implementations MUST NOT throw
+for a rejected code — that would misreport a client mistake (or an
+attack) as a server fault.
+
 ```typescript
-type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps>;
+type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps | null>;
 ```
 
 ### Functions
@@ -295,6 +348,46 @@ function getAuthorizationUrl({
 
 **Returns:** The fully-constructed authorization URL.
 
+#### `getAuthorizeUrl(params)`
+
+Builds the Sign-in-with-Apple authorization URL for OAuth initiation
+(`GET /users/oauth/:provider` 302s the browser here). Embeds this bond's
+client id and default scopes (`name email`) plus the caller's CSRF
+`state`, so no consumer hardcodes Apple knowledge.
+
+`redirect_uri` resolves from `params.redirectUri` falling back to
+`APP_ORIGIN` (the same fallback the token exchange uses) — Apple requires
+an exact registered `redirect_uri` and has no registered-fallback
+behavior, so the param is set whenever one resolves.
+
+`response_mode=form_post` is required by Apple for the `name`/`email`
+scopes: the callback arrives as an HTTP POST with `code`/`state` in the
+form body, so `redirect_uri` must point at a server-side receiver that
+forwards them into `POST /users/log-in/oauth` (see the module JSDoc).
+
+Apple does not support PKCE: the `codeChallenge`/`codeChallengeMethod`
+params are accepted (the shared initiation handler always sends them) but
+deliberately not emitted — `form_post` keeping the code out of the URL is
+the mitigation Apple recommends.
+
+```typescript
+function getAuthorizeUrl({
+  redirectUri,
+  state,
+  // Apple's authorize endpoint does not support PKCE — accept the
+  // code_challenge/code_challenge_method params from the shared contract
+  // (the initiation handler always sends them) but deliberately do NOT
+  // emit them. `response_mode=form_post` (code delivered in a POST body,
+  // never in the URL) is the mitigation Apple recommends instead.
+  codeChallenge: _codeChallenge,
+  codeChallengeMethod: _codeChallengeMethod,
+}: OAuthAuthorizeUrlParams): string | null
+```
+
+- `params` — State, PKCE challenge (accepted but unused), and optional redirect URI.
+
+**Returns:** The Apple authorize URL, or `null` when `OAUTH_APPLE_CLIENT_ID` is unset.
+
 #### `getUserInfo(idToken)`
 
 Apple does not expose a userinfo endpoint — the ID token *is* the user
@@ -345,21 +438,23 @@ function resetJwksCache(): void
 #### `verify(code, _codeVerifier, redirectUri)`
 
 Verifies an Apple OAuth authorization code and returns normalized
-`OAuthUserProps`.
+`OAuthUserProps`, or `null` when Apple affirmatively rejects the code
+(HTTP 400 `invalid_grant` from `/auth/token` — invalid/expired/reused) so
+the consumer surfaces a clean 403 instead of a misleading 500.
 
 Note: Apple only includes the user's `name` in the *initial* form-post
 callback (not in the ID token), so callers wanting display-name capture
 must persist that value separately at the redirect-handler layer.
 
 ```typescript
-function verify(code: string, _codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "apple"; oauthId: string; oauthData: { [key: string]: unknown; iss: string; aud: string; sub: string; iat: number; exp: number; nonce?: string; nonce_supported?: boolean; email?: string; email_verified?: boolean | string; is_private_email?: boolean | string; real_user_status?: number; }; }>
+function verify(code: string, _codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "apple"; oauthId: string; oauthData: { [key: string]: unknown; iss: string; aud: string; sub: string; iat: number; exp: number; nonce?: string; nonce_supported?: boolean; email?: string; email_verified?: boolean | string; is_private_email?: boolean | string; real_user_status?: number; }; } | null>
 ```
 
 - `code` — The authorization code from the OAuth callback.
 - `_codeVerifier` — Unused; included for {@link OAuthVerifier} signature compatibility.
 - `redirectUri` — The redirect URI used in the authorization request.
 
-**Returns:** Normalized OAuth user props.
+**Returns:** Normalized OAuth user props, or `null` when Apple rejected the code.
 
 #### `verifyIdToken(idToken)`
 

@@ -17,6 +17,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const mockGet = vi.fn()
 const mockPost = vi.fn()
 const mockLoggerError = vi.fn()
+const mockLoggerWarn = vi.fn()
 
 vi.mock('@molecule/api-http', () => ({
   get: mockGet,
@@ -27,7 +28,7 @@ vi.mock('@molecule/api-bond', () => ({
   getLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
-    warn: vi.fn(),
+    warn: mockLoggerWarn,
     error: mockLoggerError,
   }),
 }))
@@ -158,6 +159,75 @@ describe('Apple OAuth Provider', () => {
       expect(() => getAuthorizationUrl({ state: 's', redirectUri: 'https://x' })).toThrowError(
         /OAUTH_APPLE_CLIENT_ID/,
       )
+    })
+  })
+
+  describe('getAuthorizeUrl (OAuthAuthorizeUrlBuilder contract)', () => {
+    it('builds the Apple authorize URL with client_id, redirect_uri, code + form_post, scope, and state', async () => {
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({
+        redirectUri: 'https://app.example.com/auth/apple/callback',
+        state: 'state-abc',
+        codeChallenge: 'challenge-xyz',
+        codeChallengeMethod: 'S256',
+      })
+
+      expect(raw).not.toBeNull()
+      const url = new URL(raw!)
+      expect(url.origin + url.pathname).toBe('https://appleid.apple.com/auth/authorize')
+      expect(url.searchParams.get('client_id')).toBe(CLIENT_ID)
+      expect(url.searchParams.get('redirect_uri')).toBe(
+        'https://app.example.com/auth/apple/callback',
+      )
+      expect(url.searchParams.get('response_type')).toBe('code')
+      expect(url.searchParams.get('response_mode')).toBe('form_post')
+      expect(url.searchParams.get('scope')).toBe('name email')
+      expect(url.searchParams.get('state')).toBe('state-abc')
+    })
+
+    it('never emits PKCE params even when provided — Apple does not support code_challenge', async () => {
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({
+        redirectUri: 'https://app.example.com/cb',
+        state: 's',
+        codeChallenge: 'challenge-xyz',
+        codeChallengeMethod: 'S256',
+      })
+
+      expect(raw).not.toBeNull()
+      const params = new URL(raw!).searchParams
+      // form_post (code in the POST body, never the URL) is Apple's
+      // mitigation in place of PKCE.
+      expect(params.has('code_challenge')).toBe(false)
+      expect(params.has('code_challenge_method')).toBe(false)
+    })
+
+    it('falls back to APP_ORIGIN for redirect_uri when params.redirectUri is absent', async () => {
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+
+      expect(raw).not.toBeNull()
+      expect(new URL(raw!).searchParams.get('redirect_uri')).toBe('http://localhost:3000')
+    })
+
+    it('omits redirect_uri when neither params.redirectUri nor APP_ORIGIN is set', async () => {
+      delete process.env.APP_ORIGIN
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({ state: 's' })
+
+      expect(raw).not.toBeNull()
+      expect(new URL(raw!).searchParams.has('redirect_uri')).toBe(false)
+    })
+
+    it('returns null when OAUTH_APPLE_CLIENT_ID is unset (unconfigured, not a crash)', async () => {
+      delete process.env.OAUTH_APPLE_CLIENT_ID
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      expect(getAuthorizeUrl({ state: 's' })).toBeNull()
     })
   })
 
@@ -435,25 +505,26 @@ describe('Apple OAuth Provider', () => {
       const { verify } = await import('../verify.js')
       const result = await verify('the-code', undefined, 'https://app.example.com/cb')
 
-      expect(result.username).toBe('tester@privaterelay.appleid.com@apple')
-      expect(result.email).toBe('tester@privaterelay.appleid.com')
+      expect(result).not.toBeNull()
+      expect(result!.username).toBe('tester@privaterelay.appleid.com@apple')
+      expect(result!.email).toBe('tester@privaterelay.appleid.com')
       // Apple's ID token carries email_verified ('true' string here) — it must
       // be surfaced, not dropped (the exact SEC2 gap).
-      expect(result.emailVerified).toBe(true)
-      expect(result.oauthServer).toBe('apple')
-      expect(result.oauthId).toBe('001234.apple.user')
+      expect(result!.emailVerified).toBe(true)
+      expect(result!.oauthServer).toBe('apple')
+      expect(result!.oauthId).toBe('001234.apple.user')
       // The verified identity/profile claims ARE retained in oauthData...
-      expect(result.oauthData.sub).toBe('001234.apple.user')
-      expect(result.oauthData.email).toBe('tester@privaterelay.appleid.com')
+      expect(result!.oauthData.sub).toBe('001234.apple.user')
+      expect(result!.oauthData.email).toBe('tester@privaterelay.appleid.com')
       // ...but the access/refresh/id tokens are NEVER persisted there.
       // oauthData is part of the user's READABLE props (GET /api/users/:id),
       // so leaking bearer credentials into it would expose them to the
       // browser. Apple now matches its sibling bonds (profile-only oauthData).
-      expect(result.oauthData.access_token).toBeUndefined()
-      expect(result.oauthData.refresh_token).toBeUndefined()
-      expect(result.oauthData.id_token).toBeUndefined()
-      expect(result.oauthData.token_type).toBeUndefined()
-      expect(result.oauthData.expires_in).toBeUndefined()
+      expect(result!.oauthData.access_token).toBeUndefined()
+      expect(result!.oauthData.refresh_token).toBeUndefined()
+      expect(result!.oauthData.id_token).toBeUndefined()
+      expect(result!.oauthData.token_type).toBeUndefined()
+      expect(result!.oauthData.expires_in).toBeUndefined()
     })
 
     it('never persists access/refresh/id tokens into the readable oauthData prop', async () => {
@@ -472,15 +543,16 @@ describe('Apple OAuth Provider', () => {
       const { verify } = await import('../verify.js')
       const result = await verify('the-code', undefined, 'https://app.example.com/cb')
 
+      expect(result).not.toBeNull()
       // No token value (access/refresh/id) may appear anywhere in the
       // serialized oauthData bag that is returned to the browser.
-      const serialized = JSON.stringify(result.oauthData)
+      const serialized = JSON.stringify(result!.oauthData)
       expect(serialized).not.toContain('super-secret-access-token')
       expect(serialized).not.toContain('super-secret-refresh-token')
       expect(serialized).not.toContain(idToken)
       // None of the OAuth token-envelope keys should exist on oauthData.
       for (const key of ['access_token', 'refresh_token', 'id_token', 'token_type', 'expires_in']) {
-        expect(Object.prototype.hasOwnProperty.call(result.oauthData, key)).toBe(false)
+        expect(Object.prototype.hasOwnProperty.call(result!.oauthData, key)).toBe(false)
       }
     })
 
@@ -494,8 +566,9 @@ describe('Apple OAuth Provider', () => {
       const { verify } = await import('../verify.js')
       const result = await verify('the-code')
 
-      expect(result.email).toBe('tester@privaterelay.appleid.com')
-      expect(result.emailVerified).toBe(false)
+      expect(result).not.toBeNull()
+      expect(result!.email).toBe('tester@privaterelay.appleid.com')
+      expect(result!.emailVerified).toBe(false)
     })
 
     it('falls back to oauthId in username when email is omitted', async () => {
@@ -507,14 +580,70 @@ describe('Apple OAuth Provider', () => {
 
       const { verify } = await import('../verify.js')
       const result = await verify('the-code')
-      expect(result.email).toBeUndefined()
-      expect(result.username).toBe('001234.apple.user@apple')
+      expect(result).not.toBeNull()
+      expect(result!.email).toBeUndefined()
+      expect(result!.username).toBe('001234.apple.user@apple')
     })
 
     it('propagates token-exchange failures', async () => {
       mockPost.mockRejectedValue(new Error('invalid_grant'))
       const { verify } = await import('../verify.js')
       await expect(verify('bad-code')).rejects.toThrow('invalid_grant')
+    })
+
+    it('returns null when Apple affirmatively rejects the code (HTTP 400 invalid_grant)', async () => {
+      // Apple's /auth/token responds HTTP 400 { error: 'invalid_grant' } for
+      // an invalid/expired/reused authorization code — the provider
+      // rejecting the code, not an infrastructure fault. Per the
+      // OAuthVerifier contract this must be `null` (consumer → 403), never
+      // a throw (→ 500).
+      mockPost.mockRejectedValue(
+        Object.assign(new Error('Request failed with status code 400'), {
+          response: { status: 400, data: { error: 'invalid_grant' } },
+        }),
+      )
+
+      const { verify } = await import('../verify.js')
+      const result = await verify('expired-or-reused-code')
+
+      expect(result).toBeNull()
+      // verifyIdToken must never run — its first step is the JWKS fetch
+      // (mockGet), so an untouched mockGet proves it was not called.
+      expect(mockGet).not.toHaveBeenCalled()
+      // A rejected code is a warn, not an error — logger.error would page
+      // operators for what is a client-side (or attacker-side) mistake.
+      expect(mockLoggerError).not.toHaveBeenCalled()
+      expect(mockLoggerWarn).toHaveBeenCalledWith('Apple OAuth code exchange rejected', {
+        error: 'invalid_grant',
+      })
+    })
+
+    it('still throws on a 400 with a different provider error code', async () => {
+      // e.g. invalid_client (bad client-secret JWT) is a deployment
+      // misconfiguration — an infrastructure fault, not a code rejection.
+      mockPost.mockRejectedValue(
+        Object.assign(new Error('Request failed with status code 400'), {
+          response: { status: 400, data: { error: 'invalid_client' } },
+        }),
+      )
+
+      const { verify } = await import('../verify.js')
+      await expect(verify('the-code')).rejects.toThrow()
+      expect(mockLoggerError).toHaveBeenCalled()
+    })
+
+    it('still throws on a non-400 status even when the body says invalid_grant', async () => {
+      // The null path requires BOTH the 400 status AND the invalid_grant
+      // code — a 5xx is a provider outage regardless of body contents.
+      mockPost.mockRejectedValue(
+        Object.assign(new Error('Request failed with status code 500'), {
+          response: { status: 500, data: { error: 'invalid_grant' } },
+        }),
+      )
+
+      const { verify } = await import('../verify.js')
+      await expect(verify('the-code')).rejects.toThrow()
+      expect(mockLoggerError).toHaveBeenCalled()
     })
 
     it('does not leak the auth code or token body to logs / the rethrown error (CWE-532)', async () => {
@@ -527,7 +656,9 @@ describe('Apple OAuth Provider', () => {
 
       // The HttpError that @molecule/api-http throws attaches the token POST
       // body (which contains the generated client-secret JWT) and echoes the
-      // auth code in its message.
+      // auth code in its message. (`invalid_client`, not `invalid_grant`:
+      // a 400 invalid_grant now takes the null path without rethrowing —
+      // this test exercises the sanitize + throw path.)
       const leak = Object.assign(new Error('token exchange failed for code=attacker-code-1234'), {
         request: {
           url: 'https://appleid.apple.com/auth/token',
@@ -535,7 +666,7 @@ describe('Apple OAuth Provider', () => {
           body: 'client_secret=SECRET_CLIENT_JWT_VALUE&code=attacker-code-1234',
           headers: { 'content-type': 'application/x-www-form-urlencoded' },
         },
-        response: { status: 400, data: { error: 'invalid_grant' } },
+        response: { status: 400, data: { error: 'invalid_client' } },
       })
       mockPost.mockRejectedValue(leak)
 
@@ -590,6 +721,7 @@ describe('Apple OAuth Provider', () => {
       expect(exports.serverName).toBeDefined()
       expect(exports.verify).toBeDefined()
       expect(exports.getAuthorizationUrl).toBeDefined()
+      expect(exports.getAuthorizeUrl).toBeDefined()
       expect(exports.exchangeCodeForTokens).toBeDefined()
       expect(exports.refreshAccessToken).toBeDefined()
       expect(exports.verifyIdToken).toBeDefined()

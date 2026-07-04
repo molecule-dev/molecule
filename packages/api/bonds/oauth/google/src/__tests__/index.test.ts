@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const mockPost = vi.fn()
 const mockGet = vi.fn()
 const mockLoggerError = vi.fn()
+const mockLoggerWarn = vi.fn()
 
 vi.mock('@molecule/api-http', () => ({
   post: mockPost,
@@ -20,7 +21,7 @@ vi.mock('@molecule/api-bond', () => ({
   getLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
-    warn: vi.fn(),
+    warn: mockLoggerWarn,
     error: mockLoggerError,
   }),
 }))
@@ -139,8 +140,9 @@ describe('Google OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.email).toBe('unverified@gmail.com')
-      expect(result.emailVerified).toBe(false)
+      expect(result).not.toBeNull()
+      expect(result!.email).toBe('unverified@gmail.com')
+      expect(result!.emailVerified).toBe(false)
     })
 
     it('should handle code_verifier for PKCE flow', async () => {
@@ -222,8 +224,9 @@ describe('Google OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.email).toBeUndefined()
-      expect(result.username).toBe('123456789@google')
+      expect(result).not.toBeNull()
+      expect(result!.email).toBeUndefined()
+      expect(result!.username).toBe('123456789@google')
     })
 
     it('should handle user without sub', async () => {
@@ -246,7 +249,8 @@ describe('Google OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.oauthId).toBe('')
+      expect(result).not.toBeNull()
+      expect(result!.oauthId).toBe('')
     })
 
     it('should handle token exchange failure', async () => {
@@ -273,7 +277,12 @@ describe('Google OAuth Provider', () => {
       await expect(verify('test-auth-code')).rejects.toThrow('User not found')
     })
 
-    it('should handle invalid grant error', async () => {
+    it('returns null (NOT a throw) when Google rejects the code with 400 invalid_grant', async () => {
+      // Google's token endpoint responds HTTP 400 `{"error":"invalid_grant"}`
+      // for a bad/expired/already-redeemed code (and PKCE verifier mismatch)
+      // — the provider affirmatively rejecting the code. Per the
+      // OAuthVerifier contract that is a `null` return (consumer responds
+      // 403), never a throw (which would surface as a misleading 500).
       mockPost.mockRejectedValue({
         response: {
           status: 400,
@@ -283,7 +292,47 @@ describe('Google OAuth Provider', () => {
 
       const { verify } = await import('../verify.js')
 
-      await expect(verify('expired-code')).rejects.toBeDefined()
+      const result = await verify('expired-code')
+
+      expect(result).toBeNull()
+      // The userinfo endpoint must never be hit after a rejected exchange.
+      expect(mockGet).not.toHaveBeenCalled()
+      // A rejected code is a client-side event: warn, never error.
+      expect(mockLoggerWarn).toHaveBeenCalled()
+      expect(mockLoggerError).not.toHaveBeenCalled()
+    })
+
+    it('still throws for a 400 that is NOT invalid_grant (misconfiguration, not a rejected code)', async () => {
+      mockPost.mockRejectedValue({
+        response: {
+          status: 400,
+          data: { error: 'invalid_request', error_description: 'Missing required parameter' },
+        },
+      })
+
+      const { verify } = await import('../verify.js')
+
+      await expect(verify('some-code')).rejects.toBeDefined()
+      expect(mockLoggerError).toHaveBeenCalled()
+    })
+
+    it('returns null when a 200 token response has no access_token (never Bearer undefined)', async () => {
+      mockPost.mockResolvedValue({
+        data: {
+          token_type: 'bearer',
+          scope: 'openid email profile',
+        },
+      })
+
+      const { verify } = await import('../verify.js')
+
+      const result = await verify('test-auth-code')
+
+      expect(result).toBeNull()
+      // The userinfo endpoint must never be called with `Bearer undefined`.
+      expect(mockGet).not.toHaveBeenCalled()
+      expect(mockLoggerWarn).toHaveBeenCalled()
+      expect(mockLoggerError).not.toHaveBeenCalled()
     })
 
     it('should handle unauthorized access token', async () => {
@@ -360,7 +409,9 @@ describe('Google OAuth Provider', () => {
             body: { client_secret: 'test-google-client-secret', code: 'attacker-code' },
             headers: { authorization: 'Basic dGVzdA==' },
           },
-          response: { status: 400, data: { error: 'invalid_grant' } },
+          // NOT invalid_grant — that would be the provider rejecting the code
+          // (null return, no log). This exercises the sanitize-and-throw path.
+          response: { status: 400, data: { error: 'invalid_request' } },
         },
       )
       mockPost.mockRejectedValue(leak)
@@ -397,8 +448,72 @@ describe('Google OAuth Provider', () => {
       const { verify } = await import('../verify.js')
       const result = await verify('good-code')
 
-      expect(result.username).toBe('legit@example.com@google')
+      expect(result).not.toBeNull()
+      expect(result!.username).toBe('legit@example.com@google')
       expect(mockLoggerError).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getAuthorizeUrl', () => {
+    it('builds the Google authorize URL with client_id, state, redirect_uri, OpenID scopes, and PKCE', async () => {
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({
+        redirectUri: 'http://localhost:5173/login',
+        state: 'state-abc',
+        codeChallenge: 'challenge-xyz',
+        codeChallengeMethod: 'S256',
+      })
+
+      expect(raw).not.toBeNull()
+      const url = new URL(raw!)
+      expect(url.origin + url.pathname).toBe('https://accounts.google.com/o/oauth2/v2/auth')
+      expect(url.searchParams.get('client_id')).toBe('test-google-client-id')
+      expect(url.searchParams.get('redirect_uri')).toBe('http://localhost:5173/login')
+      expect(url.searchParams.get('response_type')).toBe('code')
+      // Exactly what verify's OpenID userinfo call expects (email + email_verified).
+      expect(url.searchParams.get('scope')).toBe('openid email profile')
+      expect(url.searchParams.get('state')).toBe('state-abc')
+      expect(url.searchParams.get('code_challenge')).toBe('challenge-xyz')
+      expect(url.searchParams.get('code_challenge_method')).toBe('S256')
+      // Deliberately absent: verify uses the access token exactly once and
+      // never stores a refresh token, so no standing offline access is asked.
+      expect(url.searchParams.has('access_type')).toBe(false)
+    })
+
+    it('omits redirect_uri when absent so Google uses the registered callback URL', async () => {
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+
+      expect(raw).not.toBeNull()
+      expect(new URL(raw!).searchParams.has('redirect_uri')).toBe(false)
+    })
+
+    it('defaults the PKCE method to S256 when a challenge is given without one', async () => {
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+
+      expect(new URL(raw!).searchParams.get('code_challenge_method')).toBe('S256')
+    })
+
+    it('returns null when OAUTH_GOOGLE_CLIENT_ID is unset (unconfigured, not a crash)', async () => {
+      delete process.env.OAUTH_GOOGLE_CLIENT_ID
+
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      expect(getAuthorizeUrl({ state: 's' })).toBeNull()
+    })
+
+    it('honours the OAUTH_GOOGLE_AUTHORIZE_URL override (E2E mocks / proxies)', async () => {
+      process.env.OAUTH_GOOGLE_AUTHORIZE_URL = 'http://127.0.0.1:9999/authorize'
+
+      const { getAuthorizeUrl } = await import('../authorize.js')
+
+      const raw = getAuthorizeUrl({ state: 's' })
+      expect(raw).not.toBeNull()
+      expect(raw!.startsWith('http://127.0.0.1:9999/authorize?')).toBe(true)
     })
   })
 
@@ -408,6 +523,7 @@ describe('Google OAuth Provider', () => {
 
       expect(exports.serverName).toBeDefined()
       expect(exports.verify).toBeDefined()
+      expect(exports.getAuthorizeUrl).toBeDefined()
     })
   })
 })

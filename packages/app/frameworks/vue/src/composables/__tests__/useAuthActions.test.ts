@@ -2,8 +2,10 @@
  * Tests for auth action composables (useLogin, useSignup, usePasswordReset,
  * useChangePassword, useOAuth).
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
+
+import type { AuthClient } from '@molecule/app-auth'
 
 vi.mock('../useAuth.js', () => ({
   useAuthClient: vi.fn(),
@@ -367,5 +369,226 @@ describe('useOAuth', () => {
     }
 
     scope.stop()
+  })
+
+  describe('redirect + handleCallback (browser)', () => {
+    const origin = 'https://app.example.com'
+
+    let hadWindow: boolean
+    let originalWindow: unknown
+    let hadSessionStorage: boolean
+    let originalSessionStorage: unknown
+    let hadFetch: boolean
+    let originalFetch: unknown
+
+    let mockWindow: {
+      location: { href: string; pathname: string; search: string; origin: string }
+      history: { replaceState: ReturnType<typeof vi.fn> }
+    }
+    let sessionStore: Map<string, string>
+    let fetchMock: ReturnType<typeof vi.fn>
+
+    // Point the mocked window at a path (+ optional search) before acting
+    const setPath = (pathname: string, search = ''): void => {
+      mockWindow.location.pathname = pathname
+      mockWindow.location.search = search
+      mockWindow.location.href = `${origin}${pathname}${search}`
+    }
+
+    // Minimal fetch Response stand-in (ok/json/headers.get are all useOAuth reads)
+    const jsonResponse = (
+      body: unknown,
+      init?: { ok?: boolean; headers?: Record<string, string> },
+    ): {
+      ok: boolean
+      headers: { get: (name: string) => string | null }
+      json: () => Promise<unknown>
+    } => ({
+      ok: init?.ok ?? true,
+      headers: { get: (name: string) => init?.headers?.[name.toLowerCase()] ?? null },
+      json: () => Promise.resolve(body),
+    })
+
+    const createMockAuthClient = (): {
+      setAccessToken: ReturnType<typeof vi.fn>
+      setUser: ReturnType<typeof vi.fn>
+      initialize: ReturnType<typeof vi.fn>
+    } => ({
+      setAccessToken: vi.fn(),
+      setUser: vi.fn(),
+      initialize: vi.fn(() => Promise.resolve()),
+    })
+
+    beforeEach(() => {
+      vi.clearAllMocks()
+      const g = globalThis as Record<string, unknown>
+      hadWindow = 'window' in globalThis
+      originalWindow = g.window
+      hadSessionStorage = 'sessionStorage' in globalThis
+      originalSessionStorage = g.sessionStorage
+      hadFetch = 'fetch' in globalThis
+      originalFetch = g.fetch
+
+      mockWindow = {
+        location: { href: `${origin}/`, pathname: '/', search: '', origin },
+        history: { replaceState: vi.fn() },
+      }
+      sessionStore = new Map<string, string>()
+      fetchMock = vi.fn()
+      g.window = mockWindow
+      g.sessionStorage = {
+        getItem: (key: string) => sessionStore.get(key) ?? null,
+        setItem: (key: string, value: string) => {
+          sessionStore.set(key, value)
+        },
+        removeItem: (key: string) => {
+          sessionStore.delete(key)
+        },
+      }
+      g.fetch = fetchMock
+    })
+
+    afterEach(() => {
+      const g = globalThis as Record<string, unknown>
+      if (hadWindow) g.window = originalWindow
+      else delete g.window
+      if (hadSessionStorage) g.sessionStorage = originalSessionStorage
+      else delete g.sessionStorage
+      if (hadFetch) g.fetch = originalFetch
+      else delete g.fetch
+    })
+
+    it('redirect appends redirect_to for a non-root path and stashes the provider', () => {
+      const scope = effectScope()
+      let result!: UseOAuthReturn
+
+      setPath('/login')
+
+      scope.run(() => {
+        result = useOAuth({ baseURL: 'https://api.example.com', oauthProviders: ['github'] })
+      })
+
+      result.redirect('github')
+
+      expect(mockWindow.location.href).toBe(
+        'https://api.example.com/oauth/github?redirect_to=%2Flogin',
+      )
+      expect(sessionStore.get('oauth_provider')).toBe('github')
+
+      scope.stop()
+    })
+
+    it('redirect omits redirect_to at the root path', () => {
+      const scope = effectScope()
+      let result!: UseOAuthReturn
+
+      setPath('/')
+
+      scope.run(() => {
+        result = useOAuth({ baseURL: 'https://api.example.com', oauthProviders: ['github'] })
+      })
+
+      result.redirect('github')
+
+      expect(mockWindow.location.href).toBe('https://api.example.com/oauth/github')
+      expect(sessionStore.get('oauth_provider')).toBe('github')
+
+      scope.stop()
+    })
+
+    it('handleCallback exchanges code+state, establishes the session, and cleans the URL', async () => {
+      const scope = effectScope()
+      let result!: UseOAuthReturn
+      const onSuccess = vi.fn()
+      const onError = vi.fn()
+      const mockAuthClient = createMockAuthClient()
+
+      setPath('/login', '?code=abc123&state=st4te')
+      sessionStore.set('oauth_provider', 'github')
+      fetchMock.mockResolvedValue(
+        jsonResponse({ props: { id: 'u1' } }, { headers: { authorization: 'Bearer tok-123' } }),
+      )
+
+      scope.run(() => {
+        result = useOAuth({
+          baseURL: 'https://api.example.com',
+          onSuccess,
+          onError,
+          authClient: mockAuthClient as unknown as AuthClient<unknown>,
+        })
+      })
+
+      await result.handleCallback()
+
+      expect(fetchMock).toHaveBeenCalledWith('https://api.example.com/users/log-in/oauth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          server: 'github',
+          code: 'abc123',
+          state: 'st4te',
+          redirect_uri: origin,
+        }),
+      })
+      expect(mockAuthClient.setAccessToken).toHaveBeenCalledWith('tok-123')
+      expect(mockAuthClient.setUser).toHaveBeenCalledWith({ id: 'u1' })
+      expect(mockAuthClient.initialize).toHaveBeenCalled()
+      expect(onSuccess).toHaveBeenCalled()
+      expect(onError).not.toHaveBeenCalled()
+      // URL cleaned: code + state removed via history.replaceState
+      expect(mockWindow.history.replaceState).toHaveBeenCalledWith({}, '', `${origin}/login`)
+      // Provider stash consumed
+      expect(sessionStore.has('oauth_provider')).toBe(false)
+
+      scope.stop()
+    })
+
+    it('handleCallback surfaces a server error via onError and does not set the user', async () => {
+      const scope = effectScope()
+      let result!: UseOAuthReturn
+      const onSuccess = vi.fn()
+      const onError = vi.fn()
+      const mockAuthClient = createMockAuthClient()
+
+      setPath('/login', '?code=abc123&state=st4te')
+      sessionStore.set('oauth_provider', 'github')
+      fetchMock.mockResolvedValue(jsonResponse({ error: 'Invalid state' }, { ok: false }))
+
+      scope.run(() => {
+        result = useOAuth({
+          baseURL: 'https://api.example.com',
+          onSuccess,
+          onError,
+          authClient: mockAuthClient as unknown as AuthClient<unknown>,
+        })
+      })
+
+      await result.handleCallback()
+
+      expect(onError).toHaveBeenCalledWith('Invalid state')
+      expect(mockAuthClient.setUser).not.toHaveBeenCalled()
+      expect(onSuccess).not.toHaveBeenCalled()
+
+      scope.stop()
+    })
+
+    it('handleCallback is a no-op without a code param', async () => {
+      const scope = effectScope()
+      let result!: UseOAuthReturn
+
+      setPath('/login')
+      sessionStore.set('oauth_provider', 'github')
+
+      scope.run(() => {
+        result = useOAuth({ baseURL: 'https://api.example.com' })
+      })
+
+      await result.handleCallback()
+
+      expect(fetchMock).not.toHaveBeenCalled()
+
+      scope.stop()
+    })
   })
 })

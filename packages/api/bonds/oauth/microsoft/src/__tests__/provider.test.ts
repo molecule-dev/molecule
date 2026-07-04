@@ -10,6 +10,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockPost = vi.fn()
 const mockGet = vi.fn()
+const mockLoggerWarn = vi.fn()
+const mockLoggerError = vi.fn()
 
 vi.mock('@molecule/api-http', () => ({
   post: mockPost,
@@ -23,8 +25,8 @@ vi.mock('@molecule/api-oauth', () => ({
 vi.mock('@molecule/api-bond', () => ({
   getLogger: () => ({
     info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
+    warn: mockLoggerWarn,
+    error: mockLoggerError,
     debug: vi.fn(),
   }),
 }))
@@ -132,6 +134,69 @@ describe('Microsoft OAuth provider', () => {
     })
   })
 
+  describe('getAuthorizeUrl (core initiation builder)', () => {
+    it('builds the full authorize URL with PKCE, state, scope, and response_mode=query', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+      const raw = getAuthorizeUrl({
+        redirectUri: 'http://localhost:3000/oauth/callback',
+        state: 'csrf-state-1',
+        codeChallenge: 'the-challenge',
+        codeChallengeMethod: 'S256',
+      })
+      expect(raw).not.toBeNull()
+      const parsed = new URL(raw!)
+      expect(parsed.origin + parsed.pathname).toBe(
+        'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+      )
+      expect(parsed.searchParams.get('client_id')).toBe('test-ms-client-id')
+      expect(parsed.searchParams.get('response_type')).toBe('code')
+      expect(parsed.searchParams.get('redirect_uri')).toBe('http://localhost:3000/oauth/callback')
+      expect(parsed.searchParams.get('response_mode')).toBe('query')
+      expect(parsed.searchParams.get('scope')).toBe('openid email profile User.Read')
+      expect(parsed.searchParams.get('state')).toBe('csrf-state-1')
+      expect(parsed.searchParams.get('code_challenge')).toBe('the-challenge')
+      expect(parsed.searchParams.get('code_challenge_method')).toBe('S256')
+    })
+
+    it('honours OAUTH_MICROSOFT_TENANT_ID in the authorize endpoint path', async () => {
+      process.env.OAUTH_MICROSOFT_TENANT_ID = '00000000-0000-0000-0000-000000000001'
+      const { getAuthorizeUrl } = await import('../provider.js')
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+      expect(raw).toContain(
+        'https://login.microsoftonline.com/00000000-0000-0000-0000-000000000001/oauth2/v2.0/authorize',
+      )
+    })
+
+    it('omits redirect_uri when absent so Microsoft falls back to the registered callback', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+      const parsed = new URL(raw!)
+      expect(parsed.searchParams.has('redirect_uri')).toBe(false)
+    })
+
+    it('defaults code_challenge_method to S256 when a challenge is given without a method', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'challenge-xyz' })
+      const parsed = new URL(raw!)
+      expect(parsed.searchParams.get('code_challenge')).toBe('challenge-xyz')
+      expect(parsed.searchParams.get('code_challenge_method')).toBe('S256')
+    })
+
+    it('omits the PKCE params entirely when no codeChallenge is supplied', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+      const raw = getAuthorizeUrl({ state: 's' })
+      const parsed = new URL(raw!)
+      expect(parsed.searchParams.has('code_challenge')).toBe(false)
+      expect(parsed.searchParams.has('code_challenge_method')).toBe(false)
+    })
+
+    it('returns null when OAUTH_MICROSOFT_CLIENT_ID is unset (unconfigured, not a crash)', async () => {
+      delete process.env.OAUTH_MICROSOFT_CLIENT_ID
+      const { getAuthorizeUrl } = await import('../provider.js')
+      expect(getAuthorizeUrl({ state: 's' })).toBeNull()
+    })
+  })
+
   describe('exchangeCodeForTokens', () => {
     it('POSTs form-encoded body to /common/oauth2/v2.0/token and normalizes', async () => {
       mockPost.mockResolvedValue({
@@ -160,6 +225,8 @@ describe('Microsoft OAuth provider', () => {
       expect(params.get('code')).toBe('the-code')
       expect(params.get('grant_type')).toBe('authorization_code')
       expect(params.get('redirect_uri')).toBe('http://localhost:3000/cb')
+      // No PKCE verifier was supplied — the form body must omit it.
+      expect(params.has('code_verifier')).toBe(false)
       const headers = (options as { headers: Record<string, string> }).headers
       expect(headers['content-type']).toBe('application/x-www-form-urlencoded')
 
@@ -197,6 +264,59 @@ describe('Microsoft OAuth provider', () => {
       expect(captured!.message).not.toContain('super-secret-shhh')
       expect(captured!.message).not.toContain('the-code')
       expect(captured!.message).toContain('[REDACTED]')
+    })
+
+    it('includes code_verifier in the form body when given (PKCE redemption)', async () => {
+      mockPost.mockResolvedValue({
+        data: { access_token: 'a-token', token_type: 'Bearer' },
+      })
+      const { provider } = await import('../provider.js')
+      await provider.exchangeCodeForTokens('the-code', 'http://localhost:3000/cb', 'verifier-123')
+
+      const body = mockPost.mock.calls[0]?.[1] as string
+      const params = new URLSearchParams(body)
+      expect(params.get('code_verifier')).toBe('verifier-123')
+      // PKCE is complementary to the confidential-client secret — both go.
+      expect(params.get('client_secret')).toBe('super-secret-shhh')
+    })
+
+    it('throws MicrosoftOAuthCodeRejectedError (warn, not error) on a 400 invalid_grant', async () => {
+      mockPost.mockRejectedValue(
+        Object.assign(new Error('Request failed with status code 400'), {
+          response: {
+            status: 400,
+            data: {
+              error: 'invalid_grant',
+              error_description: 'AADSTS70008: The provided authorization code has expired.',
+            },
+          },
+        }),
+      )
+      const { provider, MicrosoftOAuthCodeRejectedError } = await import('../provider.js')
+      await expect(
+        provider.exchangeCodeForTokens('expired-code', 'http://localhost:3000/cb'),
+      ).rejects.toBeInstanceOf(MicrosoftOAuthCodeRejectedError)
+      // An affirmative rejection is a client-side failure, not an outage.
+      expect(mockLoggerWarn).toHaveBeenCalledTimes(1)
+      expect(mockLoggerError).not.toHaveBeenCalled()
+    })
+
+    it('keeps a 400 with a different error code (e.g. invalid_client) as an infra throw', async () => {
+      mockPost.mockRejectedValue(
+        Object.assign(new Error('Request failed with status code 400'), {
+          response: { status: 400, data: { error: 'invalid_client' } },
+        }),
+      )
+      const { provider, MicrosoftOAuthCodeRejectedError } = await import('../provider.js')
+      let captured: unknown
+      try {
+        await provider.exchangeCodeForTokens('c', 'http://localhost:3000/cb')
+      } catch (err) {
+        captured = err
+      }
+      expect(captured).toBeInstanceOf(Error)
+      expect(captured).not.toBeInstanceOf(MicrosoftOAuthCodeRejectedError)
+      expect(mockLoggerError).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -446,6 +566,55 @@ describe('Microsoft OAuth provider', () => {
       await verify('code-1')
       const body = mockPost.mock.calls[0]?.[1] as string
       expect(new URLSearchParams(body).get('redirect_uri')).toBe('http://localhost:3000')
+    })
+
+    it('passes its codeVerifier through to the token request body (PKCE redemption)', async () => {
+      mockPost.mockResolvedValue({ data: { access_token: 'a', token_type: 'Bearer' } })
+      mockGet.mockResolvedValue({ data: { id: 'X', mail: 'x@y.z' } })
+      const { verify } = await import('../provider.js')
+      const result = await verify('code-1', 'pkce-verifier-abc', 'http://localhost:3000/cb')
+      expect(result).not.toBeNull()
+      const body = mockPost.mock.calls[0]?.[1] as string
+      expect(new URLSearchParams(body).get('code_verifier')).toBe('pkce-verifier-abc')
+    })
+
+    it('returns null (NOT a throw) when Microsoft rejects the code with 400 invalid_grant', async () => {
+      // The v2.0 token endpoint responds HTTP 400 `{"error":"invalid_grant"}`
+      // when it affirmatively rejects the code (AADSTS70008 expired/redeemed,
+      // AADSTS501481 verifier mismatch). Per the OAuthVerifier contract that
+      // is a `null` return (consumer responds 403), never a throw (which
+      // would surface as a misleading 500).
+      mockPost.mockRejectedValue(
+        Object.assign(new Error('Request failed with status code 400'), {
+          response: { status: 400, data: { error: 'invalid_grant' } },
+        }),
+      )
+      const { verify } = await import('../provider.js')
+      const result = await verify('forged-code', 'wrong-verifier', 'http://localhost:3000/cb')
+      expect(result).toBeNull()
+      // Graph /me must never be hit with `Bearer undefined`.
+      expect(mockGet).not.toHaveBeenCalled()
+      expect(mockLoggerError).not.toHaveBeenCalled()
+      expect(mockLoggerWarn).toHaveBeenCalledTimes(1)
+    })
+
+    it('rethrows infrastructure failures from the token exchange (never null)', async () => {
+      mockPost.mockRejectedValue(new Error('socket hang up'))
+      const { verify } = await import('../provider.js')
+      await expect(verify('code-1', undefined, 'http://localhost:3000/cb')).rejects.toThrow(
+        'socket hang up',
+      )
+    })
+
+    it('still throws (not null) when a 2xx token response lacks access_token', async () => {
+      // Microsoft does not 200-encode failures, so a malformed 2xx is an
+      // infrastructure fault — it must NOT be converted to the null path.
+      mockPost.mockResolvedValue({ data: { token_type: 'Bearer' } })
+      const { verify } = await import('../provider.js')
+      await expect(verify('code-1', undefined, 'http://localhost:3000/cb')).rejects.toThrow(
+        /access_token/,
+      )
+      expect(mockLoggerError).toHaveBeenCalledTimes(1)
     })
   })
 
