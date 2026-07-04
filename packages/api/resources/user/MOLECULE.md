@@ -30,6 +30,7 @@ interface UserRequestHandlerMap {
   rateLimitTwoFactor: MoleculeRequestHandler
   create: MoleculeRequestHandler
   logIn: MoleculeRequestHandler
+  oauthAuthorize: MoleculeRequestHandler
   logInOAuth: MoleculeRequestHandler
   logout: MoleculeRequestHandler
   read: MoleculeRequestHandler

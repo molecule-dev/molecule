@@ -32,7 +32,7 @@ npm install @molecule/app-auth-ui-react
 
 ### Functions
 
-#### `OAuthButtons(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `OAuthButtons(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
 
 Config-driven OAuth provider button row rendered beneath a
 login/signup form.
@@ -44,6 +44,14 @@ continue with" rule) above `<OAuthButtons>` (the button row). Apps
 with an `oauthConfig` object use this; apps that already hold a raw
 provider list use the lower-level `<OAuthButtons>` directly.
 
+The component also owns the CALLBACK half of the page-based flow:
+`useOAuth` detects `?code&state` on the page this row is mounted on,
+exchanges the code, and reports the outcome here — a failed exchange
+(forged/expired code, state mismatch, provider rejection) renders a
+VISIBLE inline error (`data-mol-id="oauth-error"`, `role="alert"`)
+instead of failing silently, and a success fires `onSuccess` so the
+host can navigate into the app.
+
 ```typescript
 function OAuthButtons({
   oauthConfig,
@@ -53,6 +61,8 @@ function OAuthButtons({
   showLabels = false,
   dividerKey = 'oauth.orContinueWith',
   dividerDefault = 'or continue with',
+  onSuccess,
+  onError,
 }: OAuthButtonsProps): JSX.Element | null
 ```
 
@@ -64,6 +74,8 @@ function OAuthButtons({
 - `root0` — .showLabels - Render provider label text next to the logo.
 - `root0` — .dividerKey - i18n key for the divider label.
 - `root0` — .dividerDefault - Fallback divider text.
+- `root0` — .onSuccess - Called after a successful OAuth login.
+- `root0` — .onError - Called (after the inline error renders) when the exchange fails.
 
 ## Injection Notes
 
@@ -72,4 +84,5 @@ function OAuthButtons({
 Peer dependencies:
 - `@molecule/app-oauth-buttons-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
+- `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

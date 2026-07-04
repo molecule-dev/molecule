@@ -141,6 +141,21 @@ export function useOAuth(config?: {
   }
 
   /**
+   * Append the current page's PATH as `redirect_to` so the api's initiation
+   * endpoint (`GET /users/oauth/:provider`) builds a provider `redirect_uri`
+   * that lands the callback back on THIS page — the one with `useOAuth`
+   * mounted (e.g. `/login`) — instead of the app root, where nothing may be
+   * listening for the `code` param. Path only (no origin/query): the server
+   * validates it as a same-origin absolute path, so it can never become an
+   * open redirect. Servers that predate the param simply ignore it.
+   */
+  const withReturnPath = (url: string): string => {
+    const path = typeof window !== 'undefined' ? window.location.pathname : ''
+    if (!path || path === '/') return url
+    return `${url}${url.includes('?') ? '&' : '?'}redirect_to=${encodeURIComponent(path)}`
+  }
+
+  /**
    * Establish the authenticated session from an exchange result: seed the access
    * token + user and let `initialize()` flip `authenticated`. Mirrors what
    * `authClient.login()` does for password login. Returns whether a user was set
@@ -166,7 +181,7 @@ export function useOAuth(config?: {
   const redirect = useCallback(
     (provider: string): void => {
       stashProvider(provider)
-      window.location.href = getOAuthUrl(provider)
+      window.location.href = withReturnPath(getOAuthUrl(provider))
     },
     [getOAuthUrl],
   )
@@ -188,7 +203,7 @@ export function useOAuth(config?: {
         return
       }
       stashProvider(provider)
-      const url = getOAuthUrl(provider)
+      const url = withReturnPath(getOAuthUrl(provider))
 
       // A named popup. We intentionally do NOT pass `noopener` — the popup needs
       // `window.opener` to relay its result back. The window only ever navigates

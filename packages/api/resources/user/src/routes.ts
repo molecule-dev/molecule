@@ -13,6 +13,17 @@ export const routes = [
     middlewares: ['rateLimitAuth'],
     handler: 'logIn',
   },
+  // OAuth initiation — generates the CSRF state + PKCE verifier cookies and
+  // 302-redirects to the bonded provider's authorization URL. The first half
+  // of the flow whose second half is POST /users/log-in/oauth below; without
+  // it the state cookie logInOAuth requires is never set.
+  {
+    method: 'get' as const,
+    path: '/users/oauth/:provider',
+    middlewares: [],
+    handler: 'oauthAuthorize',
+    optional: 'oauth',
+  },
   {
     method: 'post' as const,
     path: '/users/log-in/oauth',

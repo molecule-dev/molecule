@@ -13,7 +13,7 @@
 import type { Router } from 'express'
 import { describe, expect, it, vi } from 'vitest'
 
-import { mountDefaultUserVerifyPaymentRoutes } from '../routes.js'
+import { mountDefaultUserOAuthLoginRoute, mountDefaultUserVerifyPaymentRoutes } from '../routes.js'
 
 type UserArg = Parameters<typeof mountDefaultUserVerifyPaymentRoutes>[1]
 
@@ -49,6 +49,49 @@ describe('mountDefaultUserVerifyPaymentRoutes (M3-1)', () => {
   it('mounts nothing when verifyPayment is not provided', () => {
     const { router, calls } = fakeRouter()
     mountDefaultUserVerifyPaymentRoutes(router, { authSelf: vi.fn() } as unknown as UserArg)
+    expect(calls).toHaveLength(0)
+  })
+})
+
+describe('mountDefaultUserOAuthLoginRoute — both halves of the flow', () => {
+  it('mounts GET /users/oauth/:provider (initiation) AND rate-limited POST /users/log-in/oauth', () => {
+    const oauthAuthorize = vi.fn()
+    const logInOAuth = vi.fn()
+    const rateLimitAuth = vi.fn()
+    const { router, calls } = fakeRouter()
+
+    mountDefaultUserOAuthLoginRoute(router, {
+      oauthAuthorize,
+      logInOAuth,
+      rateLimitAuth,
+    } as unknown as UserArg)
+
+    // The initiation half — without it the oauth_state cookie logInOAuth
+    // validates is never set, so every callback fails 403.
+    const initiation = calls.find((c) => c.method === 'get' && c.path === '/users/oauth/:provider')
+    expect(initiation?.handlers).toEqual([oauthAuthorize])
+
+    const exchange = calls.find((c) => c.method === 'post' && c.path === '/users/log-in/oauth')
+    expect(exchange?.handlers).toEqual([rateLimitAuth, logInOAuth])
+  })
+
+  it('still mounts the POST exchange for a legacy map without oauthAuthorize', () => {
+    const logInOAuth = vi.fn()
+    const rateLimitAuth = vi.fn()
+    const { router, calls } = fakeRouter()
+
+    mountDefaultUserOAuthLoginRoute(router, {
+      logInOAuth,
+      rateLimitAuth,
+    } as unknown as UserArg)
+
+    expect(calls.find((c) => c.method === 'get')).toBeUndefined()
+    expect(calls.find((c) => c.method === 'post')?.handlers).toEqual([rateLimitAuth, logInOAuth])
+  })
+
+  it('mounts nothing when the map has no oauth handlers at all', () => {
+    const { router, calls } = fakeRouter()
+    mountDefaultUserOAuthLoginRoute(router, { rateLimitAuth: vi.fn() } as unknown as UserArg)
     expect(calls).toHaveLength(0)
   })
 })

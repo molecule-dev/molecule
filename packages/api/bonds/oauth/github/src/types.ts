@@ -4,7 +4,12 @@
  * @module
  */
 
-export type { OAuthUserProps, OAuthVerifier } from '@molecule/api-oauth'
+export type {
+  OAuthAuthorizeUrlBuilder,
+  OAuthAuthorizeUrlParams,
+  OAuthUserProps,
+  OAuthVerifier,
+} from '@molecule/api-oauth'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -44,6 +49,15 @@ declare global {
        * mock setups.
        */
       OAUTH_GITHUB_USER_URL?: string
+
+      /**
+       * Override for the GitHub authorization endpoint (OAuth initiation).
+       * Defaults to `https://github.com/login/oauth/authorize`.
+       *
+       * Pairs with `OAUTH_GITHUB_TOKEN_URL` / `OAUTH_GITHUB_USER_URL` for
+       * GitHub Enterprise deployments.
+       */
+      OAUTH_GITHUB_AUTHORIZE_URL?: string
     }
   }
 }

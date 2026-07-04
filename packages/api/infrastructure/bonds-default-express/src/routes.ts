@@ -62,10 +62,25 @@ export function mountDefaultUserAuthRoutes(router: Router, user: UserMap): void 
 }
 
 /**
- * Optional OAuth login route: `POST /users/log-in/oauth` (rateLimitAuth +
- * logInOAuth). Only mount when the app uses the pkg's logInOAuth handler.
+ * Optional OAuth routes — BOTH halves of the flow:
+ *
+ * - `GET /users/oauth/:provider` (oauthAuthorize) — initiation: sets the
+ *   CSRF `oauth_state` + PKCE `oauth_verifier` httpOnly cookies and
+ *   302-redirects to the bonded provider's authorization URL. Without this
+ *   half the state cookie `logInOAuth` validates is never set, so every
+ *   callback fails 403 (this is exactly how the generated-app fleet shipped
+ *   an exchange endpoint with no way to start the dance).
+ * - `POST /users/log-in/oauth` (rateLimitAuth + logInOAuth) — callback
+ *   exchange: verifies state + code with the bonded provider and logs the
+ *   user in.
+ *
+ * Only mount when the app wires an oauth bond. Handlers check the bond
+ * registry at request time, so an unbonded provider yields a clean 404.
  */
 export function mountDefaultUserOAuthLoginRoute(router: Router, user: UserMap): void {
+  if (user.oauthAuthorize) {
+    router.get('/users/oauth/:provider', user.oauthAuthorize)
+  }
   if (!user.logInOAuth) return
   router.post('/users/log-in/oauth', user.rateLimitAuth, user.logInOAuth)
 }

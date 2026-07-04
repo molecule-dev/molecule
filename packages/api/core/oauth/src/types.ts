@@ -66,6 +66,14 @@ export interface OAuthUserProps {
  * Implementations call the provider's token and user-info endpoints,
  * then return normalized `OAuthUserProps` for account creation or login.
  *
+ * Returning `null` means the provider AFFIRMATIVELY rejected the code
+ * (e.g. GitHub's `bad_verification_code`, an expired/forged code) — the
+ * consumer (`logInOAuth`) surfaces that as a clean 403 "verification
+ * failed". A thrown error means an infrastructure failure (network,
+ * provider outage) and surfaces as a 500. Implementations MUST NOT throw
+ * for a rejected code — that would misreport a client mistake (or an
+ * attack) as a server fault.
+ *
  * @param code - The authorization code received from the OAuth redirect.
  * @param codeVerifier - The PKCE code verifier, if the flow uses proof-key exchange.
  * @param redirectUri - The redirect URI that was used in the authorization request.
@@ -74,7 +82,53 @@ export type OAuthVerifier = (
   code: string,
   codeVerifier?: string,
   redirectUri?: string,
-) => Promise<OAuthUserProps>
+) => Promise<OAuthUserProps | null>
+
+/**
+ * Parameters for building a provider authorization (initiation) URL —
+ * the URL the user's browser is redirected to so the provider can
+ * authenticate them and send back an authorization code.
+ */
+export interface OAuthAuthorizeUrlParams {
+  /**
+   * Absolute URI the provider should redirect the user back to after
+   * authorization (the app origin, optionally with a path). When omitted,
+   * the builder leaves `redirect_uri` off the URL so the provider falls
+   * back to its registered callback URL.
+   */
+  redirectUri?: string
+
+  /**
+   * The CSRF `state` parameter bound to the initiating session (stored in
+   * an httpOnly cookie by the initiation endpoint and validated by the
+   * login handler on callback).
+   */
+  state: string
+
+  /**
+   * PKCE code challenge derived (S256) from the per-session code verifier.
+   * Omit only for providers that do not support PKCE.
+   */
+  codeChallenge?: string
+
+  /**
+   * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
+   * for providers that cannot hash.
+   */
+  codeChallengeMethod?: 'S256' | 'plain'
+}
+
+/**
+ * Builds the provider's authorization URL for OAuth initiation
+ * (`GET /users/oauth/:provider` → 302 to this URL). Implementations embed
+ * their own client id, scopes, and authorize endpoint so no consumer ever
+ * hardcodes provider knowledge.
+ *
+ * @param params - State, PKCE challenge, and optional redirect URI.
+ * @returns The absolute authorization URL, or `null` when the provider is
+ * not configured (e.g. its client id env var is unset).
+ */
+export type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null
 
 /**
  * Configuration for an OAuth provider.
@@ -89,4 +143,13 @@ export interface OAuthProviderConfig {
    * The OAuth verification function.
    */
   verify: OAuthVerifier
+
+  /**
+   * Builds the provider authorization URL for the initiation redirect.
+   * Optional for backward compatibility: bonds without it can still verify
+   * codes (the app initiates some other way), but the standard
+   * `GET /users/oauth/:provider` initiation endpoint requires it and
+   * responds 404 for providers that lack it.
+   */
+  getAuthorizeUrl?: OAuthAuthorizeUrlBuilder
 }

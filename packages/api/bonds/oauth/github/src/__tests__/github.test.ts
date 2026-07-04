@@ -165,10 +165,11 @@ describe('GitHub OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.email).toBeUndefined()
-      expect(result.username).toBe('testuser@github')
+      expect(result).not.toBeNull()
+      expect(result!.email).toBeUndefined()
+      expect(result!.username).toBe('testuser@github')
       // No public email → cannot affirm verification → unverified default.
-      expect(result.emailVerified).toBe(false)
+      expect(result!.emailVerified).toBe(false)
     })
 
     it('should handle user without id', async () => {
@@ -192,7 +193,8 @@ describe('GitHub OAuth Provider', () => {
 
       const result = await verify('test-auth-code')
 
-      expect(result.oauthId).toBe('')
+      expect(result).not.toBeNull()
+      expect(result!.oauthId).toBe('')
     })
 
     it('should handle token exchange failure', async () => {
@@ -201,6 +203,29 @@ describe('GitHub OAuth Provider', () => {
       const { verify } = await import('../provider.js')
 
       await expect(verify('invalid-code')).rejects.toThrow('Invalid code')
+    })
+
+    it('returns null (NOT a throw) when GitHub rejects the code in a 200 body', async () => {
+      // GitHub's token endpoint responds HTTP 200 with the failure in the
+      // body for a bad/forged/expired code — the provider affirmatively
+      // rejecting the code. Per the OAuthVerifier contract that is a `null`
+      // return (consumer responds 403), never a throw (which would surface
+      // as a misleading 500).
+      mockPost.mockResolvedValue({
+        data: {
+          error: 'bad_verification_code',
+          error_description: 'The code passed is incorrect or expired.',
+        },
+      })
+
+      const { verify } = await import('../provider.js')
+
+      const result = await verify('forged-code')
+
+      expect(result).toBeNull()
+      // The user-info endpoint must never be hit with `Bearer undefined`.
+      expect(mockGet).not.toHaveBeenCalled()
+      expect(mockLoggerError).not.toHaveBeenCalled()
     })
 
     it('should handle user info fetch failure', async () => {
@@ -351,8 +376,67 @@ describe('GitHub OAuth Provider', () => {
       const { verify } = await import('../provider.js')
       const result = await verify('good-code')
 
-      expect(result.username).toBe('legit@github')
+      expect(result).not.toBeNull()
+      expect(result!.username).toBe('legit@github')
       expect(mockLoggerError).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getAuthorizeUrl', () => {
+    it('builds the GitHub authorize URL with client_id, state, redirect_uri, scopes, and PKCE', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      const raw = getAuthorizeUrl({
+        redirectUri: 'http://localhost:5173/login',
+        state: 'state-abc',
+        codeChallenge: 'challenge-xyz',
+        codeChallengeMethod: 'S256',
+      })
+
+      expect(raw).not.toBeNull()
+      const url = new URL(raw!)
+      expect(url.origin + url.pathname).toBe('https://github.com/login/oauth/authorize')
+      expect(url.searchParams.get('client_id')).toBe('test-github-client-id')
+      expect(url.searchParams.get('redirect_uri')).toBe('http://localhost:5173/login')
+      expect(url.searchParams.get('state')).toBe('state-abc')
+      expect(url.searchParams.get('scope')).toBe('read:user user:email')
+      expect(url.searchParams.get('code_challenge')).toBe('challenge-xyz')
+      expect(url.searchParams.get('code_challenge_method')).toBe('S256')
+    })
+
+    it('omits redirect_uri when absent so the provider uses its registered callback URL', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+
+      expect(raw).not.toBeNull()
+      expect(new URL(raw!).searchParams.has('redirect_uri')).toBe(false)
+    })
+
+    it('defaults the PKCE method to S256 when a challenge is given without one', async () => {
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      const raw = getAuthorizeUrl({ state: 's', codeChallenge: 'c' })
+
+      expect(new URL(raw!).searchParams.get('code_challenge_method')).toBe('S256')
+    })
+
+    it('returns null when OAUTH_GITHUB_CLIENT_ID is unset (unconfigured, not a crash)', async () => {
+      delete process.env.OAUTH_GITHUB_CLIENT_ID
+
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      expect(getAuthorizeUrl({ state: 's' })).toBeNull()
+    })
+
+    it('honours the OAUTH_GITHUB_AUTHORIZE_URL override (GitHub Enterprise)', async () => {
+      process.env.OAUTH_GITHUB_AUTHORIZE_URL = 'https://ghe.example.com/login/oauth/authorize'
+
+      const { getAuthorizeUrl } = await import('../provider.js')
+
+      const raw = getAuthorizeUrl({ state: 's' })
+      expect(raw).not.toBeNull()
+      expect(raw!.startsWith('https://ghe.example.com/login/oauth/authorize?')).toBe(true)
     })
   })
 

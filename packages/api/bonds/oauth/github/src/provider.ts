@@ -39,7 +39,7 @@ import './secrets.js'
 
 import { getLogger } from '@molecule/api-bond'
 import { get, post } from '@molecule/api-http'
-import type { OAuthVerifier } from '@molecule/api-oauth'
+import type { OAuthAuthorizeUrlBuilder, OAuthVerifier } from '@molecule/api-oauth'
 
 const logger = getLogger()
 
@@ -89,6 +89,43 @@ const sanitizeError = (error: unknown, secrets: Array<string | undefined>): Erro
 const DEFAULT_TOKEN_URL = `https://github.com/login/oauth/access_token`
 /** Default GitHub user-info endpoint. Overridable via `OAUTH_GITHUB_USER_URL`. */
 const DEFAULT_USER_URL = `https://api.github.com/user`
+/** Default GitHub authorization endpoint. Overridable via `OAUTH_GITHUB_AUTHORIZE_URL`. */
+const DEFAULT_AUTHORIZE_URL = `https://github.com/login/oauth/authorize`
+
+/**
+ * Builds the GitHub authorization URL for OAuth initiation
+ * (`GET /users/oauth/:provider` 302s the browser here). Embeds this bond's
+ * client id and scopes (`read:user user:email`) plus the caller's CSRF
+ * `state` and PKCE S256 challenge, so no consumer hardcodes GitHub
+ * knowledge. The authorize endpoint defaults to GitHub.com but can be
+ * overridden via `OAUTH_GITHUB_AUTHORIZE_URL` for GitHub Enterprise.
+ *
+ * @param params - State, PKCE challenge, and optional redirect URI.
+ * @returns The GitHub authorize URL, or `null` when `OAUTH_GITHUB_CLIENT_ID` is unset.
+ */
+export const getAuthorizeUrl: OAuthAuthorizeUrlBuilder = ({
+  redirectUri,
+  state,
+  codeChallenge,
+  codeChallengeMethod,
+}) => {
+  const clientId = process.env.OAUTH_GITHUB_CLIENT_ID
+  if (!clientId) {
+    return null
+  }
+  const url = new URL(process.env.OAUTH_GITHUB_AUTHORIZE_URL || DEFAULT_AUTHORIZE_URL)
+  url.searchParams.set(`client_id`, clientId)
+  if (redirectUri) {
+    url.searchParams.set(`redirect_uri`, redirectUri)
+  }
+  url.searchParams.set(`state`, state)
+  url.searchParams.set(`scope`, `read:user user:email`)
+  if (codeChallenge) {
+    url.searchParams.set(`code_challenge`, codeChallenge)
+    url.searchParams.set(`code_challenge_method`, codeChallengeMethod ?? `S256`)
+  }
+  return url.toString()
+}
 
 /**
  * Exchanges a GitHub OAuth authorization code for an access token, then
@@ -129,6 +166,22 @@ export const verify: OAuthVerifier = async (code: string, codeVerifier?: string)
     )
 
     const token = response.data.access_token
+
+    // GitHub's token endpoint responds HTTP 200 even for a rejected code,
+    // signalling failure only in the body (`{ error: 'bad_verification_code' }`,
+    // no `access_token`). That is the provider AFFIRMATIVELY rejecting the
+    // code (forged/expired/reused) — a client-side failure, not an
+    // infrastructure fault — so per the `OAuthVerifier` contract return
+    // `null` (consumer responds 403 "verification failed") instead of
+    // blundering on with `Bearer undefined` and surfacing GitHub's 401 as a
+    // misleading 500.
+    if (!token) {
+      const exchangeError = (response.data as { error?: string }).error
+      logger.warn('GitHub OAuth code exchange rejected', {
+        error: exchangeError ?? 'no access_token in token response',
+      })
+      return null
+    }
 
     const { data: oauthData } = await get<Record<string, unknown>>(userUrl, {
       headers: {

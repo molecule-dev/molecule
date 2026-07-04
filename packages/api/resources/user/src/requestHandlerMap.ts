@@ -25,6 +25,7 @@ export interface UserRequestHandlerMap {
   rateLimitTwoFactor: MoleculeRequestHandler
   create: MoleculeRequestHandler
   logIn: MoleculeRequestHandler
+  oauthAuthorize: MoleculeRequestHandler
   logInOAuth: MoleculeRequestHandler
   logout: MoleculeRequestHandler
   read: MoleculeRequestHandler
@@ -89,7 +90,10 @@ export const createRequestHandlerMap = (
     verifyTwoFactor: createRequestHandler(handlers.verifyTwoFactor(resource)),
     updatePlan: createRequestHandler(handlers.updatePlan(resource)),
 
-    // OAuth login — handler checks bond registry at request time.
+    // OAuth initiation + login — both check the bond registry at request
+    // time (a provider that isn't bonded yields a clean 404, so the mounts
+    // never crash when no oauth bond is wired).
+    oauthAuthorize: createRequestHandler(handlers.oauthAuthorize()),
     logInOAuth: createRequestHandler(handlers.logInOAuth(resource)),
 
     // Payment handlers — always registered so route mounts don't crash with

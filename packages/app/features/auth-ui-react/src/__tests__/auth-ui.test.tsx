@@ -1,6 +1,12 @@
-import { createElement } from 'react'
+// @vitest-environment jsdom
+
+import { act, createElement } from 'react'
+import { createRoot } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
+
+// React requires this flag for act() outside a test-renderer harness.
+;(globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true
 
 // `useOAuth` is hoisted so tests can vary the provider list.
 const { mockUseOAuth } = vi.hoisted(() => ({ mockUseOAuth: vi.fn() }))
@@ -81,5 +87,67 @@ describe('OAuthButtons', () => {
     expect(labeled).toContain('GitHub')
     const unlabeled = html(createElement(OAuthButtons, { oauthConfig: {} }))
     expect(unlabeled).not.toContain('GitHub')
+  })
+
+  it('renders no error markup by default', () => {
+    mockUseOAuth.mockReturnValue({ providers: ['github'], redirect: () => {} })
+    const markup = html(createElement(OAuthButtons, { oauthConfig: {} }))
+    expect(markup).not.toContain('oauth-error')
+  })
+})
+
+describe('OAuthButtons — callback outcome UI', () => {
+  /**
+   * Live (client) render so the hook's async onError/onSuccess — fired from
+   * useOAuth's callback-exchange effect in the real flow — can update state
+   * after mount, exactly like a failed `?code&state` exchange does.
+   */
+  type HookCfg = { onError?: (m: string) => void; onSuccess?: () => void }
+  const renderLive = (
+    props: Record<string, unknown>,
+  ): { container: HTMLDivElement; hookCfg: () => HookCfg | undefined } => {
+    let captured: HookCfg | undefined
+    mockUseOAuth.mockImplementation((cfg?: HookCfg) => {
+      captured = cfg
+      return { providers: ['github'], redirect: () => {} }
+    })
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    act(() => root.render(createElement(OAuthButtons, { oauthConfig: {}, ...props })))
+    return { container, hookCfg: () => captured }
+  }
+
+  it('renders a VISIBLE inline error (role=alert) when the OAuth exchange fails', () => {
+    const { container, hookCfg } = renderLive({})
+
+    act(() => hookCfg()?.onError?.('OAuth state mismatch — possible CSRF attack'))
+
+    const errorEl = container.querySelector('[data-mol-id="oauth-error"]')
+    expect(errorEl).not.toBeNull()
+    expect(errorEl!.getAttribute('role')).toBe('alert')
+    expect(errorEl!.textContent).toContain('OAuth state mismatch')
+  })
+
+  it('forwards exchange failures to the host onError as well', () => {
+    const onError = vi.fn()
+    const { hookCfg } = renderLive({ onError })
+
+    act(() => hookCfg()?.onError?.('denied'))
+
+    expect(onError).toHaveBeenCalledWith('denied')
+  })
+
+  it('fires the host onSuccess on a successful exchange and clears any prior error', () => {
+    const onSuccess = vi.fn()
+    const { container, hookCfg } = renderLive({ onSuccess })
+
+    act(() => hookCfg()?.onError?.('transient failure'))
+    expect(container.querySelector('[data-mol-id="oauth-error"]')).not.toBeNull()
+
+    act(() => hookCfg()?.onSuccess?.())
+
+    expect(onSuccess).toHaveBeenCalled()
+    expect(container.querySelector('[data-mol-id="oauth-error"]')).toBeNull()
   })
 })
