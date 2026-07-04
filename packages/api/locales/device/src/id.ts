@@ -5,4 +5,5 @@ export const id: DeviceTranslations = {
   'device.error.unauthorized': 'Tidak diizinkan.',
   'device.error.badRequest': 'Permintaan tidak valid.',
   'device.error.notFound': 'Tidak ditemukan.',
+  'device.error.pushNotConfigured': 'Notifikasi push tidak dikonfigurasi di server ini.',
 }

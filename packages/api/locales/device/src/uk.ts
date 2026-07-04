@@ -5,4 +5,5 @@ export const uk: DeviceTranslations = {
   'device.error.unauthorized': 'Не авторизовано.',
   'device.error.badRequest': 'Невірний запит.',
   'device.error.notFound': 'Не знайдено.',
+  'device.error.pushNotConfigured': 'Push-сповіщення не налаштовані на цьому сервері.',
 }

@@ -84,6 +84,8 @@ export const yo: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ko ri',
   'push.error.notSupported': 'Ìfitónilétí tí a ti tì kò ní àtìlẹ́yìn',
   'push.error.permissionNotGranted': 'A kò fún ni àṣẹ ìfitónilétí',
+  'push.error.noServiceWorker':
+    'Kò sí service worker tí a forúkọ sílẹ̀ — àwọn ìfitónilétí titari nílò ìkọ́lé production ti app náà.',
   'pwa.update': 'Ṣe àtúnṣe',
   'pwa.updateAvailable': 'Ẹ̀yà tuntun wà!',
   'pwa.updating': 'Ń ṣe àtúnṣe...',
@@ -129,6 +131,9 @@ export const yo: Partial<CommonTranslations> = {
   'settings.plan': 'Ètò: ',
   'settings.platform': 'Pèpéle',
   'settings.pushNotifications': 'Àwọn ìfitónilétí tì',
+  'settings.pushPermissionDenied': 'A kọ ìyọ̀ǹda ìfitónilétí.',
+  'settings.pushServerUnavailable': 'A kò ṣètò àwọn ìfitónilétí titari lórí olupin yìí.',
+  'settings.pushUpdateFailed': 'Kò ṣeé ṣe láti ṣàtúnṣe àwọn ètò ìfitónilétí titari.',
   'settings.thisDevice': 'Ẹ̀rọ Yìí',
   'settings.togglePushNotifications': 'Yí àwọn ìfitónilétí tì padà',
   'settings.toggleTwoFactor': 'Yí ìfọwọ́sí onífekítọ̀ méjì padà',

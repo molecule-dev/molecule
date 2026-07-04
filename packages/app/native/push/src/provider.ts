@@ -12,6 +12,7 @@ import type {
   NotificationReceivedListener,
   PermissionStatus,
   PushProvider,
+  PushRegisterOptions,
   PushToken,
 } from './types.js'
 import { createWebPushProvider } from './web-provider.js'
@@ -59,9 +60,11 @@ export const requestPermission = (): Promise<PermissionStatus> => getProvider().
 
 /**
  * Registers for push notifications and obtains a device token.
+ * @param options - Optional registration options (e.g. a runtime VAPID public key).
  * @returns The push token for this device.
  */
-export const register = (): Promise<PushToken> => getProvider().register()
+export const register = (options?: PushRegisterOptions): Promise<PushToken> =>
+  getProvider().register(options)
 
 /**
  * Gets the current push token.

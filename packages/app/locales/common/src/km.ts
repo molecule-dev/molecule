@@ -94,6 +94,8 @@ export const km: Partial<CommonTranslations> = {
   'project.error.notFound': 'រកមិនឃើញ',
   'push.error.notSupported': 'ការជូនដំណឹងជំរុញមិនត្រូវបានគាំទ្រទេ',
   'push.error.permissionNotGranted': 'មិនត្រូវបានផ្តល់ការអនុញ្ញាតឲ្យជូនដំណឹងទេ',
+  'push.error.noServiceWorker':
+    'គ្មាន service worker ត្រូវបានចុះឈ្មោះទេ — ការជូនដំណឹងរុញត្រូវការកំណែផលិតកម្មរបស់កម្មវិធី។',
   'pwa.update': 'ធ្វើបច្ចុប្បន្នភាព',
   'pwa.updateAvailable': 'មានកំណែថ្មីហើយ!',
   'pwa.updating': 'កំពុងធ្វើបច្ចុប្បន្នភាព...',
@@ -140,6 +142,9 @@ export const km: Partial<CommonTranslations> = {
   'settings.plan': 'ផែនការ៖ ',
   'settings.platform': 'វេទិកា',
   'settings.pushNotifications': 'ការជូនដំណឹងជំរុញ',
+  'settings.pushPermissionDenied': 'ការអនុញ្ញាតការជូនដំណឹងត្រូវបានបដិសេធ។',
+  'settings.pushServerUnavailable': 'ការជូនដំណឹងរុញមិនត្រូវបានកំណត់រចនាសម្ព័ន្ធនៅលើម៉ាស៊ីនមេនេះទេ។',
+  'settings.pushUpdateFailed': 'មិនអាចធ្វើបច្ចុប្បន្នភាពការកំណត់ការជូនដំណឹងរុញបានទេ។',
   'settings.thisDevice': 'ឧបករណ៍នេះ',
   'settings.togglePushNotifications': 'បិទ/បើកការជូនដំណឹងជំរុញ',
   'settings.toggleTwoFactor': 'បិទ/បើកការផ្ទៀងផ្ទាត់ពីរកត្តា',

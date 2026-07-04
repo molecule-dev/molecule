@@ -378,6 +378,8 @@ export const hu: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nem található',
   'push.error.notSupported': 'A push értesítések nem támogatottak',
   'push.error.permissionNotGranted': 'Értesítési engedély nincs megadva',
+  'push.error.noServiceWorker':
+    'Nincs regisztrált service worker — a push-értesítésekhez az alkalmazás éles buildje szükséges.',
   'pwa.updateAvailable': 'Új verzió elérhető!',
   'pwa.updating': 'Frissítés...',
   'resource.error.badRequest': 'Rossz kérés.',
@@ -412,6 +414,9 @@ export const hu: Partial<CommonTranslations> = {
   'settings.plan': 'Terv: ',
   'settings.platform': 'Platform',
   'settings.pushNotifications': 'Push értesítések',
+  'settings.pushPermissionDenied': 'Az értesítési engedélyt megtagadták.',
+  'settings.pushServerUnavailable': 'A push-értesítések nincsenek beállítva ezen a kiszolgálón.',
+  'settings.pushUpdateFailed': 'Nem sikerült frissíteni a push-értesítési beállításokat.',
   'settings.thisDevice': 'Ez az eszköz',
   'settings.togglePushNotifications': 'Push értesítések be-/kikapcsolása',
   'settings.toggleTwoFactor': 'Kétfaktoros hitelesítés be-/kikapcsolása',

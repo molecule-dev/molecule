@@ -378,6 +378,8 @@ export const fi: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ei löytynyt',
   'push.error.notSupported': 'Push-ilmoituksia ei tueta',
   'push.error.permissionNotGranted': 'Ilmoituslupaa ei myönnetty',
+  'push.error.noServiceWorker':
+    'Service workeria ei ole rekisteröity — push-ilmoitukset vaativat sovelluksen tuotantoversion.',
   'pwa.updateAvailable': 'Uusi versio saatavilla!',
   'pwa.updating': 'Päivitetään...',
   'resource.error.badRequest': 'Huono pyyntö.',
@@ -411,6 +413,9 @@ export const fi: Partial<CommonTranslations> = {
   'settings.plan': 'Suunnitelma: ',
   'settings.platform': 'Alusta',
   'settings.pushNotifications': 'Push-ilmoitukset',
+  'settings.pushPermissionDenied': 'Ilmoituslupa evättiin.',
+  'settings.pushServerUnavailable': 'Push-ilmoituksia ei ole määritetty tällä palvelimella.',
+  'settings.pushUpdateFailed': 'Push-ilmoitusten asetuksia ei voitu päivittää.',
   'settings.thisDevice': 'Tämä laite',
   'settings.togglePushNotifications': 'Push-ilmoitukset päälle/pois',
   'settings.toggleTwoFactor': 'Kaksivaiheinen todennus päälle/pois',

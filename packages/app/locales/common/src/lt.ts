@@ -89,6 +89,8 @@ export const lt: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nerasta',
   'push.error.notSupported': 'Tiesioginiai pranešimai nepalaikomi',
   'push.error.permissionNotGranted': 'Pranešimų leidimas nesuteiktas',
+  'push.error.noServiceWorker':
+    'Neužregistruotas joks service worker — push pranešimams reikia programos gamybinės versijos.',
   'pwa.update': 'Atnaujinimas',
   'pwa.updateAvailable': 'Nauja versija prieinama!',
   'pwa.updating': 'Atnaujinama...',
@@ -135,6 +137,9 @@ export const lt: Partial<CommonTranslations> = {
   'settings.plan': 'Planas: ',
   'settings.platform': 'Platforma',
   'settings.pushNotifications': 'Tiesioginiai pranešimai',
+  'settings.pushPermissionDenied': 'Pranešimų leidimas atmestas.',
+  'settings.pushServerUnavailable': 'Push pranešimai šiame serveryje nesukonfigūruoti.',
+  'settings.pushUpdateFailed': 'Nepavyko atnaujinti push pranešimų nustatymų.',
   'settings.thisDevice': 'Šis įrenginys',
   'settings.togglePushNotifications': 'Įjungti/išjungti tiesioginius pranešimus',
   'settings.toggleTwoFactor': 'Įjungti dviejų veiksnių autentifikavimą',

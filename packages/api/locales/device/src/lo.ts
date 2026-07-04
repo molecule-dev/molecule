@@ -5,4 +5,5 @@ export const lo: DeviceTranslations = {
   'device.error.unauthorized': 'ບໍ່ໄດ້ຮັບອະນุญາດ.',
   'device.error.badRequest': 'ຄຳຂໍບໍ່ຖືກຕ້ອງ.',
   'device.error.notFound': 'ບໍ່ພົບ.',
+  'device.error.pushNotConfigured': 'ການແຈ້ງເຕືອນແບບ push ບໍ່ໄດ້ຖືກຕັ້ງຄ່າໃນເຊີບເວີນີ້.',
 }

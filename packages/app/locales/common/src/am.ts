@@ -93,6 +93,8 @@ export const am: Partial<CommonTranslations> = {
   'project.error.notFound': 'አልተገኘም',
   'push.error.notSupported': 'የግፋ ማሳወቂያዎች አይደገፉም',
   'push.error.permissionNotGranted': 'የማሳወቂያ ፈቃድ አልተሰጠም',
+  'push.error.noServiceWorker':
+    'ምንም የአገልግሎት ሰራተኛ አልተመዘገበም — የግፋ ማሳወቂያዎች የመተግበሪያውን የምርት ግንባታ ይፈልጋሉ።',
   'pwa.update': 'አዘምን',
   'pwa.updateAvailable': 'አዲስ ስሪት ይገኛል!',
   'pwa.updating': 'በማዘመን ላይ...',
@@ -137,6 +139,9 @@ export const am: Partial<CommonTranslations> = {
   'settings.plan': 'እቅድ፡ ',
   'settings.platform': 'መድረክ',
   'settings.pushNotifications': 'የግፋ ማሳወቂያዎች',
+  'settings.pushPermissionDenied': 'የማሳወቂያ ፍቃድ ተከልክሏል።',
+  'settings.pushServerUnavailable': 'የግፋ ማሳወቂያዎች በዚህ አገልጋይ ላይ አልተዋቀሩም።',
+  'settings.pushUpdateFailed': 'የግፋ ማሳወቂያ ቅንብሮችን ማዘመን አልተቻለም።',
   'settings.thisDevice': 'ይህ መሳሪያ',
   'settings.togglePushNotifications': 'የግፊት ማሳወቂያዎችን ቀያይር',
   'settings.toggleTwoFactor': 'ባለ ሁለት-ደረጃ ማረጋገጫን ቀያይር',

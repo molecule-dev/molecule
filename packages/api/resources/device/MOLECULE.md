@@ -26,6 +26,7 @@ interface DeviceRequestHandlerMap {
   auth: MoleculeRequestHandler
   authUser: MoleculeRequestHandler
   del: MoleculeRequestHandler
+  pushPublicKey: MoleculeRequestHandler
   query: MoleculeRequestHandler
   read: MoleculeRequestHandler
   update: MoleculeRequestHandler

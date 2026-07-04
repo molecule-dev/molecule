@@ -34,8 +34,11 @@ type UserMap = UserRequestHandlerMap
  */
 export function mountDefaultDeviceRoutes(router: Router, device: DeviceMap): void {
   // Mounted before /devices/:id so the literal "push" segment can never be
-  // captured as an :id.
-  router.get('/devices/push/public-key', device.pushPublicKey)
+  // captured as an :id. Guarded like user.readSelf/oauthAuthorize so older
+  // handler maps (and test fixtures) without the handler still mount.
+  if (device.pushPublicKey) {
+    router.get('/devices/push/public-key', device.pushPublicKey)
+  }
   router.get('/devices', device.auth, device.query)
   router.get('/devices/:id', device.authUser, device.read)
   router.patch('/devices/:id', device.authUser, device.update)

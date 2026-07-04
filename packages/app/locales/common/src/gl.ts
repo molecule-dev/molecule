@@ -88,6 +88,8 @@ export const gl: Partial<CommonTranslations> = {
   'project.error.notFound': 'Non atopado',
   'push.error.notSupported': 'Non se admiten as notificacións push',
   'push.error.permissionNotGranted': 'Permiso de notificación non concedido',
+  'push.error.noServiceWorker':
+    'Non hai ningún service worker rexistrado — as notificacións push requiren a versión de produción da aplicación.',
   'pwa.update': 'Actualizar',
   'pwa.updateAvailable': 'Nova versión dispoñible!',
   'pwa.updating': 'Actualizando...',
@@ -134,6 +136,9 @@ export const gl: Partial<CommonTranslations> = {
   'settings.plan': 'Plan: ',
   'settings.platform': 'Plataforma',
   'settings.pushNotifications': 'Notificacións push',
+  'settings.pushPermissionDenied': 'Denegouse o permiso de notificacións.',
+  'settings.pushServerUnavailable': 'As notificacións push non están configuradas neste servidor.',
+  'settings.pushUpdateFailed': 'Non se puido actualizar a configuración das notificacións push.',
   'settings.thisDevice': 'Este dispositivo',
   'settings.togglePushNotifications': 'Activar/desactivar notificacións push',
   'settings.toggleTwoFactor': 'Activar/desactivar a autenticación de dous factores',

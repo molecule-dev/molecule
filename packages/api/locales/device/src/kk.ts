@@ -5,4 +5,5 @@ export const kk: DeviceTranslations = {
   'device.error.unauthorized': 'Рұқсат етілмеген.',
   'device.error.badRequest': 'Қате сұраныс.',
   'device.error.notFound': 'Табылмады.',
+  'device.error.pushNotConfigured': 'Push хабарландырулары бұл серверде конфигурацияланбаған.',
 }

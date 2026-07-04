@@ -46,6 +46,9 @@ export const ko: Partial<CommonTranslations> = {
   'settings.offline': '오프라인',
   'settings.online': '온라인',
   'settings.pushNotifications': '푸시 알림',
+  'settings.pushPermissionDenied': '알림 권한이 거부되었습니다.',
+  'settings.pushServerUnavailable': '이 서버에는 푸시 알림이 구성되어 있지 않습니다.',
+  'settings.pushUpdateFailed': '푸시 알림 설정을 업데이트할 수 없습니다.',
   'settings.twoFactor': '2단계 인증',
   'settings.unknown': '알 수 없음',
   'settings.upgrade': '업그레이드',
@@ -418,6 +421,8 @@ export const ko: Partial<CommonTranslations> = {
   'project.error.notFound': '찾을 수 없음',
   'push.error.notSupported': '푸시 알림은 지원되지 않습니다.',
   'push.error.permissionNotGranted': '알림 권한이 부여되지 않았습니다.',
+  'push.error.noServiceWorker':
+    '등록된 서비스 워커가 없습니다 — 푸시 알림은 앱의 프로덕션 빌드가 필요합니다.',
   'pwa.updateAvailable': '새 버전이 출시되었습니다!',
   'pwa.updating': '업데이트 중...',
   'resource.error.badRequest': '잘못된 요청입니다.',

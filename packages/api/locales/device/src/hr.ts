@@ -5,4 +5,5 @@ export const hr: DeviceTranslations = {
   'device.error.unauthorized': 'Neovlašteno.',
   'device.error.badRequest': 'Neispravan zahtjev.',
   'device.error.notFound': 'Nije pronađeno.',
+  'device.error.pushNotConfigured': 'Push obavijesti nisu konfigurirane na ovom poslužitelju.',
 }

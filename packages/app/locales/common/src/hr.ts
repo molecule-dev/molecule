@@ -88,6 +88,8 @@ export const hr: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nije pronađeno',
   'push.error.notSupported': 'Push obavijesti nisu podržane',
   'push.error.permissionNotGranted': 'Dozvola za obavijesti nije odobrena',
+  'push.error.noServiceWorker':
+    'Nijedan service worker nije registriran — push obavijesti zahtijevaju produkcijsku verziju aplikacije.',
   'pwa.update': 'Ažurirati',
   'pwa.updateAvailable': 'Nova verzija dostupna!',
   'pwa.updating': 'Ažuriranje...',
@@ -133,6 +135,9 @@ export const hr: Partial<CommonTranslations> = {
   'settings.plan': 'Plan: ',
   'settings.platform': 'Platforma',
   'settings.pushNotifications': 'Push obavijesti',
+  'settings.pushPermissionDenied': 'Dozvola za obavijesti je odbijena.',
+  'settings.pushServerUnavailable': 'Push obavijesti nisu konfigurirane na ovom poslužitelju.',
+  'settings.pushUpdateFailed': 'Postavke push obavijesti nije moguće ažurirati.',
   'settings.thisDevice': 'Ovaj uređaj',
   'settings.togglePushNotifications': 'Uključi/isključi push obavijesti',
   'settings.toggleTwoFactor': 'Uključi/isključi dvofaktorsku autentifikaciju',

@@ -5,4 +5,5 @@ export const be: DeviceTranslations = {
   'device.error.unauthorized': 'Не аўтарызавана.',
   'device.error.badRequest': 'Няправільны запыт.',
   'device.error.notFound': 'Не знойдзена.',
+  'device.error.pushNotConfigured': 'Push-апавяшчэнні не наладжаны на гэтым серверы.',
 }

@@ -87,6 +87,8 @@ export const lv: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nav atrasts',
   'push.error.notSupported': 'Push paziņojumi netiek atbalstīti',
   'push.error.permissionNotGranted': 'Paziņojumu atļauja nav piešķirta',
+  'push.error.noServiceWorker':
+    'Nav reģistrēts neviens service worker — push paziņojumiem nepieciešama lietotnes produkcijas versija.',
   'pwa.update': 'Atjauninājums',
   'pwa.updateAvailable': 'Pieejama jauna versija!',
   'pwa.updating': 'Notiek atjaunināšana...',
@@ -133,6 +135,9 @@ export const lv: Partial<CommonTranslations> = {
   'settings.plan': 'Plāns: ',
   'settings.platform': 'Platforma',
   'settings.pushNotifications': 'Push paziņojumi',
+  'settings.pushPermissionDenied': 'Paziņojumu atļauja tika noraidīta.',
+  'settings.pushServerUnavailable': 'Push paziņojumi šajā serverī nav konfigurēti.',
+  'settings.pushUpdateFailed': 'Neizdevās atjaunināt push paziņojumu iestatījumus.',
   'settings.thisDevice': 'Šī ierīce',
   'settings.togglePushNotifications': 'Pārslēgt push paziņojumus',
   'settings.toggleTwoFactor': 'Pārslēgt divfaktoru autentifikāciju',

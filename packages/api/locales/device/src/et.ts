@@ -5,4 +5,5 @@ export const et: DeviceTranslations = {
   'device.error.unauthorized': 'Volitamata.',
   'device.error.badRequest': 'Vigane päring.',
   'device.error.notFound': 'Ei leitud.',
+  'device.error.pushNotConfigured': 'Tõuketeavitused pole selles serveris seadistatud.',
 }

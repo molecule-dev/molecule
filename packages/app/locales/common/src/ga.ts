@@ -88,6 +88,8 @@ export const ga: Partial<CommonTranslations> = {
   'project.error.notFound': 'Níor aimsíodh',
   'push.error.notSupported': 'Ní thacaítear le fógraí brú',
   'push.error.permissionNotGranted': 'Níor deonaíodh cead fógra',
+  'push.error.noServiceWorker':
+    'Níl aon service worker cláraithe — teastaíonn leagan táirgeachta na haipe ó fhógraí brú.',
   'pwa.update': 'Nuashonrú',
   'pwa.updateAvailable': 'Leagan nua ar fáil!',
   'pwa.updating': 'Ag nuashonrú...',
@@ -134,6 +136,9 @@ export const ga: Partial<CommonTranslations> = {
   'settings.plan': 'Plean: ',
   'settings.platform': 'Ardán',
   'settings.pushNotifications': 'Fógraí brú',
+  'settings.pushPermissionDenied': 'Diúltaíodh cead fógraí.',
+  'settings.pushServerUnavailable': 'Níl fógraí brú cumraithe ar an bhfreastalaí seo.',
+  'settings.pushUpdateFailed': 'Níorbh fhéidir socruithe na bhfógraí brú a nuashonrú.',
   'settings.thisDevice': 'An Gléas seo',
   'settings.togglePushNotifications': 'Fógraí brú a scoránaigh',
   'settings.toggleTwoFactor': 'Scoránaigh fíordheimhniú dhá fhachtóir',

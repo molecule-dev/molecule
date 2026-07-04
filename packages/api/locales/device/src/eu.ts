@@ -5,4 +5,6 @@ export const eu: DeviceTranslations = {
   'device.error.unauthorized': 'Baimenik gabe.',
   'device.error.badRequest': 'Eskaera okerra.',
   'device.error.notFound': 'Ez da aurkitu.',
+  'device.error.pushNotConfigured':
+    'Push jakinarazpenak ez daude konfiguratuta zerbitzari honetan.',
 }

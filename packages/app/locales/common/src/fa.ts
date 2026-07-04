@@ -94,6 +94,8 @@ export const fa: Partial<CommonTranslations> = {
   'project.error.notFound': 'یافت نشد',
   'push.error.notSupported': 'اعلان‌های فشاری پشتیبانی نمی‌شوند',
   'push.error.permissionNotGranted': 'مجوز اعلان صادر نشد',
+  'push.error.noServiceWorker':
+    'هیچ service worker ثبت نشده است — اعلان‌های فوری به نسخه تولیدی برنامه نیاز دارند.',
   'pwa.update': 'به‌روزرسانی',
   'pwa.updateAvailable': 'نسخه جدید موجود شد!',
   'pwa.updating': 'در حال به‌روزرسانی...',
@@ -139,6 +141,9 @@ export const fa: Partial<CommonTranslations> = {
   'settings.plan': 'طرح: ',
   'settings.platform': 'پلتفرم',
   'settings.pushNotifications': 'اعلان‌های فشاری',
+  'settings.pushPermissionDenied': 'اجازه اعلان‌ها رد شد.',
+  'settings.pushServerUnavailable': 'اعلان‌های فوری روی این سرور پیکربندی نشده‌اند.',
+  'settings.pushUpdateFailed': 'به‌روزرسانی تنظیمات اعلان‌های فوری ممکن نبود.',
   'settings.thisDevice': 'این دستگاه',
   'settings.togglePushNotifications': 'اعلان‌های فشاری را تغییر دهید',
   'settings.toggleTwoFactor': 'فعال/غیرفعال کردن احراز هویت دو مرحله‌ای',

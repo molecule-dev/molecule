@@ -69,6 +69,40 @@ interface Device {
 }
 ```
 
+#### `PushToggleDevice`
+
+Device row slice returned by `GET /api/devices`.
+
+```typescript
+interface PushToggleDevice {
+  id: string
+  isCurrent?: boolean
+  hasPushSubscription?: boolean
+}
+```
+
+#### `PushToggleHttp`
+
+Minimal structural slice of `@molecule/app-http`'s HttpClient used here.
+
+```typescript
+interface PushToggleHttp {
+  get<T = unknown>(url: string): Promise<{ data: T }>
+  patch<T = unknown>(url: string, data?: unknown): Promise<{ data: T }>
+}
+```
+
+#### `PushToggleToken`
+
+Push token slice returned by `@molecule/app-push` `register()`.
+
+```typescript
+interface PushToggleToken {
+  value: string
+  platform: 'web' | 'ios' | 'android'
+}
+```
+
 #### `SettingsPanelContextValue`
 
 Context published by `<SettingsContainer>` to its children.
@@ -81,6 +115,30 @@ error) read it from context rather than threading the prop down.
 interface SettingsPanelContextValue {
   onClose: () => void
 }
+```
+
+### Types
+
+#### `PushToggleFailureReason`
+
+Why an enable/disable attempt failed (mapped to i18n by the component).
+
+```typescript
+type PushToggleFailureReason =
+  | 'permission-denied'
+  | 'server-unconfigured'
+  | 'register-failed'
+  | 'persist-failed'
+```
+
+#### `PushToggleResult`
+
+Result of an enable/disable attempt.
+
+```typescript
+type PushToggleResult =
+  | { ok: true }
+  | { ok: false; reason: PushToggleFailureReason; message?: string }
 ```
 
 ### Functions
@@ -184,6 +242,55 @@ function DevicesSection({
 }?: { renderRowIcon?: (device: Device) => ReactNode; }): JSX.Element
 ```
 
+#### `disablePushOnCurrentDevice(deps, deps, deps)`
+
+Disables push: unsubscribes the browser (best-effort — a dev build without
+a service worker has nothing to unsubscribe) and ALWAYS clears the server
+state so no further pushes target this device.
+
+```typescript
+function disablePushOnCurrentDevice(deps: { http: PushToggleHttp; unregister: () => Promise<void>; }): Promise<PushToggleResult>
+```
+
+- `deps` — The http client + push action from `usePush()`.
+- `deps` — .http - Authenticated http client (`useHttpClient()`).
+- `deps` — .unregister - `usePush().unregister`.
+
+**Returns:** `{ ok: true }` or a typed failure (server state not cleared).
+
+#### `enablePushOnCurrentDevice(deps, deps, deps, deps)`
+
+Runs the full enable chain: browser permission → runtime VAPID public key
+(`GET /api/devices/push/public-key`) → `register({ vapidPublicKey })` →
+persist the subscription on the current device row.
+
+Every failure is returned as a typed reason (never thrown) so the UI can
+show an honest, specific message instead of hanging or silently reverting.
+
+```typescript
+function enablePushOnCurrentDevice(deps: { http: PushToggleHttp; requestPermission: () => Promise<string>; register: (options?: { vapidPublicKey?: string; }) => Promise<PushToggleToken>; }): Promise<PushToggleResult>
+```
+
+- `deps` — The http client + push actions from `usePush()`.
+- `deps` — .http - Authenticated http client (`useHttpClient()`).
+- `deps` — .requestPermission - `usePush().requestPermission`.
+- `deps` — .register - `usePush().register`.
+
+**Returns:** `{ ok: true }` or a typed failure.
+
+#### `findCurrentDevice(devices)`
+
+Picks the caller's own device row: the api flags the session device
+`isCurrent`; fall back to the first row for sessions predating the flag.
+
+```typescript
+function findCurrentDevice(devices: PushToggleDevice[] | undefined): PushToggleDevice | undefined
+```
+
+- `devices` — Rows from `GET /api/devices`.
+
+**Returns:** The current device row, or `undefined` when the user has none.
+
 #### `LogOutDeleteSection()`
 
 Bottom actions section — Log out + Delete account.
@@ -199,12 +306,34 @@ function LogOutDeleteSection(): JSX.Element
 
 #### `NotificationsSection()`
 
-Push-notification toggle section. Requests browser permission +
-registers/unregisters the push subscription via `@molecule/app-push`.
+Push-notification toggle section — the full receive-side enable chain:
+browser permission → runtime VAPID public key
+(`GET /api/devices/push/public-key`) → `pushManager.subscribe` with
+`applicationServerKey` → PATCH the subscription onto the current device
+row (`/api/devices/:id { pushSubscription, hasPushSubscription }`), which
+is where the api-side push fan-outs look for it.
+
+Initial state reflects SERVER truth (the current device row's
+`hasPushSubscription`), and every failure surfaces as an honest inline
+message — a dev build without a service worker fails fast instead of
+hanging the switch.
 
 ```typescript
 function NotificationsSection(): JSX.Element
 ```
+
+#### `readCurrentDevicePushEnabled(http)`
+
+Reads whether push is currently enabled for THIS device (server truth:
+the current device row's `hasPushSubscription`).
+
+```typescript
+function readCurrentDevicePushEnabled(http: PushToggleHttp): Promise<boolean>
+```
+
+- `http` — Authenticated http client (`useHttpClient()`).
+
+**Returns:** `true` when the current device has a stored subscription.
 
 #### `SettingsContainer({
   onClose,
@@ -222,6 +351,20 @@ function SettingsContainer({
   children,
 }: { onClose: () => void; children: ReactNode; }): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
+
+#### `subscriptionFromToken(token)`
+
+Converts an `@molecule/app-push` token into the device resource's
+`pushSubscription` shape (web PushSubscription JSON, FCM registration for
+Android, APNs registration for iOS).
+
+```typescript
+function subscriptionFromToken(token: PushToggleToken): unknown
+```
+
+- `token` — The push token returned by `register()`.
+
+**Returns:** The `pushSubscription` value to PATCH onto the device row.
 
 #### `ThisDeviceSection()`
 

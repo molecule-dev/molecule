@@ -96,6 +96,8 @@ export const uz: Partial<CommonTranslations> = {
   'project.error.notFound': 'Topilmadi',
   'push.error.notSupported': "Push-bildirishnomalar qo'llab-quvvatlanmaydi",
   'push.error.permissionNotGranted': 'Bildirishnoma ruxsati berilmagan',
+  'push.error.noServiceWorker':
+    'Hech qanday service worker ro‘yxatdan o‘tmagan — push bildirishnomalari ilovaning ishlab chiqarish versiyasini talab qiladi.',
   'pwa.update': 'Yangilash',
   'pwa.updateAvailable': 'Yangi versiya mavjud!',
   'pwa.updating': 'Yangilanmoqda...',
@@ -141,6 +143,9 @@ export const uz: Partial<CommonTranslations> = {
   'settings.plan': 'Reja: ',
   'settings.platform': 'Platforma',
   'settings.pushNotifications': 'Push-bildirishnomalar',
+  'settings.pushPermissionDenied': 'Bildirishnoma ruxsati rad etildi.',
+  'settings.pushServerUnavailable': 'Push bildirishnomalari ushbu serverda sozlanmagan.',
+  'settings.pushUpdateFailed': 'Push bildirishnoma sozlamalarini yangilab bo‘lmadi.',
   'settings.thisDevice': 'Ushbu qurilma',
   'settings.togglePushNotifications': "Push-bildirishnomalarni yoqish/o'chirish",
   'settings.toggleTwoFactor': "Ikki faktorli autentifikatsiyani yoqish/o'chirish",

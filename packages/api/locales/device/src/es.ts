@@ -5,4 +5,6 @@ export const es: DeviceTranslations = {
   'device.error.unauthorized': 'No autorizado.',
   'device.error.badRequest': 'Solicitud incorrecta.',
   'device.error.notFound': 'No encontrado.',
+  'device.error.pushNotConfigured':
+    'Las notificaciones push no están configuradas en este servidor.',
 }

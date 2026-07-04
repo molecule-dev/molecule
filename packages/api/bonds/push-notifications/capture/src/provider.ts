@@ -114,7 +114,12 @@ export function createPushCaptureProvider(
     },
 
     getPublicKey(): string | undefined {
-      return realProvider?.getPublicKey()
+      // Intercept-only mode still honestly exposes the VAPID public key when
+      // the environment has one: creating a browser subscription is a pure
+      // client-side act (the key never authorizes a send), so the enable-push
+      // UI keeps working in dev/IDE capture mode while every send stays
+      // captured instead of delivered.
+      return realProvider?.getPublicKey() ?? process.env.VAPID_PUBLIC_KEY
     },
   }
 }

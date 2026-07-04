@@ -131,6 +131,16 @@ describe('usePush', () => {
     expect(mockProvider.register).toHaveBeenCalledOnce()
   })
 
+  it('register forwards options (runtime VAPID public key) to the provider', async () => {
+    const { result } = renderHook(() => usePush())
+
+    await act(async () => {
+      await result.current.register({ vapidPublicKey: 'runtime-key' })
+    })
+
+    expect(mockProvider.register).toHaveBeenCalledWith({ vapidPublicKey: 'runtime-key' })
+  })
+
   it('unregister clears token state', async () => {
     const { result } = renderHook(() => usePush())
 

@@ -95,6 +95,8 @@ export const bn: Partial<CommonTranslations> = {
   'project.error.notFound': 'খুঁজে পাওয়া যায়নি',
   'push.error.notSupported': 'পুশ নোটিফিকেশন সমর্থিত নয়',
   'push.error.permissionNotGranted': 'বিজ্ঞপ্তির অনুমতি দেওয়া হয়নি',
+  'push.error.noServiceWorker':
+    'কোনো সার্ভিস ওয়ার্কার নিবন্ধিত নেই — পুশ বিজ্ঞপ্তির জন্য অ্যাপের প্রোডাকশন বিল্ড প্রয়োজন।',
   'pwa.update': 'আপডেট',
   'pwa.updateAvailable': 'নতুন সংস্করণ উপলব্ধ!',
   'pwa.updating': 'আপডেট করা হচ্ছে...',
@@ -141,6 +143,9 @@ export const bn: Partial<CommonTranslations> = {
   'settings.plan': 'পরিকল্পনা: ',
   'settings.platform': 'প্ল্যাটফর্ম',
   'settings.pushNotifications': 'পুশ বিজ্ঞপ্তি',
+  'settings.pushPermissionDenied': 'বিজ্ঞপ্তির অনুমতি প্রত্যাখ্যান করা হয়েছে।',
+  'settings.pushServerUnavailable': 'এই সার্ভারে পুশ বিজ্ঞপ্তি কনফিগার করা নেই।',
+  'settings.pushUpdateFailed': 'পুশ বিজ্ঞপ্তির সেটিংস আপডেট করা যায়নি।',
   'settings.thisDevice': 'এই ডিভাইস',
   'settings.togglePushNotifications': 'পুশ নোটিফিকেশন টগল করুন',
   'settings.toggleTwoFactor': 'দ্বি-স্তর প্রমাণীকরণ চালু বা বন্ধ করুন',

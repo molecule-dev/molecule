@@ -4,7 +4,7 @@ Translations for molecule device resource in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/api-device` package which has 3 translation keys.
+Provides translations for the `@molecule/api-device` package which has 4 translation keys.
 
 ## Languages
 
@@ -24,6 +24,7 @@ import type { DeviceTranslationKey, DeviceTranslations } from '@molecule/api-loc
 | `device.error.unauthorized` | Unauthorized. |
 | `device.error.badRequest` | Bad request. |
 | `device.error.notFound` | Not found. |
+| `device.error.pushNotConfigured` | Push notifications are not configured on this server. |
 
 ## Metadata
 

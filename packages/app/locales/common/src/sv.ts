@@ -44,6 +44,9 @@ export const sv: Partial<CommonTranslations> = {
   'settings.network': 'Nätverk',
   'settings.notifications': 'Aviseringar',
   'settings.pushNotifications': 'Pushnotiser',
+  'settings.pushPermissionDenied': 'Aviseringsbehörighet nekades.',
+  'settings.pushServerUnavailable': 'Push-notiser är inte konfigurerade på den här servern.',
+  'settings.pushUpdateFailed': 'Det gick inte att uppdatera inställningarna för push-notiser.',
   'settings.twoFactor': 'Tvåfaktorsautentisering',
   'settings.unknown': 'Okänd',
   'settings.upgrade': 'Uppgradera',
@@ -422,6 +425,8 @@ export const sv: Partial<CommonTranslations> = {
   'project.error.notFound': 'Inte hittad',
   'push.error.notSupported': 'Push-meddelanden stöds inte',
   'push.error.permissionNotGranted': 'Aviseringstillstånd har inte beviljats',
+  'push.error.noServiceWorker':
+    'Ingen service worker är registrerad — push-notiser kräver appens produktionsbygge.',
   'pwa.updateAvailable': 'Ny version tillgänglig!',
   'pwa.updating': 'Uppdaterar...',
   'resource.error.badRequest': 'Dålig begäran.',

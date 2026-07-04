@@ -5,4 +5,5 @@ export const zu: DeviceTranslations = {
   'device.error.unauthorized': 'Akuvunyelwe.',
   'device.error.badRequest': 'Isicelo esingalungile.',
   'device.error.notFound': 'Ayitholakali.',
+  'device.error.pushNotConfigured': 'Izaziso zokuphusha azilungiselelwe kule seva.',
 }

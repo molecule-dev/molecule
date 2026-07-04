@@ -352,6 +352,8 @@ export const fil: Partial<CommonTranslations> = {
   'project.error.notFound': 'Hindi natagpuan',
   'push.error.notSupported': 'Hindi sinusuportahan ang mga push notification',
   'push.error.permissionNotGranted': 'Hindi ibinigay ang pahintulot sa abiso',
+  'push.error.noServiceWorker':
+    'Walang nakarehistrong service worker — kailangan ng mga push notification ang production build ng app.',
   'pwa.updateAvailable': 'May bagong bersyon na!',
   'pwa.updating': 'Ina-update...',
   'resource.error.badRequest': 'Masamang kahilingan.',
@@ -389,6 +391,10 @@ export const fil: Partial<CommonTranslations> = {
   'settings.plan': 'Plano: ',
   'settings.platform': 'Plataporma',
   'settings.pushNotifications': 'Mga push notification',
+  'settings.pushPermissionDenied': 'Tinanggihan ang pahintulot sa notification.',
+  'settings.pushServerUnavailable':
+    'Hindi naka-configure ang mga push notification sa server na ito.',
+  'settings.pushUpdateFailed': 'Hindi ma-update ang mga setting ng push notification.',
   'settings.thisDevice': 'Ang Kagamitang Ito',
   'settings.togglePushNotifications': 'I-toggle ang mga push notification',
   'settings.toggleTwoFactor': 'I-toggle ang two-factor authentication',

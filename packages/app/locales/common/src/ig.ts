@@ -81,6 +81,8 @@ export const ig: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ahụghị ya',
   'push.error.notSupported': 'Ọkwa ndọtị anaghị akwado',
   'push.error.permissionNotGranted': 'Enyeghị ikike ịkpọsa ọkwa',
+  'push.error.noServiceWorker':
+    'Enweghị service worker edebanyere aha — ọkwa mmanye chọrọ nrụpụta mmepụta nke ngwa ahụ.',
   'pwa.update': 'Melite',
   'pwa.updateAvailable': 'Ụdị ọhụrụ dị!',
   'pwa.updating': 'Na-emelite...',
@@ -122,6 +124,9 @@ export const ig: Partial<CommonTranslations> = {
   'settings.plan': 'Atụmatụ: ',
   'settings.platform': 'Ikpo okwu',
   'settings.pushNotifications': 'Ọkwa mkpali',
+  'settings.pushPermissionDenied': 'A jụrụ ikike ọkwa.',
+  'settings.pushServerUnavailable': 'Ahazighị ọkwa mmanye na sava a.',
+  'settings.pushUpdateFailed': 'Enweghị ike imelite ntọala ọkwa mmanye.',
   'settings.thisDevice': 'Ngwaọrụ a',
   'settings.togglePushNotifications': 'Gbanwee ọkwa mkpali',
   'settings.toggleTwoFactor': 'Gbanwee nyocha ihe abụọ',

@@ -369,6 +369,8 @@ export const ro: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nu a fost găsit',
   'push.error.notSupported': 'Notificările push nu sunt acceptate',
   'push.error.permissionNotGranted': 'Permisiunea de notificare nu a fost acordată',
+  'push.error.noServiceWorker':
+    'Niciun service worker nu este înregistrat — notificările push necesită versiunea de producție a aplicației.',
   'pwa.updateAvailable': 'Versiune nouă disponibilă!',
   'pwa.updating': 'Se actualizează...',
   'resource.error.badRequest': 'Cerere greşită.',
@@ -403,6 +405,9 @@ export const ro: Partial<CommonTranslations> = {
   'settings.plan': 'Plan: ',
   'settings.platform': 'Platformă',
   'settings.pushNotifications': 'Notificări push',
+  'settings.pushPermissionDenied': 'Permisiunea pentru notificări a fost refuzată.',
+  'settings.pushServerUnavailable': 'Notificările push nu sunt configurate pe acest server.',
+  'settings.pushUpdateFailed': 'Setările notificărilor push nu au putut fi actualizate.',
   'settings.thisDevice': 'Acest dispozitiv',
   'settings.togglePushNotifications': 'Comutare notificări push',
   'settings.toggleTwoFactor': 'Comutare autentificare cu doi factori',

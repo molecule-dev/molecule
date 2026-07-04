@@ -94,6 +94,8 @@ export const ur: Partial<CommonTranslations> = {
   'project.error.notFound': 'نہیں ملا',
   'push.error.notSupported': 'پش اطلاعات تعاون یافتہ نہیں ہیں۔',
   'push.error.permissionNotGranted': 'اطلاع کی اجازت نہیں دی گئی۔',
+  'push.error.noServiceWorker':
+    'کوئی سروس ورکر رجسٹرڈ نہیں ہے — پش اطلاعات کے لیے ایپ کی پروڈکشن بلڈ درکار ہے۔',
   'pwa.update': 'اپڈیٹ کریں۔',
   'pwa.updateAvailable': 'نیا ورژن دستیاب ہے!',
   'pwa.updating': 'اپ ڈیٹ ہو رہا ہے...',
@@ -139,6 +141,9 @@ export const ur: Partial<CommonTranslations> = {
   'settings.plan': 'منصوبہ: ',
   'settings.platform': 'پلیٹ فارم',
   'settings.pushNotifications': 'پش اطلاعات',
+  'settings.pushPermissionDenied': 'اطلاع کی اجازت مسترد کر دی گئی۔',
+  'settings.pushServerUnavailable': 'اس سرور پر پش اطلاعات ترتیب نہیں دی گئی ہیں۔',
+  'settings.pushUpdateFailed': 'پش اطلاعات کی ترتیبات اپ ڈیٹ نہیں ہو سکیں۔',
   'settings.thisDevice': 'یہ ڈیوائس',
   'settings.togglePushNotifications': 'پش اطلاعات کو ٹوگل کریں۔',
   'settings.toggleTwoFactor': 'ٹوگل دو عنصر کی توثیق',

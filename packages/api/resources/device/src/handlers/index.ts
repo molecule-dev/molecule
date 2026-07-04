@@ -1,4 +1,5 @@
 export * from './del.js'
+export * from './pushPublicKey.js'
 export * from './query.js'
 export * from './read.js'
 export * from './update.js'

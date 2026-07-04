@@ -44,6 +44,11 @@ export const de: Partial<CommonTranslations> = {
   'settings.network': 'Netzwerk',
   'settings.notifications': 'Benachrichtigungen',
   'settings.pushNotifications': 'Push-Benachrichtigungen',
+  'settings.pushPermissionDenied': 'Benachrichtigungsberechtigung wurde verweigert.',
+  'settings.pushServerUnavailable':
+    'Push-Benachrichtigungen sind auf diesem Server nicht konfiguriert.',
+  'settings.pushUpdateFailed':
+    'Push-Benachrichtigungseinstellungen konnten nicht aktualisiert werden.',
   'settings.twoFactor': 'Zwei-Faktor-Authentifizierung',
   'settings.unknown': 'Unbekannt',
   'settings.upgrade': 'Upgraden',
@@ -417,6 +422,8 @@ export const de: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nicht gefunden',
   'push.error.notSupported': 'Push-Benachrichtigungen werden nicht unterstützt',
   'push.error.permissionNotGranted': 'Benachrichtigungsberechtigung nicht erteilt',
+  'push.error.noServiceWorker':
+    'Kein Service Worker registriert — Push-Benachrichtigungen erfordern den Produktions-Build der App.',
   'pwa.updateAvailable': 'Neue Version verfügbar!',
   'pwa.updating': 'Aktualisierung...',
   'resource.error.badRequest': 'Ungültige Anforderung.',

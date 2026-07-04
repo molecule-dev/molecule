@@ -378,6 +378,8 @@ export const el: Partial<CommonTranslations> = {
   'project.error.notFound': 'Δεν βρέθηκε',
   'push.error.notSupported': 'Δεν υποστηρίζονται οι ειδοποιήσεις push',
   'push.error.permissionNotGranted': 'Δεν χορηγήθηκε άδεια ειδοποίησης',
+  'push.error.noServiceWorker':
+    'Δεν υπάρχει εγγεγραμμένος service worker — οι ειδοποιήσεις push απαιτούν την έκδοση παραγωγής της εφαρμογής.',
   'pwa.updateAvailable': 'Νέα έκδοση διαθέσιμη!',
   'pwa.updating': 'Ενημέρωση...',
   'resource.error.badRequest': 'Κακό αίτημα.',
@@ -413,6 +415,10 @@ export const el: Partial<CommonTranslations> = {
   'settings.plan': 'Σχέδιο: ',
   'settings.platform': 'Πλατφόρμα',
   'settings.pushNotifications': 'Ειδοποιήσεις push',
+  'settings.pushPermissionDenied': 'Η άδεια ειδοποιήσεων απορρίφθηκε.',
+  'settings.pushServerUnavailable':
+    'Οι ειδοποιήσεις push δεν έχουν ρυθμιστεί σε αυτόν τον διακομιστή.',
+  'settings.pushUpdateFailed': 'Δεν ήταν δυνατή η ενημέρωση των ρυθμίσεων ειδοποιήσεων push.',
   'settings.thisDevice': 'Αυτή η συσκευή',
   'settings.togglePushNotifications': 'Εναλλαγή ειδοποιήσεων push',
   'settings.toggleTwoFactor': 'Ενεργοποίηση/απενεργοποίηση ελέγχου ταυτότητας δύο παραγόντων',

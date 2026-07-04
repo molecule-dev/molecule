@@ -8,6 +8,8 @@ import react from '@vitejs/plugin-react'
 import type { UserConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+import { moleculePushServiceWorkerPlugin, PUSH_SW_FILENAME } from './push-sw.js'
+
 /** Branding strings used in the PWA manifest. */
 export interface DefaultViteConfigBranding {
   APP_NAME: string
@@ -136,6 +138,11 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       // deps (e.g. a Monaco-based code editor) ship a >2 MiB entry chunk
       // and fail the build outright. 5 MiB gives the fleet headroom.
       maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+      // Pull the shared push handler (emitted by
+      // moleculePushServiceWorkerPlugin) into the generated worker —
+      // generateSW ships no 'push' listener of its own, so without this a
+      // delivered web-push displays nothing.
+      importScripts: [PUSH_SW_FILENAME],
       globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
       runtimeCaching: [
         {
@@ -148,7 +155,7 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
   }
 
   return {
-    plugins: [react(), tailwindcss(), VitePWA(pwaOptions)],
+    plugins: [react(), tailwindcss(), VitePWA(pwaOptions), moleculePushServiceWorkerPlugin()],
     // Vite's default cacheDir (node_modules/.vite) resolves THROUGH a
     // workspace-symlinked node_modules to a cache shared by every app on the
     // machine — concurrent dev servers with different optimizeDeps configs

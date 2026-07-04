@@ -87,6 +87,8 @@ export const kk: Partial<CommonTranslations> = {
   'project.error.notFound': 'Табылмады',
   'push.error.notSupported': 'Push хабарландыруларына қолдау көрсетілмейді',
   'push.error.permissionNotGranted': 'Хабарландыруға рұқсат берілмеді',
+  'push.error.noServiceWorker':
+    'Service worker тіркелмеген — push хабарландырулары қолданбаның өндірістік құрастырылымын қажет етеді.',
   'pwa.update': 'Жаңарту',
   'pwa.updateAvailable': 'Жаңа нұсқасы қолжетімді!',
   'pwa.updating': 'Жаңартылуда...',
@@ -132,6 +134,9 @@ export const kk: Partial<CommonTranslations> = {
   'settings.plan': 'Жоспар: ',
   'settings.platform': 'Платформа',
   'settings.pushNotifications': 'Push хабарландырулары',
+  'settings.pushPermissionDenied': 'Хабарландыру рұқсаты қабылданбады.',
+  'settings.pushServerUnavailable': 'Push хабарландырулары бұл серверде конфигурацияланбаған.',
+  'settings.pushUpdateFailed': 'Push хабарландыру параметрлерін жаңарту мүмкін болмады.',
   'settings.thisDevice': 'Бұл құрылғы',
   'settings.togglePushNotifications': 'Push хабарландыруларын ауыстыру/өшіру',
   'settings.toggleTwoFactor': 'Екі факторлы аутентификацияны қосу/өшіру',

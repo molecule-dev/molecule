@@ -5,4 +5,5 @@ export const ro: DeviceTranslations = {
   'device.error.unauthorized': 'Neautorizat.',
   'device.error.badRequest': 'Cerere incorectă.',
   'device.error.notFound': 'Nu a fost găsit.',
+  'device.error.pushNotConfigured': 'Notificările push nu sunt configurate pe acest server.',
 }

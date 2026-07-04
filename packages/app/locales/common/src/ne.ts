@@ -94,6 +94,8 @@ export const ne: Partial<CommonTranslations> = {
   'project.error.notFound': 'भेटिएन',
   'push.error.notSupported': 'पुश सूचनाहरू समर्थित छैनन्',
   'push.error.permissionNotGranted': 'सूचना अनुमति प्रदान गरिएको छैन',
+  'push.error.noServiceWorker':
+    'कुनै सर्भिस वर्कर दर्ता गरिएको छैन — पुश सूचनाहरूका लागि एपको प्रोडक्सन बिल्ड आवश्यक छ।',
   'pwa.update': 'अपडेट गर्नुहोस्',
   'pwa.updateAvailable': 'नयाँ संस्करण उपलब्ध छ!',
   'pwa.updating': 'अद्यावधिक गर्दै...',
@@ -140,6 +142,9 @@ export const ne: Partial<CommonTranslations> = {
   'settings.plan': 'योजना: ',
   'settings.platform': 'प्लेटफर्म',
   'settings.pushNotifications': 'पुश सूचनाहरू',
+  'settings.pushPermissionDenied': 'सूचना अनुमति अस्वीकार गरियो।',
+  'settings.pushServerUnavailable': 'यो सर्भरमा पुश सूचनाहरू कन्फिगर गरिएका छैनन्।',
+  'settings.pushUpdateFailed': 'पुश सूचना सेटिङहरू अद्यावधिक गर्न सकिएन।',
   'settings.thisDevice': 'यो यन्त्र',
   'settings.togglePushNotifications': 'पुश सूचनाहरू टगल गर्नुहोस्',
   'settings.toggleTwoFactor': 'दुई-कारक प्रमाणीकरण टगल गर्नुहोस्',

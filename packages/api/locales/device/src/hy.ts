@@ -5,4 +5,5 @@ export const hy: DeviceTranslations = {
   'device.error.unauthorized': 'Չթույլատրված։',
   'device.error.badRequest': 'Սխալ հարցում։',
   'device.error.notFound': 'Չի գտնվել։',
+  'device.error.pushNotConfigured': 'Push ծանուցումները կազմաձևված չեն այս սերվերի վրա։',
 }

@@ -95,6 +95,8 @@ export const gu: Partial<CommonTranslations> = {
   'project.error.notFound': 'મળ્યું નથી',
   'push.error.notSupported': 'પુશ સૂચનાઓ સમર્થિત નથી',
   'push.error.permissionNotGranted': 'સૂચનાની પરવાનગી આપવામાં આવી નથી',
+  'push.error.noServiceWorker':
+    'કોઈ સર્વિસ વર્કર નોંધાયેલ નથી — પુશ સૂચનાઓ માટે એપ્લિકેશનનું પ્રોડક્શન બિલ્ડ જરૂરી છે.',
   'pwa.update': 'અપડેટ',
   'pwa.updateAvailable': 'નવું સંસ્કરણ ઉપલબ્ધ છે!',
   'pwa.updating': 'અપડેટ કરી રહ્યું છે...',
@@ -140,6 +142,9 @@ export const gu: Partial<CommonTranslations> = {
   'settings.plan': 'યોજના: ',
   'settings.platform': 'પ્લેટફોર્મ',
   'settings.pushNotifications': 'પુશ સૂચનાઓ',
+  'settings.pushPermissionDenied': 'સૂચના પરવાનગી નકારવામાં આવી.',
+  'settings.pushServerUnavailable': 'આ સર્વર પર પુશ સૂચનાઓ ગોઠવેલી નથી.',
+  'settings.pushUpdateFailed': 'પુશ સૂચના સેટિંગ્સ અપડેટ કરી શકાઈ નથી.',
   'settings.thisDevice': 'આ ઉપકરણ',
   'settings.togglePushNotifications': 'પુશ સૂચનાઓ ટૉગલ કરો',
   'settings.toggleTwoFactor': 'બે-પરિબળ પ્રમાણીકરણ ટૉગલ કરો',

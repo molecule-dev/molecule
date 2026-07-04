@@ -94,6 +94,8 @@ export const ta: Partial<CommonTranslations> = {
   'project.error.notFound': 'கண்டுபிடிக்கப்படவில்லை',
   'push.error.notSupported': 'புஷ் அறிவிப்புகள் ஆதரிக்கப்படவில்லை',
   'push.error.permissionNotGranted': 'அறிவிப்பு அனுமதி வழங்கப்படவில்லை',
+  'push.error.noServiceWorker':
+    'சர்வீஸ் வொர்க்கர் எதுவும் பதிவு செய்யப்படவில்லை — புஷ் அறிவிப்புகளுக்கு பயன்பாட்டின் ப்ரொடக்ஷன் பில்டு தேவை.',
   'pwa.update': 'புதுப்பிப்பு',
   'pwa.updateAvailable': 'புதிய பதிப்பு கிடைக்கிறது!',
   'pwa.updating': 'புதுப்பிக்கப்படுகிறது...',
@@ -139,6 +141,9 @@ export const ta: Partial<CommonTranslations> = {
   'settings.plan': ': ',
   'settings.platform': 'தளம்',
   'settings.pushNotifications': 'புஷ் அறிவிப்புகள்',
+  'settings.pushPermissionDenied': 'அறிவிப்பு அனுமதி மறுக்கப்பட்டது.',
+  'settings.pushServerUnavailable': 'இந்த சேவையகத்தில் புஷ் அறிவிப்புகள் உள்ளமைக்கப்படவில்லை.',
+  'settings.pushUpdateFailed': 'புஷ் அறிவிப்பு அமைப்புகளைப் புதுப்பிக்க முடியவில்லை.',
   'settings.thisDevice': 'இந்த சாதனம்',
   'settings.togglePushNotifications': 'புஷ் அறிவிப்புகளை மாற்று',
   'settings.toggleTwoFactor': 'இரு காரணி அங்கீகாரத்தை மாற்று',

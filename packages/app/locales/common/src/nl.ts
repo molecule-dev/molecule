@@ -44,6 +44,9 @@ export const nl: Partial<CommonTranslations> = {
   'settings.network': 'Netwerk',
   'settings.notifications': 'Meldingen',
   'settings.pushNotifications': 'Pushmeldingen',
+  'settings.pushPermissionDenied': 'Toestemming voor meldingen is geweigerd.',
+  'settings.pushServerUnavailable': 'Pushmeldingen zijn niet geconfigureerd op deze server.',
+  'settings.pushUpdateFailed': 'Kon de instellingen voor pushmeldingen niet bijwerken.',
   'settings.twoFactor': 'Tweestapsverificatie',
   'settings.unknown': 'Onbekend',
   'settings.upgrade': 'Upgraden',
@@ -410,6 +413,8 @@ export const nl: Partial<CommonTranslations> = {
   'project.error.notFound': 'Niet gevonden',
   'push.error.notSupported': 'Pushmeldingen worden niet ondersteund.',
   'push.error.permissionNotGranted': 'Meldingstoestemming niet verleend',
+  'push.error.noServiceWorker':
+    'Er is geen service worker geregistreerd — pushmeldingen vereisen de productieversie van de app.',
   'pwa.updateAvailable': 'Nieuwe versie beschikbaar!',
   'pwa.updating': 'Bezig met bijwerken...',
   'resource.error.badRequest': 'Ongepast verzoek.',

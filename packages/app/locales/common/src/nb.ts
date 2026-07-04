@@ -370,6 +370,8 @@ export const nb: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ikke funnet',
   'push.error.notSupported': 'Push-varsler støttes ikke',
   'push.error.permissionNotGranted': 'Varslingstillatelse ikke gitt',
+  'push.error.noServiceWorker':
+    'Ingen service worker er registrert — push-varsler krever produksjonsbygget av appen.',
   'pwa.updateAvailable': 'Ny versjon tilgjengelig!',
   'pwa.updating': 'Oppdaterer...',
   'resource.error.badRequest': 'Dårlig forespørsel.',
@@ -404,6 +406,9 @@ export const nb: Partial<CommonTranslations> = {
   'settings.plan': 'Plan: ',
   'settings.platform': 'Plattform',
   'settings.pushNotifications': 'Push-varsler',
+  'settings.pushPermissionDenied': 'Varslingstillatelse ble avslått.',
+  'settings.pushServerUnavailable': 'Push-varsler er ikke konfigurert på denne serveren.',
+  'settings.pushUpdateFailed': 'Kunne ikke oppdatere innstillinger for push-varsler.',
   'settings.thisDevice': 'Denne enheten',
   'settings.togglePushNotifications': 'Slå av/på push-varsler',
   'settings.toggleTwoFactor': 'Slå av/på tofaktorautentisering',

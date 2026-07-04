@@ -84,6 +84,8 @@ export const be: Partial<CommonTranslations> = {
   'project.error.notFound': 'Не знойдзена',
   'push.error.notSupported': 'Push-апавяшчэнні не падтрымліваюцца',
   'push.error.permissionNotGranted': 'Дазвол на апавяшчэнні не прадастаўлены',
+  'push.error.noServiceWorker':
+    'Service worker не зарэгістраваны — push-апавяшчэнні патрабуюць прадакшн-зборкі праграмы.',
   'pwa.update': 'Абнавіць',
   'pwa.updateAvailable': 'Даступная новая версія!',
   'pwa.updating': 'Абнаўленне...',
@@ -129,6 +131,9 @@ export const be: Partial<CommonTranslations> = {
   'settings.plan': 'План: ',
   'settings.platform': 'Платформа',
   'settings.pushNotifications': 'Push-апавяшчэнні',
+  'settings.pushPermissionDenied': 'У дазволе на апавяшчэнні адмоўлена.',
+  'settings.pushServerUnavailable': 'Push-апавяшчэнні не наладжаны на гэтым серверы.',
+  'settings.pushUpdateFailed': 'Не ўдалося абнавіць налады push-апавяшчэнняў.',
   'settings.thisDevice': 'Гэта прылада',
   'settings.togglePushNotifications': 'Пераключыць push-апавяшчэнні',
   'settings.toggleTwoFactor': 'Пераключыць двухфактарную аўтэнтыфікацыю',

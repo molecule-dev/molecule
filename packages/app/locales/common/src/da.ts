@@ -365,6 +365,8 @@ export const da: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ikke fundet',
   'push.error.notSupported': 'Push-notifikationer understøttes ikke',
   'push.error.permissionNotGranted': 'Tilladelse til notifikationer ikke givet',
+  'push.error.noServiceWorker':
+    'Der er ingen registreret service worker — push-notifikationer kræver appens produktionsbuild.',
   'pwa.updateAvailable': 'Ny version tilgængelig!',
   'pwa.updating': 'Opdaterer...',
   'resource.error.badRequest': 'Dårlig anmodning.',
@@ -399,6 +401,9 @@ export const da: Partial<CommonTranslations> = {
   'settings.plan': 'Plan: ',
   'settings.platform': 'Platform',
   'settings.pushNotifications': 'Push-notifikationer',
+  'settings.pushPermissionDenied': 'Tilladelse til notifikationer blev afvist.',
+  'settings.pushServerUnavailable': 'Push-notifikationer er ikke konfigureret på denne server.',
+  'settings.pushUpdateFailed': 'Kunne ikke opdatere indstillinger for push-notifikationer.',
   'settings.thisDevice': 'Denne enhed',
   'settings.togglePushNotifications': 'Slå push-notifikationer til/fra',
   'settings.toggleTwoFactor': 'Slå tofaktorgodkendelse til/fra',

@@ -5,4 +5,5 @@ export const ar: DeviceTranslations = {
   'device.error.unauthorized': 'غير مصرح.',
   'device.error.badRequest': 'طلب غير صالح.',
   'device.error.notFound': 'غير موجود.',
+  'device.error.pushNotConfigured': 'الإشعارات الفورية غير مهيأة على هذا الخادم.',
 }

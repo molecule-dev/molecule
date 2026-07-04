@@ -94,6 +94,8 @@ export const hy: Partial<CommonTranslations> = {
   'project.error.notFound': 'Չի գտնվել',
   'push.error.notSupported': 'Push ծանուցումները չեն աջակցվում',
   'push.error.permissionNotGranted': 'Ծանուցման թույլտվությունը չի տրամադրվել',
+  'push.error.noServiceWorker':
+    'Service worker գրանցված չէ — push ծանուցումները պահանջում են հավելվածի արտադրական տարբերակը։',
   'pwa.update': 'Թարմացում',
   'pwa.updateAvailable': 'Նոր տարբերակը հասանելի է!',
   'pwa.updating': 'Թարմացվում է...',
@@ -140,6 +142,9 @@ export const hy: Partial<CommonTranslations> = {
   'settings.plan': 'Պլան՝ ',
   'settings.platform': 'Հարթակ',
   'settings.pushNotifications': 'Push ծանուցումներ',
+  'settings.pushPermissionDenied': 'Ծանուցումների թույլտվությունը մերժվել է։',
+  'settings.pushServerUnavailable': 'Push ծանուցումները կազմաձևված չեն այս սերվերի վրա։',
+  'settings.pushUpdateFailed': 'Չհաջողվեց թարմացնել push ծանուցումների կարգավորումները։',
   'settings.thisDevice': 'Այս սարքը',
   'settings.togglePushNotifications': 'Միացնել/անջատել push ծանուցումները',
   'settings.toggleTwoFactor': 'Միացնել/անջատել երկփուլանի նույնականացումը',

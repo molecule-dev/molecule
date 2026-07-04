@@ -90,6 +90,8 @@ export const zu: Partial<CommonTranslations> = {
   'project.error.notFound': 'Akutholakalanga',
   'push.error.notSupported': 'Izaziso ze-Push azisekelwa',
   'push.error.permissionNotGranted': 'Imvume yesaziso ayinikezwanga',
+  'push.error.noServiceWorker':
+    'Akukho service worker ebhalisiwe — izaziso zokuphusha zidinga ukwakhiwa kokukhiqiza kohlelo lokusebenza.',
   'pwa.update': 'Isibuyekezo',
   'pwa.updateAvailable': 'Inguqulo entsha iyatholakala!',
   'pwa.updating': 'Iyabuyekeza...',
@@ -136,6 +138,9 @@ export const zu: Partial<CommonTranslations> = {
   'settings.plan': 'Uhlelo: ',
   'settings.platform': 'Ipulatifomu',
   'settings.pushNotifications': 'Izaziso ze-Push',
+  'settings.pushPermissionDenied': 'Imvume yezaziso yenqatshiwe.',
+  'settings.pushServerUnavailable': 'Izaziso zokuphusha azilungiselelwe kule seva.',
+  'settings.pushUpdateFailed': 'Ayikwazanga ukubuyekeza izilungiselelo zezaziso zokuphusha.',
   'settings.thisDevice': 'Le divayisi',
   'settings.togglePushNotifications': 'Guqula izaziso zohlelo lokusebenza',
   'settings.toggleTwoFactor': 'Guqula ukuqinisekiswa kwezinto ezimbili',

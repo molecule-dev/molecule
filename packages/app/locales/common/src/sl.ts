@@ -87,6 +87,8 @@ export const sl: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ni najdeno',
   'push.error.notSupported': 'Potisna obvestila niso podprta',
   'push.error.permissionNotGranted': 'Dovoljenje za obveščanje ni odobreno',
+  'push.error.noServiceWorker':
+    'Noben service worker ni registriran — potisna obvestila zahtevajo produkcijsko različico aplikacije.',
   'pwa.update': 'Posodobitev',
   'pwa.updateAvailable': 'Na voljo nova različica!',
   'pwa.updating': 'Posodabljanje ...',
@@ -132,6 +134,9 @@ export const sl: Partial<CommonTranslations> = {
   'settings.plan': 'Načrt: ',
   'settings.platform': 'Platforma',
   'settings.pushNotifications': 'Potisna obvestila',
+  'settings.pushPermissionDenied': 'Dovoljenje za obvestila je bilo zavrnjeno.',
+  'settings.pushServerUnavailable': 'Potisna obvestila na tem strežniku niso konfigurirana.',
+  'settings.pushUpdateFailed': 'Nastavitev potisnih obvestil ni bilo mogoče posodobiti.',
   'settings.thisDevice': 'Ta naprava',
   'settings.togglePushNotifications': 'Preklopi potisna obvestila',
   'settings.toggleTwoFactor': 'Preklopi dvofaktorsko preverjanje pristnosti',

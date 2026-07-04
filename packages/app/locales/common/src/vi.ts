@@ -42,6 +42,9 @@ export const vi: Partial<CommonTranslations> = {
   'settings.offline': 'Ngoại tuyến',
   'settings.online': 'Trực tuyến',
   'settings.pushNotifications': 'Thông báo đẩy',
+  'settings.pushPermissionDenied': 'Quyền thông báo đã bị từ chối.',
+  'settings.pushServerUnavailable': 'Thông báo đẩy chưa được cấu hình trên máy chủ này.',
+  'settings.pushUpdateFailed': 'Không thể cập nhật cài đặt thông báo đẩy.',
   'settings.twoFactor': 'Xác thực hai yếu tố',
   'settings.unknown': 'Không xác định',
   'settings.upgrade': 'Nâng cấp',
@@ -423,6 +426,8 @@ export const vi: Partial<CommonTranslations> = {
   'project.error.notFound': 'Không tìm thấy',
   'push.error.notSupported': 'Thông báo đẩy không được hỗ trợ.',
   'push.error.permissionNotGranted': 'Không được phép gửi thông báo.',
+  'push.error.noServiceWorker':
+    'Chưa có service worker nào được đăng ký — thông báo đẩy yêu cầu bản dựng production của ứng dụng.',
   'pwa.updateAvailable': 'Phiên bản mới đã có!',
   'pwa.updating': 'Đang cập nhật...',
   'resource.error.badRequest': 'Yêu cầu không hợp lệ.',

@@ -94,6 +94,8 @@ export const lo: Partial<CommonTranslations> = {
   'project.error.notFound': 'ບໍ່ພົບ',
   'push.error.notSupported': 'ບໍ່ຮອງຮັບການແຈ້ງເຕືອນແບບ Push',
   'push.error.permissionNotGranted': 'ບໍ່ໄດ້ໃຫ້ການອະນຸຍາດການແຈ້ງເຕືອນ',
+  'push.error.noServiceWorker':
+    'ບໍ່ມີ service worker ທີ່ລົງທະບຽນ — ການແຈ້ງເຕືອນແບບ push ຕ້ອງການເວີຊັນ production ຂອງແອັບ.',
   'pwa.update': 'ອັບເດດ',
   'pwa.updateAvailable': 'ມີລຸ້ນໃໝ່ແລ້ວ!',
   'pwa.updating': 'ກຳລັງອັບເດດ...',
@@ -139,6 +141,9 @@ export const lo: Partial<CommonTranslations> = {
   'settings.plan': 'ແຜນການ: ',
   'settings.platform': 'ແພລດຟອມ',
   'settings.pushNotifications': 'ການແຈ້ງເຕືອນ',
+  'settings.pushPermissionDenied': 'ການອະນຸຍາດແຈ້ງເຕືອນຖືກປະຕິເສດ.',
+  'settings.pushServerUnavailable': 'ການແຈ້ງເຕືອນແບບ push ບໍ່ໄດ້ຖືກຕັ້ງຄ່າໃນເຊີບເວີນີ້.',
+  'settings.pushUpdateFailed': 'ບໍ່ສາມາດອັບເດດການຕັ້ງຄ່າການແຈ້ງເຕືອນແບບ push ໄດ້.',
   'settings.thisDevice': 'ອຸປະກອນນີ້',
   'settings.togglePushNotifications': 'ສະຫຼັບການແຈ້ງເຕືອນ',
   'settings.toggleTwoFactor': 'ສະຫຼັບການພິສູດຢືນຢັນສອງປັດໄຈ',

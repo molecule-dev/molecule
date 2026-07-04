@@ -5,4 +5,5 @@ export const th: DeviceTranslations = {
   'device.error.unauthorized': 'ไม่ได้รับอนุญาต',
   'device.error.badRequest': 'คำขอไม่ถูกต้อง',
   'device.error.notFound': 'ไม่พบ',
+  'device.error.pushNotConfigured': 'ยังไม่ได้กำหนดค่าการแจ้งเตือนแบบพุชบนเซิร์ฟเวอร์นี้',
 }

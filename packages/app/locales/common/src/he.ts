@@ -169,6 +169,8 @@ export const he: Partial<CommonTranslations> = {
   'project.error.notFound': 'לא נמצא',
   'push.error.notSupported': 'התראות דחיפה אינן נתמכות',
   'push.error.permissionNotGranted': 'לא ניתנה הרשאת התראות',
+  'push.error.noServiceWorker':
+    'לא רשום service worker — התראות דחיפה דורשות את גרסת הייצור של האפליקציה.',
   'pwa.update': 'לְעַדְכֵּן',
   'pwa.updateAvailable': 'גרסה חדשה זמינה!',
   'pwa.updating': 'עִדכּוּן...',
@@ -209,6 +211,9 @@ export const he: Partial<CommonTranslations> = {
   'settings.plan': 'לְתַכְנֵן: ',
   'settings.platform': 'פּלַטפוֹרמָה',
   'settings.pushNotifications': 'התראות דחיפה',
+  'settings.pushPermissionDenied': 'הרשאת ההתראות נדחתה.',
+  'settings.pushServerUnavailable': 'התראות דחיפה אינן מוגדרות בשרת זה.',
+  'settings.pushUpdateFailed': 'לא ניתן היה לעדכן את הגדרות התראות הדחיפה.',
   'settings.thisDevice': 'המכשיר הזה',
   'settings.togglePushNotifications': 'הפעל/הפעל התראות דחיפה',
   'settings.toggleTwoFactor': 'הפעל/הפעל אימות דו-שלבי',

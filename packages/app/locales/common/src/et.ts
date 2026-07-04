@@ -89,6 +89,8 @@ export const et: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ei leitud',
   'push.error.notSupported': 'Push-teavitusi ei toetata',
   'push.error.permissionNotGranted': 'Teavitusluba pole antud',
+  'push.error.noServiceWorker':
+    'Ühtegi service worker’it pole registreeritud — tõuketeavitused vajavad rakenduse toodangu-buildi.',
   'pwa.update': 'Värskendus',
   'pwa.updateAvailable': 'Uus versioon saadaval!',
   'pwa.updating': 'Värskendamine...',
@@ -135,6 +137,9 @@ export const et: Partial<CommonTranslations> = {
   'settings.plan': 'Plaan: ',
   'settings.platform': 'Platvorm',
   'settings.pushNotifications': 'Tõuketeated',
+  'settings.pushPermissionDenied': 'Teavituste luba lükati tagasi.',
+  'settings.pushServerUnavailable': 'Tõuketeavitused pole selles serveris seadistatud.',
+  'settings.pushUpdateFailed': 'Tõuketeavituste seadeid ei õnnestunud uuendada.',
   'settings.thisDevice': 'See seade',
   'settings.togglePushNotifications': 'Lülitage tõukemärguanded sisse/välja',
   'settings.toggleTwoFactor': 'Kahefaktorilise autentimise sisse-/väljalülitamine',

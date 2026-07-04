@@ -372,6 +372,8 @@ export const ms: Partial<CommonTranslations> = {
   'project.error.notFound': 'Tidak ditemui',
   'push.error.notSupported': 'Pemberitahuan push tidak disokong',
   'push.error.permissionNotGranted': 'Kebenaran pemberitahuan tidak diberikan',
+  'push.error.noServiceWorker':
+    'Tiada service worker yang didaftarkan — pemberitahuan tolak memerlukan binaan produksi aplikasi.',
   'pwa.updateAvailable': 'Versi baharu tersedia!',
   'pwa.updating': 'Mengemas kini...',
   'resource.error.badRequest': 'Permintaan yang buruk.',
@@ -406,6 +408,9 @@ export const ms: Partial<CommonTranslations> = {
   'settings.plan': 'Pelan: ',
   'settings.platform': 'Platform',
   'settings.pushNotifications': 'Pemberitahuan tolak',
+  'settings.pushPermissionDenied': 'Kebenaran pemberitahuan ditolak.',
+  'settings.pushServerUnavailable': 'Pemberitahuan tolak tidak dikonfigurasikan pada pelayan ini.',
+  'settings.pushUpdateFailed': 'Tidak dapat mengemas kini tetapan pemberitahuan tolak.',
   'settings.thisDevice': 'Peranti Ini',
   'settings.togglePushNotifications': 'Togol pemberitahuan tolak',
   'settings.toggleTwoFactor': 'Togol pengesahan dua faktor',

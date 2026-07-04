@@ -11,6 +11,7 @@ import type {
   NotificationReceivedListener,
   PermissionStatus,
   PushProvider,
+  PushRegisterOptions,
   PushToken,
   TokenChangeListener,
 } from '@molecule/app-push'
@@ -24,7 +25,7 @@ export interface UsePushResult {
   token: PushToken | null
   checkPermission: () => Promise<PermissionStatus>
   requestPermission: () => Promise<PermissionStatus>
-  register: () => Promise<PushToken>
+  register: (options?: PushRegisterOptions) => Promise<PushToken>
   unregister: () => Promise<void>
   onNotificationReceived: (listener: NotificationReceivedListener) => () => void
   onNotificationAction: (listener: NotificationActionListener) => () => void
@@ -90,8 +91,8 @@ export function usePush(options?: UsePushOptions): UsePushResult {
     return status
   }, [])
 
-  const register = useCallback(async () => {
-    const pushToken = await providerRef.current.register()
+  const register = useCallback(async (options?: PushRegisterOptions) => {
+    const pushToken = await providerRef.current.register(options)
     setToken(pushToken)
     return pushToken
   }, [])

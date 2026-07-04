@@ -95,6 +95,8 @@ export const te: Partial<CommonTranslations> = {
   'project.error.notFound': 'కనుగొనబడలేదు',
   'push.error.notSupported': 'పుష్ నోటిఫికేషన్‌లకు మద్దతు లేదు',
   'push.error.permissionNotGranted': 'నోటిఫికేషన్ అనుమతి మంజూరు చేయబడలేదు',
+  'push.error.noServiceWorker':
+    'సర్వీస్ వర్కర్ నమోదు కాలేదు — పుష్ నోటిఫికేషన్‌లకు యాప్ ప్రొడక్షన్ బిల్డ్ అవసరం.',
   'pwa.update': 'నవీకరణ',
   'pwa.updateAvailable': 'కొత్త వెర్షన్ అందుబాటులో ఉంది!',
   'pwa.updating': 'నవీకరిస్తోంది...',
@@ -140,6 +142,9 @@ export const te: Partial<CommonTranslations> = {
   'settings.plan': 'ప్రణాళిక: ',
   'settings.platform': 'ప్లాట్‌ఫారమ్',
   'settings.pushNotifications': 'పుష్ నోటిఫికేషన్లు',
+  'settings.pushPermissionDenied': 'నోటిఫికేషన్ అనుమతి తిరస్కరించబడింది.',
+  'settings.pushServerUnavailable': 'ఈ సర్వర్‌లో పుష్ నోటిఫికేషన్‌లు కాన్ఫిగర్ చేయబడలేదు.',
+  'settings.pushUpdateFailed': 'పుష్ నోటిఫికేషన్ సెట్టింగ్‌లను అప్‌డేట్ చేయలేకపోయాము.',
   'settings.thisDevice': 'ఈ పరికరం',
   'settings.togglePushNotifications': 'పుష్ నోటిఫికేషన్‌లను టోగుల్ చేయండి',
   'settings.toggleTwoFactor': 'రెండు-కారకాల ప్రమాణీకరణను టోగుల్ చేయండి',

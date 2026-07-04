@@ -5,4 +5,5 @@ export const ga: DeviceTranslations = {
   'device.error.unauthorized': 'Neamhúdaraithe.',
   'device.error.badRequest': 'Droch-iarratas.',
   'device.error.notFound': 'Gan aimsiú.',
+  'device.error.pushNotConfigured': 'Níl fógraí brú cumraithe ar an bhfreastalaí seo.',
 }

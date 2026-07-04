@@ -370,6 +370,8 @@ export const uk: Partial<CommonTranslations> = {
   'project.error.notFound': 'Не знайдено',
   'push.error.notSupported': 'Push-сповіщення не підтримуються',
   'push.error.permissionNotGranted': 'Дозвіл на сповіщення не надано',
+  'push.error.noServiceWorker':
+    'Service worker не зареєстрований — push-сповіщення потребують продакшн-збірки застосунку.',
   'pwa.updateAvailable': 'Нова версія доступна!',
   'pwa.updating': 'Оновлення...',
   'resource.error.badRequest': 'Невдалий запит.',
@@ -404,6 +406,9 @@ export const uk: Partial<CommonTranslations> = {
   'settings.plan': 'План: ',
   'settings.platform': 'Платформа',
   'settings.pushNotifications': 'Push-сповіщення',
+  'settings.pushPermissionDenied': 'У дозволі на сповіщення відмовлено.',
+  'settings.pushServerUnavailable': 'Push-сповіщення не налаштовані на цьому сервері.',
+  'settings.pushUpdateFailed': 'Не вдалося оновити налаштування push-сповіщень.',
   'settings.thisDevice': 'Цей пристрій',
   'settings.togglePushNotifications': 'Увімкнути/вимкнути push-сповіщення',
   'settings.toggleTwoFactor': 'Увімкнути/вимкнути двофакторну автентифікацію',

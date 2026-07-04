@@ -5,4 +5,5 @@ export const mt: DeviceTranslations = {
   'device.error.unauthorized': 'Mhux awtorizzat.',
   'device.error.badRequest': 'Talba ħażina.',
   'device.error.notFound': 'Ma nstabx.',
+  'device.error.pushNotConfigured': 'In-notifiki push mhumiex ikkonfigurati fuq dan is-server.',
 }

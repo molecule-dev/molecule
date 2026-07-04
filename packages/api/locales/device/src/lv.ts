@@ -5,4 +5,5 @@ export const lv: DeviceTranslations = {
   'device.error.unauthorized': 'Neautorizēts.',
   'device.error.badRequest': 'Nepareizs pieprasījums.',
   'device.error.notFound': 'Nav atrasts.',
+  'device.error.pushNotConfigured': 'Push paziņojumi šajā serverī nav konfigurēti.',
 }

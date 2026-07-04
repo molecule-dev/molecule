@@ -227,8 +227,11 @@ interface PushProvider {
 
   /**
    * Registers for push notifications and gets a token.
+   *
+   * @param options - Optional registration options (e.g. a runtime VAPID
+   * public key for web subscriptions).
    */
-  register(): Promise<PushToken>
+  register(options?: PushRegisterOptions): Promise<PushToken>
 
   /**
    * Unregisters from push notifications.
@@ -310,6 +313,24 @@ interface PushProvider {
    * Destroys the provider.
    */
   destroy(): void
+}
+```
+
+#### `PushRegisterOptions`
+
+Options for {@link PushProvider.register}.
+
+```typescript
+interface PushRegisterOptions {
+  /**
+   * VAPID public key (URL-safe base64) used as the `applicationServerKey`
+   * when subscribing on the web. Chromium rejects keyless subscriptions, so
+   * web apps should deliver the server's key at runtime (e.g. from
+   * `GET /api/devices/push/public-key`) and pass it here. Takes precedence
+   * over any key the provider was constructed with. Ignored by providers
+   * whose platform does not use VAPID (e.g. FCM/APNs native providers).
+   */
+  vapidPublicKey?: string
 }
 ```
 
@@ -458,13 +479,15 @@ function onNotificationReceived(listener: NotificationReceivedListener): () => v
 
 **Returns:** An unsubscribe function to remove the listener.
 
-#### `register()`
+#### `register(options)`
 
 Registers for push notifications and obtains a device token.
 
 ```typescript
-function register(): Promise<PushToken>
+function register(options?: PushRegisterOptions): Promise<PushToken>
 ```
+
+- `options` — Optional registration options (e.g. a runtime VAPID public key).
 
 **Returns:** The push token for this device.
 

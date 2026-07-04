@@ -5,4 +5,5 @@ export const ru: DeviceTranslations = {
   'device.error.unauthorized': 'Не авторизован.',
   'device.error.badRequest': 'Неверный запрос.',
   'device.error.notFound': 'Не найдено.',
+  'device.error.pushNotConfigured': 'Push-уведомления не настроены на этом сервере.',
 }

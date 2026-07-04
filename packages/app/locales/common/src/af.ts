@@ -87,6 +87,8 @@ export const af: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nie gevind nie',
   'push.error.notSupported': 'Stootkennisgewings word nie ondersteun nie',
   'push.error.permissionNotGranted': 'Kennisgewingtoestemming nie toegestaan nie',
+  'push.error.noServiceWorker':
+    'Geen dienswerker is geregistreer nie — stootkennisgewings vereis die produksie-bou van die app.',
   'pwa.update': 'Opdatering',
   'pwa.updateAvailable': 'Nuwe weergawe beskikbaar!',
   'pwa.updating': 'Opdatering...',
@@ -133,6 +135,9 @@ export const af: Partial<CommonTranslations> = {
   'settings.plan': 'Plan: ',
   'settings.platform': 'Platform',
   'settings.pushNotifications': 'Stootkennisgewings',
+  'settings.pushPermissionDenied': 'Kennisgewingtoestemming is geweier.',
+  'settings.pushServerUnavailable': 'Stootkennisgewings is nie op hierdie bediener opgestel nie.',
+  'settings.pushUpdateFailed': 'Kon nie stootkennisgewing-instellings opdateer nie.',
   'settings.thisDevice': 'Hierdie toestel',
   'settings.togglePushNotifications': 'Wissel stootkennisgewings',
   'settings.toggleTwoFactor': 'Wissel tweefaktor-verifikasie',

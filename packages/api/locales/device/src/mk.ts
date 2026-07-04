@@ -5,4 +5,5 @@ export const mk: DeviceTranslations = {
   'device.error.unauthorized': 'Неовластено.',
   'device.error.badRequest': 'Неисправно барање.',
   'device.error.notFound': 'Не е пронајдено.',
+  'device.error.pushNotConfigured': 'Push известувањата не се конфигурирани на овој сервер.',
 }

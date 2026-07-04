@@ -87,6 +87,8 @@ export const sw: Partial<CommonTranslations> = {
   'project.error.notFound': 'Haikupatikana',
   'push.error.notSupported': 'Arifa za programu zinazotumwa hazitumiki',
   'push.error.permissionNotGranted': 'Ruhusa ya arifa haijatolewa',
+  'push.error.noServiceWorker':
+    'Hakuna service worker aliyesajiliwa — arifa za kusukuma zinahitaji toleo la uzalishaji la programu.',
   'pwa.update': 'Sasisho',
   'pwa.updateAvailable': 'Toleo jipya linapatikana!',
   'pwa.updating': 'Inasasisha...',
@@ -133,6 +135,9 @@ export const sw: Partial<CommonTranslations> = {
   'settings.plan': 'Mpango: ',
   'settings.platform': 'Jukwaa',
   'settings.pushNotifications': 'Arifa za programu zinazotumwa na programu',
+  'settings.pushPermissionDenied': 'Ruhusa ya arifa ilikataliwa.',
+  'settings.pushServerUnavailable': 'Arifa za kusukuma hazijasanidiwa kwenye seva hii.',
+  'settings.pushUpdateFailed': 'Imeshindwa kusasisha mipangilio ya arifa za kusukuma.',
   'settings.thisDevice': 'Kifaa Hiki',
   'settings.togglePushNotifications': 'Badilisha arifa zinazotumwa na programu',
   'settings.toggleTwoFactor': 'Badilisha uthibitishaji wa vipengele viwili',

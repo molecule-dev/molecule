@@ -6,7 +6,7 @@ supported molecule.dev languages.
 
 ## Purpose
 
-Provides translations for the `@molecule/app-common` package which has 492 translation keys.
+Provides translations for the `@molecule/app-common` package which has 496 translation keys.
 
 ## Languages
 
@@ -104,6 +104,7 @@ import type { CommonTranslations, UiTranslations } from '@molecule/app-locales-c
 | `project.error.notFound` | Not found |
 | `push.error.notSupported` | Push notifications not supported |
 | `push.error.permissionNotGranted` | Notification permission not granted |
+| `push.error.noServiceWorker` | No service worker is registered — push notifications require the production app build. |
 | `pwa.update` | Update |
 | `pwa.updateAvailable` | New version available! |
 | `pwa.updating` | Updating... |
@@ -147,6 +148,9 @@ import type { CommonTranslations, UiTranslations } from '@molecule/app-locales-c
 | `settings.plan` | Plan:  |
 | `settings.platform` | Platform |
 | `settings.pushNotifications` | Push notifications |
+| `settings.pushPermissionDenied` | Notification permission was denied. |
+| `settings.pushServerUnavailable` | Push notifications are not configured on this server. |
+| `settings.pushUpdateFailed` | Could not update push notification settings. |
 | `settings.thisDevice` | This Device |
 | `settings.togglePushNotifications` | Toggle push notifications |
 | `settings.toggleTwoFactor` | Toggle two-factor authentication |

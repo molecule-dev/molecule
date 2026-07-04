@@ -3,6 +3,7 @@ export type DeviceTranslationKey =
   | 'device.error.unauthorized'
   | 'device.error.badRequest'
   | 'device.error.notFound'
+  | 'device.error.pushNotConfigured'
 
 /** Translation record mapping device keys to translated strings. */
 export type DeviceTranslations = Record<DeviceTranslationKey, string>

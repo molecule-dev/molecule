@@ -41,6 +41,9 @@ export const it: Partial<CommonTranslations> = {
   'settings.network': 'Rete',
   'settings.notifications': 'Notifiche',
   'settings.pushNotifications': 'Notifiche push',
+  'settings.pushPermissionDenied': 'L’autorizzazione alle notifiche è stata negata.',
+  'settings.pushServerUnavailable': 'Le notifiche push non sono configurate su questo server.',
+  'settings.pushUpdateFailed': 'Impossibile aggiornare le impostazioni delle notifiche push.',
   'settings.twoFactor': 'Autenticazione a due fattori',
   'settings.unknown': 'Sconosciuto',
   'settings.upgrade': 'Aggiorna',
@@ -412,6 +415,8 @@ export const it: Partial<CommonTranslations> = {
   'project.error.notFound': 'Non trovato',
   'push.error.notSupported': 'Notifiche push non supportate',
   'push.error.permissionNotGranted': 'Autorizzazione alla notifica non concessa',
+  'push.error.noServiceWorker':
+    'Nessun service worker registrato — le notifiche push richiedono la build di produzione dell’app.',
   'pwa.updateAvailable': 'Nuova versione disponibile!',
   'pwa.updating': 'Aggiornamento...',
   'resource.error.badRequest': 'Brutta richiesta.',

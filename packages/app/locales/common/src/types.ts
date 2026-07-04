@@ -89,6 +89,7 @@ export interface CommonTranslations {
   'project.error.notFound': string
   'push.error.notSupported': string
   'push.error.permissionNotGranted': string
+  'push.error.noServiceWorker': string
   'pwa.update': string
   'pwa.updateAvailable': string
   'pwa.updating': string
@@ -132,6 +133,9 @@ export interface CommonTranslations {
   'settings.plan': string
   'settings.platform': string
   'settings.pushNotifications': string
+  'settings.pushPermissionDenied': string
+  'settings.pushServerUnavailable': string
+  'settings.pushUpdateFailed': string
   'settings.thisDevice': string
   'settings.togglePushNotifications': string
   'settings.toggleTwoFactor': string

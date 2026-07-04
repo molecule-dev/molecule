@@ -46,6 +46,9 @@ export const ja: Partial<CommonTranslations> = {
   'settings.offline': 'オフライン',
   'settings.online': 'オンライン',
   'settings.pushNotifications': 'プッシュ通知',
+  'settings.pushPermissionDenied': '通知の権限が拒否されました。',
+  'settings.pushServerUnavailable': 'このサーバーではプッシュ通知が設定されていません。',
+  'settings.pushUpdateFailed': 'プッシュ通知の設定を更新できませんでした。',
   'settings.twoFactor': '二要素認証',
   'settings.unknown': '不明',
   'settings.upgrade': 'アップグレード',
@@ -419,6 +422,8 @@ export const ja: Partial<CommonTranslations> = {
   'project.error.notFound': '見つかりません',
   'push.error.notSupported': 'プッシュ通知はサポートされていません',
   'push.error.permissionNotGranted': '通知権限が付与されていません',
+  'push.error.noServiceWorker':
+    'サービスワーカーが登録されていません — プッシュ通知にはアプリの本番ビルドが必要です。',
   'pwa.updateAvailable': '新バージョンがリリースされました！',
   'pwa.updating': '更新中...',
   'resource.error.badRequest': '要求の形式が正しくありません。',

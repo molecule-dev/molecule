@@ -94,6 +94,8 @@ export const pa: Partial<CommonTranslations> = {
   'project.error.notFound': 'ਨਹੀਂ ਲਭਿਆ',
   'push.error.notSupported': 'ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਸਮਰਥਿਤ ਨਹੀਂ ਹਨ',
   'push.error.permissionNotGranted': 'ਸੂਚਨਾ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਦਿੱਤੀ ਗਈ',
+  'push.error.noServiceWorker':
+    'ਕੋਈ ਸਰਵਿਸ ਵਰਕਰ ਰਜਿਸਟਰ ਨਹੀਂ ਹੈ — ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਲਈ ਐਪ ਦਾ ਪ੍ਰੋਡਕਸ਼ਨ ਬਿਲਡ ਲੋੜੀਂਦਾ ਹੈ।',
   'pwa.update': 'ਅੱਪਡੇਟ',
   'pwa.updateAvailable': 'ਨਵਾਂ ਵਰਜਨ ਉਪਲਬਧ ਹੈ!',
   'pwa.updating': 'ਅੱਪਡੇਟ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...',
@@ -139,6 +141,9 @@ export const pa: Partial<CommonTranslations> = {
   'settings.plan': 'ਯੋਜਨਾ: ',
   'settings.platform': 'ਪਲੇਟਫਾਰਮ',
   'settings.pushNotifications': 'ਪੁਸ਼ ਸੂਚਨਾਵਾਂ',
+  'settings.pushPermissionDenied': 'ਸੂਚਨਾ ਇਜਾਜ਼ਤ ਰੱਦ ਕਰ ਦਿੱਤੀ ਗਈ।',
+  'settings.pushServerUnavailable': 'ਇਸ ਸਰਵਰ ਉੱਤੇ ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਸੰਰਚਿਤ ਨਹੀਂ ਹਨ।',
+  'settings.pushUpdateFailed': 'ਪੁਸ਼ ਸੂਚਨਾ ਸੈਟਿੰਗਾਂ ਅੱਪਡੇਟ ਨਹੀਂ ਕੀਤੀਆਂ ਜਾ ਸਕੀਆਂ।',
   'settings.thisDevice': 'ਇਹ ਡਿਵਾਈਸ',
   'settings.togglePushNotifications': 'ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਨੂੰ ਟੌਗਲ ਕਰੋ',
   'settings.toggleTwoFactor': 'ਦੋ-ਕਾਰਕ ਪ੍ਰਮਾਣੀਕਰਨ ਨੂੰ ਟੌਗਲ ਕਰੋ',

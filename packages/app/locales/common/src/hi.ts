@@ -46,6 +46,9 @@ export const hi: Partial<CommonTranslations> = {
   'settings.offline': 'ऑफ़लाइन',
   'settings.online': 'ऑनलाइन',
   'settings.pushNotifications': 'पुश सूचनाएँ',
+  'settings.pushPermissionDenied': 'सूचना अनुमति अस्वीकार कर दी गई।',
+  'settings.pushServerUnavailable': 'इस सर्वर पर पुश सूचनाएँ कॉन्फ़िगर नहीं हैं।',
+  'settings.pushUpdateFailed': 'पुश सूचना सेटिंग्स अपडेट नहीं की जा सकीं।',
   'settings.twoFactor': 'दो-कारक प्रमाणीकरण',
   'settings.unknown': 'अज्ञात',
   'settings.upgrade': 'अपग्रेड करें',
@@ -422,6 +425,8 @@ export const hi: Partial<CommonTranslations> = {
   'project.error.notFound': 'नहीं मिला',
   'push.error.notSupported': 'पुश नोटिफिकेशन समर्थित नहीं हैं',
   'push.error.permissionNotGranted': 'अधिसूचना की अनुमति नहीं दी गई',
+  'push.error.noServiceWorker':
+    'कोई सर्विस वर्कर पंजीकृत नहीं है — पुश सूचनाओं के लिए ऐप का प्रोडक्शन बिल्ड आवश्यक है।',
   'pwa.updateAvailable': 'नया संस्करण उपलब्ध है!',
   'pwa.updating': 'अपडेट हो रहा है...',
   'resource.error.badRequest': 'खराब अनुरोध।',

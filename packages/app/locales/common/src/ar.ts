@@ -46,6 +46,9 @@ export const ar: Partial<CommonTranslations> = {
   'settings.offline': 'غير متصل',
   'settings.online': 'متصل',
   'settings.pushNotifications': 'الإشعارات الفورية',
+  'settings.pushPermissionDenied': 'تم رفض إذن الإشعارات.',
+  'settings.pushServerUnavailable': 'الإشعارات الفورية غير مهيأة على هذا الخادم.',
+  'settings.pushUpdateFailed': 'تعذر تحديث إعدادات الإشعارات الفورية.',
   'settings.twoFactor': 'المصادقة الثنائية',
   'settings.unknown': 'غير معروف',
   'settings.upgrade': 'ترقية',
@@ -419,6 +422,8 @@ export const ar: Partial<CommonTranslations> = {
   'project.error.notFound': 'غير موجود',
   'push.error.notSupported': 'الإشعارات الفورية غير مدعومة',
   'push.error.permissionNotGranted': 'لم يتم منح إذن الإشعار',
+  'push.error.noServiceWorker':
+    'لا يوجد عامل خدمة مسجل — تتطلب الإشعارات الفورية نسخة الإنتاج من التطبيق.',
   'pwa.updateAvailable': 'الإصدار الجديد متوفر الآن!',
   'pwa.updating': 'جارٍ التحديث...',
   'resource.error.badRequest': 'اقتراح غير جيد.',

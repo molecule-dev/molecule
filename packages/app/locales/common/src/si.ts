@@ -94,6 +94,8 @@ export const si: Partial<CommonTranslations> = {
   'project.error.notFound': 'හමු වුණේ නැහැ',
   'push.error.notSupported': 'තල්ලු දැනුම්දීම් සහාය නොදක්වයි',
   'push.error.permissionNotGranted': 'දැනුම්දීමේ අවසරය ලබා දී නැත.',
+  'push.error.noServiceWorker':
+    'Service worker ලියාපදිංචි වී නොමැත — තල්ලු දැනුම්දීම් සඳහා යෙදුමේ නිෂ්පාදන ගොඩනැගීම අවශ්‍යයි.',
   'pwa.update': 'යාවත්කාලීන කරන්න',
   'pwa.updateAvailable': 'නව අනුවාදය තිබේ!',
   'pwa.updating': 'යාවත්කාලීන කරමින්...',
@@ -140,6 +142,9 @@ export const si: Partial<CommonTranslations> = {
   'settings.plan': 'සැලැස්ම: ',
   'settings.platform': 'වේදිකාව',
   'settings.pushNotifications': 'දැනුම්දීම් තල්ලු කරන්න',
+  'settings.pushPermissionDenied': 'දැනුම්දීම් අවසරය ප්‍රතික්ෂේප විය.',
+  'settings.pushServerUnavailable': 'මෙම සේවාදායකයේ තල්ලු දැනුම්දීම් වින්‍යාස කර නොමැත.',
+  'settings.pushUpdateFailed': 'තල්ලු දැනුම්දීම් සැකසුම් යාවත්කාලීන කළ නොහැකි විය.',
   'settings.thisDevice': 'මෙම උපාංගය',
   'settings.togglePushNotifications': 'තල්ලු දැනුම්දීම් ටොගල් කරන්න',
   'settings.toggleTwoFactor': 'ද්වි-සාධක සත්‍යාපනය ටොගල් කරන්න',

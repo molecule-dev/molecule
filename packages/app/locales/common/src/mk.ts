@@ -97,6 +97,8 @@ export const mk: Partial<CommonTranslations> = {
   'project.error.notFound': 'Не е пронајдено',
   'push.error.notSupported': 'Push известувањата не се поддржани',
   'push.error.permissionNotGranted': 'Дозволата за известување не е одобрена',
+  'push.error.noServiceWorker':
+    'Нема регистриран service worker — push известувањата бараат продукциска верзија на апликацијата.',
   'pwa.update': 'Ажурирање',
   'pwa.updateAvailable': 'Достапна е нова верзија!',
   'pwa.updating': 'Се ажурира...',
@@ -143,6 +145,9 @@ export const mk: Partial<CommonTranslations> = {
   'settings.plan': 'План: ',
   'settings.platform': 'Платформа',
   'settings.pushNotifications': 'Push известувања',
+  'settings.pushPermissionDenied': 'Дозволата за известувања беше одбиена.',
+  'settings.pushServerUnavailable': 'Push известувањата не се конфигурирани на овој сервер.',
+  'settings.pushUpdateFailed': 'Не можеа да се ажурираат поставките за push известувања.',
   'settings.thisDevice': 'Овој уред',
   'settings.togglePushNotifications': 'Вклучи/исклучи push известувања',
   'settings.toggleTwoFactor': 'Вклучи/исклучи двофакторска автентикација',

@@ -44,6 +44,9 @@ export const pl: Partial<CommonTranslations> = {
   'settings.network': 'Sieć',
   'settings.notifications': 'Powiadomienia',
   'settings.pushNotifications': 'Powiadomienia push',
+  'settings.pushPermissionDenied': 'Odmówiono zgody na powiadomienia.',
+  'settings.pushServerUnavailable': 'Powiadomienia push nie są skonfigurowane na tym serwerze.',
+  'settings.pushUpdateFailed': 'Nie udało się zaktualizować ustawień powiadomień push.',
   'settings.twoFactor': 'Uwierzytelnianie dwuskładnikowe',
   'settings.unknown': 'Nieznany',
   'settings.upgrade': 'Ulepsz',
@@ -421,6 +424,8 @@ export const pl: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nie znaleziono',
   'push.error.notSupported': 'Powiadomienia push nie są obsługiwane',
   'push.error.permissionNotGranted': 'Nie udzielono pozwolenia na powiadomienie',
+  'push.error.noServiceWorker':
+    'Nie zarejestrowano żadnego service workera — powiadomienia push wymagają produkcyjnej wersji aplikacji.',
   'pwa.updateAvailable': 'Nowa wersja dostępna!',
   'pwa.updating': 'Aktualizowanie...',
   'resource.error.badRequest': 'Złe żądanie.',

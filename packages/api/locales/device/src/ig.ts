@@ -5,4 +5,5 @@ export const ig: DeviceTranslations = {
   'device.error.unauthorized': 'Enweghị ikike.',
   'device.error.badRequest': 'Arịrịọ ọjọọ.',
   'device.error.notFound': 'Ahụghị ya.',
+  'device.error.pushNotConfigured': 'Ahazighị ọkwa mmanye na sava a.',
 }

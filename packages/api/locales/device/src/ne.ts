@@ -5,4 +5,5 @@ export const ne: DeviceTranslations = {
   'device.error.unauthorized': 'अनधिकृत।',
   'device.error.badRequest': 'खराब अनुरोध।',
   'device.error.notFound': 'फेला परेन।',
+  'device.error.pushNotConfigured': 'यो सर्भरमा पुश सूचनाहरू कन्फिगर गरिएका छैनन्।',
 }

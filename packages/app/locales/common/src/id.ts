@@ -41,6 +41,9 @@ export const id: Partial<CommonTranslations> = {
   'settings.notifications': 'Notifikasi',
   'settings.online': 'Daring',
   'settings.pushNotifications': 'Notifikasi push',
+  'settings.pushPermissionDenied': 'Izin notifikasi ditolak.',
+  'settings.pushServerUnavailable': 'Notifikasi push tidak dikonfigurasi di server ini.',
+  'settings.pushUpdateFailed': 'Tidak dapat memperbarui pengaturan notifikasi push.',
   'settings.twoFactor': 'Autentikasi dua faktor',
   'settings.unknown': 'Tidak diketahui',
   'settings.upgrade': 'Tingkatkan',
@@ -417,6 +420,8 @@ export const id: Partial<CommonTranslations> = {
   'project.error.notFound': 'Tidak ditemukan',
   'push.error.notSupported': 'Notifikasi push tidak didukung.',
   'push.error.permissionNotGranted': 'Izin pemberitahuan tidak diberikan',
+  'push.error.noServiceWorker':
+    'Tidak ada service worker yang terdaftar — notifikasi push memerlukan build produksi aplikasi.',
   'pwa.updateAvailable': 'Versi baru tersedia!',
   'pwa.updating': 'Sedang memperbarui...',
   'resource.error.badRequest': 'Permintaan yang buruk.',

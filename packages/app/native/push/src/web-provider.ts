@@ -13,6 +13,7 @@ import type {
   PermissionStatus,
   PushNotification,
   PushProvider,
+  PushRegisterOptions,
   PushToken,
   TokenChangeListener,
 } from './types.js'
@@ -47,6 +48,22 @@ export const createWebPushProvider = (vapidPublicKey?: string): PushProvider => 
   let currentToken: PushToken | null = null
   let registration: ServiceWorkerRegistration | null = null
 
+  /**
+   * Resolve the active service worker registration WITHOUT hanging.
+   *
+   * `navigator.serviceWorker.ready` never settles when no service worker is
+   * registered (the common case in dev builds — only production builds ship
+   * one), which used to freeze the enable-push UI forever. `getRegistration()`
+   * resolves immediately (`undefined` when none), so callers can fail fast or
+   * degrade gracefully; when a registration exists, awaiting `ready` is then
+   * safe (it settles once the worker activates).
+   */
+  const getReadyRegistration = async (): Promise<ServiceWorkerRegistration | null> => {
+    const existing = await navigator.serviceWorker.getRegistration()
+    if (!existing) return null
+    return navigator.serviceWorker.ready
+  }
+
   // Convert VAPID key to Uint8Array
   const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -79,7 +96,7 @@ export const createWebPushProvider = (vapidPublicKey?: string): PushProvider => 
       return result as PermissionStatus
     },
 
-    async register(): Promise<PushToken> {
+    async register(options?: PushRegisterOptions): Promise<PushToken> {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
         throw new Error(
           t('push.error.notSupported', undefined, {
@@ -88,16 +105,27 @@ export const createWebPushProvider = (vapidPublicKey?: string): PushProvider => 
         )
       }
 
-      // Get service worker registration
-      registration = await navigator.serviceWorker.ready
+      // Fail fast (never hang) when no service worker is registered — dev
+      // builds don't ship one, and awaiting `.ready` would block forever.
+      registration = await getReadyRegistration()
+      if (!registration) {
+        throw new Error(
+          t('push.error.noServiceWorker', undefined, {
+            defaultValue:
+              'No service worker is registered — push notifications require the production app build.',
+          }),
+        )
+      }
 
       // Subscribe to push
       const subscribeOptions: PushSubscriptionOptionsInit = {
         userVisibleOnly: true,
       }
 
-      if (vapidPublicKey) {
-        subscribeOptions.applicationServerKey = urlBase64ToUint8Array(vapidPublicKey)
+      // Runtime key (e.g. fetched from the api) wins over the constructor key.
+      const applicationServerKey = options?.vapidPublicKey ?? vapidPublicKey
+      if (applicationServerKey) {
+        subscribeOptions.applicationServerKey = urlBase64ToUint8Array(applicationServerKey)
           .buffer as ArrayBuffer
       }
 
@@ -116,7 +144,12 @@ export const createWebPushProvider = (vapidPublicKey?: string): PushProvider => 
 
     async unregister(): Promise<void> {
       if (!registration) {
-        registration = await navigator.serviceWorker.ready
+        registration = await getReadyRegistration()
+      }
+      if (!registration) {
+        // Nothing to unsubscribe from (no service worker → no subscription).
+        currentToken = null
+        return
       }
 
       const subscription = await registration.pushManager.getSubscription()
@@ -134,7 +167,8 @@ export const createWebPushProvider = (vapidPublicKey?: string): PushProvider => 
         return null
       }
 
-      registration = await navigator.serviceWorker.ready
+      registration = await getReadyRegistration()
+      if (!registration) return null
       const subscription = await registration.pushManager.getSubscription()
 
       if (subscription) {
@@ -231,8 +265,9 @@ export const createWebPushProvider = (vapidPublicKey?: string): PushProvider => 
 
     async getDelivered(): Promise<PushNotification[]> {
       if (!registration) {
-        registration = await navigator.serviceWorker.ready
+        registration = await getReadyRegistration()
       }
+      if (!registration) return []
 
       const notifications = await registration.getNotifications()
       return notifications.map((n) => {
@@ -252,8 +287,9 @@ export const createWebPushProvider = (vapidPublicKey?: string): PushProvider => 
 
     async removeDelivered(ids: string[]): Promise<void> {
       if (!registration) {
-        registration = await navigator.serviceWorker.ready
+        registration = await getReadyRegistration()
       }
+      if (!registration) return
 
       const notifications = await registration.getNotifications()
       for (const n of notifications) {
@@ -265,8 +301,9 @@ export const createWebPushProvider = (vapidPublicKey?: string): PushProvider => 
 
     async removeAllDelivered(): Promise<void> {
       if (!registration) {
-        registration = await navigator.serviceWorker.ready
+        registration = await getReadyRegistration()
       }
+      if (!registration) return
 
       const notifications = await registration.getNotifications()
       for (const n of notifications) {

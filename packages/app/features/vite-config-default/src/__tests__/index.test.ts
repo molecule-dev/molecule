@@ -2,9 +2,13 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@tailwindcss/vite', () => ({ default: () => ({ name: 'tailwindcss' }) }))
 vi.mock('@vitejs/plugin-react', () => ({ default: () => ({ name: 'react' }) }))
-vi.mock('vite-plugin-pwa', () => ({ VitePWA: () => ({ name: 'pwa' }) }))
+vi.mock('vite-plugin-pwa', () => ({
+  // Capture the options so tests can assert on the workbox config the real
+  // plugin would receive.
+  VitePWA: (options: unknown) => ({ name: 'pwa', __options: options }),
+}))
 
-import { createDefaultViteConfig } from '../index.js'
+import { createDefaultViteConfig, PUSH_SW_FILENAME } from '../index.js'
 
 describe('@molecule/app-vite-config-default', () => {
   it('exports createDefaultViteConfig factory', () => {
@@ -58,5 +62,25 @@ describe('@molecule/app-vite-config-default', () => {
       BRAND_COLOR: '#ff0000',
     })
     expect(cfg.server?.headers).toMatchObject({ 'Origin-Agent-Cluster': '?1' })
+  })
+
+  it('ships the push service-worker extension: importScripts + emit plugin', () => {
+    // The Workbox generateSW output has NO 'push' listener of its own — a
+    // delivered web-push displayed nothing until the shared push handler was
+    // importScripts-ed into it. Regression guard on both halves of the wiring.
+    const cfg = createDefaultViteConfig({
+      APP_NAME: 'TestApp',
+      APP_DESCRIPTION: 'A test app',
+      BRAND_COLOR: '#ff0000',
+    })
+    const plugins = (cfg.plugins ?? []) as Array<{ name?: string; __options?: unknown }>
+    const pwa = plugins.find((p) => p?.name === 'pwa')
+    expect(pwa, 'VitePWA plugin present').toBeDefined()
+    const workbox = (pwa?.__options as { workbox?: { importScripts?: string[] } })?.workbox
+    expect(workbox?.importScripts).toContain(PUSH_SW_FILENAME)
+    expect(
+      plugins.some((p) => p?.name === 'molecule:push-sw'),
+      'push-sw emit plugin present',
+    ).toBe(true)
   })
 })

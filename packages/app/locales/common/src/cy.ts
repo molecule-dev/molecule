@@ -87,6 +87,8 @@ export const cy: Partial<CommonTranslations> = {
   'project.error.notFound': 'Heb ei ganfod',
   'push.error.notSupported': 'Ni chefnogir hysbysiadau gwthio',
   'push.error.permissionNotGranted': 'Ni roddwyd caniatâd hysbysu',
+  'push.error.noServiceWorker':
+    'Nid oes gweithiwr gwasanaeth wedi’i gofrestru — mae hysbysiadau gwthio angen adeiladwaith cynhyrchu’r ap.',
   'pwa.update': 'Diweddariad',
   'pwa.updateAvailable': 'Fersiwn newydd ar gael!',
   'pwa.updating': 'Yn diweddaru...',
@@ -133,6 +135,10 @@ export const cy: Partial<CommonTranslations> = {
   'settings.plan': 'Cynllun: ',
   'settings.platform': 'Platfform',
   'settings.pushNotifications': 'Hysbysiadau gwthio',
+  'settings.pushPermissionDenied': 'Gwrthodwyd caniatâd hysbysiadau.',
+  'settings.pushServerUnavailable':
+    'Nid yw hysbysiadau gwthio wedi’u ffurfweddu ar y gweinydd hwn.',
+  'settings.pushUpdateFailed': 'Methwyd â diweddaru gosodiadau hysbysiadau gwthio.',
   'settings.thisDevice': 'Y Dyfais Hon',
   'settings.togglePushNotifications': 'Togglo hysbysiadau gwthio',
   'settings.toggleTwoFactor': 'Togglo dilysu dau ffactor',

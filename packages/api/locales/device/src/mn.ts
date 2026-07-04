@@ -5,4 +5,5 @@ export const mn: DeviceTranslations = {
   'device.error.unauthorized': 'Зөвшөөрөлгүй.',
   'device.error.badRequest': 'Буруу хүсэлт.',
   'device.error.notFound': 'Олдсонгүй.',
+  'device.error.pushNotConfigured': 'Энэ сервер дээр push мэдэгдэл тохируулагдаагүй байна.',
 }

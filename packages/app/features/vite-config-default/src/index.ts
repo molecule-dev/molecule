@@ -19,3 +19,4 @@
  */
 
 export * from './config.js'
+export * from './push-sw.js'

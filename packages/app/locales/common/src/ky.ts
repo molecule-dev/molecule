@@ -84,6 +84,8 @@ export const ky: Partial<CommonTranslations> = {
   'project.error.notFound': 'Табылган жок',
   'push.error.notSupported': 'Push-билдирүүлөр колдоого алынбайт',
   'push.error.permissionNotGranted': 'Билдирүү уруксаты берилген жок',
+  'push.error.noServiceWorker':
+    'Service worker катталган эмес — push билдирмелери колдонмонун өндүрүштүк курулушун талап кылат.',
   'pwa.update': 'Жаңылоо',
   'pwa.updateAvailable': 'Жаңы версия жеткиликтүү!',
   'pwa.updating': 'Жаңыланууда...',
@@ -129,6 +131,9 @@ export const ky: Partial<CommonTranslations> = {
   'settings.plan': 'План: ',
   'settings.platform': 'Платформа',
   'settings.pushNotifications': 'Push билдирмелери',
+  'settings.pushPermissionDenied': 'Билдирме уруксаты четке кагылды.',
+  'settings.pushServerUnavailable': 'Push билдирмелери бул серверде конфигурацияланган эмес.',
+  'settings.pushUpdateFailed': 'Push билдирме жөндөөлөрүн жаңыртуу мүмкүн болгон жок.',
   'settings.thisDevice': 'Бул түзмөк',
   'settings.togglePushNotifications': 'Push билдирмелерин которуу',
   'settings.toggleTwoFactor': 'Эки факторлуу аутентификацияны которуу',

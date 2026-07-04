@@ -97,6 +97,8 @@ export const mr: Partial<CommonTranslations> = {
   'project.error.notFound': 'आढळले नाही',
   'push.error.notSupported': 'पुश नोटिफिकेशन्स समर्थित नाहीत',
   'push.error.permissionNotGranted': 'अधिसूचनेची परवानगी मंजूर नाही.',
+  'push.error.noServiceWorker':
+    'कोणताही सर्व्हिस वर्कर नोंदणीकृत नाही — पुश सूचनांसाठी अ‍ॅपचे प्रोडक्शन बिल्ड आवश्यक आहे.',
   'pwa.update': 'अपडेट करा',
   'pwa.updateAvailable': 'नवीन आवृत्ती उपलब्ध आहे!',
   'pwa.updating': 'अद्ययावत होत आहे...',
@@ -142,6 +144,9 @@ export const mr: Partial<CommonTranslations> = {
   'settings.plan': 'योजना: ',
   'settings.platform': 'प्लॅटफॉर्म',
   'settings.pushNotifications': 'पुश सूचना',
+  'settings.pushPermissionDenied': 'सूचना परवानगी नाकारली गेली.',
+  'settings.pushServerUnavailable': 'या सर्व्हरवर पुश सूचना कॉन्फिगर केलेल्या नाहीत.',
+  'settings.pushUpdateFailed': 'पुश सूचना सेटिंग्ज अपडेट करता आल्या नाहीत.',
   'settings.thisDevice': 'हे उपकरण',
   'settings.togglePushNotifications': 'पुश सूचना चालू/बंद करा',
   'settings.toggleTwoFactor': 'दोन-घटक प्रमाणीकरण चालू/बंद करा',

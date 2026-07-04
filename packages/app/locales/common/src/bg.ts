@@ -95,6 +95,8 @@ export const bg: Partial<CommonTranslations> = {
   'project.error.notFound': 'Не е намерено',
   'push.error.notSupported': 'Push известията не се поддържат',
   'push.error.permissionNotGranted': 'Разрешение за известия не е предоставено',
+  'push.error.noServiceWorker':
+    'Няма регистриран service worker — push известията изискват продукционната версия на приложението.',
   'pwa.update': 'Актуализация',
   'pwa.updateAvailable': 'Налична е нова версия!',
   'pwa.updating': 'Актуализиране...',
@@ -140,6 +142,9 @@ export const bg: Partial<CommonTranslations> = {
   'settings.plan': 'План: ',
   'settings.platform': 'Платформа',
   'settings.pushNotifications': 'Push известия',
+  'settings.pushPermissionDenied': 'Разрешението за известия беше отказано.',
+  'settings.pushServerUnavailable': 'Push известията не са конфигурирани на този сървър.',
+  'settings.pushUpdateFailed': 'Настройките за push известия не можаха да бъдат обновени.',
   'settings.thisDevice': 'Това устройство',
   'settings.togglePushNotifications': 'Превключване на push известия',
   'settings.toggleTwoFactor': 'Включване/изключване на двуфакторно удостоверяване',

@@ -95,6 +95,8 @@ export const ml: Partial<CommonTranslations> = {
   'project.error.notFound': 'കണ്ടെത്തിയില്ല',
   'push.error.notSupported': 'പുഷ് അറിയിപ്പുകൾ പിന്തുണയ്ക്കുന്നില്ല',
   'push.error.permissionNotGranted': 'അറിയിപ്പ് അനുമതി നൽകിയിട്ടില്ല.',
+  'push.error.noServiceWorker':
+    'സർവീസ് വർക്കർ രജിസ്റ്റർ ചെയ്തിട്ടില്ല — പുഷ് അറിയിപ്പുകൾക്ക് ആപ്പിന്റെ പ്രൊഡക്ഷൻ ബിൽഡ് ആവശ്യമാണ്.',
   'pwa.update': 'അപ്ഡേറ്റ് ചെയ്യുക',
   'pwa.updateAvailable': 'പുതിയ പതിപ്പ് ലഭ്യമാണ്!',
   'pwa.updating': 'അപ്ഡേറ്റ് ചെയ്യുന്നു...',
@@ -141,6 +143,9 @@ export const ml: Partial<CommonTranslations> = {
   'settings.plan': 'പ്ലാൻ: ',
   'settings.platform': 'പ്ലാറ്റ്‌ഫോം',
   'settings.pushNotifications': 'പുഷ് അറിയിപ്പുകൾ',
+  'settings.pushPermissionDenied': 'അറിയിപ്പ് അനുമതി നിരസിച്ചു.',
+  'settings.pushServerUnavailable': 'ഈ സെർവറിൽ പുഷ് അറിയിപ്പുകൾ കോൺഫിഗർ ചെയ്തിട്ടില്ല.',
+  'settings.pushUpdateFailed': 'പുഷ് അറിയിപ്പ് ക്രമീകരണങ്ങൾ അപ്ഡേറ്റ് ചെയ്യാനായില്ല.',
   'settings.thisDevice': 'ഈ ഉപകരണം',
   'settings.togglePushNotifications': 'പുഷ് അറിയിപ്പുകൾ ടോഗിൾ ചെയ്യുക',
   'settings.toggleTwoFactor': 'ടു-ഫാക്ടർ പ്രാമാണീകരണം ടോഗിൾ ചെയ്യുക',

@@ -87,6 +87,8 @@ export const az: Partial<CommonTranslations> = {
   'project.error.notFound': 'Tapılmadı',
   'push.error.notSupported': 'Push bildirişləri dəstəklənmir',
   'push.error.permissionNotGranted': 'Bildiriş icazəsi verilmədi',
+  'push.error.noServiceWorker':
+    'Heç bir service worker qeydiyyatdan keçməyib — push bildirişləri tətbiqin istehsal quruluşunu tələb edir.',
   'pwa.update': 'Yeniləmə',
   'pwa.updateAvailable': 'Yeni versiya mövcuddur!',
   'pwa.updating': 'Yenilənir...',
@@ -133,6 +135,9 @@ export const az: Partial<CommonTranslations> = {
   'settings.plan': 'Plan: ',
   'settings.platform': 'Platforma',
   'settings.pushNotifications': 'Push bildirişləri',
+  'settings.pushPermissionDenied': 'Bildiriş icazəsi rədd edildi.',
+  'settings.pushServerUnavailable': 'Push bildirişləri bu serverdə konfiqurasiya edilməyib.',
+  'settings.pushUpdateFailed': 'Push bildiriş parametrlərini yeniləmək mümkün olmadı.',
   'settings.thisDevice': 'Bu Cihaz',
   'settings.togglePushNotifications': 'Push bildirişlərini dəyiş/dəyişdir',
   'settings.toggleTwoFactor': 'İki faktorlu identifikasiyanı dəyiş/dəyişdir',

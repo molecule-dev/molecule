@@ -88,6 +88,8 @@ export const mn: Partial<CommonTranslations> = {
   'project.error.notFound': 'Олдсонгүй',
   'push.error.notSupported': 'Түлхэх мэдэгдлүүдийг дэмждэггүй',
   'push.error.permissionNotGranted': 'Мэдэгдлийн зөвшөөрөл олгоогүй байна',
+  'push.error.noServiceWorker':
+    'Service worker бүртгэгдээгүй байна — push мэдэгдэлд аппын үйлдвэрлэлийн хувилбар шаардлагатай.',
   'pwa.update': 'Шинэчлэлт',
   'pwa.updateAvailable': 'Шинэ хувилбар гарсан байна!',
   'pwa.updating': 'Шинэчилж байна...',
@@ -134,6 +136,9 @@ export const mn: Partial<CommonTranslations> = {
   'settings.plan': 'Төлөвлөгөө: ',
   'settings.platform': 'Платформ',
   'settings.pushNotifications': 'Түлхэх мэдэгдэл',
+  'settings.pushPermissionDenied': 'Мэдэгдлийн зөвшөөрөл татгалзагдсан.',
+  'settings.pushServerUnavailable': 'Энэ сервер дээр push мэдэгдэл тохируулагдаагүй байна.',
+  'settings.pushUpdateFailed': 'Push мэдэгдлийн тохиргоог шинэчилж чадсангүй.',
   'settings.thisDevice': 'Энэ төхөөрөмж',
   'settings.togglePushNotifications': 'Түлхэх мэдэгдлийг асаах/унтраах',
   'settings.toggleTwoFactor': 'Хоёр хүчин зүйлийн баталгаажуулалтыг асаах/унтраах',

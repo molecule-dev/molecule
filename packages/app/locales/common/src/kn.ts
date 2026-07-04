@@ -94,6 +94,8 @@ export const kn: Partial<CommonTranslations> = {
   'project.error.notFound': 'ಕಂಡುಬಂದಿಲ್ಲ',
   'push.error.notSupported': 'ಪುಶ್ ಅಧಿಸೂಚನೆಗಳು ಬೆಂಬಲಿತವಾಗಿಲ್ಲ.',
   'push.error.permissionNotGranted': 'ಅಧಿಸೂಚನೆ ಅನುಮತಿ ನೀಡಲಾಗಿಲ್ಲ.',
+  'push.error.noServiceWorker':
+    'ಯಾವುದೇ ಸರ್ವಿಸ್ ವರ್ಕರ್ ನೋಂದಣಿಯಾಗಿಲ್ಲ — ಪುಶ್ ಅಧಿಸೂಚನೆಗಳಿಗೆ ಅಪ್ಲಿಕೇಶನ್‌ನ ಪ್ರೊಡಕ್ಷನ್ ಬಿಲ್ಡ್ ಅಗತ್ಯವಿದೆ.',
   'pwa.update': 'ನವೀಕರಿಸಿ',
   'pwa.updateAvailable': 'ಹೊಸ ಆವೃತ್ತಿ ಲಭ್ಯವಿದೆ!',
   'pwa.updating': 'ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ...',
@@ -140,6 +142,9 @@ export const kn: Partial<CommonTranslations> = {
   'settings.plan': 'ಯೋಜನೆ: ',
   'settings.platform': 'ವೇದಿಕೆ',
   'settings.pushNotifications': 'ಪುಶ್ ಅಧಿಸೂಚನೆಗಳು',
+  'settings.pushPermissionDenied': 'ಅಧಿಸೂಚನೆ ಅನುಮತಿಯನ್ನು ನಿರಾಕರಿಸಲಾಗಿದೆ.',
+  'settings.pushServerUnavailable': 'ಈ ಸರ್ವರ್‌ನಲ್ಲಿ ಪುಶ್ ಅಧಿಸೂಚನೆಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ.',
+  'settings.pushUpdateFailed': 'ಪುಶ್ ಅಧಿಸೂಚನೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನವೀಕರಿಸಲಾಗಲಿಲ್ಲ.',
   'settings.thisDevice': 'ಈ ಸಾಧನ',
   'settings.togglePushNotifications': 'ಪುಶ್ ಅಧಿಸೂಚನೆಗಳನ್ನು ಟಾಗಲ್ ಮಾಡಿ',
   'settings.toggleTwoFactor': 'ಎರಡು-ಅಂಶದ ದೃಢೀಕರಣವನ್ನು ಟಾಗಲ್ ಮಾಡಿ',

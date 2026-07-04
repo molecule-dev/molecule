@@ -87,6 +87,8 @@ export const is: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ekki fundið',
   'push.error.notSupported': 'Tilkynningar eru ekki studdar',
   'push.error.permissionNotGranted': 'Tilkynningarheimild ekki veitt',
+  'push.error.noServiceWorker':
+    'Enginn service worker er skráður — ýtitilkynningar krefjast framleiðsluútgáfu forritsins.',
   'pwa.update': 'Uppfæra',
   'pwa.updateAvailable': 'Ný útgáfa fáanleg!',
   'pwa.updating': 'Uppfærir...',
@@ -132,6 +134,9 @@ export const is: Partial<CommonTranslations> = {
   'settings.plan': 'Áætlun: ',
   'settings.platform': 'Pallur',
   'settings.pushNotifications': 'Tilkynningar',
+  'settings.pushPermissionDenied': 'Tilkynningaheimild var hafnað.',
+  'settings.pushServerUnavailable': 'Ýtitilkynningar eru ekki stilltar á þessum netþjóni.',
+  'settings.pushUpdateFailed': 'Ekki tókst að uppfæra stillingar ýtitilkynninga.',
   'settings.thisDevice': 'Þetta tæki',
   'settings.togglePushNotifications': 'Kveikja á tilkynningum',
   'settings.toggleTwoFactor': 'Kveikja á tveggja þátta auðkenningu',

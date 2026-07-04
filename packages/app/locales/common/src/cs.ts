@@ -376,6 +376,8 @@ export const cs: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nenalezeno',
   'push.error.notSupported': 'Push notifikace nejsou podporovány',
   'push.error.permissionNotGranted': 'Povolení k oznámení nebylo uděleno',
+  'push.error.noServiceWorker':
+    'Není zaregistrován žádný service worker — push oznámení vyžadují produkční sestavení aplikace.',
   'pwa.updateAvailable': 'Nová verze k dispozici!',
   'pwa.updating': 'Aktualizace...',
   'resource.error.badRequest': 'Špatný požadavek.',
@@ -409,6 +411,9 @@ export const cs: Partial<CommonTranslations> = {
   'settings.plan': 'Plán: ',
   'settings.platform': 'Platforma',
   'settings.pushNotifications': 'Push notifikace',
+  'settings.pushPermissionDenied': 'Oprávnění k oznámením bylo zamítnuto.',
+  'settings.pushServerUnavailable': 'Push oznámení nejsou na tomto serveru nakonfigurována.',
+  'settings.pushUpdateFailed': 'Nastavení push oznámení se nepodařilo aktualizovat.',
   'settings.thisDevice': 'Toto zařízení',
   'settings.togglePushNotifications': 'Přepnout push notifikace',
   'settings.toggleTwoFactor': 'Přepnout dvoufaktorové ověřování',

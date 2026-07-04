@@ -19,6 +19,7 @@ export interface DeviceRequestHandlerMap {
   auth: MoleculeRequestHandler
   authUser: MoleculeRequestHandler
   del: MoleculeRequestHandler
+  pushPublicKey: MoleculeRequestHandler
   query: MoleculeRequestHandler
   read: MoleculeRequestHandler
   update: MoleculeRequestHandler
@@ -37,6 +38,7 @@ export const createRequestHandlerMap = (
   auth: authorizers.auth(),
   authUser: authorizers.authUser(resource),
   del: createRequestHandler(handlers.del(resource)),
+  pushPublicKey: createRequestHandler(handlers.pushPublicKey()),
   query: createRequestHandler(handlers.query(resource)),
   read: createRequestHandler(handlers.read(resource)),
   update: createRequestHandler(handlers.update(resource)),

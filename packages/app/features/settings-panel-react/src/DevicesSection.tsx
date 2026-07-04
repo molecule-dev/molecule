@@ -45,8 +45,12 @@ export function DevicesSection({
 
   const load = useCallback(async (): Promise<void> => {
     try {
-      const response = await http.get<{ data: Device[] }>('/api/devices')
-      setDevices(response.data.data || [])
+      // GET /api/devices responds with the ARRAY itself (see the device
+      // resource's query handler) — response.data IS the rows. This used to
+      // read `response.data.data`, which is always undefined for that shape,
+      // so the section rendered "No devices" for everyone.
+      const response = await http.get<Device[]>('/api/devices')
+      setDevices(Array.isArray(response.data) ? response.data : [])
     } catch (_error) {
       // Devices endpoint is optional; the section renders empty when unavailable.
     } finally {

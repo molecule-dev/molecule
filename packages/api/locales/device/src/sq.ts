@@ -5,4 +5,5 @@ export const sq: DeviceTranslations = {
   'device.error.unauthorized': 'I paautorizuar.',
   'device.error.badRequest': 'Kërkesë e gabuar.',
   'device.error.notFound': 'Nuk u gjet.',
+  'device.error.pushNotConfigured': 'Njoftimet push nuk janë konfiguruar në këtë server.',
 }

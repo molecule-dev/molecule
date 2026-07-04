@@ -87,6 +87,8 @@ export const sq: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nuk u gjet',
   'push.error.notSupported': 'Njoftimet push nuk mbështeten',
   'push.error.permissionNotGranted': 'Leja për njoftim nuk është dhënë',
+  'push.error.noServiceWorker':
+    'Asnjë service worker nuk është regjistruar — njoftimet push kërkojnë versionin e prodhimit të aplikacionit.',
   'pwa.update': 'Përditëso',
   'pwa.updateAvailable': 'Versioni i ri i disponueshëm!',
   'pwa.updating': 'Duke u përditësuar...',
@@ -133,6 +135,9 @@ export const sq: Partial<CommonTranslations> = {
   'settings.plan': 'Plani: ',
   'settings.platform': 'Platforma',
   'settings.pushNotifications': 'Njoftime të shpejta',
+  'settings.pushPermissionDenied': 'Leja e njoftimeve u refuzua.',
+  'settings.pushServerUnavailable': 'Njoftimet push nuk janë konfiguruar në këtë server.',
+  'settings.pushUpdateFailed': 'Cilësimet e njoftimeve push nuk mund të përditësoheshin.',
   'settings.thisDevice': 'Kjo pajisje',
   'settings.togglePushNotifications': 'Aktivizo/çaktivizo njoftimet push',
   'settings.toggleTwoFactor': 'Aktivizo/çaktivizo vërtetimin me dy faktorë',

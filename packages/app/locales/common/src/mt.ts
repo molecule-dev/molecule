@@ -90,6 +90,8 @@ export const mt: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ma nstabx',
   'push.error.notSupported': 'Notifiki push mhumiex appoġġjati',
   'push.error.permissionNotGranted': "Permess ta' notifika mhux mogħti",
+  'push.error.noServiceWorker':
+    'L-ebda service worker mhu rreġistrat — in-notifiki push jeħtieġu l-build tal-produzzjoni tal-app.',
   'pwa.update': 'Aġġornament',
   'pwa.updateAvailable': 'Verżjoni ġdida disponibbli!',
   'pwa.updating': 'Aġġornament...',
@@ -136,6 +138,9 @@ export const mt: Partial<CommonTranslations> = {
   'settings.plan': 'Pjan: ',
   'settings.platform': 'Pjattaforma',
   'settings.pushNotifications': 'Notifiki push',
+  'settings.pushPermissionDenied': 'Il-permess tan-notifiki ġie miċħud.',
+  'settings.pushServerUnavailable': 'In-notifiki push mhumiex ikkonfigurati fuq dan is-server.',
+  'settings.pushUpdateFailed': 'Ma setgħux jiġu aġġornati s-settings tan-notifiki push.',
   'settings.thisDevice': 'Dan l-Apparat',
   'settings.togglePushNotifications': 'Ixgħel in-notifiki push',
   'settings.toggleTwoFactor': "Ixgħel l-awtentikazzjoni b'żewġ fatturi",

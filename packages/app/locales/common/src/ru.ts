@@ -94,6 +94,8 @@ export const ru: Partial<CommonTranslations> = {
   'project.error.notFound': 'Не найдено',
   'push.error.notSupported': 'Push-уведомления не поддерживаются',
   'push.error.permissionNotGranted': 'Разрешение на уведомление не предоставлено.',
+  'push.error.noServiceWorker':
+    'Service worker не зарегистрирован — push-уведомления требуют производственной сборки приложения.',
   'pwa.update': 'Обновлять',
   'pwa.updateAvailable': 'Доступна новая версия!',
   'pwa.updating': 'Обновление...',
@@ -140,6 +142,9 @@ export const ru: Partial<CommonTranslations> = {
   'settings.plan': 'План: ',
   'settings.platform': 'Платформа',
   'settings.pushNotifications': 'Push-уведомления',
+  'settings.pushPermissionDenied': 'В разрешении на уведомления отказано.',
+  'settings.pushServerUnavailable': 'Push-уведомления не настроены на этом сервере.',
+  'settings.pushUpdateFailed': 'Не удалось обновить настройки push-уведомлений.',
   'settings.thisDevice': 'Это устройство',
   'settings.togglePushNotifications': 'Включить/выключить push-уведомления',
   'settings.toggleTwoFactor': 'Включить/выключить двухфакторную аутентификацию',

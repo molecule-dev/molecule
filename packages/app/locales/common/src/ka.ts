@@ -95,6 +95,8 @@ export const ka: Partial<CommonTranslations> = {
   'project.error.notFound': 'ვერ მოიძებნა',
   'push.error.notSupported': 'push-შეტყობინებები არ არის მხარდაჭერილი',
   'push.error.permissionNotGranted': 'შეტყობინების ნებართვა არ არის მინიჭებული',
+  'push.error.noServiceWorker':
+    'Service worker რეგისტრირებული არ არის — push შეტყობინებებს აპლიკაციის საწარმოო ვერსია სჭირდება.',
   'pwa.update': 'განახლება',
   'pwa.updateAvailable': 'ახალი ვერსია ხელმისაწვდომია!',
   'pwa.updating': 'განახლება...',
@@ -141,6 +143,9 @@ export const ka: Partial<CommonTranslations> = {
   'settings.plan': 'გეგმა: ',
   'settings.platform': 'პლატფორმა',
   'settings.pushNotifications': 'push-შეტყობინებები',
+  'settings.pushPermissionDenied': 'შეტყობინებების ნებართვა უარყოფილია.',
+  'settings.pushServerUnavailable': 'Push შეტყობინებები ამ სერვერზე კონფიგურირებული არ არის.',
+  'settings.pushUpdateFailed': 'Push შეტყობინებების პარამეტრების განახლება ვერ მოხერხდა.',
   'settings.thisDevice': 'ეს მოწყობილობა',
   'settings.togglePushNotifications': 'push-შეტყობინებების გადართვა',
   'settings.toggleTwoFactor': 'ორფაქტორიანი ავტორიზაციის ჩართვა/გამორთვა',

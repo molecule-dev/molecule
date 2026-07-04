@@ -66,6 +66,21 @@ describe('push capture provider', () => {
       expect(push.generateVapidKeys()).toEqual({ publicKey: '', privateKey: '' })
       expect(push.getPublicKey()).toBeUndefined()
     })
+
+    it('falls back to VAPID_PUBLIC_KEY from the environment for getPublicKey', () => {
+      // Subscribing is client-side only, so intercept-only capture still serves
+      // the real public key — the enable-push UI works in dev/IDE mode while
+      // sends stay captured.
+      const previous = process.env.VAPID_PUBLIC_KEY
+      process.env.VAPID_PUBLIC_KEY = 'env-public-key'
+      try {
+        const push = createPushCaptureProvider()
+        expect(push.getPublicKey()).toBe('env-public-key')
+      } finally {
+        if (previous === undefined) delete process.env.VAPID_PUBLIC_KEY
+        else process.env.VAPID_PUBLIC_KEY = previous
+      }
+    })
   })
 
   describe('delegate + tee', () => {

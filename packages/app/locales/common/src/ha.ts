@@ -84,6 +84,8 @@ export const ha: Partial<CommonTranslations> = {
   'project.error.notFound': 'Ba a samu ba',
   'push.error.notSupported': 'Ba a goyan bayan sanarwar turawa ba',
   'push.error.permissionNotGranted': 'Ba a ba da izinin sanarwa ba',
+  'push.error.noServiceWorker':
+    'Babu service worker da aka yi rijista — sanarwar turawa na buƙatar ginin samarwa na manhajar.',
   'pwa.update': 'Sabunta',
   'pwa.updateAvailable': 'Sabon sigar yana nan!',
   'pwa.updating': 'Ana sabuntawa...',
@@ -127,6 +129,9 @@ export const ha: Partial<CommonTranslations> = {
   'settings.plan': 'Shiri: ',
   'settings.platform': 'Dandamali',
   'settings.pushNotifications': 'Sanarwar turawa',
+  'settings.pushPermissionDenied': 'An ƙi izinin sanarwa.',
+  'settings.pushServerUnavailable': 'Ba a saita sanarwar turawa a kan wannan sabar ba.',
+  'settings.pushUpdateFailed': 'Ba a iya sabunta saitunan sanarwar turawa ba.',
   'settings.togglePushNotifications': 'Maɓallin sanarwar turawa',
   'settings.toggleTwoFactor': 'Maɓallin tantancewa ta abu biyu',
   'settings.twoFactor': 'Tantancewa ta abu biyu',

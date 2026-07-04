@@ -90,6 +90,8 @@ export const sk: Partial<CommonTranslations> = {
   'project.error.notFound': 'Nenájdené',
   'push.error.notSupported': 'Push notifikácie nie sú podporované',
   'push.error.permissionNotGranted': 'Povolenie na upozornenia nebolo udelené',
+  'push.error.noServiceWorker':
+    'Nie je zaregistrovaný žiadny service worker — push oznámenia vyžadujú produkčné zostavenie aplikácie.',
   'pwa.update': 'Aktualizácia',
   'pwa.updateAvailable': 'Nová verzia k dispozícii!',
   'pwa.updating': 'Aktualizácia...',
@@ -135,6 +137,9 @@ export const sk: Partial<CommonTranslations> = {
   'settings.plan': 'Plán: ',
   'settings.platform': 'Platforma',
   'settings.pushNotifications': 'Push notifikácie',
+  'settings.pushPermissionDenied': 'Povolenie na oznámenia bolo zamietnuté.',
+  'settings.pushServerUnavailable': 'Push oznámenia nie sú na tomto serveri nakonfigurované.',
+  'settings.pushUpdateFailed': 'Nastavenia push oznámení sa nepodarilo aktualizovať.',
   'settings.thisDevice': 'Toto zariadenie',
   'settings.togglePushNotifications': 'Prepnúť push notifikácie',
   'settings.toggleTwoFactor': 'Prepnúť dvojfaktorové overenie',

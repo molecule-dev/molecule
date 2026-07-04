@@ -95,6 +95,8 @@ export const th: Partial<CommonTranslations> = {
   'project.error.notFound': 'ไม่พบ',
   'push.error.notSupported': 'ไม่รองรับการแจ้งเตือนแบบพุช',
   'push.error.permissionNotGranted': 'ไม่ได้รับอนุญาตการแจ้งเตือน',
+  'push.error.noServiceWorker':
+    'ไม่มี service worker ที่ลงทะเบียนไว้ — การแจ้งเตือนแบบพุชต้องใช้บิลด์เวอร์ชันใช้งานจริงของแอป',
   'pwa.update': 'อัปเดต',
   'pwa.updateAvailable': 'เวอร์ชั่นใหม่พร้อมให้ใช้งานแล้ว!',
   'pwa.updating': 'กำลังอัปเดต...',
@@ -141,6 +143,9 @@ export const th: Partial<CommonTranslations> = {
   'settings.plan': 'วางแผน: ',
   'settings.platform': 'แพลตฟอร์ม',
   'settings.pushNotifications': 'การแจ้งเตือนแบบพุช',
+  'settings.pushPermissionDenied': 'สิทธิ์การแจ้งเตือนถูกปฏิเสธ',
+  'settings.pushServerUnavailable': 'ยังไม่ได้กำหนดค่าการแจ้งเตือนแบบพุชบนเซิร์ฟเวอร์นี้',
+  'settings.pushUpdateFailed': 'ไม่สามารถอัปเดตการตั้งค่าการแจ้งเตือนแบบพุชได้',
   'settings.thisDevice': 'อุปกรณ์นี้',
   'settings.togglePushNotifications': 'สลับการแจ้งเตือนแบบพุช',
   'settings.toggleTwoFactor': 'เปิดใช้งานการตรวจสอบสิทธิ์แบบสองขั้นตอน',

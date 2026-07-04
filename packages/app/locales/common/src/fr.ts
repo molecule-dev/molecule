@@ -40,6 +40,10 @@ export const fr: Partial<CommonTranslations> = {
   'settings.offline': 'Hors ligne',
   'settings.online': 'En ligne',
   'settings.pushNotifications': 'Notifications push',
+  'settings.pushPermissionDenied': 'L’autorisation de notifications a été refusée.',
+  'settings.pushServerUnavailable':
+    'Les notifications push ne sont pas configurées sur ce serveur.',
+  'settings.pushUpdateFailed': 'Impossible de mettre à jour les paramètres des notifications push.',
   'settings.twoFactor': 'Authentification à deux facteurs',
   'settings.unknown': 'Inconnu',
   'settings.upgrade': 'Mettre à niveau',
@@ -393,6 +397,8 @@ export const fr: Partial<CommonTranslations> = {
   'project.error.notFound': 'Introuvable',
   'push.error.notSupported': 'Les notifications push ne sont pas prises en charge.',
   'push.error.permissionNotGranted': 'Autorisation de notification non accordée',
+  'push.error.noServiceWorker':
+    'Aucun service worker n’est enregistré — les notifications push nécessitent la version de production de l’application.',
   'pwa.updateAvailable': 'Nouvelle version disponible !',
   'pwa.updating': 'Mise à jour en cours...',
   'resource.error.badRequest': 'Mauvaise demande.',

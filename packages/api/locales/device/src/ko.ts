@@ -5,4 +5,5 @@ export const ko: DeviceTranslations = {
   'device.error.unauthorized': '인증되지 않음.',
   'device.error.badRequest': '잘못된 요청.',
   'device.error.notFound': '찾을 수 없음.',
+  'device.error.pushNotConfigured': '이 서버에는 푸시 알림이 구성되어 있지 않습니다.',
 }

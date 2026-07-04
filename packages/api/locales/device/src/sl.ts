@@ -5,4 +5,5 @@ export const sl: DeviceTranslations = {
   'device.error.unauthorized': 'Nepooblaščeno.',
   'device.error.badRequest': 'Neveljavna zahteva.',
   'device.error.notFound': 'Ni najdeno.',
+  'device.error.pushNotConfigured': 'Potisna obvestila na tem strežniku niso konfigurirana.',
 }

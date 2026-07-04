@@ -5,4 +5,5 @@ export const ky: DeviceTranslations = {
   'device.error.unauthorized': 'Уруксат жок.',
   'device.error.badRequest': 'Жаман суроо.',
   'device.error.notFound': 'Табылган жок.',
+  'device.error.pushNotConfigured': 'Push билдирмелери бул серверде конфигурацияланган эмес.',
 }

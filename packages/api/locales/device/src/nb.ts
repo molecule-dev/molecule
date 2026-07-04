@@ -5,4 +5,5 @@ export const nb: DeviceTranslations = {
   'device.error.unauthorized': 'Uautorisert.',
   'device.error.badRequest': 'Ugyldig forespørsel.',
   'device.error.notFound': 'Ikke funnet.',
+  'device.error.pushNotConfigured': 'Push-varsler er ikke konfigurert på denne serveren.',
 }

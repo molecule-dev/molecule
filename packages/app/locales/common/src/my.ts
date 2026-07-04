@@ -95,6 +95,8 @@ export const my: Partial<CommonTranslations> = {
   'project.error.notFound': 'ရှာမတွေ့ပါ',
   'push.error.notSupported': 'တွန်းပို့အကြောင်းကြားချက်များကို မပံ့ပိုးပါ',
   'push.error.permissionNotGranted': 'အကြောင်းကြားချက်ခွင့်ပြုချက် မပေးရသေးပါ',
+  'push.error.noServiceWorker':
+    'Service worker မှတ်ပုံတင်ထားခြင်း မရှိပါ — push အကြောင်းကြားချက်များအတွက် အက်ပ်၏ production build လိုအပ်ပါသည်။',
   'pwa.update': 'အပ်ဒိတ်လုပ်ပါ',
   'pwa.updateAvailable': 'ဗားရှင်းအသစ် ရရှိနိုင်ပါသည်။',
   'pwa.updating': 'အပ်ဒိတ်လုပ်နေသည်...',
@@ -141,6 +143,10 @@ export const my: Partial<CommonTranslations> = {
   'settings.plan': 'အစီအစဉ်: ',
   'settings.platform': 'ပလက်ဖောင်း',
   'settings.pushNotifications': 'တွန်းပို့အကြောင်းကြားချက်များ',
+  'settings.pushPermissionDenied': 'အကြောင်းကြားချက် ခွင့်ပြုချက် ငြင်းပယ်ခံရသည်။',
+  'settings.pushServerUnavailable':
+    'ဤဆာဗာတွင် push အကြောင်းကြားချက်များ ပြင်ဆင်သတ်မှတ်ထားခြင်း မရှိပါ။',
+  'settings.pushUpdateFailed': 'Push အကြောင်းကြားချက် ဆက်တင်များကို အပ်ဒိတ်လုပ်၍ မရပါ။',
   'settings.thisDevice': 'ဤကိရိယာ',
   'settings.togglePushNotifications': 'တွန်းပို့ခြင်း အကြောင်းကြားချက်များကို ပြောင်းပါ',
   'settings.toggleTwoFactor': 'နှစ်ဆင့်အထောက်အထားစိစစ်ခြင်းကို ပြောင်းပါ',

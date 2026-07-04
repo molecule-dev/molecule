@@ -46,6 +46,9 @@ export const tr: Partial<CommonTranslations> = {
   'settings.offline': 'Çevrimdışı',
   'settings.online': 'Çevrimiçi',
   'settings.pushNotifications': 'Anlık bildirimler',
+  'settings.pushPermissionDenied': 'Bildirim izni reddedildi.',
+  'settings.pushServerUnavailable': 'Anlık bildirimler bu sunucuda yapılandırılmamış.',
+  'settings.pushUpdateFailed': 'Anlık bildirim ayarları güncellenemedi.',
   'settings.twoFactor': 'İki faktörlü kimlik doğrulama',
   'settings.unknown': 'Bilinmiyor',
   'settings.upgrade': 'Yükselt',
@@ -424,6 +427,8 @@ export const tr: Partial<CommonTranslations> = {
   'project.error.notFound': 'Bulunamadı',
   'push.error.notSupported': 'Anlık bildirimler desteklenmiyor.',
   'push.error.permissionNotGranted': 'Bildirim izni verilmedi.',
+  'push.error.noServiceWorker':
+    'Kayıtlı bir service worker yok — anlık bildirimler uygulamanın üretim derlemesini gerektirir.',
   'pwa.updateAvailable': 'Yeni sürüm mevcut!',
   'pwa.updating': 'Güncelleniyor...',
   'resource.error.badRequest': 'Geçersiz istek.',

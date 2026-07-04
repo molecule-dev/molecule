@@ -5,4 +5,5 @@ export const fa: DeviceTranslations = {
   'device.error.unauthorized': 'غیرمجاز.',
   'device.error.badRequest': 'درخواست نامعتبر.',
   'device.error.notFound': 'یافت نشد.',
+  'device.error.pushNotConfigured': 'اعلان‌های فوری روی این سرور پیکربندی نشده‌اند.',
 }
