@@ -70,11 +70,9 @@ import {
 } from './chat-autocommit-utilities.js'
 import {
   CHAT_CARD_ICON_SIZE,
-  CHAT_MEDIA_GAP,
   chatCardBg,
   chatCardBorder,
   chatCardStyle,
-  chatMediaColStyle,
 } from './chat-card-style.js'
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
@@ -586,7 +584,7 @@ function relativeTimeLong(ms: number): string {
  * `--mol-chat-accent-gradient`; the fallback is a lightened primary so it stays blue +
  * never dark in any theme (the theme's primary-light/-dark tokens are actually a medium
  * + a dark blue with no light tone). It's a full-box gradient (so the sweep has room to
- * travel) clipped to a 4px LEFT band that follows the row's rounded corners. A
+ * travel) clipped to a 3px LEFT band that follows the row's rounded corners. A
  * `::before` + its keyframe can't be expressed inline (and inline `animation` can't be
  * media-queried), so — like AutoCommitBadge — it is injected once and gated on the
  * existing `data-mol-id`; the auto-sent row keeps its solid success accent.
@@ -601,8 +599,8 @@ const USER_ACCENT_STYLE = `
   background: var(--mol-chat-accent-gradient, linear-gradient(to bottom, color-mix(in srgb, var(--mol-color-primary, #3060c0) 85%, #fff), color-mix(in srgb, var(--mol-color-primary, #3060c0) 50%, #fff) 50%, color-mix(in srgb, var(--mol-color-primary, #3060c0) 85%, #fff)));
   background-size: 100% 300%;
   animation: mol-chat-accent-flow 6s ease-in-out infinite;
-  -webkit-mask: linear-gradient(to right, #000 4px, transparent 4px);
-  mask: linear-gradient(to right, #000 4px, transparent 4px);
+  -webkit-mask: linear-gradient(to right, #000 3px, transparent 3px);
+  mask: linear-gradient(to right, #000 3px, transparent 3px);
   pointer-events: none;
 }
 @keyframes mol-chat-accent-flow {
@@ -1638,41 +1636,37 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
           style={{
             display: 'flex',
             alignItems: 'flex-start',
-            // The leading avatar/icon sits in a fixed CHAT_MEDIA_COL column, so the
-            // content column starts at the SAME left edge as every info card's text
-            // (padding + media column + gap) — user, auto-sent and cards all align.
-            gap: `${CHAT_MEDIA_GAP}px`,
+            gap: '10px',
             minWidth: 0,
             // A real user message keeps its classic look: a gray surface with the
-            // molecule brand's ANIMATED blue gradient stripe on the left edge (4px),
+            // molecule brand's ANIMATED blue gradient stripe (3px) on the left edge,
             // drawn by the `::before` injected via USER_ACCENT_STYLE + gated on the
-            // data-mol-id below. An auto-sent message is the green (success) tinted
-            // card chrome, so it's unmistakably agent-sent, not user-typed (C2).
+            // data-mol-id below, and the user's full-size avatar. An auto-sent message
+            // is instead a green (success) tinted card — same chrome as the info cards
+            // — so it's unmistakably agent-sent, not user-typed (C2).
             ...(isAutomatic
               ? chatCardStyle(AUTO_SENT_ACCENT)
               : {
                   borderRadius: '4px',
-                  paddingLeft: '4px',
-                  paddingRight: '4px',
+                  paddingLeft: '12px',
                   paddingTop: '10px',
                   paddingBottom: '10px',
+                  paddingRight: '10px',
                 }),
           }}
           data-mol-id={isAutomatic ? 'chat-automatic-message' : 'chat-user-message'}
         >
-          {/* Leading media column. A real user message keeps the user's full-size
-              profile avatar (SOC1); an auto-sent message shows a small `sync` glyph —
-              NOT the molecule logo — centered in the same column, signalling the agent
-              acted automatically (C2). Both land the content at one shared left edge. */}
+          {/* A real user message shows the user's full-size profile avatar (SOC1); an
+              auto-sent message shows a small `sync` glyph — NOT the molecule logo —
+              signalling the agent acted automatically (C2). The user message is its own
+              look; the auto-sent card lines up with the other info cards. */}
           {isAutomatic ? (
-            <span style={{ ...chatMediaColStyle(), marginTop: 1 }}>
-              <Icon
-                name="sync"
-                size={CHAT_CARD_ICON_SIZE}
-                aria-hidden="true"
-                style={{ color: AUTO_SENT_ACCENT }}
-              />
-            </span>
+            <Icon
+              name="sync"
+              size={CHAT_CARD_ICON_SIZE}
+              aria-hidden="true"
+              style={{ flexShrink: 0, marginTop: 1, color: AUTO_SENT_ACCENT }}
+            />
           ) : (
             <UserAvatar
               userAvatar={msg.author?.avatar ?? userAvatar}
@@ -5912,7 +5906,7 @@ function ChatInner({
                     style={{
                       display: 'flex',
                       alignItems: 'flex-start',
-                      gap: CHAT_MEDIA_GAP,
+                      gap: 10,
                       // One timeline rhythm: bottom margin only (see TIMELINE_ITEM_GAP).
                       marginBottom: TIMELINE_ITEM_GAP,
                       // Shared card chrome: subtle tint + a uniform 1px border on all
@@ -5922,16 +5916,12 @@ function ChatInner({
                       lineHeight: 1.5,
                     }}
                   >
-                    {/* Icon sits in the shared media column so the text aligns with the
-                        user/auto message cards' content column. */}
-                    <span style={{ ...chatMediaColStyle(), marginTop: 1 }}>
-                      <Icon
-                        name={icon}
-                        size={CHAT_CARD_ICON_SIZE}
-                        aria-hidden="true"
-                        style={{ color: accent }}
-                      />
-                    </span>
+                    <Icon
+                      name={icon}
+                      size={CHAT_CARD_ICON_SIZE}
+                      aria-hidden="true"
+                      style={{ flexShrink: 0, marginTop: 1, color: accent }}
+                    />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       {item.card.content ? (
                         // Composable inline body: prose / monospace code / inline links in
