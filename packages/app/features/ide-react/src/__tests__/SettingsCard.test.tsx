@@ -223,8 +223,12 @@ describe('SettingsCard (SYN11 — complete settings view, single source of truth
       </Wrap>,
     )
     const card = container.querySelector('[data-mol-id="settings-card"]') as HTMLElement
-    // The card adopts the shared surface token, like its sibling cards.
-    expect(card.className).toContain(classMap.surfaceSecondary)
+    // The card adopts the shared chat-card chrome — a theme-token tint + a uniform
+    // 1px border on all sides (chat-card-style) — like its sibling cards, rather than
+    // a flat gray surface class.
+    expect(card.className).not.toContain(classMap.surfaceSecondary)
+    expect(card.style.border).toContain('1px solid')
+    expect(card.style.border).toContain('--mol-color-primary')
     // No setting row hardcodes a hex color inline (theme tokens / classes only).
     for (const setting of SETTINGS) {
       const row = container.querySelector(

@@ -24,6 +24,7 @@ import { DEFAULT_AGENT_NAME, DEFAULT_PRODUCT_NAME } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { ChatEventCardAction } from '../customEventCards.js'
+import { chatCardStyle } from './chat-card-style.js'
 import { HELP_INTRO, HELP_MODES, HELP_SHORTCUTS, HELP_TIPS } from './chat-help-utilities.js'
 import { Icon } from './Icon.js'
 
@@ -63,8 +64,10 @@ export function HelpCard({
   return (
     <div
       data-mol-id="help-card"
-      className={cm.cn(cm.surfaceSecondary, cm.textSize('xs'))}
-      style={{ margin: '6px 0', borderRadius: 6, padding: '10px 12px' }}
+      className={cm.textSize('xs')}
+      // Shared card chrome: subtle primary tint + a uniform 1px border on all sides.
+      // One source of truth with the other chat info cards (chat-card-style).
+      style={{ ...chatCardStyle(), marginBottom: 16 }}
     >
       {/* ── Getting started ── */}
       <div className={sectionHeading} style={{ marginBottom: 4 }}>

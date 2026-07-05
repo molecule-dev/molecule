@@ -21,6 +21,7 @@ import {
   activityStatusLabel,
   activitySummaryLine,
 } from './activity-utilities.js'
+import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-style.js'
 import { Icon } from './Icon.js'
 
 /**
@@ -53,7 +54,7 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
       data-activity-status={activity.status}
       onClick={clickable ? () => onActivityClick!(activity) : undefined}
       aria-label={t('ide.activity.cardAria', undefined, { defaultValue: 'View captured activity' })}
-      className={cm.cn(cm.surfaceSecondary, cm.textSize('sm'), cm.w('full'))}
+      className={cm.cn(cm.textSize('sm'), cm.w('full'))}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -61,9 +62,9 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
         // One chat-timeline rhythm: bottom margin only, never a top margin (matches
         // ChatPanel's TIMELINE_ITEM_GAP so adjacent items never collide — P4-05).
         marginBottom: 16,
-        padding: '6px 10px',
-        borderRadius: 6,
-        border: '1px solid var(--mol-color-border, rgba(128,128,128,0.2))',
+        // Shared card chrome: subtle primary tint + a uniform 1px border on all
+        // sides. One source of truth with the other chat info cards (chat-card-style).
+        ...chatCardStyle(),
         textAlign: 'left',
         cursor: clickable ? 'pointer' : 'default',
         color: 'inherit',
@@ -72,22 +73,21 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
       onMouseEnter={
         clickable
           ? (e) => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = 'var(--color-primary, #6366f1)'
+              ;(e.currentTarget as HTMLElement).style.borderColor = chatCardBorder(undefined, 70)
             }
           : undefined
       }
       onMouseLeave={
         clickable
           ? (e) => {
-              ;(e.currentTarget as HTMLElement).style.borderColor =
-                'var(--mol-color-border, rgba(128,128,128,0.2))'
+              ;(e.currentTarget as HTMLElement).style.borderColor = chatCardBorder()
             }
           : undefined
       }
     >
       <Icon
         name={activityIconName(activity.type)}
-        size={16}
+        size={CHAT_CARD_ICON_SIZE}
         aria-hidden="true"
         style={{ flexShrink: 0 }}
       />

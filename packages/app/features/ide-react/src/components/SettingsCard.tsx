@@ -31,6 +31,7 @@ import { DEFAULT_AGENT_NAME } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
+import { chatCardStyle } from './chat-card-style.js'
 import type { CommandId } from './chat-commands.js'
 import { groupCommandsByCategory } from './chat-commands.js'
 import type { SettingDescriptor } from './chat-settings-utilities.js'
@@ -75,12 +76,11 @@ export function SettingsCard({
   return (
     <div
       data-mol-id="settings-card"
-      className={cm.cn(!embedded && cm.surfaceSecondary, cm.textSize('xs'))}
-      style={
-        embedded
-          ? { padding: '10px 12px' }
-          : { margin: '6px 0', borderRadius: 6, padding: '10px 12px' }
-      }
+      className={cm.textSize('xs')}
+      // Non-embedded (inline in the chat timeline) shares the same card chrome as
+      // every other info card: subtle primary tint + a uniform 1px border on all
+      // sides (chat-card-style). Embedded in an overlay it stays chrome-less.
+      style={embedded ? { padding: '10px 12px' } : { ...chatCardStyle(), marginBottom: 16 }}
     >
       {/* ── Section: settings ── */}
       {/* Same header structure as SkillsCard + ScriptsCard — a flex row with the

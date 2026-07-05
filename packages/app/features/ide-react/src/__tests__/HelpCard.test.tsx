@@ -113,8 +113,12 @@ describe('HelpCard (P2-12 — concise high-level guide, no command relist)', () 
       </Wrap>,
     )
     const card = container.querySelector('[data-mol-id="help-card"]') as HTMLElement
-    // The card adopts the same surface token as the sibling cards.
-    expect(card.className).toContain(classMap.surfaceSecondary)
+    // The card adopts the shared chat-card chrome — a theme-token tint + a uniform
+    // 1px border on all sides (chat-card-style) — like its sibling cards, rather than
+    // a flat gray surface class.
+    expect(card.className).not.toContain(classMap.surfaceSecondary)
+    expect(card.style.border).toContain('1px solid')
+    expect(card.style.border).toContain('--mol-color-primary')
     // No mode/tip row hardcodes a hex color inline (theme tokens / classes only).
     for (const row of container.querySelectorAll(
       '[data-mol-id^="help-mode-"], [data-mol-id^="help-tip-"]',

@@ -55,6 +55,7 @@ import { useHttpClient } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
+import { chatCardStyle } from './chat-card-style.js'
 import type { SkillInfo } from './chat-skills-utilities.js'
 import { filterSkills, loadProjectSkillsResilient } from './chat-skills-utilities.js'
 import { Icon } from './Icon.js'
@@ -237,12 +238,11 @@ export function SkillsCard({
   return (
     <div
       data-mol-id="skills-card"
-      className={cm.cn(!embedded && cm.surfaceSecondary, cm.textSize('xs'))}
-      style={
-        embedded
-          ? { padding: '10px 12px' }
-          : { margin: '6px 0', borderRadius: 6, padding: '10px 12px' }
-      }
+      className={cm.textSize('xs')}
+      // Non-embedded (inline in the chat timeline) shares the same card chrome as
+      // every other info card: subtle primary tint + a uniform 1px border on all
+      // sides (chat-card-style). Embedded in an overlay it stays chrome-less.
+      style={embedded ? { padding: '10px 12px' } : { ...chatCardStyle(), marginBottom: 16 }}
     >
       <div
         style={{

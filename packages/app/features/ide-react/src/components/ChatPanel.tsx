@@ -68,6 +68,12 @@ import {
   isAutoCommitEnabled,
   parseAutoCommitCommand,
 } from './chat-autocommit-utilities.js'
+import {
+  CHAT_CARD_ICON_SIZE,
+  chatCardBg,
+  chatCardBorder,
+  chatCardStyle,
+} from './chat-card-style.js'
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
@@ -5895,7 +5901,7 @@ function ChatInner({
                 item.card.tone ?? (item.card.emphasized || item.card.action ? 'info' : null)
 
               if (tipTone) {
-                // One value (the accent) drives the whole treatment — border/bg/glow derive
+                // One value (the accent) drives the whole treatment — border + bg derive
                 // from it via color-mix (works with a CSS var OR a hex), so tones stay in
                 // lockstep and a new tone is just one row. Icon defaults per tone; a card may
                 // override it (`icon`).
@@ -5908,9 +5914,11 @@ function ChatInner({
                 }
                 const { accent, icon: defaultIcon } = TONE[tipTone]
                 const icon = item.card.icon ?? defaultIcon
-                const border = `color-mix(in srgb, ${accent} 50%, transparent)`
-                const bg = `color-mix(in srgb, ${accent} 13%, transparent)`
-                const glow = `color-mix(in srgb, ${accent} 20%, transparent)`
+                // Border + bg come from the shared chat-card helper so this card
+                // reads as one family with the activity/tip/help/settings cards —
+                // same 1px frame (no left accent bar), same subtle tint.
+                const border = chatCardBorder(accent)
+                const bg = chatCardBg(accent)
                 const actions = item.card.action
                   ? Array.isArray(item.card.action)
                     ? item.card.action
@@ -5935,19 +5943,16 @@ function ChatInner({
                       gap: 10,
                       // One timeline rhythm: bottom margin only (see TIMELINE_ITEM_GAP).
                       marginBottom: TIMELINE_ITEM_GAP,
-                      padding: '10px 12px',
-                      borderRadius: 8,
-                      border: `1px solid ${border}`,
-                      // Solid left accent bar — the cue that pulls the eye to the callout.
-                      borderLeft: `3px solid ${accent}`,
-                      background: bg,
-                      boxShadow: `0 1px 4px ${glow}`,
+                      // Shared card chrome: subtle tint + a uniform 1px border on all
+                      // sides (no thicker left accent bar — kept consistent with the
+                      // rest of the info-card family).
+                      ...chatCardStyle(accent),
                       lineHeight: 1.5,
                     }}
                   >
                     <Icon
                       name={icon}
-                      size={18}
+                      size={CHAT_CARD_ICON_SIZE}
                       aria-hidden="true"
                       style={{ flexShrink: 0, marginTop: 1, color: accent }}
                     />

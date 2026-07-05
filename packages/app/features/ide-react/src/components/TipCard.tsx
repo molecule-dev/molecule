@@ -14,6 +14,7 @@ import type { CSSProperties, JSX, ReactNode } from 'react'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
+import { CHAT_CARD_ICON_SIZE, chatCardStyle } from './chat-card-style.js'
 import { Icon } from './Icon.js'
 
 /** Inline monospace code style for command/`@file` tokens in a tip (mvp #10). */
@@ -70,24 +71,19 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
         // One chat-timeline rhythm: bottom margin only, never a top margin (matches
         // ChatPanel's TIMELINE_ITEM_GAP so adjacent items never collide — P4-05).
         marginBottom: 16,
-        padding: '8px 10px',
-        borderRadius: 8,
-        // Tint follows the active theme's primary color (light/dark + per-app
-        // brand) via color-mix on the theme token — never a hardcoded indigo, so
-        // the card recolors with the theme instead of clashing with it.
-        border: '1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 28%, transparent)',
-        background: 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 8%, transparent)',
+        // Shared card chrome: subtle primary tint + a uniform 1px border on all
+        // sides. One source of truth with the other chat info cards (chat-card-style).
+        ...chatCardStyle(),
         lineHeight: 1.5,
       }}
     >
       <Icon
         name="lightbulb"
-        size={18}
+        size={CHAT_CARD_ICON_SIZE}
         aria-hidden="true"
         style={{
           flexShrink: 0,
           marginTop: 1,
-          opacity: 0.7,
           color: 'var(--mol-color-primary, #6366f1)',
         }}
       />
