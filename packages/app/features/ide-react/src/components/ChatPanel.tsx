@@ -578,6 +578,41 @@ function relativeTimeLong(ms: number): string {
   return `${d} day${d === 1 ? '' : 's'} ago`
 }
 
+/**
+ * User-message accent stripe. The left edge of a real user message draws a vertical,
+ * multi-tone BLUE gradient swept gently up and down (the same smooth single-gradient
+ * technique as the composer ring, but vertical + blue) — NOT a repeating barber-pole,
+ * which read busy + janky. The host supplies the curated blues via
+ * `--mol-chat-accent-gradient`; the fallback is a lightened primary so it stays blue +
+ * never dark in any theme (the theme's primary-light/-dark tokens are actually a medium
+ * + a dark blue with no light tone). It's a full-box gradient (so the sweep has room to
+ * travel) clipped to a 4px LEFT band that follows the row's rounded corners. A
+ * `::before` + its keyframe can't be expressed inline (and inline `animation` can't be
+ * media-queried), so — like AutoCommitBadge — it is injected once and gated on the
+ * existing `data-mol-id`; the auto-sent row keeps its solid success accent.
+ */
+const USER_ACCENT_STYLE = `
+[data-mol-id="chat-user-message"] { position: relative; }
+[data-mol-id="chat-user-message"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--mol-chat-accent-gradient, linear-gradient(to bottom, color-mix(in srgb, var(--mol-color-primary, #3060c0) 85%, #fff), color-mix(in srgb, var(--mol-color-primary, #3060c0) 50%, #fff) 50%, color-mix(in srgb, var(--mol-color-primary, #3060c0) 85%, #fff)));
+  background-size: 100% 300%;
+  animation: mol-chat-accent-flow 6s ease-in-out infinite;
+  -webkit-mask: linear-gradient(to right, #000 4px, transparent 4px);
+  mask: linear-gradient(to right, #000 4px, transparent 4px);
+  pointer-events: none;
+}
+@keyframes mol-chat-accent-flow {
+  0%, 100% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-mol-id="chat-user-message"]::before { animation: none; }
+}`
+
 /** Maximum file size for attachments (20 MB). */
 const MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024
 
@@ -1597,7 +1632,9 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     <div style={wrapperSpacing}>
       {isUser || isAutomatic ? (
         <div
-          className={cm.textSize('sm')}
+          className={
+            isAutomatic ? cm.textSize('sm') : cm.cn(cm.surfaceSecondary, cm.textSize('sm'))
+          }
           style={{
             display: 'flex',
             alignItems: 'flex-start',
@@ -1606,11 +1643,20 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             // (padding + media column + gap) — user, auto-sent and cards all align.
             gap: `${CHAT_MEDIA_GAP}px`,
             minWidth: 0,
-            // Same tinted 1px-bordered card chrome as the info cards (chat-card-style):
-            // the user's message uses the brand/primary tint; an auto-sent message uses
-            // the success green so it's unmistakably agent-sent, not user-typed (C2). No
-            // gray surface, no thicker left accent bar — one uniform 1px frame.
-            ...chatCardStyle(isAutomatic ? AUTO_SENT_ACCENT : undefined),
+            // A real user message keeps its classic look: a gray surface with the
+            // molecule brand's ANIMATED blue gradient stripe on the left edge (4px),
+            // drawn by the `::before` injected via USER_ACCENT_STYLE + gated on the
+            // data-mol-id below. An auto-sent message is the green (success) tinted
+            // card chrome, so it's unmistakably agent-sent, not user-typed (C2).
+            ...(isAutomatic
+              ? chatCardStyle(AUTO_SENT_ACCENT)
+              : {
+                  borderRadius: '4px',
+                  paddingLeft: '4px',
+                  paddingRight: '4px',
+                  paddingTop: '10px',
+                  paddingBottom: '10px',
+                }),
           }}
           data-mol-id={isAutomatic ? 'chat-automatic-message' : 'chat-user-message'}
         >
@@ -3103,6 +3149,18 @@ function ChatInner({
     onRegisterPushHandler?.(applyPushedStreamEvent)
     return () => onRegisterPushHandler?.(null)
   }, [onRegisterPushHandler, applyPushedStreamEvent])
+
+  // Inject the user-message accent-stripe styles once (the gradient `::before` + its
+  // keyframe can't live inline; gated on the row's data-mol-id, so no other row is
+  // touched). Guarded by id so it injects a single time across the app.
+  useEffect(() => {
+    const id = 'mol-chat-user-accent-style'
+    if (typeof document === 'undefined' || document.getElementById(id)) return
+    const el = document.createElement('style')
+    el.id = id
+    el.textContent = USER_ACCENT_STYLE
+    document.head.appendChild(el)
+  }, [])
 
   // ── System cards are now SESSION-EPHEMERAL ────────────────────────────────
   // The persisted, server-driven inline notices (model switch, "Building your app", "Loaded
@@ -5803,8 +5861,8 @@ function ChatInner({
               // ── Unified tip / notice card ────────────────────────────────────────────
               // EVERY host notice (upgrade, sign-up, model-intro, pre-alpha, saved-script,
               // build-degraded) renders through ONE structure so they look consistent: an
-              // icon, a 3px left accent bar, a tinted body, and — for action cards — a row of
-              // accent buttons. Only the ACCENT COLOUR + ICON change, by `tone`. Picking a
+              // icon, a tinted body with a uniform 1px border, and — for action cards — a row
+              // of accent buttons. Only the ACCENT COLOUR + ICON change, by `tone`. Picking a
               // tone (or `emphasized`, or merely having an action) opts a card in; a card with
               // none of those stays a plain muted inline line (e.g. a "Now using <model>"
               // notice). `emphasized` without a tone → the neutral `info` tone.

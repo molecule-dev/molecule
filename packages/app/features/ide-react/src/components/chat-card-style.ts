@@ -48,7 +48,7 @@ export const CHAT_CARD_ICON_SIZE = 18
 export const CHAT_MEDIA_COL = 36
 
 /** Gap (px) between the leading media column and the content column. */
-export const CHAT_MEDIA_GAP = 10
+export const CHAT_MEDIA_GAP = 4
 
 /**
  * Style for the fixed-width wrapper that holds a card's leading icon so it occupies
@@ -102,7 +102,8 @@ export function chatCardBg(accent: string = CHAT_CARD_NEUTRAL_ACCENT, pct = 10):
  */
 export function chatCardStyle(accent: string = CHAT_CARD_NEUTRAL_ACCENT): CSSProperties {
   return {
-    padding: '10px 12px',
+    // Tight 4px left/right padding; 10px vertical rhythm kept.
+    padding: '10px 4px',
     borderRadius: 8,
     border: `1px solid ${chatCardBorder(accent)}`,
     background: chatCardBg(accent),

@@ -6,8 +6,9 @@
  * C2: a message sent automatically on the user's behalf (e.g. an auto-fix
  * prompt, flagged `automatic`) must NOT look like the user typed it — it renders
  * as a green (success) tinted card with a `sync` "automatic" icon (not the user's
- * avatar), while a real user message is a brand/primary tinted card with the
- * user's avatar — so it's obvious the agent sent it, not the user.
+ * avatar), while a real user message keeps its classic gray card with the user's
+ * avatar + an animated blue gradient left stripe — so it's obvious the agent sent
+ * it, not the user.
  *
  * C3: a `hidden` driver message (e.g. the post-boot kickoff) must NEVER reach
  * the DOM, even if it somehow appears in the message list.
@@ -249,7 +250,7 @@ describe('ChatPanel auto-sent + hidden messages (C2 + C3)', () => {
     expect(autoCard!.textContent).not.toContain('Sent automatically')
   })
 
-  it('renders a real user message as a brand-tinted card with the user avatar (not auto-sent)', async () => {
+  it('renders a real user message with the user avatar + animated gradient accent (not auto-sent)', async () => {
     const { container } = render(renderChatPanel())
 
     await waitFor(() => {
@@ -260,11 +261,16 @@ describe('ChatPanel auto-sent + hidden messages (C2 + C3)', () => {
       '[data-mol-id="chat-user-message"]',
     ) as HTMLElement | null
     expect(userCard).not.toBeNull()
-    // A real user message is a brand/primary tinted card (same 1px-bordered chat-card
-    // chrome as the info cards) — NOT the auto-sent green, and no left accent stripe.
-    expect(userCard!.style.border).toContain('--mol-color-primary')
-    expect(userCard!.style.border).not.toContain('--mol-color-success')
-    expect(document.getElementById('mol-chat-user-accent-style')).toBeNull()
+    // A real user message keeps its classic look — its left edge is an ANIMATED blue
+    // gradient stripe, drawn by a `::before` whose rule is injected once and gated on
+    // this row's data-mol-id. So it must NOT have the auto-sent green border, and the
+    // animated primary-blue gradient rule must be present + wired.
+    expect(userCard!.style.borderLeft).not.toContain('--mol-color-success')
+    const accentStyle = document.getElementById('mol-chat-user-accent-style')
+    expect(accentStyle, 'the user-accent gradient style should be injected').not.toBeNull()
+    expect(accentStyle!.textContent).toContain('[data-mol-id="chat-user-message"]::before')
+    expect(accentStyle!.textContent).toContain('--mol-color-primary')
+    expect(accentStyle!.textContent).toContain('mol-chat-accent-flow')
     expect(userCard!.querySelector('[data-mol-id="chat-user-avatar"]')).not.toBeNull()
     expect(userCard!.textContent).not.toContain('Sent automatically')
   })
