@@ -524,6 +524,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const name = input.name as string
       const content = input.content as string
 
+      // The plan is executed step-by-step with each step checked off in the file as it
+      // completes, so it must be a checklist — reject prose-only plans and let the
+      // model resend the same plan reformatted with checkboxes.
+      if (!/^\s*[-*] \[[ xX]\]/m.test(content)) {
+        return {
+          error:
+            'Plan rejected: it must be a markdown checklist. Resend the SAME plan with every actionable step as a `- [ ]` checkbox line (grouped under short headings) so each step can be marked `- [x]` as it is completed.',
+        }
+      }
+
       const slug = name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')

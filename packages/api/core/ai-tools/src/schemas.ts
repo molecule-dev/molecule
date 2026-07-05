@@ -231,7 +231,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
         },
         content: {
           type: 'string',
-          description: 'Full plan content in markdown.',
+          description:
+            'Full plan content in markdown. MUST be a checklist: every actionable step is a `- [ ]` checkbox (grouped under short headings) so each one can be flipped to `- [x]` in this file as it is completed.',
         },
       },
       required: ['name', 'content'],

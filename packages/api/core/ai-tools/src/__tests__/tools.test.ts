@@ -145,6 +145,34 @@ describe('buildTools', () => {
     expect(tools.find((t) => t.name === 'read_file')).toBeDefined()
   })
 
+  it('save_plan rejects a plan with no checklist items (plans must be checklists)', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend)
+    const savePlan = tools.find((t) => t.name === 'save_plan')
+    expect(savePlan).toBeDefined()
+    const result = (await savePlan!.execute({
+      name: 'My Plan',
+      content: '# Plan\n\n1. Do the thing\n2. Do the other thing\n',
+    })) as { error?: string }
+    expect(result.error).toMatch(/markdown checklist/)
+    expect(backend.writeFile).not.toHaveBeenCalled()
+  })
+
+  it('save_plan accepts a checklist plan and writes it', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend)
+    const savePlan = tools.find((t) => t.name === 'save_plan')
+    const result = (await savePlan!.execute({
+      name: 'My Plan',
+      content:
+        '# Plan\n\n## Setup\n\n- [ ] Create api/src/handlers/todos.ts\n- [x] Verify the existing dashboard\n',
+    })) as { ok?: boolean; path?: string; error?: string }
+    expect(result.error).toBeUndefined()
+    expect(result.ok).toBe(true)
+    expect(result.path).toMatch(/\.agents\/plans\/\d+-my-plan-.+\.md$/)
+    expect(backend.writeFile).toHaveBeenCalled()
+  })
+
   it('load_skill enforces the symlink guard like every other read tool [C3-2]', async () => {
     const backend = mockBackend()
     // readlink -f resolves the (planted-symlink) candidate to a path OUTSIDE the workspace root.
