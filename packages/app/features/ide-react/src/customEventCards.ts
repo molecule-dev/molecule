@@ -79,7 +79,7 @@ export interface ChatEventCard {
    * differing only by colour/icon per kind:
    * - `info` — blue, info glyph (neutral notice)
    * - `gold` — amber, lightbulb (an honest tip / onboarding note)
-   * - `upgrade` — amber, warning triangle (a plan/limit/upgrade nudge)
+   * - `upgrade` — amber, clock (a plan/limit/budget nudge)
    * - `success` — green, check (a completed action, e.g. a saved script)
    * - `signup` — primary, sign-in (an auth nudge)
    *

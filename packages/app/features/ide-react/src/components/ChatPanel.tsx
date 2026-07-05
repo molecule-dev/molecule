@@ -313,7 +313,7 @@ interface PlainSystemCard extends SystemCardBase {
   /**
    * Tip TONE — picks the card's accent colour + default icon so every notice card shares
    * ONE consistent box, differing only by colour/icon: `info` (blue), `gold` (amber tip),
-   * `upgrade` (amber warning triangle), `success` (green check), `signup` (primary sign-in). Setting
+   * `upgrade` (amber clock), `success` (green check), `signup` (primary sign-in). Setting
    * a tone implies emphasis; `emphasized` without a tone falls back to `info`. See
    * {@link ChatEventCard.tone}.
    */
@@ -1631,7 +1631,9 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
       {isUser || isAutomatic ? (
         <div
           className={
-            isAutomatic ? cm.textSize('sm') : cm.cn(cm.surfaceSecondary, cm.textSize('sm'))
+            // Auto-sent card matches the info cards' `xs` body; a real user message keeps
+            // its slightly larger `sm` (it's a different kind of row, not an info card).
+            isAutomatic ? cm.textSize('xs') : cm.cn(cm.surfaceSecondary, cm.textSize('sm'))
           }
           style={{
             display: 'flex',
@@ -5871,10 +5873,13 @@ function ChatInner({
                 const TONE: Record<string, { accent: string; icon: string }> = {
                   info: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'info-circle' },
                   gold: { accent: '#e0a100', icon: 'lightbulb' },
-                  // Limit / degraded / budget notices are WARNINGS — a warning triangle
-                  // (same filled icon-set style as the rest), not the `sparkle` "smart
-                  // tip" glyph, which read as a celebration on a you-hit-a-limit card.
-                  upgrade: { accent: '#e0a100', icon: 'exclamation-triangle' },
+                  // Limit / degraded / budget notices: a `clock` icon — an OUTLINE ring
+                  // built exactly like `info-circle`, so it matches the other tone icons'
+                  // weight (the solid `exclamation-triangle`/`sparkle` glyphs read far
+                  // heavier) and fits the "budget refreshes daily, come back" framing. The
+                  // accent is the theme's WARNING token (a darker gold in light mode) so the
+                  // border stays clearly visible on a light background, not just on dark.
+                  upgrade: { accent: 'var(--mol-color-warning, #e0a100)', icon: 'clock' },
                   success: { accent: '#3fb950', icon: 'check-circle' },
                   signup: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'sign-in' },
                 }
@@ -7607,13 +7612,12 @@ function ChatInner({
         <div
           className={cm.surfaceSecondary}
           style={{
-            // Full IDE: flush with the panel's left/right/bottom edges (no rounding).
-            // Discovery: round ALL FOUR corners (8px) so the composer's gradient ring
-            // is rounded uniformly on every corner, flush inside the rounded discovery
-            // card (P3-23). The ring's `border-radius: inherit` follows this; the card
-            // is full-width here (its stray right-divider is suppressed in discovery —
-            // see Workspace.css) so the composer reaches both side edges.
-            ...(discovery ? { borderRadius: 8 } : {}),
+            // Round the TOP corners only (8px) so the composer reads as a self-contained
+            // input with its own border on all sides, flush at the bottom-left/right with
+            // the panel's bottom edge. Discovery rounds ALL FOUR corners (the centered
+            // card is rounded on every side). The composer's gradient-ring `::before`
+            // follows this via `border-radius: inherit`.
+            borderRadius: discovery ? 8 : '8px 8px 0 0',
             padding: '8px 10px',
             cursor: 'text',
           }}

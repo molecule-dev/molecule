@@ -54,7 +54,7 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
       data-activity-status={activity.status}
       onClick={clickable ? () => onActivityClick!(activity) : undefined}
       aria-label={t('ide.activity.cardAria', undefined, { defaultValue: 'View captured activity' })}
-      className={cm.cn(cm.textSize('sm'), cm.w('full'))}
+      className={cm.cn(cm.textSize('xs'), cm.w('full'))}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -92,7 +92,7 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
         style={{ flexShrink: 0 }}
       />
       <span
-        className={cm.textSize('sm')}
+        className={cm.textSize('xs')}
         style={{
           flex: 1,
           minWidth: 0,
