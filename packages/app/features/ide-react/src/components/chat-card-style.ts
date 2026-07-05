@@ -38,6 +38,36 @@ export const CHAT_CARD_NEUTRAL_ACCENT = 'var(--mol-color-primary, #6366f1)'
 export const CHAT_CARD_ICON_SIZE = 18
 
 /**
+ * Width (px) of the leading "media column" every boxed timeline item reserves for
+ * its avatar/icon. It equals the user-avatar size, so a full-size 36px avatar fills
+ * it exactly while a smaller {@link CHAT_CARD_ICON_SIZE} icon sits centered within
+ * it — the point being that EVERY boxed item's text starts at the same column
+ * (`padding-left + CHAT_MEDIA_COL + CHAT_MEDIA_GAP`), so user messages, auto-sent
+ * messages and info cards all line up on one left edge without shrinking the avatar.
+ */
+export const CHAT_MEDIA_COL = 36
+
+/** Gap (px) between the leading media column and the content column. */
+export const CHAT_MEDIA_GAP = 10
+
+/**
+ * Style for the fixed-width wrapper that holds a card's leading icon so it occupies
+ * the same {@link CHAT_MEDIA_COL} column as a full-size avatar (icon centered in the
+ * column, top-aligned within the row). Wrap `<Icon .../>` in a `<span>`/`<div>` with
+ * this style; a 36px avatar needs no wrapper since it already fills the column.
+ *
+ * @returns The media-column wrapper `style`.
+ */
+export function chatMediaColStyle(): CSSProperties {
+  return {
+    width: CHAT_MEDIA_COL,
+    flexShrink: 0,
+    display: 'inline-flex',
+    justifyContent: 'center',
+  }
+}
+
+/**
  * Build the tinted border colour for a chat info card from its accent.
  *
  * @param accent - Accent source colour (CSS var or hex). Defaults to the theme primary.

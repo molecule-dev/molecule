@@ -14,7 +14,12 @@ import type { CSSProperties, JSX, ReactNode } from 'react'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
-import { CHAT_CARD_ICON_SIZE, chatCardStyle } from './chat-card-style.js'
+import {
+  CHAT_CARD_ICON_SIZE,
+  CHAT_MEDIA_GAP,
+  chatCardStyle,
+  chatMediaColStyle,
+} from './chat-card-style.js'
 import { Icon } from './Icon.js'
 
 /** Inline monospace code style for command/`@file` tokens in a tip (mvp #10). */
@@ -67,7 +72,7 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        gap: 8,
+        gap: CHAT_MEDIA_GAP,
         // One chat-timeline rhythm: bottom margin only, never a top margin (matches
         // ChatPanel's TIMELINE_ITEM_GAP so adjacent items never collide — P4-05).
         marginBottom: 16,
@@ -77,16 +82,15 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
         lineHeight: 1.5,
       }}
     >
-      <Icon
-        name="lightbulb"
-        size={CHAT_CARD_ICON_SIZE}
-        aria-hidden="true"
-        style={{
-          flexShrink: 0,
-          marginTop: 1,
-          color: 'var(--mol-color-primary, #6366f1)',
-        }}
-      />
+      {/* Icon in the shared media column so the text aligns with the message cards. */}
+      <span style={{ ...chatMediaColStyle(), marginTop: 1 }}>
+        <Icon
+          name="lightbulb"
+          size={CHAT_CARD_ICON_SIZE}
+          aria-hidden="true"
+          style={{ color: 'var(--mol-color-primary, #6366f1)' }}
+        />
+      </span>
       <span style={{ flex: 1 }}>{renderTipText(text)}</span>
       <button
         type="button"

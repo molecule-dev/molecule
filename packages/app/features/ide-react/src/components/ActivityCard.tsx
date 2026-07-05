@@ -21,7 +21,13 @@ import {
   activityStatusLabel,
   activitySummaryLine,
 } from './activity-utilities.js'
-import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-style.js'
+import {
+  CHAT_CARD_ICON_SIZE,
+  CHAT_MEDIA_GAP,
+  chatCardBorder,
+  chatCardStyle,
+  chatMediaColStyle,
+} from './chat-card-style.js'
 import { Icon } from './Icon.js'
 
 /**
@@ -58,7 +64,7 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: CHAT_MEDIA_GAP,
         // One chat-timeline rhythm: bottom margin only, never a top margin (matches
         // ChatPanel's TIMELINE_ITEM_GAP so adjacent items never collide — P4-05).
         marginBottom: 16,
@@ -85,12 +91,14 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
           : undefined
       }
     >
-      <Icon
-        name={activityIconName(activity.type)}
-        size={CHAT_CARD_ICON_SIZE}
-        aria-hidden="true"
-        style={{ flexShrink: 0 }}
-      />
+      {/* Icon in the shared media column so the text aligns with the message cards. */}
+      <span style={chatMediaColStyle()}>
+        <Icon
+          name={activityIconName(activity.type)}
+          size={CHAT_CARD_ICON_SIZE}
+          aria-hidden="true"
+        />
+      </span>
       <span
         className={cm.textSize('sm')}
         style={{

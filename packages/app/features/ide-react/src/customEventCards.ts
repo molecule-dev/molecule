@@ -75,11 +75,11 @@ export interface ChatEventCard {
   emphasized?: boolean
   /**
    * The card's tip TONE — picks its accent colour + default icon so every notice card
-   * shares ONE consistent box (icon + accent bar + tinted body + actions), differing only
-   * by colour/icon per kind:
+   * shares ONE consistent box (icon + tinted body + a uniform 1px border + actions),
+   * differing only by colour/icon per kind:
    * - `info` — blue, info glyph (neutral notice)
    * - `gold` — amber, lightbulb (an honest tip / onboarding note)
-   * - `upgrade` — amber, sparkle (a plan/upgrade nudge)
+   * - `upgrade` — amber, warning triangle (a plan/limit/upgrade nudge)
    * - `success` — green, check (a completed action, e.g. a saved script)
    * - `signup` — primary, sign-in (an auth nudge)
    *
