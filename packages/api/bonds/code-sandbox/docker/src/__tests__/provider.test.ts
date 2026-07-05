@@ -1382,3 +1382,67 @@ describe('DockerSandboxProvider', () => {
     })
   })
 })
+
+// ─── exec — stream end does not imply completion ──────────────────────────────
+
+describe('exec — inspect is authoritative, not the attach stream', () => {
+  /**
+   * A daemon under I/O load can FIN the exec attach stream early; Node surfaces
+   * the partial body as a normal 'end'. Docker's exec inspect then reports
+   * `Running: true` with a null ExitCode. exec() must poll inspect until the
+   * command actually exits instead of reporting a null exit code as success —
+   * a scaffold `npm install` once "completed" in seconds this way while npm
+   * kept installing in the background for 9 more minutes.
+   */
+
+  /** One stdout frame of Docker's multiplexed stream format. */
+  function muxStdout(payload: string): Buffer {
+    const body = Buffer.from(payload)
+    const header = Buffer.alloc(8)
+    header[0] = 1 // stdout
+    header.writeUInt32BE(body.length, 4)
+    return Buffer.concat([header, body])
+  }
+
+  it('polls exec inspect until Running=false and returns the real exit code', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-poll' })
+    const sandbox = await provider.create({ projectId: 'test-poll' })
+
+    enqueueJson(200, { Id: 'exec-poll' }) // exec create
+    enqueueResponse(200, muxStdout('partial output')) // attach stream (ends early)
+    enqueueJson(200, { ExitCode: null, Running: true }) // inspect: still running
+    enqueueJson(200, { ExitCode: 7, Running: false }) // inspect: finished
+
+    vi.useFakeTimers()
+    try {
+      const pending = sandbox.exec('npm install')
+      // Flush the create/start/first-inspect chain, then the 2 s poll sleep.
+      await vi.advanceTimersByTimeAsync(2000)
+      const result = await pending
+      expect(result.exitCode).toBe(7)
+      expect(result.stdout).toBe('partial output')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('returns -1 (indeterminate) when Docker reports a null exit code for a finished exec', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-null' })
+    const sandbox = await provider.create({ projectId: 'test-null' })
+
+    enqueueJson(200, { Id: 'exec-null' })
+    enqueueResponse(200, muxStdout('out'))
+    enqueueJson(200, { ExitCode: null, Running: false })
+
+    const result = await sandbox.exec('true')
+    expect(result.exitCode).toBe(-1)
+  })
+})

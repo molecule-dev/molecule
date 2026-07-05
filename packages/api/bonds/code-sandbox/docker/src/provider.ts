@@ -566,14 +566,38 @@ class DockerSandboxProvider implements SandboxProvider {
             offset = end
           }
 
-          const inspectRes = (await provider.dockerApi(`/exec/${execCreate.Id}/json`)) as {
-            ExitCode: number
+          // The attach stream ending does NOT mean the command finished: a
+          // daemon under I/O load can FIN the stream early, and Node resolves
+          // the partial body as a normal 'end'. Trusting it returned truncated
+          // stdout + a null ExitCode (Docker reports null while the process
+          // runs) that callers took as success — a scaffold `npm install` once
+          // "completed" in seconds while npm kept installing for 9 more
+          // minutes. Inspect is authoritative: if the process is still
+          // running, poll until it actually exits before reporting.
+          const inspectExec = async (): Promise<{ ExitCode: number | null; Running: boolean }> =>
+            (await provider.dockerApi(`/exec/${execCreate.Id}/json`)) as {
+              ExitCode: number | null
+              Running: boolean
+            }
+          let inspectRes = await inspectExec()
+          if (inspectRes.Running) {
+            // The in-container `timeout` wrapper bounds the command itself when
+            // opts.timeout is set; +30s covers signal/reap latency. Without a
+            // caller timeout, cap the wait at the same 10 min as the stream.
+            const deadline = Date.now() + (timeoutMs ? timeoutMs + 30_000 : 600_000)
+            while (inspectRes.Running && Date.now() < deadline) {
+              await new Promise((resolve) => setTimeout(resolve, 2000))
+              inspectRes = await inspectExec()
+            }
           }
 
           return {
             stdout: Buffer.concat(stdoutChunks).toString(),
             stderr: Buffer.concat(stderrChunks).toString(),
-            exitCode: inspectRes.ExitCode,
+            // -1 = indeterminate: still running at deadline (or Docker gave no
+            // code). Distinct from any real shell exit status (0-255) so
+            // callers can tell "unfinished/unknown" from "failed".
+            exitCode: inspectRes.ExitCode ?? -1,
           }
         }
 
