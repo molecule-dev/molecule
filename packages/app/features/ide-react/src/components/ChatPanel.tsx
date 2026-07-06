@@ -68,12 +68,7 @@ import {
   isAutoCommitEnabled,
   parseAutoCommitCommand,
 } from './chat-autocommit-utilities.js'
-import {
-  CHAT_CARD_ICON_SIZE,
-  chatCardBg,
-  chatCardBorder,
-  chatCardStyle,
-} from './chat-card-style.js'
+import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-style.js'
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
@@ -5885,22 +5880,26 @@ function ChatInner({
                 }
                 const { accent, icon: defaultIcon } = TONE[tipTone]
                 const icon = item.card.icon ?? defaultIcon
-                // Border + bg come from the shared chat-card helper so this card
-                // reads as one family with the activity/tip/help/settings cards —
-                // same 1px frame (no left accent bar), same subtle tint.
-                const border = chatCardBorder(accent)
-                const bg = chatCardBg(accent)
                 const actions = item.card.action
                   ? Array.isArray(item.card.action)
                     ? item.card.action
                     : [item.card.action]
                   : []
                 const multiLine = item.card.text.includes('\n')
+                // Action buttons sit ON the card's tint, so they need their OWN opaque
+                // background to read as actual buttons — a transparent "ghost" fill made
+                // them blend into the card (user: "their background is the same exact
+                // color as the card"). Opaque theme surface + a stronger accent border
+                // than the card frame (55% vs 40%) + a hairline shadow = a real button
+                // in both themes with no contrast risk on any accent. Hover deepens the
+                // fill with an accent tint over that same surface.
+                const buttonBg = 'var(--mol-color-surface, transparent)'
+                const buttonHoverBg = `color-mix(in srgb, ${accent} 15%, var(--mol-color-surface, transparent))`
                 const onEnter = (e: React.MouseEvent<HTMLElement>): void => {
-                  ;(e.currentTarget as HTMLElement).style.background = bg
+                  ;(e.currentTarget as HTMLElement).style.background = buttonHoverBg
                 }
                 const onLeave = (e: React.MouseEvent<HTMLElement>): void => {
-                  ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                  ;(e.currentTarget as HTMLElement).style.background = buttonBg
                 }
                 return (
                   <div
@@ -5938,7 +5937,9 @@ function ChatInner({
                         </span>
                       )}
                       {/* Action cards (no inline `content`) get a consistent, left-aligned row
-                          of accent "ghost" buttons — never the old centered filled buttons. */}
+                          of accent outline buttons on an OPAQUE surface — never transparent
+                          "ghost" fills (they blend into the tinted card) and never the old
+                          centered filled buttons. */}
                       {!item.card.content && actions.length > 0 && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
                           {actions.map((act, i) => {
@@ -5952,9 +5953,10 @@ function ChatInner({
                               cursor: 'pointer',
                               textDecoration: 'none',
                               fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',
-                              border: `1px solid ${border}`,
+                              border: `1px solid ${chatCardBorder(accent, 55)}`,
                               color: accent,
-                              background: 'transparent',
+                              background: buttonBg,
+                              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
                               transition: 'background 100ms',
                             }
                             return act.href ? (

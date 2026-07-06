@@ -218,7 +218,13 @@ describe('ChatPanel unified notice cards', () => {
     const upgrade = container.querySelector('[data-tone="upgrade"]') as HTMLElement
     expect(upgrade.textContent).toContain('Upgrade')
     expect(upgrade.textContent).toContain('Source')
-    expect(upgrade.querySelector('a[href="/pricing"]')).not.toBeNull()
+    const upgradeBtn = upgrade.querySelector('a[href="/pricing"]') as HTMLElement
+    expect(upgradeBtn).not.toBeNull()
+    // The buttons must read as ACTUAL buttons: an OPAQUE theme-surface background
+    // (distinct from the card's transparent tint — the ghost fill regression where
+    // "their background is the same exact color as the card") plus a shadow.
+    expect(upgradeBtn.style.background).toContain('var(--mol-color-surface')
+    expect(upgradeBtn.style.boxShadow).not.toBe('')
 
     // The inline-content (gold) card renders its mid-sentence link, not a button row.
     const gold = container.querySelector('[data-tone="gold"]') as HTMLElement
