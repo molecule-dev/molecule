@@ -16,7 +16,16 @@ import { getClassMap } from '@molecule/app-ui'
  */
 export const Container = forwardRef<HTMLDivElement, ContainerProps>(
   (
-    { children, maxWidth = 'lg', centered = true, paddingX: _paddingX, className, style, testId },
+    {
+      children,
+      maxWidth = 'lg',
+      centered = true,
+      paddingX: _paddingX,
+      className,
+      style,
+      testId,
+      ...rest
+    },
     ref,
   ) => {
     const cm = getClassMap()
@@ -27,7 +36,13 @@ export const Container = forwardRef<HTMLDivElement, ContainerProps>(
     )
 
     return (
-      <div ref={ref} className={containerClasses} style={style} data-testid={testId}>
+      <div
+        ref={ref}
+        className={containerClasses}
+        style={style}
+        data-testid={testId}
+        {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+      >
         {children as React.ReactNode}
       </div>
     )
@@ -41,7 +56,19 @@ Container.displayName = 'Container'
  */
 export const Flex = forwardRef<HTMLDivElement, FlexProps>(
   (
-    { children, direction = 'row', justify, align, wrap, gap, className, style, testId, onClick },
+    {
+      children,
+      direction = 'row',
+      justify,
+      align,
+      wrap,
+      gap,
+      className,
+      style,
+      testId,
+      onClick,
+      ...rest
+    },
     ref,
   ) => {
     const cm = getClassMap()
@@ -87,6 +114,7 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(
         style={{ ...style, ...gapStyle }}
         data-testid={testId}
         onClick={onClick as unknown as React.MouseEventHandler<HTMLDivElement>}
+        {...(rest as React.HTMLAttributes<HTMLDivElement>)}
       >
         {children as React.ReactNode}
       </div>
@@ -100,7 +128,7 @@ Flex.displayName = 'Flex'
  * Grid container component.
  */
 export const Grid = forwardRef<HTMLDivElement, GridProps>(
-  ({ children, columns, rows, gap, columnGap, rowGap, className, style, testId }, ref) => {
+  ({ children, columns, rows, gap, columnGap, rowGap, className, style, testId, ...rest }, ref) => {
     const cm = getClassMap()
 
     const cmCols = typeof columns === 'number' ? columns : undefined
@@ -131,7 +159,13 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
     }
 
     return (
-      <div ref={ref} className={gridClasses} style={gridStyle} data-testid={testId}>
+      <div
+        ref={ref}
+        className={gridClasses}
+        style={gridStyle}
+        data-testid={testId}
+        {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+      >
         {children as React.ReactNode}
       </div>
     )
@@ -144,7 +178,7 @@ Grid.displayName = 'Grid'
  * Spacer component.
  */
 export const Spacer = forwardRef<HTMLDivElement, SpacerProps>(
-  ({ size = 'md', horizontal, className, style, testId }, ref) => {
+  ({ size = 'md', horizontal, className, style, testId, ...rest }, ref) => {
     const cm = getClassMap()
 
     const isNamedSize = typeof size === 'string' && ['xs', 'sm', 'md', 'lg', 'xl'].includes(size)
@@ -175,6 +209,7 @@ export const Spacer = forwardRef<HTMLDivElement, SpacerProps>(
         className={spacerClasses}
         style={{ ...style, ...sizeStyle }}
         data-testid={testId}
+        {...(rest as React.HTMLAttributes<HTMLDivElement>)}
       />
     )
   },
