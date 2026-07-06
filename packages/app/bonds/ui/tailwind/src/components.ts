@@ -342,7 +342,7 @@ export const dialogOverlay =
  * The dialog content.
  */
 export const dialogContent = cva(
-  'relative w-full flex flex-col bg-surface shadow-[0_0_3px_3px_rgba(0,0,0,0.05)] overflow-hidden rounded-[3px] max-h-full backface-hidden',
+  'relative w-full flex flex-col bg-surface shadow-[0_0_3px_3px_rgba(0,0,0,0.05)] overflow-hidden rounded-lg p-2 max-h-full backface-hidden',
   {
     variants: {
       size: {
