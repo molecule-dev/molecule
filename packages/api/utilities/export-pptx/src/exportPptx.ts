@@ -357,7 +357,7 @@ function sanitizeFilename(name: string): string {
   // illegal punctuation; collapse runs of whitespace.
   let cleaned = name
     // eslint-disable-next-line no-control-regex
-    .replace(/[ -<>:"/\\|?*]+/g, ' ')
+    .replace(/[\u0000-\u001f\u007f<>:"/\\|?*]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
   if (!cleaned) cleaned = 'deck'
