@@ -222,3 +222,9 @@ Peer dependencies:
 - `AWS_S3_REGION` *(optional)* — S3 bucket region — default: `us-east-1`
   - Setup: The AWS region of your uploads bucket.
   - Example: `us-east-1`
+- `AWS_S3_ENDPOINT` *(optional)* — S3 endpoint override
+  - Setup: Endpoint URL for S3-compatible stores (MinIO, Cloudflare R2, DigitalOcean Spaces) — molecule's managed storage sets this automatically; leave empty for real AWS S3.
+  - Example: `http://localhost:9000`
+- `AWS_S3_FORCE_PATH_STYLE` *(optional)* — S3 path-style addressing
+  - Setup: Set to 'true' for MinIO-style path addressing (http://host/bucket instead of virtual-hosted buckets); set automatically by molecule's managed storage. Leave unset for real AWS S3.
+  - Example: `true`

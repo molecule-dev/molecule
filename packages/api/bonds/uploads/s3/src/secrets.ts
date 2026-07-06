@@ -46,6 +46,20 @@ export const uploadsS3SecretDefinitions: SecretDefinition[] = [
     example: 'us-east-1',
     default: 'us-east-1',
   },
+  {
+    key: 'AWS_S3_ENDPOINT',
+    description:
+      "S3 endpoint override — Endpoint URL for S3-compatible stores (MinIO, Cloudflare R2, DigitalOcean Spaces) — molecule's managed storage sets this automatically; leave empty for real AWS S3.",
+    required: false,
+    example: 'http://localhost:9000',
+  },
+  {
+    key: 'AWS_S3_FORCE_PATH_STYLE',
+    description:
+      "S3 path-style addressing — Set to 'true' for MinIO-style path addressing (http://host/bucket instead of virtual-hosted buckets); set automatically by molecule's managed storage. Leave unset for real AWS S3.",
+    required: false,
+    example: 'true',
+  },
 ]
 
 registerSecrets(uploadsS3SecretDefinitions)

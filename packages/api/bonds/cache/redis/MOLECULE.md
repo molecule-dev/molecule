@@ -199,6 +199,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `REDIS_URL` *(required)* — Redis connection URL — default: `redis://localhost:6379`
-  - Setup: Connection URL of your Redis instance (redis:// or rediss:// for TLS).
+- `REDIS_URL` *(optional)* — Redis connection URL — default: `redis://localhost:6379`
+  - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
+  - Setup: Redis connection string (redis:// or rediss:// for TLS). molecule.dev runs a Redis inside your app's container automatically (dev and production) — set this only to use an external/managed Redis; locally, the Docker Compose default works.
   - Example: `redis://localhost:6379`

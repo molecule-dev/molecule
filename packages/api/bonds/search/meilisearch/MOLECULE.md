@@ -433,8 +433,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `MEILISEARCH_URL` *(required)* — Meilisearch URL
-  - Setup: Origin of your Meilisearch instance.
+- `MEILISEARCH_URL` *(optional)* — Meilisearch URL — default: `http://localhost:7700`
+  - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
+  - Setup: Origin of your Meilisearch instance. molecule.dev runs Meilisearch inside your app's container automatically (dev and production) — set this only to use an external/managed instance; locally, run the official meilisearch Docker container or binary.
   - Example: `http://localhost:7700`
-- `MEILISEARCH_API_KEY` *(required)* — Meilisearch API key
-  - Setup: The master key (or a scoped API key) you configured when launching Meilisearch (--master-key / MEILI_MASTER_KEY).
+- `MEILISEARCH_API_KEY` *(optional)* — Meilisearch API key
+  - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
+  - Setup: The master key (or a scoped API key) you configured when launching Meilisearch (--master-key / MEILI_MASTER_KEY). Optional for keyless local or in-container instances.

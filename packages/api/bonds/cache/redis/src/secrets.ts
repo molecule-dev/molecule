@@ -19,8 +19,8 @@ export const cacheRedisSecretDefinitions: SecretDefinition[] = [
   {
     key: 'REDIS_URL',
     description:
-      'Redis connection URL — Connection URL of your Redis instance (redis:// or rediss:// for TLS).',
-    required: true,
+      "Redis connection URL — Redis connection string (redis:// or rediss:// for TLS). molecule.dev runs a Redis inside your app's container automatically (dev and production) — set this only to use an external/managed Redis; locally, the Docker Compose default works. Provisioned automatically in molecule.dev sandboxes.",
+    required: false,
     example: 'redis://localhost:6379',
     default: 'redis://localhost:6379',
   },

@@ -18,15 +18,17 @@ import { registerSecrets } from '@molecule/api-secrets'
 export const searchMeilisearchSecretDefinitions: SecretDefinition[] = [
   {
     key: 'MEILISEARCH_URL',
-    description: 'Meilisearch URL — Origin of your Meilisearch instance.',
-    required: true,
+    description:
+      "Meilisearch URL — Origin of your Meilisearch instance. molecule.dev runs Meilisearch inside your app's container automatically (dev and production) — set this only to use an external/managed instance; locally, run the official meilisearch Docker container or binary. Provisioned automatically in molecule.dev sandboxes.",
+    required: false,
     example: 'http://localhost:7700',
+    default: 'http://localhost:7700',
   },
   {
     key: 'MEILISEARCH_API_KEY',
     description:
-      'Meilisearch API key — The master key (or a scoped API key) you configured when launching Meilisearch (--master-key / MEILI_MASTER_KEY).',
-    required: true,
+      'Meilisearch API key — The master key (or a scoped API key) you configured when launching Meilisearch (--master-key / MEILI_MASTER_KEY). Optional for keyless local or in-container instances. Provisioned automatically in molecule.dev sandboxes.',
+    required: false,
   },
 ]
 
