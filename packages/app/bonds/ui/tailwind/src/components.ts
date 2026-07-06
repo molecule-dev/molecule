@@ -376,7 +376,7 @@ export const dialogTitle = 'text-xl font-semibold leading-tight tracking-tight'
 export const dialogDescription = 'text-sm text-foreground-secondary'
 /** Dialog close button classes. */
 export const dialogClose =
-  'flex-shrink-0 ml-4 -mr-6 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none'
+  'flex-shrink-0 ml-4 -mr-4 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none'
 /**
  * The dialog wrapper.
  */

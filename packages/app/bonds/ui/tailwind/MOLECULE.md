@@ -603,7 +603,7 @@ const dialogBody: "flex-1 min-h-0 overflow-y-auto pl-6 py-6 *:pr-6"
 Dialog close button classes.
 
 ```typescript
-const dialogClose: "flex-shrink-0 ml-4 -mr-6 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none"
+const dialogClose: "flex-shrink-0 ml-4 -mr-4 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none"
 ```
 
 #### `dialogContent`

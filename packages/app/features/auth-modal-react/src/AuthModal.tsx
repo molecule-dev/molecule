@@ -140,10 +140,10 @@ export function AuthModal({
         <div className={cm.textMuted} style={{ marginBottom: 12, fontSize: 13, lineHeight: 1.45 }}>
           {isSignup
             ? t('auth.modal.signupBlurb', undefined, {
-                defaultValue: 'Your current work is kept — nothing is lost.',
+                defaultValue: 'Sign up to keep your work.',
               })
             : t('auth.modal.loginBlurb', undefined, {
-                defaultValue: 'Log in to keep going. Your current work stays right where it is.',
+                defaultValue: 'Log in to keep your work.',
               })}
         </div>
         <form onSubmit={(e) => void handleSubmit(e)} style={{ display: 'grid', gap: 10 }}>
