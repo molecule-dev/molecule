@@ -66,6 +66,14 @@ export interface AppModelDefinition {
    * server-side `ModelDefinition` for the exact population rule.
    */
   supportedEffortLevels?: EffortLevel[]
+  /**
+   * Provider-native reasoning-effort value per supported abstract level (e.g.
+   * `{ S: 'low', M: 'high', L: 'xhigh', XL: 'max' }` on current Anthropic
+   * models). Present only on models driven by a native effort/level param;
+   * useful for showing the provider's own level names next to the abstract
+   * `S/M/L/XL` labels. Mirrors the server-side `ModelDefinition` field.
+   */
+  effortNativeByLevel?: Partial<Record<EffortLevel, string>>
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */
