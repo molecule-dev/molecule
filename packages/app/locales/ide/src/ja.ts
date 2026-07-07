@@ -266,15 +266,14 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': '自動コミットがキャンセルされました。',
   'ide.chat.autoCommit.enabled':
     '自動コミットを有効にする：最後のファイル変更から{{seconds}}秒後にコミットします。無効にするには /autocommit 0 と入力してください。',
-  'ide.chat.effort.current': '推論の過程：{{level}} ({{label}})',
   'ide.chat.effort.error': '推論処理の更新に失敗しました。',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'レベル：',
-  'ide.chat.effort.noneSupported':
-    'ボンデッドモデルでは、設定可能な推論予算が公開されていない。依然として、エージェントループの予算は処理負荷に応じて変動する。',
-  'ide.chat.effort.set': '推論処理は{{level}}（{{label}}）に設定されています。',
-  'ide.chat.effort.supported':
-    '{{models}} での推論予算を調整します。その他のモデルについては、引き続きエージェントループの予算にリソースが割り当てられます。',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': '文脈',
   'ide.chat.models.colCost': 'コスト／100万',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -410,7 +409,8 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '「{{query}}」に一致するスキルはありません。',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -439,7 +439,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'ありがとうございます！ご報告は送信されました。リンク先の課題ページで進捗をご確認ください。',
   'ide.chat.settings.modelFollowsDefault': 'デフォルトのモデルに従います',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'パネルのサイズ変更',
   'ide.chat.settings.autoCommitEvery': 'すべての{{seconds}}',
   'ide.chat.settings.hooksValue': 'プロジェクト設定で',
@@ -464,7 +464,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': '最終作業プレビュー',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} {{model}} では利用できません。利用可能：{{levels}}',
-  'ide.chat.effort.currentModelLevels': '『{{model}}』の難易度：{{levels}}',
   'ide.chat.modelSortLabel': '並べ替え',
   'ide.chat.modelSortDirection': '並べ替え順を切り替える',
   'ide.chat.skills.loadedBadge': '読み込み中',
@@ -475,11 +474,14 @@ export const ja: Partial<IdeTranslations> = {
   'ide.device.select': 'デバイスフレーム',
   'ide.device.rotate': '回転',
   'ide.chat.closeOverlay': '閉じる',
-  'ide.chat.retryCountdown': 'サーバーエラー — {{seconds}} 秒後に再試行します… ({{attempt}} を試行中)',
+  'ide.chat.retryCountdown':
+    'サーバーエラー — {{seconds}} 秒後に再試行します… ({{attempt}} を試行中)',
   'ide.preview.blankTitle': 'プレビューが空白です',
-  'ide.preview.blankHint': 'アプリは読み込まれましたが、何も表示されませんでした。エラーが発生している可能性があります。Synthaseにはすでに報告済みです。ページを再読み込みするか、新しいタブでプレビューを開いてください。',
+  'ide.preview.blankHint':
+    'アプリは読み込まれましたが、何も表示されませんでした。エラーが発生している可能性があります。Synthaseにはすでに報告済みです。ページを再読み込みするか、新しいタブでプレビューを開いてください。',
   'ide.chat.previewLinkTitle': 'プレビューで「{{path}}」を開く',
-  'ide.chat.report.diagnosticsNote': 'デバッグの参考となるよう、お使いのアプリのバージョン、ブラウザ、画面サイズを添付しました。',
+  'ide.chat.report.diagnosticsNote':
+    'デバッグの参考となるよう、お使いのアプリのバージョン、ブラウザ、画面サイズを添付しました。',
   'ide.chat.skills.loadedCount': '🧠 {{count}}のスキルを習得',
   'ide.chat.skills.waitingForSandbox': 'サンドボックスの起動が完了するのを待っています…',
   'ide.chat.skills.resetDefaults': 'デフォルトですべてを読み込む',

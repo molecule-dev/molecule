@@ -267,15 +267,14 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automatinis įrašymas atšauktas.',
   'ide.chat.autoCommit.enabled':
     'Įjungtas automatinis įrašymas: įrašoma praėjus {{seconds}}s po paskutinio failo pakeitimo. Norėdami atšaukti, nustatykite /autocommit 0.',
-  'ide.chat.effort.current': 'Mąstymo užduotis: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Nepavyko atnaujinti argumentacijos.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Lygiai:',
-  'ide.chat.effort.noneSupported':
-    'Nė vienas sujungtas modelis neteikia galimybės konfigūruoti mąstymo išteklių – agentų ciklo išteklius vis dar lemia sąnaudos.',
-  'ide.chat.effort.set': 'Mąstymo užduotis paskelbta svetainėje „{{level}}“ ({{label}}).',
-  'ide.chat.effort.supported':
-    'Pritaiko argumentavimo biudžetą adresu: {{models}}. Kitiems modeliams pastangos vis dar skiriamos agentų ciklo biudžetui.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontekstas',
   'ide.chat.models.colCost': 'Kaina / 1 mln.',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -411,7 +410,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Nėra įgūdžių, atitinkančių „{{query}}“.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -439,7 +439,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Ačiū! Jūsų pranešimas buvo išsiųstas — jo eigą galite stebėti paspaudę nuorodą į šią problemą.',
   'ide.chat.settings.modelFollowsDefault': 'Atitinka numatytąjį modelį',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Pakeisti langų dydį',
   'ide.chat.settings.autoCommitEvery': 'Kiekvienas „{{seconds}}“',
   'ide.chat.settings.hooksValue': 'Projekto nustatymuose',
@@ -464,7 +464,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Paskutinė darbo versija',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} {{model}} versijoje nėra. Rasti galima: {{levels}}',
-  'ide.chat.effort.currentModelLevels': '„{{model}}“ sunkumo lygiai: {{levels}}',
   'ide.chat.modelSortLabel': 'Rūšiuoti',
   'ide.chat.modelSortDirection': 'Pakeisti rūšiavimo kryptį',
   'ide.chat.skills.loadedBadge': 'Įkelta',
@@ -475,11 +474,14 @@ export const lt: Partial<IdeTranslations> = {
   'ide.device.select': 'Įrenginio rėmas',
   'ide.device.rotate': 'Pasukti',
   'ide.chat.closeOverlay': 'Uždaryti',
-  'ide.chat.retryCountdown': 'Serverio klaida — bandoma pakartoti po {{seconds}} s… (bandoma {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Serverio klaida — bandoma pakartoti po {{seconds}} s… (bandoma {{attempt}})',
   'ide.preview.blankTitle': 'Peržiūra yra tuščia',
-  'ide.preview.blankHint': 'Programėlė įkeliama, bet nieko nerodo — galbūt įvyko klaida. Apie tai pranešta „Synthase“. Galite atnaujinti puslapį arba atidaryti peržiūrą naujame skirtuke.',
+  'ide.preview.blankHint':
+    'Programėlė įkeliama, bet nieko nerodo — galbūt įvyko klaida. Apie tai pranešta „Synthase“. Galite atnaujinti puslapį arba atidaryti peržiūrą naujame skirtuke.',
   'ide.chat.previewLinkTitle': 'Atidarykite „{{path}}“ peržiūros lange',
-  'ide.chat.report.diagnosticsNote': 'Pridedame jūsų programėlės versiją, naršyklę ir ekrano dydį, kad galėtume ištaisyti klaidas.',
+  'ide.chat.report.diagnosticsNote':
+    'Pridedame jūsų programėlės versiją, naršyklę ir ekrano dydį, kad galėtume ištaisyti klaidas.',
   'ide.chat.skills.loadedCount': '🧠 Įgijau „{{count}}“ įgūdžių',
   'ide.chat.skills.waitingForSandbox': 'Laukiama, kol baigsis „sandbox“ paleidimas…',
   'ide.chat.skills.resetDefaults': 'Pagal numatytuosius nustatymus įkelti viską',

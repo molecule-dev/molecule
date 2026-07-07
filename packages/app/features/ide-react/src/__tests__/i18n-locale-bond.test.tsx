@@ -219,7 +219,7 @@ describe('Synthase chat surface i18n resolves through the locale bond (cross-cut
       'ide.chat.activity.thinking',
       'ide.chat.autoCommit.badge',
       'ide.chat.autoCommit.cancel',
-      'ide.chat.effort.current',
+      'ide.chat.effort.header',
       'ide.chat.models.colName',
       'ide.chat.modelRemoved',
       'ide.chat.report.heading',

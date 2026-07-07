@@ -267,16 +267,14 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Salvarea automată a fost anulată.',
   'ide.chat.autoCommit.enabled':
     'Activare automată a confirmării: se efectuează confirmarea la {{seconds}} s după ultima modificare a fișierului. Introduceți /autocommit 0 pentru a anula.',
-  'ide.chat.effort.current': 'Exercițiu de raționament: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Nu s-a reușit actualizarea procesului de raționament.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Niveluri:',
-  'ide.chat.effort.noneSupported':
-    'Niciun model bazat pe legături nu oferă un buget de raționament configurabil — efortul continuă să determine bugetul ciclului agentului.',
-  'ide.chat.effort.set':
-    'Setul de exerciții de raționament este disponibil la adresa {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Reglează bugetul de raționament la: {{models}}. Pentru celelalte modele, efortul este în continuare alocat bugetului buclei agentului.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCost': 'Cost / 1 milion',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -412,7 +410,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Nu există abilități care să corespundă cu „{{query}}”.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -440,7 +439,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Mulțumesc! Raportul tău a fost trimis — poți urmări evoluția acestuia în problema la care face referire linkul.',
   'ide.chat.settings.modelFollowsDefault': 'Urmează modelul implicit',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Redimensionare panouri',
   'ide.chat.settings.autoCommitEvery': 'Toate articolele de pe {{seconds}}',
   'ide.chat.settings.hooksValue': 'În setările proiectului',
@@ -465,7 +464,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Ultima versiune de lucru',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} nu este disponibil la adresa {{model}}. Disponibil la adresa: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Niveluri de efort pentru „{{model}}”: {{levels}}',
   'ide.chat.modelSortLabel': 'Sortare',
   'ide.chat.modelSortDirection': 'Comută direcția de sortare',
   'ide.chat.skills.loadedBadge': 'Încărcat',
@@ -476,11 +474,14 @@ export const ro: Partial<IdeTranslations> = {
   'ide.device.select': 'Cadrul dispozitivului',
   'ide.device.rotate': 'Rotire',
   'ide.chat.closeOverlay': 'Închide',
-  'ide.chat.retryCountdown': 'Eroare de server — se încearcă din nou în {{seconds}} s… (încercare {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Eroare de server — se încearcă din nou în {{seconds}} s… (încercare {{attempt}})',
   'ide.preview.blankTitle': 'Previzualizarea este goală',
-  'ide.preview.blankHint': 'Aplicația s-a încărcat, dar nu a afișat nimic — este posibil să existe o eroare. Synthase a fost notificată. Poți reîncărca pagina sau deschide previzualizarea într-un filă nouă.',
+  'ide.preview.blankHint':
+    'Aplicația s-a încărcat, dar nu a afișat nimic — este posibil să existe o eroare. Synthase a fost notificată. Poți reîncărca pagina sau deschide previzualizarea într-un filă nouă.',
   'ide.chat.previewLinkTitle': 'Deschideți {{path}} în previzualizare',
-  'ide.chat.report.diagnosticsNote': 'Versiunea aplicației, browserul și dimensiunea ecranului sunt atașate pentru a ne ajuta la depanare.',
+  'ide.chat.report.diagnosticsNote':
+    'Versiunea aplicației, browserul și dimensiunea ecranului sunt atașate pentru a ne ajuta la depanare.',
   'ide.chat.skills.loadedCount': '🧠 Abilități avansate în „{{count}}”',
   'ide.chat.skills.waitingForSandbox': 'Se așteaptă finalizarea pornirii mediului de testare…',
   'ide.chat.skills.resetDefaults': 'Încărcare implicită a tuturor elementelor',

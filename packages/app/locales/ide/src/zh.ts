@@ -260,15 +260,14 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': '自动提交已取消。',
   'ide.chat.autoCommit.enabled':
     '已启用自动提交：在最后一次文件修改后提交{{seconds}}。若要取消，请将 /autocommit 设为 0。',
-  'ide.chat.effort.current': '推理过程：{{level}} ({{label}})',
   'ide.chat.effort.error': '更新推理过程失败。',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': '级别：',
-  'ide.chat.effort.noneSupported':
-    '没有一个绑定模型会暴露可配置的推理预算——代理循环的预算仍由工作量决定。',
-  'ide.chat.effort.set': '推理工作集已设置为 {{level}} ({{label}})。',
-  'ide.chat.effort.supported':
-    '将推理预算调整为：{{models}}。其他模型仍将该资源分配给代理循环预算。',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': '上下文',
   'ide.chat.models.colCost': '成本 / 100万',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -397,7 +396,8 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '没有技能与“{{query}}”匹配。',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -424,7 +424,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.report.submitted': '谢谢！您的报告已提交给{{productName}}团队。',
   'ide.chat.report.submittedWithLink': '谢谢！您的报告已提交——请通过链接查看该问题的进展。',
   'ide.chat.settings.modelFollowsDefault': '遵循默认模型',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': '调整面板大小',
   'ide.chat.settings.autoCommitEvery': '每个 {{seconds}} s',
   'ide.chat.settings.hooksValue': '在项目设置中',
@@ -446,7 +446,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.preview.reloadPreview': '重新加载预览',
   'ide.preview.lastWorkingFrame': '最后一个工作预览',
   'ide.chat.effort.notSupportedForModel': '{{level}} {{model}} 无法访问。可用链接：{{levels}}',
-  'ide.chat.effort.currentModelLevels': '{{model}} 的难度等级：{{levels}}',
   'ide.chat.modelSortLabel': '排序',
   'ide.chat.modelSortDirection': '切换排序方向',
   'ide.chat.skills.loadedBadge': '已加载',
@@ -459,7 +458,8 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': '关闭',
   'ide.chat.retryCountdown': '服务器错误——将在 {{seconds}} 秒后重试……（尝试 {{attempt}}）',
   'ide.preview.blankTitle': '预览内容为空',
-  'ide.preview.blankHint': '该应用已加载，但未显示任何内容——可能出现了错误。Synthase 已收到通知。您可以重新加载页面，或在新的标签页中打开预览。',
+  'ide.preview.blankHint':
+    '该应用已加载，但未显示任何内容——可能出现了错误。Synthase 已收到通知。您可以重新加载页面，或在新的标签页中打开预览。',
   'ide.chat.previewLinkTitle': '在预览中打开 {{path}}',
   'ide.chat.report.diagnosticsNote': '已附上您的应用版本、浏览器和屏幕尺寸，以帮助我们进行调试。',
   'ide.chat.skills.loadedCount': '🧠 掌握了{{count}}的各项技能',

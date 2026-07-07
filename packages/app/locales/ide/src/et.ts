@@ -265,15 +265,14 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automaatne salvestamine tühistati.',
   'ide.chat.autoCommit.enabled':
     'Automaatne kinnitamine on sisse lülitatud: kinnitamis{{seconds}}i möödumisel viimasest failimuutusest. Tühista käskuga /autocommit 0.',
-  'ide.chat.effort.current': 'Mõtlemisülesanne: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Põhjenduse uuendamine ebaõnnestus.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Tasemed:',
-  'ide.chat.effort.noneSupported':
-    'Ükski seotud mudel ei paku konfigureeritavat järeldamismahtu – agentide tsükli mahtu mõjutab endiselt vaev.',
-  'ide.chat.effort.set': 'Mõtlemisülesanne on avaldatud veebilehel {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Kohandab põhjendamise eelarvet aadressil: {{models}}. Muude mudelite puhul suunatakse pingutus endiselt agendi tsükli eelarvesse.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontekst',
   'ide.chat.models.colCost': 'Kulu / 1 miljon',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -408,7 +407,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Ühtegi oskust ei leitud, mis vastaks otsingule „{{query}}“.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -436,7 +436,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Tänan! Teie teade on edastatud – jälgige selle käiku lingitud teemas.',
   'ide.chat.settings.modelFollowsDefault': 'Järgib vaikimisi mudelit',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Paneelide suuruse muutmine',
   'ide.chat.settings.autoCommitEvery': 'Kõik {{seconds}} s',
   'ide.chat.settings.hooksValue': 'Projekti seaded',
@@ -460,7 +460,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Viimane töötav eelvaade',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} {{model}}-le pole kättesaadav. Kättesaadav: {{levels}}',
-  'ide.chat.effort.currentModelLevels': '{{model}}i raskusastmed: {{levels}}',
   'ide.chat.modelSortLabel': 'Sorteeri',
   'ide.chat.modelSortDirection': 'Vaheta sorteerimissuunda',
   'ide.chat.skills.loadedBadge': 'Laaditud',
@@ -473,9 +472,11 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Sulge',
   'ide.chat.retryCountdown': 'Serveriviga — proovin uuesti {{seconds}} s… (katse {{attempt}})',
   'ide.preview.blankTitle': 'Eelvaade on tühi',
-  'ide.preview.blankHint': 'Rakendus laaditi küll, kuid midagi ei kuvatud — võib-olla on tegemist veaga. Synthase’ile on sellest teatatud. Võid lehe uuesti laadida või avada eelvaate uues vahekaardis.',
+  'ide.preview.blankHint':
+    'Rakendus laaditi küll, kuid midagi ei kuvatud — võib-olla on tegemist veaga. Synthase’ile on sellest teatatud. Võid lehe uuesti laadida või avada eelvaate uues vahekaardis.',
   'ide.chat.previewLinkTitle': 'Ava fail „{{path}}“ eelvaates',
-  'ide.chat.report.diagnosticsNote': 'Oleme lisanud teie rakenduse versiooni, brauseri ja ekraani suuruse, et aidata meil vigu kõrvaldada.',
+  'ide.chat.report.diagnosticsNote':
+    'Oleme lisanud teie rakenduse versiooni, brauseri ja ekraani suuruse, et aidata meil vigu kõrvaldada.',
   'ide.chat.skills.loadedCount': '🧠 Omandanud „{{count}}“ oskused',
   'ide.chat.skills.waitingForSandbox': 'Oodatakse, kuni liivakasti käivitamine lõpeb…',
   'ide.chat.skills.resetDefaults': 'Laadi vaikimisi kõik',

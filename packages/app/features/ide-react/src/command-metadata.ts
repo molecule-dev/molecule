@@ -180,9 +180,9 @@ export const COMMANDS: readonly CommandDef[] = [
   {
     id: 'effort',
     label: '/effort',
-    description: 'Set reasoning effort (S/M/L/XL); /effort ? shows current',
+    description: "Set reasoning effort per mode, in the model's own levels; /effort ? shows them",
     category: 'model',
-    usage: '/effort <S|M|L|XL>',
+    usage: '/effort [--plan|--execute] <level>',
   },
 
   // Settings

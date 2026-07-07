@@ -268,15 +268,14 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Anulowano automatyczne zatwierdzenie.',
   'ide.chat.autoCommit.enabled':
     'Włączone automatyczne zatwierdzanie: zatwierdzanie {{seconds}} s po ostatniej zmianie w pliku. /autocommit 0, aby wyłączyć.',
-  'ide.chat.effort.current': 'Źródło: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Nie udało się zaktualizować procesu wnioskowania.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Poziomy:',
-  'ide.chat.effort.noneSupported':
-    'Żaden model oparty na powiązaniach nie udostępnia konfigurowalnego budżetu wnioskowania — nakład pracy nadal determinuje budżet pętli agenta.',
-  'ide.chat.effort.set': 'Zestaw zadań z logiki dostępny pod adresem {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Dostosowuje budżet wnioskowania na stronie: {{models}}. W przypadku pozostałych modeli nakład pracy nadal jest przypisywany do budżetu pętli agenta.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontekst',
   'ide.chat.models.colCost': 'Koszt / 1 mln',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -411,7 +410,8 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Nie znaleziono wyników pasujących do hasła „{{query}}”.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -440,7 +440,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Dzięki! Twoje zgłoszenie zostało przesłane — możesz śledzić jego status w podanym zgłoszeniu.',
   'ide.chat.settings.modelFollowsDefault': 'Zgodny z modelem domyślnym',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Zmiana rozmiaru paneli',
   'ide.chat.settings.autoCommitEvery': 'Wszystkie strony z serii „{{seconds}}”',
   'ide.chat.settings.hooksValue': 'W ustawieniach projektu',
@@ -464,7 +464,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Ostatni podgląd roboczy',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} nie jest dostępny pod adresem {{model}}. Dostępny pod adresem: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Poziomy trudności w grze „{{model}}”: {{levels}}',
   'ide.chat.modelSortLabel': 'Sortuj',
   'ide.chat.modelSortDirection': 'Zmień kierunek sortowania',
   'ide.chat.skills.loadedBadge': 'Załadowano',
@@ -478,10 +477,13 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Zamknij',
   'ide.chat.retryCountdown': 'Błąd serwera — ponowna próba za {{seconds}} s… (próba {{attempt}})',
   'ide.preview.blankTitle': 'Podgląd jest pusty',
-  'ide.preview.blankHint': 'Aplikacja załadowała się, ale nic nie wyświetliła — prawdopodobnie wystąpił błąd. Powiadomiono Synthase. Możesz odświeżyć stronę lub otworzyć podgląd w nowej karcie.',
+  'ide.preview.blankHint':
+    'Aplikacja załadowała się, ale nic nie wyświetliła — prawdopodobnie wystąpił błąd. Powiadomiono Synthase. Możesz odświeżyć stronę lub otworzyć podgląd w nowej karcie.',
   'ide.chat.previewLinkTitle': 'Otwórz plik „{{path}}” w podglądzie',
-  'ide.chat.report.diagnosticsNote': 'Załączamy informacje o wersji Twojej aplikacji, przeglądarce i rozmiarze ekranu, aby pomóc nam w usuwaniu błędów.',
+  'ide.chat.report.diagnosticsNote':
+    'Załączamy informacje o wersji Twojej aplikacji, przeglądarce i rozmiarze ekranu, aby pomóc nam w usuwaniu błędów.',
   'ide.chat.skills.loadedCount': '🧠 Bogaty zestaw umiejętności w zakresie „{{count}}”',
-  'ide.chat.skills.waitingForSandbox': 'Oczekiwanie na zakończenie uruchamiania środowiska testowego…',
+  'ide.chat.skills.waitingForSandbox':
+    'Oczekiwanie na zakończenie uruchamiania środowiska testowego…',
   'ide.chat.skills.resetDefaults': 'Domyślnie załaduj wszystko',
 }

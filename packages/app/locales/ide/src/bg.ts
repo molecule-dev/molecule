@@ -268,16 +268,14 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Автоматичното записване беше отменено.',
   'ide.chat.autoCommit.enabled':
     'Автоматично потвърждаване: потвърждава се {{seconds}} секунди след последната промяна във файла. За да отмените, задайте /autocommit 0.',
-  'ide.chat.effort.current': 'Задача за логическо мислене: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Не успях да актуализирам усилията за обосноваване.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Нива:',
-  'ide.chat.effort.noneSupported':
-    'Нито един модел с обвързване не предоставя възможност за настройка на бюджета за разсъждения — усилието все още определя размера на бюджета на цикъла на агента.',
-  'ide.chat.effort.set':
-    'Наборът от задачи за логическо мислене е публикуван на {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Настройва бюджета за разсъждения на: {{models}}. При останалите модели усилието все още се отнася към бюджета на агента.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Контекст',
   'ide.chat.models.colCost': 'Цена / 1 млн.',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -411,7 +409,8 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Няма умения, които да съответстват на „{{query}}“.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -440,7 +439,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Благодаря! Вашият доклад беше изпратен — проследете го в свързания проблем.',
   'ide.chat.settings.modelFollowsDefault': 'Следва стандартния модел',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Промяна на размера на панелите',
   'ide.chat.settings.autoCommitEvery': 'Всички {{seconds}}',
   'ide.chat.settings.hooksValue': 'В настройките на проекта',
@@ -465,7 +464,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Последна работна версия',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} не е достъпно на адрес {{model}}. Достъпно на адрес: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Нива на натоварване за „{{model}}“: {{levels}}',
   'ide.chat.modelSortLabel': 'Сортиране',
   'ide.chat.modelSortDirection': 'Превключване на посоката на сортиране',
   'ide.chat.skills.loadedBadge': 'Заредено',
@@ -477,11 +475,14 @@ export const bg: Partial<IdeTranslations> = {
   'ide.device.select': 'Рамка на устройството',
   'ide.device.rotate': 'Завъртане',
   'ide.chat.closeOverlay': 'Затвори',
-  'ide.chat.retryCountdown': 'Сървърна грешка — повторен опит след {{seconds}} секунди… (опит {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Сървърна грешка — повторен опит след {{seconds}} секунди… (опит {{attempt}})',
   'ide.preview.blankTitle': 'Предварителният преглед е празен',
-  'ide.preview.blankHint': 'Приложението се зареди, но не се визуализира нищо — вероятно има грешка. Synthase е уведомен. Можете да презаредите страницата или да отворите предварителния преглед в нов раздел.',
+  'ide.preview.blankHint':
+    'Приложението се зареди, но не се визуализира нищо — вероятно има грешка. Synthase е уведомен. Можете да презаредите страницата или да отворите предварителния преглед в нов раздел.',
   'ide.chat.previewLinkTitle': 'Отворете {{path}} в прозореца за преглед',
-  'ide.chat.report.diagnosticsNote': 'Прилагаме информацията за версията на приложението ви, браузъра и размера на екрана, за да ни помогнете при отстраняването на грешките.',
+  'ide.chat.report.diagnosticsNote':
+    'Прилагаме информацията за версията на приложението ви, браузъра и размера на екрана, за да ни помогнете при отстраняването на грешките.',
   'ide.chat.skills.loadedCount': '🧠 Разширени умения в „{{count}}“',
   'ide.chat.skills.waitingForSandbox': 'Изчакване на завършването на стартирането на пясъчника…',
   'ide.chat.skills.resetDefaults': 'По подразбиране да се заредят всички',

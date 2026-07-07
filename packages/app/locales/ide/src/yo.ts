@@ -301,16 +301,16 @@ export const yo: Partial<IdeTranslations> = {
     'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.current': 'Reasoning effort: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Failed to update reasoning effort.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Levels:',
-  'ide.chat.effort.noneSupported':
-    'No bonded model exposes a configurable reasoning budget — effort still scales the agent loop budget.',
-  'ide.chat.effort.set': 'Reasoning effort set to {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Tunes the reasoning budget on: {{models}}. Other models still get the effort applied to the agent loop budget.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCost': 'Cost / 1M',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -465,7 +465,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Thanks! Your report was submitted — track it on the linked issue.',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Resize panels',
   'ide.chat.settings.autoCommitEvery': 'Every {{seconds}}s',
   'ide.chat.settings.hooksValue': 'In project settings',
@@ -489,7 +489,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Last working preview',
   'ide.chat.effort.notSupportedForModel':
     "{{level}} isn't available for {{model}}. Available: {{levels}}",
-  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
   'ide.chat.modelSortLabel': 'Sort',
   'ide.chat.modelSortDirection': 'Toggle sort direction',
   'ide.chat.skills.loadedBadge': 'Loaded',
@@ -502,9 +501,11 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Close',
   'ide.chat.retryCountdown': 'Server error — retrying in {{seconds}}s… (attempt {{attempt}})',
   'ide.preview.blankTitle': 'The preview is blank',
-  'ide.preview.blankHint': 'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
+  'ide.preview.blankHint':
+    'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
   'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
-  'ide.chat.report.diagnosticsNote': 'Your app version, browser, and screen size are attached to help us debug.',
+  'ide.chat.report.diagnosticsNote':
+    'Your app version, browser, and screen size are attached to help us debug.',
   'ide.chat.skills.loadedCount': '🧠 Loaded {{count}} skills',
   'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.resetDefaults': 'Load all by default',

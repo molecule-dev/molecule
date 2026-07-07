@@ -268,16 +268,14 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Η αυτόματη αποθήκευση ακυρώθηκε.',
   'ide.chat.autoCommit.enabled':
     'Ενεργοποίηση αυτόματης υποβολής: υποβολή {{seconds}}s μετά την τελευταία αλλαγή στο αρχείο. Πληκτρολογήστε /autocommit 0 για ακύρωση.',
-  'ide.chat.effort.current': 'Προσπάθεια συλλογιστικής: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Δεν κατέστη δυνατή η ενημέρωση της προσπάθειας συλλογιστικής.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Επίπεδα:',
-  'ide.chat.effort.noneSupported':
-    'Κανένα μοντέλο με δεσμεύσεις δεν παρέχει έναν ρυθμιζόμενο προϋπολογισμό συλλογιστικής — η προσπάθεια εξακολουθεί να καθορίζει τον προϋπολογισμό του βρόχου του πράκτορα.',
-  'ide.chat.effort.set':
-    'Η ρύθμιση της προσπάθειας συλλογιστικής έχει οριστεί σε «{{level}}» ({{label}}).',
-  'ide.chat.effort.supported':
-    'Προσαρμόζει τον προϋπολογισμό συλλογιστικής στη διεύθυνση: {{models}}. Στα άλλα μοντέλα, η προσπάθεια εξακολουθεί να κατανέμεται στον προϋπολογισμό του βρόχου του πράκτορα.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Πλαίσιο',
   'ide.chat.models.colCost': 'Κόστος / 1 εκατ.',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -414,7 +412,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Δεν υπάρχουν αποτελέσματα που να ταιριάζουν με το «{{query}}».',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -443,7 +442,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Ευχαριστούμε! Η αναφορά σας υποβλήθηκε — μπορείτε να παρακολουθήσετε την εξέλιξή της στο σχετικό θέμα.',
   'ide.chat.settings.modelFollowsDefault': 'Ακολουθεί το προεπιλεγμένο μοντέλο',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Αλλαγή μεγέθους πλαισίων',
   'ide.chat.settings.autoCommitEvery': 'Κάθε {{seconds}} s',
   'ide.chat.settings.hooksValue': 'Στις ρυθμίσεις του έργου',
@@ -469,7 +468,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Τελευταία προεπισκόπηση εργασίας',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} δεν είναι διαθέσιμο στο {{model}}. Διαθέσιμο στο: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Επίπεδα δυσκολίας για το «{{model}}»: {{levels}}',
   'ide.chat.modelSortLabel': 'Ταξινόμηση',
   'ide.chat.modelSortDirection': 'Αλλαγή κατεύθυνσης ταξινόμησης',
   'ide.chat.skills.loadedBadge': 'Φορτωμένο',
@@ -480,11 +478,14 @@ export const el: Partial<IdeTranslations> = {
   'ide.device.select': 'Πλαίσιο συσκευής',
   'ide.device.rotate': 'Περιστροφή',
   'ide.chat.closeOverlay': 'Κλείσιμο',
-  'ide.chat.retryCountdown': 'Σφάλμα διακομιστή — επανάληψη προσπάθειας σε {{seconds}} s… (προσπάθεια {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Σφάλμα διακομιστή — επανάληψη προσπάθειας σε {{seconds}} s… (προσπάθεια {{attempt}})',
   'ide.preview.blankTitle': 'Η προεπισκόπηση είναι κενή',
-  'ide.preview.blankHint': 'Η εφαρμογή φορτώθηκε, αλλά δεν εμφανίστηκε τίποτα — πιθανόν να υπάρχει κάποιο σφάλμα. Η Synthase έχει ενημερωθεί. Μπορείτε να ανανεώσετε τη σελίδα ή να ανοίξετε την προεπισκόπηση σε νέα καρτέλα.',
+  'ide.preview.blankHint':
+    'Η εφαρμογή φορτώθηκε, αλλά δεν εμφανίστηκε τίποτα — πιθανόν να υπάρχει κάποιο σφάλμα. Η Synthase έχει ενημερωθεί. Μπορείτε να ανανεώσετε τη σελίδα ή να ανοίξετε την προεπισκόπηση σε νέα καρτέλα.',
   'ide.chat.previewLinkTitle': 'Άνοιξε το αρχείο «{{path}}» στην προεπισκόπηση',
-  'ide.chat.report.diagnosticsNote': 'Συνημμένα θα βρείτε την έκδοση της εφαρμογής σας, το πρόγραμμα περιήγησης και το μέγεθος της οθόνης σας, ώστε να μας βοηθήσετε στον εντοπισμό σφαλμάτων.',
+  'ide.chat.report.diagnosticsNote':
+    'Συνημμένα θα βρείτε την έκδοση της εφαρμογής σας, το πρόγραμμα περιήγησης και το μέγεθος της οθόνης σας, ώστε να μας βοηθήσετε στον εντοπισμό σφαλμάτων.',
   'ide.chat.skills.loadedCount': '🧠 Διαθέτω εκτεταμένες δεξιότητες στο{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Αναμονή μέχρι να ολοκληρωθεί η εκκίνηση του sandbox…',
   'ide.chat.skills.resetDefaults': 'Προεπιλεγμένη φόρτωση όλων',

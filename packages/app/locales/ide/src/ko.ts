@@ -264,15 +264,14 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': '자동 커밋이 취소되었습니다.',
   'ide.chat.autoCommit.enabled':
     '자동 커밋 활성화: 마지막 파일 변경 후 {{seconds}}초가 지나면 커밋합니다. 취소하려면 /autocommit 0을 입력하세요.',
-  'ide.chat.effort.current': '추론 과정: {{level}} ({{label}})',
   'ide.chat.effort.error': '추론 작업 업데이트에 실패했습니다.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': '레벨:',
-  'ide.chat.effort.noneSupported':
-    '본딩된 모델 중 구성 가능한 추론 예산을 제공하는 모델은 없으며, 여전히 에이전트 루프 예산은 투입된 노력에 따라 결정됩니다.',
-  'ide.chat.effort.set': '추론 작업이 {{level}}({{label}})로 설정되었습니다.',
-  'ide.chat.effort.supported':
-    '{{models}}에서 추론 예산을 조정합니다. 다른 모델들은 여전히 에이전트 루프 예산에 해당 리소스가 할당됩니다.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': '배경',
   'ide.chat.models.colCost': '비용 / 100만',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -406,7 +405,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '“{{query}}”과 일치하는 기술이 없습니다.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -434,7 +434,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     '감사합니다! 신고가 접수되었습니다. 링크된 이슈에서 진행 상황을 확인하실 수 있습니다.',
   'ide.chat.settings.modelFollowsDefault': '기본 모델을 따릅니다',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': '패널 크기 조정',
   'ide.chat.settings.autoCommitEvery': '모든 {{seconds}} s',
   'ide.chat.settings.hooksValue': '프로젝트 설정에서',
@@ -458,7 +458,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': '최종 작업 미리보기',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} {{model}}에서는 사용할 수 없습니다. 이용 가능: {{levels}}',
-  'ide.chat.effort.currentModelLevels': '{{model}}의 난이도: {{levels}}',
   'ide.chat.modelSortLabel': '정렬',
   'ide.chat.modelSortDirection': '정렬 방향 전환',
   'ide.chat.skills.loadedBadge': '로드됨',
@@ -471,9 +470,11 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': '닫기',
   'ide.chat.retryCountdown': '서버 오류 — {{seconds}} 초 후에 재시도 중… ({{attempt}} 시도 중)',
   'ide.preview.blankTitle': '미리보기가 비어 있습니다',
-  'ide.preview.blankHint': '앱이 로드되었지만 아무것도 표시되지 않았습니다. 오류가 발생한 것일 수 있습니다. Synthase 측에 해당 사항이 전달되었습니다. 페이지를 다시 로드하거나 새 탭에서 미리보기를 열어보세요.',
+  'ide.preview.blankHint':
+    '앱이 로드되었지만 아무것도 표시되지 않았습니다. 오류가 발생한 것일 수 있습니다. Synthase 측에 해당 사항이 전달되었습니다. 페이지를 다시 로드하거나 새 탭에서 미리보기를 열어보세요.',
   'ide.chat.previewLinkTitle': '{{path}}를 미리보기에서 열기',
-  'ide.chat.report.diagnosticsNote': '디버깅에 도움이 되도록 귀하의 앱 버전, 브라우저 및 화면 크기를 첨부했습니다.',
+  'ide.chat.report.diagnosticsNote':
+    '디버깅에 도움이 되도록 귀하의 앱 버전, 브라우저 및 화면 크기를 첨부했습니다.',
   'ide.chat.skills.loadedCount': '🧠{{count}} 관련 전문 기술 보유',
   'ide.chat.skills.waitingForSandbox': '샌드박스 시작이 완료되기를 기다리고 있습니다…',
   'ide.chat.skills.resetDefaults': '기본적으로 모두 불러오기',

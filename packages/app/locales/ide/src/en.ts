@@ -312,22 +312,22 @@ export const en: IdeTranslations = {
     'Auto-commit on: committing {{seconds}}s after the last file change.\nSet to 0 to disable autocommit.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  // Reasoning effort (/effort).
-  'ide.chat.effort.current': 'Reasoning effort: {{level}} ({{label}})',
+  // Reasoning effort (/effort). Effort is PER MODE (plan/execute) and shown in
+  // each mode's MODEL-NATIVE values (e.g. xhigh, medium, 16K) — the internal
+  // S/M/L/XL letters are never displayed.
   'ide.chat.effort.error': 'Failed to update reasoning effort.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Levels:',
-  'ide.chat.effort.noneSupported':
-    'No bonded model exposes a configurable reasoning budget — effort still scales the agent loop budget.',
-  'ide.chat.effort.set': 'Reasoning effort set to {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Tunes the reasoning budget on: {{models}}. Other models still get the effort applied to the agent loop budget.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
-  // Per-model effort availability (P2-10) — only the active mode model's supported
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  // Per-model effort availability (P2-10) — only the target mode model's supported
   // levels are offered; choosing an unsupported one explains what is available.
   'ide.chat.effort.notSupportedForModel':
     "{{level}} isn't available for {{model}}. Available: {{levels}}",
-  'ide.chat.effort.currentModelLevels': 'Effort levels for {{model}}: {{levels}}',
   // Models table + model selection (/model, /models).
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCost': 'Cost / 1M',
@@ -458,7 +458,8 @@ export const en: IdeTranslations = {
   'ide.chat.settings.on': 'On',
   'ide.chat.settings.soundsSummary': '{{enabled}} of {{total}} events enabled',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.settings.autoCommitEvery': 'Every {{seconds}}s',
   'ide.chat.settings.hooksValue': 'In project settings',
   // Share modal (/share).

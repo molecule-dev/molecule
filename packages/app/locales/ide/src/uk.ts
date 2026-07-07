@@ -267,16 +267,14 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Автоматичне збереження скасовано.',
   'ide.chat.autoCommit.enabled':
     'Увімкнено автоматичне фіксування: фіксування {{seconds}} с після останньої зміни файлу. Введіть /autocommit 0, щоб скасувати.',
-  'ide.chat.effort.current': 'Завдання на логічне мислення: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Не вдалося оновити процес міркування.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Рівні:',
-  'ide.chat.effort.noneSupported':
-    'Жодна модель на основі зв’язків не надає можливості налаштування бюджету міркувань — витрати ресурсів все одно залежать від бюджету циклу агента.',
-  'ide.chat.effort.set':
-    'Набір завдань з логічного мислення розміщено за адресою {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Налаштовує бюджет міркувань за адресою: {{models}}. Для інших моделей зусилля, як і раніше, розподіляються на бюджет циклу агента.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Контекст',
   'ide.chat.models.colCost': 'Вартість / 1 млн',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -412,7 +410,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Не знайдено відповідних навичок для «{{query}}».',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -440,7 +439,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Дякуємо! Ваше повідомлення надіслано — ви можете відстежувати його за посиланням на відповідну проблему.',
   'ide.chat.settings.modelFollowsDefault': 'Відповідає стандартній моделі',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Змінити розмір панелей',
   'ide.chat.settings.autoCommitEvery': 'Кожен {{seconds}} s',
   'ide.chat.settings.hooksValue': 'У налаштуваннях проєкту',
@@ -465,7 +464,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Останній робочий попередній перегляд',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} не доступно за адресою {{model}}. Доступно за адресою: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Рівні складності для «{{model}}»: {{levels}}',
   'ide.chat.modelSortLabel': 'Сортувати',
   'ide.chat.modelSortDirection': 'Перемикати напрямок сортування',
   'ide.chat.skills.loadedBadge': 'Завантажено',
@@ -477,11 +475,14 @@ export const uk: Partial<IdeTranslations> = {
   'ide.device.select': 'Рама пристрою',
   'ide.device.rotate': 'Повернути',
   'ide.chat.closeOverlay': 'Закрити',
-  'ide.chat.retryCountdown': 'Помилка сервера — повторюю спробу через {{seconds}} секунд… (спроба {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Помилка сервера — повторюю спробу через {{seconds}} секунд… (спроба {{attempt}})',
   'ide.preview.blankTitle': 'Попередній перегляд порожній',
-  'ide.preview.blankHint': 'Додаток завантажився, але нічого не відобразилося — можливо, сталася помилка. Про це повідомлено Synthase. Ви можете перезавантажити сторінку або відкрити попередній перегляд у новій вкладці.',
+  'ide.preview.blankHint':
+    'Додаток завантажився, але нічого не відобразилося — можливо, сталася помилка. Про це повідомлено Synthase. Ви можете перезавантажити сторінку або відкрити попередній перегляд у новій вкладці.',
   'ide.chat.previewLinkTitle': 'Відкрити файл «{{path}}» у попередньому перегляді',
-  'ide.chat.report.diagnosticsNote': 'Для полегшення налагодження ми додали інформацію про версію вашого додатка, браузер та розмір екрана.',
+  'ide.chat.report.diagnosticsNote':
+    'Для полегшення налагодження ми додали інформацію про версію вашого додатка, браузер та розмір екрана.',
   'ide.chat.skills.loadedCount': '🧠 Володію навичками роботи з {{count}}',
   'ide.chat.skills.waitingForSandbox': 'Очікування завершення запуску пісочниці…',
   'ide.chat.skills.resetDefaults': 'Завантажити все за замовчуванням',

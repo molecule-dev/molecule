@@ -266,15 +266,14 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Samodejno shranjevanje je bilo preklicano.',
   'ide.chat.autoCommit.enabled':
     'Samodejno potrjevanje vklopljeno: potrjevanje {{seconds}} s po zadnji spremembi datoteke. /autocommit 0 za izklop.',
-  'ide.chat.effort.current': 'Razlaga rešitve: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Posodobitev razlogovanja ni uspela.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Stopnje:',
-  'ide.chat.effort.noneSupported':
-    'Noben model z vezanimi stanji ne omogoča nastavitve proračuna za sklepanje – poraba sredstev še vedno vpliva na proračun agenta.',
-  'ide.chat.effort.set': 'Nastavljeno na »{{level}}« ({{label}}).',
-  'ide.chat.effort.supported':
-    'Prilagodi proračun za sklepanje na: {{models}}. Pri drugih modelih se napor še vedno dodeljuje proračunu za zanko agenta.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontekst',
   'ide.chat.models.colCost': 'Stroški / 1 milijon',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -408,7 +407,8 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Ni nobenega znanja, ki bi ustrezalo »{{query}}«.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -437,7 +437,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Hvala! Tvoje poročilo je bilo posredovano – spremljaj ga v povezani zadevi.',
   'ide.chat.settings.modelFollowsDefault': 'Sledi privzetemu modelu',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Sprememba velikosti plošč',
   'ide.chat.settings.autoCommitEvery': 'Vsak {{seconds}} s',
   'ide.chat.settings.hooksValue': 'V nastavitvah projekta',
@@ -462,7 +462,6 @@ export const sl: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Zadnji delovni predogled',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} ni na voljo na naslovu {{model}}. Na voljo: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Stopnje zahtevnosti za »{{model}}«: {{levels}}',
   'ide.chat.modelSortLabel': 'Razvrsti',
   'ide.chat.modelSortDirection': 'Preklopi smer razvrščanja',
   'ide.chat.skills.loadedBadge': 'Naloženo',
@@ -473,11 +472,14 @@ export const sl: Partial<IdeTranslations> = {
   'ide.device.select': 'Okvir naprave',
   'ide.device.rotate': 'Obrni',
   'ide.chat.closeOverlay': 'Zapri',
-  'ide.chat.retryCountdown': 'Napaka strežnika — ponovni poskus čez {{seconds}} s… (poskus {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Napaka strežnika — ponovni poskus čez {{seconds}} s… (poskus {{attempt}})',
   'ide.preview.blankTitle': 'Predogled je prazen',
-  'ide.preview.blankHint': 'Aplikacija se je naložila, vendar ni prikazala ničesar – morda je prišlo do napake. Synthase je bil o tem obveščen. Stran lahko osvežite ali pa predogled odprete v novem zavihku.',
+  'ide.preview.blankHint':
+    'Aplikacija se je naložila, vendar ni prikazala ničesar – morda je prišlo do napake. Synthase je bil o tem obveščen. Stran lahko osvežite ali pa predogled odprete v novem zavihku.',
   'ide.chat.previewLinkTitle': 'Odpri {{path}} v predogledu',
-  'ide.chat.report.diagnosticsNote': 'Priloženi so podatki o različici vaše aplikacije, brskalniku in velikosti zaslona, ki nam bodo v pomoč pri odpravljanju napak.',
+  'ide.chat.report.diagnosticsNote':
+    'Priloženi so podatki o različici vaše aplikacije, brskalniku in velikosti zaslona, ki nam bodo v pomoč pri odpravljanju napak.',
   'ide.chat.skills.loadedCount': '🧠 Obsežno znanje o »{{count}}«',
   'ide.chat.skills.waitingForSandbox': 'Čakam, da se peskovnik v celoti zažene…',
   'ide.chat.skills.resetDefaults': 'Prikaži vse po privzetku',

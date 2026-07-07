@@ -267,15 +267,14 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Auto-commit dibatalkan.',
   'ide.chat.autoCommit.enabled':
     'Fitur Auto-commit diaktifkan: melakukan commit {{seconds}} s setelah perubahan file terakhir. Gunakan perintah /autocommit 0 untuk menonaktifkannya.',
-  'ide.chat.effort.current': 'Upaya penalaran: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Gagal memperbarui upaya penalaran.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Tingkat:',
-  'ide.chat.effort.noneSupported':
-    'Tidak ada model terikat yang menyediakan alokasi sumber daya penalaran yang dapat dikonfigurasi — beban kerja tetap memengaruhi alokasi sumber daya pada siklus agen.',
-  'ide.chat.effort.set': 'Kumpulan soal penalaran yang disesuaikan dengan {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Sesuaikan anggaran penalaran di: {{models}}. Model-model lain tetap mendapatkan alokasi upaya pada anggaran loop agen.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Konteks',
   'ide.chat.models.colCost': 'Biaya per 1 juta',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -408,7 +407,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Tidak ada keterampilan yang cocok dengan "{{query}}".',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -437,7 +437,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Terima kasih! Laporan Anda telah dikirim — Anda dapat melacaknya di tautan masalah tersebut.',
   'ide.chat.settings.modelFollowsDefault': 'Mengikuti model default',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Ubah ukuran panel',
   'ide.chat.settings.autoCommitEvery': 'Setiap {{seconds}} s',
   'ide.chat.settings.hooksValue': 'Di pengaturan proyek',
@@ -461,7 +461,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Pratinjau terakhir',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} tidak tersedia di {{model}}. Tersedia di: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Tingkat kesulitan untuk "{{model}}": {{levels}}',
   'ide.chat.modelSortLabel': 'Urutkan',
   'ide.chat.modelSortDirection': 'Ubah arah pengurutan',
   'ide.chat.skills.loadedBadge': 'Sudah dimuat',
@@ -473,11 +472,14 @@ export const id: Partial<IdeTranslations> = {
   'ide.device.select': 'Rangka perangkat',
   'ide.device.rotate': 'Putar',
   'ide.chat.closeOverlay': 'Tutup',
-  'ide.chat.retryCountdown': 'Kesalahan server — sedang mencoba kembali dalam {{seconds}} s… (upaya {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Kesalahan server — sedang mencoba kembali dalam {{seconds}} s… (upaya {{attempt}})',
   'ide.preview.blankTitle': 'Tampilan pratinjau kosong',
-  'ide.preview.blankHint': 'Aplikasi tersebut sudah dimuat tetapi tidak menampilkan apa pun — mungkin ada kesalahan. Synthase sudah diberi tahu. Anda bisa memuat ulang halaman, atau membuka pratinjau di tab baru.',
+  'ide.preview.blankHint':
+    'Aplikasi tersebut sudah dimuat tetapi tidak menampilkan apa pun — mungkin ada kesalahan. Synthase sudah diberi tahu. Anda bisa memuat ulang halaman, atau membuka pratinjau di tab baru.',
   'ide.chat.previewLinkTitle': 'Buka {{path}} di jendela pratinjau',
-  'ide.chat.report.diagnosticsNote': 'Versi aplikasi, browser, dan ukuran layar Anda telah dilampirkan untuk membantu kami melakukan debugging.',
+  'ide.chat.report.diagnosticsNote':
+    'Versi aplikasi, browser, dan ukuran layar Anda telah dilampirkan untuk membantu kami melakukan debugging.',
   'ide.chat.skills.loadedCount': '🧠 Menguasai keterampilan {{count}}',
   'ide.chat.skills.waitingForSandbox': 'Menunggu proses penyiapan sandbox selesai…',
   'ide.chat.skills.resetDefaults': 'Muat semuanya secara default',

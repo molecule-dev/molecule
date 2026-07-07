@@ -1,6 +1,7 @@
 /**
- * Tests for the `/effort` command: level parsing, the `?` status path,
- * validation, and the "which models support it" selector.
+ * Tests for the `/effort` command: syntactic parsing (incl. per-mode
+ * `--plan` / `--execute` flags), native-value resolution against a model's
+ * options, and the per-model selectors.
  *
  * @module
  */
@@ -12,12 +13,14 @@ import type { AppModelDefinition } from '@molecule/app-ai-models'
 import { COMMANDS } from '../components/chat-commands.js'
 import {
   DEFAULT_EFFORT_LEVEL,
-  EFFORT_LEVEL_LABELS,
   EFFORT_LEVELS,
   effortLevelsForModel,
+  effortOptionsForModel,
   isEffortLevel,
   modelsSupportingEffort,
+  nativeEffortName,
   parseEffortCommand,
+  resolveEffortArg,
 } from '../components/chat-effort-utilities.js'
 
 /**
@@ -48,27 +51,65 @@ function model(overrides: Partial<AppModelDefinition>): AppModelDefinition {
   }
 }
 
-describe('parseEffortCommand — set', () => {
-  it('parses each level case-insensitively', () => {
-    expect(parseEffortCommand('/effort S')).toEqual({ kind: 'set', level: 'S' })
-    expect(parseEffortCommand('/effort m')).toEqual({ kind: 'set', level: 'M' })
-    expect(parseEffortCommand('/effort l')).toEqual({ kind: 'set', level: 'L' })
-    expect(parseEffortCommand('  /EFFORT  xl ')).toEqual({ kind: 'set', level: 'XL' })
-  })
+/** A native-effort model shaped like current Claude entries. */
+const claudeLike = model({
+  id: 'claude-like',
+  supportsThinking: true,
+  thinkingBudgetTokens: 16_000,
+  thinkingConfigurable: true,
+  supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+  effortNativeByLevel: { S: 'low', M: 'high', L: 'xhigh', XL: 'max' },
 })
 
-describe('parseEffortCommand — query', () => {
+/** A budget-scaled model shaped like Claude Haiku 4.5 (no native level names). */
+const budgetLike = model({
+  id: 'budget-like',
+  maxOutputTokens: 64_000,
+  supportsThinking: true,
+  thinkingBudgetTokens: 8_000,
+  thinkingConfigurable: true,
+  supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+})
+
+/** A fixed-reasoning model shaped like the DeepSeek executors. */
+const fixedLike = model({ id: 'fixed-like', supportedEffortLevels: ['M'] })
+
+describe('parseEffortCommand — syntax', () => {
+  it('parses a set with the raw arg (resolution happens against the model later)', () => {
+    expect(parseEffortCommand('/effort xhigh')).toEqual({
+      kind: 'set',
+      arg: 'xhigh',
+      mode: undefined,
+    })
+    expect(parseEffortCommand('  /EFFORT  16K ')).toEqual({
+      kind: 'set',
+      arg: '16K',
+      mode: undefined,
+    })
+  })
+
+  it('parses --plan / --execute mode flags in any position', () => {
+    expect(parseEffortCommand('/effort --plan xhigh')).toEqual({
+      kind: 'set',
+      arg: 'xhigh',
+      mode: 'plan',
+    })
+    expect(parseEffortCommand('/effort max --execute')).toEqual({
+      kind: 'set',
+      arg: 'max',
+      mode: 'execute',
+    })
+    expect(parseEffortCommand('/effort --plan')).toEqual({ kind: 'query', mode: 'plan' })
+    expect(parseEffortCommand('/effort --execute ?')).toEqual({ kind: 'query', mode: 'execute' })
+  })
+
   it('treats /effort and /effort ? as a status request', () => {
-    expect(parseEffortCommand('/effort')).toEqual({ kind: 'query' })
-    expect(parseEffortCommand('/effort ?')).toEqual({ kind: 'query' })
-    expect(parseEffortCommand('  /effort   ?  ')).toEqual({ kind: 'query' })
+    expect(parseEffortCommand('/effort')).toEqual({ kind: 'query', mode: undefined })
+    expect(parseEffortCommand('/effort ?')).toEqual({ kind: 'query', mode: undefined })
   })
-})
 
-describe('parseEffortCommand — invalid / non-command', () => {
-  it('reports an unrecognized argument as invalid', () => {
-    expect(parseEffortCommand('/effort high')).toEqual({ kind: 'invalid', arg: 'high' })
-    expect(parseEffortCommand('/effort XXL')).toEqual({ kind: 'invalid', arg: 'XXL' })
+  it('reports extra arguments as invalid', () => {
+    expect(parseEffortCommand('/effort high low')).toEqual({ kind: 'invalid', arg: 'high low' })
   })
 
   it('returns null for non-effort input', () => {
@@ -78,16 +119,61 @@ describe('parseEffortCommand — invalid / non-command', () => {
   })
 })
 
-describe('levels metadata', () => {
-  it('exposes the four levels in ascending order with a sane default', () => {
-    expect(EFFORT_LEVELS).toEqual(['S', 'M', 'L', 'XL'])
-    expect(EFFORT_LEVELS).toContain(DEFAULT_EFFORT_LEVEL)
+describe('resolveEffortArg — native values per model', () => {
+  const options = effortOptionsForModel(claudeLike)
+
+  it('resolves the model-native names case-insensitively', () => {
+    expect(resolveEffortArg('xhigh', options)).toBe('L')
+    expect(resolveEffortArg('HIGH', options)).toBe('M')
+    expect(resolveEffortArg('max', options)).toBe('XL')
   })
 
-  it('has a label for every level', () => {
-    for (const level of EFFORT_LEVELS) {
-      expect(EFFORT_LEVEL_LABELS[level]).toBeTruthy()
-    }
+  it('still accepts the legacy abstract letters as aliases', () => {
+    expect(resolveEffortArg('xl', options)).toBe('XL')
+    expect(resolveEffortArg('s', options)).toBe('S')
+  })
+
+  it('resolves budget sizes on budget-scaled models', () => {
+    const budgetOptions = effortOptionsForModel(budgetLike)
+    expect(budgetOptions.map((o) => o.native)).toEqual(['4K', '8K', '16K', '32K'])
+    expect(resolveEffortArg('16k', budgetOptions)).toBe('L')
+  })
+
+  it('returns null for unknown values', () => {
+    expect(resolveEffortArg('turbo', options)).toBeNull()
+    expect(resolveEffortArg('XXL', options)).toBeNull()
+  })
+})
+
+describe('effortOptionsForModel / nativeEffortName', () => {
+  it('returns native names for mapped models and nothing for fixed models', () => {
+    expect(effortOptionsForModel(claudeLike).map((o) => o.native)).toEqual([
+      'low',
+      'high',
+      'xhigh',
+      'max',
+    ])
+    expect(effortOptionsForModel(fixedLike)).toEqual([])
+  })
+
+  it('names the persisted level in the model’s own terms (with nearest-clamping)', () => {
+    expect(nativeEffortName(claudeLike, 'M')).toBe('high')
+    const subset = model({
+      ...claudeLike,
+      supportedEffortLevels: ['S', 'M'],
+      effortNativeByLevel: { S: 'low', M: 'high' },
+    })
+    // Persisted XL degrades to the nearest supported option (M → 'high').
+    expect(nativeEffortName(subset, 'XL')).toBe('high')
+    // Fixed models have nothing to display.
+    expect(nativeEffortName(fixedLike, 'M')).toBeNull()
+  })
+})
+
+describe('levels metadata', () => {
+  it('exposes the four abstract levels in ascending order with a sane default', () => {
+    expect(EFFORT_LEVELS).toEqual(['S', 'M', 'L', 'XL'])
+    expect(EFFORT_LEVELS).toContain(DEFAULT_EFFORT_LEVEL)
   })
 
   it('isEffortLevel guards correctly', () => {
@@ -135,8 +221,12 @@ describe('effortLevelsForModel', () => {
 })
 
 describe('command registry wiring', () => {
-  it('registers /effort under the model category', () => {
+  it('registers /effort under the model category with mode-flag usage', () => {
     const cmd = COMMANDS.find((c) => c.id === 'effort')
-    expect(cmd).toMatchObject({ label: '/effort', category: 'model', usage: '/effort <S|M|L|XL>' })
+    expect(cmd).toMatchObject({
+      label: '/effort',
+      category: 'model',
+      usage: '/effort [--plan|--execute] <level>',
+    })
   })
 })

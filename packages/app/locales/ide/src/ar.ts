@@ -264,15 +264,14 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'تم إلغاء التسجيل التلقائي.',
   'ide.chat.autoCommit.enabled':
     'تشغيل ميزة "التسجيل التلقائي": يتم تسجيل التغييرات {{seconds}}s بعد آخر تعديل على الملف. استخدم الأمر /autocommit 0 لإلغاء هذه الميزة.',
-  'ide.chat.effort.current': 'مجهود التفكير المنطقي: {{level}} ({{label}})',
   'ide.chat.effort.error': 'فشل تحديث عملية الاستدلال.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'المستويات:',
-  'ide.chat.effort.noneSupported':
-    'لا يوجد نموذج مرتبط يوفر ميزانية استدلال قابلة للتكوين — فالجهد لا يزال يؤثر على ميزانية حلقة الوكيل.',
-  'ide.chat.effort.set': 'تم تعيين مجموعة تمارين التفكير المنطقي على {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'يتم ضبط ميزانية الاستدلال على الرابط التالي: {{models}}. أما النماذج الأخرى، فلا تزال تُطبق عليها الجهود المخصصة لميزانية حلقة الوكيل.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'السياق',
   'ide.chat.models.colCost': 'التكلفة لكل مليون',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -404,7 +403,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'لا توجد مهارات مطابقة لـ "{{query}}".',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -432,7 +432,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'شكرًا! تم إرسال تقريرك — يمكنك متابعة حالته من خلال الرابط المرفق.',
   'ide.chat.settings.modelFollowsDefault': 'يتبع النموذج الافتراضي',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'تغيير حجم الألواح',
   'ide.chat.settings.autoCommitEvery': 'كل {{seconds}} s',
   'ide.chat.settings.hooksValue': 'في إعدادات المشروع',
@@ -456,7 +456,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'آخر نسخة تجريبية',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} غير متاح على الرابط {{model}}. متاح على الرابط: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'مستويات الصعوبة في لعبة «{{model}}»: {{levels}}',
   'ide.chat.modelSortLabel': 'فرز',
   'ide.chat.modelSortDirection': 'تبديل اتجاه الفرز',
   'ide.chat.skills.loadedBadge': 'تم التحميل',
@@ -467,11 +466,14 @@ export const ar: Partial<IdeTranslations> = {
   'ide.device.select': 'إطار الجهاز',
   'ide.device.rotate': 'تدوير',
   'ide.chat.closeOverlay': 'إغلاق',
-  'ide.chat.retryCountdown': 'خطأ في الخادم — إعادة المحاولة خلال {{seconds}} ثانية… (المحاولة {{attempt}})',
+  'ide.chat.retryCountdown':
+    'خطأ في الخادم — إعادة المحاولة خلال {{seconds}} ثانية… (المحاولة {{attempt}})',
   'ide.preview.blankTitle': 'المعاينة فارغة',
-  'ide.preview.blankHint': 'تم تحميل التطبيق ولكنه لم يعرض أي شيء — ربما يكون هناك خطأ ما. تم إخطار Synthase بذلك. يمكنك إعادة التحميل، أو فتح المعاينة في علامة تبويب جديدة.',
+  'ide.preview.blankHint':
+    'تم تحميل التطبيق ولكنه لم يعرض أي شيء — ربما يكون هناك خطأ ما. تم إخطار Synthase بذلك. يمكنك إعادة التحميل، أو فتح المعاينة في علامة تبويب جديدة.',
   'ide.chat.previewLinkTitle': 'افتح ملف «{{path}}» في «المعاينة»',
-  'ide.chat.report.diagnosticsNote': 'تم إرفاق إصدار التطبيق والمتصفح وحجم الشاشة لمساعدتنا في تصحيح الأخطاء.',
+  'ide.chat.report.diagnosticsNote':
+    'تم إرفاق إصدار التطبيق والمتصفح وحجم الشاشة لمساعدتنا في تصحيح الأخطاء.',
   'ide.chat.skills.loadedCount': '🧠 مهارات متقدمة في استخدام برنامج «{{count}}»',
   'ide.chat.skills.waitingForSandbox': 'في انتظار انتهاء عملية تشغيل بيئة الاختبار...',
   'ide.chat.skills.resetDefaults': 'تحميل الكل بشكل افتراضي',

@@ -263,15 +263,14 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automatisk bekräftelse avbruten.',
   'ide.chat.autoCommit.enabled':
     'Automatisk bekräftelse aktiverad: bekräftar {{seconds}} s efter den senaste filändringen. Ange /autocommit 0 för att avbryta.',
-  'ide.chat.effort.current': 'Resonemang: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Det gick inte att uppdatera resonemanget.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Nivåer:',
-  'ide.chat.effort.noneSupported':
-    'Ingen modell med kopplingar tillåter en konfigurerbar resursbudget för resonemang – arbetsinsatsen påverkar fortfarande budgeten för agentens slinga.',
-  'ide.chat.effort.set': 'Resonemanget finns på {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Justerar resonemangsbudgeten på: {{models}}. För övriga modeller tillämpas fortfarande ansträngningen på agentloopens budget.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Sammanhang',
   'ide.chat.models.colCost': 'Kostnad per miljon',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -406,7 +405,8 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Inga färdigheter matchar ”{{query}}”.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -435,7 +435,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Tack! Din rapport har skickats in – följ den via länken till ärendet.',
   'ide.chat.settings.modelFollowsDefault': 'Följer standardmodellen',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Ändra storlek på paneler',
   'ide.chat.settings.autoCommitEvery': 'Alla {{seconds}} s',
   'ide.chat.settings.hooksValue': 'I projektinställningarna',
@@ -460,7 +460,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Sista arbetsversionen',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} finns inte tillgänglig på {{model}}. Tillgänglig: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Svårighetsgrader för ”{{model}}”: {{levels}}',
   'ide.chat.modelSortLabel': 'Sortera',
   'ide.chat.modelSortDirection': 'Växla sorteringsriktning',
   'ide.chat.skills.loadedBadge': 'Laddad',
@@ -471,11 +470,14 @@ export const sv: Partial<IdeTranslations> = {
   'ide.device.select': 'Enhetsram',
   'ide.device.rotate': 'Rotera',
   'ide.chat.closeOverlay': 'Stäng',
-  'ide.chat.retryCountdown': 'Serverfel — försöker igen om {{seconds}} sekunder… (försök {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Serverfel — försöker igen om {{seconds}} sekunder… (försök {{attempt}})',
   'ide.preview.blankTitle': 'Förhandsvisningen är tom',
-  'ide.preview.blankHint': 'Appen laddades men visade ingenting – det kan ha uppstått ett fel. Synthase har underrättats. Du kan ladda om sidan eller öppna förhandsvisningen i en ny flik.',
+  'ide.preview.blankHint':
+    'Appen laddades men visade ingenting – det kan ha uppstått ett fel. Synthase har underrättats. Du kan ladda om sidan eller öppna förhandsvisningen i en ny flik.',
   'ide.chat.previewLinkTitle': 'Öppna {{path}} i förhandsvisningen',
-  'ide.chat.report.diagnosticsNote': 'Din appversion, webbläsare och skärmstorlek bifogas för att hjälpa oss med felsökningen.',
+  'ide.chat.report.diagnosticsNote':
+    'Din appversion, webbläsare och skärmstorlek bifogas för att hjälpa oss med felsökningen.',
   'ide.chat.skills.loadedCount': '🧠 Avancerade kunskaper inom{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Väntar på att sandlådan ska starta klart…',
   'ide.chat.skills.resetDefaults': 'Ladda alla som standard',

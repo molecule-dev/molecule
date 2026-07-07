@@ -1,67 +1,76 @@
 /**
- * Pure helpers backing the `/effort <S|M|L|XL>` command and its `/effort ?`
- * status view.
+ * Pure helpers backing the `/effort` command and its status view.
  *
- * The effort level is persisted in project settings (`settings.effortLevel`) and
- * applied at chat-call time by the backend to the active provider's
- * reasoning/budget param when the provider supports one (and to the agent-loop
- * budget regardless). These helpers parse the command, validate levels, and
- * report which catalog models actually expose a configurable reasoning budget so
- * the `?` view can show where the setting has the most effect.
+ * Effort is persisted PER MODE (`settings.effortByMode`, with the legacy single
+ * `settings.effortLevel` as fallback) using the abstract `S | M | L | XL`
+ * encoding — but that scale is internal only. Users see and type the ACTIVE
+ * MODEL's own effort values (`xhigh` on Claude Opus 4.8, `medium` on Grok 4.3,
+ * `16K` thinking tokens on budget-scaled models …), which vary per model and
+ * therefore per mode: plan and execute run different models, so each mode
+ * carries its own effort level chosen from its own model's native scale.
+ *
+ * Command shapes:
+ * - `/effort` or `/effort ?` — status for every mode.
+ * - `/effort <value>` — set the CURRENT mode's effort to a native value.
+ * - `/effort --plan <value>` / `/effort --execute <value>` — set a specific
+ *   mode's effort (mirrors `/model --plan` / `--execute`).
  *
  * Deterministic and side-effect free — unit testable without rendering or a
- * backend. User-facing prose lives in the component via `t()`; the level labels
- * here are English defaults the component wraps at render.
+ * backend. User-facing prose lives in the component via `t()`.
  *
  * @module
  */
 
-import type { AppModelDefinition } from '@molecule/app-ai-models'
+import type { AppModelDefinition, EffortLevel, EffortOption } from '@molecule/app-ai-models'
+import { EFFORT_LEVELS as ABSTRACT_EFFORT_LEVELS } from '@molecule/app-ai-models'
 
-/** Effort levels, smallest to largest. */
-export type EffortLevel = 'S' | 'M' | 'L' | 'XL'
+export type { EffortLevel, EffortOption }
+export {
+  DEFAULT_EFFORT_LEVEL,
+  EFFORT_LEVELS,
+  effortOptionsForModel,
+  nativeEffortName,
+} from '@molecule/app-ai-models'
 
-/** All effort levels in ascending order. */
-export const EFFORT_LEVELS: readonly EffortLevel[] = ['S', 'M', 'L', 'XL'] as const
-
-/** Default effort level when none is persisted. */
-export const DEFAULT_EFFORT_LEVEL: EffortLevel = 'M'
-
-/** Short English labels for each level (the component wraps these in `t()`). */
-export const EFFORT_LEVEL_LABELS: Record<EffortLevel, string> = {
-  S: 'Minimal',
-  M: 'Balanced',
-  L: 'High',
-  XL: 'Maximum',
-}
+/**
+ * Conversation modes that carry their own effort level. Kept as a plain string
+ * union locally (mirrors the chat mode type); future modes extend this without
+ * changing the settings shape — `effortByMode` is keyed by mode id.
+ */
+export type EffortMode = 'plan' | 'execute'
 
 /**
  * The parsed result of an `/effort` command:
  *
- * - `set` — apply a valid level.
- * - `query` — show the current level + supported models (`/effort` or `/effort ?`).
- * - `invalid` — an unrecognized argument was given (the caller shows usage).
+ * - `set` — apply the (still-unresolved) native value `arg`, optionally scoped
+ *   to a specific `mode` via `--plan` / `--execute` (unscoped = current mode).
+ *   Resolve `arg` against the target model's options with
+ *   {@link resolveEffortArg} — parsing is purely syntactic because the valid
+ *   values depend on which model the target mode runs.
+ * - `query` — show the status view (`/effort` or `/effort ?`).
+ * - `invalid` — unrecognized flags/arguments (the caller shows usage).
  */
 export type EffortCommand =
-  | { kind: 'set'; level: EffortLevel }
-  | { kind: 'query' }
+  | { kind: 'set'; arg: string; mode?: EffortMode }
+  | { kind: 'query'; mode?: EffortMode }
   | { kind: 'invalid'; arg: string }
 
 /**
- * Type guard for a valid {@link EffortLevel} (case-insensitive callers should
- * upper-case first).
+ * Type guard for a valid abstract {@link EffortLevel} (case-sensitive — callers
+ * upper-case first). The letters are accepted as LEGACY input aliases only;
+ * they are never displayed.
  *
  * @param value - The candidate value.
  * @returns `true` when `value` is one of `S`, `M`, `L`, `XL`.
  */
 export function isEffortLevel(value: string): value is EffortLevel {
-  return (EFFORT_LEVELS as readonly string[]).includes(value)
+  return (ABSTRACT_EFFORT_LEVELS as readonly string[]).includes(value)
 }
 
 /**
- * Parses an `/effort [arg]` command. `/effort` with no argument and `/effort ?`
- * both request the status view; a valid level (any case) sets it; anything else
- * is reported as invalid. Returns `null` when the input is not the command.
+ * Parses an `/effort [--plan|--execute] [arg]` command. Purely syntactic — the
+ * caller resolves `arg` against the target mode's model via
+ * {@link resolveEffortArg}. Returns `null` when the input is not the command.
  *
  * @param input - The raw chat input.
  * @returns The parsed {@link EffortCommand}, or `null`.
@@ -69,11 +78,44 @@ export function isEffortLevel(value: string): value is EffortLevel {
 export function parseEffortCommand(input: string): EffortCommand | null {
   const match = input.trim().match(/^\/effort(?:\s+(.*))?$/i)
   if (!match) return null
-  const arg = (match[1] ?? '').trim()
-  if (arg === '' || arg === '?') return { kind: 'query' }
+  const tokens = (match[1] ?? '').trim().split(/\s+/).filter(Boolean)
+  let mode: EffortMode | undefined
+  const rest: string[] = []
+  for (const token of tokens) {
+    const lower = token.toLowerCase()
+    if (lower === '--plan') mode = 'plan'
+    else if (lower === '--execute') mode = 'execute'
+    else rest.push(token)
+  }
+  if (rest.length === 0) return { kind: 'query', mode }
+  if (rest.length > 1) return { kind: 'invalid', arg: rest.join(' ') }
+  const arg = rest[0]
+  if (arg === '?') return { kind: 'query', mode }
+  return { kind: 'set', arg, mode }
+}
+
+/**
+ * Resolve a user-typed effort value against a model's selectable options.
+ *
+ * Matches the model's NATIVE values case-insensitively (`xhigh`, `16K`, …);
+ * the abstract letters (`s/m/l/xl`) are still accepted as legacy aliases so
+ * old muscle memory and docs keep working. The caller still validates the
+ * resolved level against the model's supported set (a legacy letter can name
+ * a level the model doesn't offer).
+ *
+ * @param arg - The raw value the user typed.
+ * @param options - The target model's options (see `effortOptionsForModel`).
+ * @returns The abstract level to persist, or `null` when nothing matches.
+ */
+export function resolveEffortArg(
+  arg: string,
+  options: readonly EffortOption[],
+): EffortLevel | null {
+  const lower = arg.toLowerCase()
+  const native = options.find((o) => o.native.toLowerCase() === lower)
+  if (native) return native.level
   const upper = arg.toUpperCase()
-  if (isEffortLevel(upper)) return { kind: 'set', level: upper }
-  return { kind: 'invalid', arg }
+  return isEffortLevel(upper) ? upper : null
 }
 
 /**
@@ -111,5 +153,5 @@ export function effortLevelsForModel(
   model: AppModelDefinition | undefined,
 ): readonly EffortLevel[] {
   const levels = model?.supportedEffortLevels
-  return levels && levels.length > 0 ? levels : EFFORT_LEVELS
+  return levels && levels.length > 0 ? levels : ABSTRACT_EFFORT_LEVELS
 }

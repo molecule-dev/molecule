@@ -120,7 +120,7 @@ export const SETTINGS: readonly SettingMeta[] = [
     id: 'effort',
     label: 'Reasoning effort',
     description:
-      'How hard {{agentName}} thinks (S/M/L/XL): scales the reasoning budget on models that expose one, and always scales the agent loop budget.',
+      "How hard {{agentName}} thinks, set per mode using each mode's model-native levels (e.g. high/xhigh); also scales the agent loop budget.",
     editCommand: 'effort',
   },
   {

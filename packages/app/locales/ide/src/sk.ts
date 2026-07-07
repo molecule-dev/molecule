@@ -266,16 +266,14 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automatické potvrdenie bolo zrušené.',
   'ide.chat.autoCommit.enabled':
     'Automatické potvrdzovanie zapnuté: potvrdzovanie {{seconds}} po poslednej zmene súboru. Zadajte /autocommit 0 pre zrušenie.',
-  'ide.chat.effort.current': 'Úloha na logické myslenie: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Nepodarilo sa aktualizovať úsilie v oblasti odôvodňovania.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Úrovne:',
-  'ide.chat.effort.noneSupported':
-    'Žiaden model založený na viazaní neposkytuje konfigurovateľný rozpočet na uvažovanie – rozpočet cyklu agenta sa naďalej mení v závislosti od vynaloženého úsilia.',
-  'ide.chat.effort.set':
-    'Úloha na precvičovanie logického myslenia je k dispozícii na stránke {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Nastavuje rozpočet na odvodzovanie na: {{models}}. U ostatných modelov sa táto hodnota naďalej uplatňuje na rozpočet agentovej slučky.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontext',
   'ide.chat.models.colCost': 'Cena za 1 milión',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -411,7 +409,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Žiadna zručnosť nezodpovedá položke „{{query}}“.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -439,7 +438,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Ďakujeme! Vaše hlásenie bolo odoslané – jeho stav môžete sledovať v príslušnej úlohe.',
   'ide.chat.settings.modelFollowsDefault': 'Vychádza z predvoleného modelu',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Zmena veľkosti panelov',
   'ide.chat.settings.autoCommitEvery': 'Všetky stránky {{seconds}}',
   'ide.chat.settings.hooksValue': 'V nastaveniach projektu',
@@ -463,7 +462,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Posledná pracovná verzia',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} nie je k dispozícii na adrese {{model}}. K dispozícii: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Úrovne náročnosti pre hru „{{model}}“: {{levels}}',
   'ide.chat.modelSortLabel': 'Triediť',
   'ide.chat.modelSortDirection': 'Zmeniť smer triedenia',
   'ide.chat.skills.loadedBadge': 'Načítané',
@@ -476,9 +474,11 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Zatvoriť',
   'ide.chat.retryCountdown': 'Chyba servera — opakujem pokus za {{seconds}} s… ({{attempt}})',
   'ide.preview.blankTitle': 'Náhľad je prázdny',
-  'ide.preview.blankHint': 'Aplikácia sa načítala, ale nič sa nezobrazilo — pravdepodobne došlo k chybe. Spoločnosť Synthase bola o tom informovaná. Môžete stránku znovu načítať alebo otvoriť náhľad v novej karte.',
+  'ide.preview.blankHint':
+    'Aplikácia sa načítala, ale nič sa nezobrazilo — pravdepodobne došlo k chybe. Spoločnosť Synthase bola o tom informovaná. Môžete stránku znovu načítať alebo otvoriť náhľad v novej karte.',
   'ide.chat.previewLinkTitle': 'Otvorte súbor {{path}} v náhľade',
-  'ide.chat.report.diagnosticsNote': 'Prikladáme informácie o verzii vašej aplikácie, prehliadači a veľkosti obrazovky, ktoré nám pomôžu pri odstraňovaní chýb.',
+  'ide.chat.report.diagnosticsNote':
+    'Prikladáme informácie o verzii vašej aplikácie, prehliadači a veľkosti obrazovky, ktoré nám pomôžu pri odstraňovaní chýb.',
   'ide.chat.skills.loadedCount': '🧠 Rozvinuté zručnosti v oblasti „{{count}}“',
   'ide.chat.skills.waitingForSandbox': 'Čakám, kým sa spustí sandbox…',
   'ide.chat.skills.resetDefaults': 'V predvolenom nastavení načítať všetko',

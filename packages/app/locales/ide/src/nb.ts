@@ -263,15 +263,14 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automatisk lagring avbrutt.',
   'ide.chat.autoCommit.enabled':
     'Automatisk lagring aktivert: lagrer {{seconds}} s etter siste filendring. /autocommit 0 for å avbryte.',
-  'ide.chat.effort.current': 'Resonnement: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Det gikk ikke å oppdatere begrunnelsen.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Nivåer:',
-  'ide.chat.effort.noneSupported':
-    'Ingen modell med bindinger har et konfigurerbart resonnementbudsjett — innsatsen bestemmer fortsatt budsjettet for agentløkken.',
-  'ide.chat.effort.set': 'Resonnementet er lagt inn på {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Justerer resonnementbudsjettet på: {{models}}. For andre modeller blir innsatsen fortsatt lagt til agentløkkebudsjettet.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontekst',
   'ide.chat.models.colCost': 'Kostnad / 1 million',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -404,7 +403,8 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Det finnes ingen ferdigheter som samsvarer med «{{query}}».',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -432,7 +432,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Takk! Rapporten din er sendt inn – du kan følge med på den via lenken til saken.',
   'ide.chat.settings.modelFollowsDefault': 'Følger standardmodellen',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Endre størrelsen på panelene',
   'ide.chat.settings.autoCommitEvery': 'Hver {{seconds}} s',
   'ide.chat.settings.hooksValue': 'I prosjektinnstillingene',
@@ -457,7 +457,6 @@ export const nb: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Siste forhåndsvisning',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} er ikke tilgjengelig på {{model}}. Tilgjengelig: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Vanskelighetsgrad for «{{model}}»: {{levels}}',
   'ide.chat.modelSortLabel': 'Sorter',
   'ide.chat.modelSortDirection': 'Bytt sorteringsretning',
   'ide.chat.skills.loadedBadge': 'Lastet',
@@ -470,9 +469,11 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Lukk',
   'ide.chat.retryCountdown': 'Serverfeil — prøver på nytt om {{seconds}} s… (forsøk {{attempt}})',
   'ide.preview.blankTitle': 'Forhåndsvisningen er tom',
-  'ide.preview.blankHint': 'Appen ble lastet inn, men det ble ikke vist noe — det kan være en feil. Synthase har blitt varslet. Du kan laste inn siden på nytt eller åpne forhåndsvisningen i en ny fane.',
+  'ide.preview.blankHint':
+    'Appen ble lastet inn, men det ble ikke vist noe — det kan være en feil. Synthase har blitt varslet. Du kan laste inn siden på nytt eller åpne forhåndsvisningen i en ny fane.',
   'ide.chat.previewLinkTitle': 'Åpne {{path}} i forhåndsvisningen',
-  'ide.chat.report.diagnosticsNote': 'Appversjonen din, nettleseren din og skjermstørrelsen er vedlagt for å hjelpe oss med feilsøkingen.',
+  'ide.chat.report.diagnosticsNote':
+    'Appversjonen din, nettleseren din og skjermstørrelsen er vedlagt for å hjelpe oss med feilsøkingen.',
   'ide.chat.skills.loadedCount': '🧠 Har omfattende kunnskap om «{{count}}»',
   'ide.chat.skills.waitingForSandbox': 'Venter på at sandkassen skal fullføre oppstarten…',
   'ide.chat.skills.resetDefaults': 'Last inn alt som standard',

@@ -264,15 +264,14 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Otomatik kaydetme işlemi iptal edildi.',
   'ide.chat.autoCommit.enabled':
     'Otomatik kaydetme etkin: Son dosya değişikliğinden sonra {{seconds}} saniye sonra kaydetme işlemi gerçekleştirilir. İptal etmek için /autocommit 0 komutunu kullanın.',
-  'ide.chat.effort.current': 'Akıl yürütme çalışması: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Gerekçe oluşturma işlemi güncellenemedi.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Seviyeler:',
-  'ide.chat.effort.noneSupported':
-    'Hiçbir bağlı model, yapılandırılabilir bir akıl yürütme bütçesi sunmamaktadır — çaba, hâlâ ajan döngüsü bütçesini belirlemektedir.',
-  'ide.chat.effort.set': 'Akıl yürütme çalışması {{level}} ({{label}}) adresine ayarlandı.',
-  'ide.chat.effort.supported':
-    '{{models}} adresindeki mantık bütçesini ayarlar. Diğer modellerde ise bu çaba hâlâ ajan döngüsü bütçesine yansıtılır.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Bağlam',
   'ide.chat.models.colCost': 'Maliyet / 1 milyon',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -408,7 +407,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '"{{query}}" ile eşleşen beceri bulunamadı.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -436,7 +436,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Teşekkürler! Bildiriminiz gönderildi — bağlantılı sorun sayfasında takip edebilirsiniz.',
   'ide.chat.settings.modelFollowsDefault': 'Varsayılan modeli takip eder',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Panellerin boyutunu değiştir',
   'ide.chat.settings.autoCommitEvery': 'Her {{seconds}}',
   'ide.chat.settings.hooksValue': 'Proje ayarlarında',
@@ -461,7 +461,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Son çalışma önizlemesi',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} {{model}} için mevcut değildir. Mevcut: {{levels}}',
-  'ide.chat.effort.currentModelLevels': '{{model}} için zorluk seviyeleri: {{levels}}',
   'ide.chat.modelSortLabel': 'Sırala',
   'ide.chat.modelSortDirection': 'Sıralama yönünü değiştir',
   'ide.chat.skills.loadedBadge': 'Yüklendi',
@@ -472,11 +471,14 @@ export const tr: Partial<IdeTranslations> = {
   'ide.device.select': 'Cihaz çerçevesi',
   'ide.device.rotate': 'Döndür',
   'ide.chat.closeOverlay': 'Kapat',
-  'ide.chat.retryCountdown': 'Sunucu hatası — {{seconds}} adresinde yeniden deneme… ({{attempt}} adresinde deneme)',
+  'ide.chat.retryCountdown':
+    'Sunucu hatası — {{seconds}} adresinde yeniden deneme… ({{attempt}} adresinde deneme)',
   'ide.preview.blankTitle': 'Önizleme boş',
-  'ide.preview.blankHint': "Uygulama yüklendi ancak hiçbir şey görüntülenmedi — bir hata olabilir. Synthase'e bildirim gönderildi. Sayfayı yeniden yükleyebilir veya önizlemeyi yeni bir sekmede açabilirsiniz.",
+  'ide.preview.blankHint':
+    "Uygulama yüklendi ancak hiçbir şey görüntülenmedi — bir hata olabilir. Synthase'e bildirim gönderildi. Sayfayı yeniden yükleyebilir veya önizlemeyi yeni bir sekmede açabilirsiniz.",
   'ide.chat.previewLinkTitle': "{{path}}'i önizlemede aç",
-  'ide.chat.report.diagnosticsNote': 'Hata giderme çalışmalarımıza yardımcı olması amacıyla uygulamanızın sürümü, tarayıcınız ve ekran boyutunuz ekte yer almaktadır.',
+  'ide.chat.report.diagnosticsNote':
+    'Hata giderme çalışmalarımıza yardımcı olması amacıyla uygulamanızın sürümü, tarayıcınız ve ekran boyutunuz ekte yer almaktadır.',
   'ide.chat.skills.loadedCount': '🧠 Gelişmiş {{count}} becerileri',
   'ide.chat.skills.waitingForSandbox': "Sandbox'ın başlatılmasının tamamlanmasını bekliyorum…",
   'ide.chat.skills.resetDefaults': 'Varsayılan olarak hepsini yükle',

@@ -263,16 +263,14 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automatické potvrzení bylo zrušeno.',
   'ide.chat.autoCommit.enabled':
     'Automatické potvrzování zapnuto: potvrzení {{seconds}} s po poslední změně souboru. Zadejte /autocommit 0 pro zrušení.',
-  'ide.chat.effort.current': 'Úloha na logické uvažování: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Nepodařilo se aktualizovat úsilí v oblasti odůvodňování.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Úrovně:',
-  'ide.chat.effort.noneSupported':
-    'Žádný model založený na vazbách neumožňuje nastavit rozpočet na uvažování – rozpočet smyčky agenta se stále odvíjí od vynaloženého úsilí.',
-  'ide.chat.effort.set':
-    'Úloha na procvičení logického uvažování je k dispozici na adrese {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Nastaví rozpočet pro odvozování na: {{models}}. U ostatních modelů se úsilí nadále přiřazuje k rozpočtu smyčky agenta.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontext',
   'ide.chat.models.colCost': 'Cena za 1 milion',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -408,7 +406,8 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Žádná dovednost neodpovídá položce „{{query}}“.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -436,7 +435,7 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Děkujeme! Vaše hlášení bylo odesláno – jeho stav můžete sledovat v souvisejícím ticketu.',
   'ide.chat.settings.modelFollowsDefault': 'Vychází z výchozího modelu',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Změnit velikost panelů',
   'ide.chat.settings.autoCommitEvery': 'Všechny stránky {{seconds}}',
   'ide.chat.settings.hooksValue': 'V nastavení projektu',
@@ -460,7 +459,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Poslední funkční náhled',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} není k dispozici na adrese {{model}}. K dispozici: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Úrovně obtížnosti pro hru „{{model}}“: {{levels}}',
   'ide.chat.modelSortLabel': 'Seřadit',
   'ide.chat.modelSortDirection': 'Přepnout směr řazení',
   'ide.chat.skills.loadedBadge': 'Načteno',
@@ -473,9 +471,11 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Zavřít',
   'ide.chat.retryCountdown': 'Chyba serveru — opakuji pokus za {{seconds}} s… (pokus {{attempt}})',
   'ide.preview.blankTitle': 'Náhled je prázdný',
-  'ide.preview.blankHint': 'Aplikace se načítala, ale nic se nezobrazilo – možná došlo k chybě. Synthase již byla informována. Můžete stránku znovu načíst nebo otevřít náhled v nové záložce.',
+  'ide.preview.blankHint':
+    'Aplikace se načítala, ale nic se nezobrazilo – možná došlo k chybě. Synthase již byla informována. Můžete stránku znovu načíst nebo otevřít náhled v nové záložce.',
   'ide.chat.previewLinkTitle': 'Otevřít soubor „{{path}}“ v náhledu',
-  'ide.chat.report.diagnosticsNote': 'Pro usnadnění ladění přikládáme informace o verzi vaší aplikace, prohlížeči a velikosti obrazovky.',
+  'ide.chat.report.diagnosticsNote':
+    'Pro usnadnění ladění přikládáme informace o verzi vaší aplikace, prohlížeči a velikosti obrazovky.',
   'ide.chat.skills.loadedCount': '🧠 Rozvinuté dovednosti v oblasti „{{count}}“',
   'ide.chat.skills.waitingForSandbox': 'Čekám, až se spustí pískoviště…',
   'ide.chat.skills.resetDefaults': 'Ve výchozím nastavení načíst vše',

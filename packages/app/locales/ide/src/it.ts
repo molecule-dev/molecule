@@ -273,15 +273,14 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Auto-commit annullato.',
   'ide.chat.autoCommit.enabled':
     "Auto-commit attivato: il commit viene eseguito {{seconds}}i dopo l'ultima modifica al file. Impostare /autocommit 0 per disattivarlo.",
-  'ide.chat.effort.current': 'Esercizio di ragionamento: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Impossibile aggiornare il processo di ragionamento.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Livelli:',
-  'ide.chat.effort.noneSupported':
-    "Nessun modello basato su legami prevede un budget di ragionamento configurabile: lo sforzo continua a determinare il budget del ciclo dell'agente.",
-  'ide.chat.effort.set': 'Il set di ragionamenti è impostato su {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    "Ottimizza il budget di ragionamento su: {{models}}. Per gli altri modelli, lo sforzo viene comunque applicato al budget del ciclo dell'agente.",
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Contesto',
   'ide.chat.models.colCost': 'Costo / 1 milione',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -416,7 +415,8 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Non ci sono competenze corrispondenti a "{{query}}".',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -445,7 +445,7 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     "Grazie! La tua segnalazione è stata inviata: puoi seguirne l'andamento nell'issue collegata.",
   'ide.chat.settings.modelFollowsDefault': 'Segue il modello predefinito',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Ridimensiona i pannelli',
   'ide.chat.settings.autoCommitEvery': 'Tutte le {{seconds}}',
   'ide.chat.settings.hooksValue': 'Nelle impostazioni del progetto',
@@ -470,7 +470,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Ultima anteprima di lavoro',
   'ide.chat.effort.notSupportedForModel':
     "{{level}} non è disponibile all'indirizzo {{model}}. Disponibile all'indirizzo: {{levels}}",
-  'ide.chat.effort.currentModelLevels': 'Livelli di difficoltà per "{{model}}": {{levels}}',
   'ide.chat.modelSortLabel': 'Ordina',
   'ide.chat.modelSortDirection': 'Cambia direzione di ordinamento',
   'ide.chat.skills.loadedBadge': 'Caricato',
@@ -482,11 +481,14 @@ export const it: Partial<IdeTranslations> = {
   'ide.device.select': 'Telaio del dispositivo',
   'ide.device.rotate': 'Ruota',
   'ide.chat.closeOverlay': 'Chiudi',
-  'ide.chat.retryCountdown': 'Errore del server — si sta riprovando tra {{seconds}} s… (tentativo {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Errore del server — si sta riprovando tra {{seconds}} s… (tentativo {{attempt}})',
   'ide.preview.blankTitle': "L'anteprima è vuota",
-  'ide.preview.blankHint': "L'app si è caricata ma non ha visualizzato nulla: potrebbe esserci un errore. Synthase è stata informata. Puoi ricaricare la pagina oppure aprire l'anteprima in una nuova scheda.",
+  'ide.preview.blankHint':
+    "L'app si è caricata ma non ha visualizzato nulla: potrebbe esserci un errore. Synthase è stata informata. Puoi ricaricare la pagina oppure aprire l'anteprima in una nuova scheda.",
   'ide.chat.previewLinkTitle': "Apri {{path}} nell'anteprima",
-  'ide.chat.report.diagnosticsNote': 'Abbiamo allegato la versione della tua app, il browser e le dimensioni dello schermo per aiutarci nella ricerca dei bug.',
+  'ide.chat.report.diagnosticsNote':
+    'Abbiamo allegato la versione della tua app, il browser e le dimensioni dello schermo per aiutarci nella ricerca dei bug.',
   'ide.chat.skills.loadedCount': "🧠 Competenze avanzate nell'{{count}}",
   'ide.chat.skills.waitingForSandbox': "In attesa che il sandbox completi l'avvio…",
   'ide.chat.skills.resetDefaults': 'Carica tutto per impostazione predefinita',

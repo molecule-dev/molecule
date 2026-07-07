@@ -264,15 +264,14 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automatisk bekræftelse annulleret.',
   'ide.chat.autoCommit.enabled':
     'Automatisk commit aktiveret: Der foretages en commit {{seconds}} s efter den sidste filændring. Indtast /autocommit 0 for at afbryde.',
-  'ide.chat.effort.current': 'Argumentationsøvelse: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Det lykkedes ikke at opdatere begrundelsen.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Niveauer:',
-  'ide.chat.effort.noneSupported':
-    'Ingen model baseret på bindinger giver adgang til et konfigurerbart ræsonneringsbudget — indsatsen bestemmer stadig agentløkkens budget.',
-  'ide.chat.effort.set': 'Ræsonnementet er indstillet til {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Justerer ræsonnementbudgettet på: {{models}}. For andre modeller anvendes indsatsen stadig på agentloop-budgettet.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontekst',
   'ide.chat.models.colCost': 'Pris pr. 1 mio.',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -406,7 +405,8 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Der findes ingen kompetencer, der matcher »{{query}}«.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -435,7 +435,7 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Tak! Din rapport er nu indsendt — du kan følge med i den via linket til sagen.',
   'ide.chat.settings.modelFollowsDefault': 'Følger standardmodellen',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Ændr størrelsen på panelerne',
   'ide.chat.settings.autoCommitEvery': 'Alle {{seconds}} s',
   'ide.chat.settings.hooksValue': 'I projektindstillingerne',
@@ -460,7 +460,6 @@ export const da: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Sidste forhåndsvisning',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} er ikke tilgængelig på {{model}}. Tilgængelig: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Træningsintensitet for »{{model}}«: {{levels}}',
   'ide.chat.modelSortLabel': 'Sorter',
   'ide.chat.modelSortDirection': 'Skift sorteringsretning',
   'ide.chat.skills.loadedBadge': 'Indlæst',
@@ -473,9 +472,11 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Luk',
   'ide.chat.retryCountdown': 'Serverfejl — forsøger igen om {{seconds}} s… (forsøg {{attempt}})',
   'ide.preview.blankTitle': 'Forhåndsvisningen er tom',
-  'ide.preview.blankHint': 'Appen blev indlæst, men der blev ikke vist noget — der er muligvis opstået en fejl. Synthase er blevet underrettet. Du kan indlæse siden igen eller åbne forhåndsvisningen i en ny fane.',
+  'ide.preview.blankHint':
+    'Appen blev indlæst, men der blev ikke vist noget — der er muligvis opstået en fejl. Synthase er blevet underrettet. Du kan indlæse siden igen eller åbne forhåndsvisningen i en ny fane.',
   'ide.chat.previewLinkTitle': 'Åbn {{path}} i forhåndsvisningen',
-  'ide.chat.report.diagnosticsNote': 'Din app-version, browser og skærmstørrelse er vedhæftet for at hjælpe os med fejlfinding.',
+  'ide.chat.report.diagnosticsNote':
+    'Din app-version, browser og skærmstørrelse er vedhæftet for at hjælpe os med fejlfinding.',
   'ide.chat.skills.loadedCount': '🧠 Omfattende viden om »{{count}}«',
   'ide.chat.skills.waitingForSandbox': 'Venter på, at sandkassen er færdig med at starte op…',
   'ide.chat.skills.resetDefaults': 'Indlæs alt som standard',

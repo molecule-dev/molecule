@@ -265,15 +265,14 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automaattinen tallennus peruutettu.',
   'ide.chat.autoCommit.enabled':
     'Automaattinen tallennus käytössä: tallennus tapahtuu {{seconds}} sekunnin kuluttua viimeisestä tiedostomuutoksesta. Peruuta asettamalla /autocommit 0.',
-  'ide.chat.effort.current': 'Päättelyprosessi: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Päivitys epäonnistui.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Tasot:',
-  'ide.chat.effort.noneSupported':
-    'Missään sidotussa mallissa ei ole määritettävissä olevaa päättelybudjettia – työmäärä vaikuttaa edelleen agenttisilmukan budjettiin.',
-  'ide.chat.effort.set': 'Päättelytehtävä on määritetty sivustolle {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Säätää päättelybudjettia osoitteessa: {{models}}. Muissa malleissa vaiva kohdistuu edelleen agenttisilmukan budjettiin.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Konteksti',
   'ide.chat.models.colCost': 'Kustannukset / 1 miljoonaa',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -408,7 +407,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Mitään hakutulosta ei löytynyt hakusanalle ”{{query}}”.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -437,7 +437,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Kiitos! Ilmoituksesi on lähetetty — voit seurata sen käsittelyä linkitetyn ongelman kautta.',
   'ide.chat.settings.modelFollowsDefault': 'Noudattaa oletusmallia',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Muuta paneelien kokoa',
   'ide.chat.settings.autoCommitEvery': 'Kaikki {{seconds}}-sivustot',
   'ide.chat.settings.hooksValue': 'Projektin asetuksissa',
@@ -462,7 +462,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Viimeisin toimiva esikatselu',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} ei ole saatavilla osoitteessa {{model}}. Saatavilla: {{levels}}',
-  'ide.chat.effort.currentModelLevels': '{{model}} -tason vaativuus: {{levels}}',
   'ide.chat.modelSortLabel': 'Lajittele',
   'ide.chat.modelSortDirection': 'Vaihda lajittelusuunta',
   'ide.chat.skills.loadedBadge': 'Ladattu',
@@ -473,11 +472,14 @@ export const fi: Partial<IdeTranslations> = {
   'ide.device.select': 'Laitteen runko',
   'ide.device.rotate': 'Kierrä',
   'ide.chat.closeOverlay': 'Sulje',
-  'ide.chat.retryCountdown': 'Palvelinvirhe — yritetään uudelleen {{seconds}} sekunnin kuluttua… (yritys {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Palvelinvirhe — yritetään uudelleen {{seconds}} sekunnin kuluttua… (yritys {{attempt}})',
   'ide.preview.blankTitle': 'Esikatselu on tyhjä',
-  'ide.preview.blankHint': 'Sovellus latautui, mutta ei näyttänyt mitään — siinä saattaa olla virhe. Asiasta on ilmoitettu Synthaselle. Voit ladata sivun uudelleen tai avata esikatselun uudessa välilehdessä.',
+  'ide.preview.blankHint':
+    'Sovellus latautui, mutta ei näyttänyt mitään — siinä saattaa olla virhe. Asiasta on ilmoitettu Synthaselle. Voit ladata sivun uudelleen tai avata esikatselun uudessa välilehdessä.',
   'ide.chat.previewLinkTitle': 'Avaa tiedosto {{path}} esikatselussa',
-  'ide.chat.report.diagnosticsNote': 'Sovelluksesi versio, selain ja näytön koko on liitetty mukaan, jotta voimme selvittää vian.',
+  'ide.chat.report.diagnosticsNote':
+    'Sovelluksesi versio, selain ja näytön koko on liitetty mukaan, jotta voimme selvittää vian.',
   'ide.chat.skills.loadedCount': '🧠 Laaja-alaiset taidot aiheesta ”{{count}}”',
   'ide.chat.skills.waitingForSandbox': 'Odotetaan, että hiekkalaatikon käynnistyminen päättyy…',
   'ide.chat.skills.resetDefaults': 'Lataa oletuksena kaikki',

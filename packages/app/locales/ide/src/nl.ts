@@ -266,15 +266,14 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automatische bevestiging geannuleerd.',
   'ide.chat.autoCommit.enabled':
     'Automatisch vastleggen ingeschakeld: er wordt {{seconds}}en na de laatste bestandswijziging vastgelegd. Stel /autocommit 0 in om deze functie uit te schakelen.',
-  'ide.chat.effort.current': 'Redenering: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Het bijwerken van de redenering is mislukt.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Niveaus:',
-  'ide.chat.effort.noneSupported':
-    'Geen enkel gebonden model biedt een configureerbaar redeneerbudget — de inspanning bepaalt nog steeds de omvang van het budget voor de agentlus.',
-  'ide.chat.effort.set': 'De instelling voor het redeneren is ingesteld op {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Pas het redeneringsbudget aan op: {{models}}. Bij andere modellen wordt de inspanning nog steeds toegepast op het budget van de agentlus.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCost': 'Kosten / 1 miljoen',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -410,7 +409,8 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Er zijn geen vaardigheden die overeenkomen met "{{query}}".',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -439,7 +439,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Bedankt! Je melding is verzonden — je kunt de voortgang volgen via de bijgevoegde link.',
   'ide.chat.settings.modelFollowsDefault': 'Volgt het standaardmodel',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Het formaat van panelen aanpassen',
   'ide.chat.settings.autoCommitEvery': 'Elke {{seconds}} s',
   'ide.chat.settings.hooksValue': 'In de projectinstellingen',
@@ -465,7 +465,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Laatste werkvoorbeeld',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} is niet beschikbaar via {{model}}. Beschikbaar via: {{levels}}',
-  'ide.chat.effort.currentModelLevels': "Inspanningsniveaus voor '{{model}}': {{levels}}",
   'ide.chat.modelSortLabel': 'Sorteren',
   'ide.chat.modelSortDirection': 'Sorteerrichting wijzigen',
   'ide.chat.skills.loadedBadge': 'Geladen',
@@ -476,11 +475,14 @@ export const nl: Partial<IdeTranslations> = {
   'ide.device.select': 'Apparaatframe',
   'ide.device.rotate': 'Draaien',
   'ide.chat.closeOverlay': 'Sluiten',
-  'ide.chat.retryCountdown': 'Serverfout — wordt opnieuw geprobeerd over {{seconds}} s… (poging {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Serverfout — wordt opnieuw geprobeerd over {{seconds}} s… (poging {{attempt}})',
   'ide.preview.blankTitle': 'Het voorbeeld is leeg',
-  'ide.preview.blankHint': 'De app is geladen, maar er wordt niets weergegeven — er is mogelijk een fout opgetreden. Synthase is hiervan op de hoogte gesteld. Je kunt de pagina opnieuw laden of het voorbeeld in een nieuw tabblad openen.',
+  'ide.preview.blankHint':
+    'De app is geladen, maar er wordt niets weergegeven — er is mogelijk een fout opgetreden. Synthase is hiervan op de hoogte gesteld. Je kunt de pagina opnieuw laden of het voorbeeld in een nieuw tabblad openen.',
   'ide.chat.previewLinkTitle': 'Open {{path}} in het voorbeeldvenster',
-  'ide.chat.report.diagnosticsNote': 'De versie van je app, je browser en je schermgrootte zijn bijgevoegd om ons te helpen bij het opsporen van fouten.',
+  'ide.chat.report.diagnosticsNote':
+    'De versie van je app, je browser en je schermgrootte zijn bijgevoegd om ons te helpen bij het opsporen van fouten.',
   'ide.chat.skills.loadedCount': '🧠 Uitgebreide kennis v{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Wachten tot de sandbox is opgestart…',
   'ide.chat.skills.resetDefaults': 'Standaard alles laden',

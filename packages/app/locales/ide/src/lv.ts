@@ -265,16 +265,14 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automātiskā apstiprināšana atcelta.',
   'ide.chat.autoCommit.enabled':
     'Automātiskā fiksēšana ir ieslēgta: fiksēšana notiek pēc {{seconds}} s kopš pēdējās izmaiņas failā. Lai atceltu, iestatiet /autocommit 0.',
-  'ide.chat.effort.current': 'Loģiskā uzdevuma risinājums: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Neizdevās atjaunināt argumentācijas procesu.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Līmeņi:',
-  'ide.chat.effort.noneSupported':
-    'Nevienā saistītajā modelī nav pieejams konfigurējams loģiskās apstrādes resursu limits — aģenta cikla resursu apjoms joprojām ir atkarīgs no ieguldītā darba apjoma.',
-  'ide.chat.effort.set':
-    'Loģiskās domāšanas uzdevumu kopums ir pieejams vietnē {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Pielāgo loģiskā budžeta vērtību: {{models}}. Citiem modeļiem šis pielikums joprojām tiek attiecināts uz aģenta cilpas budžetu.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Konteksts',
   'ide.chat.models.colCost': 'Izmaksas / 1 miljonam',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -409,7 +407,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Nav atbilstošu prasmju meklējumam „{{query}}“.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -437,7 +436,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Paldies! Jūsu ziņojums ir nosūtīts — tā statusu varat sekot saites norādītajā problēmā.',
   'ide.chat.settings.modelFollowsDefault': 'Atbilst standarta modelim',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Mainīt paneļu izmēru',
   'ide.chat.settings.autoCommitEvery': 'Katrs {{seconds}} s',
   'ide.chat.settings.hooksValue': 'Projekta iestatījumos',
@@ -461,7 +460,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Pēdējais darba priekšskatījums',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} nav pieejams vietnē {{model}}. Pieejams: {{levels}}',
-  'ide.chat.effort.currentModelLevels': '„{{model}}“ grūtības pakāpes: {{levels}}',
   'ide.chat.modelSortLabel': 'Šķirot',
   'ide.chat.modelSortDirection': 'Mainīt šķirošanas virzienu',
   'ide.chat.skills.loadedBadge': 'Ielādēts',
@@ -472,11 +470,14 @@ export const lv: Partial<IdeTranslations> = {
   'ide.device.select': 'Ierīces rāmis',
   'ide.device.rotate': 'Pagriezt',
   'ide.chat.closeOverlay': 'Aizvērt',
-  'ide.chat.retryCountdown': 'Servera kļūda — atkārtoju mēģinājumu pēc {{seconds}} sekundēm… (mēģinājums {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Servera kļūda — atkārtoju mēģinājumu pēc {{seconds}} sekundēm… (mēģinājums {{attempt}})',
   'ide.preview.blankTitle': 'Priekšskatījums ir tukšs',
-  'ide.preview.blankHint': 'Lietotne tika ielādēta, bet nekas netika parādīts — iespējams, ir radusies kļūda. Par to ir paziņots „Synthase“. Jūs varat atkārtoti ielādēt lapu vai atvērt priekšskatījumu jaunā cilnē.',
+  'ide.preview.blankHint':
+    'Lietotne tika ielādēta, bet nekas netika parādīts — iespējams, ir radusies kļūda. Par to ir paziņots „Synthase“. Jūs varat atkārtoti ielādēt lapu vai atvērt priekšskatījumu jaunā cilnē.',
   'ide.chat.previewLinkTitle': 'Atveriet failu „{{path}}” priekšskatījumā',
-  'ide.chat.report.diagnosticsNote': 'Lai palīdzētu mums novērst kļūdas, esam pievienojuši informāciju par jūsu lietotnes versiju, pārlūku un ekrāna izmēru.',
+  'ide.chat.report.diagnosticsNote':
+    'Lai palīdzētu mums novērst kļūdas, esam pievienojuši informāciju par jūsu lietotnes versiju, pārlūku un ekrāna izmēru.',
   'ide.chat.skills.loadedCount': '🧠 Apgūtas „{{count}}“ prasmes',
   'ide.chat.skills.waitingForSandbox': 'Gaidu, kamēr smilšu kaste pabeigs palaišanos…',
   'ide.chat.skills.resetDefaults': 'Pēc noklusējuma ielādēt visu',

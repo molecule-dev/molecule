@@ -271,15 +271,14 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Se ha cancelado la grabación automática.',
   'ide.chat.autoCommit.enabled':
     'Autocomprobación activada: se realiza la comprobación un{{seconds}}os después del último cambio en el archivo. Introduce /autocommit 0 para desactivarla.',
-  'ide.chat.effort.current': 'Enlace al razonamiento: {{level}} ({{label}})',
   'ide.chat.effort.error': 'No se ha podido actualizar el proceso de razonamiento.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Niveles:',
-  'ide.chat.effort.noneSupported':
-    'Ningún modelo vinculado ofrece un presupuesto de razonamiento configurable; el esfuerzo sigue determinando el presupuesto del bucle del agente.',
-  'ide.chat.effort.set': 'El conjunto de razonamientos se ha establecido en {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Ajusta el presupuesto de razonamiento en: {{models}}. En otros modelos, el esfuerzo sigue aplicándose al presupuesto del bucle del agente.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Contexto',
   'ide.chat.models.colCost': 'Coste / 1 millón',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -414,7 +413,8 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'No hay habilidades que coincidan con «{{query}}».',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -442,7 +442,7 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     '¡Gracias! Tu informe se ha enviado; puedes seguir su evolución en el problema vinculado.',
   'ide.chat.settings.modelFollowsDefault': 'Sigue el modelo predeterminado',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Cambiar el tamaño de los paneles',
   'ide.chat.settings.autoCommitEvery': 'Todos los {{seconds}} s',
   'ide.chat.settings.hooksValue': 'En la configuración del proyecto',
@@ -467,7 +467,6 @@ export const es: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Última vista previa de trabajo',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} no está disponible en {{model}}. Disponible en: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Niveles de dificultad de «{{model}}»: {{levels}}',
   'ide.chat.modelSortLabel': 'Ordenar',
   'ide.chat.modelSortDirection': 'Cambiar la dirección de ordenación',
   'ide.chat.skills.loadedBadge': 'Cargado',
@@ -478,12 +477,16 @@ export const es: Partial<IdeTranslations> = {
   'ide.device.select': 'Estructura del dispositivo',
   'ide.device.rotate': 'Girar',
   'ide.chat.closeOverlay': 'Cerrar',
-  'ide.chat.retryCountdown': 'Error del servidor: se volverá a intentar en {{seconds}} s… (intento {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Error del servidor: se volverá a intentar en {{seconds}} s… (intento {{attempt}})',
   'ide.preview.blankTitle': 'La vista previa está en blanco',
-  'ide.preview.blankHint': 'La aplicación se ha cargado, pero no se muestra nada; es posible que haya un error. Se ha notificado a Synthase. Puedes volver a cargar la página o abrir la vista previa en una nueva pestaña.',
+  'ide.preview.blankHint':
+    'La aplicación se ha cargado, pero no se muestra nada; es posible que haya un error. Se ha notificado a Synthase. Puedes volver a cargar la página o abrir la vista previa en una nueva pestaña.',
   'ide.chat.previewLinkTitle': 'Abre {{path}} en la vista previa',
-  'ide.chat.report.diagnosticsNote': 'Te adjuntamos la versión de tu aplicación, el navegador y el tamaño de la pantalla para ayudarnos a solucionar el problema.',
+  'ide.chat.report.diagnosticsNote':
+    'Te adjuntamos la versión de tu aplicación, el navegador y el tamaño de la pantalla para ayudarnos a solucionar el problema.',
   'ide.chat.skills.loadedCount': '🧠 Amplios conocimientos de{{count}}',
-  'ide.chat.skills.waitingForSandbox': 'Esperando a que termine de iniciarse el entorno de pruebas…',
+  'ide.chat.skills.waitingForSandbox':
+    'Esperando a que termine de iniciarse el entorno de pruebas…',
   'ide.chat.skills.resetDefaults': 'Cargar todo por defecto',
 }

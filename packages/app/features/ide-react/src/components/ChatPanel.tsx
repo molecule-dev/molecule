@@ -72,14 +72,14 @@ import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
-import type { EffortLevel } from './chat-effort-utilities.js'
+import type { EffortLevel, EffortMode } from './chat-effort-utilities.js'
 import {
   DEFAULT_EFFORT_LEVEL,
-  EFFORT_LEVEL_LABELS,
-  effortLevelsForModel,
+  effortOptionsForModel,
   isEffortLevel,
-  modelsSupportingEffort,
+  nativeEffortName,
   parseEffortCommand,
+  resolveEffortArg,
 } from './chat-effort-utilities.js'
 import { buildHelpText } from './chat-help-utilities.js'
 import type { ModelMode } from './chat-model-mode-utilities.js'
@@ -3393,8 +3393,12 @@ function ChatInner({
   // falls back to currentModel (the legacy single chatModel) for back-compat.
   const [planModel, setPlanModel] = useState<string>('')
   const [executeModel, setExecuteModel] = useState<string>('')
-  // Reasoning effort level (SYN6) — applied by the backend at chat-call time.
+  // Reasoning effort (SYN6) — applied by the backend at chat-call time. Effort
+  // is PER-MODE (settings.effortByMode): plan and execute run different models
+  // with different native effort scales. The single `effortLevel` is the legacy
+  // fallback used when a mode has no explicit entry.
   const [effortLevel, setEffortLevel] = useState<EffortLevel>(DEFAULT_EFFORT_LEVEL)
+  const [effortByMode, setEffortByMode] = useState<Partial<Record<EffortMode, EffortLevel>>>({})
   const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(100)
   const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(true)
   // Adopt the free-tier model id as soon as the catalog resolves, unless the
@@ -3414,6 +3418,19 @@ function ChatInner({
         if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
         if (typeof s?.effortLevel === 'string' && isEffortLevel(s.effortLevel)) {
           setEffortLevel(s.effortLevel)
+        }
+        // Per-mode effort map — validate each entry (untrusted JSON bag).
+        if (
+          s?.effortByMode &&
+          typeof s.effortByMode === 'object' &&
+          !Array.isArray(s.effortByMode)
+        ) {
+          const next: Partial<Record<EffortMode, EffortLevel>> = {}
+          for (const m of ['plan', 'execute'] as const) {
+            const raw = (s.effortByMode as Record<string, unknown>)[m]
+            if (typeof raw === 'string' && isEffortLevel(raw)) next[m] = raw
+          }
+          setEffortByMode(next)
         }
         // Persisted per-project default-loaded skills (P2-06/P2-08).
         const savedDefaultSkills = s?.defaultSkills
@@ -4949,88 +4966,111 @@ function ChatInner({
       return
     }
 
-    // Handle /effort <S|M|L|XL> and /effort ? locally — persists effortLevel;
-    // the backend applies it to the provider reasoning/budget param (and the
+    // Handle /effort locally — effort is PER-MODE (settings.effortByMode; the
+    // legacy single effortLevel is the fallback) and is shown/typed in the
+    // target mode's MODEL-NATIVE values (e.g. xhigh on Claude, 16K thinking
+    // tokens on budget-scaled models) — never the internal S/M/L/XL letters.
+    // The backend applies it to the provider reasoning param (and the
     // agent-loop budget) at chat-call time.
     const effortCmd = parseEffortCommand(trimmed)
     if (effortCmd) {
       setInputValue('')
-      // Resolve the model the ACTIVE conversation mode will actually use, so the
-      // status view and the level validation reflect THIS model's reasoning
-      // capabilities (P2-10) — different models support different effort levels.
-      // Mirrors the /model picker + slash-suffix resolveModeModel logic.
-      const effortModelId =
-        resolveModeModel({ planModel, executeModel, chatModel: currentModel }, mode) ?? currentModel
-      const effortModel = AVAILABLE_MODELS.find((m) => m.id === effortModelId)
-      const allowedLevels = effortLevelsForModel(effortModel)
-      const effortModelLabel = effortModel?.label ?? effortModelId
+      // Resolve the model a given mode will actually use — mirrors the /model
+      // picker + slash-suffix resolveModeModel logic (P2-10: each mode's
+      // options come from ITS model's reasoning capabilities).
+      const modelForMode = (m: EffortMode) => {
+        const id =
+          resolveModeModel({ planModel, executeModel, chatModel: currentModel }, m) ?? currentModel
+        return AVAILABLE_MODELS.find((model) => model.id === id)
+      }
+      const effectiveEffort = (m: EffortMode): EffortLevel => effortByMode[m] ?? effortLevel
+      const modeStatusLine = (m: EffortMode): string => {
+        const model = modelForMode(m)
+        const options = effortOptionsForModel(model)
+        const current = nativeEffortName(model, effectiveEffort(m))
+        return current === null || options.length === 0
+          ? t(
+              'ide.chat.effort.modeFixed',
+              { mode: m, model: model?.label ?? '?' },
+              { defaultValue: '  {{mode}} ({{model}}): fixed — this model has one reasoning mode' },
+            )
+          : t(
+              'ide.chat.effort.modeLine',
+              {
+                mode: m,
+                model: model?.label ?? '?',
+                current,
+                levels: options.map((o) => o.native).join(', '),
+              },
+              { defaultValue: '  {{mode}} ({{model}}): {{current}} — available: {{levels}}' },
+            )
+      }
+      // Unscoped commands target the CURRENT conversation mode.
+      const targetMode: EffortMode = (effortCmd.kind !== 'invalid' && effortCmd.mode) || mode
+      const targetModel = modelForMode(targetMode)
+      const targetOptions = effortOptionsForModel(targetModel)
+      const targetModelLabel = targetModel?.label ?? '?'
       if (effortCmd.kind === 'invalid') {
         addSystemCard(
           t('ide.chat.effort.usage', undefined, {
-            defaultValue: 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+            defaultValue:
+              'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
           }),
         )
       } else if (effortCmd.kind === 'query') {
-        const supported = modelsSupportingEffort(AVAILABLE_MODELS)
-        const lines: string[] = [
-          t(
-            'ide.chat.effort.current',
-            { level: effortLevel, label: EFFORT_LEVEL_LABELS[effortLevel] },
-            { defaultValue: 'Reasoning effort: {{level}} ({{label}})' },
-          ),
-          '',
-          // List ONLY the levels the active model actually supports (P2-10), named
-          // by the model so it's obvious why the set may be a subset.
-          t(
-            'ide.chat.effort.currentModelLevels',
-            { model: effortModelLabel, levels: allowedLevels.join(', ') },
-            { defaultValue: 'Effort levels for {{model}}: {{levels}}' },
-          ),
-          ...allowedLevels.map((lvl) =>
-            t(
-              'ide.chat.effort.levelLine',
-              { level: lvl, label: EFFORT_LEVEL_LABELS[lvl] },
-              { defaultValue: '  {{level}} — {{label}}' },
-            ),
-          ),
-          '',
-          supported.length
-            ? t(
-                'ide.chat.effort.supported',
-                { models: supported.map((m) => m.label).join(', ') },
-                {
-                  defaultValue:
-                    'Tunes the reasoning budget on: {{models}}. Other models still get the effort applied to the agent loop budget.',
-                },
-              )
-            : t('ide.chat.effort.noneSupported', undefined, {
-                defaultValue:
-                  'No bonded model exposes a configurable reasoning budget — effort still scales the agent loop budget.',
-              }),
-        ]
-        addSystemCard(lines.join('\n'))
+        addSystemCard(
+          [
+            t('ide.chat.effort.header', undefined, { defaultValue: 'Reasoning effort per mode:' }),
+            modeStatusLine('plan'),
+            modeStatusLine('execute'),
+          ].join('\n'),
+        )
       } else {
-        const level = effortCmd.level
-        if (!allowedLevels.includes(level)) {
-          // The active model doesn't support this level — reject and name what IS
-          // available, rather than silently persisting an unsupported level (P2-10).
+        if (targetOptions.length === 0) {
+          // Nothing to tune on this mode's model (fixed reasoning) — say so
+          // instead of persisting a level that cannot take effect (P2-10).
+          addSystemCard(
+            t(
+              'ide.chat.effort.fixedForModel',
+              { mode: targetMode, model: targetModelLabel },
+              {
+                defaultValue:
+                  'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+              },
+            ),
+          )
+          return
+        }
+        const level = resolveEffortArg(effortCmd.arg, targetOptions)
+        if (level === null || !targetOptions.some((o) => o.level === level)) {
+          // Unknown value, or a legacy letter naming a level this model doesn't
+          // support — reject and name what IS available (P2-10).
           addSystemCard(
             t(
               'ide.chat.effort.notSupportedForModel',
-              { level, model: effortModelLabel, levels: allowedLevels.join(', ') },
+              {
+                level: effortCmd.arg,
+                model: targetModelLabel,
+                levels: targetOptions.map((o) => o.native).join(', '),
+              },
               { defaultValue: "{{level}} isn't available for {{model}}. Available: {{levels}}" },
             ),
           )
           return
         }
         try {
-          await http.patch(`/projects/${projectId}`, { settings: { effortLevel: level } })
-          setEffortLevel(level)
+          const nextByMode = { ...effortByMode, [targetMode]: level }
+          await http.patch(`/projects/${projectId}`, { settings: { effortByMode: nextByMode } })
+          setEffortByMode(nextByMode)
           addSystemCard(
             t(
-              'ide.chat.effort.set',
-              { level, label: EFFORT_LEVEL_LABELS[level] },
-              { defaultValue: 'Reasoning effort set to {{level}} ({{label}}).' },
+              'ide.chat.effort.setMode',
+              {
+                mode: targetMode,
+                level: nativeEffortName(targetModel, level) ?? effortCmd.arg,
+                model: targetModelLabel,
+              },
+              { defaultValue: 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).' },
             ),
           )
         } catch (error) {
@@ -5602,10 +5642,39 @@ function ChatInner({
         mode === 'plan'
           ? t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' })
           : t('ide.chat.settings.modeExecute', undefined, { defaultValue: 'Execute' }),
+      // Per-mode effort, shown in each mode's MODEL-NATIVE values (a fixed-
+      // reasoning model shows "fixed"). Falls back to the legacy single level.
       effort: t(
         'ide.chat.settings.effortValue',
-        { level: effortLevel, label: EFFORT_LEVEL_LABELS[effortLevel] },
-        { defaultValue: '{{label}} ({{level}})' },
+        {
+          plan: (() => {
+            const model = AVAILABLE_MODELS.find(
+              (m) =>
+                m.id ===
+                (resolveModeModel({ planModel, executeModel, chatModel: currentModel }, 'plan') ??
+                  currentModel),
+            )
+            return (
+              nativeEffortName(model, effortByMode.plan ?? effortLevel) ??
+              t('ide.chat.settings.effortFixed', undefined, { defaultValue: 'fixed' })
+            )
+          })(),
+          execute: (() => {
+            const model = AVAILABLE_MODELS.find(
+              (m) =>
+                m.id ===
+                (resolveModeModel(
+                  { planModel, executeModel, chatModel: currentModel },
+                  'execute',
+                ) ?? currentModel),
+            )
+            return (
+              nativeEffortName(model, effortByMode.execute ?? effortLevel) ??
+              t('ide.chat.settings.effortFixed', undefined, { defaultValue: 'fixed' })
+            )
+          })(),
+        },
+        { defaultValue: 'plan: {{plan}} · execute: {{execute}}' },
       ),
       maxLoops: String(currentMaxLoops),
       autoFix: autoFixEnabled

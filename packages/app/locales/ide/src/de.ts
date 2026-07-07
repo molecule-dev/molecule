@@ -270,15 +270,14 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Automatische Bestätigung abgebrochen.',
   'ide.chat.autoCommit.enabled':
     'Auto-Commit aktiviert: Nach der letzten Dateiänderung werden die Änderungen automatisch über{{seconds}}. Geben Sie „/autocommit 0“ ein, um diese Funktion zu deaktivieren.',
-  'ide.chat.effort.current': 'Argumentationsaufwand: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Die Aktualisierung der Argumentation ist fehlgeschlagen.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Stufen:',
-  'ide.chat.effort.noneSupported':
-    'Kein gebündeltes Modell stellt ein konfigurierbares Schlussfolgerungsbudget zur Verfügung – der Aufwand bestimmt weiterhin das Budget der Agenten-Schleife.',
-  'ide.chat.effort.set': 'Die Argumentationsaufgabe ist unter {{level}} ({{label}}) verfügbar.',
-  'ide.chat.effort.supported':
-    'Stellt das „Reasoning“-Budget unter {{models}} ein. Bei anderen Modellen wird der Aufwand weiterhin auf das Budget der Agenten-Schleife angerechnet.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontext',
   'ide.chat.models.colCost': 'Kosten / 1 Mio.',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -417,7 +416,8 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Es gibt keine Fähigkeiten, die mit „{{query}}“ übereinstimmen.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -446,7 +446,7 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Danke! Dein Bericht wurde übermittelt – verfolge den Stand über den verlinkten Ticket.',
   'ide.chat.settings.modelFollowsDefault': 'Entspricht dem Standardmodell',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Größe der Fenster anpassen',
   'ide.chat.settings.autoCommitEvery': 'Jedes Jahr {{seconds}} s',
   'ide.chat.settings.hooksValue': 'In den Projekteinstellungen',
@@ -472,7 +472,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Letzte Arbeitsvorschau',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} ist unter {{model}} nicht verfügbar. Verfügbar unter: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Schwierigkeitsgrade für „{{model}}“: {{levels}}',
   'ide.chat.modelSortLabel': 'Sortieren',
   'ide.chat.modelSortDirection': 'Sortierrichtung umschalten',
   'ide.chat.skills.loadedBadge': 'Geladen',
@@ -484,11 +483,14 @@ export const de: Partial<IdeTranslations> = {
   'ide.device.select': 'Geräterahmen',
   'ide.device.rotate': 'Drehen',
   'ide.chat.closeOverlay': 'Schließen',
-  'ide.chat.retryCountdown': 'Serverfehler – erneuter Versuch in {{seconds}} s… (Versuch {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Serverfehler – erneuter Versuch in {{seconds}} s… (Versuch {{attempt}})',
   'ide.preview.blankTitle': 'Die Vorschau ist leer',
-  'ide.preview.blankHint': 'Die App wurde geladen, hat aber nichts angezeigt – möglicherweise liegt ein Fehler vor. Synthase wurde benachrichtigt. Sie können die Seite neu laden oder die Vorschau in einem neuen Tab öffnen.',
+  'ide.preview.blankHint':
+    'Die App wurde geladen, hat aber nichts angezeigt – möglicherweise liegt ein Fehler vor. Synthase wurde benachrichtigt. Sie können die Seite neu laden oder die Vorschau in einem neuen Tab öffnen.',
   'ide.chat.previewLinkTitle': '„{{path}}“ in der Vorschau öffnen',
-  'ide.chat.report.diagnosticsNote': 'Die Version Ihrer App, Ihr Browser und Ihre Bildschirmgröße sind beigefügt, um uns bei der Fehlerbehebung zu helfen.',
+  'ide.chat.report.diagnosticsNote':
+    'Die Version Ihrer App, Ihr Browser und Ihre Bildschirmgröße sind beigefügt, um uns bei der Fehlerbehebung zu helfen.',
   'ide.chat.skills.loadedCount': '🧠 Umfassende Kenntnisse im Bereich „{{count}}“',
   'ide.chat.skills.waitingForSandbox': 'Warten auf den Abschluss des Startvorgangs der Sandbox…',
   'ide.chat.skills.resetDefaults': 'Standardmäßig alles laden',

@@ -268,16 +268,14 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Автоматическая фиксация отменена.',
   'ide.chat.autoCommit.enabled':
     'Автоматическая фиксация включена: фиксация {{seconds}} с после последнего изменения файла. Для отключения введите /autocommit 0.',
-  'ide.chat.effort.current': 'Источник: {{level}} ({{label}})',
   'ide.chat.effort.error': 'Не удалось обновить данные о затратах на разработку.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Уровни:',
-  'ide.chat.effort.noneSupported':
-    'Ни одна из моделей с привязкой не предоставляет настраиваемый бюджет вычислений — затраты по-прежнему определяют бюджет цикла агента.',
-  'ide.chat.effort.set':
-    'Набор задач по логическому мышлению доступен по адресу {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'Настраивает бюджет рассуждений на: {{models}}. В других моделях затраты по-прежнему относятся к бюджету цикла агента.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Контекст',
   'ide.chat.models.colCost': 'Стоимость / 1 млн',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -412,7 +410,8 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Нет результатов, соответствующих запросу «{{query}}».',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -440,7 +439,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Спасибо! Ваше сообщение отправлено — следите за его обработкой по ссылке на соответствующую задачу.',
   'ide.chat.settings.modelFollowsDefault': 'Использует модель по умолчанию',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Изменить размер панелей',
   'ide.chat.settings.autoCommitEvery': 'Каждый сайт {{seconds}}',
   'ide.chat.settings.hooksValue': 'В настройках проекта',
@@ -465,7 +464,6 @@ export const ru: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Последний рабочий вариант',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} не доступно по адресу {{model}}. Доступно по адресу: {{levels}}',
-  'ide.chat.effort.currentModelLevels': 'Уровни сложности для игры «{{model}}»: {{levels}}',
   'ide.chat.modelSortLabel': 'Сортировать',
   'ide.chat.modelSortDirection': 'Переключить направление сортировки',
   'ide.chat.skills.loadedBadge': 'Загружено',
@@ -476,11 +474,14 @@ export const ru: Partial<IdeTranslations> = {
   'ide.device.select': 'Рама устройства',
   'ide.device.rotate': 'Повернуть',
   'ide.chat.closeOverlay': 'Закрыть',
-  'ide.chat.retryCountdown': 'Ошибка сервера — повторная попытка через {{seconds}} с… (попытка {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Ошибка сервера — повторная попытка через {{seconds}} с… (попытка {{attempt}})',
   'ide.preview.blankTitle': 'Предварительный просмотр пуст',
-  'ide.preview.blankHint': 'Приложение загрузилось, но ничего не отобразилось — возможно, произошла ошибка. Об этом сообщено в Synthase. Вы можете перезагрузить страницу или открыть предварительный просмотр в новой вкладке.',
+  'ide.preview.blankHint':
+    'Приложение загрузилось, но ничего не отобразилось — возможно, произошла ошибка. Об этом сообщено в Synthase. Вы можете перезагрузить страницу или открыть предварительный просмотр в новой вкладке.',
   'ide.chat.previewLinkTitle': 'Откройте файл «{{path}}» в окне предварительного просмотра',
-  'ide.chat.report.diagnosticsNote': 'В приложении указаны версия вашего приложения, браузер и размер экрана — эта информация поможет нам устранить неполадки.',
+  'ide.chat.report.diagnosticsNote':
+    'В приложении указаны версия вашего приложения, браузер и размер экрана — эта информация поможет нам устранить неполадки.',
   'ide.chat.skills.loadedCount': '🧠 Обширные навыки в области «{{count}}»',
   'ide.chat.skills.waitingForSandbox': 'Ожидание завершения запуска песочницы…',
   'ide.chat.skills.resetDefaults': 'Загрузить всё по умолчанию',

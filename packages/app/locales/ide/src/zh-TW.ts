@@ -258,15 +258,14 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': '自動提交已取消。',
   'ide.chat.autoCommit.enabled':
     '已啟用自動提交：在最後一次檔案變更後，將提交 {{seconds}} 個檔案。若要取消，請設定 /autocommit 0。',
-  'ide.chat.effort.current': '推理過程：{{level}} ({{label}})',
   'ide.chat.effort.error': '無法更新推理進度。',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': '等級：',
-  'ide.chat.effort.noneSupported':
-    '沒有任何結合模型會公開可配置的推理預算——代理迴圈的預算仍取決於所需的工作量。',
-  'ide.chat.effort.set': '推理工作集設定為 {{level}} ({{label}})。',
-  'ide.chat.effort.supported':
-    '將推理預算調整為：{{models}}。其他模型仍會將該資源分配至代理器迴圈預算中。',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': '上下文',
   'ide.chat.models.colCost': '成本 / 100萬',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -394,7 +393,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': '沒有任何技能與「{{query}}」相符。',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -421,7 +421,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.report.submitted': '謝謝！您的回報已提交給 {{productName}} 的團隊。',
   'ide.chat.report.submittedWithLink': '謝謝！您的回報已提交 — 請透過連結的議題追蹤進度。',
   'ide.chat.settings.modelFollowsDefault': '遵循預設模型',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': '調整面板大小',
   'ide.chat.settings.autoCommitEvery': '每個 {{seconds}} s',
   'ide.chat.settings.hooksValue': '在專案設定中',
@@ -443,7 +443,6 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.preview.reloadPreview': '重新載入預覽',
   'ide.preview.lastWorkingFrame': '最後一個工作預覽',
   'ide.chat.effort.notSupportedForModel': '{{level}} {{model}} 無法使用。可用版本：{{levels}}',
-  'ide.chat.effort.currentModelLevels': '{{model}} 的難度等級：{{levels}}',
   'ide.chat.modelSortLabel': '排序',
   'ide.chat.modelSortDirection': '切換排序方向',
   'ide.chat.skills.loadedBadge': '已載入',
@@ -456,9 +455,11 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': '關閉',
   'ide.chat.retryCountdown': '伺服器錯誤 — 將於 {{seconds}} 秒後重試……（嘗試 {{attempt}}）',
   'ide.preview.blankTitle': '預覽內容為空白',
-  'ide.preview.blankHint': '應用程式已載入，但未顯示任何內容——可能發生了錯誤。Synthase 已收到通知。您可以重新載入頁面，或在新的分頁中開啟預覽。',
+  'ide.preview.blankHint':
+    '應用程式已載入，但未顯示任何內容——可能發生了錯誤。Synthase 已收到通知。您可以重新載入頁面，或在新的分頁中開啟預覽。',
   'ide.chat.previewLinkTitle': '在「預覽」中開啟 {{path}}',
-  'ide.chat.report.diagnosticsNote': '已附上您的應用程式版本、瀏覽器及螢幕尺寸，以協助我們進行除錯。',
+  'ide.chat.report.diagnosticsNote':
+    '已附上您的應用程式版本、瀏覽器及螢幕尺寸，以協助我們進行除錯。',
   'ide.chat.skills.loadedCount': '🧠 精通{{count}}技能',
   'ide.chat.skills.waitingForSandbox': '正在等待沙盒完成啟動……',
   'ide.chat.skills.resetDefaults': '預設載入所有內容',

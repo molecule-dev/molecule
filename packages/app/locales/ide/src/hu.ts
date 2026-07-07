@@ -264,15 +264,14 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.cancelled': 'Az automatikus mentés törölve.',
   'ide.chat.autoCommit.enabled':
     'Automatikus elküldés bekapcsolva: az utolsó fájlmódosítás után {{seconds}} másodperccel elküldi a változásokat. A funkció kikapcsolásához állítsa be az /autocommit 0 értéket.',
-  'ide.chat.effort.current': 'Érvelési feladat: {{level}} ({{label}})',
   'ide.chat.effort.error': 'A logikai művelet frissítése nem sikerült.',
-  'ide.chat.effort.levelLine': '  {{level}} — {{label}}',
-  'ide.chat.effort.levelsHeader': 'Szint:',
-  'ide.chat.effort.noneSupported':
-    'Egyetlen kötött modell sem biztosít konfigurálható érvelési keretet – az erőfeszítés továbbra is az ügynöki ciklus keretét határozza meg.',
-  'ide.chat.effort.set': 'A következtetési feladat beállítása: {{level}} ({{label}}).',
-  'ide.chat.effort.supported':
-    'A következtetési keret beállítása: {{models}}. Más modellek esetében az erőfeszítés továbbra is az ügynöki ciklus keretébe kerül.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.header': 'Reasoning effort per mode:',
+  'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
+  'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
+  'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontextus',
   'ide.chat.models.colCost': 'Költség / 1 millió',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -407,7 +406,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.noMatch': 'Nincs olyan képesség, amely megfelelne a „{{query}}” kifejezésnek.',
   'ide.chat.autoCommit.usage':
     'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.help.tipMention':
     '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
@@ -436,7 +436,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Köszönjük! A bejelentésedet elküldtük – a kapcsolódó hibajelentésen követheted nyomon.',
   'ide.chat.settings.modelFollowsDefault': 'Az alapértelmezett modellt követi',
-  'ide.chat.settings.effortValue': '{{label}} ({{level}})',
+  'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'A panelek méretének módosítása',
   'ide.chat.settings.autoCommitEvery': 'Minden {{seconds}} s',
   'ide.chat.settings.hooksValue': 'A projektbeállításokban',
@@ -461,7 +461,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.preview.lastWorkingFrame': 'Utolsó működő előnézet',
   'ide.chat.effort.notSupportedForModel':
     '{{level}} {{model}}-on nem érhető el. Elérhető: {{levels}}',
-  'ide.chat.effort.currentModelLevels': '{{model}} erőfeszítési szintjei: {{levels}}',
   'ide.chat.modelSortLabel': 'Rendezés',
   'ide.chat.modelSortDirection': 'Rendezés irányának váltása',
   'ide.chat.skills.loadedBadge': 'Betöltve',
@@ -472,11 +471,14 @@ export const hu: Partial<IdeTranslations> = {
   'ide.device.select': 'Készülékkeret',
   'ide.device.rotate': 'Forgatás',
   'ide.chat.closeOverlay': 'Bezárás',
-  'ide.chat.retryCountdown': 'Szerverhiba — újrakísérlet {{seconds}} másodperc múlva… ({{attempt}})',
+  'ide.chat.retryCountdown':
+    'Szerverhiba — újrakísérlet {{seconds}} másodperc múlva… ({{attempt}})',
   'ide.preview.blankTitle': 'Az előnézet üres',
-  'ide.preview.blankHint': 'Az alkalmazás betöltődött, de nem jelenített meg semmit — valószínűleg hiba történt. A Synthase-t már értesítettük. Újratöltheted az oldalt, vagy megnyithatod az előnézetet egy új lapon.',
+  'ide.preview.blankHint':
+    'Az alkalmazás betöltődött, de nem jelenített meg semmit — valószínűleg hiba történt. A Synthase-t már értesítettük. Újratöltheted az oldalt, vagy megnyithatod az előnézetet egy új lapon.',
   'ide.chat.previewLinkTitle': 'Nyissa meg a „{{path}}” fájlt az előnézetben',
-  'ide.chat.report.diagnosticsNote': 'Az alkalmazás verzióját, a böngészőt és a képernyő méretét csatoltuk, hogy segítsen nekünk a hibaelhárításban.',
+  'ide.chat.report.diagnosticsNote':
+    'Az alkalmazás verzióját, a böngészőt és a képernyő méretét csatoltuk, hogy segítsen nekünk a hibaelhárításban.',
   'ide.chat.skills.loadedCount': '🧠 Kiterjedt ismeretek a „{{count}}” témakörében',
   'ide.chat.skills.waitingForSandbox': 'Várom, amíg a sandbox befejezi az indítást…',
   'ide.chat.skills.resetDefaults': 'Alapértelmezés szerint mindet betölteni',
