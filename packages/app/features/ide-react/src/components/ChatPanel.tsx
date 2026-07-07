@@ -29,6 +29,7 @@ import {
 } from 'react'
 
 import type { CardEvent, ChatMessage, ChatStreamEvent } from '@molecule/app-ai-chat'
+import type { AppModelDefinition } from '@molecule/app-ai-models'
 import {
   formatTokenCount,
   isDeprecated,
@@ -4978,7 +4979,7 @@ function ChatInner({
       // Resolve the model a given mode will actually use — mirrors the /model
       // picker + slash-suffix resolveModeModel logic (P2-10: each mode's
       // options come from ITS model's reasoning capabilities).
-      const modelForMode = (m: EffortMode) => {
+      const modelForMode = (m: EffortMode): AppModelDefinition | undefined => {
         const id =
           resolveModeModel({ planModel, executeModel, chatModel: currentModel }, m) ?? currentModel
         return AVAILABLE_MODELS.find((model) => model.id === id)
