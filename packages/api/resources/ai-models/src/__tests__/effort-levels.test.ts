@@ -31,13 +31,54 @@ describe('supportedEffortLevels catalog data', () => {
     }
   })
 
-  it('fully configurable reasoning models expose the full S/M/L/XL set', () => {
+  it('budget-scaled configurable models (no native map) expose the full S/M/L/XL set', () => {
     for (const model of MODELS) {
-      if (!model.thinkingConfigurable) continue
-      // thinkingConfigurable models map the abstract scale onto a real budget range.
+      if (!model.thinkingConfigurable || model.effortNativeByLevel) continue
+      // Without a native effort map, thinkingConfigurable models scale a real
+      // token budget — every point on the abstract scale is meaningful.
       expect([...(model.supportedEffortLevels ?? ALL_LEVELS)].sort(), model.id).toEqual(
         [...ALL_LEVELS].sort(),
       )
+    }
+  })
+
+  it('native-effort models declare a map whose keys exactly match supportedEffortLevels', () => {
+    for (const model of MODELS) {
+      if (!model.effortNativeByLevel) continue
+      // A native map implies a controllable reasoning param.
+      expect(model.thinkingConfigurable, `${model.id} has a map but is not configurable`).toBe(true)
+      const mapKeys = Object.keys(model.effortNativeByLevel).sort()
+      expect(mapKeys, `${model.id} map keys != supportedEffortLevels`).toEqual(
+        [...(model.supportedEffortLevels ?? [])].sort(),
+      )
+      // The default level must resolve to a native value.
+      expect(
+        model.effortNativeByLevel[DEFAULT_LEVEL],
+        `${model.id} map omits the default level`,
+      ).toBeTruthy()
+      // Native values are non-empty distinct strings (monotonicity is curated,
+      // not machine-checkable across provider scales).
+      const values = Object.values(model.effortNativeByLevel)
+      for (const value of values) {
+        expect(typeof value, model.id).toBe('string')
+        expect((value as string).length, `${model.id} has an empty native value`).toBeGreaterThan(0)
+      }
+      expect(new Set(values).size, `${model.id} maps two levels to one native value`).toBe(
+        values.length,
+      )
+    }
+  })
+
+  it('current Anthropic adaptive-thinking models carry a native effort map (budget_tokens would 400)', () => {
+    // Fable 5 / Opus 4.8 / Sonnet 5 reject budget_tokens outright; the 4.6
+    // family deprecates it. Only Haiku 4.5 stays on the legacy budget path.
+    for (const model of MODELS) {
+      if (model.provider !== 'anthropic') continue
+      if (model.id.startsWith('claude-haiku-')) {
+        expect(model.effortNativeByLevel, model.id).toBeUndefined()
+      } else {
+        expect(model.effortNativeByLevel, `${model.id} must use adaptive + effort`).toBeDefined()
+      }
     }
   })
 

@@ -95,6 +95,29 @@ export interface ModelDefinition {
    * a model's supported set. This is curated data the team can tune later.
    */
   supportedEffortLevels?: EffortLevel[]
+  /**
+   * Provider-NATIVE reasoning-effort value sent for each supported abstract
+   * level — the wire value the provider bond puts in its effort param (Anthropic
+   * `output_config.effort`, OpenAI-compatible `reasoning_effort`, Gemini
+   * `thinking_level`, …).
+   *
+   * Semantics:
+   * - **Present** → this model is driven by a native effort/level param, NOT a
+   *   token budget. The chat handler resolves the (clamped) abstract level to
+   *   this map's value and passes it as `thinking.effort`; bonds prefer it over
+   *   `budgetTokens`. Keys MUST match `supportedEffortLevels` and be monotone on
+   *   the provider's own scale (S < M < L < XL). Convention: **`M` maps to the
+   *   provider's default/recommended level for agentic coding** on this model —
+   *   the level a user gets without touching `/effort`.
+   * - **Absent** → the legacy token-budget path: effort scales
+   *   `thinkingBudgetTokens` (e.g. Claude Haiku 4.5's `budget_tokens`), or does
+   *   nothing beyond the loop budget when `thinkingConfigurable` is false.
+   *
+   * CRITICAL for Anthropic 4.6+ models (Fable 5, Opus 4.8/4.6, Sonnet 5 / 4.6):
+   * these MUST carry this map — sending `budget_tokens` returns a 400 on
+   * Fable 5 / Opus 4.8 / Sonnet 5 and is deprecated on the 4.6 family.
+   */
+  effortNativeByLevel?: Partial<Record<EffortLevel, string>>
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */
