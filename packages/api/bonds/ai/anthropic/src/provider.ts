@@ -13,6 +13,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  TokenUsage,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
@@ -34,6 +35,25 @@ interface AnthropicStreamState {
   cacheReadInputTokens: number
   pendingTool: { id: string; name: string; inputJson: string } | null
   pendingThinking: string | null
+}
+
+/**
+ * Builds a `TokenUsage` from the stream state's provider-reported counters —
+ * shared by the mid-stream `usage` snapshots and the terminal `done` event so
+ * the two can never diverge.
+ *
+ * @param state - The streaming parser state.
+ * @returns The usage counters accumulated so far.
+ */
+function snapshotUsage(state: AnthropicStreamState): TokenUsage {
+  return {
+    inputTokens: state.inputTokens,
+    outputTokens: state.outputTokens,
+    ...(state.cacheCreationInputTokens
+      ? { cacheCreationInputTokens: state.cacheCreationInputTokens }
+      : {}),
+    ...(state.cacheReadInputTokens ? { cacheReadInputTokens: state.cacheReadInputTokens } : {}),
+  }
 }
 
 /**
@@ -423,17 +443,7 @@ class AnthropicAIProvider implements AIProvider {
       reader.releaseLock()
     }
 
-    yield {
-      type: 'done',
-      usage: {
-        inputTokens: state.inputTokens,
-        outputTokens: state.outputTokens,
-        ...(state.cacheCreationInputTokens
-          ? { cacheCreationInputTokens: state.cacheCreationInputTokens }
-          : {}),
-        ...(state.cacheReadInputTokens ? { cacheReadInputTokens: state.cacheReadInputTokens } : {}),
-      },
-    }
+    yield { type: 'done', usage: snapshotUsage(state) }
   }
 
   /**
@@ -518,7 +528,13 @@ class AnthropicAIProvider implements AIProvider {
           }
         } else if (eventType === 'message_delta') {
           const usage = event.usage as { output_tokens?: number } | undefined
-          if (usage?.output_tokens) state.outputTokens = usage.output_tokens
+          if (usage?.output_tokens) {
+            state.outputTokens = usage.output_tokens
+            // Metering snapshot (latest wins): if the stream is cut after this
+            // point, the consumer books these provider-reported counts instead
+            // of dropping the turn (see the ChatEvent 'usage' contract).
+            yield { type: 'usage', usage: snapshotUsage(state) }
+          }
         } else if (eventType === 'message_start') {
           const message = event.message as Record<string, unknown>
           const usage = message?.usage as
@@ -533,6 +549,13 @@ class AnthropicAIProvider implements AIProvider {
             state.cacheCreationInputTokens = usage.cache_creation_input_tokens
           if (usage?.cache_read_input_tokens)
             state.cacheReadInputTokens = usage.cache_read_input_tokens
+          // message_start carries the FULL input-side counts (fresh + cache read
+          // + cache write) before any output streams — for long-context agentic
+          // turns this is the bulk of the turn's cost. Snapshot it immediately so
+          // an abort mid-generation still meters the input the provider bills.
+          if (usage) {
+            yield { type: 'usage', usage: snapshotUsage(state) }
+          }
         }
       } catch (error) {
         logger.debug('Skipping malformed SSE JSON line', { json, error })

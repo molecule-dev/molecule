@@ -56,6 +56,17 @@ export type ChatEvent =
   // in-flight tool card before the args finish). It is never echoed wholesale to
   // the client. Optional so non-streaming/legacy providers can omit it.
   | { type: 'tool_input_delta'; id: string; chars: number; text?: string }
+  // Incremental usage SNAPSHOT — the provider's own token counts as reported so
+  // far on the wire (e.g. Anthropic's message_start carries the full input +
+  // cache token counts before any output streams). LATEST WINS; `done.usage`
+  // remains the authoritative final figure. METERING CONTRACT: consumers MUST
+  // retain the latest snapshot and book it when a stream ends WITHOUT a `done`
+  // (client abort, disconnect, progress timeout, provider error) — the upstream
+  // provider bills those tokens even though the stream was cut, and dropping
+  // them silently under-meters real spend. Providers whose wire protocol only
+  // reports usage at stream end (OpenAI-compatible `include_usage`) cannot emit
+  // mid-stream snapshots; consumers must estimate aborted turns for those.
+  | { type: 'usage'; usage: TokenUsage }
   | { type: 'done'; usage: TokenUsage }
   | { type: 'error'; message: string; errorKey?: string }
   // Liveness signal. PROVIDER CONTRACT: every streaming provider MUST yield

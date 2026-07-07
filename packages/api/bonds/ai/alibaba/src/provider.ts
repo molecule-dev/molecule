@@ -30,6 +30,7 @@ import type { AlibabaConfig } from './types.js'
 interface AlibabaStreamState {
   inputTokens: number
   outputTokens: number
+  cacheReadTokens: number
 }
 
 // DashScope's native reasoning control is `enable_thinking` + `thinking_budget`
@@ -340,12 +341,23 @@ class AlibabaAIProvider implements AIProvider {
       }
     }
 
-    const usage = data.usage as { prompt_tokens?: number; completion_tokens?: number } | undefined
+    const usage = data.usage as
+      | {
+          prompt_tokens?: number
+          completion_tokens?: number
+          prompt_tokens_details?: { cached_tokens?: number }
+        }
+      | undefined
+    // prompt_tokens INCLUDES cached tokens on OpenAI-compatible APIs — report
+    // the cached portion separately (cacheReadPricePerMTok) and only the fresh
+    // remainder as inputTokens, matching the other bonds' semantics.
+    const cachedTokens = usage?.prompt_tokens_details?.cached_tokens ?? 0
     yield {
       type: 'done',
       usage: {
-        inputTokens: usage?.prompt_tokens ?? 0,
+        inputTokens: Math.max(0, (usage?.prompt_tokens ?? 0) - cachedTokens),
         outputTokens: usage?.completion_tokens ?? 0,
+        ...(cachedTokens ? { cacheReadInputTokens: cachedTokens } : {}),
       },
     }
   }
@@ -370,7 +382,7 @@ class AlibabaAIProvider implements AIProvider {
 
     const decoder = new TextDecoder()
     let buffer = ''
-    const state: AlibabaStreamState = { inputTokens: 0, outputTokens: 0 }
+    const state: AlibabaStreamState = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0 }
 
     // Track pending tool calls (accumulated across deltas)
     const pendingTools: Map<number, { id: string; name: string; args: string }> = new Map()
@@ -421,11 +433,14 @@ class AlibabaAIProvider implements AIProvider {
       reader.releaseLock()
     }
 
+    // See the non-streaming path: cached tokens are reported separately and
+    // subtracted from inputTokens (prompt_tokens includes them).
     yield {
       type: 'done',
       usage: {
-        inputTokens: state.inputTokens,
+        inputTokens: Math.max(0, state.inputTokens - state.cacheReadTokens),
         outputTokens: state.outputTokens,
+        ...(state.cacheReadTokens ? { cacheReadInputTokens: state.cacheReadTokens } : {}),
       },
     }
   }
@@ -454,11 +469,17 @@ class AlibabaAIProvider implements AIProvider {
 
         // Usage info (may appear in the final chunk)
         const usage = event.usage as
-          | { prompt_tokens?: number; completion_tokens?: number }
+          | {
+              prompt_tokens?: number
+              completion_tokens?: number
+              prompt_tokens_details?: { cached_tokens?: number }
+            }
           | undefined
         if (usage) {
           if (usage.prompt_tokens) state.inputTokens = usage.prompt_tokens
           if (usage.completion_tokens) state.outputTokens = usage.completion_tokens
+          if (usage.prompt_tokens_details?.cached_tokens)
+            state.cacheReadTokens = usage.prompt_tokens_details.cached_tokens
         }
 
         const choices = event.choices as Array<Record<string, unknown>> | undefined
