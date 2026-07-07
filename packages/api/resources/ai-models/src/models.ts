@@ -561,6 +561,18 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepSeek automatic context cache: absolute cache-hit price ($/M).
     cacheReadPricePerMTok: 0.003625,
     cacheWritePricePerMTok: 0.435,
+    // Announced for the mid-Jul 2026 "V4 official" release: 2× pricing during
+    // Beijing business hours (09:00–12:00 + 14:00–18:00 CST = 01:00–04:00 +
+    // 06:00–10:00 UTC). Pre-wired CONSERVATIVELY (we'd rather over-meter for a
+    // few days than under-meter peak traffic) — re-verify windows/multiplier
+    // against api-docs.deepseek.com when the release lands.
+    peakPricing: {
+      windows: [
+        { startMinuteUtc: 60, endMinuteUtc: 240 },
+        { startMinuteUtc: 360, endMinuteUtc: 600 },
+      ],
+      multiplier: 2,
+    },
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
   },
@@ -589,6 +601,14 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepSeek automatic context cache: absolute cache-hit price ($/M).
     cacheReadPricePerMTok: 0.0028,
     cacheWritePricePerMTok: 0.14,
+    // Same announced peak-hour pricing as deepseek-v4-pro (see that entry).
+    peakPricing: {
+      windows: [
+        { startMinuteUtc: 60, endMinuteUtc: 240 },
+        { startMinuteUtc: 360, endMinuteUtc: 600 },
+      ],
+      multiplier: 2,
+    },
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
   },

@@ -59,3 +59,29 @@ export function getAvailableModels(
     availableProviders instanceof Set ? availableProviders : new Set(availableProviders)
   return MODELS.filter((m) => providerSet.has(m.provider) && !m.disabled)
 }
+
+/**
+ * The price multiplier in effect for a model at a given instant.
+ *
+ * Consults the model's {@link ModelDefinition.peakPricing} windows (UTC,
+ * half-open, may wrap midnight). Metering MUST call this with each request's
+ * own timestamp so peak-hour usage bills at the provider's real rate — pricing
+ * everything at the flat rate silently under-meters peak traffic.
+ *
+ * @param modelDef - The model definition (or undefined).
+ * @param at - The instant the request was made.
+ * @returns The multiplier (`1` outside peak windows or when none are declared).
+ */
+export function priceMultiplierAt(modelDef: ModelDefinition | undefined, at: Date): number {
+  const peak = modelDef?.peakPricing
+  if (!peak || peak.windows.length === 0) return 1
+  const minute = at.getUTCHours() * 60 + at.getUTCMinutes()
+  for (const w of peak.windows) {
+    const inWindow =
+      w.startMinuteUtc <= w.endMinuteUtc
+        ? minute >= w.startMinuteUtc && minute < w.endMinuteUtc
+        : minute >= w.startMinuteUtc || minute < w.endMinuteUtc
+    if (inWindow) return peak.multiplier
+  }
+  return 1
+}

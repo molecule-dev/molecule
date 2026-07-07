@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { getAvailableModels, getModel, getModelsByProvider, MODEL_IDS } from '../lookup.js'
+import {
+  getAvailableModels,
+  getModel,
+  getModelsByProvider,
+  MODEL_IDS,
+  priceMultiplierAt,
+} from '../lookup.js'
 import { MODELS } from '../models.js'
 
 // ---------------------------------------------------------------------------
@@ -376,6 +382,54 @@ describe('model data integrity', () => {
     for (const model of MODELS) {
       expect(model.inputPricePerMTok).toBeGreaterThan(0)
       expect(model.outputPricePerMTok).toBeGreaterThan(0)
+    }
+  })
+})
+
+describe('priceMultiplierAt (peak-hour pricing)', () => {
+  const peakModel = {
+    ...MODELS.find((m) => m.id === 'deepseek-v4-flash')!,
+    peakPricing: {
+      windows: [
+        { startMinuteUtc: 60, endMinuteUtc: 240 }, // 01:00–04:00 UTC
+        { startMinuteUtc: 360, endMinuteUtc: 600 }, // 06:00–10:00 UTC
+      ],
+      multiplier: 2,
+    },
+  }
+
+  it('returns the multiplier inside a peak window and 1 outside', () => {
+    expect(priceMultiplierAt(peakModel, new Date('2026-07-20T00:30:00Z'))).toBe(1)
+    expect(priceMultiplierAt(peakModel, new Date('2026-07-20T01:00:00Z'))).toBe(2)
+    expect(priceMultiplierAt(peakModel, new Date('2026-07-20T03:59:00Z'))).toBe(2)
+    // Half-open: the end minute itself is off-peak.
+    expect(priceMultiplierAt(peakModel, new Date('2026-07-20T04:00:00Z'))).toBe(1)
+    expect(priceMultiplierAt(peakModel, new Date('2026-07-20T07:00:00Z'))).toBe(2)
+    expect(priceMultiplierAt(peakModel, new Date('2026-07-20T10:00:00Z'))).toBe(1)
+  })
+
+  it('supports windows that wrap midnight', () => {
+    const wrap = {
+      ...peakModel,
+      peakPricing: { windows: [{ startMinuteUtc: 1380, endMinuteUtc: 120 }], multiplier: 1.5 }, // 23:00–02:00
+    }
+    expect(priceMultiplierAt(wrap, new Date('2026-07-20T23:30:00Z'))).toBe(1.5)
+    expect(priceMultiplierAt(wrap, new Date('2026-07-20T01:00:00Z'))).toBe(1.5)
+    expect(priceMultiplierAt(wrap, new Date('2026-07-20T02:00:00Z'))).toBe(1)
+    expect(priceMultiplierAt(wrap, new Date('2026-07-20T12:00:00Z'))).toBe(1)
+  })
+
+  it('returns 1 for models without peak pricing and for unknown models', () => {
+    const flat = MODELS.find((m) => m.id === 'claude-sonnet-5')!
+    expect(priceMultiplierAt(flat, new Date('2026-07-20T02:00:00Z'))).toBe(1)
+    expect(priceMultiplierAt(undefined, new Date('2026-07-20T02:00:00Z'))).toBe(1)
+  })
+
+  it('the DeepSeek catalog entries carry the announced peak windows (conservative pre-wire)', () => {
+    for (const id of ['deepseek-v4-pro', 'deepseek-v4-flash']) {
+      const model = MODELS.find((m) => m.id === id)!
+      expect(model.peakPricing?.multiplier, id).toBe(2)
+      expect(model.peakPricing?.windows.length, id).toBe(2)
     }
   })
 })

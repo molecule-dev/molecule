@@ -171,6 +171,21 @@ export interface ModelDefinition {
    * cache-emitting bond can never silently bill cache writes at `0`.
    */
   cacheWritePricePerMTok: number
+  /**
+   * Optional provider peak-hour pricing: during the listed UTC windows, ALL of
+   * this model's token prices (input, output, cache read/write) bill at
+   * `multiplier × ` the listed rates. Metering MUST price each request by its
+   * own timestamp via `priceMultiplierAt()` — never assume the flat rate — or
+   * peak-hour usage is under-metered and the platform eats the difference
+   * (e.g. DeepSeek's announced 2× Beijing-business-hours pricing).
+   *
+   * Windows are minutes-since-midnight UTC, half-open `[start, end)`; a window
+   * may wrap midnight (`start > end`).
+   */
+  peakPricing?: {
+    windows: { startMinuteUtc: number; endMinuteUtc: number }[]
+    multiplier: number
+  }
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
   /**
