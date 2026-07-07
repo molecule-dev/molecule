@@ -73,6 +73,14 @@ export class OpenaiAIProvider implements AIProvider {
     }
     if (params.temperature !== undefined) body.temperature = params.temperature
 
+    // Reasoning depth: the caller resolves the model's native reasoning_effort
+    // value (none | low | medium | high | xhigh on GPT-5.4/5.5-family) from the
+    // model catalog and passes it as `thinking.effort`. Without it, omit the
+    // param entirely (the model's own default applies — medium on gpt-5.5).
+    if (params.thinking?.effort) {
+      body.reasoning_effort = params.thinking.effort
+    }
+
     const tools = params.tools?.length ? this.formatTools(params.tools) : null
     if (tools) {
       body.tools = tools

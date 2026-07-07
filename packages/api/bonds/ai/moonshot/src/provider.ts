@@ -90,7 +90,12 @@ class MoonshotAIProvider implements AIProvider {
     }
 
     if (params.thinking) {
-      body.reasoning_effort = budgetToEffort(params.thinking.budgetTokens)
+      // Prefer a caller-resolved native value from the model catalog; fall back
+      // to the budget threshold. NOTE: Moonshot's official docs expose only
+      // thinking on/off (no documented reasoning_effort) — current kimi catalog
+      // entries are fixed-effort (['M']) and never set params.thinking, so this
+      // branch only fires for explicit callers.
+      body.reasoning_effort = params.thinking.effort ?? budgetToEffort(params.thinking.budgetTokens)
     } else {
       // Default: read from env so callers can tune kimi's reasoning level
       // without touching code. Supported values:

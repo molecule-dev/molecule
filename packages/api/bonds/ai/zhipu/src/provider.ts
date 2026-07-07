@@ -33,7 +33,12 @@ interface ZhipuStreamState {
 }
 
 /**
- * Map thinking budget tokens to Zhipu reasoning_effort level (only 'low' or 'high' supported).
+ * Fallback: map thinking budget tokens to a Zhipu reasoning_effort level when
+ * the caller didn't resolve a native value from the model catalog. Note
+ * `reasoning_effort` is only honored on glm-5.2+ (values minimal | none | low |
+ * medium | high | xhigh | max; low/medium coerce to high, xhigh to max) —
+ * callers should prefer passing `thinking.effort`; older GLM models only
+ * support thinking on/off and should not receive a thinking param at all.
  *
  * @param budgetTokens - Requested thinking budget in tokens.
  * @returns Either `'high'` or `'low'` for the upstream effort hint.
@@ -90,7 +95,9 @@ class ZhipuAIProvider implements AIProvider {
     }
 
     if (params.thinking) {
-      body.reasoning_effort = budgetToEffort(params.thinking.budgetTokens)
+      // Prefer the caller-resolved native value (minimal | high | max on
+      // glm-5.2, from the model catalog); fall back to the budget threshold.
+      body.reasoning_effort = params.thinking.effort ?? budgetToEffort(params.thinking.budgetTokens)
     } else if (params.temperature !== undefined) {
       body.temperature = params.temperature
     }

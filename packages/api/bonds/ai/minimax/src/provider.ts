@@ -33,13 +33,15 @@ interface MiniMaxStreamState {
 }
 
 /**
- * Map thinking budget tokens to MiniMax reasoning_effort level (only 'low' or 'high' supported).
+ * Whether a model id is a MiniMax M3-family model. Only M3 accepts the
+ * `thinking: {type: "adaptive" | "disabled"}` control — M2.x thinking is
+ * always on and cannot be configured, and sending the param there is invalid.
  *
- * @param budgetTokens - The budget token count to map.
- * @returns Either `'high'` or `'low'` for the upstream effort hint.
+ * @param model - The model id (catalog `minimax-m3` or native `MiniMax-M3`).
+ * @returns `true` for M3-family model ids.
  */
-function budgetToEffort(budgetTokens: number): string {
-  return budgetTokens >= 8_000 ? 'high' : 'low'
+function isM3Family(model: string): boolean {
+  return /^minimax-m3/i.test(model)
 }
 
 /**
@@ -89,9 +91,19 @@ class MiniMaxAIProvider implements AIProvider {
       body.tools = allTools
     }
 
-    if (params.thinking) {
-      body.reasoning_effort = budgetToEffort(params.thinking.budgetTokens)
-    } else if (params.temperature !== undefined) {
+    // MiniMax's native API has no reasoning_effort / thinking budget. M3 takes
+    // `thinking: {type: "adaptive" | "disabled"}` (the OpenAI-compatible
+    // endpoint defaults to adaptive when omitted); M2.x thinking is always on
+    // and takes no param. Synthase runs M3 as a non-thinking executor (like
+    // DeepSeek), so explicitly disable unless thinking was requested.
+    if (isM3Family(model)) {
+      body.thinking = { type: params.thinking ? 'adaptive' : 'disabled' }
+    }
+    // Keep thinking out of the visible message: with reasoning_split, thinking
+    // arrives in `reasoning_content` (parsed below) instead of inline
+    // <think>…</think> text inside `content`.
+    body.reasoning_split = true
+    if (!params.thinking && params.temperature !== undefined) {
       body.temperature = params.temperature
     }
 

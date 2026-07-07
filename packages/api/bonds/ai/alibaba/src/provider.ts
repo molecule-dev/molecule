@@ -32,15 +32,9 @@ interface AlibabaStreamState {
   outputTokens: number
 }
 
-/**
- * Map thinking budget tokens to reasoning_effort level (only 'low' or 'high' supported).
- *
- * @param budgetTokens - Requested thinking budget in tokens.
- * @returns Either 'high' or 'low' for the upstream effort hint.
- */
-function budgetToEffort(budgetTokens: number): string {
-  return budgetTokens >= 8_000 ? 'high' : 'low'
-}
+// DashScope's native reasoning control is `enable_thinking` + `thinking_budget`
+// (a token cap) — there is no `reasoning_effort` param on Alibaba's
+// compatible-mode endpoint, so the abstract budget maps directly.
 
 /**
  * Alibaba Qwen AI provider that implements the `AIProvider` interface
@@ -94,7 +88,12 @@ class AlibabaAIProvider implements AIProvider {
     }
 
     if (params.thinking) {
-      body.reasoning_effort = budgetToEffort(params.thinking.budgetTokens)
+      // Hybrid-thinking models (qwen3.7 series): enable thinking with a token
+      // cap scaled by the effort level. Non-thinking models (qwen3-coder-*)
+      // never receive a thinking param (their catalog entries are
+      // thinkingConfigurable: false, so callers don't set params.thinking).
+      body.enable_thinking = true
+      body.thinking_budget = params.thinking.budgetTokens
     } else if (params.temperature !== undefined) {
       body.temperature = params.temperature
     }

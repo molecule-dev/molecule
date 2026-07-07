@@ -278,21 +278,58 @@ describe('chat()', () => {
     expect(err.message).toMatch(/Conversation too long/i)
   })
 
-  it('thinking enabled → reasoning_effort high/low by budget', async () => {
+  it('M3: thinking requested → thinking adaptive; omitted → explicitly disabled', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(
+    // Fresh Response per call — a Body can only be consumed once.
+    fetch.mockImplementation(() =>
       jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
     )
     const provider = createProvider({ apiKey: 'k' })
     for await (const _ of provider.chat({
+      model: 'minimax-m3',
       messages: [{ role: 'user', content: 'h' }],
       stream: false,
       thinking: { type: 'enabled', budgetTokens: 16_000 },
     })) {
       // drain
     }
+    let body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    // MiniMax has no reasoning_effort; M3's control is thinking.type.
+    expect(body.thinking).toEqual({ type: 'adaptive' })
+    expect(body.reasoning_effort).toBeUndefined()
+    // Thinking must land in reasoning_content, not inline <think> text.
+    expect(body.reasoning_split).toBe(true)
+
+    // Omitted thinking → M3 is explicitly disabled (the OpenAI-compatible
+    // endpoint would otherwise default to adaptive).
+    for await (const _ of provider.chat({
+      model: 'minimax-m3',
+      messages: [{ role: 'user', content: 'h' }],
+      stream: false,
+    })) {
+      // drain
+    }
+    body = JSON.parse((fetch.mock.calls[1][1] as RequestInit).body as string)
+    expect(body.thinking).toEqual({ type: 'disabled' })
+  })
+
+  it('M2.x: never sends a thinking param (always-on upstream, not configurable)', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      model: 'minimax-m2.7',
+      messages: [{ role: 'user', content: 'h' }],
+      stream: false,
+    })) {
+      // drain
+    }
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
-    expect(body.reasoning_effort).toBe('high')
+    expect(body.thinking).toBeUndefined()
+    expect(body.reasoning_effort).toBeUndefined()
+    expect(body.reasoning_split).toBe(true)
   })
 })
 

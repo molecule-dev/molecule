@@ -111,7 +111,9 @@ class DeepseekAIProviderImpl implements AIProvider {
     // chat handler gates that on the model's `supportsThinking` flag.
     if (params.thinking) {
       body.thinking = { type: 'enabled' }
-      body.reasoning_effort = budgetToEffort(params.thinking.budgetTokens)
+      // Prefer a caller-resolved native value ('high' | 'max') from the model
+      // catalog; fall back to the budget threshold.
+      body.reasoning_effort = params.thinking.effort ?? budgetToEffort(params.thinking.budgetTokens)
     } else {
       body.thinking = { type: 'disabled' }
       if (params.temperature !== undefined) {
