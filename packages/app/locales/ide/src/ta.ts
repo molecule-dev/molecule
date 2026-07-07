@@ -44,6 +44,12 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'திட்ட முறைக்கு மாற்றப்பட்டது',
   'ide.chat.switchedToExecute': 'செயல்படுத்தும் முறைக்கு மாற்றப்பட்டது',
   'ide.chat.costError': 'பயன்பாட்டுத் தரவைப் பெற முடியவில்லை.',
+  'ide.chat.usageAllowanceLine':
+    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.models.colUsageRate': 'Usage rate',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.undoNoChanges': 'செயல்தவிர்க்க வேண்டிய கோப்பு மாற்றங்கள் எதுவும் இல்லை.',
   'ide.chat.undoComplete': 'மாற்றங்களை மீளப்பெற முடியவில்லை.',
   'ide.chat.commitNoChanges': 'உறுதிப்படுத்த எந்த மாற்றங்களும் இல்லை.',
@@ -281,11 +287,9 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
-  'ide.chat.models.colCost': 'Cost / 1M',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
   'ide.chat.models.colName': 'Model',
-  'ide.chat.models.costBreakdown': 'Input ${{input}} + output ${{output}} per 1M tokens',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Free',
   'ide.chat.models.sortBy': 'Sort by {{column}}',
@@ -302,8 +306,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.costSummary':
-    'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
+  'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',

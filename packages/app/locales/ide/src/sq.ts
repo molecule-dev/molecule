@@ -45,6 +45,12 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Kaloi në modalitetin e planit',
   'ide.chat.switchedToExecute': 'Kaloi në modalitetin e ekzekutimit',
   'ide.chat.costError': 'Nuk mund të merren të dhënat e përdorimit.',
+  'ide.chat.usageAllowanceLine':
+    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.models.colUsageRate': 'Usage rate',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.undoNoChanges': "Nuk ka ndryshime në skedar për t'u anuluar.",
   'ide.chat.undoComplete': 'Rikthimi i ndryshimeve dështoi.',
   'ide.chat.commitNoChanges': "Nuk ka ndryshime për t'u kryer.",
@@ -282,11 +288,9 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
-  'ide.chat.models.colCost': 'Cost / 1M',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
   'ide.chat.models.colName': 'Model',
-  'ide.chat.models.costBreakdown': 'Input ${{input}} + output ${{output}} per 1M tokens',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Free',
   'ide.chat.models.sortBy': 'Sort by {{column}}',
@@ -303,8 +307,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.costSummary':
-    'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
+  'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',

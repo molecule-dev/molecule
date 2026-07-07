@@ -59,6 +59,12 @@ export const en: IdeTranslations = {
   'ide.chat.switchedToPlan': 'Switched to plan mode',
   'ide.chat.switchedToExecute': 'Switched to execute mode',
   'ide.chat.costError': 'Unable to fetch usage data.',
+  'ide.chat.usageAllowanceLine':
+    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.models.colUsageRate': 'Usage rate',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.undoNoChanges': 'No file changes to undo.',
   'ide.chat.undoComplete': 'Failed to revert changes.',
   'ide.chat.commitNoChanges': 'No changes to commit.',
@@ -330,11 +336,9 @@ export const en: IdeTranslations = {
     "{{level}} isn't available for {{model}}. Available: {{levels}}",
   // Models table + model selection (/model, /models).
   'ide.chat.models.colContext': 'Context',
-  'ide.chat.models.colCost': 'Cost / 1M',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
   'ide.chat.models.colName': 'Model',
-  'ide.chat.models.costBreakdown': 'Input ${{input}} + output ${{output}} per 1M tokens',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Free',
   'ide.chat.models.sortBy': 'Sort by {{column}}',
@@ -358,8 +362,7 @@ export const en: IdeTranslations = {
   'ide.chat.modelSortDirection': 'Toggle sort direction',
   // Verification counts / summaries (the {{files}}/{{model}}/{{count}} data
   // is supplied by the call site; the bond translates only the surrounding copy).
-  'ide.chat.costSummary':
-    'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens\nTotal cost this conversation (all models): ~${{cost}}',
+  'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',

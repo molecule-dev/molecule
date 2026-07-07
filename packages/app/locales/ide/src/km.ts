@@ -44,6 +44,12 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'បានប្តូរទៅរបៀបផែនការ',
   'ide.chat.switchedToExecute': 'បានប្តូរទៅរបៀបប្រតិបត្តិ',
   'ide.chat.costError': 'មិនអាចទាញយកទិន្នន័យប្រើប្រាស់បានទេ។',
+  'ide.chat.usageAllowanceLine':
+    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.models.colUsageRate': 'Usage rate',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.undoNoChanges': 'គ្មានការផ្លាស់ប្តូរឯកសារដើម្បីមិនធ្វើវិញទេ។',
   'ide.chat.undoComplete': 'បរាជ័យក្នុងការត្រឡប់ការផ្លាស់ប្តូរ។',
   'ide.chat.commitNoChanges': 'គ្មានការផ្លាស់ប្តូរដើម្បីប្តេជ្ញាចិត្តទេ។',
@@ -278,11 +284,9 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
-  'ide.chat.models.colCost': 'Cost / 1M',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
   'ide.chat.models.colName': 'Model',
-  'ide.chat.models.costBreakdown': 'Input ${{input}} + output ${{output}} per 1M tokens',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Free',
   'ide.chat.models.sortBy': 'Sort by {{column}}',
@@ -299,8 +303,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.costSummary':
-    'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
+  'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',

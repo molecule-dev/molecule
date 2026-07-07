@@ -44,6 +44,12 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'योजना मोडमा स्विच गरियो',
   'ide.chat.switchedToExecute': 'कार्यान्वयन मोडमा स्विच गरियो',
   'ide.chat.costError': 'प्रयोग डेटा प्राप्त गर्न असमर्थ।',
+  'ide.chat.usageAllowanceLine':
+    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.models.colUsageRate': 'Usage rate',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.undoNoChanges': 'अन्डू गर्न कुनै फाइल परिवर्तनहरू छैनन्।',
   'ide.chat.undoComplete': 'परिवर्तनहरू उल्टाउन असफल भयो।',
   'ide.chat.commitNoChanges': 'प्रतिबद्ध गर्न कुनै परिवर्तन छैन।',
@@ -277,11 +283,9 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
-  'ide.chat.models.colCost': 'Cost / 1M',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
   'ide.chat.models.colName': 'Model',
-  'ide.chat.models.costBreakdown': 'Input ${{input}} + output ${{output}} per 1M tokens',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Free',
   'ide.chat.models.sortBy': 'Sort by {{column}}',
@@ -298,8 +302,7 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.costSummary':
-    'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
+  'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',

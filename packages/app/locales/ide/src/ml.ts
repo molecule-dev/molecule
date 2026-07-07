@@ -44,6 +44,12 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'പ്ലാൻ മോഡിലേക്ക് മാറി',
   'ide.chat.switchedToExecute': 'എക്സിക്യൂട്ട് മോഡിലേക്ക് മാറി',
   'ide.chat.costError': 'ഉപയോഗ ഡാറ്റ ലഭ്യമാക്കാൻ കഴിയുന്നില്ല.',
+  'ide.chat.usageAllowanceLine':
+    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.models.colUsageRate': 'Usage rate',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.undoNoChanges': 'പഴയപടിയാക്കാൻ ഫയൽ മാറ്റങ്ങളൊന്നുമില്ല.',
   'ide.chat.undoComplete': 'മാറ്റങ്ങൾ പഴയപടിയാക്കാനായില്ല.',
   'ide.chat.commitNoChanges': 'മാറ്റങ്ങളൊന്നും വരുത്തേണ്ടതില്ല.',
@@ -280,11 +286,9 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
-  'ide.chat.models.colCost': 'Cost / 1M',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
   'ide.chat.models.colName': 'Model',
-  'ide.chat.models.costBreakdown': 'Input ${{input}} + output ${{output}} per 1M tokens',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Free',
   'ide.chat.models.sortBy': 'Sort by {{column}}',
@@ -301,8 +305,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
-  'ide.chat.costSummary':
-    'Model:  {{model}}\nInput:  {{input}} tokens\nOutput: {{output}} tokens\nCost:   ~${{cost}}',
+  'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',

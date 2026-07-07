@@ -37,6 +37,28 @@ export function modelTotalCost(model: AppModelDefinition): number {
 }
 
 /**
+ * Relative usage rate: how much faster this model consumes the user's AI
+ * allowance than the cheapest available model (a unitless `×N` multiplier,
+ * `1` for the cheapest). Derived from combined input+output list rates. This
+ * is the ONLY per-model "cost" figure user-facing surfaces show — AI usage is
+ * never presented as currency.
+ *
+ * @param model - The model to rate.
+ * @param models - The full available-model list (supplies the cheapest base).
+ * @returns The multiplier, rounded to 1 decimal below 10 and whole above.
+ */
+export function modelUsageRate(
+  model: AppModelDefinition,
+  models: readonly AppModelDefinition[],
+): number {
+  const costs = models.map(modelTotalCost).filter((c) => c > 0)
+  const base = costs.length > 0 ? Math.min(...costs) : 0
+  if (!Number.isFinite(base) || base <= 0) return 1
+  const rate = modelTotalCost(model) / base
+  return rate >= 10 ? Math.round(rate) : Math.max(1, Math.round(rate * 10) / 10)
+}
+
+/**
  * Ascending comparator for two models by the given column. Returns a negative,
  * zero, or positive number suitable for `Array.prototype.sort`. Ties fall back
  * to label order so the sort is stable and deterministic.

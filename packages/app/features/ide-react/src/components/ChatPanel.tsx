@@ -91,7 +91,7 @@ import {
   resolveModeModel,
 } from './chat-model-mode-utilities.js'
 import type { ModelSortColumn, SortDirection } from './chat-models-utilities.js'
-import { sortModels } from './chat-models-utilities.js'
+import { modelUsageRate, sortModels } from './chat-models-utilities.js'
 import type { ReportResult } from './chat-report-utilities.js'
 import { formatReportConfirmation, parseReportCommand } from './chat-report-utilities.js'
 import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
@@ -4517,7 +4517,7 @@ function ChatInner({
           const res = await http.get<{
             inputTokens: number
             outputTokens: number
-            estimatedCost: number
+            allowancePercent?: number | null
             model: string
           }>(usageUrl)
           const d = res.data
@@ -4527,6 +4527,22 @@ function ChatInner({
               : n >= 1_000
                 ? (n / 1_000).toFixed(1) + 'K'
                 : String(n)
+          // AI usage is shown as a UNITLESS share of the allowance — currency
+          // never appears on AI-usage surfaces. The percent is the
+          // whole-conversation total across every model used (P2-04), so
+          // long-lived conversations can exceed 100 (of one day's allowance).
+          const allowanceLine =
+            typeof d.allowancePercent === 'number'
+              ? '\n' +
+                t(
+                  'ide.chat.usageAllowanceLine',
+                  { percent: d.allowancePercent },
+                  {
+                    defaultValue:
+                      "This conversation has used ~{{percent}}% of a day's AI allowance.",
+                  },
+                )
+              : ''
           addSystemCard(
             t(
               'ide.chat.costSummary',
@@ -4534,16 +4550,14 @@ function ChatInner({
                 model: d.model,
                 input: fmt(d.inputTokens),
                 output: fmt(d.outputTokens),
-                cost: d.estimatedCost.toFixed(4),
               },
               {
-                // The figure is the WHOLE-conversation total across every model used,
-                // not just the model shown (P2-04). Keep this in sync with the reworded
-                // ide.chat.costSummary value in the ide locale bond.
+                // Keep this in sync with the ide.chat.costSummary value in the
+                // ide locale bond.
                 defaultValue:
-                  'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens\nTotal cost this conversation (all models): ~${{cost}}',
+                  'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
               },
-            ),
+            ) + allowanceLine,
           )
         } catch (error) {
           logger.warn('Failed to fetch chat usage data', { error })
@@ -6709,7 +6723,7 @@ function ChatInner({
                       {t('ide.chat.models.colContext', undefined, { defaultValue: 'Context' })}
                     </option>
                     <option value="cost">
-                      {t('ide.chat.models.colCost', undefined, { defaultValue: 'Cost / 1M' })}
+                      {t('ide.chat.models.colUsageRate', undefined, { defaultValue: 'Usage rate' })}
                     </option>
                     <option value="cutoff">
                       {t('ide.chat.models.colCutoff', undefined, { defaultValue: 'Cutoff' })}
@@ -6815,13 +6829,17 @@ function ChatInner({
                           FREE_TIER_MODEL,
                         )
                       : isFreeTier && model.id !== FREE_TIER_MODEL
-                    // Price-based color: green ≤$1, yellow ≤$3, red >$3 (input per MTok)
+                    // Relative usage rate vs the cheapest available model — the
+                    // unitless "how fast does this eat my allowance" figure
+                    // shown INSTEAD of currency. Green ≤×5, yellow ≤×25, red
+                    // above.
+                    const usageRate = modelUsageRate(model, AVAILABLE_MODELS)
                     const priceColor =
-                      model.inputPricePerMTok <= 1
+                      usageRate <= 5
                         ? isLight
                           ? 'rgb(22,163,74)'
                           : 'rgb(74,222,128)'
-                        : model.inputPricePerMTok <= 3
+                        : usageRate <= 25
                           ? isLight
                             ? 'rgb(161,98,7)'
                             : 'rgb(250,204,21)'
@@ -6961,10 +6979,20 @@ function ChatInner({
                           <span style={{ fontSize: '11px', opacity: 0.65 }}>
                             {formatTokenCount(model.contextWindow)} ctx ·{' '}
                             {formatTokenCount(model.maxOutputTokens)} out ·{' '}
-                            <span style={{ color: priceColor }}>
-                              ${model.inputPricePerMTok}/{model.outputPricePerMTok}
-                            </span>
-                            /MTok · {model.knowledgeCutoff}
+                            <span
+                              style={{ color: priceColor }}
+                              title={t('ide.chat.models.usageRateHint', undefined, {
+                                defaultValue:
+                                  'How fast this model uses your AI allowance, relative to the most economical model',
+                              })}
+                            >
+                              {t(
+                                'ide.chat.models.usageRateValue',
+                                { rate: usageRate },
+                                { defaultValue: '×{{rate}} usage' },
+                              )}
+                            </span>{' '}
+                            · {model.knowledgeCutoff}
                           </span>
                           {badges.length > 0 && (
                             <span
