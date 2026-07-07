@@ -409,6 +409,70 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
   })
 
   // =========================================================================
+  // Thinking / effort mapping
+  // =========================================================================
+
+  describe('thinking / effort mapping', () => {
+    const emptyStream = () => ({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+          releaseLock: vi.fn(),
+        }),
+      },
+    })
+    const bodyOf = () =>
+      JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
+    const headersOf = () =>
+      (mockFetch.mock.calls[0] as [string, RequestInit])[1].headers as Record<string, string>
+
+    it('native effort → adaptive thinking + output_config.effort (no budget_tokens, no beta)', async () => {
+      mockFetch.mockResolvedValue(emptyStream())
+      await collectEvents(
+        provider.chat({
+          ...minimalParams,
+          model: 'claude-sonnet-5',
+          thinking: { type: 'enabled', budgetTokens: 16_000, effort: 'high' },
+        }),
+      )
+      const body = bodyOf()
+      // budget_tokens is REJECTED (400) on Fable 5 / Opus 4.8 / Sonnet 5 —
+      // adaptive + output_config.effort is the only valid shape.
+      expect(body.thinking).toEqual({ type: 'adaptive' })
+      expect(body.output_config).toEqual({ effort: 'high' })
+      // Adaptive thinking interleaves automatically — no beta flag needed.
+      expect(headersOf()['anthropic-beta']).toBeUndefined()
+    })
+
+    it('no native effort → legacy budget_tokens + interleaved-thinking beta (Haiku 4.5 path)', async () => {
+      mockFetch.mockResolvedValue(emptyStream())
+      await collectEvents(
+        provider.chat({
+          ...minimalParams,
+          model: 'claude-haiku-4-5-20251001',
+          thinking: { type: 'enabled', budgetTokens: 8_000 },
+        }),
+      )
+      const body = bodyOf()
+      expect(body.thinking).toEqual({ type: 'enabled', budget_tokens: 8_000 })
+      expect(body.output_config).toBeUndefined()
+      expect(headersOf()['anthropic-beta']).toContain('interleaved-thinking-2025-05-14')
+    })
+
+    it('thinking omitted → temperature passes through, no thinking config', async () => {
+      mockFetch.mockResolvedValue(emptyStream())
+      await collectEvents(provider.chat({ ...minimalParams, temperature: 0.5 }))
+      const body = bodyOf()
+      expect(body.thinking).toBeUndefined()
+      expect(body.output_config).toBeUndefined()
+      expect(body.temperature).toBe(0.5)
+    })
+  })
+
+  // =========================================================================
   // Base URL fallback
   // =========================================================================
 

@@ -110,8 +110,21 @@ class AnthropicAIProvider implements AIProvider {
     }
     if (params.stream !== false) body.stream = true
 
-    // Thinking requires temperature=1 (default); skip any explicit temperature override
-    if (params.thinking) {
+    // Thinking requires temperature=1 (default); skip any explicit temperature override.
+    //
+    // Two thinking paths, keyed off the caller-resolved native effort value:
+    // - `effort` present (Fable 5, Opus 4.8/4.6, Sonnet 5 / 4.6, per the model
+    //   catalog): adaptive thinking + output_config.effort. Manual
+    //   `budget_tokens` is REJECTED with a 400 on Fable 5 / Opus 4.8 / Sonnet 5
+    //   and deprecated on the 4.6 family, so this path is load-bearing.
+    //   Adaptive thinking auto-enables interleaved thinking — no beta header.
+    // - `effort` absent (Claude Haiku 4.5 and older models): legacy manual
+    //   extended thinking with `budget_tokens` + the interleaved-thinking beta.
+    const nativeEffort = params.thinking?.effort
+    if (params.thinking && nativeEffort) {
+      body.thinking = { type: 'adaptive' }
+      body.output_config = { effort: nativeEffort }
+    } else if (params.thinking) {
       body.thinking = { type: 'enabled', budget_tokens: params.thinking.budgetTokens }
     } else if (params.temperature !== undefined) {
       body.temperature = params.temperature
@@ -123,9 +136,11 @@ class AnthropicAIProvider implements AIProvider {
       'anthropic-version': '2023-06-01',
     }
     // Build anthropic-beta header — features that require beta flags.
-    // Prompt caching is GA (no longer needs a beta flag).
+    // Prompt caching is GA (no longer needs a beta flag). Interleaved thinking
+    // needs its beta flag only on the legacy budget_tokens path — adaptive
+    // thinking interleaves automatically.
     const betaFeatures: string[] = []
-    if (params.thinking) betaFeatures.push('interleaved-thinking-2025-05-14')
+    if (params.thinking && !nativeEffort) betaFeatures.push('interleaved-thinking-2025-05-14')
     if (betaFeatures.length > 0) {
       headers['anthropic-beta'] = betaFeatures.join(',')
     }
