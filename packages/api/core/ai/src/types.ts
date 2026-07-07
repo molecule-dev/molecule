@@ -132,8 +132,21 @@ export interface ChatParams {
   maxTokens?: number
   temperature?: number
   model?: string
-  /** Enable extended thinking. Only supported by Sonnet/Opus models. */
-  thinking?: { type: 'enabled'; budgetTokens: number }
+  /**
+   * Enable extended thinking / reasoning on models that support it.
+   *
+   * `budgetTokens` is the abstract reasoning budget; bonds without a native
+   * token-budget param translate it (e.g. via thresholds) into their provider's
+   * control. `effort` — when present — is the PROVIDER-NATIVE effort value for
+   * the active model, resolved by the caller from the model catalog
+   * (`@molecule/api-resource-ai-models` `effortNativeByLevel`), e.g. Anthropic
+   * `output_config.effort` (`'low' | 'medium' | 'high' | 'xhigh' | 'max'`) or an
+   * OpenAI-compatible `reasoning_effort`. Bonds MUST prefer `effort` over
+   * `budgetTokens` when set: on current Anthropic models (Fable 5 / Opus 4.8 /
+   * Sonnet 5) a raw `budget_tokens` request is rejected with a 400 — adaptive
+   * thinking + effort is the only control.
+   */
+  thinking?: { type: 'enabled'; budgetTokens: number; effort?: string }
   /** Enable prompt caching. Providers that support it will cache system prompts and tools. */
   cacheControl?: { type: 'ephemeral' }
   /** Abort signal to cancel in-flight API requests when the client disconnects. */
