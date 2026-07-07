@@ -3,7 +3,8 @@
  *
  * A click on an in-app `/login` or `/signup` link opens the {@link AuthModal}
  * instead of navigating; a click on `/pricing` or `/billing` opens the upgrade
- * flow in a NEW TAB so the current tab never navigates. These helpers turn a
+ * flow without navigating the current tab — the host's `onUpgradeIntercept`
+ * (e.g. an in-app modal) when provided, else a new tab. These helpers turn a
  * clicked link's href into that decision so the interceptor stays trivial and
  * unit-testable.
  *
@@ -19,7 +20,7 @@ export const DEFAULT_AUTH_PATHS: Readonly<Record<string, AuthModalMode>> = {
   '/signup': 'signup',
 }
 
-/** The default routes that open the upgrade/billing flow in a new tab. */
+/** The default routes that open the upgrade/billing flow (modal or new tab). */
 export const DEFAULT_UPGRADE_PATHS: readonly string[] = ['/pricing', '/billing']
 
 /** Resolve an href to its pathname against `origin`, or `null` if malformed. */
@@ -53,12 +54,12 @@ export function authModeForHref(
 
 /**
  * Whether a CTA link's href points at the upgrade/billing flow (which the
- * interceptor opens in a new tab).
+ * interceptor hands to the host's `onUpgradeIntercept`, else opens in a new tab).
  *
  * @param href - The clicked anchor's href (relative or absolute).
  * @param origin - The page origin to resolve a relative href against.
  * @param upgradePaths - The upgrade paths (defaults to {@link DEFAULT_UPGRADE_PATHS}).
- * @returns The matched pathname (to open in a new tab), else `null`.
+ * @returns The matched pathname, else `null`.
  */
 export function upgradePathForHref(
   href: string | null | undefined,

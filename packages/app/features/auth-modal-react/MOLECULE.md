@@ -31,9 +31,18 @@ interface AuthModalMountProps {
   /**
    * Run when the user returns to this tab after the upgrade tab (the session is
    * already refreshed here) — e.g. invalidate usage so a budget banner clears.
-   * Optional.
+   * Only fires for the default new-tab flow; irrelevant when
+   * {@link AuthModalMountProps.onUpgradeIntercept} is set. Optional.
    */
   onUpgradeReturn?: () => void
+  /**
+   * Take over upgrade/billing CTA clicks instead of opening a new tab: called
+   * with the matched upgrade path (e.g. `/pricing`), navigation already
+   * prevented. The host renders its own upgrade UI (typically a modal) and owns
+   * refreshing the session when that flow completes. Optional — when omitted,
+   * the default new-tab flow (+ focus-return refresh) applies.
+   */
+  onUpgradeIntercept?: (path: string) => void
   /** Override the auth path→mode map (defaults to `/login`,`/signup`). */
   authPaths?: Readonly<Record<string, AuthModalMode>>
   /** Override the upgrade paths opened in a new tab (defaults to `/pricing`,`/billing`). */
@@ -112,6 +121,7 @@ function AuthModalMount({
   onBeforeAuth,
   onAuthenticated,
   onUpgradeReturn,
+  onUpgradeIntercept,
   authPaths = DEFAULT_AUTH_PATHS,
   upgradePaths = DEFAULT_UPGRADE_PATHS,
 }: AuthModalMountProps): JSX.Element
@@ -139,7 +149,7 @@ function authModeForHref(href: string | null | undefined, origin: string, authPa
 #### `upgradePathForHref(href, origin, upgradePaths)`
 
 Whether a CTA link's href points at the upgrade/billing flow (which the
-interceptor opens in a new tab).
+interceptor hands to the host's `onUpgradeIntercept`, else opens in a new tab).
 
 ```typescript
 function upgradePathForHref(href: string | null | undefined, origin: string, upgradePaths?: readonly string[]): string | null
@@ -149,7 +159,7 @@ function upgradePathForHref(href: string | null | undefined, origin: string, upg
 - `origin` — The page origin to resolve a relative href against.
 - `upgradePaths` — The upgrade paths (defaults to {@link DEFAULT_UPGRADE_PATHS}).
 
-**Returns:** The matched pathname (to open in a new tab), else `null`.
+**Returns:** The matched pathname, else `null`.
 
 ### Constants
 
@@ -163,7 +173,7 @@ const DEFAULT_AUTH_PATHS: Readonly<Record<string, AuthModalMode>>
 
 #### `DEFAULT_UPGRADE_PATHS`
 
-The default routes that open the upgrade/billing flow in a new tab.
+The default routes that open the upgrade/billing flow (modal or new tab).
 
 ```typescript
 const DEFAULT_UPGRADE_PATHS: readonly string[]

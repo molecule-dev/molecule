@@ -4,10 +4,13 @@
  * Mount `<AuthModalMount oauthConfig={oauthConfig} />` once inside the app's
  * providers (where the auth hooks work) and every in-app `/login` / `/signup`
  * link opens the {@link AuthModal} instead of navigating, while `/pricing` /
- * `/billing` links open the upgrade flow in a NEW TAB — so the current tab never
- * navigates or reloads and the user never loses their place or work. On returning
- * from the upgrade tab the session is refreshed in place so a completed upgrade
- * reflects without a manual reload.
+ * `/billing` links open the upgrade flow WITHOUT navigating the current tab —
+ * so the user never loses their place or work. By default the upgrade flow
+ * opens in a new tab, and on returning from that tab the session is refreshed
+ * in place so a completed upgrade reflects without a manual reload. A host that
+ * prefers to keep the user fully in place (e.g. an IDE showing pricing in its
+ * own modal) passes `onUpgradeIntercept` to receive the click instead — it then
+ * owns rendering the upgrade UI and refreshing the session afterwards.
  *
  * Nothing here is app-specific by default; an app injects extras (claim guest
  * work, invalidate usage, stash a guest id) via the optional hooks.
@@ -39,9 +42,18 @@ export interface AuthModalMountProps {
   /**
    * Run when the user returns to this tab after the upgrade tab (the session is
    * already refreshed here) — e.g. invalidate usage so a budget banner clears.
-   * Optional.
+   * Only fires for the default new-tab flow; irrelevant when
+   * {@link AuthModalMountProps.onUpgradeIntercept} is set. Optional.
    */
   onUpgradeReturn?: () => void
+  /**
+   * Take over upgrade/billing CTA clicks instead of opening a new tab: called
+   * with the matched upgrade path (e.g. `/pricing`), navigation already
+   * prevented. The host renders its own upgrade UI (typically a modal) and owns
+   * refreshing the session when that flow completes. Optional — when omitted,
+   * the default new-tab flow (+ focus-return refresh) applies.
+   */
+  onUpgradeIntercept?: (path: string) => void
   /** Override the auth path→mode map (defaults to `/login`,`/signup`). */
   authPaths?: Readonly<Record<string, AuthModalMode>>
   /** Override the upgrade paths opened in a new tab (defaults to `/pricing`,`/billing`). */
@@ -59,6 +71,7 @@ export function AuthModalMount({
   onBeforeAuth,
   onAuthenticated,
   onUpgradeReturn,
+  onUpgradeIntercept,
   authPaths = DEFAULT_AUTH_PATHS,
   upgradePaths = DEFAULT_UPGRADE_PATHS,
 }: AuthModalMountProps): JSX.Element {
@@ -85,9 +98,10 @@ export function AuthModalMount({
   }, [refresh, onUpgradeReturn])
 
   // Intercept clicks on the in-app /login, /signup (→ modal) and /pricing, /billing
-  // (→ new tab) CTAs — plain <a href> links from anywhere in the app, incl. ones
-  // opened with target="_blank". Capture-phase + preventDefault stops navigation.
-  // Plain left-clicks only — a modifier/middle click still opens the real page.
+  // (→ host's onUpgradeIntercept, else a new tab) CTAs — plain <a href> links from
+  // anywhere in the app, incl. ones opened with target="_blank". Capture-phase +
+  // preventDefault stops navigation. Plain left-clicks only — a modifier/middle
+  // click still opens the real page.
   useEffect(() => {
     const onClick = (e: MouseEvent): void => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
@@ -109,13 +123,17 @@ export function AuthModalMount({
       if (upgradePath) {
         e.preventDefault()
         e.stopPropagation()
+        if (onUpgradeIntercept) {
+          onUpgradeIntercept(upgradePath)
+          return
+        }
         upgradeTabOpenedRef.current = true
         window.open(upgradePath, '_blank', 'noopener,noreferrer')
       }
     }
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
-  }, [openAuth, authPaths, upgradePaths])
+  }, [openAuth, authPaths, upgradePaths, onUpgradeIntercept])
 
   // Mounted only while open so the auth hooks don't run on every app render.
   return open ? (
