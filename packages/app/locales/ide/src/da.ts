@@ -483,4 +483,5 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Omfattende viden om »{{count}}«',
   'ide.chat.skills.waitingForSandbox': 'Venter på, at sandkassen er færdig med at starte op…',
   'ide.chat.skills.resetDefaults': 'Indlæs alt som standard',
+  'ide.search.excludedDirs': 'Ekskluderede mapper (gælder for alle søgninger, herunder agenten)',
 }

@@ -489,4 +489,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Uitgebreide kennis v{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Wachten tot de sandbox is opgestart…',
   'ide.chat.skills.resetDefaults': 'Standaard alles laden',
+  'ide.search.excludedDirs':
+    'Uitgesloten mappen (geldt voor alle zoekopdrachten, inclusief die van de agent)',
 }

@@ -486,4 +486,5 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Obsežno znanje o »{{count}}«',
   'ide.chat.skills.waitingForSandbox': 'Čakam, da se peskovnik v celoti zažene…',
   'ide.chat.skills.resetDefaults': 'Prikaži vse po privzetku',
+  'ide.search.excludedDirs': 'Izključene mape (velja za vsa iskanja, vključno z agentom)',
 }

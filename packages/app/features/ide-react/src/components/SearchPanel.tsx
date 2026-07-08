@@ -14,6 +14,7 @@ import { useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { SearchPanelProps, SearchResponse, SearchResult } from '../types.js'
+import { DEFAULT_SEARCH_EXCLUDED_DIRS } from '../types.js'
 
 const logger = getLogger('search')
 
@@ -295,6 +296,8 @@ export function SearchPanel({
   projectId,
   onResultClick,
   className,
+  excludedDirs,
+  onExcludedDirsChange,
 }: SearchPanelProps): JSX.Element {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
@@ -307,6 +310,28 @@ export function SearchPanel({
   const [includeGlob, setIncludeGlob] = useState('')
   const [excludeGlob, setExcludeGlob] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+
+  // Excluded-dirs editor (VS Code search.exclude): draft text tracks the prop
+  // (comma-separated); commit on blur/Enter parses, dedupes, and hands the set
+  // to the host to persist — the server applies it to every search surface.
+  const effectiveExcluded = excludedDirs ?? [...DEFAULT_SEARCH_EXCLUDED_DIRS]
+  const [excludedDirsDraft, setExcludedDirsDraft] = useState(effectiveExcluded.join(', '))
+  const excludedPropKey = effectiveExcluded.join(',')
+  useEffect(() => {
+    setExcludedDirsDraft(excludedPropKey.split(',').filter(Boolean).join(', '))
+  }, [excludedPropKey])
+  const commitExcludedDirs = useCallback(() => {
+    const dirs = [
+      ...new Set(
+        excludedDirsDraft
+          .split(',')
+          .map((d) => d.trim())
+          .filter((d) => /^[A-Za-z0-9._-]+$/.test(d)),
+      ),
+    ]
+    setExcludedDirsDraft(dirs.join(', '))
+    if (dirs.join(',') !== excludedPropKey) onExcludedDirsChange?.(dirs)
+  }, [excludedDirsDraft, excludedPropKey, onExcludedDirsChange])
   const [results, setResults] = useState<SearchResult[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [truncated, setTruncated] = useState(false)
@@ -649,6 +674,41 @@ export function SearchPanel({
                 outline: 'none',
               }}
             />
+            {/* Excluded directories (VS Code search.exclude) — the project-wide
+                set the SERVER applies to every search surface (this panel AND
+                the AI agent's search tools). Edited here, persisted by the host
+                via onExcludedDirsChange; searches never send it per query. */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <label
+                style={{ fontSize: 10, color: 'var(--mol-color-text-secondary, #888)' }}
+                htmlFor="mol-search-excluded-dirs"
+              >
+                {t('ide.search.excludedDirs', undefined, {
+                  defaultValue: 'Excluded folders (applies to all searches, including the agent)',
+                })}
+              </label>
+              <input
+                id="mol-search-excluded-dirs"
+                type="text"
+                data-mol-id="search-excluded-dirs"
+                value={excludedDirsDraft}
+                onChange={(e) => setExcludedDirsDraft(e.target.value)}
+                onBlur={commitExcludedDirs}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') commitExcludedDirs()
+                }}
+                placeholder="node_modules, .git, dist"
+                style={{
+                  padding: '3px 6px',
+                  fontSize: 11,
+                  border: '1px solid var(--color-border, #333)',
+                  borderRadius: 3,
+                  background: isLight ? '#fff' : 'rgba(255,255,255,0.06)',
+                  color: 'var(--mol-color-text, currentColor)',
+                  outline: 'none',
+                }}
+              />
+            </div>
           </div>
         )}
       </div>

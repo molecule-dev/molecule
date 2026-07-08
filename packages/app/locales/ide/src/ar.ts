@@ -480,4 +480,5 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 مهارات متقدمة في استخدام برنامج «{{count}}»',
   'ide.chat.skills.waitingForSandbox': 'في انتظار انتهاء عملية تشغيل بيئة الاختبار...',
   'ide.chat.skills.resetDefaults': 'تحميل الكل بشكل افتراضي',
+  'ide.search.excludedDirs': 'المجلدات المستبعدة (ينطبق على جميع عمليات البحث، بما في ذلك الوكيل)',
 }

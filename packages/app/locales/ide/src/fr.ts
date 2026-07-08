@@ -494,4 +494,6 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Compétences approfondies en {{count}}',
   'ide.chat.skills.waitingForSandbox': 'En attente de la fin du démarrage du bac à sable…',
   'ide.chat.skills.resetDefaults': 'Charger tout par défaut',
+  'ide.search.excludedDirs':
+    "Dossiers exclus (s'applique à toutes les recherches, y compris celles effectuées par l'agent)",
 }

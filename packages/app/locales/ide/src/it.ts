@@ -495,4 +495,5 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': "🧠 Competenze avanzate nell'{{count}}",
   'ide.chat.skills.waitingForSandbox': "In attesa che il sandbox completi l'avvio…",
   'ide.chat.skills.resetDefaults': 'Carica tutto per impostazione predefinita',
+  'ide.search.excludedDirs': "Cartelle escluse (vale per tutte le ricerche, compreso l'agente)",
 }

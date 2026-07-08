@@ -485,4 +485,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Gelişmiş {{count}} becerileri',
   'ide.chat.skills.waitingForSandbox': "Sandbox'ın başlatılmasının tamamlanmasını bekliyorum…",
   'ide.chat.skills.resetDefaults': 'Varsayılan olarak hepsini yükle',
+  'ide.search.excludedDirs':
+    'Hariç tutulan klasörler (ajanı da dahil olmak üzere tüm aramalar için geçerlidir)',
 }

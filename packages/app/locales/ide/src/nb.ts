@@ -480,4 +480,5 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Har omfattende kunnskap om «{{count}}»',
   'ide.chat.skills.waitingForSandbox': 'Venter på at sandkassen skal fullføre oppstarten…',
   'ide.chat.skills.resetDefaults': 'Last inn alt som standard',
+  'ide.search.excludedDirs': 'Ekskluderte mapper (gjelder alle søk, inkludert agenten)',
 }

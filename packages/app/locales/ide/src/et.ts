@@ -483,4 +483,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Omandanud „{{count}}“ oskused',
   'ide.chat.skills.waitingForSandbox': 'Oodatakse, kuni liivakasti käivitamine lõpeb…',
   'ide.chat.skills.resetDefaults': 'Laadi vaikimisi kõik',
+  'ide.search.excludedDirs':
+    'Välja jäetud kaustad (kehtib kõigi otsingute puhul, sealhulgas agendi puhul)',
 }

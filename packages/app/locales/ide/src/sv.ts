@@ -484,4 +484,5 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Avancerade kunskaper inom{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Väntar på att sandlådan ska starta klart…',
   'ide.chat.skills.resetDefaults': 'Ladda alla som standard',
+  'ide.search.excludedDirs': 'Uteslutna mappar (gäller alla sökningar, inklusive agenten)',
 }

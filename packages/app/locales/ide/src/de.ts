@@ -497,4 +497,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Umfassende Kenntnisse im Bereich „{{count}}“',
   'ide.chat.skills.waitingForSandbox': 'Warten auf den Abschluss des Startvorgangs der Sandbox…',
   'ide.chat.skills.resetDefaults': 'Standardmäßig alles laden',
+  'ide.search.excludedDirs':
+    'Ausgeschlossene Ordner (gilt für alle Suchvorgänge, einschließlich des Agenten)',
 }

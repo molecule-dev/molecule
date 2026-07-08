@@ -140,6 +140,7 @@ export const en: IdeTranslations = {
   'ide.search.toggleFilters': 'Toggle Filters',
   'ide.search.includeFiles': 'Files to include (e.g. *.ts)',
   'ide.search.excludeFiles': 'Files to exclude (e.g. *.min.js)',
+  'ide.search.excludedDirs': 'Excluded folders (applies to all searches, including the agent)',
   'ide.search.resultsTruncated': '{{count}} results in {{files}} files (truncated)',
   'ide.search.searching': 'Searching…',
   'ide.sidebar.files': 'Explorer',

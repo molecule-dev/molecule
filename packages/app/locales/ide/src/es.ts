@@ -492,4 +492,6 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox':
     'Esperando a que termine de iniciarse el entorno de pruebas…',
   'ide.chat.skills.resetDefaults': 'Cargar todo por defecto',
+  'ide.search.excludedDirs':
+    'Carpetas excluidas (se aplica a todas las búsquedas, incluido el agente)',
 }

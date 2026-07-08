@@ -484,4 +484,5 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Apgūtas „{{count}}“ prasmes',
   'ide.chat.skills.waitingForSandbox': 'Gaidu, kamēr smilšu kaste pabeigs palaišanos…',
   'ide.chat.skills.resetDefaults': 'Pēc noklusējuma ielādēt visu',
+  'ide.search.excludedDirs': 'Izslēgtās mapes (attiecas uz visām meklēšanām, ieskaitot aģentu)',
 }

@@ -485,4 +485,5 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Rozvinuté zručnosti v oblasti „{{count}}“',
   'ide.chat.skills.waitingForSandbox': 'Čakám, kým sa spustí sandbox…',
   'ide.chat.skills.resetDefaults': 'V predvolenom nastavení načítať všetko',
+  'ide.search.excludedDirs': 'Vylúčené priečinky (platí pre všetky vyhľadávania, vrátane agenta)',
 }

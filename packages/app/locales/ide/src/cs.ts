@@ -482,4 +482,5 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Rozvinuté dovednosti v oblasti „{{count}}“',
   'ide.chat.skills.waitingForSandbox': 'Čekám, až se spustí pískoviště…',
   'ide.chat.skills.resetDefaults': 'Ve výchozím nastavení načíst vše',
+  'ide.search.excludedDirs': 'Vyloučené složky (platí pro všechna vyhledávání, včetně agenta)',
 }

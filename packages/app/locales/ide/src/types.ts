@@ -164,6 +164,7 @@ export type IdeTranslationKey =
   | 'ide.search.searching'
   | 'ide.search.includeFiles'
   | 'ide.search.excludeFiles'
+  | 'ide.search.excludedDirs'
   | 'ide.shortcuts.title'
   | 'ide.shortcuts.hint'
   | 'ide.sidebar.files'

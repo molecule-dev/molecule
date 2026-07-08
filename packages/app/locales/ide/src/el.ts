@@ -492,4 +492,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Διαθέτω εκτεταμένες δεξιότητες στο{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Αναμονή μέχρι να ολοκληρωθεί η εκκίνηση του sandbox…',
   'ide.chat.skills.resetDefaults': 'Προεπιλεγμένη φόρτωση όλων',
+  'ide.search.excludedDirs':
+    'Φάκελοι που εξαιρούνται (ισχύει για όλες τις αναζητήσεις, συμπεριλαμβανομένου του πράκτορα)',
 }

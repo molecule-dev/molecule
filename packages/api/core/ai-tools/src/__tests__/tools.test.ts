@@ -502,3 +502,49 @@ describe('discoverSkills', () => {
     }
   })
 })
+
+describe('search excludes (VS Code search.exclude semantics)', () => {
+  function mockBackend(): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn().mockResolvedValue(''),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn().mockResolvedValue(undefined),
+      readDir: vi.fn().mockResolvedValue([]),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('search_files excludes the default dirs (node_modules, .git, …)', async () => {
+    const backend = mockBackend()
+    const tool = buildTools(backend).find((t) => t.name === 'search_files')!
+    await tool.execute({ pattern: 'useState' })
+    const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    expect(cmd).toContain("--exclude-dir='node_modules'")
+    expect(cmd).toContain("--exclude-dir='.git'")
+    expect(cmd).toContain("--exclude-dir='molecule'")
+  })
+
+  it('find_files uses the same synchronized set', async () => {
+    const backend = mockBackend()
+    const tool = buildTools(backend).find((t) => t.name === 'find_files')!
+    await tool.execute({ pattern: '*.ts' })
+    const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    expect(cmd).toContain("-not -path '*/node_modules/*'")
+    expect(cmd).toContain("-not -path '*/.git/*'")
+    expect(cmd).toContain("-not -path '*/molecule/*'")
+  })
+
+  it('honors a per-project searchExcludedDirs override and drops unsafe names', async () => {
+    const backend = mockBackend()
+    const tool = buildTools(backend, {
+      searchExcludedDirs: ['vendor', 'tmp', 'bad;rm -rf /'],
+    }).find((t) => t.name === 'search_files')!
+    await tool.execute({ pattern: 'x' })
+    const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    expect(cmd).toContain("--exclude-dir='vendor'")
+    expect(cmd).toContain("--exclude-dir='tmp'")
+    expect(cmd).not.toContain('node_modules')
+    expect(cmd).not.toContain('rm -rf')
+  })
+})

@@ -171,6 +171,27 @@ export const MAX_SEARCH_RESULTS = 50
 export const MAX_FIND_RESULTS = 100
 
 /**
+ * Default directory names `search_files`/`find_files` skip — VS Code's
+ * `search.exclude` + `files.exclude` defaults (node_modules, bower_components,
+ * VCS dirs) plus the platform's vendored/build dirs. Overridable per consumer
+ * via `ToolBuildConfig.searchExcludedDirs` (a per-project, user-editable
+ * setting in molecule.dev — keep the APP-SIDE copy in
+ * `@molecule/app-ide-react`'s search types in sync with this list).
+ */
+export const DEFAULT_SEARCH_EXCLUDED_DIRS = [
+  'node_modules',
+  'bower_components',
+  '.git',
+  '.svn',
+  '.hg',
+  'CVS',
+  'dist',
+  '.next',
+  '.vite',
+  'molecule',
+] as const
+
+/**
  * Truncate a string to a max length with a truncation notice.
  *
  * @param s - Arbitrary text to bound in size.

@@ -488,4 +488,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Įgijau „{{count}}“ įgūdžių',
   'ide.chat.skills.waitingForSandbox': 'Laukiama, kol baigsis „sandbox“ paleidimas…',
   'ide.chat.skills.resetDefaults': 'Pagal numatytuosius nustatymus įkelti viską',
+  'ide.search.excludedDirs':
+    'Išskirtos aplankos (taikoma visoms paieškoms, įskaitant agento paiešką)',
 }

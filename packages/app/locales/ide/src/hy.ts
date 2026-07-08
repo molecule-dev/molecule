@@ -479,4 +479,5 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Loaded {{count}} skills',
   'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.resetDefaults': 'Load all by default',
+  'ide.search.excludedDirs': 'Excluded folders (applies to all searches, including the agent)',
 }

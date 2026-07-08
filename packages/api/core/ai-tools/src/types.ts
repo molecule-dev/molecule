@@ -57,6 +57,14 @@ export interface ToolBuildConfig {
   /** Whether to block dangerous shell commands (env dumps, /proc access). Default: false. */
   blockDangerousCommands?: boolean
 
+  /**
+   * Directory names `search_files` and `find_files` skip (VS Code
+   * `search.exclude` semantics). Defaults to `DEFAULT_SEARCH_EXCLUDED_DIRS`
+   * (node_modules, VCS dirs, build output). Pass the consumer's per-project
+   * setting so every search surface shares ONE synchronized set.
+   */
+  searchExcludedDirs?: string[]
+
   /** Post-write hook (e.g. auto-format via Prettier/ESLint). Called after every write_file/edit_file. */
   onAfterWrite?: (path: string) => Promise<void>
 

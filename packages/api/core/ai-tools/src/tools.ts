@@ -13,6 +13,7 @@ import { TOOL_SCHEMAS } from './schemas.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
   checkBlockedCommand,
+  DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
   isValidGlob,
   MAX_FIND_RESULTS,
@@ -44,12 +45,25 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     symlinkGuards = false,
     redactSecrets: doRedact = true,
     blockDangerousCommands = false,
+    searchExcludedDirs,
     onAfterWrite,
     onFileDiff,
     onFileChange,
   } = config ?? {}
 
   const root = backend.projectRoot
+
+  // One synchronized excluded-dir set for BOTH search tools (VS Code
+  // `search.exclude` semantics). Names are validated defensively — they are
+  // interpolated into shell commands, so anything outside the safe charset is
+  // dropped rather than quoted around.
+  const excludedDirs = (
+    searchExcludedDirs && searchExcludedDirs.length > 0
+      ? searchExcludedDirs
+      : DEFAULT_SEARCH_EXCLUDED_DIRS
+  ).filter((d) => /^[A-Za-z0-9._-]+$/.test(d))
+  const grepExcludeArgs = excludedDirs.map((d) => `--exclude-dir=${shellQuote(d)}`).join(' ')
+  const findExcludeArgs = excludedDirs.map((d) => `-not -path ${shellQuote(`*/${d}/*`)}`).join(' ')
 
   // ── Path helpers ───────────────────────────────────────────────
 
@@ -362,7 +376,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       try {
         const globArg = include ? `--include=${shellQuote(include)}` : ''
         const result = await backend.run(
-          `grep -rn ${globArg} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)} 2>/dev/null || true`,
+          `grep -rn ${globArg} ${grepExcludeArgs} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)} 2>/dev/null || true`,
           { timeout: 10000 },
         )
         const output = sanitizeOutput(result.stdout.trim())
@@ -402,7 +416,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (symlinkErr) return { error: symlinkErr }
       try {
         const result = await backend.run(
-          `find ${shellQuote(path)} -name ${shellQuote(pattern)} -not -path '*/node_modules/*' -not -path '*/.git/*' 2>/dev/null | head -${MAX_FIND_RESULTS}`,
+          `find ${shellQuote(path)} -name ${shellQuote(pattern)} ${findExcludeArgs} 2>/dev/null | head -${MAX_FIND_RESULTS}`,
           { timeout: 10000 },
         )
         const files = result.stdout.trim().split('\n').filter(Boolean)

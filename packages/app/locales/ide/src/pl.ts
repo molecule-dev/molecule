@@ -489,4 +489,5 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox':
     'Oczekiwanie na zakończenie uruchamiania środowiska testowego…',
   'ide.chat.skills.resetDefaults': 'Domyślnie załaduj wszystko',
+  'ide.search.excludedDirs': 'Foldery wykluczone (dotyczy wszystkich wyszukiwań, w tym agenta)',
 }

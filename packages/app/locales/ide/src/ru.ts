@@ -488,4 +488,6 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Обширные навыки в области «{{count}}»',
   'ide.chat.skills.waitingForSandbox': 'Ожидание завершения запуска песочницы…',
   'ide.chat.skills.resetDefaults': 'Загрузить всё по умолчанию',
+  'ide.search.excludedDirs':
+    'Исключенные папки (применяется ко всем поискам, включая поиск с помощью агента)',
 }

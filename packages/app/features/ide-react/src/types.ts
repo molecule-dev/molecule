@@ -546,7 +546,37 @@ export interface SearchPanelProps {
   /** Called when the user clicks a search result. */
   onResultClick?: (path: string, line: number) => void
   className?: string
+  /**
+   * The project's excluded directory names (VS Code `search.exclude`
+   * semantics). Displayed and editable in the panel; the backend applies the
+   * SAME set server-side to every search surface (panel + AI tools), so this
+   * prop is display/edit state — searches don't send it per query. When
+   * omitted, the panel shows {@link DEFAULT_SEARCH_EXCLUDED_DIRS}.
+   */
+  excludedDirs?: string[]
+  /** Persist an edited excluded-dir set (the host owns storage). */
+  onExcludedDirsChange?: (dirs: string[]) => void
 }
+
+/**
+ * Default search-excluded directory names shown when the host supplies none —
+ * VS Code's `search.exclude`/`files.exclude` defaults plus the platform's
+ * vendored/build dirs. MUST stay in sync with the API-side list in
+ * `@molecule/api-ai-tools` (utilities.ts) — the cross-stack import boundary
+ * forces the duplication.
+ */
+export const DEFAULT_SEARCH_EXCLUDED_DIRS = [
+  'node_modules',
+  'bower_components',
+  '.git',
+  '.svn',
+  '.hg',
+  'CVS',
+  'dist',
+  '.next',
+  '.vite',
+  'molecule',
+] as const
 
 /**
  * A single file's search results.

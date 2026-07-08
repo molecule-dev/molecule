@@ -486,4 +486,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Menguasai keterampilan {{count}}',
   'ide.chat.skills.waitingForSandbox': 'Menunggu proses penyiapan sandbox selesai…',
   'ide.chat.skills.resetDefaults': 'Muat semuanya secara default',
+  'ide.search.excludedDirs':
+    'Folder yang dikecualikan (berlaku untuk semua pencarian, termasuk agen)',
 }

@@ -485,4 +485,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Conhecimentos avançados em{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Aguardando a inicialização da sandbox…',
   'ide.chat.skills.resetDefaults': 'Carregar tudo por padrão',
+  'ide.search.excludedDirs':
+    'Pastas excluídas (aplica-se a todas as pesquisas, incluindo o agente)',
 }

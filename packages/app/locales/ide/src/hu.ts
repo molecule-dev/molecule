@@ -485,4 +485,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Kiterjedt ismeretek a „{{count}}” témakörében',
   'ide.chat.skills.waitingForSandbox': 'Várom, amíg a sandbox befejezi az indítást…',
   'ide.chat.skills.resetDefaults': 'Alapértelmezés szerint mindet betölteni',
+  'ide.search.excludedDirs':
+    'Kizárt mappák (minden keresésre vonatkozik, beleértve az ügynököt is)',
 }

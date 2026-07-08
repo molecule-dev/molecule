@@ -489,4 +489,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedCount': '🧠 Володію навичками роботи з {{count}}',
   'ide.chat.skills.waitingForSandbox': 'Очікування завершення запуску пісочниці…',
   'ide.chat.skills.resetDefaults': 'Завантажити все за замовчуванням',
+  'ide.search.excludedDirs':
+    'Виключені папки (стосується всіх пошуків, включаючи пошук за допомогою агента)',
 }
