@@ -14,6 +14,29 @@ npm install @molecule/app-icons
 
 ### Interfaces
 
+#### `CustomIconNames`
+
+Augmentable registry of extra icon names beyond {@link ComponentIconName}.
+
+An icon set bond (or an app merging custom glyphs into the bonded set) that
+provides names beyond the required contract declares them here so
+`getIcon()` / `<Icon name="…" />` accept them type-safely:
+
+```typescript
+declare module '@molecule/app-icons' {
+  interface CustomIconNames {
+    'my-custom-glyph': true
+  }
+}
+```
+
+Keys are icon names; values are always `true` (the interface is a name
+registry, never instantiated).
+
+```typescript
+interface CustomIconNames {}
+```
+
 #### `IconData`
 
 Complete icon definition — framework-agnostic SVG data.
@@ -165,6 +188,17 @@ type ComponentIconName =
   | 'twitter'
 ```
 
+#### `IconName`
+
+Every icon name known to the type system: the {@link ComponentIconName}
+contract every icon set must provide, plus any {@link CustomIconNames}
+augmentations. Use this for `getIcon()` arguments and `icon`/`name` props so
+a typo fails the type-check instead of throwing at render time.
+
+```typescript
+type IconName = ComponentIconName | (keyof CustomIconNames & string)
+```
+
 ### Functions
 
 #### `getIcon(name)`
@@ -172,7 +206,7 @@ type ComponentIconName =
 Retrieves a single icon by name from the bonded icon set.
 
 ```typescript
-function getIcon(name: string): IconData
+function getIcon(name: IconName): IconData
 ```
 
 - `name` — The icon name to look up.
@@ -186,7 +220,7 @@ Useful for `backgroundImage` styling of native elements (e.g. `<select>`
 dropdown arrows) where SVG elements cannot be inserted.
 
 ```typescript
-function getIconDataUrl(name: string, color?: string): string
+function getIconDataUrl(name: IconName, color?: string): string
 ```
 
 - `name` — The icon name to render.

@@ -1,6 +1,6 @@
 import React, { type SVGProps } from 'react'
 
-import { getIcon } from '@molecule/app-icons'
+import { getIcon, type IconName } from '@molecule/app-icons'
 
 /**
  * Props for {@link Icon}.
@@ -14,8 +14,13 @@ export interface IconProps extends Omit<
   SVGProps<SVGSVGElement>,
   'width' | 'height' | 'viewBox' | 'fill'
 > {
-  /** Name of the glyph to look up in the bonded icon set. */
-  name: string
+  /**
+   * Name of the glyph to look up in the bonded icon set. Typed as
+   * {@link IconName} so a typo fails the type-check instead of throwing at
+   * render time; sets with extra glyphs augment `CustomIconNames` in
+   * `@molecule/app-icons` to widen it.
+   */
+  name: IconName
   /** Width and height of the rendered SVG in pixels. Defaults to 20. */
   size?: number
   /** Class name forwarded to the root `<svg>`. */

@@ -39,6 +39,35 @@ export interface IconSet {
 }
 
 /**
+ * Augmentable registry of extra icon names beyond {@link ComponentIconName}.
+ *
+ * An icon set bond (or an app merging custom glyphs into the bonded set) that
+ * provides names beyond the required contract declares them here so
+ * `getIcon()` / `<Icon name="…" />` accept them type-safely:
+ *
+ * ```typescript
+ * declare module '@molecule/app-icons' {
+ *   interface CustomIconNames {
+ *     'my-custom-glyph': true
+ *   }
+ * }
+ * ```
+ *
+ * Keys are icon names; values are always `true` (the interface is a name
+ * registry, never instantiated).
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- declaration-merging target (like i18next's CustomTypeOptions); empty until augmented
+export interface CustomIconNames {}
+
+/**
+ * Every icon name known to the type system: the {@link ComponentIconName}
+ * contract every icon set must provide, plus any {@link CustomIconNames}
+ * augmentations. Use this for `getIcon()` arguments and `icon`/`name` props so
+ * a typo fails the type-check instead of throwing at render time.
+ */
+export type IconName = ComponentIconName | (keyof CustomIconNames & string)
+
+/**
  * Icons required by UI components.
  * All icon set providers MUST include these.
  */

@@ -11,7 +11,7 @@
 import { bond, isBonded, require as bondRequire } from '@molecule/app-bond'
 import { t } from '@molecule/app-i18n'
 
-import type { IconData, IconSet } from './types.js'
+import type { IconData, IconName, IconSet } from './types.js'
 
 const BOND_TYPE = 'icon-set'
 
@@ -51,7 +51,7 @@ export function hasIconSet(): boolean {
  * @returns The icon data (paths, viewBox, stroke/fill attributes).
  * @throws {Error} If no icon set is bonded or the icon name is not found.
  */
-export function getIcon(name: string): IconData {
+export function getIcon(name: IconName): IconData {
   const iconSet = getIconSet()
   const icon = iconSet[name]
   if (!icon) {
@@ -75,7 +75,7 @@ export function getIcon(name: string): IconData {
  * @param color - The stroke/fill color for the SVG (defaults to `'#6b7280'`).
  * @returns A CSS `url("data:image/svg+xml,...")` string.
  */
-export function getIconDataUrl(name: string, color = '#6b7280'): string {
+export function getIconDataUrl(name: IconName, color = '#6b7280'): string {
   const icon = getIcon(name)
   const viewBox = icon.viewBox || '0 0 20 20'
   const fill = icon.fill || 'currentColor'

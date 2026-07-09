@@ -40,3 +40,20 @@ export const icons: IconSet = Object.fromEntries(
  * ```
  */
 export const iconSet: IconSet = icons
+
+// This set ships these glyphs beyond the required ComponentIconName contract.
+// Registering them in CustomIconNames lets `getIcon()` / `<Icon name="…" />`
+// accept them type-safely (see @molecule/app-icons `IconName`).
+declare module '@molecule/app-icons' {
+  interface CustomIconNames {
+    browser: true
+    chat: true
+    'device-desktop': true
+    'device-mobile': true
+    'device-tablet': true
+    hash: true
+    rotate: true
+    sparkle: true
+    'star-outline': true
+  }
+}

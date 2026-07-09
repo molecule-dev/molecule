@@ -6,7 +6,7 @@
 
 import React from 'react'
 
-import { getIcon } from '@molecule/app-icons'
+import { getIcon, type IconName } from '@molecule/app-icons'
 
 /**
  * Renders an icon by name as a React SVG element.
@@ -15,7 +15,7 @@ import { getIcon } from '@molecule/app-icons'
  * @param className - CSS class for sizing
  * @returns React SVG element
  */
-export function renderIcon(name: string, className?: string): React.ReactElement {
+export function renderIcon(name: IconName, className?: string): React.ReactElement {
   const icon = getIcon(name)
   return React.createElement(
     'svg',

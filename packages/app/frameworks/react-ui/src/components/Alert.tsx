@@ -7,6 +7,7 @@
 import React, { forwardRef } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -25,7 +26,7 @@ const statusVariantMap: Record<ColorVariant, 'default' | 'info' | 'success' | 'w
 /**
  * Map alert status to icon name.
  */
-const statusIconMap: Record<string, string> = {
+const statusIconMap: Record<string, IconName> = {
   info: 'info-circle',
   success: 'check-circle',
   warning: 'exclamation-triangle',

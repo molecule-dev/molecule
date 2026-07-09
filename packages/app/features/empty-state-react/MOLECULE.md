@@ -19,7 +19,7 @@ import { EmptyState, CtaCard } from '@molecule/app-empty-state-react'
 
 // Centred empty-state for a list with no items
 <EmptyState
-  icon={<Icon name="inbox" size={40} />}
+  icon={<Icon name="mail" size={40} />}
   title="No messages yet"
   description="When you receive messages they will appear here."
   action={<Button onClick={() => openCompose()}>Send one</Button>}

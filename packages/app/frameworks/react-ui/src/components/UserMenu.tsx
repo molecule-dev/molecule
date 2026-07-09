@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -35,7 +36,7 @@ export interface UserMenuProps {
   /** Fallback aria-label if the i18n key is missing. Defaults to `"Open user menu"`. */
   ariaLabelDefault?: string
   /** Icon name for the trigger button. Defaults to `'user'`. */
-  triggerIcon?: string
+  triggerIcon?: IconName
   /** Pixel size for the trigger icon. Defaults to 20. */
   triggerIconSize?: number
   /**

@@ -597,8 +597,13 @@ interface IconProps extends Omit<
   SVGProps<SVGSVGElement>,
   'width' | 'height' | 'viewBox' | 'fill'
 > {
-  /** Name of the glyph to look up in the bonded icon set. */
-  name: string
+  /**
+   * Name of the glyph to look up in the bonded icon set. Typed as
+   * {@link IconName} so a typo fails the type-check instead of throwing at
+   * render time; sets with extra glyphs augment `CustomIconNames` in
+   * `@molecule/app-icons` to widen it.
+   */
+  name: IconName
   /** Width and height of the rendered SVG in pixels. Defaults to 20. */
   size?: number
   /** Class name forwarded to the root `<svg>`. */
@@ -701,7 +706,7 @@ interface LanguagePickerProps extends Omit<
   /** Fallback modal title if the i18n key is missing. Defaults to `'Choose language'`. */
   modalTitleDefault?: string
   /** Icon glyph to render before the current locale name. Defaults to `'globe'`. */
-  icon?: string
+  icon?: IconName
   /** Pixel size for the rendered icon. Defaults to `16`. */
   iconSize?: number
   /**
@@ -1423,9 +1428,9 @@ interface ThemeToggleProps extends Omit<
   /** Fallback `aria-label` if the i18n key is missing. Defaults to `'Toggle theme'`. */
   ariaLabelDefault?: string
   /** Icon name to render in dark mode. Defaults to `'moon'`. */
-  darkIcon?: string
+  darkIcon?: IconName
   /** Icon name to render in light mode. Defaults to `'sun'`. */
-  lightIcon?: string
+  lightIcon?: IconName
   /** Pixel size for the rendered icon. Defaults to `20`. */
   iconSize?: number
 }
@@ -1611,7 +1616,7 @@ interface UserMenuProps {
   /** Fallback aria-label if the i18n key is missing. Defaults to `"Open user menu"`. */
   ariaLabelDefault?: string
   /** Icon name for the trigger button. Defaults to `'user'`. */
-  triggerIcon?: string
+  triggerIcon?: IconName
   /** Pixel size for the trigger icon. Defaults to 20. */
   triggerIconSize?: number
   /**

@@ -1,5 +1,6 @@
 import { type ButtonHTMLAttributes, type JSX, type ReactNode, useState } from 'react'
 
+import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -27,7 +28,7 @@ export interface LanguagePickerProps extends Omit<
   /** Fallback modal title if the i18n key is missing. Defaults to `'Choose language'`. */
   modalTitleDefault?: string
   /** Icon glyph to render before the current locale name. Defaults to `'globe'`. */
-  icon?: string
+  icon?: IconName
   /** Pixel size for the rendered icon. Defaults to `16`. */
   iconSize?: number
   /**

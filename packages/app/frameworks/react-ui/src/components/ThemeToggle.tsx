@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, JSX } from 'react'
 
+import type { IconName } from '@molecule/app-icons'
 import { useTheme, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -22,9 +23,9 @@ export interface ThemeToggleProps extends Omit<
   /** Fallback `aria-label` if the i18n key is missing. Defaults to `'Toggle theme'`. */
   ariaLabelDefault?: string
   /** Icon name to render in dark mode. Defaults to `'moon'`. */
-  darkIcon?: string
+  darkIcon?: IconName
   /** Icon name to render in light mode. Defaults to `'sun'`. */
-  lightIcon?: string
+  lightIcon?: IconName
   /** Pixel size for the rendered icon. Defaults to `20`. */
   iconSize?: number
 }
