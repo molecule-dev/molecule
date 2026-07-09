@@ -2032,6 +2032,12 @@ export interface UIClassMap {
   dialogTitle: string
   dialogDescription: string
   dialogClose: string
+  /**
+   * Floating close button for title-less dialogs: overlays the top-right
+   * corner of the dialog box instead of occupying a full-width header row
+   * that pushes the body down.
+   */
+  dialogCloseFloating: string
   /** Modal centering wrapper: fixed full-screen flex container for centering content. */
   dialogWrapper: string
   /** Modal scrollable body area with padding. */

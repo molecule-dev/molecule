@@ -378,13 +378,20 @@ export const dialogDescription = 'text-sm text-foreground-secondary'
 export const dialogClose =
   'flex-shrink-0 ml-4 -mr-4 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none'
 /**
+ * Floating close for title-less dialogs — overlays the top-right corner of
+ * the dialog box (`dialogContent` is `relative`) instead of rendering a
+ * header row that pushes the body down.
+ */
+export const dialogCloseFloating =
+  'absolute right-3 top-3 z-10 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none'
+/**
  * The dialog wrapper.
  */
 export const dialogWrapper = 'fixed inset-0 z-[1300] flex items-center justify-center px-4 py-10'
 /**
  * The dialog body.
  */
-export const dialogBody = 'flex-1 min-h-0 overflow-y-auto pl-6 py-6 *:pr-6'
+export const dialogBody = 'flex-1 min-h-0 overflow-y-auto px-6 py-6'
 
 /** Action sheet: bottom-anchored panel for pickers and action menus. */
 export const actionSheet =

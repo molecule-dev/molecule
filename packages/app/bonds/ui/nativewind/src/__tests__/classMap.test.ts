@@ -522,6 +522,7 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       'dialogTitle',
       'dialogDescription',
       'dialogClose',
+      'dialogCloseFloating',
       'actionSheet',
       'actionSheetHeader',
       'dropdownContent',

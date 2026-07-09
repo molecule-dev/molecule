@@ -89,6 +89,19 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
       if (k.startsWith('data-') || k.startsWith('aria-')) passthrough[k] = v
     }
 
+    const closeButton = (closeClassName: string): React.ReactNode =>
+      showCloseButton ? (
+        <button
+          type="button"
+          onClick={onClose}
+          className={closeClassName}
+          data-mol-id="modal-close"
+          aria-label={closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' })}
+        >
+          {renderIcon('x-mark', cm.iconMd)}
+        </button>
+      ) : null
+
     const modalContent = (
       <>
         {/* Overlay background */}
@@ -108,29 +121,18 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
             {...passthrough}
           >
-            {(title || showCloseButton) && (
+            {/* With a title the close button shares the header row; without
+                one it floats over the top-right corner — a title-less modal
+                must not spend a full-width header band on just the X. */}
+            {title ? (
               <div className={cm.dialogHeader}>
-                {title ? (
-                  <h2 id="modal-title" className={cm.dialogTitle}>
-                    {title as React.ReactNode}
-                  </h2>
-                ) : (
-                  <div />
-                )}
-                {showCloseButton && (
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className={cm.dialogClose}
-                    data-mol-id="modal-close"
-                    aria-label={
-                      closeLabel ?? t('ui.modal.close', undefined, { defaultValue: 'Close' })
-                    }
-                  >
-                    {renderIcon('x-mark', cm.iconMd)}
-                  </button>
-                )}
+                <h2 id="modal-title" className={cm.dialogTitle}>
+                  {title as React.ReactNode}
+                </h2>
+                {closeButton(cm.dialogClose)}
               </div>
+            ) : (
+              closeButton(cm.dialogCloseFloating)
             )}
 
             <div className={cm.dialogBody}>{children as React.ReactNode}</div>

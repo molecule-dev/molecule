@@ -31,6 +31,7 @@ import {
   container,
   cva,
   dialogClose,
+  dialogCloseFloating,
   dialogContent,
   dialogDescription,
   dialogFooter,
@@ -654,6 +655,13 @@ describe('dialog components', () => {
     expect(dialogClose).toContain('flex-shrink-0')
     expect(dialogClose).toContain('cursor-pointer')
     expect(dialogClose).toContain('hover:text-foreground')
+  })
+
+  it('dialogCloseFloating overlays the top-right corner (no header band)', () => {
+    expect(dialogCloseFloating).toContain('absolute')
+    expect(dialogCloseFloating).toContain('right-3')
+    expect(dialogCloseFloating).toContain('top-3')
+    expect(dialogCloseFloating).toContain('cursor-pointer')
   })
 })
 
