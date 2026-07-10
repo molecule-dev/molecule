@@ -490,4 +490,6 @@ export const pl: Partial<IdeTranslations> = {
     'Oczekiwanie na zakończenie uruchamiania środowiska testowego…',
   'ide.chat.skills.resetDefaults': 'Domyślnie załaduj wszystko',
   'ide.search.excludedDirs': 'Foldery wykluczone (dotyczy wszystkich wyszukiwań, w tym agenta)',
+  'ide.chat.costStreamingNote':
+    'Suma bieżąca — obejmuje odpowiedź przesyłaną obecnie w trybie strumieniowym.',
 }

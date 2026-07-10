@@ -478,4 +478,5 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.resetDefaults': 'Load all by default',
   'ide.search.excludedDirs': 'Excluded folders (applies to all searches, including the agent)',
+  'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
 }

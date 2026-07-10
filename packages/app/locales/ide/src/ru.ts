@@ -490,4 +490,6 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Загрузить всё по умолчанию',
   'ide.search.excludedDirs':
     'Исключенные папки (применяется ко всем поискам, включая поиск с помощью агента)',
+  'ide.chat.costStreamingNote':
+    'Накопленное значение — включает ответ, передаваемый в данный момент.',
 }

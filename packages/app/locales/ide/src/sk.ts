@@ -486,4 +486,5 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox': 'Čakám, kým sa spustí sandbox…',
   'ide.chat.skills.resetDefaults': 'V predvolenom nastavení načítať všetko',
   'ide.search.excludedDirs': 'Vylúčené priečinky (platí pre všetky vyhľadávania, vrátane agenta)',
+  'ide.chat.costStreamingNote': 'Bežný súčet — zahŕňa odpoveď, ktorá sa práve prenáša.',
 }

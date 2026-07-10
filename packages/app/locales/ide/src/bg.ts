@@ -491,4 +491,5 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'По подразбиране да се заредят всички',
   'ide.search.excludedDirs':
     'Изключени папки (валидно за всички търсения, включително и за агента)',
+  'ide.chat.costStreamingNote': 'Текуща обща сума — включва отговора, който се предава в момента.',
 }

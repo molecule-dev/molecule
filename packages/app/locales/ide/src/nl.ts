@@ -491,4 +491,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Standaard alles laden',
   'ide.search.excludedDirs':
     'Uitgesloten mappen (geldt voor alle zoekopdrachten, inclusief die van de agent)',
+  'ide.chat.costStreamingNote':
+    'Lopend totaal — inclusief het antwoord dat momenteel wordt gestreamd.',
 }

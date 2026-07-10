@@ -485,4 +485,5 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Laadi vaikimisi kõik',
   'ide.search.excludedDirs':
     'Välja jäetud kaustad (kehtib kõigi otsingute puhul, sealhulgas agendi puhul)',
+  'ide.chat.costStreamingNote': 'Kogusumma — sisaldab hetkel edastatavat vastust.',
 }

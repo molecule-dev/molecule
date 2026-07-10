@@ -469,4 +469,5 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox': '正在等待沙盒启动完成……',
   'ide.chat.skills.resetDefaults': '默认加载全部',
   'ide.search.excludedDirs': '排除的文件夹（适用于所有搜索，包括代理）',
+  'ide.chat.costStreamingNote': '累计总数——包括当前正在流式传输的响应。',
 }

@@ -494,4 +494,6 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Cargar todo por defecto',
   'ide.search.excludedDirs':
     'Carpetas excluidas (se aplica a todas las búsquedas, incluido el agente)',
+  'ide.chat.costStreamingNote':
+    'Total acumulado: incluye la respuesta que se está transmitiendo en este momento.',
 }

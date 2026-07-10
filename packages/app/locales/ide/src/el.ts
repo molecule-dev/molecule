@@ -494,4 +494,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Προεπιλεγμένη φόρτωση όλων',
   'ide.search.excludedDirs':
     'Φάκελοι που εξαιρούνται (ισχύει για όλες τις αναζητήσεις, συμπεριλαμβανομένου του πράκτορα)',
+  'ide.chat.costStreamingNote':
+    'Συνολικό άθροισμα — περιλαμβάνει την απάντηση που μεταδίδεται αυτή τη στιγμή.',
 }

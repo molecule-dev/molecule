@@ -489,4 +489,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox': 'Se așteaptă finalizarea pornirii mediului de testare…',
   'ide.chat.skills.resetDefaults': 'Încărcare implicită a tuturor elementelor',
   'ide.search.excludedDirs': 'Dosare excluse (se aplică tuturor căutărilor, inclusiv agentului)',
+  'ide.chat.costStreamingNote':
+    'Total cumulativ — include răspunsul care se transmite în acest moment.',
 }

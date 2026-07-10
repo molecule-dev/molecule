@@ -487,4 +487,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox': 'Odotetaan, että hiekkalaatikon käynnistyminen päättyy…',
   'ide.chat.skills.resetDefaults': 'Lataa oletuksena kaikki',
   'ide.search.excludedDirs': 'Poissuljetut kansiot (koskee kaikkia hakuja, myös agenttia)',
+  'ide.chat.costStreamingNote':
+    'Kertynyt kokonaismäärä — sisältää parhaillaan lähetettävän vastauksen.',
 }

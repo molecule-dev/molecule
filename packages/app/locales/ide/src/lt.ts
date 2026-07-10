@@ -490,4 +490,5 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Pagal numatytuosius nustatymus įkelti viską',
   'ide.search.excludedDirs':
     'Išskirtos aplankos (taikoma visoms paieškoms, įskaitant agento paiešką)',
+  'ide.chat.costStreamingNote': 'Bendras skaičius — įskaitant šiuo metu transliuojamą atsakymą.',
 }

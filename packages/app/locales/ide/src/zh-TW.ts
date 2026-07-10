@@ -467,4 +467,5 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox': '正在等待沙盒完成啟動……',
   'ide.chat.skills.resetDefaults': '預設載入所有內容',
   'ide.search.excludedDirs': '排除的資料夾（適用於所有搜尋，包括代理程式）',
+  'ide.chat.costStreamingNote': '累計總數 — 包含目前正在串流的回應。',
 }

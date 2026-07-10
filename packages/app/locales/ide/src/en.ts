@@ -364,6 +364,7 @@ export const en: IdeTranslations = {
   // Verification counts / summaries (the {{files}}/{{model}}/{{count}} data
   // is supplied by the call site; the bond translates only the surrounding copy).
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',

@@ -482,4 +482,5 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox': '샌드박스 시작이 완료되기를 기다리고 있습니다…',
   'ide.chat.skills.resetDefaults': '기본적으로 모두 불러오기',
   'ide.search.excludedDirs': '제외된 폴더 (에이전트를 포함한 모든 검색에 적용됨)',
+  'ide.chat.costStreamingNote': '누적 합계 — 현재 스트리밍 중인 응답을 포함합니다.',
 }

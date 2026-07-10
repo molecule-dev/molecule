@@ -496,4 +496,5 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Charger tout par défaut',
   'ide.search.excludedDirs':
     "Dossiers exclus (s'applique à toutes les recherches, y compris celles effectuées par l'agent)",
+  'ide.chat.costStreamingNote': 'Total cumulé — inclut la réponse en cours de transmission.',
 }

@@ -481,4 +481,5 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox': 'في انتظار انتهاء عملية تشغيل بيئة الاختبار...',
   'ide.chat.skills.resetDefaults': 'تحميل الكل بشكل افتراضي',
   'ide.search.excludedDirs': 'المجلدات المستبعدة (ينطبق على جميع عمليات البحث، بما في ذلك الوكيل)',
+  'ide.chat.costStreamingNote': 'المجموع التراكمي — يشمل الرد الذي يتم بثه حالياً.',
 }

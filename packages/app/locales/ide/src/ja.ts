@@ -489,4 +489,5 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.skills.waitingForSandbox': 'サンドボックスの起動が完了するのを待っています…',
   'ide.chat.skills.resetDefaults': 'デフォルトですべてを読み込む',
   'ide.search.excludedDirs': '除外フォルダ（エージェントを含むすべての検索に適用されます）',
+  'ide.chat.costStreamingNote': '累計 — 現在ストリーミング中のレスポンスを含みます。',
 }

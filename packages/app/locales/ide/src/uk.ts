@@ -491,4 +491,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Завантажити все за замовчуванням',
   'ide.search.excludedDirs':
     'Виключені папки (стосується всіх пошуків, включаючи пошук за допомогою агента)',
+  'ide.chat.costStreamingNote':
+    'Поточний підсумок — включає відповідь, яка зараз передається у режимі потокової передачі.',
 }

@@ -488,4 +488,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Muat semuanya secara default',
   'ide.search.excludedDirs':
     'Folder yang dikecualikan (berlaku untuk semua pencarian, termasuk agen)',
+  'ide.chat.costStreamingNote':
+    'Jumlah kumulatif — termasuk respons yang sedang ditayangkan saat ini.',
 }

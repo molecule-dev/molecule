@@ -487,4 +487,5 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Alapértelmezés szerint mindet betölteni',
   'ide.search.excludedDirs':
     'Kizárt mappák (minden keresésre vonatkozik, beleértve az ügynököt is)',
+  'ide.chat.costStreamingNote': 'Futó összeg — tartalmazza a jelenleg streamelt választ is.',
 }

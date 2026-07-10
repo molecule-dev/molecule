@@ -37,6 +37,7 @@ import {
   PROVIDER_BRAND_COLORS,
 } from '@molecule/app-ai-models'
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 import { getLogger } from '@molecule/app-logger'
 import {
   DEFAULT_AGENT_NAME,
@@ -315,7 +316,7 @@ interface PlainSystemCard extends SystemCardBase {
    */
   tone?: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
   /** Icon-name override (a `@molecule/app-icons` glyph); defaults to the tone's icon. */
-  icon?: string
+  icon?: IconName
 }
 
 /** The `/settings` view. */
@@ -4519,6 +4520,7 @@ function ChatInner({
             outputTokens: number
             allowancePercent?: number | null
             model: string
+            streaming?: boolean
           }>(usageUrl)
           const d = res.data
           const fmt = (n: number): string =>
@@ -4543,6 +4545,15 @@ function ChatInner({
                   },
                 )
               : ''
+          // Mid-stream the totals include the in-progress response's running
+          // usage (the server folds it in) — say so, since the figure is still
+          // growing.
+          const streamingLine = d.streaming
+            ? '\n' +
+              t('ide.chat.costStreamingNote', undefined, {
+                defaultValue: 'Running total — includes the response currently streaming.',
+              })
+            : ''
           addSystemCard(
             t(
               'ide.chat.costSummary',
@@ -4557,7 +4568,9 @@ function ChatInner({
                 defaultValue:
                   'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
               },
-            ) + allowanceLine,
+            ) +
+              allowanceLine +
+              streamingLine,
           )
         } catch (error) {
           logger.warn('Failed to fetch chat usage data', { error })
@@ -5949,7 +5962,7 @@ function ChatInner({
                 // from it via color-mix (works with a CSS var OR a hex), so tones stay in
                 // lockstep and a new tone is just one row. Icon defaults per tone; a card may
                 // override it (`icon`).
-                const TONE: Record<string, { accent: string; icon: string }> = {
+                const TONE: Record<string, { accent: string; icon: IconName }> = {
                   info: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'info-circle' },
                   gold: { accent: '#e0a100', icon: 'lightbulb' },
                   // Limit / degraded / budget notices: a `clock` icon — an OUTLINE ring
