@@ -33,6 +33,7 @@
 import { type JSX, type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
@@ -87,7 +88,7 @@ export function DeviceFrameSelector({
   // they share the frame rows' roving-focus model + menu-item styling.
   const actionItems: ReadonlyArray<{
     id: string
-    icon: string
+    icon: IconName
     label: string
     run: () => void
     /** When set, the row renders as a `menuitemcheckbox` toggle reflecting this state. */
@@ -97,7 +98,9 @@ export function DeviceFrameSelector({
       ? [
           {
             id: 'preview-device-rotate',
-            icon: 'rotate',
+            // `as const` keeps the literal type through the conditional spread
+            // (the spread otherwise widens it to string, off the IconName union).
+            icon: 'rotate' as const,
             label: t('ide.device.rotate', {}, { defaultValue: 'Rotate' }),
             run: onRotate,
             // Rotate is a TOGGLE (portrait ⇄ landscape) — show its on/off state with a
@@ -110,7 +113,7 @@ export function DeviceFrameSelector({
       ? [
           {
             id: 'preview-open-external',
-            icon: 'link-external',
+            icon: 'link-external' as const,
             label: t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' }),
             run: onOpenExternal,
           },

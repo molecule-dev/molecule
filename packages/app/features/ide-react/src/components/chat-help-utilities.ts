@@ -19,6 +19,7 @@
  */
 
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 import { type AgentIdentity, DEFAULT_AGENT_IDENTITY } from '@molecule/app-react'
 
 /**
@@ -42,7 +43,7 @@ export interface HelpMode {
    * Icon-set glyph name rendered beside the mode in the rich `HelpCard`
    * (ignored by the plain-text {@link buildHelpText} fallback).
    */
-  icon: string
+  icon: IconName
   /** i18n key for the one-line mode description (may interpolate `{{agentName}}`). */
   key: string
   /** English default for {@link HelpMode.key}. */

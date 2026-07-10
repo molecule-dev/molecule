@@ -12,6 +12,8 @@
  * @module
  */
 
+import type { IconName } from '@molecule/app-icons'
+
 /**
  * A single call-to-action on a chat card: a labelled link (`href`) and/or click
  * handler. The app supplies any route/copy — the shared package never hardcodes one.
@@ -90,9 +92,10 @@ export interface ChatEventCard {
   tone?: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
   /**
    * Optional icon-name override (a `@molecule/app-icons` glyph) — defaults to the tone's
-   * icon. Use only a name that exists in the bonded set (`getIcon` throws otherwise).
+   * icon. Use only a name that exists in the bonded set (`getIcon` throws otherwise);
+   * sets with extra glyphs register them via `CustomIconNames` augmentation.
    */
-  icon?: string
+  icon?: IconName
 }
 
 /**

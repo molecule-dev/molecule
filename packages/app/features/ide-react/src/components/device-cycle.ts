@@ -11,6 +11,7 @@
  * @module
  */
 
+import type { IconName } from '@molecule/app-icons'
 import type { DeviceFrame } from '@molecule/app-live-preview'
 
 /**
@@ -25,7 +26,7 @@ export const DEVICE_FRAMES: readonly DeviceFrame[] = ['none', 'desktop', 'tablet
  */
 export const DEVICE_META: Record<
   DeviceFrame,
-  { readonly icon: string; readonly labelKey: string; readonly label: string }
+  { readonly icon: IconName; readonly labelKey: string; readonly label: string }
 > = {
   none: { icon: 'browser', labelKey: 'ide.device.responsive', label: 'Responsive' },
   desktop: { icon: 'device-desktop', labelKey: 'ide.device.desktop', label: 'Desktop' },

@@ -51,6 +51,7 @@
 import { type JSX, useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 import { withCacheBuster } from '@molecule/app-live-preview'
 import { usePreview } from '@molecule/app-react'
 import { get as storageGet, set as storageSet } from '@molecule/app-storage'
@@ -1772,7 +1773,7 @@ function BarButton({
   onClick,
   disabled,
 }: {
-  icon: string
+  icon: IconName
   title: string
   molId: string
   onClick?: () => void

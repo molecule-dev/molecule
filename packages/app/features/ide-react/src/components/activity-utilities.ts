@@ -11,6 +11,7 @@
  */
 
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 
 /** Channel categories a captured activity can belong to. */
 export type ActivityType = 'email' | 'sms' | 'push' | 'webhook' | 'channel'
@@ -47,7 +48,7 @@ export interface Activity {
  * (channel) were added to `@molecule/app-icons-molecule` for exactly these two
  * channels the base set lacked a glyph for.
  */
-const ACTIVITY_ICON_NAMES: Record<ActivityType, string> = {
+const ACTIVITY_ICON_NAMES: Record<ActivityType, IconName> = {
   email: 'mail',
   sms: 'chat',
   push: 'bell',
@@ -63,7 +64,7 @@ const ACTIVITY_ICON_NAMES: Record<ActivityType, string> = {
  * @param type - The activity channel type.
  * @returns The icon-set glyph name for the type.
  */
-export function activityIconName(type: ActivityType): string {
+export function activityIconName(type: ActivityType): IconName {
   return ACTIVITY_ICON_NAMES[type] ?? ACTIVITY_ICON_NAMES.webhook
 }
 

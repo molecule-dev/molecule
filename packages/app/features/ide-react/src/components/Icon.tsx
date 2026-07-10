@@ -14,7 +14,25 @@
 
 import type { JSX, SVGProps } from 'react'
 
-import { getIcon } from '@molecule/app-icons'
+import { getIcon, type IconName } from '@molecule/app-icons'
+
+// Glyphs this package uses BEYOND the base ComponentIconName contract. The
+// bonded icon set must provide them (the molecule set does — see
+// @molecule/app-icons-molecule, which registers the same names); registering
+// them here lets this package's own `<Icon name="…" />` call sites type-check
+// without importing any bond.
+declare module '@molecule/app-icons' {
+  interface CustomIconNames {
+    browser: true
+    chat: true
+    'device-desktop': true
+    'device-mobile': true
+    'device-tablet': true
+    hash: true
+    rotate: true
+    'star-outline': true
+  }
+}
 
 /**
  * Props for {@link Icon}. Extends `SVGProps` so callers can forward any SVG/HTML
@@ -26,7 +44,7 @@ export interface IconProps extends Omit<
   'width' | 'height' | 'viewBox' | 'fill'
 > {
   /** Name of the glyph to look up in the bonded icon set (e.g. `'sync'`). */
-  name: string
+  name: IconName
   /** Width and height of the rendered SVG in pixels. Defaults to 16. */
   size?: number
   /** Class name forwarded to the root `<svg>`. */
