@@ -1,0 +1,45 @@
+{
+  "name": "@molecule/api-ai-rag-llm",
+  "version": "1.0.0",
+  "description": "LLM-composed Retrieval-Augmented Generation provider for molecule.dev — the default ai-rag bond; composes @molecule/api-semantic-search (retrieval) with the bonded @molecule/api-ai chat provider (generation) to answer questions grounded in your own documents",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "rag",
+    "llm"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-ai": "^1.0.0",
+    "@molecule/api-ai-rag": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-semantic-search": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-ai": "1.0.0",
+    "@molecule/api-ai-rag": "1.0.0",
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
+    "@molecule/api-semantic-search": "1.0.0",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  }
+}

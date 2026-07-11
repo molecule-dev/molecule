@@ -2,21 +2,23 @@
 
 AI summarization for molecule.dev — concise summaries over any bonded LLM.
 
-A *core* package that both defines the `AISummarizationProvider` contract AND
-ships a batteries-included default `provider`. The default has no vendor of
-its own — it composes the swappable `ai` chat bond (`@molecule/api-ai`) with a
-summarizer system prompt built from the requested format / length / focus.
+A *core* package: it defines the `AISummarizationProvider` contract and the
+bond accessor only — zero concrete implementation. The batteries-included
+default lives in the bond package `@molecule/api-ai-summarization-llm`, which
+composes the swappable `ai` chat bond (`@molecule/api-ai`). Apps may bond that
+default or any custom `AISummarizationProvider`.
 
 ## Quick Start
 
 ```typescript
-import { bond } from '@molecule/api-bond'
 import { provider as anthropic } from '@molecule/api-ai-anthropic'
-import { provider as summarization, requireProvider } from '@molecule/api-ai-summarization'
+import { requireProvider } from '@molecule/api-ai-summarization'
+import { provider } from '@molecule/api-ai-summarization-llm'
+import { bond } from '@molecule/api-bond'
 
-// Wire the AI chat provider the default composes, then the summarizer itself.
+// Wire the AI chat provider the default composes, then bond the summarizer.
 bond('ai', anthropic)
-bond('ai-summarization', summarization)
+bond('ai-summarization', provider)
 
 // Use anywhere after startup.
 const { summary, usage } = await requireProvider().summarize({
@@ -181,20 +183,11 @@ function setProvider(provider: AISummarizationProvider): void
 
 - `provider` — The default provider implementation for this process.
 
-### Constants
+## Available Providers
 
-#### `provider`
-
-Default AI summarization provider.
-
-Composes the bonded `ai` chat provider (`@molecule/api-ai`) — an AI provider
-MUST be bonded first (`bond('ai', <provider>)`), or `summarize()` throws. Bond
-it with `bond('ai-summarization', provider)`; swap in a custom
-`AISummarizationProvider` to replace it without touching call sites.
-
-```typescript
-const provider: AISummarizationProvider
-```
+| Provider | Package |
+|----------|---------|
+| Ai Summarization | `@molecule/api-ai-summarization-llm` |
 
 ## Injection Notes
 
@@ -205,9 +198,8 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
-The default `provider` REQUIRES an `ai` provider to be bonded: it composes
-`@molecule/api-ai`, so `bond('ai', <someAiProvider>)` must run first (a missing
-AI provider throws at `summarize()` time, not at import). Pass `provider` on
-the input to target a specific named AI provider. Apps wanting different
-behavior can swap in their own `AISummarizationProvider` via
-`bond('ai-summarization', myProvider)` without changing any call site.
+This core imports `@molecule/api-ai` only as a *type* (the shared `TokenUsage`
+interface on `SummarizeResult`) — never for runtime use. A provider must be
+bonded before `requireProvider()` resolves (it throws otherwise). Swap in a
+custom `AISummarizationProvider` via `bond('ai-summarization', myProvider)`
+without changing any call site.

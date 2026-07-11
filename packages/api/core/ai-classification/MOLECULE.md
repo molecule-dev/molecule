@@ -3,17 +3,18 @@
 Zero-shot AI text classification for molecule.dev.
 
 Score a piece of text against a set of candidate labels using an LLM — no
-training, no fixed taxonomy. The default `provider` exported here is a
-batteries-included implementation that composes the swappable `ai` chat bond
-(`@molecule/api-ai`): it prompts the bonded model to return strict JSON
-scores, then normalizes them into a sorted `ClassifyResult`.
+training, no fixed taxonomy. This core package defines the
+`AIClassificationProvider` contract and its bond accessor only; bond a
+concrete provider (e.g. `@molecule/api-ai-classification-llm`, which composes
+the swappable `ai` chat bond) to give an app classification.
 
 ## Quick Start
 
 ```typescript
 import { bond } from '@molecule/api-bond'
 import { provider as anthropic } from '@molecule/api-ai-anthropic'
-import { provider as classification, requireProvider } from '@molecule/api-ai-classification'
+import { provider as classification } from '@molecule/api-ai-classification-llm'
+import { requireProvider } from '@molecule/api-ai-classification'
 
 // Wire an AI provider + the classifier at startup.
 bond('ai', anthropic)
@@ -194,20 +195,11 @@ function setProvider(provider: AIClassificationProvider): void
 
 - `provider` — The default provider implementation for this process.
 
-### Constants
+## Available Providers
 
-#### `provider`
-
-Default AI classification provider (`name: 'default'`).
-
-Zero-shot classifier composed over the swappable `ai` chat bond. Bond it via
-`bond('ai-classification', provider)` and it will resolve the bonded `ai`
-provider lazily at call time, so swapping the AI provider automatically
-swaps the classifier's backing model.
-
-```typescript
-const provider: AIClassificationProvider
-```
+| Provider | Package |
+|----------|---------|
+| Ai Classification | `@molecule/api-ai-classification-llm` |
 
 ## Injection Notes
 
@@ -218,14 +210,10 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
-- **Requires a bonded `ai` provider.** `classify()` resolves the AI provider
-  from the bond registry at call time via `@molecule/api-ai` — bond one
-  (`bond('ai', anthropic)`) before classifying or it throws.
+- **Interface + accessor only.** This core ships zero implementation. The
+  batteries-included classifier lives in `@molecule/api-ai-classification-llm`.
 - **Swappable.** Both the classifier (`bond('ai-classification', ...)`) and
-  the underlying model (`bond('ai', ...)`) are swappable at runtime; the
-  default provider follows whichever `ai` provider is bonded.
-- Pass `multiLabel: true` when several labels can apply at once, and
-  `instructions` to give the model label definitions or extra guidance.
-- `result.labels` is restricted to the candidate set, sorted descending by
-  score; missing labels default to `0`. Unparseable model output throws (with
-  an output snippet) rather than returning silent garbage.
+  the underlying model (`bond('ai', ...)`) are swappable at runtime.
+- `ClassifyResult.labels` is restricted to the candidate set, sorted
+  descending by score. See the bonded provider for parsing/normalization
+  semantics.

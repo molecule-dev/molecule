@@ -1,0 +1,43 @@
+{
+  "name": "@molecule/api-ai-classification-llm",
+  "version": "1.0.0",
+  "description": "Zero-shot LLM text classifier for molecule.dev — scores candidate labels by composing the swappable ai chat bond",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "classification",
+    "llm"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-ai": "^1.0.0",
+    "@molecule/api-ai-classification": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-ai": "1.0.0",
+    "@molecule/api-ai-classification": "1.0.0",
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  }
+}

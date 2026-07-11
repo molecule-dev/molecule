@@ -1,20 +1,16 @@
 # @molecule/api-ai-rag
 
-`@molecule/api-ai-rag` — batteries-included Retrieval-Augmented Generation.
+`@molecule/api-ai-rag` — the Retrieval-Augmented Generation contract.
 
-Ships a working default `provider` that answers questions grounded in your
-own documents. It composes two existing molecule capabilities rather than
-reimplementing them:
+Defines the `AIRagProvider` interface (ingest / query / remove) plus its
+input/result types, and the bond accessor (`setProvider` / `getProvider` /
+`requireProvider` / …). It ships NO implementation — bond a concrete provider
+such as `@molecule/api-ai-rag-llm`, which composes `@molecule/api-semantic-search`
+(retrieval) with the bonded `@molecule/api-ai` chat provider (generation) to
+answer questions grounded in your own documents.
 
-- **Retrieval** — `@molecule/api-semantic-search` (`indexDocuments` /
-  `search` / `removeDocuments`), which composes the bonded `ai-embeddings`
-  + `ai-vector-store` providers to embed a corpus and similarity-search it.
-- **Generation** — the bonded `@molecule/api-ai` chat provider, prompted to
-  answer using ONLY the retrieved context and to cite sources as `[n]`.
-
-Bond it like any other capability, then `ingest(...)` a corpus and `query(...)`
-it. Everything underneath is swappable via `bond()` — different embeddings,
-vector store, or chat model, with no consumer changes.
+Everything underneath is swappable via `bond()` — different embeddings, vector
+store, chat model, or RAG strategy, with no consumer changes.
 
 ## Quick Start
 
@@ -23,7 +19,8 @@ import { bond } from '@molecule/api-bond'
 import { provider as embeddings } from '@molecule/api-ai-embeddings-openai'
 import { provider as vectorStore } from '@molecule/api-ai-vector-store-memory'
 import { provider as ai } from '@molecule/api-ai-anthropic'
-import { provider as rag, requireProvider } from '@molecule/api-ai-rag'
+import { provider as rag } from '@molecule/api-ai-rag-llm'
+import { requireProvider } from '@molecule/api-ai-rag'
 
 // Bond the retrieval + generation dependencies first, then RAG itself.
 bond('ai-embeddings', embeddings)
@@ -281,20 +278,11 @@ function setProvider(provider: AIRagProvider): void
 
 - `provider` — The default provider implementation for this process.
 
-### Constants
+## Available Providers
 
-#### `provider`
-
-Default, batteries-included Retrieval-Augmented-Generation provider.
-
-Composes `@molecule/api-semantic-search` for retrieval with the bonded
-`@molecule/api-ai` chat provider for generation. Bond it with
-`bond('ai-rag', provider)` after bonding an `ai` provider plus the
-`ai-embeddings` + `ai-vector-store` providers that semantic-search needs.
-
-```typescript
-const provider: AIRagProvider
-```
+| Provider | Package |
+|----------|---------|
+| Ai Rag | `@molecule/api-ai-rag-llm` |
 
 ## Injection Notes
 
@@ -307,11 +295,10 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-semantic-search` ^1.0.0
 
-The default provider needs THREE bonds present at runtime: a `ai` chat
-provider (generation) plus the `ai-embeddings` and `ai-vector-store`
-providers (retrieval, via `@molecule/api-semantic-search`). Bond those before
-calling `query`/`ingest`, or the underlying accessors throw. `query` still
-calls the model when retrieval returns zero chunks, but instructs it to say it
-has no information rather than hallucinate. The whole capability is swappable:
-`bond('ai-rag', myProvider)` replaces the composed default with your own
+A RAG provider is not built in — bond one (e.g. `@molecule/api-ai-rag-llm`).
+The `llm` provider needs THREE bonds present at runtime: a `ai` chat provider
+(generation) plus the `ai-embeddings` and `ai-vector-store` providers
+(retrieval, via `@molecule/api-semantic-search`). Bond those before calling
+`query`/`ingest`, or the underlying accessors throw. The whole capability is
+swappable: `bond('ai-rag', myProvider)` replaces the default with your own
 `AIRagProvider`.

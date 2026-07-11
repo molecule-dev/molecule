@@ -1,18 +1,20 @@
 # @molecule/api-ai-agents
 
-Batteries-included AI agent (tool-calling loop) for molecule.dev.
+AI agents core for molecule.dev — the swappable tool-calling agent contract.
 
-Ships a default `provider` that drives a model↔tool loop over the swappable
-`ai` chat bond (`@molecule/api-ai`): it calls the model, executes any tools
-the model requests via each `AITool.execute()`, feeds the results back, and
-repeats until the model stops calling tools (or the `maxSteps` budget is
-exhausted). Bond it once at startup, then drive it from anywhere.
+Interface-only core: it defines the `AIAgentsProvider` interface (a
+batteries-included tool-calling agent) plus the bond accessor
+(`setProvider`/`getProvider`/`requireProvider`/…). The default implementation
+— a model↔tool loop over the swappable `ai` chat bond (`@molecule/api-ai`) —
+ships in the `@molecule/api-ai-agents-llm` bond package. Bond a provider once
+at startup, then drive it from anywhere.
 
 ## Quick Start
 
 ```typescript
 import { bond } from '@molecule/api-bond'
-import { provider as agents, requireProvider } from '@molecule/api-ai-agents'
+import { requireProvider } from '@molecule/api-ai-agents'
+import { provider as agents } from '@molecule/api-ai-agents-llm'
 import type { AITool } from '@molecule/api-ai'
 
 // Wire at startup (an `ai` provider must already be bonded).
@@ -235,20 +237,11 @@ function setProvider(provider: AIAgentsProvider): void
 
 - `provider` — The default provider implementation for this process.
 
-### Constants
+## Available Providers
 
-#### `provider`
-
-The default AI agents provider: a tool-calling loop over the bonded `ai`
-chat provider.
-
-Bond it with `bond('ai-agents', provider)` and drive it with
-`requireProvider().run({ task, tools })`. Requires a bonded `ai` provider
-whose model supports tool use.
-
-```typescript
-const provider: AIAgentsProvider
-```
+| Provider | Package |
+|----------|---------|
+| Ai Agents | `@molecule/api-ai-agents-llm` |
 
 ## Injection Notes
 
@@ -263,12 +256,6 @@ Peer dependencies:
 provider selected via `run({ provider: 'anthropic' })`) whose model supports
 tool use — the agent has no model of its own; it orchestrates the `ai` bond.
 
-The loop executes your tools: each model `tool_use` runs the matching
-`AITool.execute(input)` and the return value is fed back as a `tool_result`.
-A thrown tool error or an unknown tool name becomes an error `tool_result`
-(recorded with `isError: true`) instead of aborting the run, so the model can
-recover. `run()` requires exactly one of `task` (a single user turn) or
-`messages` (a full history); it throws if neither is supplied.
-
-Swappable like any bond: replace the default agent with your own
-`AIAgentsProvider` via `bond('ai-agents', myProvider)` — nothing else changes.
+This package is the abstract contract only. To get a working agent, also bond
+the `@molecule/api-ai-agents-llm` provider (or your own `AIAgentsProvider`)
+via `bond('ai-agents', provider)` — nothing else changes.
