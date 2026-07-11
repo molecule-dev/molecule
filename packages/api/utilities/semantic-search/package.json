@@ -1,0 +1,42 @@
+{
+  "name": "@molecule/api-semantic-search",
+  "version": "1.0.0",
+  "description": "Semantic search over any document corpus for molecule.dev — composes the ai-embeddings + ai-vector-store bonds (index + search)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "semantic",
+    "search",
+    "embeddings",
+    "vector"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@molecule/api-ai-embeddings": "1.0.0",
+    "@molecule/api-ai-vector-store": "1.0.0",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-embeddings": ">=1.0.0",
+    "@molecule/api-ai-vector-store": ">=1.0.0"
+  }
+}

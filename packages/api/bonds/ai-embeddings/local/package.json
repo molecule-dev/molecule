@@ -1,0 +1,44 @@
+{
+  "name": "@molecule/api-ai-embeddings-local",
+  "version": "1.0.0",
+  "description": "Local (offline) ai-embeddings provider for molecule.dev — runs a small sentence-embedding model in-process via Transformers.js (onnxruntime); no API key and no network at query time",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "embeddings",
+    "local",
+    "offline",
+    "transformers",
+    "onnx"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@huggingface/transformers": "4.2.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-embeddings": ">=1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-ai-embeddings": "1.0.0",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  }
+}
