@@ -21,7 +21,9 @@ npm install @molecule/app-styling
 
 #### `CVAConfig`
 
-Configuration for class variance authority ({@link cva}).
+Configuration for a class-variance-authority (`cva`) function: the variant
+definitions, default selections, and compound variants used to resolve a
+component's final class string from its props.
 
 ```typescript
 interface CVAConfig<T extends Record<string, Record<string, string>>> {
@@ -32,6 +34,16 @@ interface CVAConfig<T extends Record<string, Record<string, string>>> {
 ```
 
 ### Types
+
+#### `ClassMerger`
+
+A class-name merger: post-processes the joined class string produced by
+`cn()` to resolve conflicts (e.g. `tailwind-merge`). Registered by a styling
+bond via `setClassMerger` so the styling core stays framework-agnostic.
+
+```typescript
+type ClassMerger = (className: string) => string
+```
 
 #### `ClassValue`
 
@@ -67,8 +79,10 @@ function camelToKebab(str: string): string
 Merges class names, filtering out falsy values. Supports strings,
 numbers, conditional objects, and nested arrays.
 
-Resolves conflicting Tailwind utilities (e.g. two `gap-*` classes from
-`cm.grid({ cols: 12 })` plus a literal `'gap-10'`) via `tailwind-merge`.
+When a class merger is registered via {@link setClassMerger} (e.g. the
+Tailwind bond registers `tailwind-merge`), conflicting utilities such as two
+`gap-*` classes are resolved by it; otherwise the joined string is returned
+as-is.
 
 ```typescript
 function cn(classes?: ClassValue[]): string
@@ -92,6 +106,17 @@ function cva(base: string, config?: CVAConfig<T>): (props?: { [K in keyof T]?: k
 - `config` — Variant definitions, defaults, and compound variants.
 
 **Returns:** A function that accepts variant props and returns the resolved class string.
+
+#### `setClassMerger(merger)`
+
+Registers the class-name merger used by {@link cn} to resolve conflicting
+classes. Styling bonds call this at startup; pass `null` to clear it.
+
+```typescript
+function setClassMerger(merger: ClassMerger | null): void
+```
+
+- `merger` — Post-processes the joined class string, or `null` to disable merging.
 
 #### `themeToCSS(theme)`
 

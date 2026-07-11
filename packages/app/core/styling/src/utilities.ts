@@ -4,16 +4,35 @@
  * @module
  */
 
-import { twMerge } from 'tailwind-merge'
+import type { ClassMerger, ClassValue, CVAConfig } from './types.js'
 
-import type { ClassValue, CVAConfig } from './types.js'
+/**
+ * The active class-name merger, injected by a styling bond. This core is
+ * framework-agnostic and carries no styling-library dependency; a bond such as
+ * `@molecule/app-styling-tailwind` registers `tailwind-merge` here at startup
+ * (via `setupAppStylingTailwind()` in the default bond wiring). When none is
+ * registered, {@link cn} returns the plain joined string.
+ */
+let classMerger: ClassMerger | null = null
+
+/**
+ * Registers the class-name merger used by {@link cn} to resolve conflicting
+ * classes. Styling bonds call this at startup; pass `null` to clear it.
+ *
+ * @param merger - Post-processes the joined class string, or `null` to disable merging.
+ */
+export const setClassMerger = (merger: ClassMerger | null): void => {
+  classMerger = merger
+}
 
 /**
  * Merges class names, filtering out falsy values. Supports strings,
  * numbers, conditional objects, and nested arrays.
  *
- * Resolves conflicting Tailwind utilities (e.g. two `gap-*` classes from
- * `cm.grid({ cols: 12 })` plus a literal `'gap-10'`) via `tailwind-merge`.
+ * When a class merger is registered via {@link setClassMerger} (e.g. the
+ * Tailwind bond registers `tailwind-merge`), conflicting utilities such as two
+ * `gap-*` classes are resolved by it; otherwise the joined string is returned
+ * as-is.
  *
  * @param classes - Class values to merge (strings, booleans, objects, arrays).
  * @returns A single space-separated class string.
@@ -43,7 +62,8 @@ export const cn = (...classes: ClassValue[]): string => {
     })
     .join(' ')
     .trim()
-  return joined === '' ? '' : twMerge(joined)
+  if (joined === '') return ''
+  return classMerger ? classMerger(joined) : joined
 }
 
 /**

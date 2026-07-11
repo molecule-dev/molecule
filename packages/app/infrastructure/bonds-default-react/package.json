@@ -71,6 +71,7 @@
     "@molecule/app-routing-react-router": "^1.0.0",
     "@molecule/app-storage": "^1.0.0",
     "@molecule/app-storage-localstorage": "^1.0.0",
+    "@molecule/app-styling-tailwind": "^1.0.0",
     "@molecule/app-theme": "^1.0.0",
     "@molecule/app-theme-css-variables": "^1.0.0",
     "@molecule/app-ui": "^1.0.0",

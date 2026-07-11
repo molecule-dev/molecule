@@ -19,8 +19,6 @@ npm install @molecule/app-styling-tailwind
 
 #### `CVAConfig`
 
-Configuration for class variance authority ({@link cva}).
-
 ```typescript
 interface CVAConfig<T extends Record<string, Record<string, string>>> {
     variants?: T;
@@ -166,6 +164,18 @@ function hover(classes?: string[]): string
 
 **Returns:** A space-separated string of `hover:`-prefixed classes.
 
+#### `registerTailwindClassMerger()`
+
+Registers `tailwind-merge` as the class merger for `@molecule/app-styling`'s
+`cn()`, so conflicting Tailwind utilities (e.g. two `gap-*`) resolve with the
+last one winning. Called once at startup by `setupAppStylingTailwind()` in
+the default React bond wiring; call it directly in any custom setup (or test)
+that renders Tailwind-styled components and relies on conflict resolution.
+
+```typescript
+function registerTailwindClassMerger(): void
+```
+
 #### `responsive(classes)`
 
 Generates responsive class variants.
@@ -241,8 +251,10 @@ const cardClasses: (props?: ({ variant?: "outline" | "default" | "elevated" | un
 Merges class names, filtering out falsy values. Supports strings,
 numbers, conditional objects, and nested arrays.
 
-Resolves conflicting Tailwind utilities (e.g. two `gap-*` classes from
-`cm.grid({ cols: 12 })` plus a literal `'gap-10'`) via `tailwind-merge`.
+When a class merger is registered via {@link setClassMerger} (e.g. the
+Tailwind bond registers `tailwind-merge`), conflicting utilities such as two
+`gap-*` classes are resolved by it; otherwise the joined string is returned
+as-is.
 
 ```typescript
 const cn: (...classes: ClassValue[]) => string

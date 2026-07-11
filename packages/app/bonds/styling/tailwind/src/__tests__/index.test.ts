@@ -12,7 +12,9 @@
  * @module
  */
 
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
+
+import { setClassMerger } from '@molecule/app-styling'
 
 import {
   active,
@@ -34,6 +36,7 @@ import {
   hide,
   hover,
   inputClasses,
+  registerTailwindClassMerger,
   // Responsive and state helpers
   responsive,
   show,
@@ -304,6 +307,27 @@ describe('cn utility', () => {
     it('should trim result', () => {
       expect(cn('btn', 'primary')).toBe('btn primary')
     })
+  })
+})
+
+// =============================================================================
+// registerTailwindClassMerger Tests
+// =============================================================================
+
+describe('registerTailwindClassMerger', () => {
+  afterEach(() => {
+    // Restore the framework-agnostic default so other tests keep join-only cn.
+    setClassMerger(null)
+  })
+
+  it('leaves cn as plain join before registration', () => {
+    expect(cn('grid grid-cols-12 gap-4', 'gap-10')).toBe('grid grid-cols-12 gap-4 gap-10')
+  })
+
+  it('resolves conflicting Tailwind utilities (last wins) after registration', () => {
+    registerTailwindClassMerger()
+    expect(cn('grid grid-cols-12 gap-4', 'gap-10')).toBe('grid grid-cols-12 gap-10')
+    expect(cn('p-2', 'p-4')).toBe('p-4')
   })
 })
 

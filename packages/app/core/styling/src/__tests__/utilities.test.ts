@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import { themeToCSS } from '../theme.js'
-import { camelToKebab, cn, cva } from '../utilities.js'
+import { camelToKebab, cn, cva, setClassMerger } from '../utilities.js'
 
 describe('@molecule/app-styling', () => {
   describe('cn', () => {
@@ -37,8 +37,21 @@ describe('@molecule/app-styling', () => {
       expect(cn('text', 0)).toBe('text 0')
     })
 
-    it('should merge conflicting Tailwind gap utilities (last wins)', () => {
+    it('should NOT resolve conflicts when no merger is registered (framework-agnostic)', () => {
+      // The core carries no styling-library dependency; without a registered
+      // merger it just joins. Conflict resolution is a bond concern.
+      expect(cn('grid grid-cols-12 gap-4', 'gap-10')).toBe('grid grid-cols-12 gap-4 gap-10')
+    })
+
+    it('should pipe the joined string through a registered merger', () => {
+      // Simulate what @molecule/app-styling-tailwind registers (tailwind-merge):
+      // collapse repeated `gap-*` to the last one.
+      setClassMerger((s) => s.replace(/gap-\d+ (?=.*gap-\d+)/g, ''))
       expect(cn('grid grid-cols-12 gap-4', 'gap-10')).toBe('grid grid-cols-12 gap-10')
+    })
+
+    afterEach(() => {
+      setClassMerger(null)
     })
   })
 
