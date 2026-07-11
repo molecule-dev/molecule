@@ -1,6 +1,6 @@
 # @molecule/api-ai-google
 
-Google ai-google provider for molecule.dev.
+Google Gemini AI provider for molecule.dev.
 
 ## Type
 `provider`
@@ -16,34 +16,54 @@ npm install @molecule/api-ai-google
 
 #### `GoogleConfig`
 
-Google provider configuration (TODO: expand required fields).
+Configuration for the Google Gemini AI provider.
 
 ```typescript
 interface GoogleConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+  /** API key. Defaults to the `GOOGLE_AI_API_KEY` env var. */
+  apiKey?: string
+  /**
+   * Base URL override (for proxies / gateways). Defaults to the
+   * `GOOGLE_AI_BASE_URL` env var, then Google's public Generative Language
+   * endpoint (`https://generativelanguage.googleapis.com/v1beta`).
+   */
+  baseUrl?: string
+  /**
+   * Default model id when not overridden per-request. Defaults to the
+   * `GOOGLE_AI_MODEL` env var, then `gemini-2.0-flash`.
+   */
+  model?: string
 }
 ```
 
-### Classes
+#### `ProcessEnv`
 
-#### `GoogleAIProvider`
+Process env vars read by the Google Gemini AI bond.
 
-Stub Google AI provider scaffold (TODO: implement API wiring).
+```typescript
+interface ProcessEnv {
+  /** Google AI (Gemini) API key. */
+  GOOGLE_AI_API_KEY: string
+  /** Base URL override (for credential brokers / gateways). */
+  GOOGLE_AI_BASE_URL?: string
+  /** Default model id override. */
+  GOOGLE_AI_MODEL?: string
+}
+```
 
 ### Functions
 
 #### `createProvider(config)`
 
-Creates a Google AI provider instance for bonding.
+Creates a Google Gemini AI provider instance.
 
 ```typescript
-function createProvider(config?: GoogleConfig): GoogleAIProvider
+function createProvider(config?: GoogleConfig): AIProvider
 ```
 
-- `config` — Google provider configuration.
+- `config` — Google-specific configuration (API key, base URL, model).
 
-**Returns:** A Google-backed provider instance.
+**Returns:** An `AIProvider` backed by the Google Generative Language REST API.
 
 ### Constants
 
@@ -55,6 +75,14 @@ Secret definitions required by the Google AI bond.
 const aiGoogleSecretDefinitions: SecretDefinition[]
 ```
 
+#### `provider`
+
+The provider implementation.
+
+```typescript
+const provider: AIProvider
+```
+
 ## Core Interface
 Implements `@molecule/api-ai` interface.
 
@@ -63,6 +91,9 @@ Implements `@molecule/api-ai` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-ai` ^1.0.0
+- `@molecule/api-bond` ^1.0.0
+- `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables

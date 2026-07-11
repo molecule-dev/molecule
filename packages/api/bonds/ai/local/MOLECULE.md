@@ -1,6 +1,10 @@
 # @molecule/api-ai-local
 
-Local ai-local provider for molecule.dev.
+Local (OpenAI-compatible) ai-local provider for molecule.dev.
+
+Streams chat completions from any local inference server that speaks the
+OpenAI `chat/completions` protocol (Ollama, LM Studio, llama.cpp, vLLM),
+keyless by default.
 
 ## Type
 `provider`
@@ -16,12 +20,26 @@ npm install @molecule/api-ai-local
 
 #### `LocalConfig`
 
-Local provider configuration (TODO: expand required fields).
+Local (OpenAI-compatible) provider configuration.
 
 ```typescript
 interface LocalConfig {
-  // TODO: Define provider-specific config
-  [key: string]: unknown
+  /**
+   * Base URL of the OpenAI-compatible endpoint, INCLUDING the version segment
+   * (e.g. `http://localhost:11434/v1`). Overrides `LOCAL_AI_BASE_URL` /
+   * `OLLAMA_BASE_URL`. Defaults to Ollama's `http://localhost:11434/v1`.
+   */
+  baseUrl?: string
+  /**
+   * Optional API key. Most local servers ignore auth; when omitted (and no
+   * `LOCAL_AI_API_KEY` env var is set) no `Authorization` header is sent.
+   */
+  apiKey?: string
+  /**
+   * Default model when a call doesn't specify one. Overrides `LOCAL_AI_MODEL`.
+   * Defaults to `llama3.1`.
+   */
+  model?: string
 }
 ```
 
@@ -29,21 +47,53 @@ interface LocalConfig {
 
 #### `LocalAIProvider`
 
-Stub local AI provider scaffold (TODO: implement API wiring).
+Local (OpenAI-compatible) chat provider implementing the `AIProvider`
+interface. Mirrors `@molecule/api-ai-openai` so the same handler code can
+dispatch to a local endpoint.
 
 ### Functions
 
 #### `createProvider(config)`
 
-Creates a local AI provider instance for bonding.
+Create a local (OpenAI-compatible) AI provider instance.
+
+Constructs WITHOUT requiring any secret — local endpoints run keyless.
 
 ```typescript
-function createProvider(config?: LocalConfig): LocalAIProvider
+function createProvider(config?: LocalConfig): AIProvider
 ```
 
 - `config` — Local provider configuration.
 
-**Returns:** A local-backed provider instance.
+**Returns:** An `AIProvider` backed by an OpenAI-compatible local endpoint.
+
+### Constants
+
+#### `aiLocalSecretDefinitions`
+
+Optional secret/config overrides recognised by the local AI bond.
+
+```typescript
+const aiLocalSecretDefinitions: SecretDefinition[]
+```
+
+#### `provider`
+
+The provider implementation. Constructs keyless — no secret required.
+
+```typescript
+const provider: AIProvider
+```
 
 ## Core Interface
 Implements `@molecule/api-ai` interface.
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/api-ai` ^1.0.0
+- `@molecule/api-bond` ^1.0.0
+- `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-secrets` ^1.0.0
