@@ -245,3 +245,59 @@ describe('ChatPanel history restore on refresh (loadOnMount)', () => {
     })
   })
 })
+
+describe('ChatPanel resource-limit (OOM) upgrade banner', () => {
+  const oomHistory = (): ChatMessage[] => [
+    { id: 'u1', role: 'user', content: 'add 2fa', timestamp: 1000 },
+    {
+      id: 'a-oom',
+      role: 'assistant',
+      content: '',
+      timestamp: 2000,
+      blocks: [
+        {
+          type: 'resource_limit',
+          resource: 'memory',
+          message: 'A process ran out of memory. Upgrade for more sandbox resources.',
+        },
+      ],
+    },
+  ]
+
+  it('renders the host upgrade buttons through the shared notice card (no bespoke svg)', async () => {
+    const wrap = (children: ReactNode): ReactElement => (
+      <I18nProvider provider={createSimpleI18nProvider('en')}>
+        <ThemeProvider provider={buildThemeProvider()}>
+          <HttpProvider client={buildHttpClient()}>
+            <ChatContextProvider provider={buildChatProvider(oomHistory())}>
+              {children}
+            </ChatContextProvider>
+          </HttpProvider>
+        </ThemeProvider>
+      </I18nProvider>
+    )
+    const { container } = render(
+      wrap(
+        <ChatPanel
+          projectId="proj-oom"
+          userAvatar={null}
+          buildUpgradeCta={() => [
+            { label: 'Sign up', href: '/signup' },
+            { label: 'Log in', href: '/login' },
+          ]}
+        />,
+      ),
+    )
+
+    await waitFor(() => expect(container.textContent).toContain('ran out of memory'))
+    // The OOM block renders through the SAME notice-card structure as every other
+    // upgrade notice — not a one-off banner.
+    const card = container.querySelector('[data-mol-id="chat-notice-card"]')
+    expect(card).toBeTruthy()
+    // It now carries the host's sign-in/upgrade BUTTONS (previously it had none).
+    expect(card?.querySelector('a[href="/signup"]')).toBeTruthy()
+    expect(card?.querySelector('a[href="/login"]')).toBeTruthy()
+    // And NOT the old bespoke raw <svg> warning triangle (the inconsistent icon).
+    expect(card?.querySelector('svg path[d^="M8.485"]')).toBeNull()
+  })
+})

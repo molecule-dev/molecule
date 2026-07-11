@@ -379,21 +379,6 @@ type AddSystemCardOptions = DistributiveOmit<SystemCard, 'id' | 'text' | 'timest
   timestamp?: number
 }
 
-/**
- * Returns the first action carrying an `href` from a single action or an array of
- * actions (or undefined). Used to feed host-supplied upgrade CTAs into the
- * single-link {@link ResourceLimitBanner}.
- * @param action - One action, an array of actions, or null/undefined.
- * @returns The first action with an `href`, or undefined.
- */
-function firstLinkAction(
-  action: ChatEventCardAction | ChatEventCardAction[] | null | undefined,
-): ChatEventCardAction | undefined {
-  if (!action) return undefined
-  const list = Array.isArray(action) ? action : [action]
-  return list.find((a) => !!a.href)
-}
-
 /** A dismissable auto-tip entry in the chat timeline. */
 interface TipCardEntry {
   id: string
@@ -1181,92 +1166,170 @@ function VerificationBadge({
 
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-// ResourceLimitBanner — upgrade prompt when sandbox runs out of memory
+// NoticeCard — the ONE shared tone-accented notice treatment
 // ---------------------------------------------------------------------------
 
+/** The accent + default icon per tone. Exported shape via {@link NoticeCard}. */
+const NOTICE_TONE: Record<
+  'info' | 'gold' | 'upgrade' | 'success' | 'signup',
+  { accent: string; icon: IconName }
+> = {
+  info: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'info-circle' },
+  gold: { accent: '#e0a100', icon: 'lightbulb' },
+  // Limit / degraded / budget / upgrade notices: a `clock` icon — an OUTLINE ring
+  // built exactly like `info-circle`, so it matches the other tone icons' weight
+  // (the solid `exclamation-triangle`/`sparkle` glyphs read far heavier). The accent
+  // is the theme WARNING token so the border stays visible on light backgrounds too.
+  upgrade: { accent: 'var(--mol-color-warning, #e0a100)', icon: 'clock' },
+  success: { accent: '#3fb950', icon: 'check-circle' },
+  signup: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'sign-in' },
+}
+
 /**
- * Inline banner shown when the sandbox runs out of memory, prompting the user to upgrade.
+ * The single shared notice-card treatment: a matched-weight accent {@link Icon},
+ * an optional composable body (or plain text), and a left-aligned row of accent
+ * outline action buttons. EVERY inline notice renders through this — the system
+ * tip/notice cards AND the resource-limit / upgrade banners (see
+ * {@link ResourceLimitBanner}) — so their icon + buttons can never drift apart
+ * again. The host owns the button routes/copy; it passes them in as `action`.
+ *
  * @param root0 - Component props.
- * @param root0.message - The resource limit message.
- * @param root0.ctaLabel - Label for the call-to-action button.
- * @param root0.ctaHref - Link target for the call-to-action button.
- * @returns The rendered upgrade banner element.
+ * @param root0.tone - Accent + default icon (info/gold/upgrade/success/signup).
+ * @param root0.text - Plain-text body (fallback when no `content`).
+ * @param root0.content - Composable inline body (prose / code / inline links).
+ * @param root0.action - One or more host-supplied CTAs, rendered as buttons.
+ * @param root0.icon - Icon-name override (defaults to the tone's icon).
+ * @returns The rendered notice card.
  */
-function ResourceLimitBanner({
-  message,
-  ctaLabel,
-  ctaHref,
+function NoticeCard({
+  tone,
+  text,
+  content,
+  action,
+  icon: iconOverride,
 }: {
-  message: string
-  ctaLabel?: string
-  ctaHref?: string
+  tone: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
+  text?: string
+  content?: ChatEventCardSegment[]
+  action?: ChatEventCardAction | ChatEventCardAction[] | null
+  icon?: IconName
 }): JSX.Element {
   const cm = getClassMap()
+  const { accent, icon: defaultIcon } = NOTICE_TONE[tone]
+  const icon = iconOverride ?? defaultIcon
+  const actions = action ? (Array.isArray(action) ? action : [action]) : []
+  const multiLine = (text ?? '').includes('\n')
+  // Buttons sit ON the card's tint, so they need their OWN opaque background to read
+  // as real buttons (a transparent "ghost" fill blends into the card). Opaque surface
+  // + a stronger accent border than the card frame + a hairline shadow.
+  const buttonBg = 'var(--mol-color-surface, transparent)'
+  const buttonHoverBg = `color-mix(in srgb, ${accent} 15%, var(--mol-color-surface, transparent))`
+  const onEnter = (e: React.MouseEvent<HTMLElement>): void => {
+    ;(e.currentTarget as HTMLElement).style.background = buttonHoverBg
+  }
+  const onLeave = (e: React.MouseEvent<HTMLElement>): void => {
+    ;(e.currentTarget as HTMLElement).style.background = buttonBg
+  }
   return (
     <div
+      data-mol-id="chat-notice-card"
+      data-tone={tone}
+      className={cm.textSize('xs')}
       style={{
-        margin: '6px 0',
-        padding: '10px 14px',
-        borderRadius: 6,
-        border: '1px solid rgba(234,179,8,0.4)',
-        background: 'rgba(234,179,8,0.08)',
         display: 'flex',
         alignItems: 'flex-start',
-        gap: 8,
+        gap: 10,
+        marginBottom: TIMELINE_ITEM_GAP,
+        ...chatCardStyle(accent),
+        lineHeight: 1.5,
       }}
     >
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 20 20"
-        fill="#d4a017"
-        style={{ flexShrink: 0, marginTop: 1 }}
-      >
-        <path
-          fillRule="evenodd"
-          d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.168 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z"
-          clipRule="evenodd"
-        />
-      </svg>
-      <div style={{ flex: 1 }}>
-        <span className={cm.textSize('xs')} style={{ display: 'block' }}>
-          {message}
-        </span>
-        {/* The CTA route is owned by the host app (passed as `ctaHref`); the shared
-            package hardcodes none. Render the button only when the host supplies a link. */}
-        {ctaHref && (
-          <a
-            href={ctaHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-block',
-              marginTop: 8,
-              fontSize: 12,
-              fontWeight: 600,
-              padding: '5px 14px',
-              borderRadius: 6,
-              cursor: 'pointer',
-              textDecoration: 'none',
-              transition: 'opacity 100ms',
-              fontFamily: 'inherit',
-              border: 'none',
-              background: 'var(--color-primary)',
-              color: '#fff',
-            }}
-            onMouseEnter={(e) => {
-              ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary-hover)'
-            }}
-            onMouseLeave={(e) => {
-              ;(e.currentTarget as HTMLElement).style.background = 'var(--color-primary)'
-            }}
-          >
-            {ctaLabel ?? t('ide.chat.viewPlans', undefined, { defaultValue: 'View plans' })}
-          </a>
+      <Icon
+        name={icon}
+        size={CHAT_CARD_ICON_SIZE}
+        aria-hidden="true"
+        style={{ flexShrink: 0, marginTop: 1, color: accent }}
+      />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {content ? (
+          content.map((seg, i) => renderCardSegment(seg, i))
+        ) : (
+          <span style={multiLine ? { whiteSpace: 'pre-wrap' } : undefined}>{text}</span>
+        )}
+        {!content && actions.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+            {actions.map((act, i) => {
+              const style: React.CSSProperties = {
+                display: 'inline-flex',
+                alignItems: 'center',
+                fontSize: 12,
+                fontWeight: 600,
+                padding: '4px 10px',
+                borderRadius: 6,
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',
+                border: `1px solid ${chatCardBorder(accent, 55)}`,
+                color: accent,
+                background: buttonBg,
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
+                transition: 'background 100ms',
+              }
+              return act.href ? (
+                <a
+                  key={i}
+                  href={act.href}
+                  target={act.href.startsWith('http') ? '_blank' : undefined}
+                  rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  style={style}
+                  onMouseEnter={onEnter}
+                  onMouseLeave={onLeave}
+                >
+                  {act.label}
+                </a>
+              ) : (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={act.onClick}
+                  style={style}
+                  onMouseEnter={onEnter}
+                  onMouseLeave={onLeave}
+                >
+                  {act.label}
+                </button>
+              )
+            })}
+          </div>
         )}
       </div>
     </div>
   )
+}
+
+// ResourceLimitBanner — upgrade prompt when sandbox runs out of memory / a limit hits
+// ---------------------------------------------------------------------------
+
+/**
+ * Inline banner shown when the sandbox runs out of memory (or another usage limit
+ * is hit), prompting the user to upgrade. Renders through the shared
+ * {@link NoticeCard} so it has the SAME matched-weight icon + accent button row as
+ * every other upgrade notice — no bespoke icon, no single-link special case. The
+ * host supplies the sign-in / upgrade buttons via `buildUpgradeCta` → `action`.
+ *
+ * @param root0 - Component props.
+ * @param root0.message - The resource-limit message.
+ * @param root0.action - Host-supplied upgrade/sign-in CTAs (from `buildUpgradeCta`).
+ * @returns The rendered upgrade banner element.
+ */
+function ResourceLimitBanner({
+  message,
+  action,
+}: {
+  message: string
+  action?: ChatEventCardAction | ChatEventCardAction[] | null
+}): JSX.Element {
+  return <NoticeCard tone="upgrade" text={message} action={action} />
 }
 
 // CommitCardItem — expandable tool-call-style card for commits
@@ -1564,6 +1627,12 @@ interface MessageItemProps {
   onAvatarClick?: () => void
   /** Discovery phase — gives consecutive question/answer cards roomier, uncollapsed spacing (B3). */
   discovery?: boolean
+  /**
+   * Host-supplied upgrade/sign-in CTA builder — used to give the in-message
+   * resource-limit (OOM) banner its sign-in/upgrade buttons. See
+   * {@link ChatPanelProps.buildUpgradeCta}.
+   */
+  buildUpgradeCta?: ChatPanelProps['buildUpgradeCta']
 }
 
 /**
@@ -1598,6 +1667,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     userAvatar,
     onAvatarClick,
     discovery,
+    buildUpgradeCta,
   } = props
 
   const cm = getClassMap()
@@ -2046,7 +2116,11 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   message: string
                 }
                 return (
-                  <ResourceLimitBanner key={`resource-limit-${bi}`} message={rlBlock.message} />
+                  <ResourceLimitBanner
+                    key={`resource-limit-${bi}`}
+                    message={rlBlock.message}
+                    action={buildUpgradeCta?.({})}
+                  />
                 )
               }
 
@@ -5958,135 +6032,18 @@ function ChatInner({
                 item.card.tone ?? (item.card.emphasized || item.card.action ? 'info' : null)
 
               if (tipTone) {
-                // One value (the accent) drives the whole treatment — border + bg derive
-                // from it via color-mix (works with a CSS var OR a hex), so tones stay in
-                // lockstep and a new tone is just one row. Icon defaults per tone; a card may
-                // override it (`icon`).
-                const TONE: Record<string, { accent: string; icon: IconName }> = {
-                  info: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'info-circle' },
-                  gold: { accent: '#e0a100', icon: 'lightbulb' },
-                  // Limit / degraded / budget notices: a `clock` icon — an OUTLINE ring
-                  // built exactly like `info-circle`, so it matches the other tone icons'
-                  // weight (the solid `exclamation-triangle`/`sparkle` glyphs read far
-                  // heavier) and fits the "budget refreshes daily, come back" framing. The
-                  // accent is the theme's WARNING token (a darker gold in light mode) so the
-                  // border stays clearly visible on a light background, not just on dark.
-                  upgrade: { accent: 'var(--mol-color-warning, #e0a100)', icon: 'clock' },
-                  success: { accent: '#3fb950', icon: 'check-circle' },
-                  signup: { accent: 'var(--mol-color-primary, #6366f1)', icon: 'sign-in' },
-                }
-                const { accent, icon: defaultIcon } = TONE[tipTone]
-                const icon = item.card.icon ?? defaultIcon
-                const actions = item.card.action
-                  ? Array.isArray(item.card.action)
-                    ? item.card.action
-                    : [item.card.action]
-                  : []
-                const multiLine = item.card.text.includes('\n')
-                // Action buttons sit ON the card's tint, so they need their OWN opaque
-                // background to read as actual buttons — a transparent "ghost" fill made
-                // them blend into the card (user: "their background is the same exact
-                // color as the card"). Opaque theme surface + a stronger accent border
-                // than the card frame (55% vs 40%) + a hairline shadow = a real button
-                // in both themes with no contrast risk on any accent. Hover deepens the
-                // fill with an accent tint over that same surface.
-                const buttonBg = 'var(--mol-color-surface, transparent)'
-                const buttonHoverBg = `color-mix(in srgb, ${accent} 15%, var(--mol-color-surface, transparent))`
-                const onEnter = (e: React.MouseEvent<HTMLElement>): void => {
-                  ;(e.currentTarget as HTMLElement).style.background = buttonHoverBg
-                }
-                const onLeave = (e: React.MouseEvent<HTMLElement>): void => {
-                  ;(e.currentTarget as HTMLElement).style.background = buttonBg
-                }
+                // ONE shared treatment for every tone-accented notice — see NoticeCard.
+                // The resource-limit / upgrade banner renders through the same component,
+                // so their icon + buttons stay in lockstep.
                 return (
-                  <div
+                  <NoticeCard
                     key={item.card.id}
-                    data-mol-id="chat-notice-card"
-                    data-tone={tipTone}
-                    className={cm.textSize('xs')}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: 10,
-                      // One timeline rhythm: bottom margin only (see TIMELINE_ITEM_GAP).
-                      marginBottom: TIMELINE_ITEM_GAP,
-                      // Shared card chrome: subtle tint + a uniform 1px border on all
-                      // sides (no thicker left accent bar — kept consistent with the
-                      // rest of the info-card family).
-                      ...chatCardStyle(accent),
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    <Icon
-                      name={icon}
-                      size={CHAT_CARD_ICON_SIZE}
-                      aria-hidden="true"
-                      style={{ flexShrink: 0, marginTop: 1, color: accent }}
-                    />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      {item.card.content ? (
-                        // Composable inline body: prose / monospace code / inline links in
-                        // order — used by the onboarding cards so a link sits mid-sentence.
-                        item.card.content.map((seg, i) => renderCardSegment(seg, i))
-                      ) : (
-                        <span style={multiLine ? { whiteSpace: 'pre-wrap' } : undefined}>
-                          {item.card.text}
-                        </span>
-                      )}
-                      {/* Action cards (no inline `content`) get a consistent, left-aligned row
-                          of accent outline buttons on an OPAQUE surface — never transparent
-                          "ghost" fills (they blend into the tinted card) and never the old
-                          centered filled buttons. */}
-                      {!item.card.content && actions.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
-                          {actions.map((act, i) => {
-                            const style: React.CSSProperties = {
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              fontSize: 12,
-                              fontWeight: 600,
-                              padding: '4px 10px',
-                              borderRadius: 6,
-                              cursor: 'pointer',
-                              textDecoration: 'none',
-                              fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',
-                              border: `1px solid ${chatCardBorder(accent, 55)}`,
-                              color: accent,
-                              background: buttonBg,
-                              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
-                              transition: 'background 100ms',
-                            }
-                            return act.href ? (
-                              <a
-                                key={i}
-                                href={act.href}
-                                target={act.href.startsWith('http') ? '_blank' : undefined}
-                                rel={
-                                  act.href.startsWith('http') ? 'noopener noreferrer' : undefined
-                                }
-                                style={style}
-                                onMouseEnter={onEnter}
-                                onMouseLeave={onLeave}
-                              >
-                                {act.label}
-                              </a>
-                            ) : (
-                              <button
-                                key={i}
-                                type="button"
-                                onClick={act.onClick}
-                                style={style}
-                                onMouseEnter={onEnter}
-                                onMouseLeave={onLeave}
-                              >
-                                {act.label}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                    tone={tipTone}
+                    text={item.card.text}
+                    content={item.card.content}
+                    action={item.card.action}
+                    icon={item.card.icon}
+                  />
                 )
               }
 
@@ -6164,6 +6121,7 @@ function ChatInner({
                 userAvatar={userAvatar}
                 onAvatarClick={onUserAvatarClick}
                 discovery={discovery}
+                buildUpgradeCta={buildUpgradeCta}
               />
             )
           },
@@ -6171,20 +6129,12 @@ function ChatInner({
 
         {error &&
           (errorMeta?.limitType ? (
-            // The CTA route/copy are the host's — ask buildUpgradeCta for the
-            // upgrade/sign-in link (none rendered if the host supplies nothing).
-            (() => {
-              const limitCta = firstLinkAction(
-                buildUpgradeCta?.({ requiresSignup: errorMeta.requiresSignup }),
-              )
-              return (
-                <ResourceLimitBanner
-                  message={error}
-                  ctaLabel={limitCta?.label}
-                  ctaHref={limitCta?.href}
-                />
-              )
-            })()
+            // The CTA routes/copy are the host's — ask buildUpgradeCta for the FULL
+            // upgrade/sign-in button set (none rendered if the host supplies nothing).
+            <ResourceLimitBanner
+              message={error}
+              action={buildUpgradeCta?.({ requiresSignup: errorMeta.requiresSignup })}
+            />
           ) : (
             <div
               className={cm.cn(
@@ -6273,13 +6223,12 @@ function ChatInner({
             background: 'rgba(234,179,8,0.06)',
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="#d4a017" style={{ flexShrink: 0 }}>
-            <path
-              fillRule="evenodd"
-              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.168 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <Icon
+            name="exclamation-triangle"
+            size={14}
+            aria-hidden="true"
+            style={{ flexShrink: 0, color: '#d4a017' }}
+          />
           <span style={{ flex: 1, opacity: 0.85 }}>
             {autoFixCountdown.paused
               ? t('ide.chat.autoFixPaused', undefined, { defaultValue: 'Auto-fix paused' })
@@ -6366,13 +6315,12 @@ function ChatInner({
             background: 'rgba(234,179,8,0.06)',
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="#d4a017" style={{ flexShrink: 0 }}>
-            <path
-              fillRule="evenodd"
-              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.168 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <Icon
+            name="exclamation-triangle"
+            size={14}
+            aria-hidden="true"
+            style={{ flexShrink: 0, color: '#d4a017' }}
+          />
           <span style={{ flex: 1, opacity: 0.85 }}>
             {t(
               'ide.chat.retryCountdown',
