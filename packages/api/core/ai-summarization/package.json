@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-ai-summarization",
   "version": "1.0.0",
-  "description": "",
+  "description": "AI text summarization composed over any bonded LLM (@molecule/api-ai), with a swappable provider contract",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,31 @@
   "keywords": [
     "molecule",
     "ai",
-    "summarization"
+    "summarization",
+    "llm"
   ],
   "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-ai": "^1.0.0",
+    "@molecule/api-bond": "^1.0.0",
+    "@molecule/api-i18n": "^1.0.0"
+  },
   "devDependencies": {
+    "@molecule/api-ai": "1.0.0",
+    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-i18n": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
     "vitest": "4.1.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/ai-summarization"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/ai-summarization",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
   }
 }

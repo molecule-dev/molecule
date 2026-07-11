@@ -1,6 +1,53 @@
 # @molecule/api-ai-rag
 
-ai-rag core interface for molecule.dev.
+`@molecule/api-ai-rag` — batteries-included Retrieval-Augmented Generation.
+
+Ships a working default `provider` that answers questions grounded in your
+own documents. It composes two existing molecule capabilities rather than
+reimplementing them:
+
+- **Retrieval** — `@molecule/api-semantic-search` (`indexDocuments` /
+  `search` / `removeDocuments`), which composes the bonded `ai-embeddings`
+  + `ai-vector-store` providers to embed a corpus and similarity-search it.
+- **Generation** — the bonded `@molecule/api-ai` chat provider, prompted to
+  answer using ONLY the retrieved context and to cite sources as `[n]`.
+
+Bond it like any other capability, then `ingest(...)` a corpus and `query(...)`
+it. Everything underneath is swappable via `bond()` — different embeddings,
+vector store, or chat model, with no consumer changes.
+
+## Quick Start
+
+```ts
+import { bond } from '@molecule/api-bond'
+import { provider as embeddings } from '@molecule/api-ai-embeddings-openai'
+import { provider as vectorStore } from '@molecule/api-ai-vector-store-memory'
+import { provider as ai } from '@molecule/api-ai-anthropic'
+import { provider as rag, requireProvider } from '@molecule/api-ai-rag'
+
+// Bond the retrieval + generation dependencies first, then RAG itself.
+bond('ai-embeddings', embeddings)
+bond('ai-vector-store', vectorStore)
+bond('ai', ai)
+bond('ai-rag', rag)
+
+// Ingest a corpus.
+await requireProvider().ingest({
+  collection: 'handbook',
+  documents: [
+    { id: 'pto', text: 'Employees accrue 15 PTO days per year.' },
+    { id: 'wfh', text: 'Remote work is allowed up to 3 days per week.' },
+  ],
+})
+
+// Ask a grounded question.
+const { answer, sources, usage } = await requireProvider().query({
+  collection: 'handbook',
+  query: 'How many PTO days do I get?',
+  topK: 5,
+})
+// answer: "You accrue 15 PTO days per year [1]."  sources: [{ id: 'pto', … }]
+```
 
 ## Type
 `core`
@@ -16,64 +63,255 @@ npm install @molecule/api-ai-rag
 
 #### `AIRagConfig`
 
-Config options for an AI RAG bond (TODO: tighten schema).
+Config options for an AI RAG bond.
 
 ```typescript
 interface AIRagConfig {
-  // TODO: Define configuration options
   [key: string]: unknown
 }
 ```
 
 #### `AIRagProvider`
 
-Live AI RAG integration contract (TODO: expand methods).
+Retrieval-Augmented Generation contract.
+
+A provider ingests a document corpus, then answers questions grounded in the
+most relevant retrieved chunks. The default provider composes
+`@molecule/api-semantic-search` (retrieval) with the bonded `@molecule/api-ai`
+chat provider (generation); swap either underlying bond without touching
+consumers.
 
 ```typescript
 interface AIRagProvider {
+  /** Human-readable provider name (the default composed provider is `'default'`). */
   readonly name: string
-  // TODO: Define provider methods
+  /**
+   * Embed and index a corpus of documents into a collection.
+   *
+   * @param input - The collection, documents, and optional embedding model.
+   * @returns The number of documents indexed and the embedding dimensionality.
+   */
+  ingest(input: IngestInput): Promise<IngestResult>
+  /**
+   * Retrieve the most relevant chunks for a question, then generate an answer
+   * grounded in (and citing) them.
+   *
+   * @param input - The collection, question, and optional retrieval/generation overrides.
+   * @returns The grounded answer, the retrieved sources, and token usage.
+   */
+  query(input: RagQueryInput): Promise<RagQueryResult>
+  /**
+   * Remove previously-ingested documents from a collection by their ids.
+   *
+   * @param input - The collection and the ids of the documents to remove.
+   * @returns A promise that resolves once the documents have been deleted.
+   */
+  remove(input: RemoveInput): Promise<void>
+}
+```
+
+#### `IngestInput`
+
+Parameters for {@link AIRagProvider.ingest}.
+
+```typescript
+interface IngestInput {
+  /** The collection/namespace to index the documents into. */
+  collection: string
+  /** The documents to embed and upsert. An empty array is a no-op. */
+  documents: RagDocument[]
+  /** Embedding model override (provider-specific). Falls back to the provider default. */
+  model?: string
+}
+```
+
+#### `IngestResult`
+
+Result of {@link AIRagProvider.ingest}.
+
+```typescript
+interface IngestResult {
+  /** Number of documents embedded and upserted. */
+  indexed: number
+  /** Dimensionality of the embedding vectors (0 when no documents were indexed). */
+  dimension: number
+}
+```
+
+#### `RagDocument`
+
+A single document to ingest into a RAG collection.
+
+```typescript
+interface RagDocument {
+  /** Stable unique identifier for this document (used as the vector record id). */
+  id: string
+  /** The document's text — embedded, stored, and returned as a source on retrieval. */
+  text: string
+  /** Arbitrary metadata stored alongside the vector and usable as a query filter. */
+  metadata?: Record<string, unknown>
+}
+```
+
+#### `RagQueryInput`
+
+Parameters for {@link AIRagProvider.query}.
+
+```typescript
+interface RagQueryInput {
+  /** The collection/namespace to retrieve context from. */
+  collection: string
+  /** The natural-language question to answer. */
+  query: string
+  /** Number of chunks to retrieve and ground the answer on (default 5). */
+  topK?: number
+  /** Optional metadata filters to narrow retrieval before scoring. */
+  filter?: MetadataFilter[]
+  /** Minimum similarity score threshold — retrieved chunks below this are excluded. */
+  minScore?: number
+  /** Extra system guidance appended to the grounding instructions for the answer. */
+  system?: string
+  /** AI chat model override (provider-specific). Falls back to the provider default. */
+  model?: string
+  /** Named AI provider to answer with. Omit to use the bonded singleton AI provider. */
+  provider?: string
+  /** Abort signal forwarded to the AI chat call to cancel in-flight generation. */
+  signal?: AbortSignal
+}
+```
+
+#### `RagQueryResult`
+
+Result of {@link AIRagProvider.query}.
+
+```typescript
+interface RagQueryResult {
+  /** The generated answer, grounded in and citing the retrieved sources. */
+  answer: string
+  /** The retrieved chunks the answer was grounded on, ranked most-similar first. */
+  sources: SearchHit[]
+  /** Token usage reported by the AI provider for the answer generation, if any. */
+  usage?: TokenUsage
+}
+```
+
+#### `RemoveInput`
+
+Parameters for {@link AIRagProvider.remove}.
+
+```typescript
+interface RemoveInput {
+  /** The collection/namespace to remove documents from. */
+  collection: string
+  /** Ids of the documents to remove. */
+  ids: string[]
 }
 ```
 
 ### Functions
 
+#### `getAllProviders()`
+
+Retrieves all named AI RAG providers as a Map keyed by provider name.
+
+```typescript
+function getAllProviders(): Map<string, AIRagProvider>
+```
+
+**Returns:** Map of provider name → AIRagProvider.
+
 #### `getProvider()`
 
-Returns the bonded AI RAG provider, or `null` if none is registered.
+Retrieves the singleton AI RAG provider, or `null` if none is bonded.
+
+Falls back to a single named provider when no singleton is bonded. When
+multiple named providers are bonded the fallback declines (returns `null`)
+because the choice is ambiguous — those call sites must use
+`getProviderByName(name)` explicitly.
 
 ```typescript
 function getProvider(): AIRagProvider | null
 ```
 
-**Returns:** The active provider, or `null`.
+**Returns:** The bonded AI RAG provider, or `null`.
 
-#### `hasProvider()`
+#### `getProviderByName(name)`
 
-Returns whether an AI RAG provider has been registered.
+Retrieves a named AI RAG provider, or `null` if not bonded.
 
 ```typescript
-function hasProvider(): boolean
+function getProviderByName(name: string): AIRagProvider | null
 ```
 
-**Returns:** `true` if a provider is bonded.
+- `name` — The provider name.
+
+**Returns:** The named AI RAG provider, or `null`.
+
+#### `hasProvider(name)`
+
+Checks whether an AI RAG provider is currently bonded.
+
+```typescript
+function hasProvider(name?: string): boolean
+```
+
+- `name` — Optional provider name. If omitted, checks the singleton.
+
+**Returns:** `true` if the provider is bonded.
 
 #### `requireProvider()`
 
-Returns the bonded AI RAG provider, throwing if none is configured.
+Retrieves the bonded AI RAG provider, throwing if none is bonded.
+
+Routes through `getProvider()` so the same single-named-bond fallback applies.
 
 ```typescript
 function requireProvider(): AIRagProvider
 ```
 
-**Returns:** The active provider.
+**Returns:** The bonded AI RAG provider.
 
 #### `setProvider(provider)`
 
-Registers the AI RAG provider singleton.
+Registers the default AI RAG provider in singleton mode.
 
 ```typescript
 function setProvider(provider: AIRagProvider): void
 ```
 
-- `provider` — The AI RAG provider implementation to register.
+- `provider` — The default provider implementation for this process.
+
+### Constants
+
+#### `provider`
+
+Default, batteries-included Retrieval-Augmented-Generation provider.
+
+Composes `@molecule/api-semantic-search` for retrieval with the bonded
+`@molecule/api-ai` chat provider for generation. Bond it with
+`bond('ai-rag', provider)` after bonding an `ai` provider plus the
+`ai-embeddings` + `ai-vector-store` providers that semantic-search needs.
+
+```typescript
+const provider: AIRagProvider
+```
+
+## Injection Notes
+
+### Requirements
+
+Peer dependencies:
+- `@molecule/api-ai` ^1.0.0
+- `@molecule/api-ai-vector-store` ^1.0.0
+- `@molecule/api-bond` ^1.0.0
+- `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-semantic-search` ^1.0.0
+
+The default provider needs THREE bonds present at runtime: a `ai` chat
+provider (generation) plus the `ai-embeddings` and `ai-vector-store`
+providers (retrieval, via `@molecule/api-semantic-search`). Bond those before
+calling `query`/`ingest`, or the underlying accessors throw. `query` still
+calls the model when retrieval returns zero chunks, but instructs it to say it
+has no information rather than hallucinate. The whole capability is swappable:
+`bond('ai-rag', myProvider)` replaces the composed default with your own
+`AIRagProvider`.
