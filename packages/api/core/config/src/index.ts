@@ -4,6 +4,13 @@
  * Defines the standard interface for configuration providers with
  * typed accessors for strings, numbers, booleans, and JSON values.
  *
+ * @remarks
+ * Config values are SERVER-SIDE. A secret read here (`API_KEY`, `DATABASE_URL`) must never be
+ * sent to the browser or exposed through a `VITE_`/`NEXT_PUBLIC_` var — only a publishable /
+ * public value may be client-side (see `@molecule/api-secrets`). Use `getRequired` for anything
+ * the app can't run without (it throws at startup — fail fast), `validate` at boot to catch
+ * every missing/invalid value at once, and never log a secret value.
+ *
  * @example
  * ```typescript
  * import {

@@ -3,6 +3,20 @@
  *
  * Handles file uploads to AWS S3.
  *
+ * @remarks
+ * Bond this as the uploads provider (see `@molecule/api-uploads` for the handler pattern and
+ * the own-every-file / validate rules). Config is all ENV, server-side: `AWS_ACCESS_KEY_ID`,
+ * `AWS_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET`, `AWS_S3_REGION`. For an S3-COMPATIBLE store
+ * (Cloudflare R2, MinIO, DigitalOcean Spaces) set `AWS_S3_ENDPOINT` (plus
+ * `AWS_S3_FORCE_PATH_STYLE=true` for MinIO) — no code change.
+ *
+ * - **Keep the bucket PRIVATE — block all public access.** A public-read bucket/object leaks
+ *   every user's files to anyone with the URL. Serve private files THROUGH your API (stream via
+ *   `getFile`, scoped to the owner) or hand out a short-lived presigned URL; never make an
+ *   object public just to "make it load".
+ * - The AWS credentials are server-only (never in the browser) — the browser uploads to YOUR
+ *   API, which streams to S3.
+ *
  * @module
  */
 

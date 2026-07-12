@@ -344,6 +344,12 @@ function validate(schema: ConfigSchema[]): ConfigValidationResult
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 
+Config values are SERVER-SIDE. A secret read here (`API_KEY`, `DATABASE_URL`) must never be
+sent to the browser or exposed through a `VITE_`/`NEXT_PUBLIC_` var — only a publishable /
+public value may be client-side (see `@molecule/api-secrets`). Use `getRequired` for anything
+the app can't run without (it throws at startup — fail fast), `validate` at boot to catch
+every missing/invalid value at once, and never log a secret value.
+
 ## Translations
 
 Translation strings are provided by `@molecule/api-locales-config`.

@@ -1,6 +1,18 @@
 /**
  * The PostgreSQL client.
  *
+ * @remarks
+ * Bond this as the DataStore (`setStore(store)`); app code then uses the abstract
+ * `@molecule/api-database` functions (findMany/create/…), never raw pg. The connection comes
+ * from the `DATABASE_URL` env var (server-side) — don't hardcode credentials.
+ *
+ * - **SSL is verify-by-default** (derived from the URL): a MANAGED database (Supabase, Neon,
+ *   RDS, Heroku) requires SSL and works out of the box; local Postgres needs none. Do NOT
+ *   disable certificate verification to silence a cert error — that opens a MITM on your DB
+ *   traffic. Fix the URL / CA instead (e.g. `?sslmode=require`).
+ * - Tables are created by timestamped `.sql` files in `migrations/` (the runner applies them
+ *   on boot) — never `CREATE TABLE` at runtime; ids are UUID strings (see `@molecule/api-database`).
+ *
  * @module
  */
 
