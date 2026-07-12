@@ -213,8 +213,20 @@ describe('PreviewPanel URL bar (current location)', () => {
 
   it('subscribes recordNavigation as a dependency of the message listener', async () => {
     const source = await readSource()
-    // The message effect must re-bind when recordNavigation changes.
-    expect(source).toMatch(/\}, \[clearPoll, onPreviewError, recordNavigation\]\)/)
+    // The message effect must re-bind when recordNavigation (or onUiResult — the AI-driven
+    // ui-result handler) changes, so its closure is never stale.
+    expect(source).toMatch(/\}, \[clearPoll, onPreviewError, recordNavigation, onUiResult\]\)/)
+  })
+
+  it('relays a uiCommand to the iframe and forwards the ui-result to the host (AI preview control)', async () => {
+    const source = await readSource()
+    // Posts the command to the iframe's interaction bridge, keyed on id so each fires once.
+    expect(source).toContain("type: 'molecule:ui-command'")
+    expect(source).toContain('uiCommand.id === lastUiCommandIdRef.current')
+    expect(source).toContain('iframeRef.current?.contentWindow?.postMessage')
+    // Forwards the bridge's reply to the host's onUiResult callback (generic — no API specifics).
+    expect(source).toContain("event.data?.type === 'molecule:ui-result'")
+    expect(source).toContain('onUiResult(event.data.id')
   })
 
   it('binds the URL bar to the live current location, not the raw load target', async () => {

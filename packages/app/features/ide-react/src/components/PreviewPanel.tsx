@@ -58,7 +58,7 @@ import { get as storageGet, set as storageSet } from '@molecule/app-storage'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
-import type { PreviewPanelProps, PreviewRenderState } from '../types.js'
+import type { PreviewPanelProps, PreviewRenderState, PreviewUiResult } from '../types.js'
 import { type DeviceOrientation, isDeviceRotatable, resolveDeviceSize } from './device-cycle.js'
 import { DeviceFrameSelector } from './DeviceFrameSelector.js'
 import { Icon } from './Icon.js'
@@ -279,6 +279,8 @@ export function PreviewPanel({
   onPreviewError,
   onPreviewStuck,
   onRenderState,
+  uiCommand,
+  onUiResult,
   fileChangeTick,
   buildingHint,
   isBuilding,
@@ -287,6 +289,27 @@ export function PreviewPanel({
   const { state, setUrl, refresh, setDevice, openExternal, recordNavigation, back, forward } =
     usePreview()
   const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  // AI-driven live preview control: when the host sets a NEW `uiCommand` (keyed on `id`), relay
+  // it to the iframe's interaction bridge (`molecule:ui-command`); the bridge replies
+  // `molecule:ui-result`, handled in the message listener below → `onUiResult`. Lets Synthase
+  // drive + verify the app end-to-end in the preview the user is watching (no headless browser).
+  const lastUiCommandIdRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (!uiCommand || uiCommand.id === lastUiCommandIdRef.current) return
+    lastUiCommandIdRef.current = uiCommand.id
+    iframeRef.current?.contentWindow?.postMessage(
+      {
+        type: 'molecule:ui-command',
+        id: uiCommand.id,
+        action: uiCommand.action,
+        molId: uiCommand.molId,
+        selector: uiCommand.selector,
+        value: uiCommand.value,
+      },
+      '*',
+    )
+  }, [uiCommand])
 
   // Preview-only iframe orientation (portrait ⇄ landscape) for fixed-frame
   // devices. A purely visual preview concern, so it lives here rather than in the
@@ -952,6 +975,12 @@ export function PreviewPanel({
         })
       } else if (event.data?.type === 'molecule:heartbeat') {
         lastHeartbeatRef.current = Date.now()
+      } else if (event.data?.type === 'molecule:ui-result') {
+        // AI-driven preview interaction result — forward to the host, keyed by the command `id`
+        // it round-trips on (see the uiCommand effect / onUiResult). The panel only relays it.
+        if (typeof event.data.id === 'string' && onUiResult) {
+          onUiResult(event.data.id, event.data as PreviewUiResult)
+        }
       } else if (event.data?.type === 'molecule:navigate') {
         // The preview reported a client-side navigation (see the scaffold-injected
         // sender). recordNavigation validates the URL and updates the URL bar
@@ -1003,7 +1032,7 @@ export function PreviewPanel({
       if (debounceTimer) clearTimeout(debounceTimer)
       if (pendingMsg) clearTimeout(pendingMsg)
     }
-  }, [clearPoll, onPreviewError, recordNavigation])
+  }, [clearPoll, onPreviewError, recordNavigation, onUiResult])
 
   // --- iframe onError: server unreachable, poll and reload when ready ---
   const handleIframeError = useCallback(() => {

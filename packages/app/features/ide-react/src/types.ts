@@ -338,9 +338,47 @@ export type PreviewRenderState = 'rendered' | 'blank' | 'frozen' | 'loading'
 /**
  * Properties for preview panel.
  */
+/**
+ * A live-preview interaction the host asks the panel to perform inside the iframe, so an AI
+ * agent can verify a feature end-to-end by DRIVING the app the user is watching (no headless
+ * browser). The panel just relays it to the iframe's interaction bridge — generic, so it
+ * carries no host/API specifics.
+ */
+export interface PreviewUiCommand {
+  /** Correlates this command with its result; the host round-trips on it. */
+  id: string
+  /** `snapshot` the interactive UI, or act on an element. */
+  action: 'snapshot' | 'click' | 'fill' | 'select' | 'waitFor'
+  /** `data-mol-id` of the target element (preferred over selector). */
+  molId?: string
+  /** CSS-selector fallback when no molId is available. */
+  selector?: string
+  /** Value to set for `fill` / `select`. */
+  value?: string
+}
+
+/** The preview interaction bridge's reply to a {@link PreviewUiCommand}. */
+export interface PreviewUiResult {
+  ok: boolean
+  /** Interactive-element list + url/title from the preview (present on a snapshot / success). */
+  snapshot?: unknown
+  found?: boolean
+  error?: string
+}
+
+/** Props for the {@link PreviewPanel} — the live app preview (iframe + device frame + URL bar). */
 export interface PreviewPanelProps {
   /** Custom loading indicator shown while the dev server is starting. */
   loadingIndicator?: ReactNode
+  /**
+   * The current UI command the host wants performed in the preview iframe (AI-driven
+   * end-to-end verification). The panel posts it to the iframe's interaction bridge when it
+   * CHANGES (keyed on `id`, so each new command fires exactly once). The panel only relays it;
+   * the host owns what to send and what to do with the result.
+   */
+  uiCommand?: PreviewUiCommand | null
+  /** Called when the iframe replies to a {@link PreviewUiCommand}, keyed by the command `id`. */
+  onUiResult?: (id: string, result: PreviewUiResult) => void
   /** Custom loading indicator shown when the dev server restarts mid-session. Falls back to loadingIndicator if not provided. */
   restartingIndicator?: ReactNode
   /** Called when the preview iframe reports runtime JS errors. */
