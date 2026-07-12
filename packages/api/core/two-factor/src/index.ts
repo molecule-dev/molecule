@@ -33,24 +33,23 @@
  * {@link TwoFactorVerifyParams.afterTimeStep} on the next `verify()` for single-use
  * replay protection.
  *
- * **Adding 2FA to an app that has its OWN hosted database (Supabase / Firebase):** store
- * the 2FA state in the MOLECULE-provisioned database — `DATABASE_URL` (Postgres) is in the
- * sandbox env and `@molecule/api-database` is installed — NOT the app's Supabase/Firebase
- * ADMIN (service-role) client. That admin secret (e.g. `SUPABASE_SERVICE_ROLE_KEY`) is NOT
- * provisioned in the molecule environment — only the app's public/anon key is — so a
- * server-side `supabaseAdmin` / Firebase-admin write fails with "missing env var … Connect
- * Supabase in Lovable Cloud". Put the `user_2fa` table in the molecule DB, keyed by the
- * app's user id. (Still route EVERY 2FA read AND write through the server — a direct
- * `supabase.from('user_2fa')` from the BROWSER exposes the secret; a leftover client-side DB
- * call is a bug, not a shortcut.)
+ * **Adding 2FA to an app that already has its OWN backend/database:** persist the 2FA record
+ * in YOUR server-side datastore — the state (secret + `enabled`) has to live somewhere the
+ * server controls. Do NOT assume the imported app's own hosted-DB ADMIN credentials are
+ * available: an imported repo ships only its public/client config, so a server-side admin write
+ * to the app's external database fails at runtime with a "missing env var". Use whatever
+ * server-side datastore the ENVIRONMENT actually provides — in the molecule sandbox that's the
+ * provisioned `DATABASE_URL` (`@molecule/api-database` or a `pg` pool) — keyed by the app's user
+ * id. (Still route EVERY 2FA read AND write through the server — a direct read/write of the 2FA
+ * table from the BROWSER exposes the secret; a leftover client-side DB call is a bug.)
  *
  * @example
  * ```ts
  * import { Router } from 'express'
  * import { generateSecret, getUrls, verify } from '@molecule/api-two-factor'
- * // `store` = YOUR server-side persistence: the molecule DB via `@molecule/api-database`
- * // (or a `pg` pool on `DATABASE_URL`) — for an imported app too, NOT its Supabase
- * // service-role client. Keyed by user id; the browser never touches it.
+ * // `store` = YOUR server-side persistence: the datastore the environment provides (in
+ * // molecule, `DATABASE_URL` via `@molecule/api-database` or a `pg` pool) — NOT an imported
+ * // app's own hosted-DB admin client. Keyed by user id; the browser never touches it.
  * const router = Router()
  *
  * router.get('/status', async (_req, res) => {
