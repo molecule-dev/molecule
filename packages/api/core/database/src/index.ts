@@ -31,6 +31,12 @@
  * @remarks
  * Data-access contract — the rules code generators most often get wrong:
  *
+ * - **Scope EVERY query by owner — the #1 security rule.** A user must never read or write
+ *   another user's rows. Add `{ field: 'user_id', operator: '=', value: getUserId(res) }` to
+ *   every list/read `where`, and for a single-row route load the row and 404 if it isn't the
+ *   caller's (404, not 403 — don't leak existence). An unscoped `findById`/`updateById`/
+ *   `deleteById` on a client-supplied id is an IDOR (one user edits another's data). See the
+ *   `auth` skill.
  * - **CRUD goes through the exported data functions** (`findById`, `findOne`,
  *   `findMany`, `count`, `create`, `updateById`, `deleteById`). Filter with a
  *   `where` ARRAY of `{ field, operator, value }`:
