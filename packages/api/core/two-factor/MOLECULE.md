@@ -11,9 +11,9 @@ implementation such as `@molecule/api-two-factor-otplib`.
 ```ts
 import { Router } from 'express'
 import { generateSecret, getUrls, verify } from '@molecule/api-two-factor'
-// `store` = YOUR server-side persistence: the molecule DB (a `user_2fa` migration),
-// or — for an imported app — its own DB via a SERVICE-ROLE client. Keyed by user id;
-// the browser never touches it. `userId` comes from the authenticated request.
+// `store` = YOUR server-side persistence: the molecule DB via `@molecule/api-database`
+// (or a `pg` pool on `DATABASE_URL`) — for an imported app too, NOT its Supabase
+// service-role client. Keyed by user id; the browser never touches it.
 const router = Router()
 
 router.get('/status', async (_req, res) => {
@@ -251,9 +251,13 @@ Persist {@link TwoFactorVerifyResult.timeStep} and pass it back as
 {@link TwoFactorVerifyParams.afterTimeStep} on the next `verify()` for single-use
 replay protection.
 
-**Adding 2FA to an app that has its OWN client database (Supabase / Firebase):**
-the API owns the `*_2fa` table via a SERVER-SIDE (service-role / admin) client. A
-direct `supabase.from('user_2fa')` (or Firestore) read/write from the BROWSER — the
-anon client — is the wrong, insecure pattern: it exposes the secret and bypasses the
-server. Route EVERY 2FA read AND write through the API endpoints above; a leftover
-client-side DB call for status/secret/enabled state is a bug, not a shortcut.
+**Adding 2FA to an app that has its OWN hosted database (Supabase / Firebase):** store
+the 2FA state in the MOLECULE-provisioned database — `DATABASE_URL` (Postgres) is in the
+sandbox env and `@molecule/api-database` is installed — NOT the app's Supabase/Firebase
+ADMIN (service-role) client. That admin secret (e.g. `SUPABASE_SERVICE_ROLE_KEY`) is NOT
+provisioned in the molecule environment — only the app's public/anon key is — so a
+server-side `supabaseAdmin` / Firebase-admin write fails with "missing env var … Connect
+Supabase in Lovable Cloud". Put the `user_2fa` table in the molecule DB, keyed by the
+app's user id. (Still route EVERY 2FA read AND write through the server — a direct
+`supabase.from('user_2fa')` from the BROWSER exposes the secret; a leftover client-side DB
+call is a bug, not a shortcut.)
