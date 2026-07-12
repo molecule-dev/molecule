@@ -295,20 +295,39 @@ export function PreviewPanel({
   // `molecule:ui-result`, handled in the message listener below → `onUiResult`. Lets Synthase
   // drive + verify the app end-to-end in the preview the user is watching (no headless browser).
   const lastUiCommandIdRef = useRef<string | null>(null)
+  // Ids the bridge has already answered — flipped by the message listener below so the retry
+  // loop stops. A ref (not state) so the interval sees the latest value without re-subscribing.
+  const uiResolvedRef = useRef<Set<string>>(new Set())
   useEffect(() => {
     if (!uiCommand || uiCommand.id === lastUiCommandIdRef.current) return
     lastUiCommandIdRef.current = uiCommand.id
-    iframeRef.current?.contentWindow?.postMessage(
-      {
-        type: 'molecule:ui-command',
-        id: uiCommand.id,
-        action: uiCommand.action,
-        molId: uiCommand.molId,
-        selector: uiCommand.selector,
-        value: uiCommand.value,
-      },
-      '*',
-    )
+    const cmdId = uiCommand.id
+    const payload = {
+      type: 'molecule:ui-command',
+      id: cmdId,
+      action: uiCommand.action,
+      molId: uiCommand.molId,
+      selector: uiCommand.selector,
+      value: uiCommand.value,
+    }
+    // Post repeatedly until the bridge replies (or ~12s, under the tool's 15s wait). A single post
+    // races iframe/bridge readiness: the preview may be mid-mount (the view just switched to it) or
+    // mid-reload (navigate_preview reloads the iframe), so the first postMessage is silently
+    // dropped. The bridge dedups by command id, so re-sending a click/fill still executes it once.
+    const post = (): void => {
+      iframeRef.current?.contentWindow?.postMessage(payload, '*')
+    }
+    post()
+    const deadline = Date.now() + 12_000
+    const interval = window.setInterval(() => {
+      if (uiResolvedRef.current.has(cmdId) || Date.now() > deadline) {
+        window.clearInterval(interval)
+        uiResolvedRef.current.delete(cmdId)
+        return
+      }
+      post()
+    }, 350)
+    return () => window.clearInterval(interval)
   }, [uiCommand])
 
   // Preview-only iframe orientation (portrait ⇄ landscape) for fixed-frame
@@ -978,8 +997,10 @@ export function PreviewPanel({
       } else if (event.data?.type === 'molecule:ui-result') {
         // AI-driven preview interaction result — forward to the host, keyed by the command `id`
         // it round-trips on (see the uiCommand effect / onUiResult). The panel only relays it.
-        if (typeof event.data.id === 'string' && onUiResult) {
-          onUiResult(event.data.id, event.data as PreviewUiResult)
+        if (typeof event.data.id === 'string') {
+          // Mark resolved so the uiCommand retry loop stops re-sending this command.
+          uiResolvedRef.current.add(event.data.id)
+          if (onUiResult) onUiResult(event.data.id, event.data as PreviewUiResult)
         }
       } else if (event.data?.type === 'molecule:navigate') {
         // The preview reported a client-side navigation (see the scaffold-injected

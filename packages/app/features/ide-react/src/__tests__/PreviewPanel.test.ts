@@ -227,6 +227,12 @@ describe('PreviewPanel URL bar (current location)', () => {
     // Forwards the bridge's reply to the host's onUiResult callback (generic — no API specifics).
     expect(source).toContain("event.data?.type === 'molecule:ui-result'")
     expect(source).toContain('onUiResult(event.data.id')
+    // Readiness race fix: a single post is dropped when the iframe/bridge is mid-mount or
+    // mid-reload, so the command is RE-POSTED on an interval until the bridge replies (or ~12s),
+    // and the ui-result marks the id resolved to STOP the retry loop.
+    expect(source).toContain('window.setInterval')
+    expect(source).toContain('uiResolvedRef.current.has(cmdId)')
+    expect(source).toContain('uiResolvedRef.current.add(event.data.id)')
   })
 
   it('binds the URL bar to the live current location, not the raw load target', async () => {
