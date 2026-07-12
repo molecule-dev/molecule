@@ -5,6 +5,73 @@
  * backed by any TOTP library. Use `setProvider` to provide a concrete
  * implementation such as `@molecule/api-two-factor-otplib`.
  *
+ * @remarks
+ * **The TOTP secret is a SERVER-SIDE secret — it must NEVER reach the browser.**
+ * `generateSecret()`, `getUrls()`, and `verify()` all run in YOUR API. The secret
+ * lives only in the server + your database. The frontend sends a 6-digit token and
+ * receives a boolean (or, once, the enrollment QR); it must NEVER receive, store, or
+ * send the raw secret, and must NEVER read or write the 2FA table directly.
+ *
+ * **The API OWNS the full lifecycle and state** (secret + `enabled` flag +
+ * `last_time_step`). `verify()` is stateless on purpose — YOU load the stored secret
+ * server-side and pass it in; do not accept a secret from the client. Expose these
+ * endpoints so the frontend never needs the database:
+ *
+ * - `GET  /2fa/status`  → `{ enabled }`, read from YOUR store. (This is the call a
+ *   frontend most often wrongly points at the DB — keep it on the API.)
+ * - `POST /2fa/setup`   → `generateSecret()`, store it server-side as PENDING
+ *   (`enabled:false`), and return ONLY `getUrls()`'s `{ keyUrl, QRImageUrl }` — the QR
+ *   carries the secret to the user's authenticator app; you never hand the raw secret
+ *   to the browser to persist.
+ * - `POST /2fa/enable`  → `verify()` the token against the PENDING secret; on success
+ *   set `enabled:true` and persist `timeStep`.
+ * - `POST /2fa/verify`  → `verify()` a login token against the STORED secret you load
+ *   server-side; the browser sends only the token.
+ * - `POST /2fa/disable` → clear the secret + `enabled` server-side.
+ *
+ * Persist {@link TwoFactorVerifyResult.timeStep} and pass it back as
+ * {@link TwoFactorVerifyParams.afterTimeStep} on the next `verify()` for single-use
+ * replay protection.
+ *
+ * **Adding 2FA to an app that has its OWN client database (Supabase / Firebase):**
+ * the API owns the `*_2fa` table via a SERVER-SIDE (service-role / admin) client. A
+ * direct `supabase.from('user_2fa')` (or Firestore) read/write from the BROWSER — the
+ * anon client — is the wrong, insecure pattern: it exposes the secret and bypasses the
+ * server. Route EVERY 2FA read AND write through the API endpoints above; a leftover
+ * client-side DB call for status/secret/enabled state is a bug, not a shortcut.
+ *
+ * @example
+ * ```ts
+ * import { Router } from 'express'
+ * import { generateSecret, getUrls, verify } from '@molecule/api-two-factor'
+ * // `store` = YOUR server-side persistence: the molecule DB (a `user_2fa` migration),
+ * // or — for an imported app — its own DB via a SERVICE-ROLE client. Keyed by user id;
+ * // the browser never touches it. `userId` comes from the authenticated request.
+ * const router = Router()
+ *
+ * router.get('/status', async (_req, res) => {
+ *   const rec = await store.get(userId)
+ *   res.json({ enabled: !!rec?.enabled }) // a boolean — never the secret
+ * })
+ *
+ * router.post('/setup', async (_req, res) => {
+ *   const secret = generateSecret()
+ *   await store.upsert(userId, { secret, enabled: false }) // pending, server-side only
+ *   const { keyUrl, QRImageUrl } = getUrls({ username, service: 'MyApp', secret })
+ *   res.json({ keyUrl, QRImageUrl }) // the QR carries the secret — never return it raw
+ * })
+ *
+ * router.post('/enable', async (req, res) => {
+ *   const rec = await store.get(userId)
+ *   const { valid, timeStep } = verify({
+ *     secret: rec.secret, token: req.body.token, afterTimeStep: rec.last_time_step,
+ *   })
+ *   if (!valid) return res.status(400).json({ error: 'Invalid code' })
+ *   await store.upsert(userId, { enabled: true, last_time_step: timeStep })
+ *   res.json({ enabled: true })
+ * })
+ * ```
+ *
  * @module
  */
 
