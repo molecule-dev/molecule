@@ -109,8 +109,21 @@ interface ChatParams {
   maxTokens?: number
   temperature?: number
   model?: string
-  /** Enable extended thinking. Only supported by Sonnet/Opus models. */
-  thinking?: { type: 'enabled'; budgetTokens: number }
+  /**
+   * Enable extended thinking / reasoning on models that support it.
+   *
+   * `budgetTokens` is the abstract reasoning budget; bonds without a native
+   * token-budget param translate it (e.g. via thresholds) into their provider's
+   * control. `effort` — when present — is the PROVIDER-NATIVE effort value for
+   * the active model, resolved by the caller from the model catalog
+   * (`@molecule/api-resource-ai-models` `effortNativeByLevel`), e.g. Anthropic
+   * `output_config.effort` (`'low' | 'medium' | 'high' | 'xhigh' | 'max'`) or an
+   * OpenAI-compatible `reasoning_effort`. Bonds MUST prefer `effort` over
+   * `budgetTokens` when set: on current Anthropic models (Fable 5 / Opus 4.8 /
+   * Sonnet 5) a raw `budget_tokens` request is rejected with a 400 — adaptive
+   * thinking + effort is the only control.
+   */
+  thinking?: { type: 'enabled'; budgetTokens: number; effort?: string }
   /** Enable prompt caching. Providers that support it will cache system prompts and tools. */
   cacheControl?: { type: 'ephemeral' }
   /** Abort signal to cancel in-flight API requests when the client disconnects. */
@@ -205,6 +218,17 @@ type ChatEvent =
   // in-flight tool card before the args finish). It is never echoed wholesale to
   // the client. Optional so non-streaming/legacy providers can omit it.
   | { type: 'tool_input_delta'; id: string; chars: number; text?: string }
+  // Incremental usage SNAPSHOT — the provider's own token counts as reported so
+  // far on the wire (e.g. Anthropic's message_start carries the full input +
+  // cache token counts before any output streams). LATEST WINS; `done.usage`
+  // remains the authoritative final figure. METERING CONTRACT: consumers MUST
+  // retain the latest snapshot and book it when a stream ends WITHOUT a `done`
+  // (client abort, disconnect, progress timeout, provider error) — the upstream
+  // provider bills those tokens even though the stream was cut, and dropping
+  // them silently under-meters real spend. Providers whose wire protocol only
+  // reports usage at stream end (OpenAI-compatible `include_usage`) cannot emit
+  // mid-stream snapshots; consumers must estimate aborted turns for those.
+  | { type: 'usage'; usage: TokenUsage }
   | { type: 'done'; usage: TokenUsage }
   | { type: 'error'; message: string; errorKey?: string }
   // Liveness signal. PROVIDER CONTRACT: every streaming provider MUST yield
@@ -341,6 +365,23 @@ function setProvider(provider: AIProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+The AI provider is a SERVER-side integration — a weak integration leaks the key, trusts
+the model, or gets billed:
+
+- **The provider API key is SERVER-ONLY.** Call `chat()` from YOUR API and stream results
+  to the browser (SSE); NEVER put the AI key in the frontend or call the provider directly
+  from the browser — the key would ship to every user.
+- **Never blindly trust model output.** Treat anything the model returns — code, SQL, a
+  shell command, a URL, a tool-call argument — as UNTRUSTED input: validate/whitelist it,
+  run it only in a sandbox, and re-check permissions server-side. User/content text in the
+  prompt can hijack the model (prompt injection), so model output must never directly
+  trigger a privileged action (delete, pay, email, exec) without your own authorization +
+  validation.
+- **Gate + budget it.** Require auth and rate-limit AI endpoints and cap `maxTokens` — an
+  open, unauthenticated AI route is an unbounded bill.
+- `chat()` returns an async iterable of `ChatEvent` (text chunks, tool calls, a final
+  `done` with usage) — iterate it and forward chunks to the client.
 
 ## Translations
 
