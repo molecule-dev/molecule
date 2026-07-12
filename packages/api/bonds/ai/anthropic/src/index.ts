@@ -1,6 +1,13 @@
 /**
  * Anthropic ai-anthropic provider for molecule.dev.
  *
+ * @remarks
+ * Bond this as an AI provider (see `@molecule/api-ai` for the `chat()` streaming loop and the
+ * key-server-side / never-blindly-trust-model-output rules). Config: `ANTHROPIC_API_KEY`
+ * (SERVER-side only — never shipped to the browser) plus an optional default model id. Drive it
+ * through the core `chat()` / `requireProvider()`, NOT the Anthropic SDK directly, so the app
+ * stays provider-agnostic and can swap models/providers by changing only the bond.
+ *
  * @module
  */
 
