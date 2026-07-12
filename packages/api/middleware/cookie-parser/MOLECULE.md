@@ -134,3 +134,14 @@ function setCookieParserFactory(factory: CookieParserFactory): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+This parses INCOMING cookies onto `req.cookies`. When your app SETS an auth/session cookie,
+the flags are what matter:
+
+- **Auth/session cookies MUST be `httpOnly` + `secure` + `sameSite`.** `httpOnly` stops JS
+  (and therefore XSS) from reading the token; `secure` restricts it to HTTPS in production;
+  `sameSite: 'lax'|'strict'` blocks CSRF. A readable session cookie is stealable.
+- **Never store a secret or raw token in a plain, non-httpOnly cookie** — it's readable by
+  the client and sent on every request. Sign cookies with a SERVER-side secret
+  (`SESSION_SECRET`) when you need tamper detection, and keep the real state server-side
+  keyed by the session.
