@@ -72,6 +72,10 @@ export const en: IdeTranslations = {
   'ide.chat.autoFixEnabled': 'Auto-fix enabled.',
   'ide.chat.autoFixDisabled': 'Auto-fix disabled.',
   'ide.chat.autoFixError': 'Failed to update auto-fix setting.',
+  'ide.chat.autoApproveEnabled':
+    'Auto-approve on — destructive commands run without asking. The exfiltration guard still asks. Turn off with /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'Auto-approve off — destructive commands ask before running.',
+  'ide.chat.autoApproveError': 'Failed to update auto-approve setting.',
   'ide.chat.modelUsage':
     'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',

@@ -3477,6 +3477,10 @@ function ChatInner({
   const [effortByMode, setEffortByMode] = useState<Partial<Record<EffortMode, EffortLevel>>>({})
   const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(100)
   const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(true)
+  // Auto-approve destructive commands (skip the pre-tool "Proceed?" confirm). Off by
+  // default — the gate is opt-out. Only the server-side hook gate reads it; this state
+  // just drives the /autoapprove toggle + the settings row.
+  const [autoApproveCommandsEnabled, setAutoApproveCommandsEnabled] = useState<boolean>(false)
   // Adopt the free-tier model id as soon as the catalog resolves, unless the
   // project-settings fetch already populated currentModel with a saved choice.
   useEffect(() => {
@@ -3522,6 +3526,9 @@ function ChatInner({
         // longer hydrates it here.)
         if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
         if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
+        if (typeof s?.autoApproveCommands === 'boolean') {
+          setAutoApproveCommandsEnabled(s.autoApproveCommands)
+        }
         if (s?.sounds && typeof s.sounds === 'object') {
           setSoundsConfig((prev) => ({ ...prev, ...(s.sounds as Partial<SoundsConfig>) }))
         }
@@ -4797,6 +4804,32 @@ function ChatInner({
             }),
           )
         }
+      } else if (id === 'autoapprove') {
+        setInputValue('')
+        const newValue = !autoApproveCommandsEnabled
+        try {
+          await http.patch(`/projects/${projectId}`, {
+            settings: { autoApproveCommands: newValue },
+          })
+          setAutoApproveCommandsEnabled(newValue)
+          addSystemCard(
+            newValue
+              ? t('ide.chat.autoApproveEnabled', undefined, {
+                  defaultValue:
+                    'Auto-approve on — destructive commands run without asking. The exfiltration guard still asks. Turn off with /autoapprove.',
+                })
+              : t('ide.chat.autoApproveDisabled', undefined, {
+                  defaultValue: 'Auto-approve off — destructive commands ask before running.',
+                }),
+          )
+        } catch (error) {
+          logger.warn('Failed to update auto-approve setting', { error })
+          addSystemCard(
+            t('ide.chat.autoApproveError', undefined, {
+              defaultValue: 'Failed to update auto-approve setting.',
+            }),
+          )
+        }
       } else if (id === 'sounds') {
         setInputValue('')
         setSoundsPicker({ selectedIdx: -1 })
@@ -4880,6 +4913,12 @@ function ChatInner({
     // Handle /autofix toggle locally
     if (/^\/autofix$/i.test(trimmed)) {
       void executeCommand('autofix')
+      return
+    }
+
+    // Handle /autoapprove toggle locally
+    if (/^\/autoapprove$/i.test(trimmed)) {
+      void executeCommand('autoapprove')
       return
     }
 
@@ -5792,6 +5831,9 @@ function ChatInner({
       hooks: t('ide.chat.settings.hooksValue', undefined, {
         defaultValue: 'In project settings',
       }),
+      autoApproveCommands: autoApproveCommandsEnabled
+        ? t('ide.chat.settings.on', undefined, { defaultValue: 'On' })
+        : t('ide.chat.settings.off', undefined, { defaultValue: 'Off' }),
       sounds: t(
         'ide.chat.settings.soundsSummary',
         { enabled: soundsSummary.enabled, total: soundsSummary.total },

@@ -48,6 +48,7 @@ export type SettingKey =
   | 'autoFix'
   | 'autoCommit'
   | 'hooks'
+  | 'autoApproveCommands'
   | 'sounds'
 
 /** Canonical, value-free metadata for a single user-controllable setting. */
@@ -149,6 +150,13 @@ export const SETTINGS: readonly SettingMeta[] = [
     label: 'Hooks',
     description:
       "Shell commands that run before tool actions and can gate them — for example previewing a change before {{agentName}} overwrites or deletes a file. Configure them in your project's agent settings file.",
+  },
+  {
+    id: 'autoApproveCommands',
+    label: 'Auto-approve commands',
+    description:
+      "Skip the 'Proceed?' confirmation before {{agentName}} runs a bulk/destructive command (a hard reset, a recursive delete, an in-place edit). The network-exfiltration guard still asks before sending data off the box.",
+    editCommand: 'autoapprove',
   },
   {
     id: 'sounds',

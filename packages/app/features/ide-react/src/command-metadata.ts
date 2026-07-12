@@ -151,6 +151,12 @@ export const COMMANDS: readonly CommandDef[] = [
     description: 'Toggle auto-fix after AI file changes',
     category: 'code',
   },
+  {
+    id: 'autoapprove',
+    label: '/autoapprove',
+    description: 'Toggle auto-approving destructive commands (skip the Proceed confirm)',
+    category: 'code',
+  },
 
   // Collaborate
   {

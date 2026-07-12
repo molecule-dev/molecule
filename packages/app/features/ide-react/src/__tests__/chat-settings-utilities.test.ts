@@ -30,6 +30,7 @@ const sampleValues: SettingsDisplayValues = {
   autoFix: 'On',
   autoCommit: 'Every 60s',
   hooks: 'In project settings',
+  autoApproveCommands: 'Off',
   sounds: '3 of 9 events enabled',
 }
 
@@ -52,6 +53,7 @@ describe('buildSettingsList', () => {
       'autoFix',
       'autoCommit',
       'hooks',
+      'autoApproveCommands',
       'sounds',
     ])
   })
@@ -70,6 +72,7 @@ describe('buildSettingsList', () => {
       // Hooks are configured in a file, not via a slash command — a command-less
       // row (SettingsCard omits its Edit affordance).
       hooks: undefined,
+      autoApproveCommands: 'autoapprove',
       sounds: 'sounds',
     })
   })
