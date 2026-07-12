@@ -6,6 +6,18 @@
  * in-memory, etc.) implement this interface. Application code uses the convenience
  * functions (`get`, `set`, `del`, `has`, `getOrSet`) which delegate to the bonded provider.
  *
+ * @remarks
+ * The cache is BEST-EFFORT and often SHARED across users — treat it accordingly:
+ * - **A per-user value MUST include the user id in its KEY** (`user:123:profile`, not
+ *   `profile`). A shared key for per-user data leaks one user's data to another — a real
+ *   cross-user data breach, not just a bug.
+ * - **Never rely on the cache for correctness or authorization.** It can be empty, evicted, or
+ *   stale — re-check ownership on the real data, and make the `getOrSet` loader carry the SAME
+ *   ownership scope as a normal query.
+ * - **Invalidate on write.** After updating the underlying record, `del()` (or re-`set()`) its
+ *   key, or reads keep serving stale data.
+ * - Don't cache a raw secret; cache derived, non-sensitive data.
+ *
  * @example
  * ```typescript
  * import { setProvider, get, set, getOrSet } from '@molecule/api-cache'

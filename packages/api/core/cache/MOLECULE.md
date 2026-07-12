@@ -253,6 +253,17 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
+The cache is BEST-EFFORT and often SHARED across users — treat it accordingly:
+- **A per-user value MUST include the user id in its KEY** (`user:123:profile`, not
+  `profile`). A shared key for per-user data leaks one user's data to another — a real
+  cross-user data breach, not just a bug.
+- **Never rely on the cache for correctness or authorization.** It can be empty, evicted, or
+  stale — re-check ownership on the real data, and make the `getOrSet` loader carry the SAME
+  ownership scope as a normal query.
+- **Invalidate on write.** After updating the underlying record, `del()` (or re-`set()`) its
+  key, or reads keep serving stale data.
+- Don't cache a raw secret; cache derived, non-sensitive data.
+
 ## Translations
 
 Translation strings are provided by `@molecule/api-locales-cache`.

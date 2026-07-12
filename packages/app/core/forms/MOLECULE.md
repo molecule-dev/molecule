@@ -500,6 +500,16 @@ const nativeProvider: FormProvider
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 
+Build forms with {@link createForm} (or the framework hook), not a direct react-hook-form /
+formik import — that couples you to one library and breaks the swap.
+
+- **Client validation is UX, NOT a security boundary.** {@link validateValue} / client rules
+  give instant feedback, but the SERVER must re-validate every field it receives — a request
+  can skip the form entirely (curl, a tampered client). Never trust a value because the
+  client "validated" it, and never enforce authorization in the form.
+- Keep secrets out of any form state you persist (see `@molecule/app-storage`), and submit
+  through the HTTP client (`@molecule/app-http`) with a relative path — never a hardcoded URL.
+
 ## Translations
 
 Translation strings are provided by `@molecule/app-locales-forms`.
