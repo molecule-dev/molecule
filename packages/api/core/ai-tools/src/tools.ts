@@ -45,6 +45,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     symlinkGuards = false,
     redactSecrets: doRedact = true,
     blockDangerousCommands = false,
+    blockCommand,
     searchExcludedDirs,
     onAfterWrite,
     onFileDiff,
@@ -480,6 +481,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
       if (blockDangerousCommands) {
         const blocked = checkBlockedCommand(command)
+        if (blocked) return { error: blocked }
+      }
+
+      // Consumer-specific guard (see ToolBuildConfig.blockCommand) — an environment can
+      // veto commands the generic dangerous-command check can't know about.
+      if (blockCommand) {
+        const blocked = blockCommand(command, cwd)
         if (blocked) return { error: blocked }
       }
 

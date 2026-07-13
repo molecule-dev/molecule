@@ -428,6 +428,29 @@ describe('buildTools', () => {
     const result = (await execCmd.execute({ command: 'env' })) as Record<string, unknown>
     expect(result.error).toContain('blocked')
   })
+
+  it('exec_command honors the consumer blockCommand hook (blocks with its message, allows on null)', async () => {
+    const seen: Array<[string, string]> = []
+    const tools = buildTools(mockBackend(), {
+      blockCommand: (command, cwd) => {
+        seen.push([command, cwd])
+        return command.includes('forbidden') ? 'BLOCKED: environment rule — do X instead.' : null
+      },
+    })
+    const execCmd = tools.find((t) => t.name === 'exec_command')!
+
+    const blocked = (await execCmd.execute({ command: 'run forbidden thing' })) as Record<
+      string,
+      unknown
+    >
+    expect(blocked.error).toBe('BLOCKED: environment rule — do X instead.')
+
+    const allowed = (await execCmd.execute({ command: 'echo ok' })) as Record<string, unknown>
+    expect(allowed.error).toBeUndefined()
+    // The hook receives the command AND the resolved cwd.
+    expect(seen.map(([c]) => c)).toEqual(['run forbidden thing', 'echo ok'])
+    expect(seen[0][1]).toBeTruthy()
+  })
 })
 
 // ── buildAgentPrompt ────────────────────────────────────────────────────────

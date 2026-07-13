@@ -58,6 +58,20 @@ export interface ToolBuildConfig {
   blockDangerousCommands?: boolean
 
   /**
+   * Consumer-specific command guard for `exec_command`, checked BEFORE execution (after
+   * the built-in dangerous-command check). Return an error string to block the command —
+   * it is returned to the model verbatim, so make it actionable (say what to do instead) —
+   * or `null`/`undefined` to allow it. Keeps environment-specific rules (e.g. an IDE
+   * sandbox forbidding installs that would break its preinstalled library) out of this
+   * shared package.
+   *
+   * @param command - The shell command the model asked to run.
+   * @param cwd - The resolved working directory it would run in.
+   * @returns An error string to block, or null/undefined to allow.
+   */
+  blockCommand?: (command: string, cwd: string) => string | null | undefined
+
+  /**
    * Directory names `search_files` and `find_files` skip (VS Code
    * `search.exclude` semantics). Defaults to `DEFAULT_SEARCH_EXCLUDED_DIRS`
    * (node_modules, VCS dirs, build output). Pass the consumer's per-project
