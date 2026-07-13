@@ -33,6 +33,25 @@
  * {@link TwoFactorVerifyParams.afterTimeStep} on the next `verify()` for single-use
  * replay protection.
  *
+ * **E2E verification — how to PROVE this integration works (do this before calling it done).**
+ * Drive the app's REAL UI as the user would (in molecule.dev: `navigate_preview` →
+ * `read_preview_ui` → `interact_preview`, targeting elements by `data-mol-id`), asserting each
+ * expected outcome:
+ *
+ * 1. Sign UP + log in through the real auth screens (proves auth still works after your edits —
+ *    the most common 2FA-integration regression is a broken login).
+ * 2. Open the security/settings screen → activate "Set up 2FA" → a QR code / secret key is
+ *    VISIBLE. (An error state here means the server-side setup route or table is broken.)
+ * 3. Enter a REAL TOTP code computed from the enrollment secret (never a made-up `000000` —
+ *    that one must FAIL) → status flips to enabled.
+ * 4. Log out, log back in → the 2FA challenge appears after the password → a valid code
+ *    completes login; a wrong code is rejected with a clear error.
+ * 5. Disable 2FA from settings → log out/in again → no challenge.
+ *
+ * Any step showing an error state or a missing element IS the bug — fix the root cause and
+ * re-drive. Also keep a real-path integration test in the repo (second example below) so the
+ * lifecycle stays covered on every later build.
+ *
  * **Adding 2FA to an app that already has its OWN backend/database:** persist the 2FA record
  * in YOUR server-side datastore — the state (secret + `enabled`) has to live somewhere the
  * server controls. Do NOT assume the imported app's own hosted-DB ADMIN credentials are
@@ -72,6 +91,39 @@
  *   if (!valid) return res.status(400).json({ error: 'Invalid code' })
  *   await store.upsert(userId, { enabled: true, last_time_step: timeStep })
  *   res.json({ enabled: true })
+ * })
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Real-path integration test (vitest) — the regression layer that keeps the 2FA lifecycle
+ * // working on every later build. Real provider, real datastore, NO mocks. Computing a real
+ * // TOTP from the enrollment secret is what catches a broken verify(); asserting a wrong code
+ * // REJECTS is what catches a verify() that always returns true.
+ * import { authenticator } from 'otplib' // or any TOTP lib the app already has
+ * import { expect, test } from 'vitest'
+ *
+ * import { generateSecret, setProvider, verify } from '@molecule/api-two-factor'
+ * import { provider } from '@molecule/api-two-factor-otplib'
+ *
+ * setProvider(provider)
+ *
+ * test('2FA lifecycle: setup → enable → verify → wrong code rejects', async () => {
+ *   const userId = `test-user-${Date.now()}`
+ *   const secret = generateSecret()
+ *   await store.upsert(userId, { secret, enabled: false })        // pending, like /setup
+ *
+ *   const code = authenticator.generate(secret)                   // a REAL code
+ *   const enable = verify({ secret, token: code })
+ *   expect(enable.valid).toBe(true)                               // fails here if wiring is broken
+ *   await store.upsert(userId, { enabled: true, last_time_step: enable.timeStep })
+ *
+ *   // Replay protection: the SAME code (same time step) must not verify twice.
+ *   expect(verify({ secret, token: code, afterTimeStep: enable.timeStep }).valid).toBe(false)
+ *   // A wrong code must reject — a verify() that always passes is a broken integration.
+ *   expect(verify({ secret, token: '000000' }).valid).toBe(false)
+ *
+ *   await store.delete(userId)                                    // disable
  * })
  * ```
  *
