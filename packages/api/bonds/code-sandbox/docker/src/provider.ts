@@ -658,7 +658,17 @@ class DockerSandboxProvider implements SandboxProvider {
         const result = await this.exec(
           `ls -la --time-style=+%s ${shellQuote(dirPath)} | tail -n +2`,
         )
-        if (result.exitCode !== 0) return []
+        // A nonexistent directory must THROW (like readFile), never return [] — an empty
+        // list reads as "the directory exists and is empty", and an AI executor building
+        // on that spent a whole turn theorizing about "virtual" files that were never there.
+        if (result.exitCode !== 0)
+          throw new Error(
+            t(
+              'codeSandbox.docker.error.readDirFailed',
+              { path, error: result.stderr },
+              { defaultValue: `Failed to list ${path}: ${result.stderr}` },
+            ),
+          )
 
         return result.stdout
           .trim()

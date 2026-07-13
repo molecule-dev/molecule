@@ -168,7 +168,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           }
         return { path, content: sanitizeOutput(content) }
       } catch (e: unknown) {
-        const message = (e as Error).message
+        // Backends (e.g. the docker provider's `cat`) already prefix "Failed to read <path>: ";
+        // strip it so the wrap below doesn't stutter ("Failed to read X: Failed to read X: …").
+        const rawMessage = (e as Error).message
+        const prefix = `Failed to read ${path}: `
+        const message = rawMessage.startsWith(prefix) ? rawMessage.slice(prefix.length) : rawMessage
         // A weak model often read_file's a directory (handlers/, migrations/). Rather than
         // erroring and costing it a retry loop (observed: 3 such misses + follow-up
         // list_files in one custom build), DWIM: return the directory's listing — what it
@@ -184,6 +188,29 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             }
           } catch (_dirErr) {
             // readDir also failed — fall through to the steer-to-list_files hint below.
+          }
+        }
+        // ENOENT DWIM: a weak model GUESSES paths from framework priors (observed: 65 of 89
+        // reads in one imported-app build were misses on files that never existed). Return
+        // ground truth in the SAME result — what the parent directory actually contains — so
+        // the next read uses a real name instead of another guess.
+        if (/No such file or directory/i.test(message)) {
+          const parent = path.replace(/\/[^/]*$/, '') || '/'
+          let listing: string
+          try {
+            const entries = await backend.readDir(parent)
+            const names = entries
+              .slice(0, 40)
+              .map((entry) => entry.name + (entry.type === 'directory' ? '/' : ''))
+            listing = names.length
+              ? `The directory ${parent} exists and contains: ${names.join(', ')}${entries.length > 40 ? ', …' : ''}.`
+              : `The directory ${parent} exists but is EMPTY.`
+          } catch (_parentErr) {
+            // Parent listing failed too — most usefully because it doesn't exist either.
+            listing = `The directory ${parent} does not exist either.`
+          }
+          return {
+            error: `No such file: ${path}. ${listing} Read one of the real entries (or use find_files) — do not guess paths.`,
           }
         }
         return { error: directoryReadHint(message, path) ?? `Failed to read ${path}: ${message}` }

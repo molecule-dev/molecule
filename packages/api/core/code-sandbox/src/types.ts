@@ -105,6 +105,7 @@ export interface Sandbox {
 
   readFile(path: string): Promise<string>
   writeFile(path: string, content: string): Promise<void>
+  /** List a directory. THROWS when the path does not exist — an empty array means "exists and is empty", never "missing". */
   readDir(path: string): Promise<DirEntry[]>
   deleteFile(path: string): Promise<void>
 

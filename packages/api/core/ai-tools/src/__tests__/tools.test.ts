@@ -246,6 +246,72 @@ describe('buildTools', () => {
     expect(result.error).toMatch(/list_files/)
   })
 
+  it('read_file on a MISSING file lists the parent directory instead of a bare error', async () => {
+    // A weak model guesses paths from framework priors — 65 of 89 reads in one imported-app
+    // build were misses on files that never existed, each answered with a doubly-wrapped
+    // "Failed to read X: Failed to read X: cat: …". The miss must return ground truth: the
+    // parent's REAL entries, unwrapped, so the next read uses a real name.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error(
+        'Failed to read /test/src/routes/login.tsx: cat: /test/src/routes/login.tsx: No such file or directory',
+      ),
+    )
+    ;(backend.readDir as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { name: 'auth.tsx', type: 'file' },
+      { name: '_authenticated', type: 'directory' },
+    ])
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/src/routes/login.tsx' })) as {
+      error?: string
+    }
+    expect(result.error).toContain('No such file: /test/src/routes/login.tsx')
+    expect(result.error).toContain(
+      '/test/src/routes exists and contains: auth.tsx, _authenticated/',
+    )
+    expect(result.error).toMatch(/do not guess paths/)
+    // The stuttering double-wrap is gone.
+    expect(result.error).not.toMatch(/Failed to read .*Failed to read/)
+  })
+
+  it('read_file on a missing file says so when the parent directory is missing too', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('cat: /test/src/routes/_auth/login.tsx: No such file or directory'),
+    )
+    ;(backend.readDir as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Failed to list /test/src/routes/_auth: No such file or directory'),
+    )
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/src/routes/_auth/login.tsx' })) as {
+      error?: string
+    }
+    expect(result.error).toContain('No such file: /test/src/routes/_auth/login.tsx')
+    expect(result.error).toContain('/test/src/routes/_auth does not exist either')
+  })
+
+  it('list_files surfaces a THROWN readDir (missing directory) as an error, never an empty list', async () => {
+    // The docker backend once returned [] for a nonexistent directory — the model read that
+    // as "empty dir exists" and spent a turn theorizing about virtual files. The backend now
+    // throws; list_files must pass that truth through.
+    const backend = mockBackend()
+    ;(backend.readDir as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error(
+        "Failed to list /test/ghost: ls: cannot access '/test/ghost/': No such file or directory",
+      ),
+    )
+    const tools = buildTools(backend)
+    const listFiles = tools.find((t) => t.name === 'list_files')!
+    const result = (await listFiles.execute({ path: '/test/ghost' })) as {
+      error?: string
+      entries?: unknown[]
+    }
+    expect(result.entries).toBeUndefined()
+    expect(result.error).toMatch(/No such file or directory/)
+  })
+
   it('write_file and edit_file also guard a missing path (no crash)', async () => {
     const tools = buildTools(mockBackend())
     const writeFile = tools.find((t) => t.name === 'write_file')!
