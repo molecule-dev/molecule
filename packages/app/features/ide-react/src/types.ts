@@ -380,6 +380,11 @@ export interface PreviewUiResult {
   snapshot?: unknown
   found?: boolean
   error?: string
+  /**
+   * Failed network requests from the last ~10s (method, url, status, bounded response body),
+   * captured in-page — so a click that 4xx'd explains itself in the same result.
+   */
+  recentNetworkErrors?: string[]
 }
 
 /** Props for the {@link PreviewPanel} — the live app preview (iframe + device frame + URL bar). */
