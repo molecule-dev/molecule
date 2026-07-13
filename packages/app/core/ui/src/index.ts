@@ -22,6 +22,11 @@
  *   a helper name or option value; an invalid `cm.*` value is a type error or a silent no-op.
  * - **Every interactive element needs a stable `data-mol-id`** — spread {@link molIdProps} (or
  *   set {@link MOL_ID_ATTR} via {@link molId}) so AI agents and tests can target it.
+ * - **`tabsList`/`tabsTrigger`/`tabsContent` are resolver functions**, not static strings —
+ *   call `cm.tabsList(opts)`/`cm.tabsTrigger(opts)`/`cm.tabsContent(opts)` with an optional
+ *   {@link TabsClassOptions} (`variant`/`size`). Active-tab styling stays a `data-state`
+ *   attribute selector the caller sets, not one of these options. `cm.switchBase(opts)` also
+ *   accepts a `color` ({@link SwitchClassOptions}) alongside `size`.
  *
  * @example
  * ```tsx

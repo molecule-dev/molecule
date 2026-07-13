@@ -102,6 +102,21 @@ export type UploadHandler = (
 /**
  * Callback invoked to abort an in-progress upload and clean up any
  * partially written data in the storage backend.
+ *
+ * @remarks
+ * An abort is neither a success nor a failure — it must be distinguishable from both.
+ * A conforming implementation, for a `file` whose `uploadPromise` is still pending:
+ *
+ * - MUST reject `uploadPromise` with an `UploadAbortedError` (exported from this
+ *   package). Never resolve it — a resolved `uploadPromise` after abort tells the
+ *   caller the file exists in storage when it does not, which can leave a DB row
+ *   pointing at a deleted file.
+ * - MUST NOT invoke the `upload()` call's `onError` callback for the abort itself —
+ *   an intentional cancel is not a transport/storage failure and must not be
+ *   reported as one.
+ *
+ * This contract must hold identically across every provider bonded to this category
+ * — swapping providers must never change what a consumer observes on abort.
  */
 export type AbortHandler = (file: UploadedFile) => void | Promise<void>
 

@@ -521,16 +521,17 @@ describe('createStore', () => {
       )
     })
 
-    it('should handle like operator', async () => {
+    it('handles the like operator case-insensitively, without escaping the caller-supplied pattern [cross-bond contract]', async () => {
       mockPool.query.mockResolvedValueOnce({ rows: [], rowCount: 0 })
 
       await store.findMany('users', {
         where: [{ field: 'name', operator: 'like', value: '%alice%' }],
       })
 
-      expect(mockPool.query).toHaveBeenCalledWith(expect.stringContaining('WHERE "name" LIKE ?'), [
-        '%alice%',
-      ])
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringContaining('WHERE LOWER("name") LIKE LOWER(?)'),
+        ['%alice%'],
+      )
     })
 
     it('should handle is_null operator', async () => {

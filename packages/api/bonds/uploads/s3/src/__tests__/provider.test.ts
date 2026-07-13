@@ -317,6 +317,44 @@ describe('S3 Provider', () => {
       expect(file.stream).toBeUndefined()
     })
 
+    it('[ambiguous-failure fix] onError is never called and uploadPromise rejects with the shared UploadAbortedError — not the raw AWS AbortError, and never a false success — when the upload is aborted', async () => {
+      // Real @aws-sdk/lib-storage semantics: calling Upload#abort() makes the
+      // in-flight done() promise REJECT with an AbortError. The other abortUpload
+      // tests in this file mock done() as resolving, which can't exercise (and
+      // used to hide) this path — before the fix, that raw AbortError flowed
+      // straight into onError, so an intentional cancel masqueraded as a
+      // transport failure (and disagreed with the filesystem bond, whose old
+      // `.end()`-based abort instead resolved uploadPromise as a false success).
+      const awsAbortError = Object.assign(new Error('Upload aborted.'), { name: 'AbortError' })
+      mockUploadDone.mockRejectedValue(awsAbortError)
+      mockUploadAbort.mockResolvedValue(undefined)
+
+      const { upload, abortUpload } = await import('../provider.js')
+      const { UploadAbortedError } = await import('@molecule/api-uploads')
+
+      const stream = new PassThrough()
+      const onError = vi.fn()
+
+      const file = upload(
+        'file',
+        stream,
+        {
+          filename: 'test.txt',
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        onError,
+      )
+      const uploadPromise = file.uploadPromise
+
+      await abortUpload(file)
+
+      expect(mockUploadAbort).toHaveBeenCalled()
+      await expect(uploadPromise).rejects.toBeInstanceOf(UploadAbortedError)
+      expect(onError).not.toHaveBeenCalled()
+      expect(file.uploaded).toBe(false)
+    })
+
     it('should remove stream listeners when aborting', async () => {
       mockUploadDone.mockResolvedValue({
         Location: 'https://test-bucket.s3.amazonaws.com/test-uuid-1234',

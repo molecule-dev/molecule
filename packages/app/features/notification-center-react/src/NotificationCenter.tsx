@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-import { Button } from '@molecule/app-ui-react'
+import { Alert, Button } from '@molecule/app-ui-react'
 
 /** A single notification entry rendered inside the notification panel. */
 export interface NotificationItem {
@@ -32,6 +32,20 @@ interface NotificationCenterProps {
   title?: ReactNode
   /** Extra classes on the panel wrapper. */
   className?: string
+  /**
+   * The error from the most recent failed fetch (mirrors
+   * `NotificationCenterState.lastError` from `@molecule/app-notification-center`).
+   * When set, an error banner with a retry action renders above the list —
+   * a stale-but-populated `items` list with a currently-failing background
+   * poll must still surface the failure, so the banner never replaces the
+   * list or the empty state.
+   */
+  lastError?: Error
+  /**
+   * Called when the user clicks "Retry" in the error banner. Typically
+   * wired to the notification center instance's `refresh()`.
+   */
+  onRetry?: () => void
 }
 
 /**
@@ -45,6 +59,8 @@ interface NotificationCenterProps {
  * @param root0.emptyState
  * @param root0.title
  * @param root0.className
+ * @param root0.lastError
+ * @param root0.onRetry
  */
 export function NotificationCenter({
   items,
@@ -53,6 +69,8 @@ export function NotificationCenter({
   emptyState,
   title,
   className,
+  lastError,
+  onRetry,
 }: NotificationCenterProps): ReactElement {
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -77,6 +95,29 @@ export function NotificationCenter({
           </Button>
         )}
       </header>
+      {lastError && (
+        <div className={cm.sp('px', 3)}>
+          <Alert status="error">
+            <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
+              <span className={cm.textSize('sm')}>
+                {t(
+                  'notifications.loadError',
+                  {},
+                  { defaultValue: 'Could not load notifications.' },
+                )}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onRetry}
+                data-mol-id="notification-center-retry"
+              >
+                {t('notifications.retry', {}, { defaultValue: 'Retry' })}
+              </Button>
+            </div>
+          </Alert>
+        </div>
+      )}
       {!hasItems ? (
         (emptyState ?? (
           <div className={cm.cn(cm.sp('p', 6), cm.textCenter, cm.textSize('sm'))}>

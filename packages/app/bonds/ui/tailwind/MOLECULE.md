@@ -20,7 +20,9 @@ npm install @molecule/app-ui-tailwind
 
 #### `CVAConfig`
 
-Configuration for class variance authority ({@link cva}).
+Configuration for a class-variance-authority (`cva`) function: the variant
+definitions, default selections, and compound variants used to resolve a
+component's final class string from its props.
 
 ```typescript
 interface CVAConfig<T extends Record<string, Record<string, string>>> {
@@ -525,8 +527,10 @@ const classMap: UIClassMap
 Merges class names, filtering out falsy values. Supports strings,
 numbers, conditional objects, and nested arrays.
 
-Resolves conflicting Tailwind utilities (e.g. two `gap-*` classes from
-`cm.grid({ cols: 12 })` plus a literal `'gap-10'`) via `tailwind-merge`.
+When a class merger is registered via {@link setClassMerger} (e.g. the
+Tailwind bond registers `tailwind-merge`), conflicting utilities such as two
+`gap-*` classes are resolved by it; otherwise the joined string is returned
+as-is.
 
 ```typescript
 const cn: (...classes: ClassValue[]) => string
@@ -595,7 +599,7 @@ const cva: <T extends Record<string, Record<string, string>>>(base: string, conf
 The dialog body.
 
 ```typescript
-const dialogBody: "flex-1 min-h-0 overflow-y-auto pl-6 py-6 *:pr-6"
+const dialogBody: "flex-1 min-h-0 overflow-y-auto px-6 py-6"
 ```
 
 #### `dialogClose`
@@ -604,6 +608,16 @@ Dialog close button classes.
 
 ```typescript
 const dialogClose: "flex-shrink-0 ml-4 -mr-4 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none"
+```
+
+#### `dialogCloseFloating`
+
+Floating close for title-less dialogs — overlays the top-right corner of
+the dialog box (`dialogContent` is `relative`) instead of rendering a
+header row that pushes the body down.
+
+```typescript
+const dialogCloseFloating: "absolute right-3 top-3 z-10 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none"
 ```
 
 #### `dialogContent`
@@ -1523,8 +1537,13 @@ const surfaceSecondary: "bg-surface-secondary"
 
 Switch component classes.
 
+The `color` axis maps 1:1 to the semantic `ColorVariant` scale (same
+`primary`/`secondary`/`success`/`warning`/`error`/`info` tokens
+`progressColor` already uses) — no lookup table needed, unlike `button`'s
+differently-named CVA variants.
+
 ```typescript
-const switchBase: (props?: ({ variant?: "default" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const switchBase: (props?: ({ color?: "secondary" | "success" | "warning" | "error" | "primary" | "info" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `switchThumb`
@@ -1681,10 +1700,14 @@ const tableWrapper: "relative w-full overflow-auto"
 
 #### `tabsContent`
 
-Tabs content panel classes.
+Tabs content (panel) classes.
+
+`variant` only adjusts the top spacing beneath the tablist — `enclosed`
+(the default) reproduces the single style this used to be hardcoded to,
+token-for-token.
 
 ```typescript
-const tabsContent: "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+const tabsContent: (props?: ({ variant?: "line" | "enclosed" | "soft-rounded" | "solid-rounded" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `tabsFitted`
@@ -1697,18 +1720,36 @@ const tabsFitted: "w-full"
 
 #### `tabsList`
 
-Tabs list container classes.
+Tabs list (tablist container) classes.
+
+`variant` controls shape/background (a full-width underline rail for
+`line`; a filled/bordered box for `enclosed`; a soft or solid pill track
+for `*-rounded`); `size` controls only the container height, so it never
+conflicts with `tabsTrigger`'s own `size`-driven padding.
+
+`enclosed`+`md` (the defaults) reproduce the single style this used to be
+hardcoded to, token-for-token.
 
 ```typescript
-const tabsList: "inline-flex h-10 items-center justify-center rounded-md bg-surface-secondary p-1 text-foreground-secondary"
+const tabsList: (props?: ({ variant?: "line" | "enclosed" | "soft-rounded" | "solid-rounded" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `tabsTrigger`
 
-Tabs trigger button classes.
+Tabs trigger (individual tab button) classes.
+
+`variant` controls the shape/color of the ACTIVE state via
+`data-[state=active]:*` attribute selectors — the caller (see
+`@molecule/app-ui-react`'s `Tabs`) sets `data-state="active"|"inactive"` on
+the element; nothing here reads a JS `active` flag. `size` controls
+padding/font-size only, shared across every variant so it can never
+conflict with a variant's own classes.
+
+`enclosed`+`md` (the defaults) reproduce the single style this used to be
+hardcoded to, token-for-token.
 
 ```typescript
-const tabsTrigger: "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+const tabsTrigger: (props?: ({ variant?: "line" | "enclosed" | "soft-rounded" | "solid-rounded" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `tabTriggerFitted`

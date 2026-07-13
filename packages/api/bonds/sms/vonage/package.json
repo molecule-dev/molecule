@@ -29,6 +29,7 @@
     "@vonage/server-sdk": "3.27.0"
   },
   "peerDependencies": {
+    "@molecule/api-secrets": "^1.0.0",
     "@molecule/api-sms": "1.0.0"
   },
   "devDependencies": {

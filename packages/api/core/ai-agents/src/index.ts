@@ -50,6 +50,17 @@
  * the `@molecule/api-ai-agents-llm` provider (or your own `AIAgentsProvider`)
  * via `bond('ai-agents', provider)` — nothing else changes.
  *
+ * - **`setProvider(name, provider)` ambiguity:** the FIRST named provider you
+ *   register also auto-promotes to the singleton (so plain
+ *   `getProvider()`/`requireProvider()` work without the caller knowing the
+ *   name) — but that promotion is a single-provider convenience, not a
+ *   permanent pick. The moment a SECOND, differently-named provider is
+ *   registered, `getProvider()` stops returning the first one and declines
+ *   (`null`) instead — `requireProvider()` throws pointing at
+ *   `getProviderByName(name)`. Call the explicit `setProvider(provider)` (no
+ *   name) form if you want one provider to always win regardless of how many
+ *   named providers you also register.
+ *
  * @module
  */
 

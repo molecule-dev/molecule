@@ -5,4 +5,5 @@ export const fil: UploadsTranslations = {
   'uploads.error.noProvider':
     'Hindi naka-configure ang upload provider. Tumawag muna ng setProvider().',
   'uploads.error.streamLimitReached': 'Naabot na ang limitasyon ng stream.',
+  'uploads.error.aborted': 'Na-abort ang pag-upload.',
 }

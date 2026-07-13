@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const uz: UploadsTranslations = {
   'uploads.error.noProvider': 'Yuklash provayderi sozlanmagan. Avval setProvider() ni chaqiring.',
   'uploads.error.streamLimitReached': 'Oqim chegarasiga yetildi.',
+  'uploads.error.aborted': 'Yuklash bekor qilindi.',
 }

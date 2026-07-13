@@ -155,7 +155,7 @@ function getAuthorizeUrl({
 
 **Returns:** The GitHub authorize URL, or `null` when `OAUTH_GITHUB_CLIENT_ID` is unset.
 
-#### `verify(code, codeVerifier)`
+#### `verify(code, codeVerifier, redirectUri)`
 
 Exchanges a GitHub OAuth authorization code for an access token, then
 fetches the authenticated user's profile from the GitHub API.
@@ -165,11 +165,12 @@ via `OAUTH_GITHUB_TOKEN_URL` and `OAUTH_GITHUB_USER_URL` for GitHub
 Enterprise deployments or E2E mock servers.
 
 ```typescript
-function verify(code: string, codeVerifier?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "github"; oauthId: string; oauthData: Record<string, unknown>; } | null>
+function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "github"; oauthId: string; oauthData: Record<string, unknown>; } | null>
 ```
 
 - `code` — The authorization code from the OAuth callback.
 - `codeVerifier` — The PKCE code verifier (if PKCE was used in the auth request).
+- `redirectUri` — The redirect URI used in the authorization request. Included in the
 
 **Returns:** An `OAuthUserInfo` with the user's GitHub username, email, and OAuth ID.
 
@@ -226,3 +227,15 @@ Peer dependencies:
 - `OAUTH_GITHUB_CLIENT_SECRET` *(required)* — GitHub OAuth client secret
   - Setup: Generate a client secret on your GitHub OAuth App page.
   - Get it here: [https://github.com/settings/developers](https://github.com/settings/developers)
+
+- The token exchange (`verify`'s call to GitHub's token endpoint) is
+  `application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 — matching
+  every other molecule.dev OAuth bond (google, gitlab, twitter, apple,
+  microsoft). GitHub's endpoint also accepts JSON, but form-encoding is
+  the spec-compliant, universally-supported choice.
+- `verify` accepts a third `redirectUri` argument (falling back to
+  `APP_ORIGIN`, same as the other bonds) and includes it in the token
+  exchange. GitHub.com itself is lenient about a missing/mismatched
+  `redirect_uri`, but a redirect_uri-enforcing GitHub Enterprise instance
+  or strict proxy would otherwise reject the exchange with an error that
+  looks unrelated to the missing parameter.

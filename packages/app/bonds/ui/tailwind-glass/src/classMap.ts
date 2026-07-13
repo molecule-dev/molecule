@@ -31,7 +31,7 @@ export const glassOverrides: ClassMapOverrides = (base: UIClassMap) => ({
   headerBar: base.cn(base.headerBar, 'backdrop-blur-xl backdrop-saturate-[1.8]'),
   drawer: base.cn(base.drawer, 'backdrop-blur-2xl backdrop-saturate-150'),
   dropdownContent: base.cn(base.dropdownContent, 'backdrop-blur-xl backdrop-saturate-150'),
-  tabsList: base.cn(base.tabsList, 'backdrop-blur-lg backdrop-saturate-150'),
+  tabsList: (opts) => base.cn(base.tabsList(opts), 'backdrop-blur-lg backdrop-saturate-150'),
   actionSheet: base.cn(base.actionSheet, 'backdrop-blur-2xl backdrop-saturate-150'),
 
   // Heavier blur on overlay for depth

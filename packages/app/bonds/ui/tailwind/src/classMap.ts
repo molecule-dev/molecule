@@ -39,6 +39,7 @@ import type {
   SpacingScale,
   SpinnerClassOptions,
   SwitchClassOptions,
+  TabsClassOptions,
   TextareaClassOptions,
   TextScale,
   ToastClassOptions,
@@ -240,10 +241,10 @@ import {
   tableSortIcon,
   tableSortWrapper,
   tableWrapper,
-  tabsContent,
+  tabsContent as tabsContentCva,
   tabsFitted,
-  tabsList,
-  tabsTrigger,
+  tabsList as tabsListCva,
+  tabsTrigger as tabsTriggerCva,
   tabTriggerFitted,
   tabTriggerIcon,
   textarea,
@@ -543,7 +544,7 @@ export const classMap: UIClassMap = {
 
   switchBase(opts?: SwitchClassOptions): string {
     const size = opts?.size ? size3Map[opts.size] : 'md'
-    return switchBaseCva({ size })
+    return switchBaseCva({ color: opts?.color || 'primary', size })
   },
 
   switchThumb(opts?: SwitchClassOptions): string {
@@ -601,6 +602,23 @@ export const classMap: UIClassMap = {
     const variant = opts?.active ? 'active' : 'default'
     const size = opts?.size ? size3Map[opts.size] : 'md'
     return paginationItem({ variant, size })
+  },
+
+  tabsList(opts?: TabsClassOptions): string {
+    const variant = opts?.variant || 'enclosed'
+    const size = opts?.size ? size3Map[opts.size] : 'md'
+    return tabsListCva({ variant, size })
+  },
+
+  tabsTrigger(opts?: TabsClassOptions): string {
+    const variant = opts?.variant || 'enclosed'
+    const size = opts?.size ? size3Map[opts.size] : 'md'
+    return tabsTriggerCva({ variant, size })
+  },
+
+  tabsContent(opts?: TabsClassOptions): string {
+    const variant = opts?.variant || 'enclosed'
+    return tabsContentCva({ variant })
   },
 
   tooltip(): string {
@@ -741,9 +759,6 @@ export const classMap: UIClassMap = {
   tableHead,
   tableCell,
   tableCaption,
-  tabsList,
-  tabsTrigger,
-  tabsContent,
   tooltipContent,
   toastViewport,
   toastTitle,

@@ -44,7 +44,10 @@ describe('@molecule/api-database-mysql', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env = { ...originalEnv }
+    // A safe baseline so createPool() with no args doesn't trip the [env-assumption
+    // fix] fail-fast check in tests that aren't specifically exercising it — those
+    // tests `delete` this to test the throw path instead.
+    process.env = { ...originalEnv, MYSQL_DATABASE: 'testdb' }
   })
 
   afterEach(() => {
@@ -53,13 +56,42 @@ describe('@molecule/api-database-mysql', () => {
   })
 
   describe('createPool()', () => {
-    it('should create a pool with default config', async () => {
+    it('FAIL-FAST: throws an actionable config error instead of silently defaulting to root@localhost with no password [env-assumption fix]', async () => {
+      delete process.env.MYSQL_URL
+      delete process.env.MYSQL_DATABASE
+      vi.resetModules()
+
       const mysql = await import('mysql2/promise')
       const { createPool } = await import('../provider.js')
 
-      const pool = createPool()
+      // Before the fix, this call silently created a pool that would only fail
+      // LATER, on first query, with a raw ECONNREFUSED/ER_ACCESS_DENIED — never
+      // naming MYSQL_URL as the thing to set.
+      expect(() => createPool()).toThrow(/MYSQL_URL/)
+      expect(mysql.createPool).not.toHaveBeenCalled()
+    })
 
-      expect(pool).toBeDefined()
+    it("does not throw when an explicit (even partial) config object is passed — that is the caller's deliberate choice", async () => {
+      delete process.env.MYSQL_URL
+      delete process.env.MYSQL_DATABASE
+      vi.resetModules()
+
+      const mysql = await import('mysql2/promise')
+      const { createPool } = await import('../provider.js')
+
+      expect(() => createPool({ host: 'discrete-host', user: 'discrete-user' })).not.toThrow()
+      expect(mysql.createPool).toHaveBeenCalled()
+    })
+
+    it('does not throw when only the discrete MYSQL_DATABASE env var is set (no MYSQL_URL)', async () => {
+      delete process.env.MYSQL_URL
+      process.env.MYSQL_DATABASE = 'discrete-db'
+      vi.resetModules()
+
+      const mysql = await import('mysql2/promise')
+      const { createPool } = await import('../provider.js')
+
+      expect(() => createPool()).not.toThrow()
       expect(mysql.createPool).toHaveBeenCalled()
     })
 
@@ -368,17 +400,16 @@ describe('@molecule/api-database-mysql', () => {
   })
 
   describe('pool.stats()', () => {
-    it('should return pool statistics', async () => {
+    it('is undefined (mysql2 exposes no real stats) instead of a misleading hardcoded 0/0/0 [ambiguous-failure fix]', async () => {
       const { createPool } = await import('../provider.js')
 
-      const pool = createPool()
-      const stats = pool.stats()
-
-      expect(stats).toEqual({
-        total: 0,
-        idle: 0,
-        waiting: 0,
-      })
+      // Before the fix, `pool.stats()` always returned `{ total: 0, idle: 0,
+      // waiting: 0 }` — a health page reading those zeros could not tell "MySQL
+      // bond, unsupported" from "pool down". `stats` is optional on
+      // `DatabasePool`, so callers use `pool.stats?.()` and correctly treat
+      // `undefined` as "unavailable".
+      const pool = createPool({ host: 'h', database: 'd' })
+      expect(pool.stats).toBeUndefined()
     })
   })
 

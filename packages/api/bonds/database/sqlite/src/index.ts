@@ -17,6 +17,21 @@
  * @remarks
  * Configure via the SQLITE_PATH environment variable (default: ./data/app.db).
  * WAL mode and foreign key constraints are enabled by default.
+ * - **`pool.transaction()` calls and plain `pool.query()` calls are serialized**
+ *   behind an internal FIFO queue (better-sqlite3 has only ONE shared connection
+ *   — there is no per-transaction isolation). A `transaction()` holds the queue
+ *   for its whole `BEGIN` → … → `COMMIT`/`ROLLBACK` lifetime, so a concurrent
+ *   `transaction()` or `query()` call waits its turn instead of racing `BEGIN`
+ *   or silently running inside — and being discarded by — someone else's
+ *   rollback. Don't hold a transaction open across an `await` on unrelated
+ *   work; every other query on this pool queues behind it until it resolves.
+ * - **`like` is case-insensitive and does NOT escape the value** — the caller's
+ *   own `%`/`_` are honored as wildcards, identical to the postgresql/mysql
+ *   bonds. For human-typed search input, use `ilike` instead (escapes + auto-
+ *   wraps `%…%`) — see `WhereCondition['operator']` in `@molecule/api-database`.
+ * - **A migration file with a genuine error** (not an idempotent "already
+ *   exists"/"duplicate column name") now FAILS the boot with every broken file
+ *   named, instead of warn-logging and booting with a partial schema.
  *
  * @module
  */

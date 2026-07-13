@@ -4,5 +4,7 @@ import type { IconsTranslations } from './types.js'
 export const ko: IconsTranslations = {
   'icons.error.noIconSet':
     'IconSet이 설정되지 않았습니다. 앱 시작 시 아이콘 라이브러리와 함께 setIconSet()을 호출하세요 (예: @molecule/app-icons-molecule).',
+  'icons.error.noProvider':
+    '@molecule/app-icons: 연결된 아이콘 세트가 없습니다. IconSet과 함께 setIconSet()을 호출하세요 (예: @molecule/app-icons-molecule이 내보내는 값).',
   'icons.error.notFound': '아이콘 "{{name}}"을(를) 현재 아이콘 세트에서 찾을 수 없습니다.',
 }

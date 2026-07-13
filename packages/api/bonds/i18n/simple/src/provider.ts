@@ -15,6 +15,32 @@ import type {
 import { getNestedValue, getPluralForm, interpolate } from '@molecule/api-i18n'
 
 /**
+ * Recursively merges source translation entries into a COPY of the target
+ * object, preserving existing keys and overwriting only the leaves that
+ * conflict. Mirrors `@molecule/api-i18n`'s own auto-created fallback
+ * provider so `addTranslations()` behaves identically whichever provider is
+ * bonded — a shallow spread here previously clobbered an entire nested
+ * namespace object when two modules shared its top-level key.
+ *
+ * @param target - The base translations object (not mutated).
+ * @param source - The translations to merge on top.
+ * @returns A new object with `source` deep-merged over `target`.
+ */
+const deepMerge = (target: Translations, source: Translations): Translations => {
+  const result: Translations = { ...target }
+  for (const key of Object.keys(source)) {
+    const sv = source[key]
+    const tv = result[key]
+    if (typeof sv === 'object' && sv !== null && typeof tv === 'object' && tv !== null) {
+      result[key] = deepMerge(tv as Translations, sv as Translations)
+    } else {
+      result[key] = sv
+    }
+  }
+  return result
+}
+
+/**
  * Milliseconds per relative-time unit (calendar units are approximations:
  * 30-day month, 90-day quarter, 365-day year — matching the auto-select
  * thresholds in `formatRelativeTime`).
@@ -91,15 +117,12 @@ export const createSimpleI18nProvider = (
       if (!config.translations) config.translations = {}
 
       if (namespace) {
-        config.translations[namespace] = {
-          ...((config.translations[namespace] as Translations) || {}),
-          ...translations,
-        }
+        config.translations[namespace] = deepMerge(
+          (config.translations[namespace] as Translations) || {},
+          translations,
+        )
       } else {
-        config.translations = {
-          ...config.translations,
-          ...translations,
-        }
+        config.translations = deepMerge(config.translations, translations)
       }
     },
 
@@ -110,15 +133,22 @@ export const createSimpleI18nProvider = (
     ): string {
       const targetLocale = options?.locale ?? currentLocale
 
+      // Fleet plural contract (matches i18next's key resolution order): when
+      // `count` is provided, the plural-suffixed key (`key_one`/`key_few`/…,
+      // falling back to `key_other`) is tried FIRST and wins over the base
+      // `key` if BOTH are registered. Only when no plural-suffixed key exists
+      // at all does resolution fall back to the base key. Previously the base
+      // key won whenever present, so a catalog shipping both `item` and
+      // `item_one`/`item_other` silently never pluralized under this provider.
       const lookup = (translations: Translations): string | undefined => {
-        let found = getNestedValue(translations, key)
-        if (options?.count !== undefined && found === undefined) {
+        if (options?.count !== undefined) {
           const pluralForm = getPluralForm(options.count, targetLocale)
-          found =
+          const plural =
             getNestedValue(translations, `${key}_${pluralForm}`) ||
             getNestedValue(translations, `${key}_other`)
+          if (plural !== undefined) return plural
         }
-        return found
+        return getNestedValue(translations, key)
       }
 
       const config = locales.get(targetLocale)
@@ -147,9 +177,18 @@ export const createSimpleI18nProvider = (
     },
 
     exists(key: string): boolean {
+      // Mirrors t()'s fallback chain (current locale, then English) rather
+      // than checking only the current locale's own catalog — otherwise
+      // `exists()` reports `false` for a key that `t()` happily renders via
+      // the English fallback, and callers using `exists()` to predict `t()`
+      // get a wrong answer for every partially-translated locale.
       const config = locales.get(currentLocale)
-      if (!config) return false
-      return getNestedValue(config.translations ?? {}, key) !== undefined
+      if (config && getNestedValue(config.translations ?? {}, key) !== undefined) {
+        return true
+      }
+      if (currentLocale === 'en') return false
+      const enConfig = locales.get('en')
+      return enConfig ? getNestedValue(enConfig.translations ?? {}, key) !== undefined : false
     },
 
     formatNumber(value: number, options?: NumberFormatOptions): string {

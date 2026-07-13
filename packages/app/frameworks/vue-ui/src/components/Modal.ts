@@ -14,6 +14,10 @@ import { renderIcon } from '../utilities/renderIcon.js'
 
 /**
  * Vue Modal UI component with UIClassMap-driven styling.
+ *
+ * `centered` (default `true`) vertically centers the dialog; `centered:
+ * false` top-anchors it instead, via the sanctioned inline-style exception
+ * (see the `wrapperStyle` computation in `setup()`).
  */
 export const Modal = defineComponent({
   name: 'MModal',
@@ -36,6 +40,10 @@ export const Modal = defineComponent({
       default: true,
     },
     closeOnEscape: {
+      type: Boolean,
+      default: true,
+    },
+    centered: {
       type: Boolean,
       default: true,
     },
@@ -92,6 +100,12 @@ export const Modal = defineComponent({
         return null
       }
 
+      // `centered` has no dedicated ClassMap resolver option (dialogWrapper is
+      // a fixed token, not a `{ centered }`-parameterized one) — a top-anchored
+      // layout is expressed as the one inline-style exception the workspace
+      // styling rule allows for values ClassMap genuinely cannot express.
+      const wrapperStyle = props.centered ? undefined : { alignItems: 'flex-start' }
+
       const modalContent = [
         // Overlay background
         h('div', {
@@ -103,6 +117,7 @@ export const Modal = defineComponent({
           'div',
           {
             class: cm.dialogWrapper,
+            style: wrapperStyle,
             onClick: handleOverlayClick,
           },
           [

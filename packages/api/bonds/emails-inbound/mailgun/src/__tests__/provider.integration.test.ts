@@ -93,19 +93,28 @@ describe('@molecule/api-emails-inbound-mailgun × REAL crypto + REAL api-emails'
     expect(await verifySignature({}, stale)).toBe(false)
   })
 
-  it('rejects a tampered signature, and (pinned behavior) an unconfigured key also verifies false', async () => {
+  it('rejects a tampered signature (false, not a throw)', async () => {
     const body = buildSignedBody({ subject: 'tamper me' })
     const tampered = body.replace(/signature=[0-9a-f]{8}/u, 'signature=00000000')
     expect(await verifySignature({}, tampered)).toBe(false)
+  })
 
-    // Pinned: with MAILGUN_API_KEY unset the provider returns false rather
-    // than throwing. NOTE this is indistinguishable from forgery for the
-    // caller AND unlogged — a misconfigured server 401s every webhook with no
-    // trace (tracked as an audit finding; do not "fix" by weakening this
-    // assertion).
+  it('FAILURE DISAMBIGUATION: an unconfigured MAILGUN_API_KEY throws a tagged 503, distinct from a `false` (401) forged/stale/malformed webhook', async () => {
+    // A well-signed, fresh, complete webhook still verifies `false` for
+    // tampering/staleness/missing fields (401 — "this is not from
+    // Mailgun") — see the other tests in this file. An unconfigured key is
+    // a DIFFERENT failure class: the server itself is broken, not the
+    // request. It must throw (not resolve `false`) so the caller's error
+    // middleware can 503 with the actionable "MAILGUN_API_KEY is not set"
+    // message instead of collapsing into the same silent 401 as forgery.
     delete process.env.MAILGUN_API_KEY
     const wellSigned = buildSignedBody({ subject: 'no key configured' })
-    expect(await verifySignature({}, wellSigned)).toBe(false)
+
+    await expect(verifySignature({}, wellSigned)).rejects.toMatchObject({
+      statusCode: 503,
+      errorKey: 'config.notConfigured',
+    })
+    await expect(verifySignature({}, wellSigned)).rejects.toThrow(/MAILGUN_API_KEY/u)
   })
 
   it('full lifecycle: signed webhook → verify → parse → threaded reply through the REAL outbound bond', async () => {
@@ -177,5 +186,39 @@ describe('@molecule/api-emails-inbound-mailgun × REAL crypto + REAL api-emails'
     const sentAttachment = (sent.attachments ?? [])[0]!
     expect(sentAttachment.filename).toBe('guide.txt')
     expect((sentAttachment.content as Buffer).toString('utf8')).toBe('aim low')
+  })
+
+  it('CONSUMER PROPERTY: an id-less message keeps the SAME fallback `id` across a Mailgun retry, so dedupe holds', async () => {
+    // Mailgun regenerates `timestamp`/`token`/`signature` on every delivery
+    // attempt of the SAME message — the old `fields.token` fallback made
+    // every retry look like a brand-new message. The fallback id must
+    // instead derive from data that does NOT change across retries (sender,
+    // the mail's own `Date` header, subject).
+    const sharedFields = {
+      From: 'alice@example.com',
+      To: 'support@desk.example',
+      subject: 'No Message-Id here',
+      'message-headers': JSON.stringify([['Date', 'Mon, 01 Jan 2024 00:00:00 +0000']]),
+    }
+
+    const firstAttempt = buildSignedBody(sharedFields, 0)
+    const retryAttempt = buildSignedBody(sharedFields, -120) // same message, later retry
+
+    const first = await parseWebhookPayload({}, firstAttempt)
+    const retry = await parseWebhookPayload({}, retryAttempt)
+
+    expect(first.id).not.toBe('') // a real id was derived, not left empty
+    expect(first.id).toBe(retry.id) // retries of the SAME message dedupe
+
+    // A genuinely different message (different Date header) gets a
+    // different fallback id.
+    const different = await parseWebhookPayload(
+      {},
+      buildSignedBody({
+        ...sharedFields,
+        'message-headers': JSON.stringify([['Date', 'Tue, 02 Jan 2024 00:00:00 +0000']]),
+      }),
+    )
+    expect(different.id).not.toBe(first.id)
   })
 })

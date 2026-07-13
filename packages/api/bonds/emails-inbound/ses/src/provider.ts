@@ -55,6 +55,16 @@ import {
 const certCache = new Map<string, string>()
 
 /**
+ * Timeout (ms) for the (uncached) signing-certificate fetch. Bounds the
+ * worst case so a hanging/slow cert endpoint fails fast into a `false`
+ * verification result instead of stalling the inbound webhook handler for
+ * `fetch`'s much longer default timeout — which otherwise makes inbound
+ * email processing look "frozen" rather than failing (see
+ * integration-audit-findings.md → [email] hostile-default).
+ */
+const CERT_FETCH_TIMEOUT_MS = 5000
+
+/**
  * Resets the cached signing certificates. Exposed for tests.
  */
 export const _resetSigningCertCache = (): void => {
@@ -67,7 +77,8 @@ export const _resetSigningCertCache = (): void => {
  *
  * @param url - The `SigningCertURL` from the SNS payload.
  * @returns The PEM-encoded certificate body, or `undefined` when the URL
- *   is not allowlisted or the fetch fails.
+ *   is not allowlisted, the fetch fails, or it does not complete within
+ *   {@link CERT_FETCH_TIMEOUT_MS}.
  */
 const fetchSigningCert = async (url: string): Promise<string | undefined> => {
   if (!isAllowedSigningCertUrl(url)) return undefined
@@ -76,15 +87,16 @@ const fetchSigningCert = async (url: string): Promise<string | undefined> => {
   if (cached !== undefined) return cached
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, { signal: AbortSignal.timeout(CERT_FETCH_TIMEOUT_MS) })
     if (!response.ok) return undefined
     const pem = await response.text()
     if (!pem.includes('BEGIN CERTIFICATE')) return undefined
     certCache.set(url, pem)
     return pem
   } catch (_error) {
-    // Best-effort fetch — network failures are surfaced as `undefined`; the
-    // caller treats a missing cert as a signature-verification failure (false).
+    // Best-effort fetch — network failures, including our own abort-on-timeout,
+    // are surfaced as `undefined`; the caller treats a missing cert as a
+    // signature-verification failure (false), never a hang.
     return undefined
   }
 }

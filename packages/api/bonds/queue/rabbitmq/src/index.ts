@@ -29,11 +29,23 @@
  *   after redelivery is routed to the queue's dead-letter exchange when one was
  *   configured (`createQueue(name, { deadLetterQueue })`) — otherwise it is
  *   DROPPED. Configure a dead-letter queue for anything you cannot afford to lose.
- * - **`delaySeconds` requires the RabbitMQ `rabbitmq-delayed-message-exchange`
- *   plugin AND publishing through a delayed exchange.** This bond publishes to
- *   the default exchange, where the `x-delay` header has NO effect — without
- *   that plugin/topology a "delayed" message is delivered immediately. Use the
- *   Redis, SQS, or memory bond if native delayed delivery matters.
+ * - **`delaySeconds` works out of the box — no `rabbitmq-delayed-message-exchange`
+ *   plugin required.** A message with `delaySeconds` is parked on a
+ *   per-delay wait queue (named `<queue>.delay.<ms>`, created on demand)
+ *   whose `x-message-ttl` equals the delay; once the TTL expires the broker
+ *   dead-letters it back to the real queue via the default exchange. Every
+ *   distinct delay value gets its own wait queue, so mixed delays on the
+ *   same logical queue never hit RabbitMQ's "TTL only expires at the head"
+ *   staggering gotcha. The wait queues are an implementation detail — do
+ *   not publish to them directly, and expect one extra durable queue per
+ *   distinct `delaySeconds` value your app actually uses.
+ * - **A connection drop or a channel-killing broker error auto-recovers**
+ *   with bounded exponential backoff (1s → 30s), and every active
+ *   `subscribe()` consumer is re-attached once reconnected — a transient
+ *   broker restart no longer permanently breaks every queue for the life of
+ *   the process. The very FIRST connection attempt (inside `createProvider`)
+ *   still fails fast (rejects) so a bad `RABBITMQ_URL` is caught immediately
+ *   at boot instead of retrying silently forever.
  * - `receive()` is pull-based (`channel.get`); `ReceiveOptions.waitTimeSeconds`
  *   and `visibilityTimeout` are not supported by AMQP semantics — unacked
  *   messages return to the queue when the channel/connection closes, not on a

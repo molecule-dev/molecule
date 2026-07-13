@@ -287,5 +287,6 @@ function setProvider(provider: AIVectorStoreProvider): void
 | Provider | Package |
 |----------|---------|
 | Ai Vector Store | `@molecule/api-ai-vector-store-chroma` |
+| Ai Vector Store | `@molecule/api-ai-vector-store-memory` |
 | Ai Vector Store | `@molecule/api-ai-vector-store-pgvector` |
 | Ai Vector Store | `@molecule/api-ai-vector-store-pinecone` |

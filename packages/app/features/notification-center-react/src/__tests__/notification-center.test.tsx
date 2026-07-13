@@ -30,9 +30,19 @@ vi.mock('@molecule/app-react', () => ({
   }),
 }))
 
+const buttonCalls: Array<Record<string, unknown>> = []
+
 vi.mock('@molecule/app-ui-react', () => ({
-  Button: ({ children }: { children?: ReactNode }) =>
-    createElement('button', { 'data-button': '' }, children),
+  Button: (props: Record<string, unknown> & { children?: ReactNode }) => {
+    buttonCalls.push(props)
+    return createElement(
+      'button',
+      { 'data-button': '', 'data-mol-id': props['data-mol-id'] },
+      props.children,
+    )
+  },
+  Alert: ({ children, status }: { children?: ReactNode; status?: string }) =>
+    createElement('div', { 'data-alert': status ?? '' }, children),
 }))
 
 const { NotificationCenter } = await import('../NotificationCenter.js')
@@ -98,5 +108,45 @@ describe('NotificationCenter', () => {
   it('forwards className', () => {
     const markup = html(createElement(NotificationCenter, { items, className: 'ncn-cls' }))
     expect(markup).toContain('ncn-cls')
+  })
+
+  describe('error banner (lastError)', () => {
+    it('renders no banner when lastError is unset', () => {
+      const markup = html(createElement(NotificationCenter, { items }))
+      expect(markup).not.toContain('data-alert')
+    })
+
+    it('renders an error banner with retry text when lastError is set, even though items are already loaded', () => {
+      const markup = html(
+        createElement(NotificationCenter, { items, lastError: new Error('Network error') }),
+      )
+      expect(markup).toContain('data-alert="error"')
+      expect(markup).toContain('Could not load notifications.')
+      expect(markup).toContain('Retry')
+      // The banner must not replace the (stale-but-populated) list.
+      expect(markup).toContain('New comment')
+      expect(markup).toContain('Build passed')
+    })
+
+    it('renders the banner alongside the empty state when there are no items yet', () => {
+      const markup = html(
+        createElement(NotificationCenter, { items: [], lastError: new Error('boom') }),
+      )
+      expect(markup).toContain('data-alert="error"')
+      expect(markup).toContain('No notifications')
+    })
+
+    it('clicking the retry button invokes onRetry (wired to refresh())', () => {
+      buttonCalls.length = 0
+      const onRetry = vi.fn()
+      html(createElement(NotificationCenter, { items, lastError: new Error('x'), onRetry }))
+
+      const retryButton = buttonCalls.find((p) => p['data-mol-id'] === 'notification-center-retry')
+      expect(retryButton).toBeDefined()
+      expect(typeof retryButton?.onClick).toBe('function')
+      ;(retryButton!.onClick as () => void)()
+
+      expect(onRetry).toHaveBeenCalledOnce()
+    })
   })
 })

@@ -332,16 +332,17 @@ function formatNumber(value: number, options?: NumberFormatOptions): string
 
 **Returns:** The locale-formatted number string.
 
-#### `formatRelativeTime(value)`
+#### `formatRelativeTime(value, options)`
 
 Formats a relative time string (e.g. "2 hours ago", "in 3 days") using
 `Intl.RelativeTimeFormat`.
 
 ```typescript
-function formatRelativeTime(value: number | Date): string
+function formatRelativeTime(value: number | Date, options?: { unit?: Intl.RelativeTimeFormatUnit; }): string
 ```
 
 - `value` — The date or timestamp to express relative to now.
+- `options` — Optional settings; `unit` forces the difference to be expressed in that unit.
 
 **Returns:** The locale-formatted relative time string.
 

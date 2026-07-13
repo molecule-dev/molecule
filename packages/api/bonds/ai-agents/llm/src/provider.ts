@@ -26,6 +26,12 @@ import type {
 } from '@molecule/api-ai-agents'
 import { t } from '@molecule/api-i18n'
 
+import { AgentRunError } from './errors.js'
+// Side-effect import: registers the `stream`/`cacheControl` module
+// augmentation on `AgentRunInput` (see types.ts) so `input.stream` and
+// `input.cacheControl` below are typed, not `any`.
+import './types.js'
+
 /** One drained chat stream: accumulated text, tool calls, and token usage. */
 interface DrainedStream {
   text: string
@@ -186,101 +192,132 @@ export const provider: AIAgentsProvider = {
     const usage: TokenUsage = { inputTokens: 0, outputTokens: 0 }
     let lastText = ''
 
-    for (let step = 0; step < maxSteps; step++) {
-      const turn = await drainStream(
-        ai.chat({
-          messages,
-          system: input.system,
-          tools: input.tools,
-          model: input.model,
-          maxTokens: input.maxTokens,
-          temperature: input.temperature,
-          stream: false,
-          signal: input.signal,
-        }),
-        input.onEvent,
-      )
-      addUsage(usage, turn.usage)
-
-      // A provider API failure (rate limit, auth, overload, network) arrives as
-      // an in-band `error` ChatEvent — the stream ends without text or tools.
-      // Rejecting here disambiguates "the AI provider failed" from "the model
-      // legitimately answered nothing": the old fall-through returned
-      // { output: '', steps, usage } as if the run succeeded, and callers
-      // debugging the empty output had no signal that the API ever errored.
-      if (turn.errorMessage !== undefined) {
-        throw new Error(
-          t(
-            'ai-agents.error.providerError',
-            { message: turn.errorMessage },
-            { defaultValue: `AI provider error during agent run: ${turn.errorMessage}` },
-          ),
+    // Everything below can fail partway through a multi-turn run (a provider
+    // API error, an abort, or an unexpected throw from ai.chat() itself —
+    // e.g. a signal-aborted fetch). A plain rejection would silently drop
+    // every prior turn's `usage`/`steps`: a run that dies on step 8 would
+    // under-meter 7 turns of real billed spend. Wrap the whole loop so ANY
+    // failure re-throws as an AgentRunError carrying what was accumulated so
+    // far — `error.message` is unchanged, so existing catch sites keep
+    // working; only callers that want the partial usage/steps need to check
+    // `instanceof AgentRunError`.
+    try {
+      for (let step = 0; step < maxSteps; step++) {
+        const turn = await drainStream(
+          ai.chat({
+            messages,
+            system: input.system,
+            tools: input.tools,
+            model: input.model,
+            maxTokens: input.maxTokens,
+            temperature: input.temperature,
+            // Defaults to streaming (see the `stream` augmentation in
+            // types.ts): onEvent is a LIVE hook, and non-streaming requests
+            // with large outputs (a big tool input at a raised maxTokens) are
+            // exactly what provider docs warn will time out over HTTP.
+            // drainStream already folds streamed events correctly, so there
+            // is no extra cost to defaulting streaming on. Set
+            // `input.stream: false` to force non-streaming.
+            stream: input.stream !== false,
+            // Prompt-cache breakpoint hint: the system+tools prefix is
+            // identical across turns, so passing this through avoids
+            // re-billing the full (growing) prompt on every one of up to
+            // maxSteps turns. Providers without cache support ignore it.
+            cacheControl: input.cacheControl,
+            signal: input.signal,
+          }),
+          input.onEvent,
         )
-      }
+        addUsage(usage, turn.usage)
 
-      if (turn.text) lastText = turn.text
-
-      // Append the assistant turn: a text block (if any) + one tool_use block
-      // per requested tool call.
-      const assistantContent: ContentBlock[] = []
-      if (turn.text) assistantContent.push({ type: 'text', text: turn.text })
-      for (const tu of turn.toolUses) {
-        assistantContent.push({ type: 'tool_use', id: tu.id, name: tu.name, input: tu.input })
-      }
-      messages.push({ role: 'assistant', content: assistantContent })
-
-      if (turn.toolUses.length === 0) {
-        // No tools requested — the model is done.
-        return { output: turn.text, steps, usage }
-      }
-
-      // Execute each requested tool and build the tool_result turn.
-      const resultBlocks: ContentBlock[] = []
-      const toolCalls: AgentToolCall[] = []
-      for (const tu of turn.toolUses) {
-        if (input.signal?.aborted) {
+        // A provider API failure (rate limit, auth, overload, network) arrives
+        // as an in-band `error` ChatEvent — the stream ends without text or
+        // tools. Rejecting here disambiguates "the AI provider failed" from
+        // "the model legitimately answered nothing": the old fall-through
+        // returned { output: '', steps, usage } as if the run succeeded, and
+        // callers debugging the empty output had no signal that the API ever
+        // errored.
+        if (turn.errorMessage !== undefined) {
           throw new Error(
-            t('ai-agents.error.aborted', undefined, {
-              defaultValue: 'Agent run aborted before tool execution completed.',
-            }),
+            t(
+              'ai-agents.error.providerError',
+              { message: turn.errorMessage },
+              { defaultValue: `AI provider error during agent run: ${turn.errorMessage}` },
+            ),
           )
         }
 
-        const tool = input.tools?.find((candidate) => candidate.name === tu.name)
-        let result: unknown
-        let isError = false
-        if (!tool) {
-          result = `Error: unknown tool "${tu.name}".`
-          isError = true
-        } else {
-          try {
-            result = await tool.execute(tu.input)
-          } catch (error) {
-            // The model can recover from a failed tool call; surface the error
-            // back to it as a tool_result rather than aborting the whole run.
-            result = `Error: ${error instanceof Error ? error.message : String(error)}`
-            isError = true
-          }
+        if (turn.text) lastText = turn.text
+
+        // Append the assistant turn: a text block (if any) + one tool_use block
+        // per requested tool call.
+        const assistantContent: ContentBlock[] = []
+        if (turn.text) assistantContent.push({ type: 'text', text: turn.text })
+        for (const tu of turn.toolUses) {
+          assistantContent.push({ type: 'tool_use', id: tu.id, name: tu.name, input: tu.input })
+        }
+        messages.push({ role: 'assistant', content: assistantContent })
+
+        if (turn.toolUses.length === 0) {
+          // No tools requested — the model is done.
+          return { output: turn.text, steps, usage }
         }
 
-        toolCalls.push({ id: tu.id, name: tu.name, input: tu.input, result, isError })
-        resultBlocks.push({
-          type: 'tool_result',
-          tool_use_id: tu.id,
-          content: stringifyResult(result),
-        })
+        // Execute each requested tool and build the tool_result turn.
+        const resultBlocks: ContentBlock[] = []
+        const toolCalls: AgentToolCall[] = []
+        for (const tu of turn.toolUses) {
+          if (input.signal?.aborted) {
+            throw new Error(
+              t('ai-agents.error.aborted', undefined, {
+                defaultValue: 'Agent run aborted before tool execution completed.',
+              }),
+            )
+          }
+
+          const tool = input.tools?.find((candidate) => candidate.name === tu.name)
+          let result: unknown
+          let isError = false
+          if (!tool) {
+            result = `Error: unknown tool "${tu.name}".`
+            isError = true
+          } else {
+            try {
+              result = await tool.execute(tu.input)
+            } catch (error) {
+              // The model can recover from a failed tool call; surface the error
+              // back to it as a tool_result rather than aborting the whole run.
+              result = `Error: ${error instanceof Error ? error.message : String(error)}`
+              isError = true
+            }
+          }
+
+          toolCalls.push({ id: tu.id, name: tu.name, input: tu.input, result, isError })
+          resultBlocks.push({
+            type: 'tool_result',
+            tool_use_id: tu.id,
+            content: stringifyResult(result),
+          })
+        }
+
+        messages.push({ role: 'user', content: resultBlocks })
+        steps.push({ text: turn.text || undefined, toolCalls })
       }
 
-      messages.push({ role: 'user', content: resultBlocks })
-      steps.push({ text: turn.text || undefined, toolCalls })
+      // Step budget exhausted while the model was still calling tools.
+      const output =
+        lastText ||
+        t('ai-agents.stepBudgetExhausted', undefined, {
+          defaultValue: 'Agent stopped: step budget exhausted before a final answer.',
+        })
+      return { output, steps, usage }
+    } catch (error) {
+      throw new AgentRunError(
+        error instanceof Error ? error.message : String(error),
+        usage,
+        steps,
+        { cause: error },
+      )
     }
-
-    // Step budget exhausted while the model was still calling tools.
-    const output =
-      lastText ||
-      t('ai-agents.stepBudgetExhausted', undefined, {
-        defaultValue: 'Agent stopped: step budget exhausted before a final answer.',
-      })
-    return { output, steps, usage }
   },
 }

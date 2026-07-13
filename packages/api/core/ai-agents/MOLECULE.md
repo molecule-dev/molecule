@@ -169,6 +169,16 @@ interface AIAgentsProvider {
    *
    * @param input - The task/messages, tools, and loop options.
    * @returns The final output, the recorded steps, and total token usage.
+   * @throws {Error} When the underlying `ai` bond fails mid-run (a provider
+   *   API error, an abort, or any other exception raised while draining a
+   *   model turn or executing a tool) — a tool's own `execute()` throwing is
+   *   NON-fatal and recorded on the step instead. The default
+   *   `@molecule/api-ai-agents-llm` implementation rejects with its typed
+   *   `AgentRunError` in this case, which additionally carries the `usage`
+   *   and `steps` accumulated across every turn completed before the
+   *   failure (`error instanceof AgentRunError` to access them) — a caller
+   *   that meters spend should check for it so a run that dies mid-loop
+   *   doesn't silently under-meter the turns that already completed.
    */
   run(input: AgentRunInput): Promise<AgentRunResult>
 }
@@ -193,6 +203,13 @@ Retrieves the singleton AI agents provider, or `null` if none is bonded.
 Falls back to a single named provider when no singleton is bonded. When
 multiple named providers are bonded the fallback declines (returns `null`)
 because the choice is ambiguous.
+
+This also applies to an auto-promoted singleton: `setProvider('a', p1)`
+followed by `setProvider('b', p2)` does NOT leave `getProvider()` stuck
+returning `p1` forever — once `'b'` is registered the pick is genuinely
+ambiguous and `getProvider()` declines (`null`), same as if neither had
+been auto-promoted. An explicit `setProvider(provider)` singleton is
+unaffected by how many named providers exist.
 
 ```typescript
 function getProvider(): AIAgentsProvider | null
@@ -227,6 +244,14 @@ function hasProvider(name?: string): boolean
 #### `requireProvider()`
 
 Retrieves the bonded AI agents provider, throwing if none is bonded.
+
+Routes through the same resolution as `getProvider()` so the single-named-
+bond fallback applies — apps that wire `bond('ai-agents', 'llm', provider)`
+directly still satisfy this call without having to switch to the explicit
+`getProviderByName()` pattern. When resolution declined because MULTIPLE
+named providers are bonded with no explicit singleton, the thrown message
+says so (distinct from "nothing bonded at all") and points at
+`getProviderByName()`.
 
 ```typescript
 function requireProvider(): AIAgentsProvider
@@ -266,3 +291,14 @@ tool use — the agent has no model of its own; it orchestrates the `ai` bond.
 This package is the abstract contract only. To get a working agent, also bond
 the `@molecule/api-ai-agents-llm` provider (or your own `AIAgentsProvider`)
 via `bond('ai-agents', provider)` — nothing else changes.
+
+- **`setProvider(name, provider)` ambiguity:** the FIRST named provider you
+  register also auto-promotes to the singleton (so plain
+  `getProvider()`/`requireProvider()` work without the caller knowing the
+  name) — but that promotion is a single-provider convenience, not a
+  permanent pick. The moment a SECOND, differently-named provider is
+  registered, `getProvider()` stops returning the first one and declines
+  (`null`) instead — `requireProvider()` throws pointing at
+  `getProviderByName(name)`. Call the explicit `setProvider(provider)` (no
+  name) form if you want one provider to always win regardless of how many
+  named providers you also register.

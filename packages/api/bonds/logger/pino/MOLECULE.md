@@ -15,8 +15,9 @@ setLogger(provider)
 logger.info('Server started on port', 3000)
 logger.error('Database connection failed', error) // Error lands under `err` with its stack
 
-// Custom instance (level, name, transport, or an in-process destination)
-setLogger(createLogger({ level: 'trace', name: 'api' }))
+// Custom instance (name, transport, or an in-process destination) — level
+// omitted, so this instance defers to the core's LOG_LEVEL/setLevel() gate
+setLogger(createLogger({ name: 'api' }))
 ```
 
 ## Type
@@ -51,7 +52,13 @@ Options for creating a pino logger.
 
 ```typescript
 interface PinoLoggerOptions {
-  /** Minimum log level for the underlying pino instance. Defaults to `'info'`. */
+  /**
+   * Minimum log level for the underlying pino instance. Defaults to
+   * `'trace'` (pass-through) — minimum-level filtering is meant to happen
+   * once, in `@molecule/api-logger`'s gate (`LOG_LEVEL` / `setLevel()`).
+   * Pass an explicit `level` only to add a second, stricter gate on this
+   * instance specifically.
+   */
   level?: LogLevel
   /** Pretty-print via the pino-pretty transport (ignored when `destination` is set). */
   pretty?: boolean
@@ -173,12 +180,12 @@ Peer dependencies:
   record, an `Error` anywhere serializes under `err` with its stack, and
   extra primitives are formatted into the message. Raw pino would DROP
   placeholder-less extra args and turn them into `{"0":…}` records.
-- The default `provider` instance passes every level through — minimum-level
-  filtering happens once, in `@molecule/api-logger` (`LOG_LEVEL` /
-  `setLevel()`, default `'info'`). `createLogger({ level })` adds a
-  bond-side gate below the core's; a stricter level there makes the core's
-  `setLevel('debug')` appear to do nothing. NOTE: omitting `level` in
-  `createLogger` defaults the instance to `'info'` — itself such a gate;
-  pass `level: 'trace'` when the core's gate should be the only filter.
+- Both the default `provider` AND `createLogger()` (level omitted) pass
+  every level through to pino — minimum-level filtering happens once, in
+  `@molecule/api-logger` (`LOG_LEVEL` / `setLevel()`, default `'info'`).
+  Passing an explicit `level` to `createLogger()` adds a SECOND, bond-side
+  gate below the core's; a stricter level there makes the core's
+  `setLevel('debug')` appear to do nothing — only do this if you actually
+  want a second, independent filter on this specific instance.
 - The default instance is created lazily on first log call (importing the
   package never spawns the pino-pretty worker thread).

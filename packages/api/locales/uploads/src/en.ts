@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const en: UploadsTranslations = {
   'uploads.error.noProvider': 'Upload provider not configured. Call setProvider() first.',
   'uploads.error.streamLimitReached': 'Stream limit reached.',
+  'uploads.error.aborted': 'Upload was aborted.',
 }

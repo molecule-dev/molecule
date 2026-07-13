@@ -37,7 +37,7 @@ Layers backdrop-filter blur and saturation boost onto surface components.
 Designed to pair with translucent theme colors (rgba surfaces with alpha).
 
 ```typescript
-function glassOverrides(base: UIClassMap): { card: (opts: CardClassOptions | undefined) => string; modal: (opts: ModalClassOptions | undefined) => string; toast: (opts: ToastClassOptions | undefined) => string; tooltip: () => string; headerBar: string; drawer: string; dropdownContent: string; tabsList: string; actionSheet: string; dialogOverlay: string; }
+function glassOverrides(base: UIClassMap): { card: (opts: CardClassOptions | undefined) => string; modal: (opts: ModalClassOptions | undefined) => string; toast: (opts: ToastClassOptions | undefined) => string; tooltip: () => string; headerBar: string; drawer: string; dropdownContent: string; tabsList: (opts: TabsClassOptions | undefined) => string; actionSheet: string; dialogOverlay: string; }
 ```
 
 - `base` — The base UIClassMap to extend with glass effects.

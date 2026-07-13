@@ -68,5 +68,31 @@ describe('activity provider', () => {
       expect(sinkRecord).toHaveBeenCalledTimes(1)
       expect(sinkRecord).toHaveBeenCalledWith(sampleEvent)
     })
+
+    it('BEST-EFFORT CONTRACT: a throwing sink does not reject record() and logs a warning', async () => {
+      // Regression: a failing sink used to propagate straight out of
+      // record(), which would break whatever business operation (send
+      // email, enqueue job, ...) the capture provider was wrapping —
+      // activity recording is a best-effort side-channel by contract.
+      //
+      // Bond a mock logger directly (rather than spying on `getLogger()`,
+      // which returns a fresh delegating object on every call and so can't
+      // be spied on across calls) so the assertion exercises the same
+      // `get('logger') ?? console` path `record()` uses internally.
+      const { bond } = await import('@molecule/api-bond')
+      const warn = vi.fn()
+      bond('logger', { trace() {}, debug() {}, info() {}, warn, error() {} })
+
+      const sinkError = new Error('sink unreachable')
+      const sink: ActivitySink = { record: vi.fn().mockRejectedValue(sinkError) }
+      setSink(sink)
+
+      await expect(record(sampleEvent)).resolves.toBeUndefined()
+
+      expect(warn).toHaveBeenCalledTimes(1)
+      const [message, context] = warn.mock.calls[0]!
+      expect(String(message)).toMatch(/activity sink/i)
+      expect(context).toMatchObject({ eventId: sampleEvent.id, error: sinkError })
+    })
   })
 })

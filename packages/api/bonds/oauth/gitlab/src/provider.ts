@@ -105,6 +105,28 @@ const DEFAULT_USER_URL = `https://gitlab.com/api/v4/user`
 const DEFAULT_AUTHORIZE_URL = `https://gitlab.com/oauth/authorize`
 
 /**
+ * Serializes params as `application/x-www-form-urlencoded`, dropping
+ * `undefined`/empty values (mirroring what `JSON.stringify` used to drop
+ * silently). RFC 6749 §4.1.3 requires the token-exchange body to be
+ * form-encoded — Doorkeeper (GitLab's OAuth provider) expects it, and
+ * `@molecule/api-http`'s default client only form-encodes a request when the
+ * caller supplies an already-encoded STRING body; an object body is always
+ * JSON-encoded.
+ *
+ * @param record - The token-request parameters to encode.
+ * @returns The `application/x-www-form-urlencoded` request body.
+ */
+const formEncode = (record: Record<string, string | undefined>): string => {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value === 'string' && value.length > 0) {
+      params.append(key, value)
+    }
+  }
+  return params.toString()
+}
+
+/**
  * Builds the GitLab authorization URL for OAuth initiation
  * (`GET /users/oauth/:provider` 302s the browser here). Embeds this bond's
  * client id and scope (`read_user` — exactly what `verify`'s
@@ -162,27 +184,25 @@ export const verify: OAuthVerifier = async (
     const tokenUrl = process.env.OAUTH_GITLAB_TOKEN_URL || DEFAULT_TOKEN_URL
     const userUrl = process.env.OAUTH_GITLAB_USER_URL || DEFAULT_USER_URL
 
+    const body = formEncode({
+      client_id: process.env.OAUTH_GITLAB_CLIENT_ID,
+      client_secret: process.env.OAUTH_GITLAB_CLIENT_SECRET,
+      code,
+      code_verifier: codeVerifier,
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUri || process.env.APP_ORIGIN,
+    })
     const response = await post<{
       access_token: string
       token_type: string
       scope: string
-    }>(
-      tokenUrl,
-      {
-        client_id: process.env.OAUTH_GITLAB_CLIENT_ID,
-        client_secret: process.env.OAUTH_GITLAB_CLIENT_SECRET,
-        code,
-        code_verifier: codeVerifier,
-        grant_type: 'authorization_code',
-        redirect_uri: redirectUri || process.env.APP_ORIGIN,
+    }>(tokenUrl, body, {
+      headers: {
+        accept: `application/json`,
+        'content-type': `application/x-www-form-urlencoded`,
       },
-      {
-        headers: {
-          accept: `application/json`,
-        },
-        timeout: 15_000,
-      },
-    )
+      timeout: 15_000,
+    })
 
     const token = response.data.access_token
 

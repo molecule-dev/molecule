@@ -47,6 +47,14 @@ const statusIconMap: Record<string, IconName> = {
 
 /**
  * Single Toast component.
+ *
+ * The auto-dismiss countdown pauses on hover AND focus (WCAG 2.2.1) and
+ * resumes with whatever time was left — a slow reader or a keyboard/AT
+ * user interacting with the toast never has it disappear mid-read. The
+ * announced role follows `status`: `warning`/`error` get the assertive
+ * `role="alert"`; every other status (`info`, `success`, the default) gets
+ * the polite `role="status"` so routine confirmations don't interrupt a
+ * screen reader mid-sentence the way an assertive announcement does.
  */
 export const Toast = forwardRef<HTMLDivElement, ToastProps>(
   (
@@ -82,15 +90,51 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
       onDismissRef.current = onDismiss
     }, [onDismiss])
 
-    useEffect(() => {
-      if (duration > 0) {
-        const timer = setTimeout(() => {
+    // WCAG 2.2.1 (Timing Adjustable): a countdown a slow reader or AT user
+    // cannot pause loses the message mid-read. `remainingRef` carries the
+    // time left across pause/resume cycles (hover in/out, focus in/out)
+    // instead of a fixed deadline.
+    const remainingRef = useRef(duration)
+    const startedAtRef = useRef<number | null>(null)
+    const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+    const clearTimer = useCallback(() => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+        timerRef.current = undefined
+      }
+      startedAtRef.current = null
+    }, [])
+
+    const startTimer = useCallback(
+      (ms: number) => {
+        clearTimer()
+        if (ms <= 0) return
+        startedAtRef.current = Date.now()
+        timerRef.current = setTimeout(() => {
           setIsVisible(false)
           onDismissRef.current?.()
-        }, duration)
-        return () => clearTimeout(timer)
-      }
-    }, [duration])
+        }, ms)
+      },
+      [clearTimer],
+    )
+
+    const pauseTimer = useCallback(() => {
+      if (startedAtRef.current === null) return
+      const elapsed = Date.now() - startedAtRef.current
+      remainingRef.current = Math.max(0, remainingRef.current - elapsed)
+      clearTimer()
+    }, [clearTimer])
+
+    const resumeTimer = useCallback(() => {
+      if (remainingRef.current > 0) startTimer(remainingRef.current)
+    }, [startTimer])
+
+    useEffect(() => {
+      remainingRef.current = duration
+      startTimer(duration)
+      return () => clearTimer()
+    }, [duration, startTimer, clearTimer])
 
     const handleDismiss = useCallback(() => {
       setIsVisible(false)
@@ -99,14 +143,24 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
 
     if (!isVisible) return null
 
+    // Assertive announcement is appropriate for warnings/errors — an info or
+    // success toast interrupting a screen-reader user mid-sentence for a
+    // routine confirmation is the same over-announcing trap `role="alert"`
+    // creates everywhere it's used for non-urgent content.
+    const role = variant === 'warning' || variant === 'error' ? 'alert' : 'status'
+
     return (
       <div
         ref={ref}
-        role="alert"
+        role={role}
         data-state="open"
         className={cm.cn(cm.toast({ variant }), className)}
         style={style}
         data-testid={testId}
+        onMouseEnter={pauseTimer}
+        onMouseLeave={resumeTimer}
+        onFocus={pauseTimer}
+        onBlur={resumeTimer}
       >
         {statusIcon && <span className={cm.toastIconWrapper}>{statusIcon}</span>}
         <div className={cm.toastContentWrapper}>

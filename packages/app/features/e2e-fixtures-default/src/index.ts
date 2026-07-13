@@ -26,6 +26,15 @@
  * error text with `[`/`(` can be pasted verbatim). An annotation with
  * no description allows every error — always provide one.
  *
+ * A small, fixed set of browser-noise patterns are ALWAYS ignored regardless
+ * of `allow-console-error` (Vite HMR reconnect chatter, service-worker 404s
+ * in headless Chrome, and a real Chrome DevTools "failed to load SourceMap"
+ * message for any `https://`-hosted bundle — e.g. Stripe/Google Maps CDN
+ * scripts shipped without source maps). That last pattern is verified
+ * against the actual Chrome message text and constrained to `https://` so it
+ * can never silence a genuinely broken source map in the app's OWN bundle
+ * (served over plain `http://localhost` in dev/preview).
+ *
  * @example
  * ```ts
  * // In fleet apps, the per-app `./_helpers.ts` re-exports these:
@@ -59,9 +68,26 @@ const ALWAYS_IGNORE: readonly RegExp[] = [
   // tries to register at /sw.js but our smoke build emits to /workbox-*
   // and Playwright fixtures the user-agent. Cosmetic.
   /service worker.*404/i,
-  // Chrome devtools' own probe for source maps on third-party CDN
-  // bundles we don't ship maps for (Stripe, Google Maps).
-  /failed to fetch source map.*\.cdn\./i,
+  // Chrome DevTools' own probe for source maps on third-party CDN bundles
+  // we don't ship maps for (Stripe, Google Maps, etc). Two bugs fixed here,
+  // both verified against a headless Chromium probe + the real reported
+  // message text (not guessed): (1) the verb was wrong — real Chrome output
+  // is "DevTools failed to load SourceMap: Could not load content for
+  // <url>: ...", not "failed to fetch source map", so the old pattern never
+  // matched real Chrome text at all; (2) the host check (`.cdn.`) doesn't
+  // match real vendor hosts (js.stripe.com, maps.googleapis.com contain no
+  // '.cdn.' substring). Now matches any `https://`-hosted source map
+  // (third-party CDN bundles are always TLS; the app's own dev/preview
+  // server is plain `http://localhost`, so same-origin source-map issues
+  // are never accidentally silenced by this pattern).
+  // NOTE (verified, not assumed): a probe with a broken `sourceMappingURL`
+  // produced ZERO console messages via `page.on('console')` under plain
+  // Playwright automation (with and without tracing) — Chrome only fetches
+  // source maps when a DevTools Sources panel is actually attached, which a
+  // headless Playwright run never does. So this entry currently matches
+  // nothing observed in practice; it is defense-in-depth against a future
+  // Chrome/Playwright behavior change, not an active filter today.
+  /devtools failed to load source ?map.*https:\/\//i,
 ]
 
 /**

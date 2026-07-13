@@ -73,14 +73,19 @@ describe('@molecule/api-logger-pino', () => {
       expect(mockPino).toHaveBeenCalled()
     })
 
-    it('should create a logger with info level by default', async () => {
+    it('defaults to trace (pass-through) when level is omitted, matching the loglevel bond and the core "single gate" contract', async () => {
       const { createLogger } = await import('../provider.js')
 
       createLogger()
 
+      // On the pre-fix code this instance defaulted to 'info', a hidden
+      // SECOND gate: a consumer who wires setLogger(createLogger({ name }))
+      // and then calls the core's documented setLevel('debug') would see
+      // debug lines silently dropped here instead of by the core gate they
+      // configured. This assertion fails without the pass-through fix.
       expect(mockPino).toHaveBeenCalledWith(
         expect.objectContaining({
-          level: 'info',
+          level: 'trace',
         }),
       )
     })

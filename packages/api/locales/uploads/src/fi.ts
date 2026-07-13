@@ -5,4 +5,5 @@ export const fi: UploadsTranslations = {
   'uploads.error.noProvider':
     'Latauspalveluntarjoajaa ei ole määritetty. Kutsu ensin setProvider().',
   'uploads.error.streamLimitReached': 'Virran raja saavutettu.',
+  'uploads.error.aborted': 'Lataus keskeytettiin.',
 }

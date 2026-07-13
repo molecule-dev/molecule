@@ -4,5 +4,7 @@ import type { IconsTranslations } from './types.js'
 export const pa: IconsTranslations = {
   'icons.error.noIconSet':
     'ਕੋਈ IconSet ਸੈੱਟ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ। ਐਪ ਸ਼ੁਰੂ ਹੋਣ ਵੇਲੇ ਆਈਕਨ ਲਾਇਬ੍ਰੇਰੀ ਨਾਲ setIconSet() ਕਾਲ ਕਰੋ (ਜਿਵੇਂ, @molecule/app-icons-molecule)।',
+  'icons.error.noProvider':
+    '@molecule/app-icons: ਕੋਈ ਆਈਕਨ ਸੈੱਟ ਜੁੜਿਆ ਨਹੀਂ ਹੈ। IconSet ਨਾਲ setIconSet() ਕਾਲ ਕਰੋ (ਜਿਵੇਂ, @molecule/app-icons-molecule ਤੋਂ ਐਕਸਪੋਰਟ)।',
   'icons.error.notFound': 'ਆਈਕਨ "{{name}}" ਮੌਜੂਦਾ ਆਈਕਨ ਸੈੱਟ ਵਿੱਚ ਨਹੀਂ ਮਿਲਿਆ।',
 }

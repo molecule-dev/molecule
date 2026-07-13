@@ -27,6 +27,19 @@ export interface CronOptions {
 
   /** End date — the job will not run after this date. */
   endDate?: Date | string
+
+  /**
+   * When `true`, a tick that arrives while the previous execution of this
+   * job is still running is skipped instead of running concurrently.
+   * Defaults to `false` (current behavior: overlapping executions are
+   * allowed) to avoid changing existing deployments' concurrency.
+   * Support is provider-specific: node-cron enforces it natively (skips the
+   * tick and logs a warning); the BullMQ bond emulates it per-process by
+   * skipping a tick while a previous invocation on the same worker process
+   * hasn't finished — it does NOT coordinate across multiple distributed
+   * worker processes.
+   */
+  noOverlap?: boolean
 }
 
 /**

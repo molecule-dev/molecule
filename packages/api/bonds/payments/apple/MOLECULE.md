@@ -190,6 +190,38 @@ type SubscriptionStatus = 'active' | 'canceled' | 'expired' | 'past_due' | 'tria
 
 ### Functions
 
+#### `decodeAndVerifyJWS(compactJWS, trustedRootDER)`
+
+Decodes and cryptographically verifies a compact-serialization JWS whose
+header carries an `x5c` certificate chain, per RFC 7515 + RFC 7517 §4.7.
+
+FAILS CLOSED — throws (never silently returns unverified data) when:
+- the JWS isn't well-formed (not exactly 3 `.`-separated parts, bad base64/JSON)
+- the header `alg` isn't `ES256` (the only algorithm Apple uses for this
+  scheme — refusing every other value blocks an "alg confusion" downgrade)
+- the `x5c` chain is missing or empty
+- any certificate in the chain is expired or not yet valid
+- the chain's signatures don't actually chain (`x5c[i]` must verify against
+  `x5c[i + 1]`'s public key — a signature check, not just a name match)
+- the chain doesn't terminate at `trustedRootDER` (the last `x5c` entry must
+  either equal the trusted root byte-for-byte, or be signed by it)
+- the JWS signature itself doesn't verify against the leaf certificate's
+  public key
+
+A forged payload cannot produce an `x5c` chain that both (a) has internally
+consistent signatures and (b) terminates at the hardcoded trusted root — an
+attacker does not hold Apple's root/intermediate private keys, so every
+check above is load-bearing, not defense-in-depth theater.
+
+```typescript
+function decodeAndVerifyJWS(compactJWS: string, trustedRootDER: Buffer<ArrayBufferLike>): Record<string, unknown>
+```
+
+- `compactJWS` — The `header.payload.signature` JWS compact string.
+- `trustedRootDER` — The DER bytes of the CA the chain must terminate at
+
+**Returns:** The decoded JSON payload — ONLY returned once every check above passes.
+
 #### `describeAppleStatus(status)`
 
 Maps Apple's documented `verifyReceipt` status codes to actionable descriptions.
@@ -208,6 +240,22 @@ function describeAppleStatus(status: number): string
 - `status` — The numeric `status` from Apple's verifyReceipt response.
 
 **Returns:** A human-readable explanation of the status (with the fix when it is a config issue).
+
+#### `getAutoRenewStatus(response, originalTransactionId)`
+
+Reads the auto-renew flag for a subscription out of a receipt response's
+`pending_renewal_info` — the ONLY field Apple uses to report whether
+auto-renew is currently on, independent of whether the subscription is
+still paid-through (`cancellation_date` unset) or not.
+
+```typescript
+function getAutoRenewStatus(response: VerifyReceiptResponse, originalTransactionId: string): boolean | undefined
+```
+
+- `response` — The Apple receipt verification response containing `pending_renewal_info`.
+- `originalTransactionId` — The original transaction ID to match in the renewal info array.
+
+**Returns:** `true` if auto-renew is on, `false` if off, or `undefined` if no matching renewal info found (e.g. the response has no `pending_renewal_info` at all).
 
 #### `getLatestSubscription(response)`
 
@@ -234,18 +282,32 @@ function isSubscriptionActive(subscription: InAppPurchase | null): boolean
 
 **Returns:** `true` if the subscription's `expires_date_ms` is in the future and it has not been canceled.
 
-#### `normalizeSubscription(subscription)`
+#### `normalizeSubscription(subscription, renewalResponse)`
 
 Normalizes an Apple in-app purchase entry to the provider-agnostic `NormalizedSubscription` interface.
 Maps Apple-specific fields (`expires_date_ms`, `is_trial_period`, `cancellation_date`) to standard status values.
 
 ```typescript
-function normalizeSubscription(subscription: InAppPurchase): NormalizedSubscription
+function normalizeSubscription(subscription: InAppPurchase, renewalResponse?: VerifyReceiptResponse): NormalizedSubscription
 ```
 
 - `subscription` — The Apple in-app purchase entry to normalize.
+- `renewalResponse` — Optional: the full receipt response `subscription` was extracted from
 
 **Returns:** A `NormalizedSubscription` with provider set to `'apple'` and dates converted to millisecond timestamps.
+
+#### `parseV2Notification(signedPayload)`
+
+Parses and authenticates an Apple App Store Server Notifications V2
+`signedPayload`.
+
+```typescript
+function parseV2Notification(signedPayload: string): ParsedNotification | null
+```
+
+- `signedPayload` — The raw `signedPayload` JWS string from the notification body.
+
+**Returns:** The parsed notification, or `null` if it cannot be authenticated or carries no actionable entitlement change (e.g. a `TEST` notification).
 
 #### `verifyReceipt(receiptData, useSandbox)`
 
@@ -261,6 +323,16 @@ function verifyReceipt(receiptData: string, useSandbox?: boolean): Promise<Verif
 **Returns:** The parsed receipt verification response from Apple.
 
 ### Constants
+
+#### `APPLE_ROOT_CA_G3_DER`
+
+DER bytes of Apple's Root CA - G3 certificate — the trust anchor
+{@link decodeAndVerifyJWS} pins App Store Server Notifications V2 JWS
+chains to.
+
+```typescript
+const APPLE_ROOT_CA_G3_DER: Buffer<ArrayBufferLike>
+```
 
 #### `paymentProvider`
 
@@ -319,14 +391,32 @@ Scope limits to know BEFORE wiring this bond:
   `expires_date_ms`, so a valid ONE-TIME (consumable/non-consumable) purchase
   receipt verifies with Apple but yields `null` ("no subscription found") —
   one-time IAP is not implemented.
-- **v1 server notifications only.** `parseNotification` authenticates v1
-  notifications by re-verifying the embedded receipt with Apple. v2
-  (`signedPayload` JWS) notifications are REJECTED (`null`) — App Store
-  Connect must be configured to send v1 notifications, or entitlement
-  updates will only happen on client-driven verification.
+- **Both v1 and v2 server notifications are supported.** `parseNotification`
+  authenticates v1 notifications (`notification_type` at the body root) by
+  re-verifying the embedded receipt with Apple; it authenticates v2
+  notifications (`signedPayload` JWS, no top-level `notification_type`) by
+  cryptographically verifying the JWS `x5c` certificate chain against
+  Apple's Root CA - G3 (see `jws.ts` / `appleRootCertificate.ts`) — NO live
+  call back to Apple, which is Apple's own documented model for v2 (the
+  signature chain IS the proof). App Store Connect defaults NEW apps to v2;
+  both are handled the same way downstream (mapped to the same simplified
+  event vocabulary), so no notification-version configuration is required.
 - Verification uses Apple's legacy `verifyReceipt` endpoint with
-  `APPLE_SHARED_SECRET`. Non-zero Apple statuses are logged with their
-  meaning (see `describeAppleStatus`) — status 21004 means the shared secret
-  is missing/wrong (an env fix, not a client bug).
+  `APPLE_SHARED_SECRET` for the CLIENT-DRIVEN verify flow
+  (`verifyReceipt`/`verifyPayment`) — this is unrelated to which
+  notification version App Store Connect sends. Non-zero Apple statuses are
+  logged with their meaning (see `describeAppleStatus`) — status 21004
+  means the shared secret is missing/wrong (an env fix, not a client bug).
+  A missing `APPLE_SHARED_SECRET` throws a tagged config-not-configured
+  error (`isConfigNotConfiguredError` from `@molecule/api-payments`) BEFORE
+  any network call, and `verifyReceipt` on {@link paymentProvider} rethrows
+  it rather than swallowing it into the same `null` a genuinely bad receipt
+  returns.
 - Sandbox receipts are rejected by default (fail-closed); opt in with
   `APPLE_ALLOW_SANDBOX_RECEIPTS=true` for local/CI testing only.
+- `normalizeSubscription()`'s `willRenew` is INFERRED (`isActive &&
+  !cancellation_date`) unless you pass the receipt response as its second
+  argument, in which case it reads the ACTUAL auto-renew flag from
+  `pending_renewal_info` — a still-active subscriber who turned auto-renew
+  OFF mid-period has no `cancellation_date` yet, so the inferred value
+  alone reports `willRenew: true` right up until expiry.

@@ -32,9 +32,27 @@
  *   automatic relay to the room.
  * - The managed `createRoom()`/`joinRoom()` API (`room_N` ids) is unchanged
  *   and coexists with protocol rooms; `getRooms()` returns both.
+ * - **Creating a provider NEVER binds a port as a side effect unless told
+ *   to.** `createProvider()` with no `port`, no `httpServer`, and no
+ *   `deferAttach` does NOT bind anything — it behaves exactly like
+ *   `deferAttach: true` (waits for `attachHttpServer(server)`), logging an
+ *   info line naming the bond so the omission is visible instead of silent.
+ *   An **explicit** `port` (`createProvider({ port })`) or an explicit
+ *   `httpServer` (`createProvider({ httpServer })`) is a real instruction and
+ *   binds immediately, same as before — this is a genuine, working mode for a
+ *   standalone realtime service, it just no longer happens by accident. In a
+ *   real deployment prefer `createProvider({ deferAttach: true })` +
+ *   `provider.attachHttpServer(server)` once the API's HTTP server exists, so
+ *   `ws` shares the API's port instead of a standalone one a container/proxy
+ *   may not expose (mirrors the `-socketio` bond's
+ *   `deferAttach`/`attachHttpServer` contract). A standalone bind failure
+ *   (e.g. the resolved port already in use) is logged via the bonded logger
+ *   naming this bond and the port, instead of crashing the process with an
+ *   unattributed `EADDRINUSE`.
  */
 
 import { randomUUID } from 'node:crypto'
+import type { Server } from 'node:http'
 
 import type { WebSocket } from 'ws'
 import { WebSocketServer } from 'ws'
@@ -113,11 +131,33 @@ function extractRoom(payload: unknown): string | undefined {
  * @returns A fully initialised `RealtimeProvider` backed by `ws`.
  */
 export function createProvider(config: WsRealtimeConfig = {}): RealtimeProvider {
-  const { serverOptions = {}, httpServer, port = 3000 } = config
+  const { serverOptions = {}, httpServer, deferAttach = false } = config
 
-  const wss: WebSocketServer = httpServer
-    ? new WebSocketServer({ ...serverOptions, server: httpServer })
-    : new WebSocketServer({ ...serverOptions, port })
+  // Resolve the port a standalone bind would use (mirrors the socketio
+  // bond's resolution order), so multiple flagships COULD run side-by-side
+  // without colliding on port 3000 if they opt into a standalone bind:
+  //   1. explicit `config.port`
+  //   2. `process.env.WS_PORT`
+  //   3. `process.env.PORT + 1000` (matches `npm run dev`'s API port + 1000)
+  //   4. fall back to 3000 for back-compat with examples
+  // This value is only USED to actually bind when `config.port` is explicit
+  // (see the bind-timing decision below) — otherwise it's surfaced in the
+  // deferred-mode log line as a suggested value, never bound automatically.
+  const envPort = process.env.WS_PORT && Number(process.env.WS_PORT)
+  const apiPort = process.env.PORT && Number(process.env.PORT)
+  const port =
+    config.port ??
+    (envPort && Number.isFinite(envPort) ? envPort : undefined) ??
+    (apiPort && Number.isFinite(apiPort) ? apiPort + 1000 : undefined) ??
+    3000
+
+  // The WebSocketServer is created lazily so the provider can either bind
+  // eagerly (a standalone `port` or a given `httpServer`, for examples /
+  // standalone use) OR defer until the API's HTTP server exists and attach to
+  // it via `attachHttpServer` (the server factory's path — so realtime shares
+  // the API port instead of a separate port a sandbox/proxy may not expose).
+  // The same connection wiring is applied once `wss` exists (see `initWss`).
+  let wss: WebSocketServer | undefined
 
   /** Rooms managed through the provider API. */
   const rooms = new Map<string, RoomState>()
@@ -313,117 +353,168 @@ export function createProvider(config: WsRealtimeConfig = {}): RealtimeProvider 
   }
 
   /* ------------------------------------------------------------------ */
-  /*  Wire WebSocket events to molecule handlers                         */
+  /*  Create the WebSocketServer (attached to `server` if given, else a  */
+  /*  standalone `port` listener) and wire connection/message/disconnect */
+  /*  handlers. Idempotent — a second call is a no-op.                   */
   /* ------------------------------------------------------------------ */
 
-  wss.on('connection', (socket: WebSocket, request) => {
-    const clientId = randomUUID()
+  const initWss = (server?: Server): void => {
+    if (wss) return
+    wss = server
+      ? new WebSocketServer({ ...serverOptions, server })
+      : new WebSocketServer({ ...serverOptions, port })
 
-    // Handshake auth: `ws` has no first-class auth payload, so parse the
-    // upgrade request's query params (e.g. `ws://host/?token=abc` → { token }).
-    const auth: Record<string, unknown> = {}
-    try {
-      const url = new URL(request.url ?? '/', 'ws://localhost')
-      for (const [key, value] of url.searchParams) {
-        auth[key] = value
-      }
-    } catch (error) {
-      // Malformed upgrade URL — connect with empty auth; guards will see {}
-      // and can deny. Debug: best-effort parse of untrusted client input.
-      logger.debug('Realtime ws upgrade URL could not be parsed for auth', { error })
-    }
+    // A standalone `wss` forwards 'error' events from its internally-created
+    // http.Server (e.g. EADDRINUSE when the resolved port is already taken).
+    // With no listener that crashes the process with an unattributed
+    // uncaught exception — logging it here names the bond and the port so an
+    // executor debugging the crash has something to act on instead of a bare
+    // stack trace.
+    wss.on('error', (error: Error) => {
+      logger.error(
+        `Realtime ws server error${server ? '' : ` binding standalone port ${String(port)}`} — ` +
+          'realtime connections will not work until this is resolved. ' +
+          'If deploying behind a shared HTTP server or a container/proxy, use ' +
+          'deferAttach + attachHttpServer(server) instead of a standalone port.',
+        { error },
+      )
+    })
 
-    const client: ClientState = {
-      socket,
-      clientId,
-      auth,
-      headers: request.headers as Record<string, string | string[] | undefined>,
-      protocolRooms: new Set(),
-    }
-    clients.set(clientId, client)
-    socketToClient.set(socket, clientId)
+    wss.on('connection', (socket: WebSocket, request) => {
+      const clientId = randomUUID()
 
-    for (const handler of connectionHandlers) {
-      handler(clientId, { remoteAddress: request.socket.remoteAddress })
-    }
-
-    socket.on('message', (raw: Buffer | ArrayBuffer | Buffer[]) => {
-      const text = typeof raw === 'string' ? raw : raw.toString()
-
-      let parsed: { event?: string; data?: unknown; room?: string }
+      // Handshake auth: `ws` has no first-class auth payload, so parse the
+      // upgrade request's query params (e.g. `ws://host/?token=abc` → { token }).
+      const auth: Record<string, unknown> = {}
       try {
-        parsed = JSON.parse(text) as { event?: string; data?: unknown; room?: string }
-      } catch (_error) {
-        // Malformed JSON from a client is expected noise; drop the message silently.
-        return
-      }
-
-      const event = parsed.event ?? 'message'
-      const data = parsed.data
-
-      // Reserved protocol events are handled by the protocol dispatcher —
-      // never dispatched to onMessage.
-      if (event.startsWith('molecule:')) {
-        handleProtocolEvent(client, event, data).catch((error: unknown) => {
-          // Defensive: a protocol handler must never reject unhandled. For a
-          // failed join, deny so the client isn't left hanging.
-          logger.error('Realtime ws protocol event handling failed', { error })
-          if (event === 'molecule:join') {
-            sendFrame(socket, 'molecule:join-denied', {
-              room: extractRoom(data) ?? '',
-              reason: 'internal error',
-            })
-          }
-        })
-        return
-      }
-
-      // Determine which managed rooms this client belongs to
-      for (const [roomId, state] of rooms) {
-        if (parsed.room && parsed.room !== roomId) {
-          continue
+        const url = new URL(request.url ?? '/', 'ws://localhost')
+        for (const [key, value] of url.searchParams) {
+          auth[key] = value
         }
-        if (state.room.clients.includes(clientId)) {
+      } catch (error) {
+        // Malformed upgrade URL — connect with empty auth; guards will see {}
+        // and can deny. Debug: best-effort parse of untrusted client input.
+        logger.debug('Realtime ws upgrade URL could not be parsed for auth', { error })
+      }
+
+      const client: ClientState = {
+        socket,
+        clientId,
+        auth,
+        headers: request.headers as Record<string, string | string[] | undefined>,
+        protocolRooms: new Set(),
+      }
+      clients.set(clientId, client)
+      socketToClient.set(socket, clientId)
+
+      for (const handler of connectionHandlers) {
+        handler(clientId, { remoteAddress: request.socket.remoteAddress })
+      }
+
+      socket.on('message', (raw: Buffer | ArrayBuffer | Buffer[]) => {
+        const text = typeof raw === 'string' ? raw : raw.toString()
+
+        let parsed: { event?: string; data?: unknown; room?: string }
+        try {
+          parsed = JSON.parse(text) as { event?: string; data?: unknown; room?: string }
+        } catch (_error) {
+          // Malformed JSON from a client is expected noise; drop the message silently.
+          return
+        }
+
+        const event = parsed.event ?? 'message'
+        const data = parsed.data
+
+        // Reserved protocol events are handled by the protocol dispatcher —
+        // never dispatched to onMessage.
+        if (event.startsWith('molecule:')) {
+          handleProtocolEvent(client, event, data).catch((error: unknown) => {
+            // Defensive: a protocol handler must never reject unhandled. For a
+            // failed join, deny so the client isn't left hanging.
+            logger.error('Realtime ws protocol event handling failed', { error })
+            if (event === 'molecule:join') {
+              sendFrame(socket, 'molecule:join-denied', {
+                room: extractRoom(data) ?? '',
+                reason: 'internal error',
+              })
+            }
+          })
+          return
+        }
+
+        // Determine which managed rooms this client belongs to
+        for (const [roomId, state] of rooms) {
+          if (parsed.room && parsed.room !== roomId) {
+            continue
+          }
+          if (state.room.clients.includes(clientId)) {
+            for (const handler of messageHandlers) {
+              handler(roomId, clientId, event, data)
+            }
+          }
+        }
+
+        // …and dispatch for every protocol room the client has joined.
+        for (const room of client.protocolRooms) {
+          if (parsed.room && parsed.room !== room) {
+            continue
+          }
           for (const handler of messageHandlers) {
-            handler(roomId, clientId, event, data)
+            handler(room, clientId, event, data)
           }
         }
-      }
+      })
 
-      // …and dispatch for every protocol room the client has joined.
-      for (const room of client.protocolRooms) {
-        if (parsed.room && parsed.room !== room) {
-          continue
+      socket.on('close', (code: number) => {
+        // Remove from all managed rooms
+        for (const [, state] of rooms) {
+          const idx = state.room.clients.indexOf(clientId)
+          if (idx !== -1) {
+            state.room.clients.splice(idx, 1)
+            state.presence.delete(clientId)
+          }
         }
-        for (const handler of messageHandlers) {
-          handler(room, clientId, event, data)
+
+        // Remove from all protocol rooms, announcing presence per room.
+        for (const room of [...client.protocolRooms]) {
+          untrackProtocolMember(client, room)
+          sendProtocolPresence(room)
         }
-      }
+
+        clients.delete(clientId)
+
+        for (const handler of disconnectionHandlers) {
+          handler(clientId, `close:${String(code)}`)
+        }
+      })
     })
+  }
 
-    socket.on('close', (code: number) => {
-      // Remove from all managed rooms
-      for (const [, state] of rooms) {
-        const idx = state.room.clients.indexOf(clientId)
-        if (idx !== -1) {
-          state.room.clients.splice(idx, 1)
-          state.presence.delete(clientId)
-        }
-      }
-
-      // Remove from all protocol rooms, announcing presence per room.
-      for (const room of [...client.protocolRooms]) {
-        untrackProtocolMember(client, room)
-        sendProtocolPresence(room)
-      }
-
-      clients.delete(clientId)
-
-      for (const handler of disconnectionHandlers) {
-        handler(clientId, `close:${String(code)}`)
-      }
-    })
-  })
+  // Bind timing:
+  // - A given `httpServer` is itself an explicit attach step (the caller
+  //   already decided where the transport lives) — binds immediately
+  //   regardless of `deferAttach`.
+  // - An explicit `config.port` is likewise an explicit instruction to run a
+  //   standalone server — binds immediately (keeps existing standalone
+  //   callers working unchanged).
+  // - Otherwise (true zero-config — no `httpServer`, no `port` — or an
+  //   explicit `deferAttach: true`) the provider does NOT bind anything.
+  //   Zero-config used to eagerly bind a standalone port derived from
+  //   ambient `WS_PORT`/`PORT` env vars (or 3000), which silently collides
+  //   with the API's own port in a container/proxy that doesn't expose a
+  //   second port — creating a provider must never bind a port as a side
+  //   effect. It waits for `attachHttpServer()`; a caller who genuinely
+  //   wants a standalone bind should pass `{ port }` explicitly.
+  if (httpServer) {
+    initWss(httpServer)
+  } else if (config.port !== undefined && !deferAttach) {
+    initWss()
+  } else if (!deferAttach) {
+    logger.info(
+      `Realtime ws provider created with no port or httpServer — deferring until attachHttpServer(server) is called. ` +
+        `Pass { port } (e.g. { port: ${String(port)} }) to bind a standalone server immediately instead.`,
+    )
+  }
 
   /* ------------------------------------------------------------------ */
   /*  Provider implementation                                            */
@@ -559,6 +650,13 @@ export function createProvider(config: WsRealtimeConfig = {}): RealtimeProvider 
       return [...managed, ...protocol]
     },
 
+    attachHttpServer(server: Server): void {
+      // Deferred path: bind the WebSocketServer to the API's HTTP server now
+      // that it exists, so `ws` shares the API port. No-op if already bound
+      // (matches the socketio/yjs sibling bonds' idempotent attach).
+      initWss(server)
+    },
+
     async close(): Promise<void> {
       // Idempotent: a second close() (double teardown is a normal shutdown
       // pattern) must not reject with ws's "The server is not running".
@@ -580,8 +678,11 @@ export function createProvider(config: WsRealtimeConfig = {}): RealtimeProvider 
       connectionHandlers.length = 0
       disconnectionHandlers.length = 0
       joinGuards.length = 0
+      // A deferred provider that was never attached (e.g. bonded but the app
+      // shut down before the HTTP server was created) has no server to close.
+      if (!wss) return
       await new Promise<void>((resolve, reject) => {
-        wss.close((err) => {
+        wss!.close((err) => {
           if (err) {
             reject(err)
           } else {

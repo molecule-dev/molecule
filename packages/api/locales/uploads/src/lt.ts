@@ -5,4 +5,5 @@ export const lt: UploadsTranslations = {
   'uploads.error.noProvider':
     'Įkėlimo teikėjas nesukonfigūruotas. Pirmiausia iškvieskite setProvider().',
   'uploads.error.streamLimitReached': 'Pasiekta srauto riba.',
+  'uploads.error.aborted': 'Įkėlimas buvo nutrauktas.',
 }

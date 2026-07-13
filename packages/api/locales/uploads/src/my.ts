@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const my: UploadsTranslations = {
   'uploads.error.noProvider': 'အပ်လုဒ် ပံ့ပိုးသူကို စီစဉ်မထားပါ။ အရင် setProvider() ကို ခေါ်ပါ။',
   'uploads.error.streamLimitReached': 'စတရိမ်ကန့်သတ်ချက်ပြည့်ပါပြီ။',
+  'uploads.error.aborted': 'အပ်လုဒ်ကို ပယ်ဖျက်လိုက်သည်။',
 }

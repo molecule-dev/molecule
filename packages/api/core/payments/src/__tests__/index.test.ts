@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   isActiveStatus,
+  isConfigNotConfiguredError,
   type NormalizedPurchase,
   type NormalizedSubscription,
   type PaymentProviderName,
@@ -496,6 +497,52 @@ describe('@molecule/api-payments', () => {
           expect(subscription.isActive).toBe(false)
         }
       })
+    })
+  })
+
+  describe('isConfigNotConfiguredError', () => {
+    it('recognizes the exact shape configNotConfiguredError() builds', () => {
+      // Mirrors @molecule/api-secrets's configNotConfiguredError() without a
+      // direct dependency (core stays dependency-free) — statusCode 503 +
+      // errorKey 'config.notConfigured' on an Error.
+      const error = Object.assign(
+        new Error('STRIPE_SECRET_KEY is not set — payments is disabled.'),
+        {
+          statusCode: 503,
+          errorKey: 'config.notConfigured',
+        },
+      )
+
+      expect(isConfigNotConfiguredError(error)).toBe(true)
+    })
+
+    it('rejects a generic verification failure (undefined/null)', () => {
+      expect(isConfigNotConfiguredError(null)).toBe(false)
+      expect(isConfigNotConfiguredError(undefined)).toBe(false)
+    })
+
+    it('rejects a plain Error with no tags — the shape a bad receipt/expired card throws', () => {
+      expect(isConfigNotConfiguredError(new Error('Invalid receipt'))).toBe(false)
+    })
+
+    it('rejects an error carrying a DIFFERENT errorKey with the same statusCode', () => {
+      // A tagged error for an unrelated 503 condition must not be mistaken
+      // for a config-not-configured one — the whole point is disambiguation.
+      const error = Object.assign(new Error('Service unavailable'), {
+        statusCode: 503,
+        errorKey: 'service.unavailable',
+      })
+      expect(isConfigNotConfiguredError(error)).toBe(false)
+    })
+
+    it('rejects an object with errorKey set but a non-numeric statusCode', () => {
+      const malformed = { errorKey: 'config.notConfigured', statusCode: '503' }
+      expect(isConfigNotConfiguredError(malformed)).toBe(false)
+    })
+
+    it('rejects a bare string or number thrown as an error', () => {
+      expect(isConfigNotConfiguredError('config.notConfigured')).toBe(false)
+      expect(isConfigNotConfiguredError(503)).toBe(false)
     })
   })
 

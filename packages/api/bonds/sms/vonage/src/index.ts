@@ -19,7 +19,22 @@
  *   defaultFrom: '+15551234567',
  * }))
  * ```
+ *
+ * @remarks
+ * Importing this package registers `VONAGE_API_KEY` / `VONAGE_API_SECRET` /
+ * `VONAGE_FROM_NUMBER` with `@molecule/api-secrets` (mirroring the Twilio
+ * bond), so a scaffolded app selecting Vonage gets env-var scaffolding and a
+ * boot-time secrets report naming the missing keys.
+ *
+ * `createProvider()` does NOT validate credentials eagerly — missing
+ * `VONAGE_API_KEY`/`VONAGE_API_SECRET` will not throw at bond time.
+ * `setProvider(createProvider())` always succeeds; the actionable
+ * "apiKey/apiSecret is required" error is thrown on the first actual
+ * `send()`/`sendBulk()` call instead, so a scaffolded app that selected
+ * Vonage before filling in secrets still boots (SMS just degrades until the
+ * secret is set), matching the slack/web-push bonds in this category.
  */
 
 export * from './provider.js'
+export * from './secrets.js'
 export * from './types.js'

@@ -99,6 +99,8 @@
     "@molecule/api-rate-limit-memory": "1.0.0",
     "@molecule/api-realtime": "1.0.0",
     "@molecule/api-realtime-socketio": "1.0.0",
+    "@molecule/api-realtime-sse": "1.0.0",
+    "@molecule/api-realtime-ws": "1.0.0",
     "@molecule/api-reporting": "1.0.0",
     "@molecule/api-reporting-database": "1.0.0",
     "@molecule/api-resource": "1.0.0",
@@ -197,6 +199,8 @@
     "@molecule/api-rate-limit-memory": "^1.0.0",
     "@molecule/api-realtime": "^1.0.0",
     "@molecule/api-realtime-socketio": "^1.0.0",
+    "@molecule/api-realtime-sse": "^1.0.0",
+    "@molecule/api-realtime-ws": "^1.0.0",
     "@molecule/api-reporting": "^1.0.0",
     "@molecule/api-reporting-database": "^1.0.0",
     "@molecule/api-resource": "^1.0.0",
@@ -274,6 +278,12 @@
       "optional": true
     },
     "@molecule/api-realtime-socketio": {
+      "optional": true
+    },
+    "@molecule/api-realtime-sse": {
+      "optional": true
+    },
+    "@molecule/api-realtime-ws": {
       "optional": true
     },
     "@molecule/api-reporting": {

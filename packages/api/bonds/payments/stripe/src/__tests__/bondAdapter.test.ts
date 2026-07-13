@@ -9,6 +9,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { CheckoutSessionResult, SubscriptionResult, WebhookEventResult } from '../types.js'
 
+/**
+ * Builds the same tagged shape `@molecule/api-secrets`'s `configNotConfiguredError()`
+ * produces, without statically importing that package here — a top-level import
+ * of `@molecule/api-secrets` would evaluate its module-load-time `getLogger()`
+ * call BEFORE `mockLogger` below is initialized (ESM imports run before a
+ * module's own top-level statements), throwing a TDZ ReferenceError.
+ */
+const configNotConfiguredError = (
+  key: string,
+  capability: string,
+): Error & { statusCode: number; errorKey: string } =>
+  Object.assign(new Error(`${key} is not set — ${capability} is disabled.`), {
+    statusCode: 503,
+    errorKey: 'config.notConfigured',
+  })
+
 // ─── Mock data ───────────────────────────────────────────────────────────────
 
 // Far-future period end (year 2099) so status/period gating treats the default
@@ -247,6 +263,25 @@ describe('Stripe Bond Adapter', () => {
         'Stripe bondAdapter verifySubscription error:',
         expect.any(Error),
       )
+    })
+
+    it('RETHROWS a config-not-configured error instead of swallowing it to null [ambiguous-failure]', async () => {
+      // A missing STRIPE_SECRET_KEY (getClient()) is a DIFFERENT failure than
+      // "no active subscription" — it must propagate so the resource handler
+      // can surface the actionable 503 instead of a generic 400 that reads
+      // identically to a genuinely invalid subscription.
+      mockGetSubscription.mockRejectedValue(
+        configNotConfiguredError('STRIPE_SECRET_KEY', 'payments'),
+      )
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      await expect(paymentProvider.verifySubscription!('sub_abc123')).rejects.toMatchObject({
+        statusCode: 503,
+        errorKey: 'config.notConfigured',
+      })
+      // Rethrown, not logged-and-swallowed like a genuine verification failure.
+      expect(mockLogger.error).not.toHaveBeenCalled()
     })
 
     it('should handle expiresAt as undefined when currentPeriodEnd is missing', async () => {
@@ -1087,6 +1122,17 @@ describe('Stripe Bond Adapter', () => {
       )
     })
 
+    it('RETHROWS a config-not-configured error instead of swallowing it to { updated: false } [ambiguous-failure]', async () => {
+      mockFindByUserId.mockRejectedValue(configNotConfiguredError('STRIPE_SECRET_KEY', 'payments'))
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      await expect(
+        paymentProvider.updateSubscription!({ userId: 'user_x', newProductId: 'price_x' }),
+      ).rejects.toMatchObject({ statusCode: 503, errorKey: 'config.notConfigured' })
+      expect(mockLogger.error).not.toHaveBeenCalled()
+    })
+
     it('should fall back to ORIGIN env var when API_ORIGIN and APP_ORIGIN are not set', async () => {
       vi.stubEnv('API_ORIGIN', '')
       vi.stubEnv('APP_ORIGIN', '')
@@ -1201,6 +1247,20 @@ describe('Stripe Bond Adapter', () => {
         'Stripe bondAdapter cancelSubscription error:',
         expect.any(Error),
       )
+    })
+
+    it('RETHROWS a config-not-configured error instead of swallowing it to false [ambiguous-failure]', async () => {
+      mockFindByUserId.mockRejectedValue(configNotConfiguredError('STRIPE_SECRET_KEY', 'payments'))
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      await expect(paymentProvider.cancelSubscription!({ userId: 'user_x' })).rejects.toMatchObject(
+        {
+          statusCode: 503,
+          errorKey: 'config.notConfigured',
+        },
+      )
+      expect(mockLogger.error).not.toHaveBeenCalled()
     })
   })
 

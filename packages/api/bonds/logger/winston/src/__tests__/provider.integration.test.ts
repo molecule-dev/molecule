@@ -90,6 +90,58 @@ describe('@molecule/api-logger-winston × REAL winston', () => {
     expect(rec.stack).toContain('solo failure')
   })
 
+  it('CONSUMER PROPERTY: createLogger() with level OMITTED passes debug/trace through to real winston (no hidden second gate)', () => {
+    // Deliberately omit `level` (`makeSink` normally defaults to 'trace').
+    const lines: string[] = []
+    const stream = new Writable({
+      write(chunk, _encoding, callback) {
+        lines.push(String(chunk))
+        callback()
+      },
+    })
+    const logger = createLogger({
+      format: 'json',
+      transports: [{ type: 'stream', options: { stream } }],
+    })
+
+    logger.debug('debug line')
+    logger.trace('trace line')
+
+    const records = lines.map((l) => JSON.parse(l) as Record<string, unknown>)
+    expect(records.map((r) => r.message)).toEqual(['debug line', 'trace line'])
+  })
+
+  it("a per-transport level: 'silent' mutes only that transport (real silent:true flag), while a sibling transport still emits", () => {
+    const mutedLines: string[] = []
+    const activeLines: string[] = []
+    const mutedStream = new Writable({
+      write(chunk, _encoding, callback) {
+        mutedLines.push(String(chunk))
+        callback()
+      },
+    })
+    const activeStream = new Writable({
+      write(chunk, _encoding, callback) {
+        activeLines.push(String(chunk))
+        callback()
+      },
+    })
+
+    const logger = createLogger({
+      level: 'trace',
+      format: 'json',
+      transports: [
+        { type: 'stream', level: 'silent', options: { stream: mutedStream } },
+        { type: 'stream', options: { stream: activeStream } },
+      ],
+    })
+
+    logger.error('should only reach the active transport')
+
+    expect(mutedLines).toEqual([])
+    expect(activeLines).toHaveLength(1)
+  })
+
   it('level mapping is faithful, including trace → silly', () => {
     const { logger, records } = makeSink()
 

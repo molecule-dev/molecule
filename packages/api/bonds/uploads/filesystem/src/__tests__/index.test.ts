@@ -379,12 +379,14 @@ describe('Filesystem Provider', () => {
   })
 
   describe('abortUpload', () => {
-    it('should abort an in-progress upload', async () => {
+    it('[ambiguous-failure fix] destroys the write stream (never .end()) and rejects uploadPromise with UploadAbortedError instead of resolving it as success, without calling onError', async () => {
       mockExistsSync.mockReturnValue(true)
       mockUnlink.mockImplementation((path, callback) => callback(null))
       const { upload, abortUpload } = await import('../provider.js')
+      const { UploadAbortedError } = await import('@molecule/api-uploads')
 
       const stream = new PassThrough()
+      const onError = vi.fn()
 
       const file = upload(
         'file',
@@ -394,16 +396,26 @@ describe('Filesystem Provider', () => {
           encoding: '7bit',
           mimeType: 'text/plain',
         },
-        vi.fn(),
+        onError,
       )
+      const uploadPromise = file.uploadPromise
 
       abortUpload(file)
 
-      expect(mockWriteStream.end).toHaveBeenCalled()
+      // destroy(), not end() — end() fires 'finish', which used to resolve
+      // uploadPromise as a success for a file that was deliberately aborted (and
+      // already unlinked from disk).
+      expect(mockWriteStream.destroy).toHaveBeenCalled()
+      expect(mockWriteStream.end).not.toHaveBeenCalled()
       expect(mockUnlink).toHaveBeenCalledWith(
         expect.stringContaining('test-uuid-1234'),
         expect.any(Function),
       )
+      await expect(uploadPromise).rejects.toBeInstanceOf(UploadAbortedError)
+      // An intentional abort must never be routed through onError — that's reserved
+      // for real transport/storage failures.
+      expect(onError).not.toHaveBeenCalled()
+      expect(file.uploaded).toBe(false)
       expect(file.upload).toBeUndefined()
       expect(file.uploadPromise).toBeUndefined()
     })
@@ -426,6 +438,7 @@ describe('Filesystem Provider', () => {
         },
         vi.fn(),
       )
+      const uploadPromise = file.uploadPromise
 
       abortUpload(file)
 
@@ -433,9 +446,10 @@ describe('Filesystem Provider', () => {
       expect(removeAllListenersSpy).toHaveBeenCalledWith('limit')
       expect(removeAllListenersSpy).toHaveBeenCalledWith('end')
       expect(file.stream).toBeUndefined()
+      await expect(uploadPromise).rejects.toThrow('Upload was aborted.')
     })
 
-    it('should log error when file deletion fails', async () => {
+    it('logs a warning (not the write-failure error path) when the post-abort unlink fails, and still rejects uploadPromise with UploadAbortedError', async () => {
       mockExistsSync.mockReturnValue(true)
       mockUnlink.mockImplementation((path, callback) => callback(new Error('Delete failed')))
       const { upload, abortUpload } = await import('../provider.js')
@@ -452,10 +466,12 @@ describe('Filesystem Provider', () => {
         },
         vi.fn(),
       )
+      const uploadPromise = file.uploadPromise
 
       abortUpload(file)
+      await expect(uploadPromise).rejects.toThrow('Upload was aborted.')
 
-      expect(mockLogger.error).toHaveBeenCalledWith(
+      expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.stringContaining('test-uuid-1234'),
         expect.any(Error),
       )
@@ -1070,28 +1086,31 @@ describe('Filesystem Edge Cases', () => {
   })
 
   describe('abortUpload edge cases', () => {
-    it('should handle file with upload that has no end method', async () => {
-      const { upload, abortUpload } = await import('../provider.js')
+    it('should handle a hand-built file (no `abort` closure — the fallback path) whose upload object has no end method', async () => {
+      mockUnlink.mockImplementation((path, callback) => callback(null))
+      const { abortUpload } = await import('../provider.js')
 
-      const stream = new PassThrough()
-
-      const file = upload(
-        'file',
-        stream,
-        {
-          filename: 'test.txt',
-          encoding: '7bit',
-          mimeType: 'text/plain',
-        },
-        vi.fn(),
-      )
-
-      // Simulate upload without end method
+      // A File not produced by upload() (e.g. constructed by legacy/external code)
+      // has no `abort` closure, so abortUpload() falls back to the pre-fix
+      // best-effort path: guard the missing `.end()` and still clean up storage.
       const uploadWithoutEnd = { write: vi.fn() }
-      file.upload = uploadWithoutEnd as never
+      const file = {
+        id: 'no-end-method-id',
+        fieldname: 'file',
+        filename: 'test.txt',
+        encoding: '7bit',
+        mimetype: 'text/plain',
+        size: 0,
+        uploaded: false,
+        upload: uploadWithoutEnd,
+      }
 
       // Should not throw
-      expect(() => abortUpload(file)).not.toThrow()
+      expect(() => abortUpload(file as never)).not.toThrow()
+      expect(mockUnlink).toHaveBeenCalledWith(
+        expect.stringContaining('no-end-method-id'),
+        expect.any(Function),
+      )
     })
 
     it('should delete file when file is already uploaded', async () => {

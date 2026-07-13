@@ -806,6 +806,106 @@ describe('@molecule/app-notification-center-default', () => {
     })
   })
 
+  describe('lastError', () => {
+    it('starts undefined', () => {
+      const center = provider.createNotificationCenter(createOptions())
+      expect(center.getState().lastError).toBeUndefined()
+      center.destroy()
+    })
+
+    it('is set in getState() and emitted after a failing refresh, and cleared after the next successful refresh', async () => {
+      const fetchNotifications = vi
+        .fn<(opts: FetchOptions) => Promise<PaginatedResult<AppNotification>>>()
+        .mockRejectedValueOnce(new Error('Network error'))
+        .mockResolvedValueOnce(makePaginatedResult([makeNotification({ id: '1' })]))
+      const center = provider.createNotificationCenter(
+        createOptions({ fetchNotifications, fetchUnreadCount: vi.fn(() => Promise.resolve(1)) }),
+      )
+
+      const updates: NotificationCenterState[] = []
+      center.onUpdate((state) => updates.push(state))
+
+      await center.refresh()
+      expect(center.getState().lastError).toBeInstanceOf(Error)
+      expect(center.getState().lastError?.message).toBe('Network error')
+      // The failure must reach subscribers too, not just getState().
+      expect(updates[updates.length - 1].lastError?.message).toBe('Network error')
+      // The stale (empty, in this case) list is preserved — never wiped.
+      expect(center.getNotifications()).toEqual([])
+
+      await center.refresh()
+      expect(center.getState().lastError).toBeUndefined()
+      expect(updates[updates.length - 1].lastError).toBeUndefined()
+      expect(center.getNotifications().map((n) => n.id)).toEqual(['1'])
+
+      center.destroy()
+    })
+
+    it('is set after a failing loadMore and cleared after the next successful loadMore', async () => {
+      const fetchNotifications = vi
+        .fn<(opts: FetchOptions) => Promise<PaginatedResult<AppNotification>>>()
+        .mockRejectedValueOnce(new Error('loadMore boom'))
+        .mockResolvedValueOnce(makePaginatedResult([makeNotification({ id: '1' })]))
+      const center = provider.createNotificationCenter(createOptions({ fetchNotifications }))
+
+      await center.loadMore()
+      expect(center.getState().lastError?.message).toBe('loadMore boom')
+
+      await center.loadMore()
+      expect(center.getState().lastError).toBeUndefined()
+      expect(center.getNotifications().map((n) => n.id)).toEqual(['1'])
+
+      center.destroy()
+    })
+
+    it('is set after a failing poll tick and cleared after the next successful poll tick', async () => {
+      const fetchNotifications = vi
+        .fn<(opts: FetchOptions) => Promise<PaginatedResult<AppNotification>>>()
+        .mockRejectedValueOnce(new Error('poll boom'))
+        .mockResolvedValueOnce(makePaginatedResult([makeNotification({ id: 'poll-1' })]))
+      const center = provider.createNotificationCenter(
+        createOptions({
+          fetchNotifications,
+          fetchUnreadCount: vi.fn(() => Promise.resolve(0)),
+          pollInterval: 5000,
+        }),
+      )
+
+      await vi.advanceTimersByTimeAsync(5000)
+      expect(center.getState().lastError?.message).toBe('poll boom')
+
+      await vi.advanceTimersByTimeAsync(5000)
+      expect(center.getState().lastError).toBeUndefined()
+      expect(center.getNotifications().map((n) => n.id)).toEqual(['poll-1'])
+
+      center.destroy()
+    })
+
+    it('wraps a non-Error rejection in an Error', async () => {
+      const fetchNotifications = vi.fn(() => Promise.reject('a string rejection'))
+      const center = provider.createNotificationCenter(createOptions({ fetchNotifications }))
+
+      await center.refresh()
+
+      const { lastError } = center.getState()
+      expect(lastError).toBeInstanceOf(Error)
+      expect(lastError?.message).toBe('a string rejection')
+
+      center.destroy()
+    })
+
+    it('is cleared on destroy', async () => {
+      const fetchNotifications = vi.fn(() => Promise.reject(new Error('fail')))
+      const center = provider.createNotificationCenter(createOptions({ fetchNotifications }))
+
+      await center.refresh()
+      expect(center.getState().lastError).toBeInstanceOf(Error)
+
+      center.destroy()
+      expect(center.getState().lastError).toBeUndefined()
+    })
+  })
+
   describe('slow/failing consumer flows (regressions)', () => {
     it('CONSUMER PROPERTY: a failed refresh keeps the previously loaded inbox — never wipes it', async () => {
       // The old refresh() cleared the list BEFORE fetching, so one transient

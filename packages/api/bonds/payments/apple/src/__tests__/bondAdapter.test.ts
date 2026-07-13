@@ -1,16 +1,35 @@
-const { mockVerifyReceipt, mockGetLatestSubscription, mockIsSubscriptionActive } = vi.hoisted(
-  () => ({
-    mockVerifyReceipt: vi.fn(),
-    mockGetLatestSubscription: vi.fn(),
-    mockIsSubscriptionActive: vi.fn(),
-  }),
-)
+import type * as ProviderModule from '../provider.js'
 
-vi.mock('../provider.js', () => ({
-  verifyReceipt: mockVerifyReceipt,
-  getLatestSubscription: mockGetLatestSubscription,
-  isSubscriptionActive: mockIsSubscriptionActive,
+const {
+  mockVerifyReceipt,
+  mockGetLatestSubscription,
+  mockIsSubscriptionActive,
+  mockParseV2Notification,
+} = vi.hoisted(() => ({
+  mockVerifyReceipt: vi.fn(),
+  mockGetLatestSubscription: vi.fn(),
+  mockIsSubscriptionActive: vi.fn(),
+  mockParseV2Notification: vi.fn(),
 }))
+
+// getAutoRenewStatus is kept REAL (via importOriginal) — it's a pure function
+// operating on the mockVerifyReceipt-supplied response, and bondAdapter.ts now
+// imports it from provider.js (moved there so normalizeSubscription can reuse
+// it) instead of defining its own local copy.
+vi.mock('../provider.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof ProviderModule>()
+  return {
+    ...actual,
+    verifyReceipt: mockVerifyReceipt,
+    getLatestSubscription: mockGetLatestSubscription,
+    isSubscriptionActive: mockIsSubscriptionActive,
+  }
+})
+
+// The v2 (JWS/x5c) parsing itself is covered with real crypto in jws.test.ts
+// and with mocked-JWS orchestration in notificationV2.test.ts — here we only
+// need to assert bondAdapter.parseNotification DISPATCHES to it correctly.
+vi.mock('../notificationV2.js', () => ({ parseV2Notification: mockParseV2Notification }))
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -36,6 +55,22 @@ describe('paymentProvider.verifyReceipt', () => {
     mockVerifyReceipt.mockResolvedValue({ status: 21002 })
     const out = await paymentProvider.verifyReceipt!('receipt-data', 'com.app.pro')
     expect(out).toBeNull()
+  })
+
+  it('RETHROWS a config-not-configured error instead of swallowing it to null [ambiguous-failure]', async () => {
+    // A missing APPLE_SHARED_SECRET is a DIFFERENT failure than "invalid
+    // receipt" — it must propagate so the resource handler can surface the
+    // actionable 503 instead of a generic 400 that reads identically to a
+    // genuinely bad/forged receipt.
+    const configError = Object.assign(
+      new Error('APPLE_SHARED_SECRET is not set — payments is disabled.'),
+      { statusCode: 503, errorKey: 'config.notConfigured' },
+    )
+    mockVerifyReceipt.mockRejectedValue(configError)
+
+    await expect(
+      paymentProvider.verifyReceipt!('receipt-data', 'com.app.pro'),
+    ).rejects.toMatchObject({ statusCode: 503, errorKey: 'config.notConfigured' })
   })
 
   it('returns null when getLatestSubscription returns no subscription', async () => {
@@ -134,10 +169,30 @@ describe('paymentProvider.parseNotification', () => {
     expect(await paymentProvider.parseNotification!(42)).toBeNull()
   })
 
-  it('returns null when notification_type is missing (v2 signedPayload unsupported)', async () => {
+  it('returns null when NEITHER notification_type (v1) nor signedPayload (v2) is present', async () => {
     expect(await paymentProvider.parseNotification!({})).toBeNull()
-    // A v2 signedPayload body carries no top-level notification_type → rejected.
-    expect(await paymentProvider.parseNotification!({ signedPayload: 'eyJ...' })).toBeNull()
+    expect(mockParseV2Notification).not.toHaveBeenCalled()
+  })
+
+  it('REGRESSION [api-drift]: dispatches a v2 body (no notification_type, has signedPayload) to parseV2Notification instead of rejecting it', async () => {
+    mockParseV2Notification.mockReturnValue({
+      transactionId: 'orig-1',
+      productId: 'com.app.pro',
+      type: 'renewed',
+    })
+
+    const result = await paymentProvider.parseNotification!({ signedPayload: 'eyJhbGciOi...' })
+
+    expect(mockParseV2Notification).toHaveBeenCalledWith('eyJhbGciOi...')
+    expect(result).toEqual({ transactionId: 'orig-1', productId: 'com.app.pro', type: 'renewed' })
+  })
+
+  it('returns null (not a crash) when parseV2Notification rejects the signedPayload as unauthenticated', async () => {
+    mockParseV2Notification.mockReturnValue(null)
+
+    const result = await paymentProvider.parseNotification!({ signedPayload: 'forged' })
+
+    expect(result).toBeNull()
   })
 
   it('returns null when there is no embedded receipt to verify', async () => {

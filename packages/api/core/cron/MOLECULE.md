@@ -5,13 +5,13 @@ Provider-agnostic cron scheduling interface for molecule.dev.
 Defines the `CronProvider` interface for scheduling, pausing, resuming,
 cancelling, and manually triggering cron jobs. Bond packages (node-cron,
 BullMQ, etc.) implement this interface. Application code uses the convenience
-functions (`schedule`, `cancel`, `list`, `pause`, `resume`, `runNow`)
+functions (`schedule`, `cancel`, `list`, `pause`, `resume`, `runNow`, `close`)
 which delegate to the bonded provider.
 
 ## Quick Start
 
 ```typescript
-import { setProvider, schedule, list } from '@molecule/api-cron'
+import { setProvider, schedule, list, close } from '@molecule/api-cron'
 import { provider as nodeCron } from '@molecule/api-cron-node-cron'
 
 setProvider(nodeCron)
@@ -21,6 +21,9 @@ const jobId = await schedule('cleanup', '0 3 * * *', async () => {
 })
 
 const jobs = await list()
+
+// On graceful shutdown / test teardown:
+await close()
 ```
 
 ## Type
@@ -95,6 +98,19 @@ interface CronOptions {
 
   /** End date — the job will not run after this date. */
   endDate?: Date | string
+
+  /**
+   * When `true`, a tick that arrives while the previous execution of this
+   * job is still running is skipped instead of running concurrently.
+   * Defaults to `false` (current behavior: overlapping executions are
+   * allowed) to avoid changing existing deployments' concurrency.
+   * Support is provider-specific: node-cron enforces it natively (skips the
+   * tick and logs a warning); the BullMQ bond emulates it per-process by
+   * skipping a tick while a previous invocation on the same worker process
+   * hasn't finished — it does NOT coordinate across multiple distributed
+   * worker processes.
+   */
+  noOverlap?: boolean
 }
 ```
 
@@ -190,6 +206,20 @@ function cancel(jobId: string): Promise<void>
 - `jobId` — The job identifier.
 
 **Returns:** Resolves when the job is cancelled.
+
+#### `close()`
+
+Releases the bonded provider's resources (timers, queue/worker
+connections) so the process can exit cleanly. Call during graceful
+shutdown and in test teardown. A no-op when the bonded provider does not
+implement `close()` (in-process providers with no persistent resources
+may omit it).
+
+```typescript
+function close(): Promise<void>
+```
+
+**Returns:** Resolves when cleanup completes.
 
 #### `getProvider()`
 
@@ -297,3 +327,11 @@ function setProvider(provider: CronProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+`close()` releases the bonded provider's resources (timers, queue/worker
+connections) and is a no-op if the provider doesn't implement it — call
+it during shutdown instead of reaching for `getProvider().close?.()`
+directly. `CronOptions.noOverlap` (per-job, default `false`) skips a tick
+that arrives while the previous run of the same job is still executing;
+support and cross-process coordination are provider-specific — see each
+bond's module docs.

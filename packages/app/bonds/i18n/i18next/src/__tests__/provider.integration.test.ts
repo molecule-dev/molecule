@@ -186,12 +186,16 @@ describe('@molecule/app-i18n-i18next × REAL i18next', () => {
     expect(p.removeLocale?.('never-added')).toBe(false)
     expect(p.removeLocale?.('fr')).toBe(true)
 
-    // Switching to an unregistered locale does not throw with real i18next —
-    // rendering degrades to fallbackLng text instead of crashing the app.
-    // (NOTE: the core simple provider THROWS here instead; divergence is
-    // tracked as an audit finding, this pins the i18next bond's contract.)
-    await p.setLocale('xx')
-    expect(p.t('greeting')).toBe('Hello')
+    // Switching to an UNREGISTERED locale THROWS, naming the locale — the
+    // unified fleet contract documented on `I18nProvider.setLocale` in
+    // @molecule/app-i18n. Real i18next's own `changeLanguage()` never throws
+    // (it silently degrades to fallbackLng text while getLocale() reports the
+    // bogus code); this bond's wrapper now gates on `localeConfigs` BEFORE
+    // calling changeLanguage so it matches the core simple provider instead
+    // of diverging from it (previously tracked as an audit finding).
+    await expect(p.setLocale('xx')).rejects.toThrow('Locale "xx" not found')
+    // The locale never actually changed.
+    expect(p.getLocale()).toBe('en')
   })
 
   it('getDirection derives RTL from real i18next when LocaleConfig omits direction', async () => {

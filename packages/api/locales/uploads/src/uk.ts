@@ -5,4 +5,5 @@ export const uk: UploadsTranslations = {
   'uploads.error.noProvider':
     'Провайдер завантаження не налаштований. Спочатку викличте setProvider().',
   'uploads.error.streamLimitReached': 'Досягнуто ліміт потоку.',
+  'uploads.error.aborted': 'Завантаження було скасовано.',
 }

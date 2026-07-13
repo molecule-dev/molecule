@@ -75,6 +75,16 @@ class AnthropicAIProvider implements AIProvider {
     this.defaultModel = config.defaultModel ?? 'claude-opus-4-6'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com'
+
+    // Fail fast with an actionable local error rather than a cryptic 401 on the
+    // first request. The default `provider` export constructs lazily on first
+    // use (see index.ts), so this surfaces the moment the provider is actually
+    // used, not at bond/module-load time.
+    if (!this.apiKey) {
+      throw new Error(
+        'ANTHROPIC_API_KEY is not set. Add it to your environment to use the Anthropic Claude AI provider.',
+      )
+    }
   }
 
   /**
@@ -185,11 +195,19 @@ class AnthropicAIProvider implements AIProvider {
 
       if (response.status === 429 || response.status === 529 || response.status === 503) {
         if (attempt < MAX_RETRIES) {
-          // Use Retry-After header if provided, otherwise exponential backoff
+          // Use Retry-After header if provided, otherwise exponential backoff.
+          // Retry-After is equally-valid as delta-seconds ('30') or an
+          // HTTP-date ('Wed, 21 Oct ... GMT'); parseInt on the date form
+          // yields NaN, which previously produced setTimeout(resolve, NaN) —
+          // fires ~immediately, degrading the backoff to rapid-fire retries
+          // against an already rate-limiting API. Guard the parse and fall
+          // back to exponential backoff for any non-finite/negative value.
           const retryAfter = response.headers.get('retry-after')
-          const delayMs = retryAfter
-            ? Math.min(parseInt(retryAfter, 10) * 1000, 60_000)
-            : Math.min(1000 * 2 ** attempt, 30_000)
+          const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
+          const delayMs =
+            Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+              ? Math.min(parsedRetryAfterSeconds * 1000, 60_000)
+              : Math.min(1000 * 2 ** attempt, 30_000)
           logger.warn('Anthropic API rate limited, retrying', {
             status: response.status,
             attempt: attempt + 1,
@@ -235,9 +253,16 @@ class AnthropicAIProvider implements AIProvider {
             : response!.status === 400 &&
                 /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
               ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
-              : response!.status === 529 || response!.status === 503
-                ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                : 'AI service error. Please try again.'
+              : response!.status === 400
+                ? // A permanently-invalid request (bad param, e.g. temperature on a
+                  // model that rejects sampling params, a malformed tool schema)
+                  // is NOT retryable — distinguish it from the generic fallback so
+                  // a caller (or an executor retrying blindly) doesn't loop on a
+                  // request that can never succeed.
+                  'AI request was invalid — check the model and request parameters.'
+                : response!.status === 529 || response!.status === 503
+                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                  : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }
@@ -342,6 +367,13 @@ class AnthropicAIProvider implements AIProvider {
             name: block.name as string,
             input: block.input,
           }
+        } else if (block.type === 'thinking') {
+          // The streaming path yields 'thinking' events via thinking_delta;
+          // a non-streaming response (params.stream === false) carries the
+          // same content as a single 'thinking' block that was previously
+          // silently dropped here — callers using stream:false with thinking
+          // enabled lost the thinking output with no signal it ever existed.
+          yield { type: 'thinking', content: block.thinking as string }
         }
       }
     }

@@ -5,4 +5,6 @@ export const ro: AiTranslations = {
   'ai.error.noProvider': 'Furnizorul AI nu este configurat. Conectați mai întâi un furnizor AI.',
   'ai.error.apiError': 'Solicitarea API AI a eșuat.',
   'ai.error.noResponseBody': 'Corpul răspunsului AI este gol.',
+  'ai.error.ambiguousProvider':
+    'Sunt conectați mai mulți furnizori AI numiți și nu a fost setat niciun implicit. Utilizați getProviderByName(name) pentru a selecta unul.',
 }

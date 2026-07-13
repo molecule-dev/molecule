@@ -4,7 +4,7 @@
  * @module
  */
 
-import { getIcon } from '@molecule/app-icons'
+import { getIcon, type IconName } from '@molecule/app-icons'
 
 /**
  * Generates SVG markup string from an icon name.
@@ -13,7 +13,7 @@ import { getIcon } from '@molecule/app-icons'
  * @param className - CSS class for sizing
  * @returns SVG markup string
  */
-export function getIconSvg(name: string, className: string): string {
+export function getIconSvg(name: IconName, className: string): string {
   const icon = getIcon(name)
   const viewBox = icon.viewBox || '0 0 20 20'
   const fill = icon.fill || 'currentColor'

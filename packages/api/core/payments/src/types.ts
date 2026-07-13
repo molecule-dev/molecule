@@ -130,6 +130,16 @@ export interface NormalizedPurchase {
  * `@molecule/api-payments-*` bonds do NOT implement this two-argument
  * interface — they implement {@link PaymentProviderInterface}, whose
  * `verifySubscription(subscriptionId)` takes only the provider's opaque id.
+ *
+ * @deprecated Not implemented by any shipped bond — the fleet's actual
+ * verification contract is {@link PaymentProviderInterface.verifySubscription}.
+ * Having two same-named-but-different-signature `verifySubscription` methods
+ * in one package is a standing confusion hazard: do not call this signature
+ * (`verifySubscription(productId, token)`) on a value obtained from
+ * `bond('payments', name)` / `get('payments', name)` — the extra argument is
+ * silently ignored and the lookup fails. Kept for callers who adopt it as a
+ * genuinely separate app-level abstraction; do not add new usages that assume
+ * a bond implements it.
  */
 export interface SubscriptionVerifier {
   /**
@@ -146,6 +156,11 @@ export interface SubscriptionVerifier {
  * `@molecule/api-payments-*` bonds do NOT implement this interface — they
  * implement {@link PaymentProviderInterface} (`verifyPurchase(receipt, productId)`
  * for Google-style flows).
+ *
+ * @deprecated Not implemented by any shipped bond — the fleet's actual
+ * verification contract is {@link PaymentProviderInterface.verifyPurchase}.
+ * Kept for callers who adopt it as a genuinely separate app-level
+ * abstraction; do not add new usages that assume a bond implements it.
  */
 export interface PurchaseVerifier {
   /**

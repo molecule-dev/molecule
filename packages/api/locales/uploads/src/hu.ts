@@ -5,4 +5,5 @@ export const hu: UploadsTranslations = {
   'uploads.error.noProvider':
     'A feltöltés szolgáltató nincs konfigurálva. Először hívja meg a setProvider()-t.',
   'uploads.error.streamLimitReached': 'Az adatfolyam korlátja elérve.',
+  'uploads.error.aborted': 'A feltöltés megszakadt.',
 }

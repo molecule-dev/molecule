@@ -56,6 +56,13 @@ interface TwilioSMSConfig {
 
 Creates a Twilio-backed {@link SMSProvider}.
 
+Credential validation is DEFERRED to first use (send/sendBulk/getStatus)
+rather than thrown here — matching the slack/web-push bonds in this
+category. An app that has selected Twilio but hasn't filled in its
+secrets yet can still boot; only the first actual SMS attempt throws the
+actionable "accountSid/authToken is required" error, instead of the whole
+API crashing at `setProvider(createProvider())` startup time.
+
 ```typescript
 function createProvider(config?: TwilioSMSConfig): SMSProvider
 ```
@@ -82,6 +89,7 @@ Implements `@molecule/api-sms` interface.
 ### Requirements
 
 Peer dependencies:
+- `@molecule/api-logger` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-sms` 1.0.0
 
@@ -98,3 +106,12 @@ Peer dependencies:
   - Setup: Buy or verify a phone number in Twilio and use it in E.164 format.
   - Get it here: [https://console.twilio.com/us1/develop/phone-numbers/manage/incoming](https://console.twilio.com/us1/develop/phone-numbers/manage/incoming)
   - Example: `+15551234567`
+
+`createProvider()` does NOT validate credentials eagerly — missing
+`TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN` will not throw at bond time.
+`setProvider(createProvider())` always succeeds; the actionable
+"accountSid/authToken is required" error is thrown on the first actual
+`send()`/`sendBulk()`/`getStatus()` call instead, so a scaffolded app that
+selected Twilio before filling in secrets still boots (SMS just degrades
+until the secret is set), matching the slack/web-push bonds in this
+category.

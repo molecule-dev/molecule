@@ -19,6 +19,13 @@ import type { RedisQueueOptions } from './types.js'
 /**
  * Creates a Redis/BullMQ queue provider. Connects to Redis using `REDIS_URL` or
  * individual `REDIS_HOST`/`PORT`/`PASSWORD` env vars. Queue names are prefixed with `molecule:queue:` by default.
+ *
+ * The producer connection (send/receive/size/purge/delete) is configured to fail fast — a
+ * bounded `maxRetriesPerRequest` and `enableOfflineQueue: false` — instead of buffering
+ * commands indefinitely while Redis is unreachable, which previously made `await send()` hang
+ * forever with no actionable error. The worker connection (`subscribe()`) keeps ioredis's
+ * default indefinite-retry behavior — BullMQ requires `maxRetriesPerRequest: null` there, and
+ * a long-running background consumer SHOULD keep trying to reconnect rather than give up.
  * @param options - Optional connection and prefix configuration. Falls back to environment variables.
  * @returns A `QueueProvider` that manages BullMQ queues backed by Redis.
  */
@@ -37,15 +44,31 @@ export const createProvider = (options?: RedisQueueOptions): QueueProvider => {
         password,
       }
 
+  // Producer-only fail-fast overlay. BullMQ forces `maxRetriesPerRequest: null`
+  // on any BLOCKING connection (the Worker's) regardless of what's passed in —
+  // applying this to the worker connection too would just print a console
+  // warning and be silently overridden, so it is deliberately producer-only.
+  const producerConnection: ConnectionOptions = {
+    ...connection,
+    maxRetriesPerRequest: 1,
+    enableOfflineQueue: false,
+  }
+
   const queues = new Map<string, Queue>()
-  // Disposers registered by each createQueue() — closing these closes the
-  // underlying BullMQ queues + workers (and their Redis connections).
-  const cleanups: Array<() => Promise<void>> = []
+  // Disposers registered by each createQueue(), keyed by queue name so
+  // `deleteQueue()` can run and unregister a SPECIFIC queue's disposer
+  // instead of leaving its connection open until `provider.close()`.
+  const cleanups = new Map<string, () => Promise<void>>()
 
   const getQueue = (name: string): Queue => {
     let q = queues.get(name)
     if (!q) {
-      q = createQueue(connection, name, prefix, (cleanup) => cleanups.push(cleanup))
+      q = createQueue(
+        { producer: producerConnection, worker: connection },
+        name,
+        prefix,
+        (cleanup) => cleanups.set(name, cleanup),
+      )
       queues.set(name, q)
     }
     return q
@@ -69,11 +92,26 @@ export const createProvider = (options?: RedisQueueOptions): QueueProvider => {
     async deleteQueue(name: string): Promise<void> {
       const q = queues.get(name)
       if (q) {
-        // Get the underlying BullQueue and obliterate it
-        const bullQueue = new BullQueue(name, { connection, prefix })
-        await bullQueue.obliterate({ force: true })
-        await bullQueue.close()
+        // Run and unregister the queue's OWN disposer first (closes its
+        // workers and its cached BullQueue's Redis connection) — previously
+        // this connection stayed open, unused, until provider.close() (which
+        // may never be called for a long-running process).
+        const cleanup = cleanups.get(name)
+        if (cleanup) {
+          await cleanup()
+          cleanups.delete(name)
+        }
         queues.delete(name)
+      }
+
+      // Obliterate via a short-lived connection of its own (the original's
+      // was just closed above) — always closed afterward so this temporary
+      // connection never leaks either.
+      const bullQueue = new BullQueue(name, { connection: producerConnection, prefix })
+      try {
+        await bullQueue.obliterate({ force: true })
+      } finally {
+        await bullQueue.close()
       }
     },
 
@@ -81,9 +119,10 @@ export const createProvider = (options?: RedisQueueOptions): QueueProvider => {
       // Run every disposer (workers + BullMQ queues). The previous
       // implementation iterated an always-empty array, so close() silently
       // leaked every Redis connection and kept the process alive.
-      for (const cleanup of cleanups.splice(0)) {
+      for (const cleanup of cleanups.values()) {
         await cleanup()
       }
+      cleanups.clear()
       queues.clear()
     },
   }

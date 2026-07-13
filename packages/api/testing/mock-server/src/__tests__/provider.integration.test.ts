@@ -167,6 +167,47 @@ describe('@molecule/api-mock-server × REAL express', () => {
     expect(await unauthorized.json()).toEqual({ error: 'Unauthorized' })
   })
 
+  it('FAILURE DISAMBIGUATION: a setState() endpoint override silently outranks a later ?_state — documented precedence', async () => {
+    // This is the ambiguous-failure trap: setState() is the HIGHEST-priority
+    // source of state for an endpoint. A forgotten setState('GET /accounts',
+    // { state: 'error' }) from an earlier test beats every later ?_state
+    // override on that same endpoint — the request looks like ?_state is
+    // being ignored, when really the endpoint override just wins.
+    server.setState('GET /accounts', { state: 'error' })
+    const overridden = await fetch(`${base}/api/accounts?_state=success`)
+    expect(overridden.status).toBe(500)
+
+    server.clearState('GET /accounts')
+    const afterClear = await fetch(`${base}/api/accounts?_state=success`)
+    expect(afterClear.status).toBe(200)
+    expect(await afterClear.json()).toEqual(ACCOUNTS)
+  })
+
+  it("FAILURE DISAMBIGUATION: setState(key, {state:'success'}) does NOT undo an override — only clearState() does", async () => {
+    // A gotcha explicit in the docs: setting an endpoint override back to
+    // 'success' REPLACES the override with one that looks like the default —
+    // it does not remove it, so ?_state still can't reach that endpoint.
+    server.setState('GET /accounts', { state: 'error' })
+    server.setState('GET /accounts', { state: 'success' })
+    const stillOverridden = await fetch(`${base}/api/accounts?_state=empty`)
+    // The override (now 'success') still outranks ?_state=empty.
+    expect(stillOverridden.status).toBe(200)
+    expect(await stillOverridden.json()).toEqual(ACCOUNTS)
+
+    // clearState() actually removes the override — ?_state regains control.
+    server.clearState('GET /accounts')
+    const restored = await fetch(`${base}/api/accounts?_state=empty`)
+    expect(restored.status).toBe(200)
+    expect(await restored.json()).toEqual([])
+  })
+
+  it('clearState() on a key with no active override is a harmless no-op', async () => {
+    server.clearState('GET /never-overridden-endpoint')
+    const response = await fetch(`${base}/api/accounts`)
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual(ACCOUNTS)
+  })
+
   it('setState() honors the documented bare key form AND the /api-prefixed form', async () => {
     server.setState('GET /accounts', { state: 'error' })
     const viaBareKey = await fetch(`${base}/api/accounts`)

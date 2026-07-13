@@ -457,6 +457,61 @@ describe('upload types', () => {
     })
   })
 
+  describe('UploadAbortedError', () => {
+    it('CONTRACT: is a real Error subclass named "UploadAbortedError" so instanceof + error.name both distinguish it from a generic failure', async () => {
+      const { UploadAbortedError } = await import('../errors.js')
+
+      const error = new UploadAbortedError()
+
+      expect(error).toBeInstanceOf(Error)
+      expect(error).toBeInstanceOf(UploadAbortedError)
+      expect(error.name).toBe('UploadAbortedError')
+      expect(error.message.length).toBeGreaterThan(0)
+    })
+
+    it('CONSUMER PROPERTY: a provider that rejects uploadPromise with UploadAbortedError lets a consumer tell "aborted" apart from "onError never fired, treat as a real failure"', async () => {
+      const { UploadAbortedError } = await import('../errors.js')
+
+      const abortedFile: UploadedFile = {
+        id: 'aborted-upload',
+        fieldname: 'file',
+        filename: 'partial.bin',
+        encoding: 'binary',
+        mimetype: 'application/octet-stream',
+        size: 512,
+        uploaded: false,
+        uploadPromise: Promise.reject(new UploadAbortedError()),
+      }
+
+      const realFailureFile: UploadedFile = {
+        id: 'failed-upload',
+        fieldname: 'file',
+        filename: 'bad.bin',
+        encoding: 'binary',
+        mimetype: 'application/octet-stream',
+        size: 512,
+        uploaded: false,
+        uploadPromise: Promise.reject(new Error('ENOSPC: no space left on device')),
+      }
+
+      let abortedWasIntentional = false
+      try {
+        await abortedFile.uploadPromise
+      } catch (error) {
+        abortedWasIntentional = error instanceof UploadAbortedError
+      }
+      expect(abortedWasIntentional).toBe(true)
+
+      let realFailureWasIntentional = false
+      try {
+        await realFailureFile.uploadPromise
+      } catch (error) {
+        realFailureWasIntentional = error instanceof UploadAbortedError
+      }
+      expect(realFailureWasIntentional).toBe(false)
+    })
+  })
+
   describe('DeleteHandler', () => {
     it('should accept id string and return Promise<void>', async () => {
       const handler: DeleteHandler = async (_id) => {

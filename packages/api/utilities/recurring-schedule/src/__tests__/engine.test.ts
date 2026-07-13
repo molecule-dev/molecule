@@ -115,6 +115,74 @@ describe('@molecule/api-recurring-schedule', () => {
         }),
       ).toThrow(/byMonth/)
     })
+
+    it('AMBIGUOUS-FAILURE FIX: rejects duplicate byDay values', () => {
+      // Pre-fix, { frequency: 'WEEKLY', byDay: ['MO', 'MO'] } silently
+      // double-emitted every Monday instead of throwing — burning
+      // count/maxOccurrences twice per real occurrence with no error.
+      expect(() =>
+        validateRule({
+          frequency: 'WEEKLY',
+          startDate: '2026-01-05T09:00:00.000Z',
+          byDay: ['MO', 'WE', 'MO'],
+        }),
+      ).toThrow(/Duplicate byDay/)
+    })
+
+    it('rejects duplicate byMonthDay values', () => {
+      expect(() =>
+        validateRule({
+          frequency: 'MONTHLY',
+          startDate: '2026-01-01T00:00:00.000Z',
+          byMonthDay: [1, 15, 1],
+        }),
+      ).toThrow(/Duplicate byMonthDay/)
+    })
+
+    it('rejects duplicate byMonth values', () => {
+      expect(() =>
+        validateRule({
+          frequency: 'YEARLY',
+          startDate: '2026-01-01T00:00:00.000Z',
+          byMonth: [4, 10, 4],
+        }),
+      ).toThrow(/Duplicate byMonth/)
+    })
+
+    it('accepts non-duplicate byDay/byMonthDay/byMonth combinations', () => {
+      expect(() =>
+        validateRule({
+          frequency: 'WEEKLY',
+          startDate: '2026-01-05T09:00:00.000Z',
+          byDay: ['MO', 'WE', 'FR'],
+        }),
+      ).not.toThrow()
+    })
+  })
+
+  describe('duplicate byDay would otherwise double-emit (regression via nextOccurrence/expandOccurrences)', () => {
+    it('nextOccurrence rejects a rule with a duplicated byDay instead of silently expanding it', () => {
+      const rule: RecurrenceRule = {
+        frequency: 'WEEKLY',
+        startDate: '2026-01-05T09:00:00.000Z', // a Monday
+        byDay: ['MO', 'MO'],
+      }
+      expect(() => nextOccurrence(rule)).toThrow(/Duplicate byDay/)
+    })
+
+    it('expandOccurrences rejects a rule with a duplicated byDay instead of emitting each Monday twice', () => {
+      const rule: RecurrenceRule = {
+        frequency: 'WEEKLY',
+        startDate: '2026-01-05T09:00:00.000Z',
+        byDay: ['MO', 'MO'],
+      }
+      expect(() =>
+        expandOccurrences(rule, {
+          start: '2026-01-01T00:00:00.000Z',
+          end: '2026-02-01T00:00:00.000Z',
+        }),
+      ).toThrow(/Duplicate byDay/)
+    })
   })
 
   describe('DAILY', () => {

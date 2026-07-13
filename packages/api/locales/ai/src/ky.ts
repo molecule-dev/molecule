@@ -6,4 +6,6 @@ export const ky: AiTranslations = {
     'AI провайдери конфигурацияланган эмес. Адегенде AI провайдерин байланыштырыңыз.',
   'ai.error.apiError': 'AI API сурамы ишке ашкан жок.',
   'ai.error.noResponseBody': 'AI жоопту денеси бош.',
+  'ai.error.ambiguousProvider':
+    'Бир нече аталган AI провайдери байланыштырылган жана демейки орнотулган эмес. Бирөөнү тандоо үчүн getProviderByName(name) колдонуңуз.',
 }

@@ -57,6 +57,15 @@
  *   likewise (`user_id TEXT` / `user_id UUID`). NEVER `INTEGER PRIMARY KEY
  *   AUTOINCREMENT` or `SERIAL` — inserting a UUID string into an integer key
  *   fails at runtime (`datatype mismatch`) and breaks every create endpoint.
+ * - **`like` vs `ilike` — pick by who controls the wildcards.** Both are
+ *   case-insensitive on every bond (identical results across postgresql/
+ *   mysql/sqlite — see the `WhereCondition['operator']` JSDoc for exactly how
+ *   each bond gets there). `like` passes `value` through as a raw SQL
+ *   pattern — YOU write the `%`/`_`; use it when you already built the
+ *   pattern (e.g. a fixed prefix search `'admin_%'`). `ilike` treats `value`
+ *   as a literal substring, escapes it, and wraps `%…%` for you — use it for
+ *   ANY human-typed search box (`{ operator: 'ilike', value: userInput }`),
+ *   never `like` with a caller-built `%${userInput}%` string.
  *
  * @module
  */

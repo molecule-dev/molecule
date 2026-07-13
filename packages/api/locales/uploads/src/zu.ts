@@ -5,4 +5,5 @@ export const zu: UploadsTranslations = {
   'uploads.error.noProvider':
     'Umhlinzeki wokulayisha awulungiselelwanga. Shayela setProvider() kuqala.',
   'uploads.error.streamLimitReached': 'Umkhawulo wesitrimu ufinyelelwe.',
+  'uploads.error.aborted': 'Ukulayisha kukhanselwe.',
 }

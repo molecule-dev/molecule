@@ -105,6 +105,64 @@ describe('@molecule/api-two-factor-otplib × REAL otplib', () => {
     expect(result.valid).toBe(true)
   })
 
+  it('FAILURE DISAMBIGUATION: a clock-rollback afterTimeStep never crashes with a raw otplib error', async () => {
+    // Real trigger: the server clock moves BACKWARD (VM snapshot restore, NTP
+    // correction, container clock drift) after a successful verify persisted
+    // `timeStep`. Raw otplib 13 THROWS AfterTimeStepRangeExceededError ('Invalid
+    // afterTimeStep: cannot be greater than current time step plus window') for
+    // every subsequent login attempt — an opaque 500 that reads like "the library
+    // is broken" rather than "the clock rolled back". The provider must instead
+    // resolve, labeled the same way single-use replay protection is.
+    const secret = provider.generateSecret()
+    const token = await generate({ secret })
+    // A persisted step far beyond anything reachable from "now" plus the default
+    // future tolerance (1 step) — this is exactly the shape a rolled-back clock
+    // produces relative to a step persisted before the rollback.
+    const unreachableAfterTimeStep = Math.floor(Date.now() / 1000 / 30) + 1_000_000
+    const result = await provider.verify({ secret, token, afterTimeStep: unreachableAfterTimeStep })
+    expect(result).toEqual({ valid: false, reason: 'replay' })
+  })
+
+  it('BOUNDARY PROPERTY: verify() NEVER throws for any cursor × any custom epochTolerance', async () => {
+    // otplib's reachability bound is `floor((epochSeconds + futureTolerance) / 30)`,
+    // which depends on where "now" falls WITHIN the current 30s step — so for any
+    // future tolerance that is not an exact multiple of 30 (an explicitly supported
+    // caller override), a `currentStep + ceil(futureTolerance / 30)` pre-check
+    // overshoots part of the time and lets a cursor through that real otplib rejects
+    // with AfterTimeStepRangeExceededError. This sweep covers every cursor around the
+    // boundary for a spread of non-multiple tolerances: the consumer property is that
+    // NO combination may crash — each must resolve to a { valid: boolean } result.
+    const secret = provider.generateSecret()
+    const token = await generate({ secret })
+    const currentStep = Math.floor(Date.now() / 1000 / 30)
+    for (const future of [0, 1, 5, 15, 29, 30, 31, 45, 59, 60, 90]) {
+      for (let cursor = currentStep - 2; cursor <= currentStep + 8; cursor++) {
+        const result = await provider.verify({
+          secret,
+          token,
+          afterTimeStep: cursor,
+          epochTolerance: [60, future],
+        })
+        expect(typeof result.valid).toBe('boolean')
+      }
+    }
+  })
+
+  it('FAILURE DISAMBIGUATION: a corrupted (non-base32) stored secret throws a labeled, causal error', async () => {
+    // A corrupted database record (truncated write, wrong encoding, bit rot) is
+    // server-side data corruption, not an invalid code — verify() is right to THROW
+    // rather than resolve `valid:false`. But raw otplib/scure surfaces a generic,
+    // unbranded `Error: Invalid Base32 string: Unknown letter: "0". Allowed: ...` that
+    // doesn't say which side failed or what to do about it. The provider must rewrap
+    // it with context, preserving the original as `cause` for real debugging.
+    await expect(
+      provider.verify({ secret: '0189-INVALID!!!', token: '123456' }),
+    ).rejects.toMatchObject({
+      message: expect.stringContaining('re-run setup'),
+      cause: expect.objectContaining({ message: expect.stringContaining('Base32') }),
+    })
+  })
+
   it('honors a strict caller override: [30, 0] rejects a stale code the default would too', async () => {
     // 90s is a multiple of the 30s step, so this code is ALWAYS exactly 3 steps old —
     // deterministically outside both [30, 0] and the [60, 30] default. (45s would flake:

@@ -99,11 +99,11 @@ interface ChatEventCard {
   emphasized?: boolean
   /**
    * The card's tip TONE — picks its accent colour + default icon so every notice card
-   * shares ONE consistent box (icon + accent bar + tinted body + actions), differing only
-   * by colour/icon per kind:
+   * shares ONE consistent box (icon + tinted body + a uniform 1px border + actions),
+   * differing only by colour/icon per kind:
    * - `info` — blue, info glyph (neutral notice)
    * - `gold` — amber, lightbulb (an honest tip / onboarding note)
-   * - `upgrade` — amber, sparkle (a plan/upgrade nudge)
+   * - `upgrade` — amber, clock (a plan/limit/budget nudge)
    * - `success` — green, check (a completed action, e.g. a saved script)
    * - `signup` — primary, sign-in (an auth nudge)
    *
@@ -114,9 +114,10 @@ interface ChatEventCard {
   tone?: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
   /**
    * Optional icon-name override (a `@molecule/app-icons` glyph) — defaults to the tone's
-   * icon. Use only a name that exists in the bonded set (`getIcon` throws otherwise).
+   * icon. Use only a name that exists in the bonded set (`getIcon` throws otherwise);
+   * sets with extra glyphs register them via `CustomIconNames` augmentation.
    */
-  icon?: string
+  icon?: IconName
 }
 ```
 
@@ -610,7 +611,7 @@ interface IconProps extends Omit<
   'width' | 'height' | 'viewBox' | 'fill'
 > {
   /** Name of the glyph to look up in the bonded icon set (e.g. `'sync'`). */
-  name: string
+  name: IconName
   /** Width and height of the rendered SVG in pixels. Defaults to 16. */
   size?: number
   /** Class name forwarded to the root `<svg>`. */
@@ -621,14 +622,28 @@ interface IconProps extends Omit<
 #### `IdeClientAction`
 
 A non-mutating UI action the AI agent asks the IDE to perform — reload or
-navigate the live preview, or open a file in the editor. Delivered via the
-`client_action` chat-stream event.
+navigate the live preview, open a file in the editor, or drive the preview's
+interaction bridge (`preview_ui`). Delivered via the `client_action`
+chat-stream event (and, for `preview_ui`, also via the host's collab socket
+so a mid-build tab reload can't orphan it).
 
 ```typescript
 interface IdeClientAction {
-  action: 'reload_preview' | 'navigate_preview' | 'open_file'
+  action: 'reload_preview' | 'navigate_preview' | 'open_file' | 'preview_ui'
   /** navigate_preview: a URL path (e.g. "/dashboard"). open_file: a file path. */
   path?: string
+  /** preview_ui: correlates the command with its ui-result round-trip. */
+  requestId?: string
+  /** preview_ui: the interaction the preview bridge should perform. */
+  command?: 'snapshot' | 'click' | 'fill' | 'select' | 'waitFor'
+  /** preview_ui: the `data-mol-id` of the target element (preferred). */
+  molId?: string
+  /** preview_ui: CSS-selector fallback when no molId is available. */
+  selector?: string
+  /** preview_ui: visible-label match for apps whose elements carry no molId. */
+  text?: string
+  /** preview_ui: value to set for fill/select. */
+  value?: string
 }
 ```
 
@@ -666,12 +681,21 @@ interface KeyboardShortcutsPanelProps {
 
 #### `PreviewPanelProps`
 
-Properties for preview panel.
+Props for the {@link PreviewPanel} — the live app preview (iframe + device frame + URL bar).
 
 ```typescript
 interface PreviewPanelProps {
   /** Custom loading indicator shown while the dev server is starting. */
   loadingIndicator?: ReactNode
+  /**
+   * The current UI command the host wants performed in the preview iframe (AI-driven
+   * end-to-end verification). The panel posts it to the iframe's interaction bridge when it
+   * CHANGES (keyed on `id`, so each new command fires exactly once). The panel only relays it;
+   * the host owns what to send and what to do with the result.
+   */
+  uiCommand?: PreviewUiCommand | null
+  /** Called when the iframe replies to a {@link PreviewUiCommand}, keyed by the command `id`. */
+  onUiResult?: (id: string, result: PreviewUiResult) => void
   /** Custom loading indicator shown when the dev server restarts mid-session. Falls back to loadingIndicator if not provided. */
   restartingIndicator?: ReactNode
   /** Called when the preview iframe reports runtime JS errors. */
@@ -727,6 +751,49 @@ interface PreviewStuckReport {
   reason: PreviewStuckReason
   /** The preview's current location (route) when the failure was detected, if known. */
   url?: string
+}
+```
+
+#### `PreviewUiCommand`
+
+A live-preview interaction the host asks the panel to perform inside the iframe, so an AI
+agent can verify a feature end-to-end by DRIVING the app the user is watching (no headless
+browser). The panel just relays it to the iframe's interaction bridge — generic, so it
+carries no host/API specifics.
+
+```typescript
+interface PreviewUiCommand {
+  /** Correlates this command with its result; the host round-trips on it. */
+  id: string
+  /** `snapshot` the interactive UI, or act on an element. */
+  action: 'snapshot' | 'click' | 'fill' | 'select' | 'waitFor'
+  /** `data-mol-id` of the target element (preferred over selector). */
+  molId?: string
+  /** CSS-selector fallback when no molId is available. */
+  selector?: string
+  /** Visible-label match — targets apps whose elements carry no `data-mol-id`. */
+  text?: string
+  /** Value to set for `fill` / `select`. */
+  value?: string
+}
+```
+
+#### `PreviewUiResult`
+
+The preview interaction bridge's reply to a {@link PreviewUiCommand}.
+
+```typescript
+interface PreviewUiResult {
+  ok: boolean
+  /** Interactive-element list + url/title from the preview (present on a snapshot / success). */
+  snapshot?: unknown
+  found?: boolean
+  error?: string
+  /**
+   * Failed network requests from the last ~10s (method, url, status, bounded response body),
+   * captured in-page — so a click that 4xx'd explains itself in the same result.
+   */
+  recentNetworkErrors?: string[]
 }
 ```
 
@@ -807,6 +874,16 @@ interface SearchPanelProps {
   /** Called when the user clicks a search result. */
   onResultClick?: (path: string, line: number) => void
   className?: string
+  /**
+   * The project's excluded directory names (VS Code `search.exclude`
+   * semantics). Displayed and editable in the panel; the backend applies the
+   * SAME set server-side to every search surface (panel + AI tools), so this
+   * prop is display/edit state — searches don't send it per query. When
+   * omitted, the panel shows {@link DEFAULT_SEARCH_EXCLUDED_DIRS}.
+   */
+  excludedDirs?: string[]
+  /** Persist an edited excluded-dir set (the host owns storage). */
+  onExcludedDirsChange?: (dirs: string[]) => void
 }
 ```
 
@@ -1114,6 +1191,7 @@ type SettingKey =
   | 'autoFix'
   | 'autoCommit'
   | 'hooks'
+  | 'autoApproveCommands'
   | 'sounds'
 ```
 
@@ -1160,7 +1238,7 @@ Returns the bonded-icon-set glyph NAME for an activity type — pass it to
 rather than risk a `getIcon` throw.
 
 ```typescript
-function activityIconName(type: ActivityType): string
+function activityIconName(type: ActivityType): IconName
 ```
 
 - `type` — The activity channel type.
@@ -1623,6 +1701,8 @@ function PreviewPanel({
   onPreviewError,
   onPreviewStuck,
   onRenderState,
+  uiCommand,
+  onUiResult,
   fileChangeTick,
   buildingHint,
   isBuilding,
@@ -1756,6 +1836,8 @@ function SearchPanel({
   projectId,
   onResultClick,
   className,
+  excludedDirs,
+  onExcludedDirsChange,
 }: SearchPanelProps): JSX.Element
 ```
 
@@ -1898,6 +1980,18 @@ authoritative list — the menu, key handling, `/help`, AND the system prompt's
 const COMMANDS: readonly CommandDef[]
 ```
 
+#### `DEFAULT_SEARCH_EXCLUDED_DIRS`
+
+Default search-excluded directory names shown when the host supplies none —
+VS Code's `search.exclude`/`files.exclude` defaults plus the platform's
+vendored/build dirs. MUST stay in sync with the API-side list in
+`@molecule/api-ai-tools` (utilities.ts) — the cross-stack import boundary
+forces the duplication.
+
+```typescript
+const DEFAULT_SEARCH_EXCLUDED_DIRS: readonly ["node_modules", "bower_components", ".git", ".svn", ".hg", "CVS", "dist", ".next", ".vite", "molecule"]
+```
+
 #### `DEVICE_DIMENSIONS`
 
 The fixed pixel frame each device renders the preview iframe at. `none`
@@ -1924,7 +2018,7 @@ Per-frame display metadata: the icon-set glyph name and the i18n label
 (key + English default) shown in the dropdown trigger + menu items.
 
 ```typescript
-const DEVICE_META: Record<DeviceFrame, { readonly icon: string; readonly labelKey: string; readonly label: string; }>
+const DEVICE_META: Record<DeviceFrame, { readonly icon: IconName; readonly labelKey: string; readonly label: string; }>
 ```
 
 #### `IS_MAC`

@@ -4,5 +4,7 @@ import type { IconsTranslations } from './types.js'
 export const da: IconsTranslations = {
   'icons.error.noIconSet':
     'Intet IconSet er indstillet. Kald setIconSet() ved appstart med et ikonbibliotek (f.eks. @molecule/app-icons-molecule).',
+  'icons.error.noProvider':
+    '@molecule/app-icons: Intet ikonsæt er tilkoblet. Kald setIconSet() med et IconSet (f.eks. eksporten fra @molecule/app-icons-molecule).',
   'icons.error.notFound': 'Ikonet "{{name}}" blev ikke fundet i det aktuelle ikonsæt.',
 }

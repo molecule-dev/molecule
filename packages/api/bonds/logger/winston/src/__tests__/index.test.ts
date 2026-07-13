@@ -74,14 +74,20 @@ describe('@molecule/api-logger-winston', () => {
       expect(mockCreateLogger).toHaveBeenCalled()
     })
 
-    it('should create a logger with info level by default', async () => {
+    it('defaults to trace/silly (pass-through) when level is omitted, matching the loglevel/pino bonds and the core "single gate" contract', async () => {
       const { createLogger } = await import('../provider.js')
 
       createLogger()
 
+      // On the pre-fix code this instance defaulted to 'info', a hidden
+      // SECOND gate: a consumer who wires setLogger(createLogger()) and then
+      // calls the core's documented setLevel('debug') would see debug lines
+      // silently dropped here instead of by the core gate they configured.
+      // This assertion fails without the pass-through fix.
       expect(mockCreateLogger).toHaveBeenCalledWith(
         expect.objectContaining({
-          level: 'info',
+          level: 'silly',
+          silent: false,
         }),
       )
     })
@@ -134,16 +140,50 @@ describe('@molecule/api-logger-winston', () => {
       )
     })
 
-    it('should create a logger with silent level', async () => {
+    it("implements 'silent' via winston's supported silent:true flag, not an unknown level string", async () => {
       const { createLogger } = await import('../provider.js')
 
       createLogger({ level: 'silent' })
 
+      // winston has NO built-in 'silent' npm level. On the pre-fix code this
+      // passed { level: 'silent' } straight to winston.createLogger(), which
+      // "worked" only because every priority comparison against an unknown
+      // level name happens to evaluate false — undocumented, unguaranteed
+      // behavior. This assertion (checking for the actual documented
+      // silent:true flag, and that level itself is the ordinary pass-through
+      // value) fails without the fix.
       expect(mockCreateLogger).toHaveBeenCalledWith(
         expect.objectContaining({
-          level: 'silent',
+          level: 'silly',
+          silent: true,
         }),
       )
+    })
+
+    it('per-transport level: "silent" resolves to that transport\'s silent flag, not level: "silent"', async () => {
+      const { createLogger } = await import('../provider.js')
+
+      createLogger({ transports: [{ type: 'console', level: 'silent' }] })
+
+      expect(mockConsoleTransport).toHaveBeenCalledWith(
+        expect.objectContaining({
+          level: 'silly',
+          silent: true,
+        }),
+      )
+    })
+
+    it('a per-transport level is left undefined (inherit the parent level) when omitted, unlike the top-level default', async () => {
+      const { createLogger } = await import('../provider.js')
+
+      createLogger({ transports: [{ type: 'console' }] })
+
+      // The Console mock is also invoked with zero args by `provider`'s own
+      // default transport at module-import time — take THIS test's call.
+      const lastCall = mockConsoleTransport.mock.calls.at(-1)
+      const callArgs = lastCall?.[0] as { level?: unknown; silent?: unknown } | undefined
+      expect(callArgs?.level).toBeUndefined()
+      expect(callArgs?.silent).toBeUndefined()
     })
 
     it('should use console format when specified', async () => {

@@ -9,8 +9,11 @@ vi.mock('ioredis', () => {
   const mockExists = vi.fn()
   const mockMget = vi.fn()
   const mockSadd = vi.fn()
+  const mockSrem = vi.fn()
   const mockSmembers = vi.fn()
   const mockFlushdb = vi.fn()
+  const mockScan = vi.fn()
+  const mockUnlink = vi.fn()
   const mockQuit = vi.fn()
   const mockOn = vi.fn()
   const mockPipeline = vi.fn()
@@ -19,6 +22,8 @@ vi.mock('ioredis', () => {
     set: vi.fn().mockReturnThis(),
     setex: vi.fn().mockReturnThis(),
     sadd: vi.fn().mockReturnThis(),
+    srem: vi.fn().mockReturnThis(),
+    del: vi.fn().mockReturnThis(),
     exec: vi.fn().mockResolvedValue([]),
   }
 
@@ -31,8 +36,11 @@ vi.mock('ioredis', () => {
       exists: mockExists,
       mget: mockMget,
       sadd: mockSadd,
+      srem: mockSrem,
       smembers: mockSmembers,
       flushdb: mockFlushdb,
+      scan: mockScan,
+      unlink: mockUnlink,
       quit: mockQuit,
       on: mockOn,
       pipeline: mockPipeline.mockReturnValue(mockPipelineInstance),
@@ -51,12 +59,26 @@ describe('@molecule/api-cache-redis', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env = { ...originalEnv }
+    // Hermetic against the ambient shell: a developer (or the live-test run)
+    // with REDIS_* exported must see the same results as CI, where none are
+    // set. Tests that exercise env-var behavior set their own values.
+    delete process.env.REDIS_URL
+    delete process.env.REDIS_HOST
+    delete process.env.REDIS_PORT
+    delete process.env.REDIS_PASSWORD
   })
 
   afterEach(() => {
     process.env = originalEnv
     vi.resetModules()
   })
+
+  // Every write test stubs `get` to report "no reverse index recorded yet"
+  // (a plain, untagged key/value) unless it needs to simulate an EXISTING
+  // `_tags:<key>` entry, in which case it stubs `get` itself instead.
+  const stubNoReverseIndex = (mockClient: Record<string, Mock>): void => {
+    vi.mocked(mockClient.get).mockImplementation(async () => null)
+  }
 
   describe('createProvider()', () => {
     it('should create a provider with default config', async () => {
@@ -124,6 +146,29 @@ describe('@molecule/api-cache-redis', () => {
       })
     })
 
+    it('should forward fail-fast options to ioredis unchanged', async () => {
+      vi.resetModules()
+
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      createProvider({
+        host: 'custom-host',
+        maxRetriesPerRequest: 1,
+        enableOfflineQueue: false,
+        commandTimeout: 2000,
+      })
+
+      expect(Redis).toHaveBeenCalledWith(
+        expect.objectContaining({
+          host: 'custom-host',
+          maxRetriesPerRequest: 1,
+          enableOfflineQueue: false,
+          commandTimeout: 2000,
+        }),
+      )
+    })
+
     it('should set up event handlers', async () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
@@ -183,82 +228,23 @@ describe('@molecule/api-cache-redis', () => {
 
       expect(result).toBe('plain string')
     })
-  })
 
-  describe('provider.set()', () => {
-    it('should set value without TTL', async () => {
+    it('FAILURE DISAMBIGUATION: a failed GET degrades to undefined (a miss), never throws', async () => {
+      // The regression this pins: get() used to propagate a raw ioredis
+      // rejection, so "Redis unreachable" and "cache miss" were indistinguishable
+      // in shape (both eventually surfaced as a failed promise vs. a resolved
+      // undefined) — a weak caller could not treat "cache down" as best-effort
+      // without its own try/catch. Now every read degrades the same way.
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
       const mockClient = new (Redis as unknown as new (
         ...args: unknown[]
       ) => Record<string, Mock>)()
+      vi.mocked(mockClient.get).mockRejectedValueOnce(new Error('ECONNREFUSED'))
 
       const provider = createProvider()
-      await provider.set('key', { name: 'test' })
-
-      expect(mockClient.set).toHaveBeenCalledWith('key', JSON.stringify({ name: 'test' }))
-    })
-
-    it('should set value with TTL', async () => {
-      const { Redis } = await import('ioredis')
-      const { createProvider } = await import('../provider.js')
-
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
-
-      const provider = createProvider()
-      await provider.set('key', 'value', { ttl: 60 })
-
-      expect(mockClient.setex).toHaveBeenCalledWith('key', 60, '"value"')
-    })
-
-    it('should track tags', async () => {
-      const { Redis } = await import('ioredis')
-      const { createProvider } = await import('../provider.js')
-
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
-
-      const provider = createProvider()
-      await provider.set('key', 'value', { tags: ['tag1', 'tag2'] })
-
-      expect(mockClient.sadd).toHaveBeenCalledWith('_tag:tag1', 'key')
-      expect(mockClient.sadd).toHaveBeenCalledWith('_tag:tag2', 'key')
-    })
-  })
-
-  describe('provider.delete()', () => {
-    it('should return true when key is deleted', async () => {
-      const { Redis } = await import('ioredis')
-      const { createProvider } = await import('../provider.js')
-
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
-      vi.mocked(mockClient.del).mockResolvedValueOnce(1)
-
-      const provider = createProvider()
-      const result = await provider.delete('key')
-
-      expect(result).toBe(true)
-    })
-
-    it('should return false when key does not exist', async () => {
-      const { Redis } = await import('ioredis')
-      const { createProvider } = await import('../provider.js')
-
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
-      vi.mocked(mockClient.del).mockResolvedValueOnce(0)
-
-      const provider = createProvider()
-      const result = await provider.delete('missing-key')
-
-      expect(result).toBe(false)
+      await expect(provider.get('key')).resolves.toBeUndefined()
     })
   })
 
@@ -291,6 +277,170 @@ describe('@molecule/api-cache-redis', () => {
       const result = await provider.has('missing-key')
 
       expect(result).toBe(false)
+    })
+
+    it('degrades to false when Redis rejects, instead of throwing', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      vi.mocked(mockClient.exists).mockRejectedValueOnce(new Error('ECONNREFUSED'))
+
+      const provider = createProvider()
+      await expect(provider.has('key')).resolves.toBe(false)
+    })
+  })
+
+  describe('provider.set()', () => {
+    it('should set value without TTL', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
+
+      const provider = createProvider()
+      await provider.set('key', { name: 'test' })
+
+      expect(mockClient.set).toHaveBeenCalledWith('key', JSON.stringify({ name: 'test' }))
+    })
+
+    it('should set value with TTL', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
+
+      const provider = createProvider()
+      await provider.set('key', 'value', { ttl: 60 })
+
+      expect(mockClient.setex).toHaveBeenCalledWith('key', 60, '"value"')
+    })
+
+    it('should track tags', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
+
+      const provider = createProvider()
+      await provider.set('key', 'value', { tags: ['tag1', 'tag2'] })
+
+      expect(mockClient.sadd).toHaveBeenCalledWith('_tag:tag1', 'key')
+      expect(mockClient.sadd).toHaveBeenCalledWith('_tag:tag2', 'key')
+      // Reverse index lets a future set()/delete() detach exactly these tags.
+      expect(mockClient.set).toHaveBeenCalledWith('_tags:key', JSON.stringify(['tag1', 'tag2']))
+    })
+
+    it('CONSUMER PROPERTY: re-setting a key WITHOUT a tag detaches it from the old tag set', async () => {
+      // The regression this pins: invalidateTag() used to delete keys that had
+      // been re-set WITHOUT the tag, because `_tag:<tag>` sets never SREM'd on a
+      // plain overwrite — historical membership won over current membership.
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      vi.mocked(mockClient.get).mockImplementation(async (key: string) =>
+        key === '_tags:key' ? JSON.stringify(['stale-tag']) : null,
+      )
+
+      const provider = createProvider()
+      // Re-set the same key with NO tags at all.
+      await provider.set('key', 'value')
+
+      const pipelineCalls = vi.mocked(mockClient.pipeline).mock.results
+      const pipelineInstance = pipelineCalls[0]?.value as { srem: Mock; del: Mock; exec: Mock }
+      expect(pipelineInstance.srem).toHaveBeenCalledWith('_tag:stale-tag', 'key')
+      expect(pipelineInstance.del).toHaveBeenCalledWith('_tags:key')
+      expect(pipelineInstance.exec).toHaveBeenCalled()
+    })
+
+    it('CONSUMER PROPERTY: re-tagging a key detaches it from tags it no longer carries', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      vi.mocked(mockClient.get).mockImplementation(async (key: string) =>
+        key === '_tags:key' ? JSON.stringify(['old-tag']) : null,
+      )
+
+      const provider = createProvider()
+      await provider.set('key', 'value', { tags: ['new-tag'] })
+
+      const pipelineInstance = vi.mocked(mockClient.pipeline).mock.results[0]?.value as {
+        srem: Mock
+      }
+      expect(pipelineInstance.srem).toHaveBeenCalledWith('_tag:old-tag', 'key')
+      expect(mockClient.sadd).toHaveBeenCalledWith('_tag:new-tag', 'key')
+    })
+  })
+
+  describe('provider.delete()', () => {
+    it('should return true when key is deleted', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
+      vi.mocked(mockClient.del).mockResolvedValueOnce(1)
+
+      const provider = createProvider()
+      const result = await provider.delete('key')
+
+      expect(result).toBe(true)
+    })
+
+    it('should return false when key does not exist', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
+      vi.mocked(mockClient.del).mockResolvedValueOnce(0)
+
+      const provider = createProvider()
+      const result = await provider.delete('missing-key')
+
+      expect(result).toBe(false)
+    })
+
+    it('detaches the key from its tag sets before deleting it', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      vi.mocked(mockClient.get).mockImplementation(async (key: string) =>
+        key === '_tags:key' ? JSON.stringify(['tag1']) : null,
+      )
+      vi.mocked(mockClient.del).mockResolvedValueOnce(1)
+
+      const provider = createProvider()
+      await provider.delete('key')
+
+      const pipelineInstance = vi.mocked(mockClient.pipeline).mock.results[0]?.value as {
+        srem: Mock
+      }
+      expect(pipelineInstance.srem).toHaveBeenCalledWith('_tag:tag1', 'key')
     })
   })
 
@@ -339,6 +489,19 @@ describe('@molecule/api-cache-redis', () => {
 
       expect(result.get('key1')).toBe('plain string')
     })
+
+    it('degrades to an empty map when Redis rejects, instead of throwing', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      vi.mocked(mockClient.mget).mockRejectedValueOnce(new Error('ECONNREFUSED'))
+
+      const provider = createProvider()
+      await expect(provider.getMany(['key1'])).resolves.toEqual(new Map())
+    })
   })
 
   describe('provider.setMany()', () => {
@@ -363,6 +526,7 @@ describe('@molecule/api-cache-redis', () => {
       const mockClient = new (Redis as unknown as new (
         ...args: unknown[]
       ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
       const mockPipeline = mockClient.pipeline()
 
       const provider = createProvider()
@@ -382,6 +546,7 @@ describe('@molecule/api-cache-redis', () => {
       const mockClient = new (Redis as unknown as new (
         ...args: unknown[]
       ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
       const mockPipeline = mockClient.pipeline()
 
       const provider = createProvider()
@@ -397,12 +562,14 @@ describe('@molecule/api-cache-redis', () => {
       const mockClient = new (Redis as unknown as new (
         ...args: unknown[]
       ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
       const mockPipeline = mockClient.pipeline()
 
       const provider = createProvider()
       await provider.setMany([['key1', 'value1']], { tags: ['tag1'] })
 
       expect(mockPipeline.sadd).toHaveBeenCalledWith('_tag:tag1', 'key1')
+      expect(mockPipeline.set).toHaveBeenCalledWith('_tags:key1', JSON.stringify(['tag1']))
     })
   })
 
@@ -423,6 +590,7 @@ describe('@molecule/api-cache-redis', () => {
       const mockClient = new (Redis as unknown as new (
         ...args: unknown[]
       ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
       vi.mocked(mockClient.del).mockResolvedValueOnce(2)
 
       const provider = createProvider()
@@ -442,6 +610,7 @@ describe('@molecule/api-cache-redis', () => {
         ...args: unknown[]
       ) => Record<string, Mock>)()
       vi.mocked(mockClient.smembers).mockResolvedValueOnce(['key1', 'key2'])
+      stubNoReverseIndex(mockClient)
 
       const provider = createProvider()
       await provider.invalidateTag('tag1')
@@ -466,21 +635,99 @@ describe('@molecule/api-cache-redis', () => {
       expect(mockClient.del).toHaveBeenCalledWith('_tag:empty-tag')
       expect(mockClient.del).toHaveBeenCalledTimes(1)
     })
-  })
 
-  describe('provider.clear()', () => {
-    it('should flush the database', async () => {
+    it('CONSUMER PROPERTY: detaches invalidated keys from their OTHER tags too', async () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
       const mockClient = new (Redis as unknown as new (
         ...args: unknown[]
       ) => Record<string, Mock>)()
+      vi.mocked(mockClient.smembers).mockResolvedValueOnce(['key1'])
+      vi.mocked(mockClient.get).mockImplementation(async (key: string) =>
+        key === '_tags:key1' ? JSON.stringify(['tag1', 'other-tag']) : null,
+      )
+
+      const provider = createProvider()
+      await provider.invalidateTag('tag1')
+
+      const pipelineInstance = vi.mocked(mockClient.pipeline).mock.results[0]?.value as {
+        srem: Mock
+      }
+      expect(pipelineInstance.srem).toHaveBeenCalledWith('_tag:other-tag', 'key1')
+    })
+  })
+
+  describe('provider.clear()', () => {
+    it('CONTRACT: never calls FLUSHDB/FLUSHALL', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      vi.mocked(mockClient.scan).mockResolvedValueOnce(['0', []])
 
       const provider = createProvider()
       await provider.clear()
 
-      expect(mockClient.flushdb).toHaveBeenCalled()
+      expect(mockClient.flushdb).not.toHaveBeenCalled()
+    })
+
+    it('scans for keys matching this provider keyPrefix and UNLINKs them, stripped of the prefix', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      vi.mocked(mockClient.scan).mockResolvedValueOnce([
+        '0',
+        ['molecule:key1', 'molecule:_tag:tag1'],
+      ])
+
+      const provider = createProvider({ keyPrefix: 'molecule:' })
+      await provider.clear()
+
+      expect(mockClient.scan).toHaveBeenCalledWith('0', 'MATCH', 'molecule:*', 'COUNT', 200)
+      // UNLINK args must have the client's own keyPrefix stripped first — ioredis
+      // re-adds it automatically, so passing the raw SCAN result would try to
+      // delete `molecule:molecule:key1` (double-prefixed, a silent no-op).
+      expect(mockClient.unlink).toHaveBeenCalledWith('key1', '_tag:tag1')
+    })
+
+    it('follows the SCAN cursor until it returns to 0', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      vi.mocked(mockClient.scan)
+        .mockResolvedValueOnce(['17', ['molecule:key1']])
+        .mockResolvedValueOnce(['0', ['molecule:key2']])
+
+      const provider = createProvider()
+      await provider.clear()
+
+      expect(mockClient.scan).toHaveBeenCalledTimes(2)
+      expect(mockClient.unlink).toHaveBeenCalledWith('key1')
+      expect(mockClient.unlink).toHaveBeenCalledWith('key2')
+    })
+
+    it('does not call UNLINK when a scan page has no matching keys', async () => {
+      const { Redis } = await import('ioredis')
+      const { createProvider } = await import('../provider.js')
+
+      const mockClient = new (Redis as unknown as new (
+        ...args: unknown[]
+      ) => Record<string, Mock>)()
+      vi.mocked(mockClient.scan).mockResolvedValueOnce(['0', []])
+
+      const provider = createProvider()
+      await provider.clear()
+
+      expect(mockClient.unlink).not.toHaveBeenCalled()
     })
   })
 
@@ -526,6 +773,7 @@ describe('@molecule/api-cache-redis', () => {
       const mockClient = new (Redis as unknown as new (
         ...args: unknown[]
       ) => Record<string, Mock>)()
+      stubNoReverseIndex(mockClient)
       vi.mocked(mockClient.get).mockResolvedValueOnce(null)
 
       const factory = vi.fn().mockResolvedValue({ fresh: true })

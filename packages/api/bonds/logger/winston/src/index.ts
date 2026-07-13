@@ -15,7 +15,8 @@
  * logger.info('Server started on port', 3000)
  * logger.error('Database connection failed', error) // message + full stack
  *
- * // Custom instance: JSON to a file
+ * // Custom instance: JSON to a file — level omitted, so this instance defers
+ * // to the core's LOG_LEVEL/setLevel() gate
  * setLogger(
  *   createLogger({
  *     format: 'json',
@@ -29,15 +30,21 @@
  *   `contextObj` into the record, and an `Error` (alone or after a message)
  *   keeps its stack. Naively stringifying args would print `[object Object]`
  *   and drop stacks.
- * - The default `provider` instance passes every level through — minimum-level
- *   filtering happens once, in `@molecule/api-logger` (`LOG_LEVEL` /
- *   `setLevel()`, default `'info'`). `createLogger({ level })` adds a
- *   bond-side gate below the core's; a stricter level there makes the core's
- *   `setLevel('debug')` appear to do nothing. NOTE: omitting `level` in
- *   `createLogger` defaults the instance to `'info'` — itself such a gate;
- *   pass `level: 'trace'` when the core's gate should be the only filter.
+ * - Both the default `provider` AND `createLogger()` (level omitted) pass
+ *   every level through to winston — minimum-level filtering happens once, in
+ *   `@molecule/api-logger` (`LOG_LEVEL` / `setLevel()`, default `'info'`).
+ *   Passing an explicit `level` to `createLogger()` adds a SECOND, bond-side
+ *   gate below the core's; a stricter level there makes the core's
+ *   `setLevel('debug')` appear to do nothing — only do this if you actually
+ *   want a second, independent filter on this specific instance.
+ * - `level: 'silent'` is implemented via winston's `silent: true` flag (there
+ *   is no built-in winston 'silent' level) — it drops output unconditionally,
+ *   regardless of the configured `level`.
  * - Transport types: `console`, `file`, `http`, and `stream`
  *   (`options.stream` = any writable — handy for tests and in-process sinks).
+ *   A transport's own `level` follows the same rules as `createLogger`'s
+ *   top-level `level`; omitted, it inherits the parent instance's level
+ *   instead of defaulting to anything.
  *
  * @module
  */

@@ -12,7 +12,7 @@
  * @module
  */
 
-import { bond, get as bondGet } from '@molecule/api-bond'
+import { bond, get as bondGet, isBonded } from '@molecule/api-bond'
 
 import type { Logger, LogLevel } from './types.js'
 
@@ -40,7 +40,25 @@ const resolveInitialLevel = (): LogLevel => {
   return 'info'
 }
 
-let currentLevel: LogLevel = resolveInitialLevel()
+/**
+ * The active minimum level, or `null` when it has not been resolved yet.
+ * Resolution is deferred to first use (see `resolveLevel`) rather than done
+ * at module-import time, so that apps loading `dotenv`/`.env` files AFTER
+ * their first transitive import of this module still see `LOG_LEVEL`.
+ */
+let currentLevel: LogLevel | null = null
+
+/**
+ * Returns the active level, resolving it from `LOG_LEVEL` on first use and
+ * caching the result. `setLevel()` always overrides this cached/resolved
+ * value directly.
+ *
+ * @returns The active `LogLevel`.
+ */
+const resolveLevel = (): LogLevel => {
+  if (currentLevel === null) currentLevel = resolveInitialLevel()
+  return currentLevel
+}
 
 /**
  * Sets the minimum log level. Messages below this level are silently dropped.
@@ -52,11 +70,12 @@ export const setLevel = (level: LogLevel): void => {
 }
 
 /**
- * Returns the current minimum log level.
+ * Returns the current minimum log level, resolving it from the `LOG_LEVEL`
+ * environment variable on first call if `setLevel()` has not been used yet.
  *
  * @returns The active `LogLevel`.
  */
-export const getLevel = (): LogLevel => currentLevel
+export const getLevel = (): LogLevel => resolveLevel()
 
 /**
  * Built-in console logger used as the default when no provider is bonded.
@@ -68,9 +87,6 @@ const consoleLogger: Logger = {
   warn: (...args) => console.warn(...args),
   error: (...args) => console.error(...args),
 }
-
-/** Tracks whether a custom logger has been bonded via `setLogger()`. */
-let customLoggerSet = false
 
 /**
  * Returns the bonded logger or the built-in console logger.
@@ -88,7 +104,7 @@ const getCurrentLogger = (): Logger => {
  * @returns Whether the level meets the current minimum threshold.
  */
 const shouldLog = (level: LogLevel): boolean =>
-  LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentLevel]
+  LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[resolveLevel()]
 
 /**
  * Singleton logger proxy. Each method delegates to the currently bonded
@@ -123,7 +139,6 @@ export const logger: Logger = {
  */
 export const setLogger = (newLogger: Logger): void => {
   bond(BOND_TYPE, newLogger)
-  customLoggerSet = true
 }
 
 /**
@@ -131,14 +146,18 @@ export const setLogger = (newLogger: Logger): void => {
  */
 export const resetLogger = (): void => {
   bond(BOND_TYPE, consoleLogger)
-  customLoggerSet = false
 }
 
 /**
- * Checks whether a custom logger has been bonded via `setLogger()`.
+ * Checks whether a custom logger provider is active — either bonded via
+ * `setLogger()` directly, or wired through `bond('logger', provider)` (the
+ * path every bond package's `getLogger()` and this module's own
+ * `getCurrentLogger()` honor). Reflects the actual bond registry rather than
+ * a flag private to `setLogger()`, so it stays accurate regardless of which
+ * wiring path bonded the provider.
  *
- * @returns `true` if a custom logger provider has been set.
+ * @returns `true` if a custom (non-console) logger provider is bonded.
  */
 export const hasLogger = (): boolean => {
-  return customLoggerSet
+  return isBonded(BOND_TYPE) && bondGet<Logger>(BOND_TYPE) !== consoleLogger
 }

@@ -251,12 +251,18 @@ export const createQueue = (queueName: string, config: MemoryQueueConfig): Memor
         }
       } catch (error) {
         logger.warn(
-          `Memory queue "${queueName}": subscriber handler failed for message ${message.id} — scheduling redelivery`,
+          `Memory queue "${queueName}": subscriber handler failed for message ${message.id} — scheduling redelivery in ${config.handlerFailureRedeliveryDelaySeconds}s`,
           error,
         )
         if (message.receiptHandle === receipt && isStored(message)) {
           message.leaseExpiresAt = null
-          message.visibleAt = Date.now() + config.redeliveryDelaySeconds * 1000
+          // An uncaught throw is an UNPLANNED failure (e.g. a transient
+          // downstream 503) — give it a real retry window instead of the
+          // instant redelivery an explicit nack() gets. With the default
+          // maxReceiveCount of 3, a 0-delay default here would burn every
+          // attempt within milliseconds and drop the message with no real
+          // chance to recover.
+          message.visibleAt = Date.now() + config.handlerFailureRedeliveryDelaySeconds * 1000
         }
       } finally {
         subscriber.active -= 1

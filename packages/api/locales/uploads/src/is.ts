@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const is: UploadsTranslations = {
   'uploads.error.noProvider': 'Upphaalsveita er ekki stillt. Kallaðu á setProvider() fyrst.',
   'uploads.error.streamLimitReached': 'Straumtakmörkum náð.',
+  'uploads.error.aborted': 'Hætt var við upphleðsluna.',
 }

@@ -37,6 +37,7 @@ describe('GitHub OAuth Provider', () => {
     process.env = { ...originalEnv }
     process.env.OAUTH_GITHUB_CLIENT_ID = 'test-github-client-id'
     process.env.OAUTH_GITHUB_CLIENT_SECRET = 'test-github-client-secret'
+    process.env.APP_ORIGIN = 'http://localhost:3000'
   })
 
   afterEach(() => {
@@ -75,16 +76,15 @@ describe('GitHub OAuth Provider', () => {
 
       expect(mockPost).toHaveBeenCalledWith(
         'https://github.com/login/oauth/access_token',
-        {
-          client_id: 'test-github-client-id',
-          client_secret: 'test-github-client-secret',
-          code: 'test-auth-code',
-          code_verifier: undefined,
-          grant_type: 'authorization_code',
-        },
+        // RFC 6749 §4.1.3 requires the token-exchange body to be
+        // form-encoded, not JSON — this pins the wire format, not just the
+        // logical params. `redirect_uri` now defaults to APP_ORIGIN, matching
+        // every other bond (was previously omitted entirely).
+        'client_id=test-github-client-id&client_secret=test-github-client-secret&code=test-auth-code&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A3000',
         {
           headers: {
             accept: 'application/json',
+            'content-type': 'application/x-www-form-urlencoded',
           },
           timeout: 15000,
         },
@@ -114,6 +114,34 @@ describe('GitHub OAuth Provider', () => {
       })
     })
 
+    it(
+      'form-encodes the token request per RFC 6749 §4.1.3 (was: a plain JS object, which ' +
+        "@molecule/api-http JSON-encodes and content-types as application/json — GitHub's " +
+        'docs support JSON, but form-encoding matches every other molecule.dev OAuth bond)',
+      async () => {
+        mockPost.mockResolvedValue({
+          data: { access_token: 'tok', token_type: 'bearer', scope: 'user' },
+        })
+        mockGet.mockResolvedValue({ data: { id: 1, login: 'a', email: 'a@b.com' } })
+
+        const { verify } = await import('../provider.js')
+        await verify('a-code', 'a-verifier')
+
+        const [, body, options] = mockPost.mock.calls[0] as [
+          string,
+          unknown,
+          { headers: Record<string, string> },
+        ]
+        expect(typeof body).toBe('string')
+        expect(body).not.toMatch(/^\s*\{/)
+        expect(options.headers['content-type']).toBe('application/x-www-form-urlencoded')
+        const parsed = new URLSearchParams(body as string)
+        expect(parsed.get('code')).toBe('a-code')
+        expect(parsed.get('code_verifier')).toBe('a-verifier')
+        expect(parsed.get('grant_type')).toBe('authorization_code')
+      },
+    )
+
     it('should handle code_verifier for PKCE flow', async () => {
       mockPost.mockResolvedValue({
         data: {
@@ -135,13 +163,45 @@ describe('GitHub OAuth Provider', () => {
 
       await verify('test-auth-code', 'test-code-verifier')
 
-      expect(mockPost).toHaveBeenCalledWith(
-        'https://github.com/login/oauth/access_token',
-        expect.objectContaining({
-          code_verifier: 'test-code-verifier',
-        }),
-        expect.anything(),
-      )
+      const [, body] = mockPost.mock.calls[0] as [string, string]
+      expect(new URLSearchParams(body).get('code_verifier')).toBe('test-code-verifier')
+    })
+
+    it(
+      'accepts a third redirectUri argument and includes redirect_uri in the token exchange ' +
+        '(was: ignored entirely — the verify signature was (code, codeVerifier) only, and ' +
+        'no redirect_uri was ever sent, which a redirect_uri-enforcing GitHub Enterprise ' +
+        'instance or strict proxy would reject with an error unrelated to the real cause)',
+      async () => {
+        mockPost.mockResolvedValue({
+          data: { access_token: 'tok', token_type: 'bearer', scope: 'user' },
+        })
+        mockGet.mockResolvedValue({ data: { id: 1, login: 'a', email: 'a@b.com' } })
+
+        const { verify } = await import('../provider.js')
+        await verify('a-code', undefined, 'https://custom.example.com/callback')
+
+        const [, body] = mockPost.mock.calls[0] as [string, string]
+        expect(new URLSearchParams(body).get('redirect_uri')).toBe(
+          'https://custom.example.com/callback',
+        )
+      },
+    )
+
+    it('falls back to APP_ORIGIN for redirect_uri when redirectUri is omitted', async () => {
+      process.env.APP_ORIGIN = 'https://myapp.example.com'
+      vi.resetModules()
+
+      mockPost.mockResolvedValue({
+        data: { access_token: 'tok', token_type: 'bearer', scope: 'user' },
+      })
+      mockGet.mockResolvedValue({ data: { id: 1, login: 'a', email: 'a@b.com' } })
+
+      const { verify } = await import('../provider.js')
+      await verify('a-code')
+
+      const [, body] = mockPost.mock.calls[0] as [string, string]
+      expect(new URLSearchParams(body).get('redirect_uri')).toBe('https://myapp.example.com')
     })
 
     it('should handle user without email', async () => {
@@ -300,11 +360,8 @@ describe('GitHub OAuth Provider', () => {
       const { verify } = await import('../provider.js')
       await verify('mock-auth-code')
 
-      expect(mockPost).toHaveBeenCalledWith(
-        'http://127.0.0.1:9999/token',
-        expect.objectContaining({ code: 'mock-auth-code' }),
-        expect.anything(),
-      )
+      const [, postBody] = mockPost.mock.calls[0] as [string, string]
+      expect(new URLSearchParams(postBody).get('code')).toBe('mock-auth-code')
       expect(mockGet).toHaveBeenCalledWith(
         'http://127.0.0.1:9999/user',
         expect.objectContaining({

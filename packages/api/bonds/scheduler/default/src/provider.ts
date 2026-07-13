@@ -119,7 +119,21 @@ export const createProvider = (options?: DefaultSchedulerOptions): SchedulerProv
       tasks.set(task.name, entry)
 
       if (started && task.enabled !== false) {
-        startTask(entry, taskIndex++)
+        // Cap the stagger offset at the current number of enabled tasks
+        // instead of letting taskIndex grow forever across the process's
+        // lifetime. Without the modulo, an app that re-schedules (replaces)
+        // tasks at runtime accrues an ever-growing delay — the 30th
+        // schedule() call after start() would wait a full minute (30 *
+        // 2000ms default) before its first run, with only a far-future
+        // nextRunAt as the clue. Bounding by the enabled-task count keeps
+        // the max possible delay at (enabledCount - 1) * staggerMs, same as
+        // the worst case at boot.
+        const enabledCount = Math.max(
+          1,
+          Array.from(tasks.values()).filter((e) => e.task.enabled !== false).length,
+        )
+        startTask(entry, taskIndex % enabledCount)
+        taskIndex++
       }
     },
 
@@ -168,9 +182,11 @@ export const createProvider = (options?: DefaultSchedulerOptions): SchedulerProv
       started = true
       taskIndex = 0
       const enabledCount = Array.from(tasks.values()).filter((e) => e.task.enabled !== false).length
+      const modulus = Math.max(1, enabledCount)
       for (const entry of tasks.values()) {
         if (entry.task.enabled !== false) {
-          startTask(entry, taskIndex++)
+          startTask(entry, taskIndex % modulus)
+          taskIndex++
         }
       }
       logger.debug(`Scheduler started with ${enabledCount} enabled task(s)`)

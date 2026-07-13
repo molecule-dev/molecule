@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const ru: UploadsTranslations = {
   'uploads.error.noProvider': 'Провайдер загрузки не настроен. Сначала вызовите setProvider().',
   'uploads.error.streamLimitReached': 'Достигнут лимит потока.',
+  'uploads.error.aborted': 'Загрузка была прервана.',
 }

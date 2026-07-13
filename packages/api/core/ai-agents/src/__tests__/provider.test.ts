@@ -56,17 +56,49 @@ describe('ai-agents provider bond accessor', () => {
     expect(getProvider()).toBe(p)
   })
 
-  it('getProvider declines when multiple named providers are ambiguous', () => {
+  it('DECLINES (returns null) once a second differently-named provider is registered — the ambiguity bug', () => {
+    // Regression: registration order used to silently decide which
+    // provider ran forever (the FIRST named provider auto-promoted to the
+    // singleton, and a later distinct name never displaced it). Now
+    // getProvider() declines instead of returning a stale first-registered
+    // pick — matching the documented "ambiguous → null" rule that already
+    // applied to the no-singleton-at-all case.
     setProvider('a', stubProvider('a'))
-    bondSecondNamed()
+    expect(getProvider()?.name).toBe('a') // single named provider: unambiguous
+    setProvider('b', stubProvider('b'))
+    expect(getProvider()).toBeNull() // now ambiguous: two distinct named providers, no explicit default
+    // Both remain reachable by name — callers must disambiguate explicitly.
     expect(getProviderByName('a')?.name).toBe('a')
     expect(getProviderByName('b')?.name).toBe('b')
-    // Two named, singleton still resolves to the first (fallback set on first
-    // named registration), so getProvider() is unambiguous here.
-    expect(getProvider()?.name).toBe('a')
   })
 
-  function bondSecondNamed(): void {
+  it('an explicit singleton set BEFORE named providers is unaffected by later ambiguity', () => {
+    const explicitDefault = stubProvider('explicit')
+    setProvider(explicitDefault)
+    setProvider('a', stubProvider('a'))
     setProvider('b', stubProvider('b'))
-  }
+    // An explicit setProvider(provider) singleton always wins — it was never
+    // an auto-promotion, so the "second name → decline" rule does not apply.
+    expect(getProvider()).toBe(explicitDefault)
+  })
+
+  it('an explicit singleton set AFTER auto-promotion also always wins', () => {
+    setProvider('a', stubProvider('a')) // auto-promotes 'a'
+    setProvider('b', stubProvider('b')) // now ambiguous
+    expect(getProvider()).toBeNull()
+    const explicitDefault = stubProvider('explicit')
+    setProvider(explicitDefault) // explicit call clears the auto-promoted flag
+    expect(getProvider()).toBe(explicitDefault)
+  })
+
+  it('requireProvider throws a DISTINCT, actionable message when declining due to ambiguity — disambiguated from "nothing bonded"', () => {
+    setProvider('a', stubProvider('a'))
+    setProvider('b', stubProvider('b'))
+    // Pre-fix, this threw the same generic "not configured" message as the
+    // true-nothing-bonded case even though two real providers ARE bonded —
+    // an executor debugging this had no way to tell "bond something" from
+    // "pick one of the two already-bonded providers".
+    expect(() => requireProvider()).toThrow(/getProviderByName/)
+    expect(() => requireProvider()).not.toThrow(/not configured/i)
+  })
 })

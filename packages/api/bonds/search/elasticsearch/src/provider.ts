@@ -7,7 +7,7 @@
  * @module
  */
 
-import { Client } from '@elastic/elasticsearch'
+import { Client, errors as esErrors } from '@elastic/elasticsearch'
 import type {
   MappingProperty,
   QueryDslMultiMatchQuery,
@@ -51,6 +51,80 @@ const resolveIndex = (name: string, prefix?: string): string => {
 }
 
 /**
+ * Checks whether an error is a client-side connectivity failure (unreachable
+ * node, DNS failure, timeout) rather than an Elasticsearch-side query/index
+ * error.
+ *
+ * @param error - The error to classify.
+ * @returns `true` if the error indicates the cluster could not be reached.
+ */
+const isConnectivityError = (error: unknown): boolean =>
+  error instanceof esErrors.ConnectionError ||
+  error instanceof esErrors.TimeoutError ||
+  error instanceof esErrors.NoLivingConnectionsError
+
+/**
+ * Rewrites a raw `@elastic/elasticsearch` client error into an actionable
+ * message when it is a connectivity or auth failure, so it doesn't surface
+ * to the caller as a bare `ECONNREFUSED`/`ResponseError` with no indication
+ * of what to check. Any other error (a real query/mapping/document error)
+ * passes through unchanged — it already carries useful Elasticsearch context.
+ *
+ * @param error - The error thrown by the `@elastic/elasticsearch` client.
+ * @param node - The resolved node URL this provider is configured to use.
+ * @returns The original error, or a new `Error` with an actionable message
+ *   and the original error attached as `cause`.
+ */
+const mapSearchError = (error: unknown, node: string): unknown => {
+  if (isConnectivityError(error)) {
+    const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
+    return new Error(
+      `Cannot reach Elasticsearch at "${node}" (${detail}). This is a connectivity problem, not ` +
+        'a search-query error — check ELASTICSEARCH_URL and that the cluster is running and ' +
+        'reachable, or start a local Elasticsearch/OpenSearch instance. If the cluster requires ' +
+        'auth, also check ELASTICSEARCH_API_KEY or ELASTICSEARCH_USERNAME/ELASTICSEARCH_PASSWORD.',
+      { cause: error },
+    )
+  }
+  if (
+    error instanceof esErrors.ResponseError &&
+    (error.statusCode === 401 || error.statusCode === 403)
+  ) {
+    return new Error(
+      `Elasticsearch rejected the request as unauthorized (HTTP ${error.statusCode}). Check ` +
+        'ELASTICSEARCH_API_KEY or ELASTICSEARCH_USERNAME/ELASTICSEARCH_PASSWORD.',
+      { cause: error },
+    )
+  }
+  return error
+}
+
+/**
+ * Wraps every method of a `SearchProvider` so a thrown error is passed
+ * through `mapSearchError()` before reaching the caller — the single place
+ * connectivity/auth failures become actionable instead of a raw
+ * `ECONNREFUSED` surfacing at whichever call happened to be first.
+ *
+ * @param rawProvider - The unwrapped provider implementation.
+ * @param node - The resolved node URL, used to build actionable messages.
+ * @returns The same provider with every method's errors mapped.
+ */
+const wrapConnectivityErrors = (rawProvider: SearchProvider, node: string): SearchProvider => {
+  const wrapped = {} as Record<string, unknown>
+  for (const key of Object.keys(rawProvider) as (keyof SearchProvider)[]) {
+    const original = rawProvider[key] as (...args: unknown[]) => Promise<unknown>
+    wrapped[key] = async (...args: unknown[]): Promise<unknown> => {
+      try {
+        return await original(...args)
+      } catch (error) {
+        throw mapSearchError(error, node)
+      }
+    }
+  }
+  return wrapped as unknown as SearchProvider
+}
+
+/**
  * Creates an Elasticsearch search provider instance.
  *
  * @param options - Provider configuration options.
@@ -74,11 +148,25 @@ export const createProvider = (options?: ElasticsearchOptions): SearchProvider =
     maxRetries,
   })
 
-  return {
+  const rawProvider: SearchProvider = {
     async createIndex(name: string, schema?: IndexSchema): Promise<void> {
       const indexName = resolveIndex(name, indexPrefix)
 
       if (schema) {
+        const filterable = new Set(schema.filterableFields ?? [])
+        for (const [field, type] of Object.entries(schema.fields)) {
+          if (type === 'text' && filterable.has(field)) {
+            throw new Error(
+              `createIndex('${name}'): field '${field}' is declared type 'text' AND listed in ` +
+                "filterableFields. Elasticsearch 'term' filters against a text-analyzed field " +
+                'match ZERO documents with no error — this is an ES mapping mismatch, not a bug ' +
+                `in your filter. Fix: change '${field}' to type 'keyword' in the schema if you ` +
+                'only need exact-match filtering, or use two fields — one `text` field for full-' +
+                'text search and a separate `keyword` field for filtering.',
+            )
+          }
+        }
+
         const properties: Record<string, MappingProperty> = {}
         for (const [field, type] of Object.entries(schema.fields)) {
           properties[field] = FIELD_TYPE_MAP[type] ?? { type: 'text' }
@@ -146,8 +234,19 @@ export const createProvider = (options?: ElasticsearchOptions): SearchProvider =
       const from = (page - 1) * perPage
       const startTime = Date.now()
 
+      // Empty/whitespace-only text is "browse" mode per the core
+      // SearchProvider contract: match ALL documents (filters/sort/
+      // pagination still apply), consistent with the meilisearch/typesense
+      // bonds. A `multi_match` with an empty query string does not reliably
+      // match everything, so route it through `match_all` explicitly.
+      const isBrowseMode = query.text.trim() === ''
+
       const boolQuery: Record<string, unknown> = {
-        must: [{ multi_match: { query: query.text, type: 'best_fields' } }],
+        must: [
+          isBrowseMode
+            ? { match_all: {} }
+            : { multi_match: { query: query.text, type: 'best_fields' } },
+        ],
       }
 
       if (query.filters) {
@@ -169,7 +268,8 @@ export const createProvider = (options?: ElasticsearchOptions): SearchProvider =
         })) as Sort
       }
 
-      if (query.highlight) {
+      // Nothing to highlight in browse mode — there is no search term.
+      if (query.highlight && !isBrowseMode) {
         searchParams.highlight = {
           fields: { '*': {} },
           pre_tags: ['<em>'],
@@ -276,6 +376,8 @@ export const createProvider = (options?: ElasticsearchOptions): SearchProvider =
       }
     },
   }
+
+  return wrapConnectivityErrors(rawProvider, node)
 }
 
 /**

@@ -18,7 +18,10 @@ import { registerSecrets } from '@molecule/api-secrets'
 export const databaseMysqlSecretDefinitions: SecretDefinition[] = [
   {
     key: 'MYSQL_URL',
-    description: 'MySQL connection URL — MySQL connection string for your database instance.',
+    description:
+      'MySQL connection URL — connection string for your database instance. Alternatively, ' +
+      'set the discrete MYSQL_HOST / MYSQL_PORT / MYSQL_DATABASE / MYSQL_USER / MYSQL_PASSWORD ' +
+      'vars instead — either form fully configures the connection on its own.',
     required: true,
     example: 'mysql://user:pass@localhost:3306/myapp',
   },

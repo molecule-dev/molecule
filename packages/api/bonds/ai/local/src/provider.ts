@@ -139,10 +139,15 @@ export class LocalAIProvider implements AIProvider {
 
         if (response.status === 429 || response.status === 503) {
           if (attempt < MAX_RETRIES) {
+            // Retry-After is equally-valid as delta-seconds or an HTTP-date;
+            // parseInt on the date form yields NaN, degrading the backoff to
+            // a ~0ms retry against an already-busy local endpoint. Guard it.
             const retryAfter = response.headers.get('retry-after')
-            const delayMs = retryAfter
-              ? Math.min(parseInt(retryAfter, 10) * 1000, 60_000)
-              : Math.min(1000 * 2 ** attempt, 30_000)
+            const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
+            const delayMs =
+              Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+                ? Math.min(parsedRetryAfterSeconds * 1000, 60_000)
+                : Math.min(1000 * 2 ** attempt, 30_000)
             logger.warn('Local AI endpoint busy, retrying', {
               status: response.status,
               attempt: attempt + 1,
@@ -189,9 +194,11 @@ export class LocalAIProvider implements AIProvider {
                       detail,
                     )
                   ? "Conversation too long for the model's context window."
-                  : response!.status === 503 || response!.status === 502
-                    ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                    : 'AI service error. Please try again.'
+                  : response!.status === 400
+                    ? 'AI request was invalid — check the model and request parameters.'
+                    : response!.status === 503 || response!.status === 502
+                      ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                      : 'AI service error. Please try again.'
         // Non-OK is a soft failure surfaced as an in-band error EVENT then a
         // graceful return — matching the 8 sibling providers. molecule-dev's
         // chat-handler consumes this via its `case 'error':` branch, which is a

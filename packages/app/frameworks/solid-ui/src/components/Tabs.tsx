@@ -47,7 +47,7 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
 
   return (
     <div class={local.className} style={local.style} data-testid={local.testId}>
-      <div class={cm.cn(cm.tabsList, local.fitted && cm.tabsFitted)} role="tablist">
+      <div class={cm.cn(cm.tabsList(), local.fitted && cm.tabsFitted)} role="tablist">
         <For each={local.items}>
           {(item) => {
             const isActive = (): boolean => item.value === activeValue()
@@ -60,7 +60,7 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
                 data-state={isActive() ? 'active' : 'inactive'}
                 disabled={item.disabled}
                 onClick={() => handleTabClick(item.value)}
-                class={cm.cn(cm.tabsTrigger, local.fitted && cm.tabTriggerFitted)}
+                class={cm.cn(cm.tabsTrigger(), local.fitted && cm.tabTriggerFitted)}
               >
                 <Show when={!!item.icon}>
                   <span class={cm.tabTriggerIcon}>{item.icon as JSX.Element}</span>
@@ -76,7 +76,7 @@ export const Tabs: Component<TabsProps<string>> = (props) => {
           role="tabpanel"
           id={`tabpanel-${activeValue()}`}
           aria-labelledby={activeValue()}
-          class={cm.tabsContent}
+          class={cm.tabsContent()}
         >
           {activeItem()!.content as JSX.Element}
         </div>

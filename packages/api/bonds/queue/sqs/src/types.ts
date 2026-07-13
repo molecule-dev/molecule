@@ -51,4 +51,16 @@ export interface SQSOptions {
   secretAccessKey?: string
   endpoint?: string
   accountId?: string
+
+  /**
+   * When `true`, resolving a queue name that does not yet exist in AWS
+   * auto-creates a standard (non-FIFO) queue with default settings instead
+   * of rejecting with `QueueDoesNotExist` — matching the memory/redis
+   * bonds' "just works" first-send behavior. Off by default: unlike an
+   * in-process or self-hosted broker, silently creating AWS resources has
+   * cost and IAM-permission implications, so opting in is a deliberate
+   * choice. When off (the default), create the queue via `createQueue()`,
+   * the AWS console, or infrastructure-as-code before sending to it.
+   */
+  autoCreateQueues?: boolean
 }

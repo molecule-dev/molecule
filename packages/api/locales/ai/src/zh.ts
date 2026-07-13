@@ -5,4 +5,6 @@ export const zh: AiTranslations = {
   'ai.error.noProvider': 'AI 提供者未配置。请先绑定 AI 提供者。',
   'ai.error.apiError': 'AI API 请求失败。',
   'ai.error.noResponseBody': 'AI 响应体为空。',
+  'ai.error.ambiguousProvider':
+    '已绑定多个命名的 AI 提供者，且未设置默认值。使用 getProviderByName(name) 选择一个。',
 }

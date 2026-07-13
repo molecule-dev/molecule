@@ -116,10 +116,37 @@ describe('UserMenuPopoverPanel', () => {
       </UserMenuPopover>,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Open user menu' }))
-    // Identity header + nav children render inside the open panel.
-    expect(screen.getByRole('menu')).toBeDefined()
+    // The panel is a disclosure (a plain toggled region), not role="menu" —
+    // it renders a header + a `<nav>` of arbitrary links, which is invalid
+    // content for role="menu" (that role may contain ONLY menuitem
+    // descendants). The nav landmark is still there, correctly labelled.
+    expect(screen.getByRole('navigation', { name: 'Account menu' })).toBeDefined()
+    expect(screen.queryByRole('menu')).toBeNull()
     expect(screen.getByText('Settings')).toBeDefined()
     expect(screen.getByText('Sign out')).toBeDefined()
+  })
+
+  it('is linked to the trigger via aria-expanded + aria-controls (not aria-haspopup="menu")', () => {
+    render(
+      <UserMenuPopover>
+        <UserMenuPopoverTrigger />
+        <UserMenuPopoverPanel>
+          <a href="/settings">Settings</a>
+        </UserMenuPopoverPanel>
+      </UserMenuPopover>,
+    )
+    const trigger = screen.getByRole('button', { name: 'Open user menu' })
+    expect(trigger.getAttribute('aria-haspopup')).toBeNull()
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    const controlsId = trigger.getAttribute('aria-controls')
+    expect(controlsId).toBeTruthy()
+
+    fireEvent.click(trigger)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    // The referenced id resolves to the actual rendered panel.
+    expect(document.getElementById(controlsId as string)).toBe(
+      screen.getByRole('navigation', { name: 'Account menu' }).parentElement,
+    )
   })
 })
 

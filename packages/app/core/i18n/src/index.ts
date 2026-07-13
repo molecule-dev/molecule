@@ -28,6 +28,21 @@
  * `defaultValue`, so a single-brace locale entry shows `{tagline}` even when the
  * default is correct — the #1 i18n footgun.
  *
+ * **Fleet provider contract** (every `I18nProvider` — this package's own
+ * `createSimpleI18nProvider`, `@molecule/api-i18n-simple`,
+ * `@molecule/app-i18n-i18next`, `@molecule/app-i18n-react-i18next` — must
+ * behave identically; see the JSDoc on each `I18nProvider` method for the
+ * normative text):
+ *
+ * - `setLocale()` THROWS for an unregistered locale — never silently
+ *   degrades to fallback text while `getLocale()` reports the bad code.
+ * - `t()` prefers the plural-suffixed key (`key_one`/`key_other`/…) over the
+ *   base `key` whenever `options.count` is provided (matches i18next).
+ * - `addTranslations()` deep-merges nested translation objects.
+ * - `exists(key)` follows the same locale-fallback chain as `t()` (active
+ *   locale, then English), so it agrees with whether `t(key)` renders real
+ *   translated text.
+ *
  * @module
  */
 

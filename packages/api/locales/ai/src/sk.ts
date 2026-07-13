@@ -6,4 +6,6 @@ export const sk: AiTranslations = {
     'AI poskytovateľ nie je nakonfigurovaný. Najprv pripojte AI poskytovateľa.',
   'ai.error.apiError': 'Požiadavka na AI API zlyhala.',
   'ai.error.noResponseBody': 'Telo odpovede AI je prázdne.',
+  'ai.error.ambiguousProvider':
+    'Je pripojených viacero pomenovaných AI poskytovateľov a nebol nastavený žiadny predvolený. Použite getProviderByName(name) na výber jedného.',
 }

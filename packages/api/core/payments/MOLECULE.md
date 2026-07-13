@@ -339,7 +339,7 @@ interface ProviderPaymentMethod {
 }
 ```
 
-#### `PurchaseVerifier`
+#### `PurchaseVerifier` *(deprecated)*
 
 Interface for purchase verification (one-time purchases).
 
@@ -394,7 +394,7 @@ interface SubscriptionUpdateResult {
 }
 ```
 
-#### `SubscriptionVerifier`
+#### `SubscriptionVerifier` *(deprecated)*
 
 Interface for subscription verification.
 
@@ -404,6 +404,23 @@ interface SubscriptionVerifier {
    * Verifies a subscription and returns normalized data, or `null` if invalid.
    */
   verifySubscription(productId: string, token: string): Promise<NormalizedSubscription | null>
+}
+```
+
+#### `TaggedError`
+
+A "tagged error" — the convention `@molecule/api-secrets`'s
+`configNotConfiguredError()` and `@molecule/api-resource`'s `respondError()`
+use to carry an HTTP status + a machine-readable key on an `Error` so a
+caught error can be re-surfaced with its REAL status instead of being
+flattened to a generic failure.
+
+```typescript
+interface TaggedError extends Error {
+  /** HTTP status the error should be reported with (e.g. `503`). */
+  statusCode: number
+  /** Machine-readable key the frontend/operator maps to a specific cause. */
+  errorKey: string
 }
 ```
 
@@ -556,6 +573,21 @@ function isActiveStatus(status: SubscriptionStatus): boolean
 
 **Returns:** `true` if the subscription is active or trialing.
 
+#### `isConfigNotConfiguredError(error)`
+
+Checks whether a caught value is the tagged "secret not configured" error
+thrown by `@molecule/api-secrets`'s `configNotConfiguredError()` — e.g. a
+payment bond's `getClient()`-style helper throwing because `STRIPE_SECRET_KEY`
+(or `APPLE_SHARED_SECRET`, `GOOGLE_API_SERVICE_KEY_OBJECT`, …) is unset.
+
+```typescript
+function isConfigNotConfiguredError(error: unknown): boolean
+```
+
+- `error` — The caught value (any type — callers narrow with this predicate).
+
+**Returns:** `true` if `error` carries `statusCode: 503` and `errorKey: 'config.notConfigured'`.
+
 ## Available Providers
 
 | Provider | Package |
@@ -582,10 +614,21 @@ never from a value the client sent.
 `bond('payments', provider)` / `get('payments', name)` hands you, and its verify
 methods take the OPAQUE id/receipt only. The two-argument
 {@link SubscriptionVerifier}/{@link PurchaseVerifier} interfaces (returning
-{@link NormalizedSubscription}/{@link NormalizedPurchase}) are auxiliary
-abstractions for app-level services; no `@molecule/api-payments-*` bond
+{@link NormalizedSubscription}/{@link NormalizedPurchase}) are `@deprecated`
+auxiliary abstractions for app-level services; no `@molecule/api-payments-*` bond
 implements them — do not call `verifySubscription(productId, token)` on a bonded
 provider (the extra argument is silently ignored and the lookup fails).
+
+**A missing secret (`STRIPE_SECRET_KEY`, `APPLE_SHARED_SECRET`,
+`GOOGLE_API_SERVICE_KEY_OBJECT`, …) is a DIFFERENT failure than "not entitled".**
+The shipped bonds rethrow a tagged config-not-configured error (see
+{@link isConfigNotConfiguredError}) from their verify/update/cancel methods
+instead of swallowing it into the same `null` result a genuine verification
+failure returns — a resource-layer catch block MUST check
+`isConfigNotConfiguredError(error)` and pass its `statusCode`/`errorKey`
+through (rather than flattening to a generic 400/500) so the actionable
+"which key, where to get it" message reaches the caller instead of only the
+server log.
 
 Things a weak integration gets wrong — do NOT:
 - read the plan/entitlement from a request body, query param, or client state and act

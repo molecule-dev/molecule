@@ -5,7 +5,10 @@
  * chain; set `SQS_ENDPOINT` to target LocalStack. Queue URLs are resolved
  * lazily on first operation — the queue must already exist (create it with
  * `createQueue()` or in AWS) or the first send/receive rejects with the AWS
- * `QueueDoesNotExist` error.
+ * `QueueDoesNotExist` error. Pass `{ autoCreateQueues: true }` to
+ * `createProvider()` to auto-create a standard queue on first use instead
+ * (opt-in — unlike the memory/redis bonds, silently creating AWS resources
+ * has cost/IAM implications, so it is never the default).
  *
  * @example
  * ```typescript
@@ -34,6 +37,11 @@
  *   appends it) and a `groupId` per message; a `deduplicationId` is derived
  *   from the message id when not provided.
  * - `delaySeconds` is capped at 900 (15 minutes) by SQS itself.
+ * - `subscribe()` retries a failed queue-URL resolution (bad region,
+ *   credentials not yet propagated, a `QueueDoesNotExist` race) with bounded
+ *   exponential backoff (1s → 30s) instead of logging once and leaving the
+ *   subscription permanently dead — it self-heals once the queue/credentials
+ *   become valid.
  *
  * @see https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sqs/
  *

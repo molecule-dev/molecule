@@ -113,10 +113,42 @@ describe('@molecule/api-database-postgresql', () => {
       expect(pg.Pool).toHaveBeenCalledWith({
         connectionString: 'postgres://localhost:5432/test',
         ssl: false,
-        max: 100,
+        max: 10,
         connectionTimeoutMillis: 10_000,
         idleTimeoutMillis: 30_000,
       })
+    })
+
+    it('defaults pool max to 10, NOT the server max_connections [hostile-default fix]', async () => {
+      process.env.DATABASE_URL = 'postgres://localhost:5432/test'
+      delete process.env.DATABASE_POOL_MAX
+      vi.resetModules()
+
+      const pg = await import('pg')
+      vi.mocked(pg.Pool).mockClear()
+
+      const { pool } = await import('../index.js')
+      void pool.query
+
+      // A pool max equal to the server's default max_connections (100) lets one
+      // app instance consume every slot — starving a second instance, the
+      // migrator, and a debugging psql session. pg's own default (10) is safe.
+      expect(pg.Pool).toHaveBeenCalledWith(expect.objectContaining({ max: 10 }))
+    })
+
+    it('honors DATABASE_POOL_MAX as the tuning knob', async () => {
+      process.env.DATABASE_URL = 'postgres://localhost:5432/test'
+      process.env.DATABASE_POOL_MAX = '25'
+      vi.resetModules()
+
+      const pg = await import('pg')
+      vi.mocked(pg.Pool).mockClear()
+
+      const { pool } = await import('../index.js')
+      void pool.query
+
+      expect(pg.Pool).toHaveBeenCalledWith(expect.objectContaining({ max: 25 }))
+      delete process.env.DATABASE_POOL_MAX
     })
   })
 
@@ -296,7 +328,6 @@ describe('@molecule/api-database-postgresql', () => {
 
       expect(setup).toBeDefined()
       expect(setup.replacements).toBeDefined()
-      expect(setup.superSQLFilenames).toBeDefined()
       expect(setup.runSQL).toBeDefined()
       expect(setup.setup).toBeDefined()
     })
@@ -412,7 +443,7 @@ describe('@molecule/api-database-postgresql', () => {
     })
   })
 
-  describe('LIKE operator escaping', () => {
+  describe('LIKE operator — cross-bond contract (case-insensitive, raw pattern)', () => {
     let store: Store
 
     beforeEach(async () => {
@@ -423,16 +454,22 @@ describe('@molecule/api-database-postgresql', () => {
       store = createStore(pool)
     })
 
-    it('escapes % to \\%', async () => {
+    it('emits ILIKE (case-insensitive), not LIKE, to match the sqlite/mysql default', async () => {
       await store.findMany('users', { where: [{ field: 'name', operator: 'like', value: '100%' }] })
       const callArgs = mockQuery.mock.calls[mockQuery.mock.calls.length - 1]
-      expect(callArgs[1]).toContain('100\\%')
+      expect(callArgs[0]).toContain('ILIKE')
     })
 
-    it('escapes _ to \\_', async () => {
+    it('does NOT escape % — the caller-supplied wildcard is honored as a pattern', async () => {
+      await store.findMany('users', { where: [{ field: 'name', operator: 'like', value: '100%' }] })
+      const callArgs = mockQuery.mock.calls[mockQuery.mock.calls.length - 1]
+      expect(callArgs[1]).toEqual(['100%'])
+    })
+
+    it('does NOT escape _ — the caller-supplied wildcard is honored as a pattern', async () => {
       await store.findMany('users', { where: [{ field: 'name', operator: 'like', value: 'a_b' }] })
       const callArgs = mockQuery.mock.calls[mockQuery.mock.calls.length - 1]
-      expect(callArgs[1]).toContain('a\\_b')
+      expect(callArgs[1]).toEqual(['a_b'])
     })
 
     it('whitelists ORDER BY direction — never interpolates raw caller input [M7-1]', async () => {
@@ -452,10 +489,10 @@ describe('@molecule/api-database-postgresql', () => {
       expect(sql).toContain('ORDER BY "name" DESC')
     })
 
-    it('escapes \\ to \\\\', async () => {
+    it('does NOT escape a literal backslash — passed through verbatim', async () => {
       await store.findMany('users', { where: [{ field: 'name', operator: 'like', value: 'a\\b' }] })
       const callArgs = mockQuery.mock.calls[mockQuery.mock.calls.length - 1]
-      expect(callArgs[1]).toContain('a\\\\b')
+      expect(callArgs[1]).toEqual(['a\\b'])
     })
 
     it('passes normal strings unchanged', async () => {

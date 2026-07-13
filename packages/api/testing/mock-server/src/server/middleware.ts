@@ -110,13 +110,40 @@ export function loggingMiddleware(): (req: Request, res: Response, next: NextFun
 }
 
 /**
- * Apply a delay if specified in the response state.
+ * Maximum delay, in ms, that {@link applyDelay} will actually wait — a
+ * requested delay above this is clamped (and logged) rather than honored
+ * verbatim. Guards against a stray oversized `?_delay` / `X-Mock-Delay` /
+ * `defaultDelay` / `setState({ delay })` value (e.g. a units mistake
+ * applying `*1000` twice) hanging a request until the CLIENT gives up —
+ * which in an E2E harness presents as an inexplicable page timeout rather
+ * than an obvious mock misconfiguration.
+ */
+export const MAX_MOCK_DELAY_MS = 60_000
+
+/**
+ * Apply a delay if specified in the response state. The requested delay is
+ * capped at {@link MAX_MOCK_DELAY_MS} — a value above the cap is clamped and
+ * a warning is logged (via `console.warn`, immediately, before waiting —
+ * not after — so the clamp is visible in server logs right when the
+ * oversized delay is requested rather than a minute later).
  * @param state - The response state that may contain a delay
- * @returns A promise that resolves after the delay (or immediately if no delay)
+ * @returns A promise that resolves after the (possibly clamped) delay, or
+ *   immediately if no delay was requested
  */
 export function applyDelay(state: ResponseState): Promise<void> {
-  if (state.delay && state.delay > 0) {
-    return new Promise((resolve) => setTimeout(resolve, state.delay))
+  const requested = state.delay
+  if (!requested || requested <= 0) {
+    return Promise.resolve()
   }
-  return Promise.resolve()
+
+  const delay = Math.min(requested, MAX_MOCK_DELAY_MS)
+  if (delay !== requested) {
+    console.warn(
+      `[mock-server] requested delay ${requested}ms exceeds the ${MAX_MOCK_DELAY_MS}ms cap — ` +
+        `clamping to ${delay}ms. Check for a units mistake (e.g. seconds*1000 applied twice) ` +
+        `in ?_delay / X-Mock-Delay / defaultDelay / setState({ delay }).`,
+    )
+  }
+
+  return new Promise((resolve) => setTimeout(resolve, delay))
 }

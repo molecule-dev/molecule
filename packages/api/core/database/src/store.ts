@@ -25,6 +25,25 @@ export interface WhereCondition {
     | '<='
     | 'in'
     | 'not_in'
+    /**
+     * Case-insensitive SQL pattern match. `value` is used AS-IS as the raw
+     * LIKE pattern: `%` matches any run of characters, `_` matches any
+     * single character, and the CALLER is responsible for escaping any
+     * literal `%` / `_` / `\` they don't want treated as wildcards. All
+     * three first-party bonds (postgresql, mysql, sqlite) implement `like`
+     * case-INSENSITIVELY — postgres via `ILIKE`, mysql/sqlite via
+     * `LOWER()` on both sides — specifically so this operator has
+     * IDENTICAL results across every bond regardless of column collation
+     * or `PRAGMA case_sensitive_like`. Prior to this contract the postgres
+     * bond escaped the value (making `like` an exact-match operator there
+     * only) while sqlite/mysql passed it through raw — the same `{
+     * operator: 'like', value: `%${search}%` }` filter silently matched
+     * nothing on postgres and worked everywhere else. For human-typed
+     * search input where the value should be a literal substring (not a
+     * pattern the caller controls), use `ilike` instead — it escapes
+     * wildcards and wraps `%…%` for you, so it is injection-safe for
+     * arbitrary user text.
+     */
     | 'like'
     /**
      * Case-insensitive substring match. The value is treated as a

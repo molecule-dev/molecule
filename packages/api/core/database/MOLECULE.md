@@ -358,6 +358,25 @@ interface WhereCondition {
     | '<='
     | 'in'
     | 'not_in'
+    /**
+     * Case-insensitive SQL pattern match. `value` is used AS-IS as the raw
+     * LIKE pattern: `%` matches any run of characters, `_` matches any
+     * single character, and the CALLER is responsible for escaping any
+     * literal `%` / `_` / `\` they don't want treated as wildcards. All
+     * three first-party bonds (postgresql, mysql, sqlite) implement `like`
+     * case-INSENSITIVELY — postgres via `ILIKE`, mysql/sqlite via
+     * `LOWER()` on both sides — specifically so this operator has
+     * IDENTICAL results across every bond regardless of column collation
+     * or `PRAGMA case_sensitive_like`. Prior to this contract the postgres
+     * bond escaped the value (making `like` an exact-match operator there
+     * only) while sqlite/mysql passed it through raw — the same `{
+     * operator: 'like', value: `%${search}%` }` filter silently matched
+     * nothing on postgres and worked everywhere else. For human-typed
+     * search input where the value should be a literal substring (not a
+     * pattern the caller controls), use `ilike` instead — it escapes
+     * wildcards and wraps `%…%` for you, so it is injection-safe for
+     * arbitrary user text.
+     */
     | 'like'
     /**
      * Case-insensitive substring match. The value is treated as a
@@ -638,6 +657,15 @@ Data-access contract — the rules code generators most often get wrong:
   likewise (`user_id TEXT` / `user_id UUID`). NEVER `INTEGER PRIMARY KEY
   AUTOINCREMENT` or `SERIAL` — inserting a UUID string into an integer key
   fails at runtime (`datatype mismatch`) and breaks every create endpoint.
+- **`like` vs `ilike` — pick by who controls the wildcards.** Both are
+  case-insensitive on every bond (identical results across postgresql/
+  mysql/sqlite — see the `WhereCondition['operator']` JSDoc for exactly how
+  each bond gets there). `like` passes `value` through as a raw SQL
+  pattern — YOU write the `%`/`_`; use it when you already built the
+  pattern (e.g. a fixed prefix search `'admin_%'`). `ilike` treats `value`
+  as a literal substring, escapes it, and wraps `%…%` for you — use it for
+  ANY human-typed search box (`{ operator: 'ilike', value: userInput }`),
+  never `like` with a caller-built `%${userInput}%` string.
 
 ## Translations
 

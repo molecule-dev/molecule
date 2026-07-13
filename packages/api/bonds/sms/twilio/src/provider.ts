@@ -59,6 +59,13 @@ function normaliseTwilioStatus(twilioStatus: string): SMSStatus['status'] {
 /**
  * Creates a Twilio-backed {@link SMSProvider}.
  *
+ * Credential validation is DEFERRED to first use (send/sendBulk/getStatus)
+ * rather than thrown here — matching the slack/web-push bonds in this
+ * category. An app that has selected Twilio but hasn't filled in its
+ * secrets yet can still boot; only the first actual SMS attempt throws the
+ * actionable "accountSid/authToken is required" error, instead of the whole
+ * API crashing at `setProvider(createProvider())` startup time.
+ *
  * @param config - Twilio provider configuration. Falls back to environment
  *   variables when individual fields are omitted.
  * @returns A fully initialised `SMSProvider` backed by Twilio.
@@ -68,18 +75,32 @@ export function createProvider(config: TwilioSMSConfig = {}): SMSProvider {
   const authToken = config.authToken ?? process.env.TWILIO_AUTH_TOKEN
   const defaultFrom = config.defaultFrom ?? process.env.TWILIO_FROM_NUMBER
 
-  if (!accountSid) {
-    throw new Error('Twilio accountSid is required. Set config.accountSid or TWILIO_ACCOUNT_SID.')
-  }
+  let client: ReturnType<typeof Twilio> | undefined
 
-  if (!authToken) {
-    throw new Error('Twilio authToken is required. Set config.authToken or TWILIO_AUTH_TOKEN.')
+  /**
+   * Lazily constructs (and memoises) the Twilio REST client, throwing the
+   * same actionable error `createProvider()` used to throw eagerly — now
+   * surfaced at first use instead of at bond time.
+   *
+   * @returns The memoised Twilio REST client.
+   */
+  function getClient(): ReturnType<typeof Twilio> {
+    if (!accountSid) {
+      throw new Error('Twilio accountSid is required. Set config.accountSid or TWILIO_ACCOUNT_SID.')
+    }
+    if (!authToken) {
+      throw new Error('Twilio authToken is required. Set config.authToken or TWILIO_AUTH_TOKEN.')
+    }
+    if (!client) {
+      client = Twilio(accountSid, authToken)
+    }
+    return client
   }
-
-  const client = Twilio(accountSid, authToken)
 
   const provider: SMSProvider = {
     async send(to: string, message: string, options?: SMSOptions): Promise<SMSResult> {
+      const client = getClient()
+
       const from = options?.from ?? defaultFrom
       if (!from) {
         throw new Error(
@@ -141,6 +162,7 @@ export function createProvider(config: TwilioSMSConfig = {}): SMSProvider {
     },
 
     async getStatus(messageId: string): Promise<SMSStatus> {
+      const client = getClient()
       const message = await client.messages(messageId).fetch()
 
       const status: SMSStatus = {

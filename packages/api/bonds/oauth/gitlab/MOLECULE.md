@@ -226,3 +226,8 @@ Peer dependencies:
 - `OAUTH_GITLAB_CLIENT_SECRET` *(required)* — GitLab OAuth secret
   - Setup: Shown when creating the application in GitLab.
   - Get it here: [https://gitlab.com/-/user_settings/applications](https://gitlab.com/-/user_settings/applications)
+
+The token exchange (`verify`'s call to GitLab's Doorkeeper token endpoint)
+is `application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 — matching
+every other molecule.dev OAuth bond (google, twitter, github, apple,
+microsoft).

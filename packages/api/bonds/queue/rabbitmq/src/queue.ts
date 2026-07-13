@@ -18,14 +18,83 @@ import type {
 } from '@molecule/api-queue'
 
 /**
+ * A `Queue` created by this bond, extended with an internal method the
+ * provider uses to recover from a reconnect. Not part of the core `Queue`
+ * contract — package-private, never re-exported through the barrel.
+ */
+export interface RabbitMQQueue extends Queue {
+  /**
+   * Re-attaches every currently-active `subscribe()` consumer to the
+   * channel this queue was constructed with. Called by the provider after
+   * the shared channel is recreated (a dropped connection or a
+   * channel-killing broker error) so in-flight subscriptions survive a
+   * reconnect instead of silently going dead with no consumer ever firing
+   * again.
+   */
+  reattachSubscribers(): Promise<void>
+}
+
+/**
  * Creates a `Queue` backed by a RabbitMQ channel. Supports send, receive (pull via `channel.get`),
  * subscribe (push via `channel.consume`), size, and purge. Messages are persisted as durable by default.
- * @param channel - The open amqplib channel to use for all queue operations.
+ * @param channel - The open amqplib channel to use for all queue operations. May be a live proxy that
+ *   forwards to a channel recreated after a reconnect — every operation reads it fresh at call time.
  * @param queueName - The RabbitMQ queue name to operate on.
- * @returns A `Queue` object with send/receive/subscribe/size/purge methods bound to the queue.
+ * @returns A `Queue` (with an extra `reattachSubscribers` used by the provider) bound to the queue.
  */
-export const createQueue = (channel: Channel, queueName: string): Queue => {
-  const subscribers: Map<string, { consumerTag: string }> = new Map()
+export const createQueue = (channel: Channel, queueName: string): RabbitMQQueue => {
+  // Split into two maps so `unsubscribe()` keeps its original race-safe
+  // behavior (a consumer that hasn't finished its async setup yet has no
+  // consumerTag, so cancelling it is a no-op instead of `channel.cancel('')`)
+  // while still letting the provider replay `subscriptions` after a
+  // reconnect, when every consumerTag from the dead channel is meaningless.
+  const subscriptions: Map<string, { handler: MessageHandler<unknown>; options?: ReceiveOptions }> =
+    new Map()
+  const consumerTags: Map<string, string> = new Map()
+
+  const attachConsumer = async (
+    subscriberId: string,
+    handler: MessageHandler<unknown>,
+    options?: ReceiveOptions,
+  ): Promise<void> => {
+    await channel.assertQueue(queueName, { durable: true })
+
+    if (options?.maxMessages) {
+      // amqplib's prefetch is async — un-awaited, consume() could start
+      // delivering before the QoS cap is applied.
+      await channel.prefetch(options.maxMessages)
+    }
+
+    const { consumerTag } = await channel.consume(
+      queueName,
+      async (msg) => {
+        if (!msg) return
+
+        const wrapped = wrapMessage<unknown>(channel, msg)
+        try {
+          await handler(wrapped.received)
+          // Handler success acks (matching the memory and BullMQ bonds and
+          // the core @example, whose handler never calls ack()). Without
+          // this, every doc-following consumer leaves messages unacked
+          // forever — delivery stalls once prefetch is exhausted. A no-op
+          // when the handler already acked/nacked.
+          wrapped.settleOnce(() => channel.ack(msg))
+        } catch (error) {
+          logger.error('RabbitMQ message handler error:', error)
+          // A throw = retry (core contract): requeue a first failure once;
+          // a redelivered message that fails again goes to the queue's
+          // dead-letter exchange (configure via createQueue) or is
+          // dropped — unconditional requeue would hot-loop poison
+          // messages, unconditional drop breaks "throw on transient
+          // errors to retry".
+          wrapped.settleOnce(() => channel.nack(msg, false, !msg.fields.redelivered))
+        }
+      },
+      { noAck: false },
+    )
+
+    consumerTags.set(subscriberId, consumerTag)
+  }
 
   return {
     name: queueName,
@@ -40,16 +109,33 @@ export const createQueue = (channel: Channel, queueName: string): Queue => {
         headers: message.attributes,
       }
 
-      if (message.delaySeconds) {
-        // RabbitMQ requires the rabbitmq-delayed-message-exchange plugin for delays
-        options.headers = {
-          ...options.headers,
-          'x-delay': message.delaySeconds * 1000,
-        }
-      }
-
       await channel.assertQueue(queueName, { durable: true })
-      channel.sendToQueue(queueName, content, options)
+
+      if (message.delaySeconds && message.delaySeconds > 0) {
+        // Real delayed delivery WITHOUT the rabbitmq-delayed-message-exchange
+        // plugin: park the message on a dedicated per-delay "wait" queue
+        // whose x-message-ttl equals the requested delay, dead-lettering it
+        // back to the real queue (default exchange) once the TTL expires.
+        // Every message parked on a given wait queue shares the identical
+        // TTL, so FIFO order == expiry order — this sidesteps RabbitMQ's
+        // well-known "TTL only expires at the head of the queue" gotcha that
+        // bites a single queue holding messages with different TTLs.
+        const delayMs = Math.round(message.delaySeconds * 1000)
+        const waitQueueName = `${queueName}.delay.${delayMs}`
+
+        await channel.assertQueue(waitQueueName, {
+          durable: true,
+          arguments: {
+            'x-message-ttl': delayMs,
+            'x-dead-letter-exchange': '',
+            'x-dead-letter-routing-key': queueName,
+          },
+        })
+
+        channel.sendToQueue(waitQueueName, content, options)
+      } else {
+        channel.sendToQueue(queueName, content, options)
+      }
 
       return id
     },
@@ -81,58 +167,21 @@ export const createQueue = (channel: Channel, queueName: string): Queue => {
 
     subscribe<T = unknown>(handler: MessageHandler<T>, options?: ReceiveOptions): () => void {
       const subscriberId = crypto.randomUUID()
+      const record = { handler: handler as MessageHandler<unknown>, options }
+      subscriptions.set(subscriberId, record)
 
-      const setup = async (): Promise<void> => {
-        await channel.assertQueue(queueName, { durable: true })
-
-        if (options?.maxMessages) {
-          // amqplib's prefetch is async — un-awaited, consume() could start
-          // delivering before the QoS cap is applied.
-          await channel.prefetch(options.maxMessages)
-        }
-
-        const { consumerTag } = await channel.consume(
-          queueName,
-          async (msg) => {
-            if (!msg) return
-
-            const wrapped = wrapMessage<T>(channel, msg)
-            try {
-              await handler(wrapped.received)
-              // Handler success acks (matching the memory and BullMQ bonds and
-              // the core @example, whose handler never calls ack()). Without
-              // this, every doc-following consumer leaves messages unacked
-              // forever — delivery stalls once prefetch is exhausted. A no-op
-              // when the handler already acked/nacked.
-              wrapped.settleOnce(() => channel.ack(msg))
-            } catch (error) {
-              logger.error('RabbitMQ message handler error:', error)
-              // A throw = retry (core contract): requeue a first failure once;
-              // a redelivered message that fails again goes to the queue's
-              // dead-letter exchange (configure via createQueue) or is
-              // dropped — unconditional requeue would hot-loop poison
-              // messages, unconditional drop breaks "throw on transient
-              // errors to retry".
-              wrapped.settleOnce(() => channel.nack(msg, false, !msg.fields.redelivered))
-            }
-          },
-          { noAck: false },
-        )
-
-        subscribers.set(subscriberId, { consumerTag })
-      }
-
-      setup().catch((error) => {
+      attachConsumer(subscriberId, record.handler, options).catch((error) => {
         logger.error('RabbitMQ subscribe error:', error)
       })
 
       return () => {
-        const sub = subscribers.get(subscriberId)
-        if (sub) {
-          channel.cancel(sub.consumerTag).catch((error) => {
+        subscriptions.delete(subscriberId)
+        const consumerTag = consumerTags.get(subscriberId)
+        if (consumerTag) {
+          channel.cancel(consumerTag).catch((error) => {
             logger.error('RabbitMQ unsubscribe error:', error)
           })
-          subscribers.delete(subscriberId)
+          consumerTags.delete(subscriberId)
         }
       }
     },
@@ -144,6 +193,17 @@ export const createQueue = (channel: Channel, queueName: string): Queue => {
 
     async purge(): Promise<void> {
       await channel.purgeQueue(queueName)
+    },
+
+    async reattachSubscribers(): Promise<void> {
+      consumerTags.clear()
+      for (const [subscriberId, { handler, options }] of subscriptions) {
+        try {
+          await attachConsumer(subscriberId, handler, options)
+        } catch (error) {
+          logger.error(`RabbitMQ re-subscribe error for queue "${queueName}":`, error)
+        }
+      }
     },
   }
 }

@@ -23,6 +23,71 @@ interface Position {
   left: number
 }
 
+/** Arrow square size (px) before the 45° rotation that turns it into a diamond. */
+const ARROW_SIZE = 8
+
+/**
+ * Returns the arrow's inline position style for a given placement. The arrow
+ * has no dedicated ClassMap resolver (`tooltip()` takes no options), so its
+ * shape/position is expressed via a small inline style — the sanctioned
+ * exception for values ClassMap cannot express. Its color is NOT hardcoded:
+ * `var(--color-surface)` / `var(--color-border)` are the same CSS custom
+ * properties the `bg-surface`/`border` classes in `tooltipContent` resolve
+ * to, so the arrow always matches the tooltip body in both themes.
+ * @param placement - The tooltip's resolved placement.
+ * @returns Inline style positioning the rotated-square arrow for that placement.
+ */
+function getArrowStyle(placement: TooltipPlacement): Record<string, string> {
+  const half = ARROW_SIZE / 2
+  const base: Record<string, string> = {
+    position: 'absolute',
+    width: `${ARROW_SIZE}px`,
+    height: `${ARROW_SIZE}px`,
+    background: 'var(--color-surface)',
+    border: '1px solid var(--color-border)',
+  }
+  switch (placement) {
+    case 'top':
+      return {
+        ...base,
+        bottom: `${-half}px`,
+        left: '50%',
+        transform: 'translateX(-50%) rotate(45deg)',
+      }
+    case 'top-start':
+      return { ...base, bottom: `${-half}px`, left: '12px', transform: 'rotate(45deg)' }
+    case 'top-end':
+      return { ...base, bottom: `${-half}px`, right: '12px', transform: 'rotate(45deg)' }
+    case 'bottom':
+      return {
+        ...base,
+        top: `${-half}px`,
+        left: '50%',
+        transform: 'translateX(-50%) rotate(45deg)',
+      }
+    case 'bottom-start':
+      return { ...base, top: `${-half}px`, left: '12px', transform: 'rotate(45deg)' }
+    case 'bottom-end':
+      return { ...base, top: `${-half}px`, right: '12px', transform: 'rotate(45deg)' }
+    case 'left':
+      return {
+        ...base,
+        right: `${-half}px`,
+        top: '50%',
+        transform: 'translateY(-50%) rotate(45deg)',
+      }
+    case 'right':
+      return {
+        ...base,
+        left: `${-half}px`,
+        top: '50%',
+        transform: 'translateY(-50%) rotate(45deg)',
+      }
+    default:
+      return base
+  }
+}
+
 /**
  * Calculate tooltip position based on trigger element and placement.
  * @param triggerRect - The trigger rect.
@@ -81,6 +146,8 @@ function calculatePosition(
 
 /**
  * Vue Tooltip UI component with UIClassMap-driven styling.
+ *
+ * `hasArrow` renders a small themed pointer at the resolved `placement` edge.
  */
 export const Tooltip = defineComponent({
   name: 'MTooltip',
@@ -148,6 +215,11 @@ export const Tooltip = defineComponent({
     })
 
     return () => {
+      // Outer positioned wrapper carries the top/left/zIndex placement; the
+      // arrow renders as its SIBLING (not nested inside the visible box),
+      // because `tooltipContent` sets `overflow-hidden` — an arrow meant to
+      // poke past the box's own edge would be clipped invisible if it were a
+      // descendant of that element instead.
       const tooltipElement = isVisible.value
         ? h(
             Teleport,
@@ -155,9 +227,6 @@ export const Tooltip = defineComponent({
             h(
               'div',
               {
-                ref: tooltipRef,
-                role: 'tooltip',
-                class: cm.cn(cm.tooltipContent, props.class),
                 style: {
                   position: 'absolute',
                   top: `${position.value.top}px`,
@@ -165,9 +234,22 @@ export const Tooltip = defineComponent({
                   zIndex: 9999,
                 },
               },
-              typeof props.content === 'string'
-                ? props.content
-                : ([props.content] as VNodeArrayChildren),
+              [
+                h(
+                  'div',
+                  {
+                    ref: tooltipRef,
+                    role: 'tooltip',
+                    class: cm.cn(cm.tooltipContent, props.class),
+                  },
+                  typeof props.content === 'string'
+                    ? props.content
+                    : ([props.content] as VNodeArrayChildren),
+                ),
+                props.hasArrow
+                  ? h('span', { 'aria-hidden': 'true', style: getArrowStyle(props.placement) })
+                  : null,
+              ] as VNodeArrayChildren,
             ),
           )
         : null

@@ -72,17 +72,32 @@ describe('createMigrator (sqlite)', () => {
     expect(execSpy.mock.calls[1][0]).toContain('CREATE TABLE b')
   })
 
-  it('continues past a failing migration (idempotent IF-NOT-EXISTS files must not abort the run)', async () => {
+  it('continues past an idempotent "already exists" error (IF NOT EXISTS re-runs must not abort)', async () => {
     writeFileSync(join(migrationsDir, '0001_ok.sql'), 'CREATE TABLE ok (id TEXT);')
-    writeFileSync(join(migrationsDir, '0002_bad.sql'), 'CREATE TABLE bad (id TEXT);')
+    writeFileSync(join(migrationsDir, '0002_dup.sql'), 'CREATE TABLE dup (id TEXT);')
     writeFileSync(join(migrationsDir, '0003_ok.sql'), 'CREATE TABLE ok2 (id TEXT);')
     execSpy.mockImplementation((s: string) => {
-      if (s.includes('bad')) throw new Error('boom')
+      if (s.includes('dup')) throw new Error('table dup already exists')
     })
 
     await expect(createMigrator(migrationsDir)()).resolves.toBeUndefined()
-    expect(execSpy).toHaveBeenCalledTimes(3) // ran all three despite the middle failure
+    expect(execSpy).toHaveBeenCalledTimes(3) // ran all three despite the middle "duplicate"
     expect(closeSpy).toHaveBeenCalled()
+  })
+
+  it('REGRESSION: a genuinely broken migration fails the run with an actionable summary instead of silently continuing', async () => {
+    writeFileSync(join(migrationsDir, '0001_ok.sql'), 'CREATE TABLE ok (id TEXT);')
+    writeFileSync(join(migrationsDir, '0002_broken.sql'), 'CREAT TABLE typo (id TEXT);')
+    writeFileSync(join(migrationsDir, '0003_ok.sql'), 'CREATE TABLE ok2 (id TEXT);')
+    execSpy.mockImplementation((s: string) => {
+      if (s.includes('typo')) throw new Error('near "CREAT": syntax error')
+    })
+
+    // Before the fix, EVERY per-file error (idempotent or not) was only
+    // warn-logged — the app would boot with a missing/partial schema.
+    await expect(createMigrator(migrationsDir)()).rejects.toThrow(/0002_broken\.sql/)
+    expect(execSpy).toHaveBeenCalledTimes(3) // still attempts every file
+    expect(closeSpy).toHaveBeenCalled() // db is always closed, even on failure
   })
 
   it('is a no-op (no exec, no throw) when the migrations directory has no .sql files', async () => {

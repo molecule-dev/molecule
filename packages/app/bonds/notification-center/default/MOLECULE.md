@@ -93,3 +93,11 @@ export function setupNotificationCenterDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-notification-center` >=1.0.0
+
+`poll()`, `loadMore()`, and `refresh()` all catch their own fetch
+failures — the in-memory list is never wiped and the loop/promise chain
+never throws — but the failure is not silently discarded: it is captured
+into `NotificationCenterState.lastError` (cleared back to `undefined` on
+the next successful call of that same method) and emitted to subscribers,
+so a UI consumer can render a retry affordance even while a
+stale-but-populated list continues to display.

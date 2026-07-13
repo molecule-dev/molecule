@@ -5,4 +5,5 @@ export const lv: UploadsTranslations = {
   'uploads.error.noProvider':
     'Augšupielādes nodrošinātājs nav konfigurēts. Vispirms izsauciet setProvider().',
   'uploads.error.streamLimitReached': 'Sasniegts straumes limits.',
+  'uploads.error.aborted': 'Augšupielāde tika pārtraukta.',
 }

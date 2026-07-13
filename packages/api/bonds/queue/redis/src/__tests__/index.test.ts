@@ -249,6 +249,35 @@ describe('@molecule/api-queue-redis', () => {
       const mockBullQueue = BullQueue.mock.results[0]?.value || BullQueue.mock.results[1]?.value
       expect(mockBullQueue?.obliterate).toHaveBeenCalledWith({ force: true })
     })
+
+    it('should close the ORIGINAL cached queue connection, not just the temporary obliterate connection (previously leaked until provider.close())', async () => {
+      const providerInstance = createProvider()
+      providerInstance.queue('leak-check-queue')
+
+      await providerInstance.deleteQueue!('leak-check-queue')
+
+      // Same mock instance is returned for every `new BullQueue(...)` call —
+      // one close() for the original queue's own disposer (run + unregistered
+      // by deleteQueue) plus one for the short-lived obliterate connection.
+      const mockBullQueue = BullQueue.mock.results[0].value
+      expect(mockBullQueue.close).toHaveBeenCalledTimes(2)
+    })
+
+    it('should unregister the deleted queue disposer so provider.close() does not double-close it', async () => {
+      const providerInstance = createProvider()
+      providerInstance.queue('unregister-check-queue')
+
+      await providerInstance.deleteQueue!('unregister-check-queue')
+
+      const mockBullQueue = BullQueue.mock.results[0].value
+      mockBullQueue.close.mockClear()
+
+      await providerInstance.close!()
+
+      // No queue is left registered for this name — close() must not touch
+      // the already-deleted queue's (already-closed) connection again.
+      expect(mockBullQueue.close).not.toHaveBeenCalled()
+    })
   })
 
   describe('provider.close', () => {
@@ -304,7 +333,7 @@ describe('@molecule/api-queue-redis', () => {
       const mockBullQueue = BullQueue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
-        { data: 'test' },
+        expect.objectContaining({ __molecule_queue_envelope: 1, body: { data: 'test' } }),
         expect.objectContaining({
           jobId: 'custom-message-id',
         }),
@@ -325,7 +354,7 @@ describe('@molecule/api-queue-redis', () => {
       const mockBullQueue = BullQueue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
-        'delayed message',
+        expect.objectContaining({ body: 'delayed message' }),
         expect.objectContaining({
           delay: 30000, // 30 seconds in milliseconds
         }),
@@ -345,7 +374,7 @@ describe('@molecule/api-queue-redis', () => {
       const mockBullQueue = BullQueue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
-        'immediate message',
+        expect.objectContaining({ body: 'immediate message' }),
         expect.objectContaining({
           delay: undefined,
         }),
@@ -361,7 +390,7 @@ describe('@molecule/api-queue-redis', () => {
       const mockBullQueue = BullQueue.mock.results[0].value
       expect(mockBullQueue.add).toHaveBeenCalledWith(
         'message',
-        'test',
+        expect.objectContaining({ body: 'test' }),
         expect.objectContaining({
           attempts: 3,
           backoff: {
@@ -369,6 +398,54 @@ describe('@molecule/api-queue-redis', () => {
             delay: 1000,
           },
         }),
+      )
+    })
+
+    it('should persist message attributes in the envelope and return them on receive (previously silently dropped)', async () => {
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('attrs-roundtrip-queue')
+
+      await queue.send({
+        body: { data: 'test' },
+        attributes: { type: 'notification', priority: 1 },
+      })
+
+      const mockBullQueue = BullQueue.mock.results[0].value
+      expect(mockBullQueue.add).toHaveBeenCalledWith(
+        'message',
+        expect.objectContaining({
+          __molecule_queue_envelope: 1,
+          attributes: { type: 'notification', priority: 1 },
+        }),
+        expect.anything(),
+      )
+    })
+
+    it('should use deduplicationId as the BullMQ jobId when no explicit id is given (real dedup, not silently dropped)', async () => {
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('dedup-queue')
+
+      await queue.send({ body: 'test', deduplicationId: 'stable-dedup-key' })
+
+      const mockBullQueue = BullQueue.mock.results[0].value
+      expect(mockBullQueue.add).toHaveBeenCalledWith(
+        'message',
+        expect.anything(),
+        expect.objectContaining({ jobId: 'stable-dedup-key' }),
+      )
+    })
+
+    it('should prefer an explicit id over deduplicationId', async () => {
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('dedup-id-precedence-queue')
+
+      await queue.send({ body: 'test', id: 'explicit-id', deduplicationId: 'dedup-key' })
+
+      const mockBullQueue = BullQueue.mock.results[0].value
+      expect(mockBullQueue.add).toHaveBeenCalledWith(
+        'message',
+        expect.anything(),
+        expect.objectContaining({ jobId: 'explicit-id' }),
       )
     })
   })
@@ -406,12 +483,12 @@ describe('@molecule/api-queue-redis', () => {
         expect.arrayContaining([
           expect.objectContaining({
             name: 'message',
-            data: 'msg 1',
+            data: expect.objectContaining({ __molecule_queue_envelope: 1, body: 'msg 1' }),
             opts: expect.objectContaining({ jobId: 'id-1' }),
           }),
           expect.objectContaining({
             name: 'message',
-            data: 'msg 2',
+            data: expect.objectContaining({ __molecule_queue_envelope: 1, body: 'msg 2' }),
             opts: expect.objectContaining({ jobId: 'id-2' }),
           }),
         ]),
@@ -490,6 +567,16 @@ describe('@molecule/api-queue-redis', () => {
       expect(msg.receiptHandle).toBeDefined()
       expect(typeof msg.ack).toBe('function')
       expect(typeof msg.nack).toBe('function')
+    })
+
+    it('should still return the peeked jobs when visibilityTimeout is passed (it has no locking effect on this bond — warned, not silently honored)', async () => {
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('visibility-noop-queue')
+
+      // Must not throw and must not pretend to lock anything — receive() stays a peek.
+      const messages = await queue.receive({ visibilityTimeout: 30 })
+
+      expect(messages.length).toBeGreaterThan(0)
     })
   })
 
@@ -731,6 +818,46 @@ describe('@molecule/api-queue-redis', () => {
       expect(receivedMessage.receiptHandle).toBe('')
     })
 
+    it('should unwrap the envelope and return the real attributes sent via send() (previously silently dropped)', async () => {
+      const mockJob = {
+        id: 'enveloped-job',
+        data: {
+          __molecule_queue_envelope: 1,
+          body: { orderId: 'ORD-1' },
+          attributes: { type: 'notification', priority: 1 },
+        },
+        opts: { attempts: 3, jobId: 'enveloped-job' }, // BullMQ's OWN retry config — must never leak as "attributes"
+        attemptsMade: 0,
+        timestamp: Date.now(),
+        token: 'token',
+        remove: vi.fn(),
+        moveToFailed: vi.fn(),
+      } as unknown as Job
+
+      const receivedMessage = createReceivedMessage(mockJob)
+
+      expect(receivedMessage.body).toEqual({ orderId: 'ORD-1' })
+      expect(receivedMessage.attributes).toEqual({ type: 'notification', priority: 1 })
+    })
+
+    it('should treat a legacy (pre-envelope) job as a raw body with no attributes — never job.opts', async () => {
+      const mockJob = {
+        id: 'legacy-job',
+        data: { legacyPayload: true }, // no __molecule_queue_envelope marker — sent by an older version
+        opts: { attempts: 3, backoff: { type: 'exponential', delay: 1000 } },
+        attemptsMade: 0,
+        timestamp: Date.now(),
+        token: 'token',
+        remove: vi.fn(),
+        moveToFailed: vi.fn(),
+      } as unknown as Job
+
+      const receivedMessage = createReceivedMessage(mockJob)
+
+      expect(receivedMessage.body).toEqual({ legacyPayload: true })
+      expect(receivedMessage.attributes).toBeUndefined()
+    })
+
     describe('ack', () => {
       it('should remove the job when acknowledged', async () => {
         const mockRemove = vi.fn().mockResolvedValue(undefined)
@@ -907,6 +1034,77 @@ describe('@molecule/api-queue-redis', () => {
         }),
       )
     })
+
+    it('should configure the PRODUCER (BullQueue) connection to fail fast instead of buffering commands forever against an unreachable Redis', () => {
+      const providerInstance = createProvider()
+      providerInstance.queue('fail-fast-producer-queue')
+
+      expect(BullQueue).toHaveBeenCalledWith(
+        'fail-fast-producer-queue',
+        expect.objectContaining({
+          connection: expect.objectContaining({
+            maxRetriesPerRequest: 1,
+            enableOfflineQueue: false,
+          }),
+        }),
+      )
+    })
+
+    it('should NOT apply the fail-fast overlay to the WORKER (subscribe) connection — BullMQ forces maxRetriesPerRequest: null on blocking connections regardless', () => {
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('worker-connection-queue')
+      queue.subscribe(vi.fn())
+
+      expect(Worker).toHaveBeenCalledWith(
+        'worker-connection-queue',
+        expect.any(Function),
+        expect.objectContaining({
+          connection: expect.not.objectContaining({ enableOfflineQueue: false }),
+        }),
+      )
+    })
+  })
+
+  describe('fail-fast connection error messages (name REDIS_URL/REDIS_HOST instead of leaving a raw ioredis error)', () => {
+    it('should wrap a connection-refused send() failure with an actionable message naming the env vars', async () => {
+      const errorQueue = {
+        add: vi.fn().mockRejectedValue(new Error('connect ECONNREFUSED 127.0.0.1:6379')),
+        addBulk: vi.fn(),
+        getJobs: vi.fn(),
+        getJobCounts: vi.fn(),
+        drain: vi.fn(),
+        obliterate: vi.fn(),
+        close: vi.fn(),
+      }
+      BullQueue.mockImplementationOnce(function () {
+        return errorQueue
+      })
+
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('connection-error-queue')
+
+      await expect(queue.send({ body: 'test' })).rejects.toThrow(/REDIS_URL/)
+    })
+
+    it('should leave a non-connection application error unwrapped', async () => {
+      const errorQueue = {
+        add: vi.fn().mockRejectedValue(new Error('Job data too large')),
+        addBulk: vi.fn(),
+        getJobs: vi.fn(),
+        getJobCounts: vi.fn(),
+        drain: vi.fn(),
+        obliterate: vi.fn(),
+        close: vi.fn(),
+      }
+      BullQueue.mockImplementationOnce(function () {
+        return errorQueue
+      })
+
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('app-error-queue')
+
+      await expect(queue.send({ body: 'test' })).rejects.toThrow('Job data too large')
+    })
   })
 
   describe('error handling', () => {
@@ -1023,7 +1221,11 @@ describe('@molecule/api-queue-redis', () => {
       await queue.send<OrderMessage>(message)
 
       const mockBullQueue = BullQueue.mock.results[0].value
-      expect(mockBullQueue.add).toHaveBeenCalledWith('message', message.body, expect.any(Object))
+      expect(mockBullQueue.add).toHaveBeenCalledWith(
+        'message',
+        expect.objectContaining({ body: message.body }),
+        expect.any(Object),
+      )
     })
 
     it('should subscribe with typed handler', () => {

@@ -23,7 +23,13 @@ export interface PinoTransportTarget {
  * Options for creating a pino logger.
  */
 export interface PinoLoggerOptions {
-  /** Minimum log level for the underlying pino instance. Defaults to `'info'`. */
+  /**
+   * Minimum log level for the underlying pino instance. Defaults to
+   * `'trace'` (pass-through) — minimum-level filtering is meant to happen
+   * once, in `@molecule/api-logger`'s gate (`LOG_LEVEL` / `setLevel()`).
+   * Pass an explicit `level` only to add a second, stricter gate on this
+   * instance specifically.
+   */
   level?: LogLevel
   /** Pretty-print via the pino-pretty transport (ignored when `destination` is set). */
   pretty?: boolean

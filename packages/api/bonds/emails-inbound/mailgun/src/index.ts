@@ -11,6 +11,20 @@
  * transport (typically `@molecule/api-emails-mailgun`) — this package does
  * not reimplement the SMTP path.
  *
+ * @remarks
+ * `verifySignature` THROWS the tagged `config.notConfigured` error (→ 503
+ * via the API error middleware) when `MAILGUN_API_KEY` is unset, instead of
+ * returning `false` like every other verification failure. Wire your
+ * webhook handler to let that throw propagate to the error middleware —
+ * catching it and mapping to the same 401 as a forged/stale webhook
+ * re-introduces the "every failure looks the same" ambiguity this was
+ * fixed to remove.
+ *
+ * When an inbound message has no `Message-Id`, `id` is a deterministic
+ * hash of the sender/original-Date-header/subject (NOT the per-request
+ * Mailgun signing token, which changes on every retry) — so retries of an
+ * id-less message still dedupe to the same id.
+ *
  * @example
  * ```typescript
  * import { setProvider } from '@molecule/api-emails-inbound'

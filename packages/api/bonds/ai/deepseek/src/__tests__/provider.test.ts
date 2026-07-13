@@ -70,6 +70,17 @@ describe('createProvider', () => {
       else process.env.DEEPSEEK_API_KEY = prev
     }
   })
+
+  it('throws naming DEEPSEEK_API_KEY when no key is configured (config or env)', () => {
+    const prev = process.env.DEEPSEEK_API_KEY
+    delete process.env.DEEPSEEK_API_KEY
+    try {
+      expect(() => createProvider()).toThrow(/DEEPSEEK_API_KEY/)
+    } finally {
+      if (prev === undefined) delete process.env.DEEPSEEK_API_KEY
+      else process.env.DEEPSEEK_API_KEY = prev
+    }
+  })
 })
 
 describe('chat() — request shape', () => {
@@ -240,6 +251,56 @@ describe('chat() — errors', () => {
       }),
     )
     expect(events.some((e) => e.type === 'error')).toBe(true)
+  })
+
+  it('a plain 400 (invalid param, not context-length) → distinct non-retryable message', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(400, { error: { message: 'temperature must be <= 2' } }))
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+      }),
+    )
+    const err = events.find((e) => e.type === 'error') as { message: string }
+    expect(err.message).toBe('AI request was invalid — check the model and request parameters.')
+  })
+
+  it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      let call = 0
+      fetch.mockImplementation(() => {
+        call += 1
+        if (call === 1) {
+          return Promise.resolve(
+            jsonResponse(
+              429,
+              { error: { message: 'rate limited' } },
+              { 'retry-after': 'Wed, 21 Oct 2026 07:28:00 GMT' },
+            ),
+          )
+        }
+        return Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+      })
+
+      const eventsPromise = drain(
+        createProvider({ apiKey: 'k' }).chat({
+          messages: [{ role: 'user', content: 'hi' }],
+          stream: false,
+        }),
+      )
+
+      await vi.advanceTimersByTimeAsync(500)
+      expect(fetch).toHaveBeenCalledTimes(1)
+
+      await vi.advanceTimersByTimeAsync(2_000)
+      await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 

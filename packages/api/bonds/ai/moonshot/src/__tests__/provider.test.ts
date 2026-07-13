@@ -66,6 +66,17 @@ describe('createProvider', () => {
       else process.env.MOONSHOT_API_KEY = prev
     }
   })
+
+  it('throws naming MOONSHOT_API_KEY when no key is configured (config or env)', () => {
+    const prev = process.env.MOONSHOT_API_KEY
+    delete process.env.MOONSHOT_API_KEY
+    try {
+      expect(() => createProvider()).toThrow(/MOONSHOT_API_KEY/)
+    } finally {
+      if (prev === undefined) delete process.env.MOONSHOT_API_KEY
+      else process.env.MOONSHOT_API_KEY = prev
+    }
+  })
 })
 
 describe('chat() — request shape', () => {
@@ -372,6 +383,63 @@ describe('chat() — response handling', () => {
     }
     const err = events.find((e) => (e as { type: string }).type === 'error') as { message: string }
     expect(err.message).toMatch(/Conversation too long/i)
+  })
+
+  it('a plain 400 (invalid param, not context-length) → distinct non-retryable message', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(400, { error: { message: 'temperature must be <= 2' } }))
+    const provider = createProvider({ apiKey: 'k' })
+    const events: unknown[] = []
+    for await (const e of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      stream: false,
+    })) {
+      events.push(e)
+    }
+    const err = events.find((e) => (e as { type: string }).type === 'error') as { message: string }
+    expect(err.message).toBe('AI request was invalid — check the model and request parameters.')
+  })
+
+  it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      let call = 0
+      fetch.mockImplementation(() => {
+        call += 1
+        if (call === 1) {
+          return Promise.resolve(
+            jsonResponse(
+              429,
+              { error: { message: 'rate limited' } },
+              { 'retry-after': 'Wed, 21 Oct 2026 07:28:00 GMT' },
+            ),
+          )
+        }
+        return Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+      })
+
+      const provider = createProvider({ apiKey: 'k' })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'h' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+
+      await vi.advanceTimersByTimeAsync(500)
+      expect(fetch).toHaveBeenCalledTimes(1)
+
+      await vi.advanceTimersByTimeAsync(2_000)
+      await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 

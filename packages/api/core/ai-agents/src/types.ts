@@ -102,6 +102,16 @@ export interface AIAgentsProvider {
    *
    * @param input - The task/messages, tools, and loop options.
    * @returns The final output, the recorded steps, and total token usage.
+   * @throws {Error} When the underlying `ai` bond fails mid-run (a provider
+   *   API error, an abort, or any other exception raised while draining a
+   *   model turn or executing a tool) — a tool's own `execute()` throwing is
+   *   NON-fatal and recorded on the step instead. The default
+   *   `@molecule/api-ai-agents-llm` implementation rejects with its typed
+   *   `AgentRunError` in this case, which additionally carries the `usage`
+   *   and `steps` accumulated across every turn completed before the
+   *   failure (`error instanceof AgentRunError` to access them) — a caller
+   *   that meters spend should check for it so a run that dies mid-loop
+   *   doesn't silently under-meter the turns that already completed.
    */
   run(input: AgentRunInput): Promise<AgentRunResult>
 }

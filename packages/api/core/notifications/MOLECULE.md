@@ -126,8 +126,12 @@ function hasProvider(): boolean
 
 #### `notifyAll(notification)`
 
-Sends a notification through ALL bonded channels. Failures in one channel
-do not prevent other channels from being tried. Errors are logged, not thrown.
+Sends a notification through ALL bonded channels CONCURRENTLY (via
+`Promise.allSettled`), so one slow/hanging channel cannot delay every
+other channel behind it. Failures in one channel do not prevent other
+channels from being tried. Errors are logged, not thrown. Results are
+reassembled in registration (Map insertion) order regardless of which
+channel settles first.
 
 ```typescript
 function notifyAll(notification: Notification): Promise<NotificationResult[]>
@@ -135,7 +139,7 @@ function notifyAll(notification: Notification): Promise<NotificationResult[]>
 
 - `notification` — The notification to send.
 
-**Returns:** Array of results, one per channel.
+**Returns:** Array of results, one per channel, in registration order.
 
 #### `setProvider(name, provider)`
 
@@ -162,6 +166,13 @@ function setProvider(name: string, provider: NotificationsProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+`notifyAll()` fans out to every bonded channel CONCURRENTLY
+(`Promise.allSettled`), not serially — a slow or hanging channel does not
+delay the delivery of any other channel behind it. Per-channel failures
+(rejected result or thrown error) are isolated and logged; results are
+always returned in the channels' registration order, regardless of which
+settles first.
 
 ## Translations
 

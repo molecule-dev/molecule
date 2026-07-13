@@ -63,6 +63,27 @@ const DEFAULT_TOKEN_URL = `https://api.twitter.com/2/oauth2/token`
 const DEFAULT_USER_URL = `https://api.twitter.com/2/users/me`
 
 /**
+ * Serializes params as `application/x-www-form-urlencoded`, dropping
+ * `undefined`/empty values (mirroring what `JSON.stringify` used to drop
+ * silently). RFC 6749 §4.1.3 requires the token-exchange body to be
+ * form-encoded — X's docs mandate it, and `@molecule/api-http`'s default
+ * client only form-encodes a request when the caller supplies an
+ * already-encoded STRING body; an object body is always JSON-encoded.
+ *
+ * @param record - The token-request parameters to encode.
+ * @returns The `application/x-www-form-urlencoded` request body.
+ */
+const formEncode = (record: Record<string, string | undefined>): string => {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value === 'string' && value.length > 0) {
+      params.append(key, value)
+    }
+  }
+  return params.toString()
+}
+
+/**
  * Verifies a Twitter OAuth code and responds with OAuth-related user props.
  *
  * The token and user-info URLs default to api.twitter.com, but can be
@@ -84,27 +105,25 @@ export const verify: OAuthVerifier = async (
     const tokenUrl = process.env.OAUTH_TWITTER_TOKEN_URL || DEFAULT_TOKEN_URL
     const userUrl = process.env.OAUTH_TWITTER_USER_URL || DEFAULT_USER_URL
 
+    const body = formEncode({
+      client_id: process.env.OAUTH_TWITTER_CLIENT_ID,
+      code,
+      code_verifier: codeVerifier,
+      grant_type: `authorization_code`,
+      redirect_uri: redirectUri || process.env.APP_ORIGIN,
+    })
     const response = await post<{
       access_token: string
       token_type: string
       scope: string
-    }>(
-      tokenUrl,
-      {
-        client_id: process.env.OAUTH_TWITTER_CLIENT_ID,
-        code,
-        code_verifier: codeVerifier,
-        grant_type: `authorization_code`,
-        redirect_uri: redirectUri || process.env.APP_ORIGIN,
+    }>(tokenUrl, body, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${process.env.OAUTH_TWITTER_CLIENT_ID}:${process.env.OAUTH_TWITTER_CLIENT_SECRET}`).toString('base64')}`,
+        accept: `application/json`,
+        'content-type': `application/x-www-form-urlencoded`,
       },
-      {
-        headers: {
-          Authorization: `Basic ${Buffer.from(`${process.env.OAUTH_TWITTER_CLIENT_ID}:${process.env.OAUTH_TWITTER_CLIENT_SECRET}`).toString('base64')}`,
-          accept: `application/json`,
-        },
-        timeout: 15_000,
-      },
-    )
+      timeout: 15_000,
+    })
 
     const token = response.data.access_token
 

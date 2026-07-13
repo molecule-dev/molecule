@@ -113,7 +113,14 @@ const toLogger = (instance: pino.Logger): Logger => ({
  * @returns The configured pino instance.
  */
 const createInstance = (options?: PinoLoggerOptions): pino.Logger => {
-  const level = options?.level ? levelMap[options.level] : 'info'
+  // Omitted `level` defaults to 'trace' pass-through, matching
+  // @molecule/api-logger-loglevel and the fleet's documented "filtering
+  // happens once, in the core" contract. A stricter default here (e.g.
+  // 'info') would be a second, hidden gate: a consumer who wires
+  // setLogger(createLogger({ name: 'api' })) and then calls the core's
+  // documented setLevel('debug') would see debug lines silently dropped by
+  // this instance instead of by the core gate they actually configured.
+  const level = options?.level ? levelMap[options.level] : 'trace'
 
   // An explicit destination is the most specific intent — it wins over
   // pretty/transport (pino forbids combining a transport with a stream).

@@ -180,11 +180,40 @@ interface InboundEmailProvider {
      * confirmation, etc.). Implementations MUST be constant-time when
      * comparing secrets.
      *
+     * A genuinely invalid webhook (forged, stale, malformed, tampered
+     * signature) resolves `false` — that is the normal, expected failure
+     * path and callers map it to a `401`. Implementations MAY instead THROW
+     * a tagged configuration error (e.g. via `configNotConfiguredError()`
+     * from `@molecule/api-secrets`) when the provider itself is
+     * misconfigured — for example a missing signing key/secret. This is a
+     * DISTINCT failure class from a `false` return: a misconfigured server
+     * is not the same problem as a forged request, and collapsing both into
+     * the same `false` makes a broken deployment indistinguishable from an
+     * attack, with no trace either way. `@molecule/api-emails-inbound-mailgun`
+     * follows this pattern — `verifySignature` throws the tagged
+     * `config.notConfigured` error when `MAILGUN_API_KEY` is unset, and
+     * resolves `false` for every other verification failure.
+     *
      * @param headers - HTTP request headers received by the webhook
      *   endpoint.
      * @param body - Raw HTTP request body. Implementations that need the
      *   exact bytes (e.g. for HMAC) MUST be passed a `Buffer`.
-     * @returns `true` when the signature is valid, `false` otherwise.
+     * @returns `true` when the signature is valid, `false` for an
+     *   invalid/forged/stale/malformed webhook.
+     * @throws {Error} Implementations MAY throw a tagged configuration error
+     *   when the provider is missing required configuration (e.g. an unset
+     *   signing key) — a server misconfiguration, not an invalid request.
+     * @example
+     * ```typescript
+     * // In an HTTP handler bound to the inbound webhook URL:
+     * const ok = await verifySignature(req.headers, req.rawBody)
+     * if (!ok) return res.status(401).end()
+     * // A thrown configuration error (server misconfigured) is deliberately
+     * // NOT caught above — do not wrap this call in a try/catch that maps
+     * // every failure to the same 401. Let it propagate to standard error
+     * // middleware, which maps a tagged config error to a 503, distinct
+     * // from the 401 an invalid/forged webhook gets.
+     * ```
      */
     verifySignature(headers: Record<string, string | string[] | undefined>, body: Buffer | string): Promise<boolean>;
     /**
@@ -681,3 +710,10 @@ Peer dependencies:
 - `AWS_SNS_SIGNING_CERT_HOSTNAME_SUFFIXES` *(optional)* — SNS signing-cert hostname allowlist — default: `.amazonaws.com`
   - Setup: Comma-separated hostname suffixes allowed for SNS signature certificates; the default (.amazonaws.com) is fine.
   - Example: `.amazonaws.com`
+
+The (uncached) signing-certificate fetch is bounded to a 5 second
+timeout — a hanging/slow `SigningCertURL` endpoint fails fast into a
+`false` verification result instead of stalling the webhook handler for
+`fetch`'s much longer default. Once a cert is fetched it is cached
+in-process, so this only affects the first verification against a given
+`SigningCertURL`.

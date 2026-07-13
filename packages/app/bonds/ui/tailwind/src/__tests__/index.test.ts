@@ -422,6 +422,12 @@ describe('switch components', () => {
       expect(switchBase({ size: 'sm' })).toContain('h-5')
       expect(switchBase({ size: 'lg' })).toContain('h-7')
     })
+
+    it('should apply color variants', () => {
+      expect(switchBase({ color: 'primary' })).toContain('data-[state=checked]:bg-primary')
+      expect(switchBase({ color: 'success' })).toContain('data-[state=checked]:bg-success')
+      expect(switchBase({ color: 'error' })).toContain('data-[state=checked]:bg-error')
+    })
   })
 
   describe('switchThumb', () => {
@@ -741,20 +747,26 @@ describe('table components', () => {
 // =============================================================================
 
 describe('tabs components', () => {
-  it('tabsList should have correct classes', () => {
-    expect(tabsList).toContain('inline-flex')
-    expect(tabsList).toContain('rounded-md')
-    expect(tabsList).toContain('bg-surface-secondary')
+  it('tabsList should have correct classes (default variant/size)', () => {
+    expect(tabsList()).toContain('inline-flex')
+    expect(tabsList()).toContain('rounded-md')
+    expect(tabsList()).toContain('bg-surface-secondary')
   })
 
-  it('tabsTrigger should have correct classes', () => {
-    expect(tabsTrigger).toContain('inline-flex')
-    expect(tabsTrigger).toContain('rounded-sm')
-    expect(tabsTrigger).toContain('font-medium')
+  it('tabsTrigger should have correct classes (default variant/size)', () => {
+    expect(tabsTrigger()).toContain('inline-flex')
+    expect(tabsTrigger()).toContain('rounded-sm')
+    expect(tabsTrigger()).toContain('font-medium')
   })
 
-  it('tabsContent should have correct classes', () => {
-    expect(tabsContent).toContain('mt-2')
+  it('tabsContent should have correct classes (default variant)', () => {
+    expect(tabsContent()).toContain('mt-2')
+  })
+
+  it('tabsList/tabsTrigger/tabsContent apply the "line" variant', () => {
+    expect(tabsList({ variant: 'line' })).toContain('border-b')
+    expect(tabsTrigger({ variant: 'line' })).toContain('data-[state=active]:border-primary')
+    expect(tabsContent({ variant: 'line' })).toContain('mt-4')
   })
 })
 

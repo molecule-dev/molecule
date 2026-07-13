@@ -43,6 +43,34 @@ function deriveDbName(databaseUrl: string): string {
   }
 }
 
+/** Postgres SQLSTATE codes for "already exists" / duplicate-object DDL errors. */
+const IDEMPOTENT_PG_CODES = new Set([
+  '42P07', // duplicate_table
+  '42701', // duplicate_column
+  '42710', // duplicate_object
+  '42P06', // duplicate_schema
+  '42P04', // duplicate_database
+  '42723', // duplicate_function
+])
+
+/**
+ * Returns true when `err` looks like an "already exists" / duplicate-object
+ * idempotency error — the class of error an `IF NOT EXISTS` migration is
+ * EXPECTED to hit on a re-run (e.g. a fresh boot re-applying every migration
+ * file against an already-provisioned database). Matched by SQLSTATE code
+ * first, falling back to the message text so hand-written migrations that
+ * don't trip a recognized code (or wrap the pg error) are still covered.
+ *
+ * @param err - The error thrown by `client.query(sql)`.
+ * @returns True if the error is safe to warn-and-continue past.
+ */
+function isIdempotencyError(err: unknown): boolean {
+  const code = (err as { code?: string } | undefined)?.code
+  if (code && IDEMPOTENT_PG_CODES.has(code)) return true
+  const msg = err instanceof Error ? err.message : String(err)
+  return /already exists/i.test(msg) || /duplicate (column|key|object) name/i.test(msg)
+}
+
 /**
  * Returns a `runMigrations()` function bound to the given directory.
  *
@@ -105,6 +133,8 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
       .filter((f) => f.endsWith('.sql'))
       .sort()
 
+    const failures: { file: string; message: string }[] = []
+
     if (sqlFiles.length === 0) {
       console.log('No migration files found.')
     } else {
@@ -115,13 +145,32 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
           console.log(`✓ ${file}`)
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err)
-          // IF NOT EXISTS tables are idempotent — log but don't fail.
-          console.warn(`⚠ ${file}: ${msg}`)
+          if (isIdempotencyError(err)) {
+            // IF NOT EXISTS re-runs are expected to hit this — warn, don't fail.
+            console.warn(`⚠ ${file}: ${msg}`)
+          } else {
+            // A genuinely broken migration (syntax error, bad column, failed ALTER)
+            // must NOT be swallowed as if it were idempotent — that boots the app
+            // with a missing/partial schema and the failure resurfaces later as an
+            // unrelated "relation does not exist" far from the real cause. Collect
+            // it and keep going so ONE boot log reports every broken file at once.
+            console.error(`✗ ${file}: ${msg}`)
+            failures.push({ file, message: msg })
+          }
         }
       }
     }
 
     await client.end()
+
+    if (failures.length > 0) {
+      throw new Error(
+        `Migrations failed — ${failures.length} file(s) had non-idempotency errors; ` +
+          `the app would boot with a missing/partial schema:\n` +
+          failures.map((f) => `  - ${f.file}: ${f.message}`).join('\n'),
+      )
+    }
+
     console.log('Migrations complete.')
   }
 }

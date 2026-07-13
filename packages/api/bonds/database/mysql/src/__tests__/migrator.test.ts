@@ -106,4 +106,44 @@ describe('createMigrator (mysql)', () => {
     expect(migrationQuery.mock.calls.filter((c) => !/^SET /i.test(String(c[0])))).toHaveLength(0)
     expect(migrationEnd).toHaveBeenCalled()
   })
+
+  it('continues past an idempotent "already exists" error (IF NOT EXISTS re-runs must not abort)', async () => {
+    writeFileSync(join(migrationsDir, '0001_ok.sql'), 'CREATE TABLE ok (id VARCHAR(36));')
+    writeFileSync(join(migrationsDir, '0002_dup.sql'), 'CREATE TABLE dup (id VARCHAR(36));')
+    writeFileSync(join(migrationsDir, '0003_ok.sql'), 'CREATE TABLE ok2 (id VARCHAR(36));')
+    migrationQuery.mockImplementation((sql: string) => {
+      if (/^SET /i.test(sql)) return Promise.resolve()
+      if (sql.includes('dup')) {
+        const err = Object.assign(new Error("Table 'dup' already exists"), {
+          code: 'ER_TABLE_EXISTS_ERROR',
+        })
+        return Promise.reject(err)
+      }
+      return Promise.resolve()
+    })
+
+    await expect(createMigrator(migrationsDir)()).resolves.toBeUndefined()
+    const fileCalls = migrationQuery.mock.calls.filter((c) => !/^SET /i.test(String(c[0])))
+    expect(fileCalls).toHaveLength(3) // ran all three despite the middle "duplicate"
+  })
+
+  it('REGRESSION: a genuinely broken migration fails the run with an actionable summary instead of silently continuing', async () => {
+    writeFileSync(join(migrationsDir, '0001_ok.sql'), 'CREATE TABLE ok (id VARCHAR(36));')
+    writeFileSync(join(migrationsDir, '0002_broken.sql'), 'CREAT TABLE typo (id VARCHAR(36));')
+    writeFileSync(join(migrationsDir, '0003_ok.sql'), 'CREATE TABLE ok2 (id VARCHAR(36));')
+    migrationQuery.mockImplementation((sql: string) => {
+      if (/^SET /i.test(sql)) return Promise.resolve()
+      if (sql.includes('typo')) {
+        return Promise.reject(new Error('You have an error in your SQL syntax'))
+      }
+      return Promise.resolve()
+    })
+
+    // Before the fix, EVERY per-file error (idempotent or not) was only
+    // warn-logged — the app would boot with a missing/partial schema.
+    await expect(createMigrator(migrationsDir)()).rejects.toThrow(/0002_broken\.sql/)
+    const fileCalls = migrationQuery.mock.calls.filter((c) => !/^SET /i.test(String(c[0])))
+    expect(fileCalls).toHaveLength(3) // still attempts every file
+    expect(migrationEnd).toHaveBeenCalled() // connection closed even on failure
+  })
 })

@@ -125,11 +125,30 @@ export const createProvider = (options?: DefaultMonitoringOptions): MonitoringPr
         checksMap[entry.name] = entry
       }
 
+      // Compare against the PREVIOUS snapshot (captured before `latest` is
+      // overwritten below) so only a status TRANSITION logs at warn. Without
+      // this, a /health endpoint polled every 10s with one down dependency
+      // emits ~360 identical warn lines/hour — noise that buries the
+      // transition that actually matters. A steady-state repeat of an
+      // already-reported down/degraded check still logs, at debug.
+      const previousChecks = latest?.checks
       for (const entry of results) {
-        if (entry.status === 'down') {
-          logger.warn(`Health check '${entry.name}' is down: ${entry.message ?? 'no details'}`)
-        } else if (entry.status === 'degraded') {
-          logger.warn(`Health check '${entry.name}' is degraded: ${entry.message ?? 'no details'}`)
+        const previousStatus = previousChecks?.[entry.name]?.status
+        const transitioned = previousStatus !== entry.status
+
+        if (entry.status === 'down' || entry.status === 'degraded') {
+          const detail = `Health check '${entry.name}' is ${entry.status}: ${entry.message ?? 'no details'}`
+          if (transitioned) {
+            logger.warn(detail)
+          } else {
+            logger.debug(detail)
+          }
+        } else if (transitioned && previousStatus !== undefined) {
+          // Recovered from a down/degraded state — as notable to anyone
+          // triaging from logs alone as the original failure was.
+          logger.info(
+            `Health check '${entry.name}' recovered (was ${previousStatus}, now operational)`,
+          )
         }
       }
 

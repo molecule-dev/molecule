@@ -16,6 +16,7 @@ export type { Logger, LogLevel } from '@molecule/api-logger'
  */
 export interface WinstonTransportConfig {
   type: 'console' | 'file' | 'http' | 'stream' | string
+  /** Per-transport level override. Omitted = inherit the parent logger's level (NOT pass-through). */
   level?: LogLevel
   options?: Record<string, unknown>
 }
@@ -25,10 +26,12 @@ export interface WinstonTransportConfig {
  */
 export interface WinstonLoggerOptions {
   /**
-   * Minimum level for the winston instance. Defaults to `'info'` — a
-   * bond-side gate that drops the core's `debug`/`trace` even after
-   * `setLevel('debug')` in `@molecule/api-logger`. Pass `'trace'` when the
-   * core's gate should be the only filter (what the default `provider` does).
+   * Minimum level for the winston instance. Defaults to `'trace'`
+   * (pass-through, via winston's `'silly'` level) — minimum-level filtering
+   * is meant to happen once, in `@molecule/api-logger`'s gate (`LOG_LEVEL` /
+   * `setLevel()`). Pass an explicit `level` only to add a second, stricter
+   * gate on this instance specifically. `'silent'` is implemented via
+   * winston's `silent: true` flag (winston has no built-in `'silent'` level).
    */
   level?: LogLevel
   /** Output format. Defaults to `'json'` (timestamps + error stacks); `'console'` is colorized. */

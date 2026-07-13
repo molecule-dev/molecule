@@ -11,6 +11,14 @@
  * transport (typically `@molecule/api-emails-ses`) — this package does not
  * reimplement SMTP / SES SendEmail.
  *
+ * @remarks
+ * The (uncached) signing-certificate fetch is bounded to a 5 second
+ * timeout — a hanging/slow `SigningCertURL` endpoint fails fast into a
+ * `false` verification result instead of stalling the webhook handler for
+ * `fetch`'s much longer default. Once a cert is fetched it is cached
+ * in-process, so this only affects the first verification against a given
+ * `SigningCertURL`.
+ *
  * @example
  * ```typescript
  * import { setProvider } from '@molecule/api-emails-inbound'

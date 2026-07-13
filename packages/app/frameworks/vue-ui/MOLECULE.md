@@ -198,9 +198,10 @@ interface BaseProps {
      */
     testId?: string;
     /**
-     * Automation ID for AI agents, E2E tests, and screen readers.
-     * Maps to the `data-mol-id` HTML attribute.
-     * Use `molId()` from `./automation.js` to generate semantic IDs.
+     * Automation ID for AI agents and E2E tests. Maps to the `data-mol-id`
+     * HTML attribute. Use `molId()` from `./automation.js` to generate
+     * semantic IDs. (Tooling only — screen readers do not expose `data-*`
+     * attributes; accessible names come from labels/`aria-*`.)
      */
     automationId?: string;
     /**
@@ -740,6 +741,15 @@ interface RadioGroupProps<T = string> extends BaseProps {
      * Group label.
      */
     label?: string;
+    /**
+     * Shared `name` attribute for the group's radio inputs (used for native
+     * form submission). When omitted, a unique per-instance name is generated
+     * so separate groups never merge — the visible `label` is deliberately
+     * NOT used as the name, because two groups with the same label (e.g. two
+     * "Size" pickers) would otherwise form ONE native radio group and
+     * deselect each other.
+     */
+    name?: string;
     /**
      * Layout direction.
      */
@@ -1555,8 +1565,12 @@ const Label: DefineComponent<ExtractPropTypes<{ for: StringConstructor; required
 
 Vue Modal UI component with UIClassMap-driven styling.
 
+`centered` (default `true`) vertically centers the dialog; `centered:
+false` top-anchors it instead, via the sanctioned inline-style exception
+(see the `wrapperStyle` computation in `setup()`).
+
 ```typescript
-const Modal: DefineComponent<ExtractPropTypes<{ open: { type: BooleanConstructor; required: true; }; title: StringConstructor; size: { type: PropType<ModalSize>; default: string; }; showCloseButton: { type: BooleanConstructor; default: boolean; }; closeOnOverlayClick: { type: BooleanConstructor; default: boolean; }; closeOnEscape: { type: BooleanConstructor; default: boolean; }; preventScroll: { type: BooleanConstructor; default: boolean; }; closeLabel: StringConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }> | null, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "close"[], "close", PublicProps, Readonly<ExtractPropTypes<{ open: { type: BooleanConstructor; required: true; }; title: StringConstructor; size: { type: PropType<ModalSize>; default: string; }; showCloseButton: { type: BooleanConstructor; default: boolean; }; closeOnOverlayClick: { type: BooleanConstructor; default: boolean; }; closeOnEscape: { type: BooleanConstructor; default: boolean; }; preventScroll: { type: BooleanConstructor; default: boolean; }; closeLabel: StringConstructor; class: StringConstructor; }>> & Readonly<{ onClose?: ((...args: any[]) => any) | undefined; }>, { size: ModalSize; showCloseButton: boolean; closeOnOverlayClick: boolean; closeOnEscape: boolean; preventScroll: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Modal: DefineComponent<ExtractPropTypes<{ open: { type: BooleanConstructor; required: true; }; title: StringConstructor; size: { type: PropType<ModalSize>; default: string; }; showCloseButton: { type: BooleanConstructor; default: boolean; }; closeOnOverlayClick: { type: BooleanConstructor; default: boolean; }; closeOnEscape: { type: BooleanConstructor; default: boolean; }; centered: { type: BooleanConstructor; default: boolean; }; preventScroll: { type: BooleanConstructor; default: boolean; }; closeLabel: StringConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }> | null, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "close"[], "close", PublicProps, Readonly<ExtractPropTypes<{ open: { type: BooleanConstructor; required: true; }; title: StringConstructor; size: { type: PropType<ModalSize>; default: string; }; showCloseButton: { type: BooleanConstructor; default: boolean; }; closeOnOverlayClick: { type: BooleanConstructor; default: boolean; }; closeOnEscape: { type: BooleanConstructor; default: boolean; }; centered: { type: BooleanConstructor; default: boolean; }; preventScroll: { type: BooleanConstructor; default: boolean; }; closeLabel: StringConstructor; class: StringConstructor; }>> & Readonly<{ onClose?: ((...args: any[]) => any) | undefined; }>, { size: ModalSize; centered: boolean; showCloseButton: boolean; closeOnOverlayClick: boolean; closeOnEscape: boolean; preventScroll: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
 ```
 
 #### `Pagination`
@@ -1698,6 +1712,8 @@ const ToastProvider: DefineComponent<ExtractPropTypes<{ position: { type: PropTy
 #### `Tooltip`
 
 Vue Tooltip UI component with UIClassMap-driven styling.
+
+`hasArrow` renders a small themed pointer at the resolved `placement` edge.
 
 ```typescript
 const Tooltip: DefineComponent<ExtractPropTypes<{ content: { type: PropType<string | unknown>; required: true; }; placement: { type: PropType<TooltipPlacement>; default: string; }; delay: { type: NumberConstructor; default: number; }; hasArrow: BooleanConstructor; class: StringConstructor; }>, () => VNodeArrayChildren, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ content: { type: PropType<string | unknown>; required: true; }; placement: { type: PropType<TooltipPlacement>; default: string; }; delay: { type: NumberConstructor; default: number; }; hasArrow: BooleanConstructor; class: StringConstructor; }>> & Readonly<{}>, { placement: TooltipPlacement; hasArrow: boolean; delay: number; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>

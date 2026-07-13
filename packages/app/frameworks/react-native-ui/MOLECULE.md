@@ -172,9 +172,10 @@ interface BaseProps {
      */
     testId?: string;
     /**
-     * Automation ID for AI agents, E2E tests, and screen readers.
-     * Maps to the `data-mol-id` HTML attribute.
-     * Use `molId()` from `./automation.js` to generate semantic IDs.
+     * Automation ID for AI agents and E2E tests. Maps to the `data-mol-id`
+     * HTML attribute. Use `molId()` from `./automation.js` to generate
+     * semantic IDs. (Tooling only — screen readers do not expose `data-*`
+     * attributes; accessible names come from labels/`aria-*`.)
      */
     automationId?: string;
     /**
@@ -564,6 +565,15 @@ interface RadioGroupProps<T = string> extends BaseProps {
      * Group label.
      */
     label?: string;
+    /**
+     * Shared `name` attribute for the group's radio inputs (used for native
+     * form submission). When omitted, a unique per-instance name is generated
+     * so separate groups never merge — the visible `label` is deliberately
+     * NOT used as the name, because two groups with the same label (e.g. two
+     * "Size" pickers) would otherwise form ONE native radio group and
+     * deselect each other.
+     */
+    name?: string;
     /**
      * Layout direction.
      */

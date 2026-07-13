@@ -9,19 +9,22 @@
 
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
-import type {
-  ParsedNotification,
-  PaymentProvider,
-  VerifiedSubscription,
+import {
+  isConfigNotConfiguredError,
+  type ParsedNotification,
+  type PaymentProvider,
+  type VerifiedSubscription,
 } from '@molecule/api-payments'
 
+import { parseV2Notification } from './notificationV2.js'
 import {
   describeAppleStatus,
+  getAutoRenewStatus,
   getLatestSubscription,
   isSubscriptionActive,
   verifyReceipt as appleVerifyReceipt,
 } from './provider.js'
-import type { PendingRenewal, VerifyReceiptResponse } from './types.js'
+import type { VerifyReceiptResponse } from './types.js'
 
 /**
  * Maps Apple S2S notification_type values to simplified notification types.
@@ -39,25 +42,6 @@ const NOTIFICATION_TYPE_MAP: Record<string, string> = {
   DID_RECOVER: 'renewed',
   PRICE_INCREASE_CONSENT: 'renewed',
   REVOKE: 'canceled',
-}
-
-/**
- * Checks whether a subscription's pending renewal info indicates auto-renew is enabled.
- * @param response - The Apple receipt verification response containing `pending_renewal_info`.
- * @param originalTransactionId - The original transaction ID to match in the renewal info array.
- * @returns `true` if auto-renew is on, `false` if off, or `undefined` if no matching renewal info found.
- */
-const getAutoRenewStatus = (
-  response: VerifyReceiptResponse,
-  originalTransactionId: string,
-): boolean | undefined => {
-  const renewal = response.pending_renewal_info?.find(
-    (r: PendingRenewal) => r.original_transaction_id === originalTransactionId,
-  )
-
-  if (!renewal) return undefined
-
-  return renewal.auto_renew_status === '1'
 }
 
 /**
@@ -142,28 +126,35 @@ export const paymentProvider: PaymentProvider = {
         data: subscription,
       }
     } catch (error) {
+      // A missing APPLE_SHARED_SECRET (appleVerifyReceipt) is a DIFFERENT
+      // failure than "invalid receipt" — rethrow so the resource handler's
+      // catch can surface the actionable 503 instead of the generic 400 a
+      // genuinely bad/forged receipt gets.
+      if (isConfigNotConfiguredError(error)) {
+        throw error
+      }
       logger.error('Apple bondAdapter verifyReceipt error:', error)
       return null
     }
   },
 
   /**
-   * Parses an Apple server-to-server (v1) notification into a normalized
-   * ParsedNotification.
+   * Parses an Apple server-to-server notification (v1 OR v2) into a
+   * normalized ParsedNotification.
    *
-   * AUTHENTICITY: the raw notification body is attacker-forgeable, so NOTHING in
-   * it is trusted. The embedded base64 `latest_receipt` is re-submitted to
-   * Apple's `verifyReceipt` (which authenticates it with `APPLE_SHARED_SECRET`),
-   * and every entitlement field (transactionId / productId / expiresAt /
-   * autoRenews) is derived from the VERIFIED receipt — never from the body. A
-   * forged notification cannot supply a receipt that Apple verifies, so this
-   * returns `null` for it.
+   * **v1** (`notification_type` at the body root): the raw body is
+   * attacker-forgeable, so NOTHING in it is trusted directly. The embedded
+   * base64 `latest_receipt` is re-submitted to Apple's `verifyReceipt` (which
+   * authenticates it with `APPLE_SHARED_SECRET`), and every entitlement field
+   * (transactionId / productId / expiresAt / autoRenews) is derived from the
+   * VERIFIED receipt — never from the body. A forged notification cannot
+   * supply a receipt that Apple verifies, so this returns `null` for it.
    *
-   * v2 (`signedPayload` JWS) notifications are NOT trusted here: without
-   * verifying the JWS x5c certificate chain against Apple's root CA they cannot
-   * be authenticated, so they are rejected (`null`) rather than parsed from an
-   * unverified payload. (v2 was already unsupported — it carries no top-level
-   * `notification_type`.) Proper v2 support requires a vetted JWS/x509 verifier.
+   * **v2** (`signedPayload` JWS, no top-level `notification_type`): delegated
+   * to {@link parseV2Notification}, which authenticates the JWS x5c
+   * certificate chain against Apple's Root CA - G3 (no live call back to
+   * Apple needed — the signature chain IS the proof) before trusting any
+   * field. See `notificationV2.ts`.
    *
    * @param body - The raw notification body from Apple
    * @returns The parsed notification, or null if it cannot be authenticated
@@ -179,11 +170,17 @@ export const paymentProvider: PaymentProvider = {
       const notificationType = notification.notification_type as string | undefined
 
       if (!notificationType) {
-        // No top-level notification_type — this is a v2 signedPayload (or junk).
-        // We cannot authenticate a v2 JWS payload here, so reject it rather than
-        // trust unverified data.
-        logger.warn('Apple parseNotification: missing notification_type (v2 unsupported)')
-        return null
+        // No top-level notification_type — this is either a v2 signedPayload
+        // or junk. v2 authenticates itself via its JWS x5c chain (no receipt
+        // to re-verify), so dispatch to the v2 parser rather than rejecting.
+        const signedPayload = notification.signedPayload as string | undefined
+        if (!signedPayload) {
+          logger.warn(
+            'Apple parseNotification: missing both notification_type (v1) and signedPayload (v2)',
+          )
+          return null
+        }
+        return parseV2Notification(signedPayload)
       }
 
       const type = NOTIFICATION_TYPE_MAP[notificationType] ?? notificationType.toLowerCase()

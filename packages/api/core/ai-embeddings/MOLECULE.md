@@ -160,4 +160,5 @@ function setProvider(provider: AIEmbeddingsProvider): void
 
 | Provider | Package |
 |----------|---------|
+| Ai Embeddings | `@molecule/api-ai-embeddings-local` |
 | Ai Embeddings | `@molecule/api-ai-embeddings-openai` |

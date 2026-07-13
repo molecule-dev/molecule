@@ -8,7 +8,7 @@
  * @module
  */
 
-import { bond, isBonded, require as bondRequire } from '@molecule/app-bond'
+import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
 import { t } from '@molecule/app-i18n'
 
 import type { IconData, IconName, IconSet } from './types.js'
@@ -29,10 +29,21 @@ export function setIconSet(iconSet: IconSet): void {
  * Retrieves the bonded icon set, throwing if none is configured.
  *
  * @returns The bonded icon set.
- * @throws {Error} If no icon set has been bonded.
+ * @throws {Error} If no icon set has been bonded — names {@link setIconSet}
+ *   and a concrete icon set bond package as the fix, rather than the generic
+ *   `@molecule/app-bond` "no provider bonded" message.
  */
 export function getIconSet(): IconSet {
-  return bondRequire<IconSet>(BOND_TYPE)
+  const iconSet = bondGet<IconSet>(BOND_TYPE)
+  if (!iconSet) {
+    throw new Error(
+      t('icons.error.noProvider', undefined, {
+        defaultValue:
+          '@molecule/app-icons: No icon set bonded. Call setIconSet() with an IconSet (e.g. the export from @molecule/app-icons-molecule).',
+      }),
+    )
+  }
+  return iconSet
 }
 
 /**

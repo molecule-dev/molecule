@@ -37,6 +37,14 @@
  * projects MUST set `VITE_POSTHOG_HOST=https://eu.i.posthog.com` or events are
  * sent to the US region and silently never appear in the EU project.
  *
+ * `createProvider()` called a second time (e.g. Vite HMR re-running a
+ * bonds.ts setup function) does NOT re-configure PostHog: `posthog-js`'s
+ * underlying client is a module-level singleton, so the second call's
+ * `host`/`autocapture`/etc. are silently ignored by the SDK — the FIRST
+ * configuration always wins. This logs one actionable console warning naming
+ * the ignored call before the SDK's own generic "already initialized"
+ * warning fires.
+ *
  * @module
  */
 

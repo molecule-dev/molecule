@@ -71,8 +71,20 @@ function buildWhere(
         paramIdx++
         break
       case 'like':
-        parts.push(`"${cond.field}" LIKE $${paramIdx} ESCAPE '\\'`)
-        values.push(String(cond.value).replace(/[%_\\]/g, '\\$&'))
+        // Case-insensitive RAW pattern match — the caller supplies the full SQL
+        // pattern (their own %/_ wildcards are honored, NOT escaped). Postgres's
+        // native LIKE is case-SENSITIVE, so this uses ILIKE to align with the
+        // sqlite/mysql bonds' case-insensitive default — see the `like` contract
+        // documented on `WhereCondition['operator']` in `@molecule/api-database`.
+        // Previously this bond escaped %/_/\ in the value, silently turning `like`
+        // into an exact-match operator here only: the fleet's `{ operator: 'like',
+        // value: `%${search}%` }` search filters matched NOTHING on postgres while
+        // working on sqlite/mysql. Use `ilike` for a safe literal-substring search.
+        // ESCAPE '\' pins backslash as THE escape character in the caller's own
+        // pattern (postgres's own default, made explicit) so a literal `\%`/`\_`
+        // means the same thing here as it does via the sqlite/mysql bonds' `like`.
+        parts.push(`"${cond.field}" ILIKE $${paramIdx} ESCAPE '\\'`)
+        values.push(cond.value)
         paramIdx++
         break
       case 'ilike':

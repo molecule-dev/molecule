@@ -4,5 +4,7 @@ import type { IconsTranslations } from './types.js'
 export const ru: IconsTranslations = {
   'icons.error.noIconSet':
     'IconSet не установлен. Вызовите setIconSet() при запуске приложения с библиотекой иконок (например, @molecule/app-icons-molecule).',
+  'icons.error.noProvider':
+    '@molecule/app-icons: Набор иконок не подключен. Вызовите setIconSet() с IconSet (например, экспорт из @molecule/app-icons-molecule).',
   'icons.error.notFound': 'Иконка "{{name}}" не найдена в текущем наборе иконок.',
 }

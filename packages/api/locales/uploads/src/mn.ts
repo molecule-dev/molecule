@@ -5,4 +5,5 @@ export const mn: UploadsTranslations = {
   'uploads.error.noProvider':
     'Байршуулалтын нийлүүлэгч тохируулагдаагүй байна. Эхлээд setProvider() дуудна уу.',
   'uploads.error.streamLimitReached': 'Урсгалын хязгаарт хүрсэн.',
+  'uploads.error.aborted': 'Байршуулалт цуцлагдлаа.',
 }

@@ -157,6 +157,9 @@ interface RealtimeConnection {
 
   /**
    * Registers a handler that fires when presence changes in any joined room.
+   * The handler receives the room id the update is for (see
+   * {@link PresenceChangeHandler}) — a single handler registered once still
+   * works correctly for a consumer joined to multiple rooms.
    *
    * @param handler - The presence change handler.
    */
@@ -222,7 +225,7 @@ type ConnectionStateHandler = (state: ConnectionState) => void
 Handler invoked when presence information changes for a room.
 
 ```typescript
-type PresenceChangeHandler = (presence: PresenceInfo[]) => void
+type PresenceChangeHandler = (presence: PresenceInfo[], roomId: string) => void
 ```
 
 #### `RealtimeEventHandler`

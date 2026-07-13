@@ -376,13 +376,22 @@ describe('Google Auth', () => {
   })
 
   describe('getAuthClient', () => {
-    it('should throw when service key is not configured', async () => {
+    it('should throw a tagged config-not-configured error when service key is not configured [ambiguous-failure]', async () => {
       vi.stubEnv('GOOGLE_API_SERVICE_KEY_OBJECT', '')
       vi.resetModules()
 
       const { getAuthClient } = await import('../auth.js')
 
-      expect(() => getAuthClient()).toThrow('Google API service key object not configured')
+      expect(() => getAuthClient()).toThrow('GOOGLE_API_SERVICE_KEY_OBJECT is not set')
+      try {
+        getAuthClient()
+        expect.unreachable('getAuthClient() should have thrown')
+      } catch (error) {
+        // Tagged (statusCode 503 + errorKey 'config.notConfigured') so the
+        // bond adapter's catch can rethrow it instead of swallowing it into
+        // the same `null` a genuine verification failure returns.
+        expect(error).toMatchObject({ statusCode: 503, errorKey: 'config.notConfigured' })
+      }
     })
 
     it('should create JWT auth client with valid config', async () => {

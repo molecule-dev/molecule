@@ -193,14 +193,21 @@ Implements `@molecule/app-analytics` interface.
 
 ## Bond Wiring
 
-Setup function to register this provider with the core interface:
+This provider cannot self-configure: app-side bonds never read env internally (Vite only embeds `import.meta.env`, not `process.env`), so the bare `provider` export can never receive the required VITE_MIXPANEL_TOKEN secret. Bonding it directly (`setProvider(provider)`) silently ships a no-op even when the secret IS set correctly in your app's env — call `createProvider(options)` with the secret read from your app's env, then pass the result to `setProvider()`.
+
+See Quick Start above for the exact wiring:
 
 ```typescript
 import { setProvider } from '@molecule/app-analytics'
-import { provider } from '@molecule/app-analytics-mixpanel'
+import { createProvider } from '@molecule/app-analytics-mixpanel'
 
-export function setupAnalyticsMixpanel(): void {
-  setProvider(provider)
+// Canonical wiring: read the browser-side token from Vite env and pass it
+// through options. Without a token, skip bonding — analytics calls no-op.
+// VITE_MIXPANEL_TOKEN below stands for `import.meta.env.VITE_MIXPANEL_TOKEN`
+// (write the `import.meta.env` read in your app's bond-setup file).
+const token = VITE_MIXPANEL_TOKEN as string | undefined
+if (token) {
+  setProvider(createProvider({ token }))
 }
 ```
 

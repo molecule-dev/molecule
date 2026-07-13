@@ -30,6 +30,7 @@ import type { DefaultNotificationCenterConfig } from './types.js'
  * @param unreadCount - Current unread count.
  * @param loading - Whether a fetch is in progress.
  * @param hasMore - Whether more pages are available.
+ * @param lastError - The error from the most recent failed poll/loadMore/refresh, or `undefined`.
  * @returns A frozen state snapshot.
  */
 function createState(
@@ -37,8 +38,9 @@ function createState(
   unreadCount: number,
   loading: boolean,
   hasMore: boolean,
+  lastError: Error | undefined,
 ): NotificationCenterState {
-  return { notifications: [...notifications], unreadCount, loading, hasMore }
+  return { notifications: [...notifications], unreadCount, loading, hasMore, lastError }
 }
 
 // ---------------------------------------------------------------------------
@@ -65,6 +67,7 @@ function createInstance(
   let hasMorePages = true
   let nextCursor: string | undefined
   let destroyed = false
+  let lastError: Error | undefined
 
   const subscribers = new Set<NotificationUpdateHandler>()
   let pollTimer: ReturnType<typeof setInterval> | undefined
@@ -79,7 +82,7 @@ function createInstance(
    * Emits the current state to all subscribers.
    */
   function emit(): void {
-    const state = createState(notifications, unreadCount, loading, hasMorePages)
+    const state = createState(notifications, unreadCount, loading, hasMorePages, lastError)
     for (const handler of subscribers) {
       handler(state)
     }
@@ -170,9 +173,15 @@ function createInstance(
         unreadCount = await options.fetchUnreadCount()
       }
 
+      lastError = undefined
       emit()
-    } catch (_error) {
-      // Polling failures are silent — next poll will retry
+    } catch (error) {
+      // Polling failures are silent (next poll will retry) but must still
+      // surface to consumers via `lastError` — otherwise a persistently
+      // failing poll against a stale-but-populated list looks identical to
+      // a healthy, quiet inbox.
+      lastError = error instanceof Error ? error : new Error(String(error))
+      emit()
     } finally {
       pollInFlight = false
     }
@@ -254,8 +263,11 @@ function createInstance(
         notifications = [...notifications, ...newItems]
         nextCursor = result.nextCursor
         hasMorePages = result.hasMore
-      } catch (_error) {
-        // loadMore failures are non-fatal — consumer can retry
+        lastError = undefined
+      } catch (error) {
+        // loadMore failures are non-fatal — consumer can retry. Surface the
+        // failure via `lastError` so a retry affordance can render.
+        lastError = error instanceof Error ? error : new Error(String(error))
       } finally {
         loading = false
         emit()
@@ -278,12 +290,15 @@ function createInstance(
         nextCursor = result.nextCursor
         hasMorePages = result.hasMore
         unreadCount = count
-      } catch (_error) {
+        lastError = undefined
+      } catch (error) {
         // Keep the previously loaded state. The old code wiped the list BEFORE
         // fetching, so one transient network error emptied the user's inbox —
         // indistinguishable from "no notifications" — until the next successful
         // refresh. Stale-but-real beats empty-and-wrong; the state swaps
-        // wholesale on success only.
+        // wholesale on success only. The failure itself still surfaces via
+        // `lastError` so a stale-but-populated list can still show a retry banner.
+        lastError = error instanceof Error ? error : new Error(String(error))
       } finally {
         loading = false
         emit()
@@ -328,7 +343,7 @@ function createInstance(
     // -- Lifecycle -----------------------------------------------------------
 
     getState(): NotificationCenterState {
-      return createState(notifications, unreadCount, loading, hasMorePages)
+      return createState(notifications, unreadCount, loading, hasMorePages, lastError)
     },
 
     destroy(): void {
@@ -348,6 +363,7 @@ function createInstance(
       unreadCount = 0
       hasMorePages = false
       loading = false
+      lastError = undefined
     },
   }
 

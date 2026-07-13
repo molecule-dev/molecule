@@ -180,11 +180,40 @@ interface InboundEmailProvider {
      * confirmation, etc.). Implementations MUST be constant-time when
      * comparing secrets.
      *
+     * A genuinely invalid webhook (forged, stale, malformed, tampered
+     * signature) resolves `false` — that is the normal, expected failure
+     * path and callers map it to a `401`. Implementations MAY instead THROW
+     * a tagged configuration error (e.g. via `configNotConfiguredError()`
+     * from `@molecule/api-secrets`) when the provider itself is
+     * misconfigured — for example a missing signing key/secret. This is a
+     * DISTINCT failure class from a `false` return: a misconfigured server
+     * is not the same problem as a forged request, and collapsing both into
+     * the same `false` makes a broken deployment indistinguishable from an
+     * attack, with no trace either way. `@molecule/api-emails-inbound-mailgun`
+     * follows this pattern — `verifySignature` throws the tagged
+     * `config.notConfigured` error when `MAILGUN_API_KEY` is unset, and
+     * resolves `false` for every other verification failure.
+     *
      * @param headers - HTTP request headers received by the webhook
      *   endpoint.
      * @param body - Raw HTTP request body. Implementations that need the
      *   exact bytes (e.g. for HMAC) MUST be passed a `Buffer`.
-     * @returns `true` when the signature is valid, `false` otherwise.
+     * @returns `true` when the signature is valid, `false` for an
+     *   invalid/forged/stale/malformed webhook.
+     * @throws {Error} Implementations MAY throw a tagged configuration error
+     *   when the provider is missing required configuration (e.g. an unset
+     *   signing key) — a server misconfiguration, not an invalid request.
+     * @example
+     * ```typescript
+     * // In an HTTP handler bound to the inbound webhook URL:
+     * const ok = await verifySignature(req.headers, req.rawBody)
+     * if (!ok) return res.status(401).end()
+     * // A thrown configuration error (server misconfigured) is deliberately
+     * // NOT caught above — do not wrap this call in a try/catch that maps
+     * // every failure to the same 401. Let it propagate to standard error
+     * // middleware, which maps a tagged config error to a 503, distinct
+     * // from the 401 an invalid/forged webhook gets.
+     * ```
      */
     verifySignature(headers: Record<string, string | string[] | undefined>, body: Buffer | string): Promise<boolean>;
     /**
@@ -280,6 +309,10 @@ Mailgun POSTs `application/x-www-form-urlencoded` data with keys such as
 the signing triple. We only extract domain-relevant fields here;
 verification is done separately by {@link verifySignature}.
 
+When `Message-Id` is absent, `id` falls back to
+{@link deriveStableFallbackId} rather than the per-request signing
+`token` — see that function's docs for why.
+
 ```typescript
 function parseWebhookPayload(_headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike> | Record<string, unknown>): Promise<InboundEmail>
 ```
@@ -332,6 +365,16 @@ The `body` parameter is the raw form-encoded body that carries the
 signing fields. Header-only signing schemes are not supported by Mailgun
 Routes.
 
+Distinguishes SERVER MISCONFIGURATION from a genuinely invalid webhook:
+an unset `MAILGUN_API_KEY` THROWS the tagged `config.notConfigured` error
+(mapped by the API error middleware to a clean 503) instead of returning
+`false`. Stale timestamps, missing signing fields, and a tampered
+signature all still resolve to `false` (401) — those ARE the "this
+request is not from Mailgun" class. Collapsing every failure mode into
+the same `false` made a misconfigured server indistinguishable from
+active forgery, with no trace either way (see
+integration-audit-findings.md → [email] ambiguous-failure).
+
 ```typescript
 function verifySignature(_headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike>): Promise<boolean>
 ```
@@ -339,7 +382,8 @@ function verifySignature(_headers: Record<string, string | string[] | undefined>
 - `_headers` — HTTP headers (unused — Mailgun signs via form fields).
 - `body` — Raw HTTP request body (form-encoded).
 
-**Returns:** `true` when the signature verifies and the timestamp is fresh.
+**Returns:** `true` when the signature verifies and the timestamp is fresh;
+ *   `false` for a malformed/stale/forged webhook.
 
 ### Constants
 
@@ -397,3 +441,16 @@ Peer dependencies:
 - `MAILGUN_INBOUND_REPLAY_WINDOW_SECONDS` *(optional)* — Mailgun inbound replay window
   - Setup: Max age (seconds) of accepted inbound webhook signatures — replay protection; the default is fine.
   - Example: `300`
+
+`verifySignature` THROWS the tagged `config.notConfigured` error (→ 503
+via the API error middleware) when `MAILGUN_API_KEY` is unset, instead of
+returning `false` like every other verification failure. Wire your
+webhook handler to let that throw propagate to the error middleware —
+catching it and mapping to the same 401 as a forged/stale webhook
+re-introduces the "every failure looks the same" ambiguity this was
+fixed to remove.
+
+When an inbound message has no `Message-Id`, `id` is a deterministic
+hash of the sender/original-Date-header/subject (NOT the per-request
+Mailgun signing token, which changes on every retry) — so retries of an
+id-less message still dedupe to the same id.

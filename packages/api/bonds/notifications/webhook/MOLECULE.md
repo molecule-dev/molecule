@@ -101,3 +101,10 @@ Peer dependencies:
   - Example: `https://example.com/hooks/notify`
 - `NOTIFICATIONS_WEBHOOK_SECRET` *(optional)* — Notification webhook signing secret
   - **Auto-generated at scaffold — no manual setup.**
+
+Wire format: the POST body is
+`{ subject, body, timestamp, metadata }` — `metadata` is nested under its
+own key (never spread at the top level), so a `Notification.metadata`
+object can safely use keys like `subject`/`body`/`timestamp` without
+colliding with the canonical envelope fields the receiver (and the HMAC
+signature, when a secret is configured) depends on.

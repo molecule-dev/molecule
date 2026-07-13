@@ -13,6 +13,22 @@ const mockSearch = vi.fn().mockResolvedValue({
 const mockDelete = vi.fn().mockResolvedValue({})
 const mockGet = vi.fn().mockResolvedValue({ _source: null })
 
+// Mirrors the real `@elastic/elasticsearch` error classes closely enough for
+// mapSearchError()'s `instanceof` checks — real `errors.ConnectionError` etc.
+// extend `ElasticsearchClientError` extends `Error`, which is all the
+// production code relies on.
+class MockElasticsearchClientError extends Error {}
+class MockConnectionError extends MockElasticsearchClientError {}
+class MockTimeoutError extends MockElasticsearchClientError {}
+class MockNoLivingConnectionsError extends MockElasticsearchClientError {}
+class MockResponseError extends MockElasticsearchClientError {
+  statusCode: number
+  constructor(statusCode: number) {
+    super('Response Error')
+    this.statusCode = statusCode
+  }
+}
+
 vi.mock('@elastic/elasticsearch', () => ({
   Client: class MockClient {
     indices = {
@@ -25,6 +41,13 @@ vi.mock('@elastic/elasticsearch', () => ({
     search = mockSearch
     delete = mockDelete
     get = mockGet
+  },
+  errors: {
+    ElasticsearchClientError: MockElasticsearchClientError,
+    ConnectionError: MockConnectionError,
+    TimeoutError: MockTimeoutError,
+    NoLivingConnectionsError: MockNoLivingConnectionsError,
+    ResponseError: MockResponseError,
   },
 }))
 
@@ -91,6 +114,46 @@ describe('elasticsearch search provider', () => {
       await p.createIndex('products')
 
       expect(mockIndicesCreate).toHaveBeenCalledWith({ index: 'app-products' })
+    })
+
+    it('throws an actionable error when a text field is also declared filterable', async () => {
+      const p = createProvider()
+
+      await expect(
+        p.createIndex('products', {
+          fields: { category: 'text' },
+          searchableFields: ['category'],
+          filterableFields: ['category'],
+        }),
+      ).rejects.toThrow(/category.*type 'text'.*filterableFields/s)
+
+      expect(mockIndicesCreate).not.toHaveBeenCalled()
+    })
+
+    it('does not throw when the filterable field is declared keyword', async () => {
+      const p = createProvider()
+
+      await expect(
+        p.createIndex('products', {
+          fields: { category: 'keyword' },
+          filterableFields: ['category'],
+        }),
+      ).resolves.toBeUndefined()
+
+      expect(mockIndicesCreate).toHaveBeenCalled()
+    })
+
+    it('does not throw when a text field is searchable-only (not filterable)', async () => {
+      const p = createProvider()
+
+      await expect(
+        p.createIndex('products', {
+          fields: { description: 'text' },
+          searchableFields: ['description'],
+        }),
+      ).resolves.toBeUndefined()
+
+      expect(mockIndicesCreate).toHaveBeenCalled()
     })
   })
 
@@ -244,6 +307,66 @@ describe('elasticsearch search provider', () => {
       expect(result.facets).toBeDefined()
       expect(result.facets!.category).toHaveLength(2)
       expect(result.facets!.category[0]).toEqual({ value: 'electronics', count: 5 })
+    })
+
+    it('treats empty search text as "browse" mode — match_all instead of an empty multi_match', async () => {
+      mockSearch.mockResolvedValueOnce({
+        hits: { total: { value: 3 }, hits: [] },
+      })
+      const p = createProvider()
+      await p.search('products', { text: '' })
+
+      const callArgs = mockSearch.mock.calls[0][0]
+      expect(callArgs.query.bool.must[0]).toEqual({ match_all: {} })
+    })
+
+    it('treats whitespace-only search text as "browse" mode too', async () => {
+      mockSearch.mockResolvedValueOnce({
+        hits: { total: { value: 0 }, hits: [] },
+      })
+      const p = createProvider()
+      await p.search('products', { text: '   ' })
+
+      const callArgs = mockSearch.mock.calls[0][0]
+      expect(callArgs.query.bool.must[0]).toEqual({ match_all: {} })
+    })
+
+    it('skips highlighting in browse mode — there is no term to highlight', async () => {
+      mockSearch.mockResolvedValueOnce({
+        hits: { total: { value: 0 }, hits: [] },
+      })
+      const p = createProvider()
+      await p.search('products', { text: '', highlight: true })
+
+      const callArgs = mockSearch.mock.calls[0][0]
+      expect(callArgs.highlight).toBeUndefined()
+    })
+
+    it('wraps a connectivity failure into an actionable error naming the env var to check', async () => {
+      mockSearch.mockRejectedValueOnce(
+        new MockConnectionError('connect ECONNREFUSED 127.0.0.1:9200'),
+      )
+      const p = createProvider()
+
+      await expect(p.search('products', { text: 'widget' })).rejects.toThrow(/ELASTICSEARCH_URL/)
+    })
+
+    it('wraps an unauthorized response into an actionable error naming the credential env vars', async () => {
+      mockSearch.mockRejectedValueOnce(new MockResponseError(401))
+      const p = createProvider()
+
+      await expect(p.search('products', { text: 'widget' })).rejects.toThrow(
+        /ELASTICSEARCH_API_KEY/,
+      )
+    })
+
+    it('passes through a non-connectivity, non-auth error unchanged', async () => {
+      mockSearch.mockRejectedValueOnce(new Error('index_not_found_exception'))
+      const p = createProvider()
+
+      await expect(p.search('products', { text: 'widget' })).rejects.toThrow(
+        'index_not_found_exception',
+      )
     })
   })
 

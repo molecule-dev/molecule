@@ -198,9 +198,10 @@ interface BaseProps {
      */
     testId?: string;
     /**
-     * Automation ID for AI agents, E2E tests, and screen readers.
-     * Maps to the `data-mol-id` HTML attribute.
-     * Use `molId()` from `./automation.js` to generate semantic IDs.
+     * Automation ID for AI agents and E2E tests. Maps to the `data-mol-id`
+     * HTML attribute. Use `molId()` from `./automation.js` to generate
+     * semantic IDs. (Tooling only — screen readers do not expose `data-*`
+     * attributes; accessible names come from labels/`aria-*`.)
      */
     automationId?: string;
     /**
@@ -861,6 +862,15 @@ interface RadioGroupProps<T = string> extends BaseProps {
      * Group label.
      */
     label?: string;
+    /**
+     * Shared `name` attribute for the group's radio inputs (used for native
+     * form submission). When omitted, a unique per-instance name is generated
+     * so separate groups never merge — the visible `label` is deliberately
+     * NOT used as the name, because two groups with the same label (e.g. two
+     * "Size" pickers) would otherwise form ONE native radio group and
+     * deselect each other.
+     */
+    name?: string;
     /**
      * Layout direction.
      */
@@ -1769,6 +1779,10 @@ function Label(props: { children?: JSX.Element; required?: boolean; class?: stri
 
 Renders the Modal component.
 
+`centered` (default `true`) vertically centers the dialog; `centered:
+false` top-anchors it instead, via the sanctioned inline-style exception
+(see `wrapperStyle` below).
+
 ```typescript
 function Modal(props: ModalProps): any
 ```
@@ -1984,6 +1998,8 @@ function ToastProvider(props: { children: JSX.Element; position?: ToastProps["po
 #### `Tooltip(props)`
 
 Tooltip component.
+
+`hasArrow` renders a small themed pointer at the resolved `placement` edge.
 
 ```typescript
 function Tooltip(props: TooltipProps): any

@@ -154,4 +154,67 @@ describe('@molecule/api-cron-node-cron × REAL node-cron', () => {
     ;[job] = await p.list()
     expect(job.runCount).toBe(2)
   })
+
+  it('CONSUMER PROPERTY: runNow() enforces maxRuns too, not just scheduled ticks', async () => {
+    // The regression this pins: runNow() used to increment runCount without
+    // ever consulting maxRuns, so a capped job could be manually run past its
+    // cap — total executions exceeded maxRuns until a later scheduled tick
+    // finally caught up and marked it 'completed'.
+    const p = tracked(createProvider())
+    const jobId = await p.schedule(
+      'capped',
+      '0 3 * * *', // will not tick during the test — only manual runs happen
+      async () => {},
+      { maxRuns: 2 },
+    )
+
+    await p.runNow(jobId)
+    let [job] = await p.list()
+    expect(job.runCount).toBe(1)
+    expect(job.status).toBe('active')
+
+    // Second manual run reaches the cap — the job must flip to 'completed'
+    // and its underlying task must stop, right here, not on a future tick.
+    await p.runNow(jobId)
+    ;[job] = await p.list()
+    expect(job.runCount).toBe(2)
+    expect(job.status).toBe('completed')
+    expect(job.nextRun).toBeUndefined() // real node-cron reports no next run for a stopped task
+  })
+
+  it('CONSUMER PROPERTY: noOverlap skips a real tick while the previous run is still in flight', async () => {
+    // Without noOverlap, a handler slower than its schedule would overlap
+    // itself. With it, node-cron's own pending-promise check skips the tick.
+    const p = tracked(createProvider())
+    let concurrentRuns = 0
+    let maxConcurrentRuns = 0
+    let completedRuns = 0
+
+    const jobId = await p.schedule(
+      'slow-overlap-guarded',
+      '* * * * * *', // every second
+      async () => {
+        concurrentRuns += 1
+        maxConcurrentRuns = Math.max(maxConcurrentRuns, concurrentRuns)
+        // Slower than the 1s schedule so a second real tick arrives mid-run.
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        concurrentRuns -= 1
+        completedRuns += 1
+      },
+      { noOverlap: true },
+    )
+
+    await vi.waitFor(
+      () => {
+        expect(completedRuns).toBeGreaterThanOrEqual(1)
+      },
+      { timeout: 4000, interval: 25 },
+    )
+
+    // A tick landed mid-run and was skipped by node-cron's own overlap guard
+    // rather than starting a second concurrent invocation.
+    expect(maxConcurrentRuns).toBe(1)
+
+    await p.cancel(jobId)
+  }, 8000)
 })

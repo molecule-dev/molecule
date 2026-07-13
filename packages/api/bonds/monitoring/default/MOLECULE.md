@@ -103,3 +103,10 @@ Peer dependencies:
 - The overall `status` is the worst individual status
   (`down` > `degraded` > `operational`); an empty registry reports
   `operational`.
+- **`runAll()` logs a per-check line at `warn` only on a status
+  TRANSITION** (comparing against the previous `runAll()` snapshot) —
+  `operational → down`/`degraded`, or the reverse (`recovered`, at `info`).
+  A steady-state repeat of an already-reported down/degraded check logs at
+  `debug` instead, so polling a `/health` endpoint every few seconds with
+  one persistently failing dependency does not flood `warn` with identical
+  lines that bury the transition that actually matters.

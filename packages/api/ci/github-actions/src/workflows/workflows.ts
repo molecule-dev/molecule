@@ -139,10 +139,12 @@ export const workflows = {
   /**
    * CI workflow that tests across multiple Node.js versions using a matrix strategy.
    *
-   * @param nodeVersions - Node.js versions to test against (defaults to `['18', '20', '22']`).
+   * @param nodeVersions - Node.js versions to test against (defaults to
+   *   `['20', '22', '24']` — the actively-maintained LTS/current lines; Node 18
+   *   reached EOL in April 2025, so it is deliberately not in the default).
    * @returns A workflow config with matrix testing across the specified Node versions.
    */
-  ciMatrix: (nodeVersions: string[] = ['18', '20', '22']): WorkflowConfig => ({
+  ciMatrix: (nodeVersions: string[] = ['20', '22', '24']): WorkflowConfig => ({
     name: 'CI Matrix',
     on: {
       push: { branches: ['main'] },
@@ -266,6 +268,14 @@ export const workflows = {
    * delivers a reachable environment on a persistent self-hosted runner
    * (or with a remote driver).
    *
+   * The 'Comment PR with staging URL' step runs an inline `github-script`
+   * that looks up the open PR for the pushed branch via
+   * `github.rest.pulls.list()` (this workflow triggers on `push`, not
+   * `pull_request` — there is no `pull_request` event to gate on) and slugs
+   * the branch with the SAME algorithm as `@molecule/api-staging`'s
+   * `branchToSlug()` so the `.molecule/staging.json` lookup matches the
+   * slug `mlcl stage up` actually used.
+   *
    * @param options - Optional driver and branch filtering.
    * @param options.driver - Staging driver to use (e.g. `'docker-compose'`).
    * @param options.excludeBranches - Branch patterns to exclude from staging deploys
@@ -295,21 +305,55 @@ export const workflows = {
           commonSteps.npmBuild(),
           commonSteps.stageUp(options?.driver),
           {
+            // Not gated on `github.event_name == 'pull_request'`: this
+            // workflow triggers ONLY on `push` (see `on.push` above), so that
+            // guard was never true and the step never ran. Instead, the
+            // script itself looks up the PR open for this branch (if any)
+            // via the API — reachable on every push, and a no-op (logged,
+            // not silent) when no PR exists yet.
             name: 'Comment PR with staging URL',
-            if: "github.event_name == 'pull_request'",
             uses: 'actions/github-script@v7',
             with: {
               script: [
                 "const fs = require('fs');",
                 'try {',
                 "  const state = JSON.parse(fs.readFileSync('.molecule/staging.json', 'utf-8'));",
-                "  const slug = process.env.GITHUB_REF_NAME.replace(/[^a-z0-9-]/gi, '-').toLowerCase();",
+                '  const branch = process.env.GITHUB_REF_NAME;',
+                // Mirrors @molecule/api-staging's branchToSlug() EXACTLY
+                // (lowercase, strip refs/heads/, non-alnum-dash -> dash,
+                // collapse runs of dashes, trim edge dashes, cap at 40,
+                // re-trim a trailing dash the cap may expose). A divergent
+                // slugify here silently misses state.environments[slug] even
+                // when the branch deployed fine.
+                '  const slug = branch',
+                '    .toLowerCase()',
+                "    .replace(/^refs\\/heads\\//, '')",
+                "    .replace(/[^a-z0-9-]/g, '-')",
+                "    .replace(/-+/g, '-')",
+                "    .replace(/^-|-$/g, '')",
+                '    .slice(0, 40)',
+                "    .replace(/-$/, '');",
                 '  const env = state.environments[slug];',
-                '  if (env) {',
-                "    const body = `## Staging Environment\\n\\n- API: ${env.urls.api || 'N/A'}\\n- App: ${env.urls.app || 'N/A'}`;",
-                '    await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });',
+                '  if (!env) {',
+                '    console.log(`No staging state found for slug "${slug}" (branch "${branch}")`);',
+                '    return;',
                 '  }',
-                "} catch (e) { console.log('No staging state found'); }",
+                '  const { data: prs } = await github.rest.pulls.list({',
+                '    ...context.repo,',
+                '    head: `${context.repo.owner}:${branch}`,',
+                "    state: 'open',",
+                '  });',
+                '  if (prs.length === 0) {',
+                '    console.log(`No open pull request found for branch "${branch}"`);',
+                '    return;',
+                '  }',
+                "  const body = `## Staging Environment\\n\\n- API: ${env.urls.api || 'N/A'}\\n- App: ${env.urls.app || 'N/A'}`;",
+                '  await Promise.all(',
+                '    prs.map((pr) =>',
+                '      github.rest.issues.createComment({ ...context.repo, issue_number: pr.number, body }),',
+                '    ),',
+                '  );',
+                "} catch (e) { console.log('Could not comment staging URL on PR: ' + e.message); }",
               ].join('\n'),
             },
           },

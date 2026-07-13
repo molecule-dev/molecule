@@ -29,6 +29,16 @@
  * - Set `JWT_PRIVATE_KEY` and `JWT_PUBLIC_KEY` together (or neither). If only the private
  *   key is set, the matching public key is DERIVED from it automatically; setting only the
  *   public key is for verify-only deployments.
+ * - When neither key env var is set, a key pair is auto-generated on disk at
+ *   `{JWT_KEYS_DIR}/{NODE_ENV}/` — default `JWT_KEYS_DIR`: `process.cwd() + '/.keys'`, a
+ *   stable app-level directory (NOT inside `node_modules`, so `npm ci`/reinstall never
+ *   wipes it). Set `JWT_KEYS_DIR` to relocate it (e.g. a persistent volume in production).
+ *   A pre-existing pair at the legacy `node_modules`-relative location is migrated forward
+ *   automatically (with a logged warning) instead of being silently regenerated.
+ * - `JWT_ALGORITHM` (default `RS256`) is validated at module load against the
+ *   {@link JwtAlgorithm} union; an unrecognized value (e.g. a typo like `rs256`) logs an
+ *   actionable warning and falls back to `RS256` instead of failing every `sign()`/`verify()`
+ *   call later with an opaque "invalid algorithm" error.
  *
  * @example
  * ```ts

@@ -45,7 +45,19 @@ describe('@molecule/api-sms-vonage', () => {
   })
 
   describe('createProvider', () => {
-    it('creates a Vonage client with provided credentials', () => {
+    it('does NOT construct the Vonage client eagerly — only on first use', async () => {
+      // ROOT-CAUSE REGRESSION GUARD: createProvider() used to build the
+      // client (and throw on missing credentials) immediately, so
+      // `setProvider(createProvider())` crashed the whole API at startup
+      // when secrets weren't filled in yet. It must now stay lazy.
+      expect(MockVonageClass.constructorCalls).toHaveLength(0)
+
+      mockSend.mockResolvedValueOnce({
+        messageCount: 1,
+        messages: [{ 'message-id': 'MSG1', status: '0', to: '+15552223333' }],
+      })
+      await provider.send('+15552223333', 'hi')
+
       expect(MockVonageClass.constructorCalls).toHaveLength(1)
       expect(MockVonageClass.constructorCalls[0][0]).toEqual({
         apiKey: 'test_key',
@@ -53,14 +65,38 @@ describe('@molecule/api-sms-vonage', () => {
       })
     })
 
+    it('memoises the client across multiple sends (does not reconstruct)', async () => {
+      mockSend.mockResolvedValue({
+        messageCount: 1,
+        messages: [{ 'message-id': 'MSG1', status: '0', to: '+1' }],
+      })
+      await provider.send('+1', 'a')
+      await provider.send('+1', 'b')
+
+      expect(MockVonageClass.constructorCalls).toHaveLength(1)
+    })
+
+    it('registers its secret definitions at import time', async () => {
+      await import('../index.js')
+      const { getSecretDefinition } = await import('@molecule/api-secrets')
+      expect(getSecretDefinition('VONAGE_API_KEY')).toBeDefined()
+      expect(getSecretDefinition('VONAGE_API_SECRET')).toBeDefined()
+      expect(getSecretDefinition('VONAGE_FROM_NUMBER')).toBeDefined()
+    })
+
     it('accepts explicit config over env vars', async () => {
       MockVonageClass.constructorCalls = []
       const { createProvider } = await import('../provider.js')
-      createProvider({
+      const p = createProvider({
         apiKey: 'explicit_key',
         apiSecret: 'explicit_secret',
         defaultFrom: '+15559999999',
       })
+      mockSend.mockResolvedValueOnce({
+        messageCount: 1,
+        messages: [{ 'message-id': 'MSG1', status: '0', to: '+1' }],
+      })
+      await p.send('+1', 'hi')
       expect(MockVonageClass.constructorCalls).toHaveLength(1)
       expect(MockVonageClass.constructorCalls[0][0]).toEqual({
         apiKey: 'explicit_key',
@@ -68,16 +104,30 @@ describe('@molecule/api-sms-vonage', () => {
       })
     })
 
-    it('throws when apiKey is missing', async () => {
+    it('does not throw synchronously when apiKey is missing (deferred to first use)', async () => {
       delete process.env.VONAGE_API_KEY
       const { createProvider } = await import('../provider.js')
-      expect(() => createProvider({ apiSecret: 'secret' })).toThrow('apiKey is required')
+      expect(() => createProvider({ apiSecret: 'secret' })).not.toThrow()
     })
 
-    it('throws when apiSecret is missing', async () => {
+    it('throws the actionable apiKey error on first send, not at bond time', async () => {
+      delete process.env.VONAGE_API_KEY
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider({ apiSecret: 'secret' })
+      await expect(p.send('+1', 'hi')).rejects.toThrow('apiKey is required')
+    })
+
+    it('does not throw synchronously when apiSecret is missing (deferred to first use)', async () => {
       delete process.env.VONAGE_API_SECRET
       const { createProvider } = await import('../provider.js')
-      expect(() => createProvider({ apiKey: 'key' })).toThrow('apiSecret is required')
+      expect(() => createProvider({ apiKey: 'key' })).not.toThrow()
+    })
+
+    it('throws the actionable apiSecret error on first send, not at bond time', async () => {
+      delete process.env.VONAGE_API_SECRET
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider({ apiKey: 'key' })
+      await expect(p.send('+1', 'hi')).rejects.toThrow('apiSecret is required')
     })
   })
 

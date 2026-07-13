@@ -5,4 +5,6 @@ export const uz: AiTranslations = {
   'ai.error.noProvider': 'AI provayder sozlanmagan. Avval AI provayderini ulang.',
   'ai.error.apiError': "AI API so'rovi muvaffaqiyatsiz tugadi.",
   'ai.error.noResponseBody': "AI javob tanasi bo'sh.",
+  'ai.error.ambiguousProvider':
+    'Bir nechta nomlangan AI provayderi ulangan va standart o‘rnatilmagan. Birini tanlash uchun getProviderByName(name) dan foydalaning.',
 }

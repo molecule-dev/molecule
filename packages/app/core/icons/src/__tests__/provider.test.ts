@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { unbond } from '@molecule/app-bond'
+
 import { getIcon, getIconSet, hasIconSet, setIconSet } from '../provider.js'
 import type { IconSet } from '../types.js'
 
@@ -20,14 +22,23 @@ const mockIconSet: IconSet = {
 
 describe('icon provider', () => {
   beforeEach(() => {
-    // Reset by setting undefined - access the module internals
-    // We'll use setIconSet with a fresh set each time
+    unbond('icon-set')
   })
 
   describe('setIconSet / getIconSet', () => {
     it('should set and retrieve an icon set', () => {
       setIconSet(mockIconSet)
       expect(getIconSet()).toBe(mockIconSet)
+    })
+
+    it('getIconSet throws a package-specific error naming setIconSet() and a concrete bond when no icon set is bonded', () => {
+      // Regression: this used to pass through @molecule/app-bond's generic
+      // "No 'icon-set' provider bonded. Bond one first using bond('icon-set',
+      // provider)." message, which does not tell a consumer which function
+      // or package to reach for.
+      expect(() => getIconSet()).toThrow('@molecule/app-icons')
+      expect(() => getIconSet()).toThrow('setIconSet()')
+      expect(() => getIconSet()).toThrow('@molecule/app-icons-molecule')
     })
   })
 

@@ -51,6 +51,12 @@
  *
  * > **Your users should now be able to log in via Google!**
  *
+ * @remarks
+ * The token exchange (`verify`'s call to Google's token endpoint) is
+ * `application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 and Google's own
+ * docs — matching every other molecule.dev OAuth bond (gitlab, twitter,
+ * github, apple, microsoft).
+ *
  * @module
  */
 

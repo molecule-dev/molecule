@@ -5,6 +5,11 @@
  * OpenAI `chat/completions` protocol (Ollama, LM Studio, llama.cpp, vLLM),
  * keyless by default.
  *
+ * @remarks
+ * **Error message disambiguation**: a plain 400 that ISN'T a context-length error (bad param,
+ * malformed tool schema) gets its own non-retryable message distinct from the generic
+ * "AI service error. Please try again." used for retryable failures.
+ *
  * @module
  */
 

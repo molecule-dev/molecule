@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const ur: UploadsTranslations = {
   'uploads.error.noProvider': 'اپ لوڈ فراہم کنندہ ترتیب نہیں دیا گیا۔ پہلے setProvider() کال کریں۔',
   'uploads.error.streamLimitReached': 'سٹریم کی حد پوری ہو گئی۔',
+  'uploads.error.aborted': 'اپ لوڈ منسوخ کر دیا گیا۔',
 }

@@ -15,6 +15,10 @@ import { renderIcon } from '../utilities/renderIcon.jsx'
 
 /**
  * Renders the Modal component.
+ *
+ * `centered` (default `true`) vertically centers the dialog; `centered:
+ * false` top-anchors it instead, via the sanctioned inline-style exception
+ * (see `wrapperStyle` below).
  * @param props - The component props.
  * @returns The rendered modal JSX.
  */
@@ -42,6 +46,13 @@ export const Modal: Component<ModalProps> = (props) => {
   const closeOnOverlayClick = (): boolean => local.closeOnOverlayClick ?? true
   const closeOnEscape = (): boolean => local.closeOnEscape ?? true
   const preventScroll = (): boolean => local.preventScroll ?? true
+  const centered = (): boolean => local.centered ?? true
+  // `centered` has no dedicated ClassMap resolver option (dialogWrapper is a
+  // fixed token, not a `{ centered }`-parameterized one) — a top-anchored
+  // layout is expressed as the one inline-style exception the workspace
+  // styling rule allows for values ClassMap genuinely cannot express.
+  const wrapperStyle = (): JSX.CSSProperties | undefined =>
+    centered() ? undefined : { 'align-items': 'flex-start' }
 
   const handleEscape = (e: KeyboardEvent): void => {
     if (closeOnEscape() && e.key === 'Escape') {
@@ -81,7 +92,7 @@ export const Modal: Component<ModalProps> = (props) => {
         <div class={cm.dialogOverlay} aria-hidden="true" />
 
         {/* Centering wrapper */}
-        <div class={cm.dialogWrapper} onClick={handleOverlayClick}>
+        <div class={cm.dialogWrapper} style={wrapperStyle()} onClick={handleOverlayClick}>
           {/* Content */}
           <div
             role="dialog"

@@ -435,8 +435,11 @@ describe('@molecule/api-ci-github-actions', () => {
       })
 
       it('should use default node versions', () => {
+        // Node 18 has been EOL since April 2025 — the default deliberately
+        // excludes it (see the `hostile-default` finding in the integration
+        // audit) in favor of the actively-maintained lines.
         const workflow = workflows.ciMatrix()
-        expect(workflow.jobs.test.strategy?.matrix?.['node-version']).toEqual(['18', '20', '22'])
+        expect(workflow.jobs.test.strategy?.matrix?.['node-version']).toEqual(['20', '22', '24'])
       })
 
       it('should use custom node versions when provided', () => {
@@ -563,7 +566,7 @@ describe('@molecule/api-ci-github-actions', () => {
       expect(yaml).toContain('matrix:')
       // Version STRINGS must stay quoted — unquoted they parse back as
       // numbers ('20.10' would become the float 20.1).
-      expect(yaml).toContain("'node-version': ['18', '20', '22']")
+      expect(yaml).toContain("'node-version': ['20', '22', '24']")
       expect(yaml).toContain("'fail-fast': false")
     })
 

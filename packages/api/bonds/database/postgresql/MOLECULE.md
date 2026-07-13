@@ -191,3 +191,11 @@ from the `DATABASE_URL` env var (server-side) — don't hardcode credentials.
   traffic. Fix the URL / CA instead (e.g. `?sslmode=require`).
 - Tables are created by timestamped `.sql` files in `migrations/` (the runner applies them
   on boot) — never `CREATE TABLE` at runtime; ids are UUID strings (see `@molecule/api-database`).
+- **Pool `max` defaults to 10** (not the server's `max_connections`) — tune with
+  `DATABASE_POOL_MAX`. A migration file with a genuine error (not an idempotent
+  "already exists") now FAILS the boot with every broken file named, instead of
+  warn-logging and booting with a partial schema.
+- **`like` is case-insensitive (emits `ILIKE`) and does NOT escape the value** — the
+  caller's own `%`/`_` are honored as wildcards, identical to the sqlite/mysql bonds. For
+  human-typed search input, use `ilike` instead (escapes + auto-wraps `%…%`) — see
+  `WhereCondition['operator']` in `@molecule/api-database`.

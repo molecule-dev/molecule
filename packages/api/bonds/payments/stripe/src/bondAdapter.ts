@@ -12,15 +12,16 @@ import crypto from 'crypto'
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
 import { get } from '@molecule/api-bond'
-import type {
-  CreateSetupIntentParams,
-  PaymentProvider,
-  PaymentRecordService,
-  ProviderPaymentMethod,
-  SetupIntentResult,
-  SubscriptionUpdateResult,
-  VerifiedSubscription,
-  WebhookEvent,
+import {
+  type CreateSetupIntentParams,
+  isConfigNotConfiguredError,
+  type PaymentProvider,
+  type PaymentRecordService,
+  type ProviderPaymentMethod,
+  type SetupIntentResult,
+  type SubscriptionUpdateResult,
+  type VerifiedSubscription,
+  type WebhookEvent,
 } from '@molecule/api-payments'
 
 import {
@@ -161,6 +162,15 @@ export const paymentProvider: PaymentProvider = {
         },
       }
     } catch (error) {
+      // A missing STRIPE_SECRET_KEY (getClient()) is a DIFFERENT failure than
+      // "no active subscription" — rethrow so the resource handler's catch can
+      // surface the actionable 503 instead of a generic 400. Swallowing it into
+      // the same `null` a genuine verification failure returns makes an
+      // operator's forgotten env var indistinguishable from "this subscription
+      // isn't valid."
+      if (isConfigNotConfiguredError(error)) {
+        throw error
+      }
       logger.error('Stripe bondAdapter verifySubscription error:', error)
       return null
     }
@@ -359,6 +369,13 @@ export const paymentProvider: PaymentProvider = {
 
       return { updated: false }
     } catch (error) {
+      // See the matching comment in verifySubscription: a missing secret must
+      // reach the caller as its real 503, not be flattened into the same
+      // `{ updated: false }` a genuine update failure (e.g. Stripe declining
+      // the card) returns.
+      if (isConfigNotConfiguredError(error)) {
+        throw error
+      }
       logger.error('Stripe bondAdapter updateSubscription error:', error)
       return { updated: false }
     }
@@ -426,6 +443,10 @@ export const paymentProvider: PaymentProvider = {
 
       return !!updated
     } catch (error) {
+      // See the matching comment in verifySubscription.
+      if (isConfigNotConfiguredError(error)) {
+        throw error
+      }
       logger.error('Stripe bondAdapter cancelSubscription error:', error)
       return false
     }

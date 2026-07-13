@@ -115,4 +115,67 @@ describe('@molecule/api-notifications × REAL @molecule/api-bond', () => {
     expect(hasProvider()).toBe(false)
     await expect(notifyAll(notification)).resolves.toEqual([])
   })
+
+  it('CONCURRENCY: a slow channel does not delay the other channels behind it', async () => {
+    // ROOT-CAUSE REGRESSION GUARD: notifyAll() used to fan out SERIALLY
+    // (for..of with await), so a channel registered before a slow one
+    // delayed every later channel by the slow channel's full duration. A
+    // slow "webhook" ahead of a fast "pager" in registration order used to
+    // make the whole call take >= the slow channel's latency. Concurrent
+    // fan-out (Promise.allSettled) must make total latency track the
+    // SLOWEST channel, not the SUM of channels.
+    const delayMs = 150
+    const slow: NotificationsProvider = {
+      name: 'slow-channel',
+      async send() {
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+        return { success: true }
+      },
+    }
+    const fast = makeChannel('fast-channel')
+    setProvider('slow-channel', slow)
+    setProvider('fast-channel', fast)
+
+    const start = Date.now()
+    const results = await notifyAll(notification)
+    const elapsed = Date.now() - start
+
+    expect(results).toHaveLength(2)
+    expect(results.every((r) => r.success)).toBe(true)
+    // Serial fan-out (old behavior) would take >= 2x delayMs when the slow
+    // channel is registered first; concurrent fan-out stays close to 1x.
+    expect(elapsed).toBeLessThan(delayMs * 2)
+    // The fast channel's send must have already happened well before the
+    // slow channel resolves — proving it wasn't queued behind it.
+    expect(fast.sent).toEqual([notification])
+
+    unbond('notifications', 'slow-channel')
+    unbond('notifications', 'fast-channel')
+  })
+
+  it('reassembles results in registration order even when channels settle out of order', async () => {
+    const first: NotificationsProvider = {
+      name: 'first',
+      async send() {
+        await new Promise((resolve) => setTimeout(resolve, 60))
+        return { success: true }
+      },
+    }
+    const second: NotificationsProvider = {
+      name: 'second',
+      async send() {
+        // Resolves BEFORE 'first' despite being registered after it.
+        return { success: true }
+      },
+    }
+    setProvider('first', first)
+    setProvider('second', second)
+
+    const results = await notifyAll(notification)
+
+    expect(results.map((r) => r.channel)).toEqual(['first', 'second'])
+
+    unbond('notifications', 'first')
+    unbond('notifications', 'second')
+  })
 })

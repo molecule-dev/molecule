@@ -81,9 +81,12 @@ describe('@molecule/app-i18n-react-i18next × REAL react-i18next', () => {
     expect(p.t('nope.missing', undefined, { defaultValue: 'Fallback' })).toBe('Fallback')
     expect(p.exists('greeting')).toBe(true)
 
-    // Unregistered locale: degrades to fallback text instead of crashing.
-    await p.setLocale('xx')
-    expect(p.t('greeting')).toBe('Hello')
+    // Unregistered locale: THROWS, naming the locale — same unified
+    // `I18nProvider.setLocale` contract as the base i18next bond and the
+    // core simple provider (this wrapper delegates straight to
+    // createI18nextProvider's setLocale, so the fix applies here too).
+    await expect(p.setLocale('xx')).rejects.toThrow('Locale "xx" not found')
+    expect(p.getLocale()).toBe('en')
   })
 
   it('the module-level default provider initializes without a browser environment', async () => {

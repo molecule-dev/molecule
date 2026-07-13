@@ -143,12 +143,122 @@ describe('@molecule/api-realtime-ws', () => {
       )
     })
 
-    it('uses default port 3000 when no config provided', async () => {
+    it('does NOT create a WebSocket server when called with no config — zero-config defers instead of binding', async () => {
+      // Contract fix: creating a provider must never bind a port as a side
+      // effect. `createProvider()` with no port/httpServer/deferAttach now
+      // behaves like `{ deferAttach: true }` instead of eagerly binding 3000.
       vi.clearAllMocks()
       mockServerInstances.length = 0
       const { createProvider } = await import('../provider.js')
       createProvider()
-      expect(MockWebSocketServer).toHaveBeenCalledWith(expect.objectContaining({ port: 3000 }))
+      expect(MockWebSocketServer).not.toHaveBeenCalled()
+    })
+
+    it('zero-config: attachHttpServer still binds once the caller provides a real server', async () => {
+      vi.clearAllMocks()
+      mockServerInstances.length = 0
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider()
+      expect(MockWebSocketServer).not.toHaveBeenCalled()
+      const httpServer = {} as Server
+      p.attachHttpServer?.(httpServer)
+      expect(MockWebSocketServer).toHaveBeenCalledWith(
+        expect.objectContaining({ server: httpServer }),
+      )
+    })
+
+    it('zero-config logs an info line naming the bond instead of silently deferring', async () => {
+      vi.clearAllMocks()
+      mockServerInstances.length = 0
+      const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+      try {
+        const { createProvider } = await import('../provider.js')
+        createProvider()
+        expect(infoSpy).toHaveBeenCalled()
+        const messages = infoSpy.mock.calls.map((call) => String(call[0]))
+        expect(messages.some((message) => message.includes('Realtime ws'))).toBe(true)
+        expect(messages.some((message) => message.includes('attachHttpServer'))).toBe(true)
+      } finally {
+        infoSpy.mockRestore()
+      }
+    })
+
+    it('deferAttach: does NOT bind a server until attachHttpServer is called', async () => {
+      // Regression (probe-class fix, mirrors the socketio bond): binding a
+      // standalone port at create time silently collides with the API's own
+      // port. Deferred mode waits for the API's HTTP server so `ws` shares
+      // the API port instead.
+      vi.clearAllMocks()
+      mockServerInstances.length = 0
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider({ deferAttach: true })
+      expect(MockWebSocketServer).not.toHaveBeenCalled()
+      const httpServer = {} as Server
+      p.attachHttpServer?.(httpServer)
+      expect(MockWebSocketServer).toHaveBeenCalledWith(
+        expect.objectContaining({ server: httpServer }),
+      )
+    })
+
+    it('attachHttpServer binds once (idempotent)', async () => {
+      vi.clearAllMocks()
+      mockServerInstances.length = 0
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider({ deferAttach: true })
+      const httpServer = {} as Server
+      p.attachHttpServer?.(httpServer)
+      p.attachHttpServer?.(httpServer)
+      expect(MockWebSocketServer).toHaveBeenCalledTimes(1)
+    })
+
+    it('a given httpServer attaches immediately even without deferAttach set', async () => {
+      // Passing `httpServer` is itself an explicit attach step — it must not
+      // require ALSO setting deferAttach to avoid a standalone port bind.
+      vi.clearAllMocks()
+      mockServerInstances.length = 0
+      const httpServer = {} as Server
+      const { createProvider } = await import('../provider.js')
+      createProvider({ httpServer })
+      expect(MockWebSocketServer).toHaveBeenCalledTimes(1)
+      expect(MockWebSocketServer).toHaveBeenCalledWith(
+        expect.objectContaining({ server: httpServer }),
+      )
+    })
+
+    it('does NOT bind even when WS_PORT is set, unless an explicit port/httpServer is passed', async () => {
+      // WS_PORT is only consulted to resolve the NUMBER once a bind is
+      // already explicitly requested (explicit `port` or `httpServer`) — an
+      // ambient env var alone is not an explicit call-site instruction, so
+      // it must not trigger an eager bind on its own.
+      vi.clearAllMocks()
+      mockServerInstances.length = 0
+      const previous = process.env.WS_PORT
+      process.env.WS_PORT = '4321'
+      try {
+        const { createProvider } = await import('../provider.js')
+        createProvider()
+        expect(MockWebSocketServer).not.toHaveBeenCalled()
+      } finally {
+        if (previous === undefined) delete process.env.WS_PORT
+        else process.env.WS_PORT = previous
+      }
+    })
+
+    it('an explicit port still resolves against WS_PORT-style env precedence when both are given', async () => {
+      // config.port always wins over the env fallback — unchanged behavior
+      // for callers who pass an explicit port.
+      vi.clearAllMocks()
+      mockServerInstances.length = 0
+      const previous = process.env.WS_PORT
+      process.env.WS_PORT = '4321'
+      try {
+        const { createProvider } = await import('../provider.js')
+        createProvider({ port: 4000 })
+        expect(MockWebSocketServer).toHaveBeenCalledWith(expect.objectContaining({ port: 4000 }))
+      } finally {
+        if (previous === undefined) delete process.env.WS_PORT
+        else process.env.WS_PORT = previous
+      }
     })
   })
 

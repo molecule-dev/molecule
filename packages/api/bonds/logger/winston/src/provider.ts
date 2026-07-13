@@ -17,19 +17,44 @@ import type { Logger, LogLevel } from '@molecule/api-logger'
 import type { WinstonLoggerOptions, WinstonTransportConfig } from './types.js'
 
 /**
- * Map molecule log levels to winston levels.
+ * Map molecule log levels to winston's built-in npm levels. `'silent'` is
+ * deliberately excluded — winston has NO built-in 'silent' level, so it is
+ * implemented separately via the supported `silent: true` flag (see
+ * `resolveWinstonLevel`), not by indexing this map with an unknown level name.
  */
-const levelMap: Record<LogLevel, string> = {
+const levelMap: Record<Exclude<LogLevel, 'silent'>, string> = {
   trace: 'silly',
   debug: 'debug',
   info: 'info',
   warn: 'warn',
   error: 'error',
-  // winston has NO built-in 'silent' level. An unknown level name makes every
-  // priority comparison false, which silences all output — verified against
-  // the pinned winston 3.x and covered by the unit suite; if winston ever
-  // starts validating level names, map this to `logger.silent = true` instead.
-  silent: 'silent',
+}
+
+/**
+ * Resolves the winston `{ level, silent }` pair for an omittable molecule
+ * `LogLevel`.
+ *
+ * - Omitted (`undefined`) resolves to `'silly'` — winston's most-verbose
+ *   level, i.e. pass-through. Minimum-level filtering is meant to happen
+ *   once, in `@molecule/api-logger`'s gate (`LOG_LEVEL` / `setLevel()`); a
+ *   stricter default here would be a second, hidden gate that makes the
+ *   core's `setLevel('debug')` silently no-op for a level-less instance.
+ * - `'silent'` resolves via the documented `silent: true` flag (which
+ *   `_transform`/`_write` check FIRST and unconditionally skip writing),
+ *   rather than setting `level: 'silent'` — winston has no such level, so
+ *   that string previously silenced output only because every priority
+ *   comparison against an unknown level name happens to evaluate to `false`.
+ *   That was verified correct against pinned winston 3.19.0, but it is
+ *   latent drift risk (undocumented, not guaranteed) if winston ever starts
+ *   validating level names. `silent: true` is winston's actual supported
+ *   mechanism for "log nothing".
+ *
+ * @param level - The molecule log level, or `undefined` to pass everything through.
+ * @returns The winston `level` string and `silent` flag to configure.
+ */
+const resolveWinstonLevel = (level?: LogLevel): { level: string; silent: boolean } => {
+  if (level === 'silent') return { level: 'silly', silent: true }
+  return { level: level ? levelMap[level] : 'silly', silent: false }
 }
 
 /** Default winston format: JSON with timestamps and error stack traces. */
@@ -60,8 +85,16 @@ const consoleFormat = winston.format.combine(
  * @returns A winston transport instance.
  */
 const mapTransport = (config: WinstonTransportConfig): winston.transport => {
-  const level = config.level ? levelMap[config.level] : undefined
-  const opts = { ...config.options, level } as Record<string, unknown>
+  // `config.level` omitted → no override (`level`/`silent` both undefined), so
+  // the transport inherits the parent logger's level, per winston's own
+  // fallback (`this.level || this.parent.level`). Only an EXPLICIT
+  // `config.level` resolves to a concrete `{ level, silent }` pair.
+  const resolved = config.level ? resolveWinstonLevel(config.level) : undefined
+  const opts = {
+    ...config.options,
+    level: resolved?.level,
+    silent: resolved?.silent,
+  } as Record<string, unknown>
 
   switch (config.type) {
     case 'console':
@@ -137,7 +170,7 @@ const emit =
  * @returns A `Logger` backed by winston.
  */
 export const createLogger = (options?: WinstonLoggerOptions): Logger => {
-  const level = options?.level ? levelMap[options.level] : 'info'
+  const { level, silent } = resolveWinstonLevel(options?.level)
   const format = options?.format === 'console' ? consoleFormat : defaultFormat
 
   const transports = options?.transports
@@ -146,6 +179,7 @@ export const createLogger = (options?: WinstonLoggerOptions): Logger => {
 
   const instance = winston.createLogger({
     level,
+    silent,
     format,
     transports,
   })

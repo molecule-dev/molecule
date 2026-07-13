@@ -212,7 +212,7 @@ function createMockCache(): CacheProvider & { store: Map<string, { value: unknow
 Creates a mock database pool for testing.
 
 ```typescript
-function createMockDatabase(): DatabasePool & { queries: Array<{ text: string; values?: unknown[]; }>; setQueryResult: <T>(result: QueryResult<T>) => void; reset: () => void; }
+function createMockDatabase(): DatabasePool & { queries: Array<{ text: string; values?: unknown[]; }>; setQueryResult: <T>(result: QueryResult<T>) => void; setQueryResultOnce: <T>(result: QueryResult<T>) => void; reset: () => void; }
 ```
 
 **Returns:** The created instance.
@@ -377,7 +377,7 @@ Pre-configured mock database for quick setup. Shared module-level instance —
 call `reset()` in `beforeEach` so recorded queries don't bleed between tests.
 
 ```typescript
-const mockDatabase: DatabasePool & { queries: Array<{ text: string; values?: unknown[]; }>; setQueryResult: <T>(result: QueryResult<T>) => void; reset: () => void; }
+const mockDatabase: DatabasePool & { queries: Array<{ text: string; values?: unknown[]; }>; setQueryResult: <T>(result: QueryResult<T>) => void; setQueryResultOnce: <T>(result: QueryResult<T>) => void; reset: () => void; }
 ```
 
 #### `mockEmail`
@@ -419,3 +419,13 @@ Peer dependencies:
 - `@molecule/api-queue` ^1.0.0
 - `@molecule/api-emails` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+
+`createMockDatabase().setQueryResult(result)` is **persistent** — every
+subsequent `query()` call (pool, connection, or transaction) returns that
+same result until you call `setQueryResult` again or `reset()`. Despite the
+name's resemblance to vitest's `mockResolvedValueOnce`, it is NOT a
+one-shot queue. A handler test that issues multiple distinct queries and
+needs each to see a different result must use `setQueryResultOnce(result)`
+instead — queued once-results are consumed first, in FIFO order, one per
+query, before queries fall back to the persistent `setQueryResult` value
+(or the empty `{ rows: [], rowCount: 0 }` default).

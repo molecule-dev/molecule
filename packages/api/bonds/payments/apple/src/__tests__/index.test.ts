@@ -524,6 +524,119 @@ describe('Apple Provider', () => {
 
       expect(normalized.rawData).toBe(subscription)
     })
+
+    it('REGRESSION [doc-drift]: reports willRenew=false when a still-active subscriber turned auto-renew OFF (pending_renewal_info wins over the isActive inference)', async () => {
+      const { normalizeSubscription } = await import('../provider.js')
+
+      // Turning off auto-renew mid-period does NOT set cancellation_date — the
+      // user keeps access through the current paid period. The OLD
+      // `isActive && !cancellation_date` inference would report `willRenew:
+      // true` here right up until expiry, which is wrong: the subscriber has
+      // already told Apple not to renew.
+      const subscription: InAppPurchase = {
+        quantity: '1',
+        product_id: 'com.example.premium',
+        transaction_id: 'txn_123',
+        original_transaction_id: 'orig_txn_123',
+        purchase_date: '2023-11-14 00:00:00 Etc/GMT',
+        purchase_date_ms: '1699920000000',
+        purchase_date_pst: '2023-11-13 16:00:00 America/Los_Angeles',
+        original_purchase_date: '2023-11-14 00:00:00 Etc/GMT',
+        original_purchase_date_ms: '1699920000000',
+        original_purchase_date_pst: '2023-11-13 16:00:00 America/Los_Angeles',
+        expires_date_ms: String(Date.now() + 86400000), // still paid-through
+      }
+      const renewalResponse: VerifyReceiptResponse = {
+        status: 0,
+        pending_renewal_info: [
+          {
+            auto_renew_product_id: 'com.example.premium',
+            auto_renew_status: '0', // OFF
+            product_id: 'com.example.premium',
+            original_transaction_id: 'orig_txn_123',
+          },
+        ],
+      }
+
+      const normalized = normalizeSubscription(subscription, renewalResponse)
+
+      expect(normalized.isActive).toBe(true) // still paid-through
+      expect(normalized.willRenew).toBe(false) // but will NOT renew
+    })
+
+    it('reports willRenew=true from pending_renewal_info even for an active subscription (explicit ON)', async () => {
+      const { normalizeSubscription } = await import('../provider.js')
+
+      const subscription: InAppPurchase = {
+        quantity: '1',
+        product_id: 'com.example.premium',
+        transaction_id: 'txn_123',
+        original_transaction_id: 'orig_txn_123',
+        purchase_date: '2023-11-14 00:00:00 Etc/GMT',
+        purchase_date_ms: '1699920000000',
+        purchase_date_pst: '2023-11-13 16:00:00 America/Los_Angeles',
+        original_purchase_date: '2023-11-14 00:00:00 Etc/GMT',
+        original_purchase_date_ms: '1699920000000',
+        original_purchase_date_pst: '2023-11-13 16:00:00 America/Los_Angeles',
+        expires_date_ms: String(Date.now() + 86400000),
+      }
+      const renewalResponse: VerifyReceiptResponse = {
+        status: 0,
+        pending_renewal_info: [
+          {
+            auto_renew_product_id: 'com.example.premium',
+            auto_renew_status: '1',
+            product_id: 'com.example.premium',
+            original_transaction_id: 'orig_txn_123',
+          },
+        ],
+      }
+
+      const normalized = normalizeSubscription(subscription, renewalResponse)
+
+      expect(normalized.willRenew).toBe(true)
+    })
+
+    it('falls back to the isActive inference when renewalResponse has no matching pending_renewal_info', async () => {
+      const { normalizeSubscription } = await import('../provider.js')
+
+      const subscription: InAppPurchase = {
+        quantity: '1',
+        product_id: 'com.example.premium',
+        transaction_id: 'txn_123',
+        original_transaction_id: 'orig_txn_123',
+        purchase_date: '2023-11-14 00:00:00 Etc/GMT',
+        purchase_date_ms: '1699920000000',
+        purchase_date_pst: '2023-11-13 16:00:00 America/Los_Angeles',
+        original_purchase_date: '2023-11-14 00:00:00 Etc/GMT',
+        original_purchase_date_ms: '1699920000000',
+        original_purchase_date_pst: '2023-11-13 16:00:00 America/Los_Angeles',
+        expires_date_ms: String(Date.now() + 86400000),
+      }
+      // No pending_renewal_info at all (e.g. a one-time IAP response shape).
+      const renewalResponse: VerifyReceiptResponse = { status: 0 }
+
+      const normalized = normalizeSubscription(subscription, renewalResponse)
+
+      expect(normalized.willRenew).toBe(true) // isActive && !cancellation_date fallback
+    })
+  })
+
+  describe('verifyReceipt — config-not-configured [ambiguous-failure]', () => {
+    it('throws a tagged config-not-configured error BEFORE calling Apple when APPLE_SHARED_SECRET is unset', async () => {
+      vi.unstubAllEnvs()
+      mockGetConfig.mockImplementation((_key: string, defaultValue?: unknown) => defaultValue)
+
+      const { post } = await import('@molecule/api-http')
+      const { verifyReceipt } = await import('../provider.js')
+
+      await expect(verifyReceipt('some_receipt')).rejects.toMatchObject({
+        statusCode: 503,
+        errorKey: 'config.notConfigured',
+      })
+      // Fails BEFORE any network call — never sends Apple `password: undefined`.
+      expect(post).not.toHaveBeenCalled()
+    })
   })
 })
 

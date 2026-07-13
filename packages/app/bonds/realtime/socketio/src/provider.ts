@@ -251,7 +251,10 @@ function createConnectionInstance(
   function handlePresence(room: string, presence: PresenceInfo[]): void {
     presenceMap.set(room, [...presence])
     for (const handler of [...presenceChangeHandlers]) {
-      handler([...presence])
+      // Pass `room` so a consumer joined to multiple rooms can tell which
+      // room's member list this update replaces — before this, a handler
+      // had no way to distinguish presence updates from different rooms.
+      handler([...presence], room)
     }
   }
 

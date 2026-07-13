@@ -88,6 +88,29 @@ interface ModelDefinition {
    * a model's supported set. This is curated data the team can tune later.
    */
   supportedEffortLevels?: EffortLevel[]
+  /**
+   * Provider-NATIVE reasoning-effort value sent for each supported abstract
+   * level — the wire value the provider bond puts in its effort param (Anthropic
+   * `output_config.effort`, OpenAI-compatible `reasoning_effort`, Gemini
+   * `thinking_level`, …).
+   *
+   * Semantics:
+   * - **Present** → this model is driven by a native effort/level param, NOT a
+   *   token budget. The chat handler resolves the (clamped) abstract level to
+   *   this map's value and passes it as `thinking.effort`; bonds prefer it over
+   *   `budgetTokens`. Keys MUST match `supportedEffortLevels` and be monotone on
+   *   the provider's own scale (S < M < L < XL). Convention: **`M` maps to the
+   *   provider's default/recommended level for agentic coding** on this model —
+   *   the level a user gets without touching `/effort`.
+   * - **Absent** → the legacy token-budget path: effort scales
+   *   `thinkingBudgetTokens` (e.g. Claude Haiku 4.5's `budget_tokens`), or does
+   *   nothing beyond the loop budget when `thinkingConfigurable` is false.
+   *
+   * CRITICAL for Anthropic 4.6+ models (Fable 5, Opus 4.8/4.6, Sonnet 5 / 4.6):
+   * these MUST carry this map — sending `budget_tokens` returns a 400 on
+   * Fable 5 / Opus 4.8 / Sonnet 5 and is deprecated on the 4.6 family.
+   */
+  effortNativeByLevel?: Partial<Record<EffortLevel, string>>
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */
@@ -141,6 +164,21 @@ interface ModelDefinition {
    * cache-emitting bond can never silently bill cache writes at `0`.
    */
   cacheWritePricePerMTok: number
+  /**
+   * Optional provider peak-hour pricing: during the listed UTC windows, ALL of
+   * this model's token prices (input, output, cache read/write) bill at
+   * `multiplier × ` the listed rates. Metering MUST price each request by its
+   * own timestamp via `priceMultiplierAt()` — never assume the flat rate — or
+   * peak-hour usage is under-metered and the platform eats the difference
+   * (e.g. DeepSeek's announced 2× Beijing-business-hours pricing).
+   *
+   * Windows are minutes-since-midnight UTC, half-open `[start, end)`; a window
+   * may wrap midnight (`start > end`).
+   */
+  peakPricing?: {
+    windows: { startMinuteUtc: number; endMinuteUtc: number }[]
+    multiplier: number
+  }
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
   /**
@@ -275,6 +313,24 @@ function list(_req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 - `_req` — The request object (unused).
 - `res` — The response object.
 
+#### `priceMultiplierAt(modelDef, at)`
+
+The price multiplier in effect for a model at a given instant.
+
+Consults the model's {@link ModelDefinition.peakPricing} windows (UTC,
+half-open, may wrap midnight). Metering MUST call this with each request's
+own timestamp so peak-hour usage bills at the provider's real rate — pricing
+everything at the flat rate silently under-meters peak traffic.
+
+```typescript
+function priceMultiplierAt(modelDef: ModelDefinition | undefined, at: Date): number
+```
+
+- `modelDef` — The model definition (or undefined).
+- `at` — The instant the request was made.
+
+**Returns:** The multiplier (`1` outside peak windows or when none are declared).
+
 ### Constants
 
 #### `MODEL_IDS`
@@ -296,40 +352,62 @@ All available AI models, grouped by provider, ordered from most to least capable
 To add or remove a model, edit this array. Both the server-side validation
 and the public discovery endpoint will update automatically.
 
-`supportedEffortLevels` rule (see {@link ModelDefinition.supportedEffortLevels}):
-a model with a fully controllable reasoning budget (`thinkingConfigurable:
-true`) carries the full abstract scale `['S', 'M', 'L', 'XL']`; a model whose
-reasoning is fixed (`thinkingConfigurable: false` — whether it thinks at a
-fixed budget like `grok-code-fast-1` or does not think at all like the
-DeepSeek executors) carries only the default level `['M']`. Every set
-includes the default `'M'` so `DEFAULT_EFFORT_LEVEL` is always in range.
-Omitting the field is still valid and means "all levels" — the catalog just
-sets it explicitly on every entry so each model's effort capability is
-self-evident and tunable.
+`supportedEffortLevels` + `effortNativeByLevel` rules (see
+{@link ModelDefinition.effortNativeByLevel}):
+- A model driven by a provider-native effort/level param carries an
+  `effortNativeByLevel` map (monotone on the provider's scale) and
+  `supportedEffortLevels` = exactly the map's keys. Convention: `M` maps to
+  the provider's default/recommended level for agentic coding on that model.
+- A model with a controllable token budget but no native levels (e.g. Claude
+  Haiku 4.5's `budget_tokens`, Qwen's `thinking_budget`) carries the full
+  `['S', 'M', 'L', 'XL']` scale and NO map — effort scales
+  `thinkingBudgetTokens`.
+- A model whose reasoning is fixed (always-on or on/off only, no depth
+  control) carries `thinkingConfigurable: false` + `['M']` — effort then only
+  scales the agent-loop budget.
+Every set includes the default `'M'` so `DEFAULT_EFFORT_LEVEL` is always in
+range.
 
-Sources (verified 2026-06-16):
+Sources (verified 2026-07-07):
 - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
-  (claude-fable-5 + claude-opus-4-8 current; claude-opus-4-6 deprecated)
-- OpenAI: https://developers.openai.com/api/docs/models/gpt-5.5
-  (gpt-5.5 current; gpt-5.4 deprecated)
-- Google: https://ai.google.dev/gemini-api/docs/models
-  (gemini-3.1-pro GA, 2M context; gemini-3.1-pro-preview deprecated)
-- xAI: https://docs.x.ai/developers/models
-  (grok-4.3 current flagship; grok-4.20 deprecated; grok-code-fast-1 retired/disabled)
-- DeepSeek: https://api-docs.deepseek.com/quick_start/pricing
-  (deepseek-v4-pro / deepseek-v4-flash current — released 2026-04-24)
-- Meta: https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
-- Moonshot: https://openrouter.ai/moonshotai/kimi-k2.6
-  (kimi-k2.6 current; kimi-k2.5 deprecated)
-- MiniMax: https://openrouter.ai/minimax/minimax-m2.7
-  (minimax-m2.7 current; minimax-m2.5 deprecated)
-- Alibaba: https://openrouter.ai/qwen/qwen3-coder-plus (current)
-- Zhipu: https://openrouter.ai/z-ai/glm-5, https://docs.z.ai/guides/llm/glm-5
-  (glm-5 current; glm-5.2 launched 2026-06-13 but its standalone API + per-token
-  pricing are not yet published — Coding-Plan-only at launch — so not added yet)
+  + /docs/en/build-with-claude/effort (fable-5 / opus-4-8 / sonnet-5 current;
+  sonnet-4-6 + opus-4-6 legacy; effort = output_config.effort, adaptive
+  thinking; budget_tokens 400s on fable-5/opus-4-8/sonnet-5)
+- OpenAI: https://developers.openai.com/api/docs/models/gpt-5.5 + /pricing +
+  /guides/reasoning (gpt-5.5 flagship; gpt-5.4 NOT deprecated; gpt-5.4-mini
+  cheap tier; reasoning_effort none|low|medium|high|xhigh. GPT-5.6 “Sol” is
+  limited-preview only — no public id/pricing yet; do not add until GA.)
+- Google: https://ai.google.dev/gemini-api/docs/models + /docs/thinking
+  (gemini-3.5-flash GA 2026-05-19 is the agentic/coding flagship;
+  gemini-3.1-pro-preview is the pro tier — there is NO bare "gemini-3.1-pro"
+  id and never was; thinking_level replaces thinking_budget)
+- xAI: https://docs.x.ai/developers/models + /model-capabilities/text/reasoning
+  (grok-4.3 flagship, reasoning_effort none|low|medium|high default low;
+  grok-build-0.1 succeeds grok-code-fast-1, which retires 2026-08-15)
+- DeepSeek: https://api-docs.deepseek.com/quick_start/pricing +
+  /guides/thinking_mode (V4 permanent 75% price cut since 2026-05-23; 384K
+  output; thinking default ENABLED w/ reasoning_effort high|max — we still
+  run non-thinking, see entries. Peak-hour 2× pricing announced for
+  mid-Jul 2026; re-verify pricing when the "V4 official" release lands.)
+- Moonshot: https://platform.kimi.ai/docs/models (kimi-k2.6 = current
+  general flagship; kimi-k2.7-code exists but REQUIRES replaying
+  reasoning_content through tool loops — not added until the bond supports
+  preserved thinking; kimi-k2.5 legacy but still served)
+- MiniMax: https://platform.minimax.io/docs/guides/models-intro +
+  /docs/guides/pricing-paygo.md (minimax-m3 flagship 2026-06-01, 1M ctx,
+  multimodal; m2.7 repriced $0.30/$1.20, thinking not disableable)
+- Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking +
+  /model-studio/qwen-coder (qwen3.7-max is the agentic flagship — Alibaba now
+  recommends general-purpose models over Qwen-Coder; qwen3-coder-plus is
+  NON-thinking, catalog previously wrong)
+- Zhipu: https://docs.z.ai/guides/overview/pricing +
+  /api-reference/llm/chat-completion (glm-5.2 standalone API live since
+  2026-06-16 w/ reasoning_effort — effective levels high|max, default max;
+  glm-5 repriced $1.00/$3.20)
 
-Knowledge-cutoff dates on the bumped non-Anthropic entries are best-effort
-estimates; the provider sources above verify id / pricing / context window.
+Knowledge-cutoff dates on non-Anthropic entries are best-effort estimates
+where the provider doesn't publish one; the provider sources above verify
+id / pricing / context window.
 
 ```typescript
 const MODELS: readonly ModelDefinition[]

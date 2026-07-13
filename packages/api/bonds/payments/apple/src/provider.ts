@@ -30,8 +30,9 @@ const logger = getLogger()
 import './secrets.js'
 
 import type { NormalizedSubscription } from '@molecule/api-payments'
+import { configNotConfiguredError } from '@molecule/api-secrets'
 
-import type { InAppPurchase, VerifyReceiptResponse } from './types.js'
+import type { InAppPurchase, PendingRenewal, VerifyReceiptResponse } from './types.js'
 
 /** Apple's production and sandbox receipt verification endpoint URLs. */
 const VERIFY_RECEIPT_URL = {
@@ -51,12 +52,24 @@ export const verifyReceipt = async (
   receiptData: string,
   useSandbox = false,
 ): Promise<VerifyReceiptResponse> => {
+  const sharedSecret = process.env.APPLE_SHARED_SECRET
+  if (!sharedSecret) {
+    // Fail BEFORE the network call, with a tagged config-not-configured error
+    // (mirrors the Stripe bond's getClient()) — not by sending Apple a request
+    // with `password: undefined` and letting it come back as status 21004
+    // ("shared secret does not match"), which reads as "wrong secret" when the
+    // real cause is "no secret at all," and which the bond adapter's catch
+    // would otherwise swallow into the same `null` a genuine bad-receipt
+    // returns.
+    throw configNotConfiguredError('APPLE_SHARED_SECRET', 'payments')
+  }
+
   const endpoint = useSandbox ? VERIFY_RECEIPT_URL.sandbox : VERIFY_RECEIPT_URL.production
 
   try {
     const response = await post<VerifyReceiptResponse>(endpoint, {
       'receipt-data': receiptData,
-      password: process.env.APPLE_SHARED_SECRET,
+      password: sharedSecret,
       'exclude-old-transactions': true,
     })
 
@@ -151,15 +164,56 @@ export const isSubscriptionActive = (subscription: InAppPurchase | null): boolea
 }
 
 /**
+ * Reads the auto-renew flag for a subscription out of a receipt response's
+ * `pending_renewal_info` — the ONLY field Apple uses to report whether
+ * auto-renew is currently on, independent of whether the subscription is
+ * still paid-through (`cancellation_date` unset) or not.
+ * @param response - The Apple receipt verification response containing `pending_renewal_info`.
+ * @param originalTransactionId - The original transaction ID to match in the renewal info array.
+ * @returns `true` if auto-renew is on, `false` if off, or `undefined` if no matching renewal info found (e.g. the response has no `pending_renewal_info` at all).
+ */
+export const getAutoRenewStatus = (
+  response: VerifyReceiptResponse,
+  originalTransactionId: string,
+): boolean | undefined => {
+  const renewal = response.pending_renewal_info?.find(
+    (r: PendingRenewal) => r.original_transaction_id === originalTransactionId,
+  )
+
+  if (!renewal) return undefined
+
+  return renewal.auto_renew_status === '1'
+}
+
+/**
  * Normalizes an Apple in-app purchase entry to the provider-agnostic `NormalizedSubscription` interface.
  * Maps Apple-specific fields (`expires_date_ms`, `is_trial_period`, `cancellation_date`) to standard status values.
  * @param subscription - The Apple in-app purchase entry to normalize.
+ * @param renewalResponse - Optional: the full receipt response `subscription` was extracted from
+ *   (via {@link getLatestSubscription}). When provided, `willRenew` is read from its
+ *   `pending_renewal_info.auto_renew_status` (via {@link getAutoRenewStatus}) — the actual
+ *   auto-renew toggle — instead of being INFERRED from `isActive && !cancellation_date`. The
+ *   inferred fallback conflates "not canceled/refunded" with "auto-renew is on": a user who
+ *   turned OFF auto-renew mid-period (no `cancellation_date` — they keep access through the
+ *   paid period) would otherwise report `willRenew: true` right up until expiry.
  * @returns A `NormalizedSubscription` with provider set to `'apple'` and dates converted to millisecond timestamps.
  */
-export const normalizeSubscription = (subscription: InAppPurchase): NormalizedSubscription => {
+export const normalizeSubscription = (
+  subscription: InAppPurchase,
+  renewalResponse?: VerifyReceiptResponse,
+): NormalizedSubscription => {
   const expiresAt = subscription.expires_date_ms ? parseInt(subscription.expires_date_ms, 10) : 0
   const isActive = expiresAt > Date.now() && !subscription.cancellation_date
   const isTrial = subscription.is_trial_period === 'true'
+
+  // Prefer the actual auto-renew flag when a renewal response was given; fall
+  // back to the isActive-based inference (matches the historical behavior)
+  // only when pending_renewal_info wasn't supplied/found.
+  const willRenew =
+    (renewalResponse
+      ? getAutoRenewStatus(renewalResponse, subscription.original_transaction_id)
+      : undefined) ??
+    (isActive && !subscription.cancellation_date)
 
   return {
     provider: 'apple',
@@ -175,7 +229,7 @@ export const normalizeSubscription = (subscription: InAppPurchase): NormalizedSu
     isActive,
     currentPeriodStart: parseInt(subscription.purchase_date_ms, 10),
     currentPeriodEnd: expiresAt,
-    willRenew: isActive && !subscription.cancellation_date,
+    willRenew,
     canceledAt: subscription.cancellation_date_ms
       ? parseInt(subscription.cancellation_date_ms, 10)
       : undefined,

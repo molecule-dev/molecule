@@ -57,7 +57,7 @@ describe('@molecule/api-notifications-webhook', () => {
       expect(parsed.timestamp).toBeDefined()
     })
 
-    it('should include metadata fields in the JSON body', async () => {
+    it('should nest metadata fields under a dedicated "metadata" key in the JSON body', async () => {
       mockFetch.mockResolvedValue({ ok: true, status: 200 })
       const provider = createProvider({ url: 'https://example.com/hook' })
 
@@ -69,8 +69,32 @@ describe('@molecule/api-notifications-webhook', () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1)
       const parsed = JSON.parse(mockFetch.mock.calls[0][1].body)
-      expect(parsed.severity).toBe('critical')
-      expect(parsed.source).toBe('api')
+      expect(parsed.metadata).toEqual({ severity: 'critical', source: 'api' })
+      // Not spread at the top level.
+      expect(parsed.severity).toBeUndefined()
+      expect(parsed.source).toBeUndefined()
+    })
+
+    it('ROOT-CAUSE REGRESSION GUARD: metadata keys named subject/body/timestamp do not overwrite the canonical envelope fields', async () => {
+      // Pre-fix, `...notification.metadata` was spread LAST at the top
+      // level, so a metadata key sharing a canonical field name silently won
+      // the collision — a receiver (and an HMAC verifier) could no longer
+      // trust the envelope.
+      mockFetch.mockResolvedValue({ ok: true, status: 200 })
+      const provider = createProvider({ url: 'https://example.com/hook' })
+
+      await provider.send({
+        subject: 'Real Subject',
+        body: 'Real Body',
+        metadata: { subject: 'evil', body: 'evil', timestamp: 'evil' },
+      })
+
+      const parsed = JSON.parse(mockFetch.mock.calls[0][1].body)
+      expect(parsed.subject).toBe('Real Subject')
+      expect(parsed.body).toBe('Real Body')
+      expect(typeof parsed.timestamp).toBe('string')
+      expect(Number.isNaN(Date.parse(parsed.timestamp))).toBe(false)
+      expect(parsed.metadata).toEqual({ subject: 'evil', body: 'evil', timestamp: 'evil' })
     })
 
     it('should include HMAC signature header when secret is configured', async () => {

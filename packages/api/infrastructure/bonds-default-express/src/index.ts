@@ -16,6 +16,15 @@
  * ```
  *
  * @module
+ * @remarks
+ * - **Realtime setups (`setupRealtimeSocketio`, `setupRealtimeWs`,
+ *   `setupRealtimeSse`) all defer-attach.** Each dynamic-imports its provider's
+ *   `createProvider({ deferAttach: true })`, calls `setProvider()`, then
+ *   `registerServerCreatedHook((server) => provider.attachHttpServer?.(server))`
+ *   from `@molecule/api-server-default-express` — so the realtime transport
+ *   shares the API's HTTP server/port once it exists, instead of a standalone
+ *   port a containerized sandbox / proxied deploy may not expose. Add new
+ *   realtime bonds by mirroring this pattern exactly.
  */
 
 export * from './billing.js'

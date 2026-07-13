@@ -250,9 +250,10 @@ interface BaseProps {
      */
     testId?: string;
     /**
-     * Automation ID for AI agents, E2E tests, and screen readers.
-     * Maps to the `data-mol-id` HTML attribute.
-     * Use `molId()` from `./automation.js` to generate semantic IDs.
+     * Automation ID for AI agents and E2E tests. Maps to the `data-mol-id`
+     * HTML attribute. Use `molId()` from `./automation.js` to generate
+     * semantic IDs. (Tooling only — screen readers do not expose `data-*`
+     * attributes; accessible names come from labels/`aria-*`.)
      */
     automationId?: string;
     /**
@@ -1045,6 +1046,15 @@ interface RadioGroupProps<T = string> extends BaseProps {
      * Group label.
      */
     label?: string;
+    /**
+     * Shared `name` attribute for the group's radio inputs (used for native
+     * form submission). When omitted, a unique per-instance name is generated
+     * so separate groups never merge — the visible `label` is deliberately
+     * NOT used as the name, because two groups with the same label (e.g. two
+     * "Size" pickers) would otherwise form ONE native radio group and
+     * deselect each other.
+     */
+    name?: string;
     /**
      * Layout direction.
      */
@@ -2984,6 +2994,34 @@ function getModalWrapperClass(): string
 
 **Returns:** The modal wrapper class string.
 
+#### `getModalWrapperStyle(centered)`
+
+Get the inline style for the modal centering wrapper. `dialogWrapper` has
+no dedicated ClassMap resolver option (it's a fixed token, not a
+`{ centered }`-parameterized one), so a top-anchored (non-centered) layout
+is expressed via the one inline-style exception the workspace styling rule
+allows for values ClassMap genuinely cannot express.
+
+Usage in Svelte:
+```svelte
+<script>
+  import { getModalWrapperClass, getModalWrapperStyle } from '`@molecule/app-ui-svelte`'
+  export let centered = true
+  $: wrapperStyle = getModalWrapperStyle(centered)
+</script>
+<div class={getModalWrapperClass()} style={wrapperStyle} on:click={onOverlayClick}>
+  ...
+</div>
+```
+
+```typescript
+function getModalWrapperStyle(centered?: boolean): Record<string, string> | undefined
+```
+
+- `centered` — Whether the modal is vertically centered. Defaults to `true`.
+
+**Returns:** An inline style object, or `undefined` when centered (the default).
+
 #### `getPaginationClasses(options)`
 
 Generate classes for the pagination nav container.
@@ -3999,6 +4037,42 @@ function getToastTitleClass(): string
 ```
 
 **Returns:** The toast title class string.
+
+#### `getTooltipArrowStyle(placement)`
+
+Get the inline style for the tooltip's arrow element. `tooltipContent` has
+no dedicated ClassMap resolver for a directional pointer, so its
+shape/position is expressed via inline style — the sanctioned exception for
+values ClassMap cannot express. Its color is NOT hardcoded:
+`var(--color-surface)` / `var(--color-border)` are the same CSS custom
+properties the `bg-surface`/`border` classes in `tooltipContent` resolve
+to, so the arrow always matches the tooltip body in both themes. Render it
+as a SIBLING of the tooltip content box, not a descendant — `tooltipContent`
+sets `overflow-hidden`, which would clip an arrow meant to poke past the
+box's own edge.
+
+Usage in Svelte:
+```svelte
+<script>
+  import { getTooltipClasses, getTooltipArrowStyle } from '`@molecule/app-ui-svelte`'
+  export let placement = 'top'
+  export let hasArrow = false
+</script>
+<div style="position:absolute;top:{position.top}px;left:{position.left}px;z-index:9999;">
+  <div role="tooltip" class={getTooltipClasses()}>{content}</div>
+  {#if hasArrow}
+    <span aria-hidden="true" style={getTooltipArrowStyle(placement)}></span>
+  {/if}
+</div>
+```
+
+```typescript
+function getTooltipArrowStyle(placement: TooltipPlacement): Record<string, string>
+```
+
+- `placement` — The tooltip's resolved placement.
+
+**Returns:** Inline style positioning the rotated-square arrow for that placement.
 
 #### `getTooltipClasses(options)`
 

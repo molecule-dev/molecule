@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const da: UploadsTranslations = {
   'uploads.error.noProvider': 'Upload-udbyder er ikke konfigureret. Kald setProvider() først.',
   'uploads.error.streamLimitReached': 'Strømgrænsen er nået.',
+  'uploads.error.aborted': 'Upload blev afbrudt.',
 }

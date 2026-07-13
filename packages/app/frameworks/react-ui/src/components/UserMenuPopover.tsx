@@ -28,6 +28,7 @@ import React, {
   type ReactNode,
   useContext,
   useEffect,
+  useId,
   useRef,
   useState,
 } from 'react'
@@ -52,6 +53,13 @@ interface UserMenuPopoverContextValue {
   displayName: string
   /** Resolved account email, when the auth user has one. */
   email: string | undefined
+  /**
+   * Shared id linking the trigger's `aria-controls` to the panel's `id` —
+   * this is a disclosure (a plain toggled region), not a `role="menu"`, so
+   * the pairing is the standard `aria-expanded` + `aria-controls` contract
+   * rather than `aria-haspopup="menu"`.
+   */
+  panelId: string
 }
 
 const UserMenuPopoverContext = createContext<UserMenuPopoverContextValue | null>(null)
@@ -106,6 +114,7 @@ export function UserMenuPopover({
   const location = useLocation()
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const panelId = useId()
 
   // Close on route change so the panel never sticks across navigations.
   useEffect(() => {
@@ -144,8 +153,8 @@ export function UserMenuPopover({
   const email = user?.email ?? undefined
 
   return (
-    <div ref={containerRef} className={cm.cn('relative', className)}>
-      <UserMenuPopoverContext.Provider value={{ open, setOpen, displayName, email }}>
+    <div ref={containerRef} className={cm.cn(cm.position('relative'), className)}>
+      <UserMenuPopoverContext.Provider value={{ open, setOpen, displayName, email, panelId }}>
         {children}
       </UserMenuPopoverContext.Provider>
     </div>
@@ -181,13 +190,19 @@ export function UserMenuPopoverTrigger({
 }: UserMenuPopoverTriggerProps): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { open, setOpen, displayName, email } = usePopoverContext('UserMenuPopoverTrigger')
+  const { open, setOpen, displayName, email, panelId } = usePopoverContext('UserMenuPopoverTrigger')
   return (
     <button
       type="button"
       onClick={() => setOpen(!open)}
+      // Disclosure pattern, not a menu: the panel renders a header + a
+      // `<nav>` of arbitrary links, which is invalid content for
+      // `role="menu"` (that role may contain ONLY `menuitem` descendants —
+      // a screen reader announces "menu, 0 items" and menu-specific
+      // navigation keys do nothing). `aria-expanded` + `aria-controls` is
+      // the standard disclosure-button contract; no `aria-haspopup` needed.
       aria-expanded={open}
-      aria-haspopup="menu"
+      aria-controls={panelId}
       aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
       data-mol-id={dataMolId}
       className={cm.cn(
@@ -207,7 +222,7 @@ export function UserMenuPopoverTrigger({
           cm.flex({ align: 'center', justify: 'center' }),
           cm.textSize('sm'),
           cm.fontWeight('bold'),
-          'shrink-0',
+          cm.shrink0,
         )}
         style={{
           backgroundColor: 'var(--color-primary)',
@@ -216,12 +231,19 @@ export function UserMenuPopoverTrigger({
       >
         {getInitials(displayName)}
       </span>
-      <span className={cm.cn('min-w-0 flex-1')}>
-        <span className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'), 'block truncate')}>
+      <span className={cm.cn(cm.flex1, 'min-w-0')}>
+        <span
+          className={cm.cn(
+            cm.textSize('sm'),
+            cm.fontWeight('semibold'),
+            cm.displayBlock,
+            'truncate',
+          )}
+        >
           {displayName}
         </span>
         {email ? (
-          <span className={cm.cn(cm.textSize('xs'), 'block truncate text-on-surface-variant')}>
+          <span className={cm.cn(cm.textSize('xs'), cm.displayBlock, 'truncate', cm.textMuted)}>
             {email}
           </span>
         ) : null}
@@ -274,12 +296,19 @@ export function UserMenuPopoverPanel({
 }: UserMenuPopoverPanelProps): React.JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { open, displayName, email } = usePopoverContext('UserMenuPopoverPanel')
+  const { open, displayName, email, panelId } = usePopoverContext('UserMenuPopoverPanel')
   if (!open) return null
   return (
+    // A disclosure region, not role="menu": the panel renders a header PLUS
+    // a `<nav>` of arbitrary caller-supplied links, which is invalid
+    // content for role="menu" (that role may contain ONLY `menuitem`
+    // descendants — a screen reader announced "menu, 0 items" and
+    // menu-specific navigation keys did nothing). `id` pairs with the
+    // trigger's `aria-controls`; the accessible name lives on the `<nav>`
+    // landmark below (a bare, roleless `<div>` does not expose
+    // `aria-label` to the accessibility tree the way a real landmark does).
     <div
-      role="menu"
-      aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
+      id={panelId}
       data-mol-id={dataMolId}
       className={cm.cn(
         'absolute bottom-full mb-2 z-50 rounded-xl border border-outline-variant',
@@ -288,13 +317,11 @@ export function UserMenuPopoverPanel({
     >
       <header className={cm.cn(cm.sp('pb', 4), 'border-b border-outline-variant')}>
         <p className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{displayName}</p>
-        {email ? (
-          <p className={cm.cn(cm.textSize('xs'), 'text-on-surface-variant')}>{email}</p>
-        ) : null}
+        {email ? <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{email}</p> : null}
       </header>
       <nav
-        className={cm.cn(cm.sp('mt', 4), 'space-y-1')}
-        aria-label={t('userMenu.navLabel', {}, { defaultValue: 'Account menu' })}
+        className={cm.cn(cm.sp('mt', 4), cm.stack(1))}
+        aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
       >
         {children}
       </nav>
@@ -366,7 +393,10 @@ export function UserMenuPopoverSignOut({
         cm.sp('py', 2),
         cm.textSize('sm'),
         cm.fontWeight('semibold'),
-        'block w-full text-left rounded-md text-error hover:bg-error/10 transition-colors',
+        cm.displayBlock,
+        cm.w('full'),
+        cm.textError,
+        'text-left rounded-md hover:bg-error/10 transition-colors',
         className,
       )}
     >

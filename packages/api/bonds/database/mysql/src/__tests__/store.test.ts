@@ -76,12 +76,23 @@ describe('createStore (mysql)', () => {
 
       const [sql, values] = mockPool.query.mock.calls[0] as [string, unknown[]]
       expect(sql).toContain('`role` IN (?, ?)')
-      expect(sql).toContain('`name` LIKE ?')
+      // `like` is case-insensitive and does NOT escape the caller's own wildcards
+      // (cross-bond contract — see @molecule/api-database WhereCondition JSDoc).
+      expect(sql).toContain('LOWER(`name`) LIKE LOWER(?)')
       expect(sql).toContain('LOWER(`email`) LIKE LOWER(?)')
       expect(sql).toContain('`deletedAt` IS NULL')
       // ilike is the documented literal-substring contains match: the value's LIKE
       // metacharacters are escaped and the bond wraps it with %…% (postgres parity).
       expect(values).toEqual(['admin', 'editor', 'A%', '%@EXAMPLE.com%'])
+    })
+
+    it('like does NOT escape caller-supplied wildcards — the pattern is used as-is (contrast with ilike above)', async () => {
+      mockPool.query.mockResolvedValue({ rows: [], rowCount: 0 })
+      await store.findMany('users', {
+        where: [{ field: 'name', operator: 'like', value: '100%_done' }],
+      })
+      const [, values] = mockPool.query.mock.calls[0] as [string, unknown[]]
+      expect(values).toEqual(['100%_done'])
     })
 
     it('treats LIKE wildcards typed into an ilike value as literals (postgres parity)', async () => {

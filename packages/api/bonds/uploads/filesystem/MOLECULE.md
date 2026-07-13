@@ -29,6 +29,15 @@ interface File extends UploadedFile {
    * The stream being written to disk.
    */
   upload?: NodeJS.WritableStream
+
+  /**
+   * Aborts the in-progress write: destroys the write stream (so `'finish'` never
+   * fires and `uploadPromise` cannot resolve as success), removes the partially
+   * written file from disk, and rejects `uploadPromise` with an `UploadAbortedError`.
+   * Set internally by `upload()`; not intended for external use — call the exported
+   * `abortUpload()` instead.
+   */
+  abort?: () => void
 }
 ```
 
@@ -110,8 +119,9 @@ interface UploadedFile {
 
 #### `abortUpload(file)`
 
-Aborts an in-progress file upload. Removes stream listeners, ends the write stream,
-and deletes the partially-written file from disk.
+Aborts an in-progress file upload. Removes stream listeners, destroys the write
+stream, deletes the partially-written file from disk, and rejects the file's
+`uploadPromise` with an `UploadAbortedError`.
 
 ```typescript
 function abortUpload(file: File): void
@@ -202,3 +212,9 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-uploads` ^1.0.0
+
+`abortUpload()` rejects the file's `uploadPromise` with `UploadAbortedError` (from
+`@molecule/api-uploads`) — it never resolves as success and never calls the
+`upload()` call's `onError`. This is identical to the `@molecule/api-uploads-s3`
+bond's abort behavior; see that core package's `AbortHandler` remarks for the
+full cross-provider contract.

@@ -289,3 +289,8 @@ Peer dependencies:
   - Setup: Shown when creating the OAuth 2.0 Client ID in Google Cloud Console.
   - Get it here: [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
   - Example: `GOCSPX-...`
+
+The token exchange (`verify`'s call to Google's token endpoint) is
+`application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 and Google's own
+docs — matching every other molecule.dev OAuth bond (gitlab, twitter,
+github, apple, microsoft).

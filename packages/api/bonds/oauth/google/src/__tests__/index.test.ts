@@ -79,17 +79,14 @@ describe('Google OAuth Provider', () => {
 
       expect(mockPost).toHaveBeenCalledWith(
         'https://www.googleapis.com/oauth2/v4/token',
-        {
-          client_id: 'test-google-client-id',
-          client_secret: 'test-google-client-secret',
-          code: 'test-auth-code',
-          code_verifier: undefined,
-          grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost:3000',
-        },
+        // RFC 6749 §4.1.3 requires the token-exchange body to be
+        // form-encoded, not JSON — this pins the wire format, not just the
+        // logical params.
+        'client_id=test-google-client-id&client_secret=test-google-client-secret&code=test-auth-code&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A3000',
         {
           headers: {
             accept: 'application/json',
+            'content-type': 'application/x-www-form-urlencoded',
           },
           timeout: 15000,
         },
@@ -118,6 +115,36 @@ describe('Google OAuth Provider', () => {
         },
       })
     })
+
+    it(
+      'form-encodes the token request per RFC 6749 §4.1.3 (was: a plain JS object, which ' +
+        '@molecule/api-http JSON-encodes and content-types as application/json — works ' +
+        "against a lenient JSON-tolerant mock but Google's real token endpoint requires " +
+        'form-encoding)',
+      async () => {
+        mockPost.mockResolvedValue({
+          data: { access_token: 'tok', token_type: 'bearer', scope: 'openid email' },
+        })
+        mockGet.mockResolvedValue({ data: { sub: 'sub-1', email: 'a@b.com' } })
+
+        const { verify } = await import('../verify.js')
+        await verify('a-code', 'a-verifier')
+
+        const [, body, options] = mockPost.mock.calls[0] as [
+          string,
+          unknown,
+          { headers: Record<string, string> },
+        ]
+        expect(typeof body).toBe('string')
+        expect(body).not.toMatch(/^\s*\{/) // not a JSON object body
+        expect(options.headers['content-type']).toBe('application/x-www-form-urlencoded')
+        // A form-encoded body round-trips cleanly through URLSearchParams.
+        const parsed = new URLSearchParams(body as string)
+        expect(parsed.get('code')).toBe('a-code')
+        expect(parsed.get('code_verifier')).toBe('a-verifier')
+        expect(parsed.get('grant_type')).toBe('authorization_code')
+      },
+    )
 
     it('should report emailVerified=false when Google has not verified the email', async () => {
       mockPost.mockResolvedValue({
@@ -165,13 +192,8 @@ describe('Google OAuth Provider', () => {
 
       await verify('test-auth-code', 'test-code-verifier')
 
-      expect(mockPost).toHaveBeenCalledWith(
-        'https://www.googleapis.com/oauth2/v4/token',
-        expect.objectContaining({
-          code_verifier: 'test-code-verifier',
-        }),
-        expect.anything(),
-      )
+      const [, body] = mockPost.mock.calls[0] as [string, string]
+      expect(new URLSearchParams(body).get('code_verifier')).toBe('test-code-verifier')
     })
 
     it('should handle custom redirect_uri', async () => {
@@ -194,13 +216,8 @@ describe('Google OAuth Provider', () => {
 
       await verify('test-auth-code', undefined, 'https://custom.example.com')
 
-      expect(mockPost).toHaveBeenCalledWith(
-        'https://www.googleapis.com/oauth2/v4/token',
-        expect.objectContaining({
-          redirect_uri: 'https://custom.example.com',
-        }),
-        expect.anything(),
-      )
+      const [, body] = mockPost.mock.calls[0] as [string, string]
+      expect(new URLSearchParams(body).get('redirect_uri')).toBe('https://custom.example.com')
     })
 
     it('should handle user without email', async () => {
@@ -381,13 +398,8 @@ describe('Google OAuth Provider', () => {
 
       await verify('test-auth-code')
 
-      expect(mockPost).toHaveBeenCalledWith(
-        'https://www.googleapis.com/oauth2/v4/token',
-        expect.objectContaining({
-          redirect_uri: 'https://myapp.example.com',
-        }),
-        expect.anything(),
-      )
+      const [, body] = mockPost.mock.calls[0] as [string, string]
+      expect(new URLSearchParams(body).get('redirect_uri')).toBe('https://myapp.example.com')
     })
   })
 

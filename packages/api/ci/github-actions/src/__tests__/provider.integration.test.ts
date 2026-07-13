@@ -182,3 +182,175 @@ describe('@molecule/api-ci-github-actions × REAL yaml parser', () => {
     }
   })
 })
+
+describe('stagingDeploy() "Comment PR with staging URL" step — reachability + slug fidelity', () => {
+  /**
+   * Generates stagingDeploy(), parses it with the REAL yaml parser, and
+   * returns the embedded github-script source for the PR-comment step.
+   */
+  const extractCommentStep = (): { step: Record<string, unknown>; script: string } => {
+    const doc = parse12(toYAML(workflows.stagingDeploy({ driver: 'docker-compose' }))) as {
+      on: { pull_request?: unknown; push?: unknown }
+      jobs: { deploy: { steps: Array<Record<string, unknown>> } }
+    }
+    const step = doc.jobs.deploy.steps.find((s) => s.name === 'Comment PR with staging URL')
+    if (!step) throw new Error('Comment PR with staging URL step not found')
+    return { step, script: (step.with as Record<string, unknown>).script as string }
+  }
+
+  it('REACHABILITY: the workflow triggers on push only — pull_request is never a trigger', () => {
+    // The bug: the step was gated on `github.event_name == 'pull_request'`
+    // while `on:` declared ONLY `push`, so the guard could never be true.
+    const doc = parse12(toYAML(workflows.stagingDeploy())) as { on: Record<string, unknown> }
+    expect(doc.on.push).toBeDefined()
+    expect(doc.on.pull_request).toBeUndefined()
+  })
+
+  it('REACHABILITY: the comment step carries NO `if` gating on pull_request — it always runs on push', () => {
+    const { step } = extractCommentStep()
+    expect(step.if).toBeUndefined()
+  })
+
+  /**
+   * Executes the ACTUAL embedded script text (extracted from the generated
+   * YAML — not a re-implementation) inside a fake `actions/github-script`
+   * harness: a async-function wrapper matching how github-script invokes the
+   * `script:` body, with `require`, `context`, `github`, and `process.env`
+   * stubbed. Real execution, not string matching — proves the SHIPPED script
+   * behaves correctly, not just that it contains the right substrings.
+   */
+  async function runCommentScript(
+    script: string,
+    opts: {
+      branch: string
+      stagingState: unknown
+      prs: Array<{ number: number }>
+    },
+  ): Promise<{ logs: string[]; comments: Array<{ issue_number: number; body: string }> }> {
+    const logs: string[] = []
+    const comments: Array<{ issue_number: number; body: string }> = []
+    const fakeRequire = (mod: string): unknown => {
+      if (mod === 'fs') return { readFileSync: () => JSON.stringify(opts.stagingState) }
+      throw new Error(`unexpected require: ${mod}`)
+    }
+    const fakeGithub = {
+      rest: {
+        pulls: { list: async () => ({ data: opts.prs }) },
+        issues: {
+          createComment: async (params: { issue_number: number; body: string }) => {
+            comments.push({ issue_number: params.issue_number, body: params.body })
+          },
+        },
+      },
+    }
+    const fakeContext = { repo: { owner: 'acme', repo: 'widgets' } }
+    const fakeConsole = { log: (msg: unknown) => logs.push(String(msg)) }
+    const fakeProcess = { env: { GITHUB_REF_NAME: opts.branch } }
+    // Executing the ACTUAL generated script text (not re-implementing it) is
+    // the point of this test — this is not eval'ing untrusted input.
+    const runner = new Function(
+      'require',
+      'context',
+      'github',
+      'process',
+      'console',
+      `return (async () => { ${script} })()`,
+    ) as (
+      req: typeof fakeRequire,
+      ctx: typeof fakeContext,
+      gh: typeof fakeGithub,
+      proc: typeof fakeProcess,
+      con: typeof fakeConsole,
+    ) => Promise<void>
+    await runner(fakeRequire, fakeContext, fakeGithub, fakeProcess, fakeConsole)
+    return { logs, comments }
+  }
+
+  // Fixtures mirror @molecule/api-staging's branchToSlug() test suite EXACTLY
+  // (packages/api/core/staging/src/__tests__/slugify.test.ts) — the embedded
+  // script must slug branches IDENTICALLY, or the .molecule/staging.json
+  // environments[slug] lookup silently misses even when the branch deployed
+  // fine (the original bug: the inline slugify diverged — no dash-collapsing,
+  // no edge-dash trim, no 40-char cap).
+  const slugFixtures: Array<[string, string]> = [
+    ['main', 'main'],
+    ['refs/heads/main', 'main'],
+    ['feature/user-login', 'feature-user-login'],
+    ['fix/auth/oauth', 'fix-auth-oauth'],
+    ['Feature/UserLogin', 'feature-userlogin'],
+    ['HOTFIX', 'hotfix'],
+    ['feature_branch', 'feature-branch'],
+    ['feature//double', 'feature-double'],
+    ['a---b', 'a-b'],
+    ['-leading', 'leading'],
+    ['trailing-', 'trailing'],
+    ['-both-', 'both'],
+    ['feat@123', 'feat-123'],
+    ['fix(bug)', 'fix-bug'],
+    ['v1.2.3', 'v1-2-3'],
+  ]
+
+  it.each(slugFixtures)(
+    'slugs branch "%s" identically to branchToSlug() -> "%s"',
+    async (branch, expectedSlug) => {
+      const { script } = extractCommentStep()
+      const { logs } = await runCommentScript(script, {
+        branch,
+        stagingState: { environments: {} },
+        prs: [],
+      })
+      // environments is empty, so the script always falls into the "no
+      // staging state found" branch — its message embeds the slug it
+      // computed, which is how the computed value is observed.
+      expect(logs.some((l) => l.includes(`slug "${expectedSlug}"`))).toBe(true)
+    },
+  )
+
+  it('caps the slug at 40 chars with no trailing dash, matching branchToSlug()', async () => {
+    const { script } = extractCommentStep()
+    const longBranch = 'feature/' + 'x'.repeat(60)
+    const { logs } = await runCommentScript(script, {
+      branch: longBranch,
+      stagingState: { environments: {} },
+      prs: [],
+    })
+    const line = logs.find((l) => l.startsWith('No staging state found'))
+    expect(line).toBeDefined()
+    const match = line?.match(/slug "([^"]*)"/)
+    expect(match?.[1]).toHaveLength(40)
+    expect(match?.[1]?.endsWith('-')).toBe(false)
+  })
+
+  it('REACHABILITY: comments on the open PR for the pushed branch when staging state matches', async () => {
+    const { script } = extractCommentStep()
+    const branch = 'feature/user-login'
+    const slug = 'feature-user-login'
+    const { comments, logs } = await runCommentScript(script, {
+      branch,
+      stagingState: {
+        environments: {
+          [slug]: { urls: { api: 'http://localhost:4001', app: 'http://localhost:5174' } },
+        },
+      },
+      prs: [{ number: 42 }],
+    })
+    expect(comments).toHaveLength(1)
+    expect(comments[0].issue_number).toBe(42)
+    expect(comments[0].body).toContain('http://localhost:4001')
+    expect(comments[0].body).toContain('http://localhost:5174')
+    expect(logs).toHaveLength(0)
+  })
+
+  it('FAILURE DISAMBIGUATION: logs (never throws) when no open PR exists yet for the branch', async () => {
+    const { script } = extractCommentStep()
+    const branch = 'feature/user-login'
+    const slug = 'feature-user-login'
+    const { comments, logs } = await runCommentScript(script, {
+      branch,
+      stagingState: { environments: { [slug]: { urls: {} } } },
+      prs: [],
+    })
+    expect(comments).toHaveLength(0)
+    expect(logs.some((l) => l.includes('No open pull request found'))).toBe(true)
+  })
+})

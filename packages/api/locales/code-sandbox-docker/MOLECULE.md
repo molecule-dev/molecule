@@ -4,7 +4,7 @@ Translations for @molecule/api-code-sandbox-docker in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/api-code-sandbox-docker` package which has 4 translation keys.
+Provides translations for the `@molecule/api-code-sandbox-docker` package which has 5 translation keys.
 
 ## Languages
 
@@ -22,6 +22,7 @@ import type { CodeSandboxDockerTranslationKey, CodeSandboxDockerTranslations } f
 | Key | English |
 |-----|---------|
 | `codeSandbox.docker.error.readFailed` | Failed to read {{path}}: {{error}} |
+| `codeSandbox.docker.error.readDirFailed` | Failed to list {{path}}: {{error}} |
 | `codeSandbox.docker.error.writeFailed` | Failed to write {{path}}: {{error}} |
 | `codeSandbox.docker.error.deleteFailed` | Failed to delete {{path}}: {{error}} |
 | `codeSandbox.docker.error.apiError` | Docker API {{method}} {{path}}: {{status}} {{error}} |

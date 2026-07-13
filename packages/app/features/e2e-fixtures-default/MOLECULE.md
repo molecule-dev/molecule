@@ -27,6 +27,15 @@ a valid regex it is matched as a plain substring instead (so literal
 error text with `[`/`(` can be pasted verbatim). An annotation with
 no description allows every error — always provide one.
 
+A small, fixed set of browser-noise patterns are ALWAYS ignored regardless
+of `allow-console-error` (Vite HMR reconnect chatter, service-worker 404s
+in headless Chrome, and a real Chrome DevTools "failed to load SourceMap"
+message for any `https://`-hosted bundle — e.g. Stripe/Google Maps CDN
+scripts shipped without source maps). That last pattern is verified
+against the actual Chrome message text and constrained to `https://` so it
+can never silence a genuinely broken source map in the app's OWN bundle
+(served over plain `http://localhost` in dev/preview).
+
 ## Quick Start
 
 ```ts

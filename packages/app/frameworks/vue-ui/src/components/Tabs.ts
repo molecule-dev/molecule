@@ -48,7 +48,7 @@ export const Tabs = defineComponent({
         h(
           'div',
           {
-            class: cm.cn(cm.tabsList, props.fitted && cm.tabsFitted),
+            class: cm.cn(cm.tabsList(), props.fitted && cm.tabsFitted),
             role: 'tablist',
           } as Record<string, unknown>,
           props.items.map((item) => {
@@ -64,7 +64,7 @@ export const Tabs = defineComponent({
                 'aria-controls': `tabpanel-${item.value}`,
                 'data-state': isActive ? 'active' : 'inactive',
                 disabled: item.disabled,
-                class: cm.cn(cm.tabsTrigger, props.fitted && cm.tabTriggerFitted),
+                class: cm.cn(cm.tabsTrigger(), props.fitted && cm.tabTriggerFitted),
                 onClick: () => handleTabClick(item.value),
               },
               [
@@ -83,7 +83,7 @@ export const Tabs = defineComponent({
               role: 'tabpanel',
               id: `tabpanel-${activeValue}`,
               'aria-labelledby': activeValue,
-              class: cm.tabsContent,
+              class: cm.tabsContent(),
             },
             [activeItem.content] as VNodeArrayChildren,
           ),

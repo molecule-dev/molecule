@@ -5,4 +5,5 @@ export const mk: UploadsTranslations = {
   'uploads.error.noProvider':
     'Провајдерот за прикачување не е конфигуриран. Прво повикајте setProvider().',
   'uploads.error.streamLimitReached': 'Достигнат е лимитот на протокот.',
+  'uploads.error.aborted': 'Прикачувањето беше прекинато.',
 }

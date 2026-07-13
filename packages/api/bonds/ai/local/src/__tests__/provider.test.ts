@@ -5,10 +5,14 @@ import type { ChatEvent } from '@molecule/api-ai'
 import { createProvider, LocalAIProvider } from '../provider.js'
 
 /** Build a mock JSON `Response` for non-streaming tests. */
-function jsonResponse(status: number, body: unknown): Response {
+function jsonResponse(
+  status: number,
+  body: unknown,
+  headers: Record<string, string> = {},
+): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...headers },
   })
 }
 
@@ -409,6 +413,71 @@ describe('chat() — HTTP error handling (emits error EVENT + returns gracefully
     expect(err?.message).toMatch(/configuration error/i)
     expect(err?.message).not.toContain('sk-xxx')
     expect(err?.errorKey).toBe('ai.error.apiError')
+  })
+
+  it('a plain 400 (invalid param, not context-length) → distinct non-retryable message', async () => {
+    // Regression: every non-context-length 400 used to fall through to the
+    // same generic "AI service error. Please try again." as a genuinely
+    // retryable 5xx.
+    fetchMock().mockResolvedValue(
+      jsonResponse(400, { error: { message: 'temperature must be <= 2' } }),
+    )
+    const { events, thrown } = await collect(
+      createProvider().chat({ messages: [{ role: 'user', content: 'x' }], stream: false }),
+    )
+    expect(thrown).toBeUndefined()
+    const err = events.find((e) => e.type === 'error') as
+      | { message: string; errorKey?: string }
+      | undefined
+    expect(err?.message).toBe('AI request was invalid — check the model and request parameters.')
+    expect(err?.message).not.toBe('AI service error. Please try again.')
+  })
+
+  it('400 + context-length detail → "too long" message', async () => {
+    fetchMock().mockResolvedValue(
+      jsonResponse(400, { error: { message: 'context length exceeded' } }),
+    )
+    const { events } = await collect(
+      createProvider().chat({ messages: [{ role: 'user', content: 'x' }], stream: false }),
+    )
+    const err = events.find((e) => e.type === 'error') as { message: string } | undefined
+    expect(err?.message).toMatch(/too long/i)
+  })
+
+  it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {
+    vi.useFakeTimers()
+    try {
+      let call = 0
+      fetchMock().mockImplementation(() => {
+        call += 1
+        if (call === 1) {
+          return Promise.resolve(
+            jsonResponse(
+              429,
+              { error: { message: 'busy' } },
+              { 'retry-after': 'Wed, 21 Oct 2026 07:28:00 GMT' },
+            ),
+          )
+        }
+        return Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+      })
+
+      const collectPromise = collect(
+        createProvider().chat({ messages: [{ role: 'user', content: 'x' }], stream: false }),
+      )
+
+      // A NaN-degraded delay (pre-fix) would have already retried well before
+      // 500ms; the exponential-backoff fallback (attempt 0 = 1000ms) must not.
+      await vi.advanceTimersByTimeAsync(500)
+      expect(fetchMock()).toHaveBeenCalledTimes(1)
+
+      await vi.advanceTimersByTimeAsync(2_000)
+      const { thrown } = await collectPromise
+      expect(thrown).toBeUndefined()
+      expect(fetchMock()).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('non-abort network failure (e.g. connection refused) → error event + graceful return, no throw', async () => {

@@ -52,10 +52,17 @@ function createMockInstance(options: NotificationCenterOptions): NotificationCen
   let unreadCount = 0
   let loading = false
   let moreAvailable = false
+  let lastError: Error | undefined
   const handlers = new Set<NotificationUpdateHandler>()
 
   function getState(): NotificationCenterState {
-    return { notifications: [...notifications], unreadCount, loading, hasMore: moreAvailable }
+    return {
+      notifications: [...notifications],
+      unreadCount,
+      loading,
+      hasMore: moreAvailable,
+      lastError,
+    }
   }
 
   function emit(): void {
@@ -73,24 +80,36 @@ function createMockInstance(options: NotificationCenterOptions): NotificationCen
     loadMore: async () => {
       loading = true
       emit()
-      const result = await options.fetchNotifications({})
-      notifications = [...notifications, ...result.items]
-      moreAvailable = result.hasMore
-      loading = false
-      emit()
+      try {
+        const result = await options.fetchNotifications({})
+        notifications = [...notifications, ...result.items]
+        moreAvailable = result.hasMore
+        lastError = undefined
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
+      } finally {
+        loading = false
+        emit()
+      }
     },
     refresh: async () => {
       loading = true
       emit()
-      const [result, count] = await Promise.all([
-        options.fetchNotifications({}),
-        options.fetchUnreadCount(),
-      ])
-      notifications = result.items
-      unreadCount = count
-      moreAvailable = result.hasMore
-      loading = false
-      emit()
+      try {
+        const [result, count] = await Promise.all([
+          options.fetchNotifications({}),
+          options.fetchUnreadCount(),
+        ])
+        notifications = result.items
+        unreadCount = count
+        moreAvailable = result.hasMore
+        lastError = undefined
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
+      } finally {
+        loading = false
+        emit()
+      }
     },
     markAsRead: async (id: string) => {
       await options.markAsRead(id)
@@ -287,5 +306,65 @@ describe('NotificationCenterInstance (mock conformance)', () => {
 
   it('destroy is callable', () => {
     expect(() => instance.destroy()).not.toThrow()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// lastError — ambiguous-failure fix
+// ---------------------------------------------------------------------------
+
+describe('NotificationCenterState.lastError (FAILURE DISAMBIGUATION)', () => {
+  beforeEach(() => {
+    unbond('notification-center')
+  })
+
+  it('CONSUMER PROPERTY: a first-load failure sets lastError, distinguishing it from a genuinely empty inbox', async () => {
+    const options = createMockOptions({
+      fetchNotifications: vi.fn().mockRejectedValue(new Error('network unreachable')),
+      fetchUnreadCount: vi.fn().mockRejectedValue(new Error('network unreachable')),
+    })
+    setProvider(createMockProvider())
+    const instance = createNotificationCenter(options)
+
+    await instance.refresh()
+    const state = instance.getState()
+
+    // Without lastError, this state (empty list, loading:false) is
+    // INDISTINGUISHABLE from "the user genuinely has zero notifications" —
+    // exactly the ambiguous-failure finding this field fixes.
+    expect(state.notifications).toEqual([])
+    expect(state.loading).toBe(false)
+    expect(state.lastError).toBeInstanceOf(Error)
+    expect(state.lastError?.message).toBe('network unreachable')
+  })
+
+  it('clears lastError on the next successful fetch (not a sticky banner)', async () => {
+    const fetchNotifications = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('network unreachable'))
+      .mockResolvedValueOnce({ items: [createMockNotification()], hasMore: false })
+    const options = createMockOptions({
+      fetchNotifications,
+      fetchUnreadCount: vi.fn().mockResolvedValue(1),
+    })
+    setProvider(createMockProvider())
+    const instance = createNotificationCenter(options)
+
+    await instance.refresh()
+    expect(instance.getState().lastError).toBeInstanceOf(Error)
+
+    await instance.refresh()
+    const state = instance.getState()
+    expect(state.lastError).toBeUndefined()
+    expect(state.notifications).toHaveLength(1)
+  })
+
+  it('lastError is undefined after a successful refresh with no prior failure', async () => {
+    setProvider(createMockProvider())
+    const instance = createNotificationCenter(createMockOptions())
+
+    await instance.refresh()
+
+    expect(instance.getState().lastError).toBeUndefined()
   })
 })

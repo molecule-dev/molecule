@@ -21,14 +21,24 @@ vi.mock('posthog-js', () => ({
     capture: mockCapture,
     group: mockGroup,
     reset: mockReset,
+    // Mirrors the REAL SDK's own instance field (verified against
+    // posthog-js's compiled source + .d.ts: `__loaded=!1` in the
+    // constructor, flipped to `!0` inside a successful `_init()`). The mock
+    // `init` above is a bare vi.fn() and does NOT flip this itself — tests
+    // that need the "already initialized" branch set it explicitly, the
+    // same way the real SDK would have after a first successful init.
+    __loaded: false,
   },
 }))
+
+import { posthog } from 'posthog-js'
 
 import { createProvider, provider } from '../provider.js'
 
 describe('PostHog app analytics provider', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    posthog.__loaded = false
   })
 
   describe('createProvider', () => {
@@ -49,6 +59,43 @@ describe('PostHog app analytics provider', () => {
         autocapture: false,
         capture_pageview: false,
       })
+    })
+
+    // Regression test for the api-drift finding: posthog-js's `posthog`
+    // client is a module-level singleton, so a second real `.init()` call
+    // no-ops and keeps the FIRST config — a changed host/autocapture used to
+    // vanish with only the SDK's own generic warning (which never says
+    // WHICH call was ignored). This pins that molecule's own actionable
+    // warning fires when `posthog.__loaded` is already true.
+    it('should warn (naming the ignored call) when createProvider() runs again after the SDK already initialized', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      try {
+        createProvider({ apiKey: 'pk_first', host: 'https://us.i.posthog.com' })
+        expect(warnSpy).not.toHaveBeenCalled()
+
+        // Simulate what the REAL SDK does internally after a successful init.
+        posthog.__loaded = true
+
+        createProvider({ apiKey: 'pk_first', host: 'https://eu.i.posthog.com' })
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('already initialized'))
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('IGNORED'))
+        // We still call init() every time (harmless — the real SDK's own
+        // `__loaded` guard makes it a no-op); only our extra warning is new.
+        expect(mockInit).toHaveBeenCalledTimes(2)
+      } finally {
+        warnSpy.mockRestore()
+      }
+    })
+
+    it('should NOT warn about re-initialization on the very first createProvider() call', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      try {
+        createProvider({ apiKey: 'pk_test' })
+        expect(warnSpy).not.toHaveBeenCalled()
+      } finally {
+        warnSpy.mockRestore()
+      }
     })
 
     it('should NOT initialize the SDK without an API key — warns once and no-ops instead', async () => {

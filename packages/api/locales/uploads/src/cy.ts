@@ -5,4 +5,5 @@ export const cy: UploadsTranslations = {
   'uploads.error.noProvider':
     "Nid yw darparwr llwytho i fyny wedi'i ffurfweddu. Galwch setProvider() yn gyntaf.",
   'uploads.error.streamLimitReached': 'Cyrhaeddwyd terfyn y ffrwd.',
+  'uploads.error.aborted': 'Cafodd y llwytho i fyny ei ddiddymu.',
 }

@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const si: UploadsTranslations = {
   'uploads.error.noProvider': 'උඩුගත කිරීමේ සපයන්නා වින්‍යාස කර නැත. පළමුව setProvider() අමතන්න.',
   'uploads.error.streamLimitReached': 'ප්‍රවාහ සීමාවට ළඟා විය.',
+  'uploads.error.aborted': 'උඩුගත කිරීම අවලංගු කරන ලදී.',
 }

@@ -1224,6 +1224,56 @@ describe('@molecule/api-queue-sqs', () => {
 
       expect(lazyQueue.name).toBe('named-queue')
     })
+
+    it('subscribe() retries getUrl() with backoff instead of permanently giving up after the first failure', async () => {
+      vi.useFakeTimers()
+      let unsubscribe: (() => void) | undefined
+      try {
+        const mockClient = new SQSClient({})
+        const getUrl = vi
+          .fn()
+          .mockRejectedValueOnce(new Error('transient AWS error'))
+          .mockResolvedValueOnce('https://sqs.us-east-1.amazonaws.com/123456789012/retry-queue')
+
+        const lazyQueue = createLazyQueue(mockClient, 'retry-queue', getUrl)
+        unsubscribe = lazyQueue.subscribe(vi.fn())
+
+        // The first attempt rejects — flush the microtask queue.
+        await vi.advanceTimersByTimeAsync(0)
+        expect(getUrl).toHaveBeenCalledTimes(1)
+
+        // The retry (1s backoff) succeeds — a fixed AWS credential/region
+        // problem previously logged once and left the subscription
+        // permanently dead with no consumer ever running.
+        await vi.advanceTimersByTimeAsync(1000)
+        expect(getUrl).toHaveBeenCalledTimes(2)
+      } finally {
+        unsubscribe?.()
+        vi.useRealTimers()
+      }
+    })
+
+    it('subscribe()s returned unsubscribe cancels a pending retry so it never fires', async () => {
+      vi.useFakeTimers()
+      try {
+        const mockClient = new SQSClient({})
+        const getUrl = vi.fn().mockRejectedValue(new Error('still down'))
+
+        const lazyQueue = createLazyQueue(mockClient, 'cancel-retry-queue', getUrl)
+        const unsubscribe = lazyQueue.subscribe(vi.fn())
+
+        await vi.advanceTimersByTimeAsync(0)
+        expect(getUrl).toHaveBeenCalledTimes(1)
+
+        unsubscribe()
+
+        await vi.advanceTimersByTimeAsync(5000)
+        // No further attempts after cancellation.
+        expect(getUrl).toHaveBeenCalledTimes(1)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
   })
 
   describe('error handling', () => {
@@ -1241,6 +1291,111 @@ describe('@molecule/api-queue-sqs', () => {
       await expect(queue.send({ body: 'test' })).rejects.toThrow('Queue does not exist')
     })
 
+    it('should reject with QueueDoesNotExist by default — the queue must already exist in AWS (unlike memory/redis auto-create)', async () => {
+      const notFound = Object.assign(new Error('The specified queue does not exist.'), {
+        name: 'QueueDoesNotExist',
+      })
+      mockSend.mockImplementation(async (command: MockCommand) => {
+        if (command._type === 'GetQueueUrlCommand') {
+          throw notFound
+        }
+        return {}
+      })
+
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('typo-d-queue-name')
+
+      await expect(queue.send({ body: 'test' })).rejects.toThrow('does not exist')
+      const createCalls = mockSend.mock.calls.filter(
+        (call) => (call[0] as MockCommand)._type === 'CreateQueueCommand',
+      )
+      expect(createCalls).toHaveLength(0)
+    })
+  })
+
+  describe('autoCreateQueues', () => {
+    it('should auto-create a standard queue on QueueDoesNotExist when autoCreateQueues is true', async () => {
+      const notFound = Object.assign(new Error('The specified queue does not exist.'), {
+        name: 'QueueDoesNotExist',
+      })
+      let getUrlCalls = 0
+      mockSend.mockImplementation(async (command: MockCommand) => {
+        if (command._type === 'GetQueueUrlCommand') {
+          getUrlCalls += 1
+          throw notFound
+        }
+        if (command._type === 'CreateQueueCommand') {
+          return {
+            QueueUrl: `https://sqs.us-east-1.amazonaws.com/123456789012/${command.input.QueueName}`,
+          }
+        }
+        return { MessageId: 'msg-1' }
+      })
+
+      const providerInstance = createProvider({ autoCreateQueues: true })
+      const queue = providerInstance.queue('auto-create-me')
+
+      const messageId = await queue.send({ body: 'test' })
+
+      expect(messageId).toBe('msg-1')
+      expect(getUrlCalls).toBe(1)
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          _type: 'CreateQueueCommand',
+          input: expect.objectContaining({ QueueName: 'auto-create-me' }),
+        }),
+      )
+    })
+
+    it('should still reject a non-QueueDoesNotExist error even with autoCreateQueues enabled', async () => {
+      mockSend.mockImplementation(async (command: MockCommand) => {
+        if (command._type === 'GetQueueUrlCommand') {
+          throw new Error('AccessDenied')
+        }
+        return {}
+      })
+
+      const providerInstance = createProvider({ autoCreateQueues: true })
+      const queue = providerInstance.queue('forbidden-queue')
+
+      await expect(queue.send({ body: 'test' })).rejects.toThrow('AccessDenied')
+      const createCalls = mockSend.mock.calls.filter(
+        (call) => (call[0] as MockCommand)._type === 'CreateQueueCommand',
+      )
+      expect(createCalls).toHaveLength(0)
+    })
+
+    it('should cache the auto-created queue URL so it is only created once', async () => {
+      const notFound = Object.assign(new Error('does not exist'), { name: 'QueueDoesNotExist' })
+      let getUrlCalls = 0
+      mockSend.mockImplementation(async (command: MockCommand) => {
+        if (command._type === 'GetQueueUrlCommand') {
+          getUrlCalls += 1
+          throw notFound
+        }
+        if (command._type === 'CreateQueueCommand') {
+          return {
+            QueueUrl: `https://sqs.us-east-1.amazonaws.com/123456789012/${command.input.QueueName}`,
+          }
+        }
+        return { MessageId: 'msg-1' }
+      })
+
+      const providerInstance = createProvider({ autoCreateQueues: true })
+      const queue = providerInstance.queue('cached-auto-create')
+
+      await queue.send({ body: 'first' })
+      await queue.send({ body: 'second' })
+
+      expect(getUrlCalls).toBe(1)
+      const createCalls = mockSend.mock.calls.filter(
+        (call) => (call[0] as MockCommand)._type === 'CreateQueueCommand',
+      )
+      expect(createCalls).toHaveLength(1)
+    })
+  })
+
+  describe('error handling (other)', () => {
     it('should handle send errors', async () => {
       mockSend.mockImplementation(async (command: MockCommand) => {
         if (command._type === 'GetQueueUrlCommand') {

@@ -235,6 +235,13 @@ A full-text search query with optional filters, facets, sorting, and pagination.
 interface SearchQuery {
   /**
    * The search text.
+   *
+   * Empty or whitespace-only text is "browse" mode: bond implementations
+   * MUST match ALL documents (subject to `filters`, `sort`, and pagination)
+   * rather than erroring or returning zero hits. Every bundled bond
+   * (Elasticsearch, Meilisearch, Typesense, PostgreSQL) follows this
+   * contract, so swapping providers doesn't silently change what an empty
+   * search box shows.
    */
   text: string
 
@@ -544,3 +551,17 @@ function suggest(indexName: string, query: string, options?: SuggestOptions): Pr
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+- **Empty/whitespace-only `SearchQuery.text` is "browse" mode** — every
+  bundled bond matches ALL documents (filters/sort/pagination still
+  apply) rather than erroring or returning zero hits. Build an initial
+  "show everything" view with `search('products', { text: '' })` instead
+  of special-casing an empty search box in application code.
+- Bonds diverge on details the core contract does NOT standardize:
+  facet support (PostgreSQL supports it via an extra `GROUP BY` query per
+  field; the engine-backed bonds use native aggregations), highlight
+  result shape (per-field for Elasticsearch/Meilisearch/Typesense vs. a
+  single `_content` key for PostgreSQL), and filter semantics (exact
+  `term`/`=` matching everywhere — declare filterable string fields as
+  `keyword` for Elasticsearch). Check the bond's own module `@remarks`
+  before debugging a result that looks wrong only on one provider.

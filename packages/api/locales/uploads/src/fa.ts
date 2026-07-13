@@ -5,4 +5,5 @@ export const fa: UploadsTranslations = {
   'uploads.error.noProvider':
     'ارائه‌دهنده بارگذاری پیکربندی نشده است. ابتدا setProvider() را فراخوانی کنید.',
   'uploads.error.streamLimitReached': 'به حد جریان رسیده است.',
+  'uploads.error.aborted': 'بارگذاری لغو شد.',
 }

@@ -53,9 +53,17 @@ export type RealtimeEventHandler = (data: unknown) => void
 /**
  * Handler invoked when presence information changes for a room.
  *
- * @param presence - The updated list of present clients.
+ * @param presence - The updated list of present clients FOR `roomId` (not a
+ * merged/global list — a consumer joined to multiple rooms must use `roomId`
+ * to know which room's member list this update replaces, never assume "the"
+ * single room).
+ * @param roomId - The room this presence update is for. Existing handlers
+ * written against the pre-`roomId` single-argument signature keep compiling
+ * and running unchanged (extra trailing arguments are both TS- and
+ * JS-compatible with a shorter callback) but SHOULD add the parameter before
+ * rendering presence for an app with more than one joined room.
  */
-export type PresenceChangeHandler = (presence: PresenceInfo[]) => void
+export type PresenceChangeHandler = (presence: PresenceInfo[], roomId: string) => void
 
 // ---------------------------------------------------------------------------
 // Connection state
@@ -147,6 +155,9 @@ export interface RealtimeConnection {
 
   /**
    * Registers a handler that fires when presence changes in any joined room.
+   * The handler receives the room id the update is for (see
+   * {@link PresenceChangeHandler}) — a single handler registered once still
+   * works correctly for a consumer joined to multiple rooms.
    *
    * @param handler - The presence change handler.
    */

@@ -52,6 +52,14 @@ interface AppModelDefinition {
    * server-side `ModelDefinition` for the exact population rule.
    */
   supportedEffortLevels?: EffortLevel[]
+  /**
+   * Provider-native reasoning-effort value per supported abstract level (e.g.
+   * `{ S: 'low', M: 'high', L: 'xhigh', XL: 'max' }` on current Anthropic
+   * models). Present only on models driven by a native effort/level param;
+   * useful for showing the provider's own level names next to the abstract
+   * `S/M/L/XL` labels. Mirrors the server-side `ModelDefinition` field.
+   */
+  effortNativeByLevel?: Partial<Record<EffortLevel, string>>
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */
@@ -93,6 +101,24 @@ interface AppModelDefinition {
    * `ModelDefinition.disabled`. Omit entirely for active models.
    */
   disabled?: boolean
+}
+```
+
+#### `EffortOption`
+
+One selectable effort option for a specific model.
+
+```typescript
+interface EffortOption {
+  /** Internal persisted encoding (`project.settings.effortByMode` / legacy `effortLevel`). */
+  level: EffortLevel
+  /**
+   * What the user sees and types — the model's OWN effort value (e.g.
+   * `'xhigh'`), or a scaled thinking-budget size (e.g. `'16K'`) on
+   * budget-scaled models, or the bare abstract level as a last resort for
+   * unknown models.
+   */
+  native: string
 }
 ```
 
@@ -141,6 +167,26 @@ type EffortLevel = 'S' | 'M' | 'L' | 'XL'
 
 ### Functions
 
+#### `effortOptionsForModel(model)`
+
+The effort options a user can pick for a specific model, in ascending order.
+
+- Native-level models → the catalog's `effortNativeByLevel` values.
+- Budget-scaled models → the scaled thinking budgets (`'8K'`, `'16K'`, …),
+  clamped exactly like the server clamps the real request budget.
+- Fixed-reasoning models → `[]` (nothing to tune; effort still scales the
+  agent-loop budget server-side, but there is no per-model value to choose).
+- Unknown models (`undefined`) → the abstract levels themselves, so a
+  custom/unlisted model never loses the setting entirely.
+
+```typescript
+function effortOptionsForModel(model: AppModelDefinition | undefined): EffortOption[]
+```
+
+- `model` — The model to build options for, or `undefined` when unknown.
+
+**Returns:** The selectable options in `S → XL` order.
+
 #### `formatTokenCount(tokens)`
 
 Format a token count for display (e.g. `200000` -> `"200K"`, `1000000` -> `"1M"`).
@@ -182,6 +228,26 @@ function loadAIModels(http: HttpClient, path?: string): Promise<AppModelDefiniti
 
 **Returns:** The list of models available to the current session.
 
+#### `nativeEffortName(model, level)`
+
+The user-facing name of a persisted effort level under a specific model —
+the native value the level resolves to on that model.
+
+A persisted level outside the model's supported set degrades to the nearest
+supported option (ties resolve toward less effort), mirroring the
+server-side clamp, so the display always matches what the backend will
+actually send.
+
+```typescript
+function nativeEffortName(model: AppModelDefinition | undefined, level: EffortLevel): string | null
+```
+
+- `model` — The active model (or `undefined` when unknown).
+- `level` — The persisted abstract level.
+
+**Returns:** The native display name, or `null` when the model's reasoning is
+ *   fixed (nothing to display — callers show their own "fixed" copy).
+
 #### `partitionByDeprecation(models, now)`
 
 Splits a model catalog into current and deprecated entries based on each
@@ -214,6 +280,22 @@ function pickFreeTierModel(models: readonly AppModelDefinition[]): AppModelDefin
 **Returns:** The single non-disabled model with `freeTier: true`, or `undefined`.
 
 ### Constants
+
+#### `DEFAULT_EFFORT_LEVEL`
+
+Default abstract effort level when none is persisted.
+
+```typescript
+const DEFAULT_EFFORT_LEVEL: EffortLevel
+```
+
+#### `EFFORT_LEVELS`
+
+All abstract effort levels in ascending order (internal encoding).
+
+```typescript
+const EFFORT_LEVELS: readonly EffortLevel[]
+```
 
 #### `PROVIDER_BRAND_COLORS`
 

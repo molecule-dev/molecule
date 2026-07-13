@@ -1818,6 +1818,12 @@ export interface RadioClassOptions {
  */
 export interface SwitchClassOptions {
   size?: Size
+  /**
+   * Color used for the checked/on track. Reuses the same semantic color
+   * scale as `ButtonClassOptions.color`/`BadgeClassOptions.variant`.
+   * @default 'primary'
+   */
+  color?: ColorVariant
 }
 
 /**
@@ -1889,6 +1895,23 @@ export interface SeparatorClassOptions {
  */
 export interface AccordionClassOptions {
   variant?: string
+}
+
+/**
+ * Options for resolving tabs (`tabsList`/`tabsTrigger`/`tabsContent`) CSS
+ * classes via UIClassMap. Active vs inactive trigger styling is NOT one of
+ * these options — it is expressed as `data-[state=active]` CSS attribute
+ * selectors baked into the returned class string, driven by the
+ * `data-state="active"|"inactive"` attribute the framework binding already
+ * sets on the trigger element (see `@molecule/app-ui-react`'s `Tabs`).
+ */
+export interface TabsClassOptions {
+  /**
+   * Visual style: underline indicator, bordered/filled boxes, a soft-bg
+   * pill, or a solid-bg pill.
+   */
+  variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded'
+  size?: Size
 }
 
 /**
@@ -1989,6 +2012,9 @@ export interface UIClassMap {
   separator(opts?: SeparatorClassOptions): string
   accordion(opts?: AccordionClassOptions): string
   pagination(opts?: PaginationClassOptions): string
+  tabsList(opts?: TabsClassOptions): string
+  tabsTrigger(opts?: TabsClassOptions): string
+  tabsContent(opts?: TabsClassOptions): string
   tooltip(): string
   progress(): string
   progressBar(): string
@@ -2069,9 +2095,6 @@ export interface UIClassMap {
   tableHead: string
   tableCell: string
   tableCaption: string
-  tabsList: string
-  tabsTrigger: string
-  tabsContent: string
   tooltipContent: string
   toastViewport: string
   toastTitle: string

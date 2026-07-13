@@ -110,7 +110,19 @@ export function createPushCaptureProvider(
       if (realProvider) {
         return realProvider.generateVapidKeys()
       }
-      return { publicKey: '', privateKey: '' }
+      // Intercept-only mode has no real push transport to generate VAPID
+      // keys with. Returning a synthetic `{ publicKey: '', privateKey: '' }`
+      // used to look like success: a caller that persisted it and handed
+      // the empty publicKey to a browser subscribe() call failed later with
+      // a cryptic DOMException far from this line, with nothing signalling
+      // that capture mode cannot generate keys. Throw here instead, right
+      // where the actual limitation is.
+      throw new Error(
+        'api-push-capture (intercept-only mode) cannot generate VAPID keys — there is no ' +
+          'real push transport behind it. Wrap a real provider instead ' +
+          '(createPushCaptureProvider(realProvider)), or generate keys once with ' +
+          "web-push's generateVapidKeys() and set VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY.",
+      )
     },
 
     getPublicKey(): string | undefined {

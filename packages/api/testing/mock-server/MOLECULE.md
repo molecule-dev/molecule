@@ -23,6 +23,10 @@ server.setState('GET /accounts', { state: 'error', statusCode: 500 })
 server.setState('GET /transactions', { state: 'empty' })
 server.setDefaultState('empty') // flips every endpoint at once
 
+// Undo an endpoint override so ?_state / the default control it again —
+// setState(key, { state: 'success' }) is NOT the same thing (see @remarks)
+server.clearState('GET /accounts')
+
 // Teardown
 await server.close()
 ```
@@ -153,9 +157,52 @@ interface MockServer {
   port: number
   /** The app type being served */
   appType: string
-  /** Set the state for a specific endpoint */
+  /**
+   * Set a persistent state override for one endpoint (key: `"METHOD /path"`,
+   * e.g. `'GET /accounts'` — the bare and `/api/`-prefixed forms are
+   * equivalent keys). This is the HIGHEST-priority source of state for that
+   * endpoint. Full per-request precedence (highest first):
+   *
+   * 1. `setState(endpointKey, ...)` (this method)
+   * 2. per-request `?_state` query param / `X-Mock-State` header
+   * 3. `setDefaultState(...)` / the server's configured `defaultState`
+   *
+   * So a forgotten `setState('GET /accounts', { state: 'error' })` left over
+   * from an earlier test SILENTLY beats every later `?_state=success` on
+   * that endpoint — the request looks like `?_state` is being ignored.
+   * **Calling `setState(key, { state: 'success' })` does NOT remove the
+   * override** — it replaces it with an override that happens to look like
+   * the default, but per-request `?_state`/`X-Mock-State` still can't reach
+   * that endpoint (the override still outranks them). Use
+   * {@link MockServer.clearState} to actually remove the override and hand
+   * control back to per-request/default state. `setDefaultState()` never
+   * clears endpoint overrides either — the default is only the fallback used
+   * when no endpoint override exists at all.
+   * @param endpointKey - `"METHOD /path"`, e.g. `'GET /accounts'`.
+   * @param state - The state this endpoint returns for every request until
+   *   `setState` is called again, or `clearState`d, for the same key.
+   */
   setState: (endpointKey: string, state: ResponseState) => void
-  /** Set the default state for all endpoints */
+  /**
+   * Remove a persistent per-endpoint override previously set with
+   * {@link MockServer.setState}, restoring per-request `?_state`/
+   * `X-Mock-State` (and ultimately `setDefaultState()`) control over that
+   * endpoint. Pass the EXACT same key string used in the matching
+   * `setState()` call — keys are matched as opaque strings, not normalized,
+   * so `setState('GET /accounts', ...)` and `setState('GET /api/accounts',
+   * ...)` are independent overrides and each needs its own `clearState()`.
+   * Clearing a key with no active override is a harmless no-op.
+   * @param endpointKey - The same `"METHOD /path"` key passed to `setState`.
+   */
+  clearState: (endpointKey: string) => void
+  /**
+   * Set the fallback state used for any endpoint that has no per-endpoint
+   * `setState()` override — see {@link MockServer.setState} for the full
+   * precedence chain. A per-request `?_state`/`X-Mock-State` value still
+   * wins over this default; only an active `setState()` override outranks
+   * both.
+   * @param state - The fallback response state for endpoints with no override.
+   */
   setDefaultState: (state: 'success' | 'empty' | 'error' | 'unauthorized') => void
   /** Get the fixture set being served */
   getFixtures: () => AppFixtureSet
@@ -225,7 +272,11 @@ Response state for controlling mock behavior
 interface ResponseState {
   /** The state of the response */
   state: 'success' | 'empty' | 'error' | 'unauthorized'
-  /** Additional delay in ms before responding */
+  /**
+   * Additional delay in ms before responding. Clamped to `MAX_MOCK_DELAY_MS`
+   * (60s, see {@link applyDelay}) — an oversized value is capped and logged
+   * rather than honored verbatim, so it cannot hang a request indefinitely.
+   */
   delay?: number
   /** Custom status code override */
   statusCode?: number
@@ -289,7 +340,11 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 #### `applyDelay(state)`
 
-Apply a delay if specified in the response state.
+Apply a delay if specified in the response state. The requested delay is
+capped at {@link MAX_MOCK_DELAY_MS} — a value above the cap is clamped and
+a warning is logged (via `console.warn`, immediately, before waiting —
+not after — so the clamp is visible in server logs right when the
+oversized delay is requested rather than a minute later).
 
 ```typescript
 function applyDelay(state: ResponseState): Promise<void>
@@ -297,7 +352,8 @@ function applyDelay(state: ResponseState): Promise<void>
 
 - `state` — The response state that may contain a delay
 
-**Returns:** A promise that resolves after the delay (or immediately if no delay)
+**Returns:** A promise that resolves after the (possibly clamped) delay, or
+ *   immediately if no delay was requested
 
 #### `applySemanticRules(fieldName, rng, index, rules)`
 
@@ -689,6 +745,20 @@ current time — never assert generated dates against `Date.now()`.
 const FIXTURE_NOW: Date
 ```
 
+#### `MAX_MOCK_DELAY_MS`
+
+Maximum delay, in ms, that {@link applyDelay} will actually wait — a
+requested delay above this is clamped (and logged) rather than honored
+verbatim. Guards against a stray oversized `?_delay` / `X-Mock-Delay` /
+`defaultDelay` / `setState({ delay })` value (e.g. a units mistake
+applying `*1000` twice) hanging a request until the CLIENT gives up —
+which in an E2E harness presents as an inexplicable page timeout rather
+than an obvious mock misconfiguration.
+
+```typescript
+const MAX_MOCK_DELAY_MS: 60000
+```
+
 ## Injection Notes
 
 ### Requirements
@@ -696,6 +766,14 @@ const FIXTURE_NOW: Date
 Peer dependencies:
 - `zod` >=4.0.0
 
+)
+server.clearState('GET /accounts')
+
+// Teardown
+await server.close()
+```
+
+@remarks
 The server uses deterministic seeded PRNG for stable fixture data, making
 screenshot comparisons reliable. Fixture data comes from the JSON files in
 `fixturesPath` (array files become CRUD resources; `reports`/`storefront`/
@@ -713,3 +791,22 @@ an endpoint that legitimately returned empty data. Similarly, an invalid
 `?_state`/`X-Mock-State` value is ignored (the default state is served) but
 labeled with an `X-Mock-Invalid-State` response header, so a typo'd state
 control is detectable instead of silently looking like "state applied".
+
+State precedence, per request, highest first: (1) an endpoint-level
+`server.setState(key, state)` override, (2) a per-request `?_state` query
+param / `X-Mock-State` header, (3) `server.setDefaultState(...)` / the
+configured `defaultState`. A `setState()` override is PERSISTENT — a
+forgotten override from an earlier test silently beats every later
+`?_state` on that same endpoint. Calling `setState(key, { state: 'success'
+})` again does NOT remove the override (it replaces it with one that looks
+like the default, still outranking `?_state`); call `server.clearState(key)`
+to actually remove it and hand control back to per-request/default state.
+`setDefaultState()` only changes the fallback and never clears endpoint
+overrides.
+
+Response delay (`defaultDelay`, `?_delay`/`X-Mock-Delay`, or a `delay` in
+`setState`/`setDefaultState`) is capped at `MAX_MOCK_DELAY_MS` (60s) — an
+oversized value (e.g. a units mistake applying `*1000` twice) is clamped
+and logged with `console.warn` instead of hanging the request until the
+client gives up, which in an E2E harness reads as an inexplicable page
+timeout rather than a mock misconfiguration.

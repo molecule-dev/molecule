@@ -33,6 +33,102 @@ const execAsync = promisify(exec)
 
 const STAGING_DIR = '.molecule/staging'
 
+/** Minimum Docker Compose version this driver's generated files require. */
+const REQUIRED_COMPOSE_VERSION = { major: 2, minor: 24 } as const
+
+/**
+ * Parses a major.minor pair out of `docker compose version` output (e.g.
+ * `'Docker Compose version v2.24.5'` or the bare `'2.24.5'` from `--short`).
+ * Exported for testing — no need to shell out to `docker` to verify the
+ * parsing logic against every version-string shape Compose has printed.
+ *
+ * @param output - Raw stdout from `docker compose version`.
+ * @returns The parsed `{ major, minor }`, or `null` if no version substring is found.
+ */
+export function parseComposeVersion(output: string): { major: number; minor: number } | null {
+  const match = output.match(/v?(\d+)\.(\d+)\.(\d+)/)
+  if (!match) return null
+  return { major: Number(match[1]), minor: Number(match[2]) }
+}
+
+/**
+ * Checks a parsed Compose version against {@link REQUIRED_COMPOSE_VERSION}.
+ *
+ * @param version - A parsed `{ major, minor }` version.
+ * @returns `true` if the version meets or exceeds the minimum this driver requires.
+ */
+export function isComposeVersionSufficient(version: { major: number; minor: number }): boolean {
+  if (version.major !== REQUIRED_COMPOSE_VERSION.major) {
+    return version.major > REQUIRED_COMPOSE_VERSION.major
+  }
+  return version.minor >= REQUIRED_COMPOSE_VERSION.minor
+}
+
+/**
+ * Deterministically derives a fallback host port from an environment slug so
+ * that TWO environments falling back to this path (no `driverMeta` — direct
+ * provider callers only; `mlcl stage up` always allocates real ports via
+ * `allocatePort()`) don't collide on the SAME fixed port. Uses FNV-1a, a
+ * stable, dependency-free 32-bit hash — the same slug always maps to the same
+ * port across repeated `up()` calls, so redeploying an existing slug doesn't
+ * relocate it.
+ *
+ * @param base - The base port for this role (api/app/db).
+ * @param slug - The environment slug to derive an offset from.
+ * @param range - Width of the offset window (default 100 — kept narrow enough
+ *   that api/app/db's offset windows never overlap each other).
+ * @returns `base` plus a slug-derived offset in `[0, range)`.
+ */
+export function fallbackPort(base: number, slug: string, range: number = 100): number {
+  let hash = 0x811c9dc5
+  for (let i = 0; i < slug.length; i++) {
+    hash ^= slug.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return base + ((hash >>> 0) % range)
+}
+
+/** A single service row parsed from `docker compose ps --format json`. */
+export interface ComposeContainerStatus {
+  Service: string
+  State: string
+  Health: string
+}
+
+/**
+ * Determines whether a parsed `docker compose ps` container row counts as
+ * healthy. `generateComposeFile()` now defines a `healthcheck:` for the `api`
+ * AND `app` services (it always did for `db`), so `Health` is populated for
+ * both — `State === 'running'` alone used to be treated as healthy, which is
+ * also true of a process that is up but never came up serving (or is
+ * crash-looping between polls). Falls back to `State === 'running'` only for
+ * a container with NO healthcheck (an environment staged with a compose file
+ * generated before this fix, or a hand-edited one) — an empty `Health`
+ * string is how `docker compose ps` reports "no healthcheck defined".
+ *
+ * @param container - The parsed container row, or `undefined` if the service wasn't found.
+ * @returns `true` if the container is healthy.
+ */
+export function isContainerHealthy(container?: ComposeContainerStatus): boolean {
+  return (
+    container !== undefined &&
+    (container.Health ? container.Health === 'healthy' : container.State === 'running')
+  )
+}
+
+/**
+ * Returns the human-readable status for a parsed `docker compose ps`
+ * container row — the `Health` value when a healthcheck is defined,
+ * otherwise the raw container `State`, or `'not found'` when the service
+ * isn't running at all.
+ *
+ * @param container - The parsed container row, or `undefined` if the service wasn't found.
+ * @returns The status string.
+ */
+export function containerStatus(container?: ComposeContainerStatus): string {
+  return container === undefined ? 'not found' : container.Health || container.State
+}
+
 /**
  * Returns the compose file path for an environment.
  *
@@ -95,7 +191,20 @@ export const provider: StagingDriver = {
     }
 
     try {
-      await execAsync('docker compose version')
+      const { stdout } = await execAsync('docker compose version')
+      const version = parseComposeVersion(stdout)
+      // An unparseable version string is NOT treated as insufficient — the
+      // command succeeded (the plugin exists), and failing open avoids a
+      // false-positive block on an unexpected output format. A genuinely too
+      // old engine parses fine (Compose has always printed a semver) and is
+      // named explicitly here so `up`'s opaque compose parse error (from the
+      // long-syntax `env_file` + BuildKit `additional_contexts` this driver's
+      // generated files require) never has to be the first signal.
+      if (version && !isComposeVersionSufficient(version)) {
+        missing.push(
+          `docker-compose >= ${REQUIRED_COMPOSE_VERSION.major}.${REQUIRED_COMPOSE_VERSION.minor} (found ${version.major}.${version.minor})`,
+        )
+      }
     } catch (_error) {
       // docker compose plugin not found — prerequisite check adds it to missing list
       missing.push('docker-compose')
@@ -108,10 +217,13 @@ export const provider: StagingDriver = {
     const stagingDir = join(config.projectPath, STAGING_DIR)
     await mkdir(stagingDir, { recursive: true })
 
-    // Determine ports from environment driverMeta or use defaults
-    const apiPort = (env.driverMeta?.apiPort as number) ?? 4001
-    const appPort = (env.driverMeta?.appPort as number) ?? 5174
-    const dbPort = (env.driverMeta?.dbPort as number) ?? 5433
+    // Determine ports from environment driverMeta, or derive a fallback
+    // deterministically from the slug — see fallbackPort() for why this beats
+    // a fixed default (every direct-caller environment used to collide on
+    // literally the same three ports).
+    const apiPort = (env.driverMeta?.apiPort as number) ?? fallbackPort(4001, env.slug)
+    const appPort = (env.driverMeta?.appPort as number) ?? fallbackPort(5174, env.slug)
+    const dbPort = (env.driverMeta?.dbPort as number) ?? fallbackPort(5433, env.slug)
 
     // Generate Dockerfiles and nginx config in .molecule/staging/
     await writeFile(join(stagingDir, 'Dockerfile.api'), generateApiDockerfile())
@@ -219,24 +331,21 @@ export const provider: StagingDriver = {
         .filter(Boolean)
         .map((line) => {
           try {
-            return JSON.parse(line) as { Service: string; State: string; Health: string }
+            return JSON.parse(line) as ComposeContainerStatus
           } catch (_error) {
             // Malformed JSON line from docker compose ps — skip it
             return null
           }
         })
-        .filter(Boolean) as Array<{ Service: string; State: string; Health: string }>
+        .filter(Boolean) as ComposeContainerStatus[]
 
       const apiContainer = containers.find((c) => c.Service === 'api')
       const appContainer = containers.find((c) => c.Service === 'app')
 
-      const apiHealthy = apiContainer?.State === 'running'
-      const appHealthy = appContainer?.State === 'running'
-
       return {
-        healthy: apiHealthy && appHealthy,
-        api: { status: apiContainer?.State ?? 'not found' },
-        app: { status: appContainer?.State ?? 'not found' },
+        healthy: isContainerHealthy(apiContainer) && isContainerHealthy(appContainer),
+        api: { status: containerStatus(apiContainer) },
+        app: { status: containerStatus(appContainer) },
       }
     } catch (_error) {
       // docker compose ps failed (e.g. no containers running) — return degraded health
@@ -253,6 +362,19 @@ export const provider: StagingDriver = {
     config: StagingDriverConfig,
     options?: { service?: 'api' | 'app' | 'all'; tail?: number; follow?: boolean },
   ): Promise<EnvironmentLogs> {
+    if (options?.follow) {
+      // The core StagingDriver interface accepts `follow`, but this provider
+      // returns a single Promise<EnvironmentLogs> snapshot — there is no
+      // streaming channel to honor it on. Silently returning a static tail
+      // (the old behavior) left a caller who asked to follow logs staring at
+      // a snapshot with no signal that follow never happened. Reject
+      // explicitly instead so the unsupported option is a loud, named error
+      // rather than a silent downgrade.
+      throw new Error(
+        "@molecule/api-staging-docker-compose: logs({ follow: true }) is not supported — this driver returns a single log snapshot, not a stream. Omit 'follow' (or poll logs()) to get the current tail.",
+      )
+    }
+
     const service = options?.service ?? 'all'
     const tail = options?.tail ?? 100
     const serviceArg = service === 'all' ? '' : ` ${service}`

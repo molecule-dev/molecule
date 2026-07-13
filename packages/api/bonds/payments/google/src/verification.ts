@@ -9,19 +9,22 @@ import type { androidpublisher_v3 } from '@googleapis/androidpublisher'
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
 import type { NormalizedSubscription, SubscriptionStatus } from '@molecule/api-payments'
+import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import { getPublisher } from './auth.js'
 
 /**
- * Returns the Google Play package name from env, throwing if not configured.
+ * Returns the Google Play package name from env, throwing a tagged
+ * config-not-configured error if not set.
  * @returns The GOOGLE_PLAY_PACKAGE_NAME value.
+ * @throws {Error} A tagged config-not-configured error (`statusCode: 503`,
+ *   `errorKey: 'config.notConfigured'`) — see `isConfigNotConfiguredError` in
+ *   `@molecule/api-payments`.
  */
 function requirePackageName(): string {
   const name = process.env.GOOGLE_PLAY_PACKAGE_NAME
   if (!name) {
-    throw new Error(
-      'GOOGLE_PLAY_PACKAGE_NAME is not set. Google Play payment verification will not work.',
-    )
+    throw configNotConfiguredError('GOOGLE_PLAY_PACKAGE_NAME', 'payments')
   }
   return name
 }

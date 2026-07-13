@@ -5,4 +5,5 @@ export const pl: UploadsTranslations = {
   'uploads.error.noProvider':
     'Dostawca przesyłania nie jest skonfigurowany. Najpierw wywołaj setProvider().',
   'uploads.error.streamLimitReached': 'Osiągnięto limit strumienia.',
+  'uploads.error.aborted': 'Przesyłanie zostało przerwane.',
 }

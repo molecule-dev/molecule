@@ -152,9 +152,18 @@ const mockClassMap = {
   tableHead: 'table-head-classes',
   tableCell: 'table-cell-classes',
   tableCaption: 'table-caption-classes',
-  tabsList: 'tabs-list-classes',
-  tabsTrigger: 'tabs-trigger-classes',
-  tabsContent: 'tabs-content-classes',
+  tabsList: vi.fn(
+    (opts?: Record<string, unknown>) =>
+      `tabs-list-classes variant-${opts?.variant || 'enclosed'} size-${opts?.size || 'md'}`,
+  ),
+  tabsTrigger: vi.fn(
+    (opts?: Record<string, unknown>) =>
+      `tabs-trigger-classes variant-${opts?.variant || 'enclosed'} size-${opts?.size || 'md'}`,
+  ),
+  tabsContent: vi.fn(
+    (opts?: Record<string, unknown>) =>
+      `tabs-content-classes variant-${opts?.variant || 'enclosed'}`,
+  ),
   container: vi.fn(
     (opts?: Record<string, unknown>) => `container-centered size-${opts?.size || 'lg'}`,
   ),
@@ -1741,6 +1750,7 @@ describe('Modal component', () => {
     expect(props.showCloseButton.default).toBe(true)
     expect(props.closeOnOverlayClick.default).toBe(true)
     expect(props.closeOnEscape.default).toBe(true)
+    expect(props.centered.default).toBe(true)
     expect(props.preventScroll.default).toBe(true)
   })
 
@@ -1753,6 +1763,47 @@ describe('Modal component', () => {
   it('should emit close event', async () => {
     const { Modal } = await import('../components/Modal.js')
     expect(Modal.emits).toContain('close')
+  })
+
+  const modalBaseProps = {
+    open: true,
+    title: undefined,
+    size: 'md',
+    showCloseButton: true,
+    closeOnOverlayClick: true,
+    closeOnEscape: true,
+    preventScroll: true,
+    closeLabel: undefined,
+    class: undefined,
+  }
+
+  it('centered (default true): the wrapper renders with no inline style', async () => {
+    const { Modal } = await import('../components/Modal.js')
+    const mockEmit = vi.fn()
+    const mockSlots = { default: () => 'body' }
+
+    const renderFn = (Modal.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
+      { ...modalBaseProps, centered: true },
+      { emit: mockEmit, slots: mockSlots },
+    )
+    renderFn()
+    const wrapperCall = mockH.mock.calls.find((call) => call[1]?.class === 'dialog-wrapper-classes')
+    expect(wrapperCall).toBeDefined()
+    expect(wrapperCall![1].style).toBeUndefined()
+  })
+
+  it('centered=false: the wrapper top-anchors via an inline style', async () => {
+    const { Modal } = await import('../components/Modal.js')
+    const mockEmit = vi.fn()
+    const mockSlots = { default: () => 'body' }
+
+    const renderFn = (Modal.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
+      { ...modalBaseProps, centered: false },
+      { emit: mockEmit, slots: mockSlots },
+    )
+    renderFn()
+    const wrapperCall = mockH.mock.calls.find((call) => call[1]?.class === 'dialog-wrapper-classes')
+    expect(wrapperCall![1].style).toEqual({ alignItems: 'flex-start' })
   })
 })
 
@@ -1982,6 +2033,60 @@ describe('Tooltip component', () => {
     const props = Tooltip.props as Record<string, { default?: unknown }>
     expect(props.placement.default).toBe('top')
     expect(props.delay.default).toBe(0)
+  })
+
+  it('does not render an arrow element when hasArrow is false, even while visible', async () => {
+    const { Tooltip } = await import('../components/Tooltip.js')
+    const mockSlots = { default: () => 'trigger' }
+
+    const renderFn = (Tooltip.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
+      { content: 'Hi', placement: 'top', delay: 0, hasArrow: false, class: undefined },
+      { slots: mockSlots },
+    )
+    renderFn()
+    const triggerCall = mockH.mock.calls.find((call) => call[1]?.class === 'tooltip-trigger')
+    ;(triggerCall![1] as { onMouseenter: () => void }).onMouseenter()
+    renderFn()
+
+    const spanCall = mockH.mock.calls.find((call) => call[0] === 'span')
+    expect(spanCall).toBeUndefined()
+  })
+
+  it('renders a themed arrow element at the resolved placement when hasArrow is true and visible', async () => {
+    const { Tooltip } = await import('../components/Tooltip.js')
+    const mockSlots = { default: () => 'trigger' }
+
+    const renderFn = (Tooltip.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
+      { content: 'Hi', placement: 'bottom', delay: 0, hasArrow: true, class: undefined },
+      { slots: mockSlots },
+    )
+    renderFn()
+    const triggerCall = mockH.mock.calls.find((call) => call[1]?.class === 'tooltip-trigger')
+    ;(triggerCall![1] as { onMouseenter: () => void }).onMouseenter()
+    renderFn()
+
+    const spanCall = mockH.mock.calls.find((call) => call[0] === 'span')
+    expect(spanCall).toBeDefined()
+    const arrowProps = spanCall![1] as { 'aria-hidden': string; style: Record<string, string> }
+    expect(arrowProps['aria-hidden']).toBe('true')
+    expect(arrowProps.style.background).toBe('var(--color-surface)')
+    expect(arrowProps.style.border).toBe('1px solid var(--color-border)')
+    // 'bottom' placement: the arrow sits at the TOP edge of the tooltip box.
+    expect(arrowProps.style.top).toBe('-4px')
+  })
+
+  it('does not render an arrow element while the tooltip is hidden', async () => {
+    const { Tooltip } = await import('../components/Tooltip.js')
+    const mockSlots = { default: () => 'trigger' }
+
+    const renderFn = (Tooltip.setup as (...args: unknown[]) => (...args: unknown[]) => unknown)(
+      { content: 'Hi', placement: 'top', delay: 0, hasArrow: true, class: undefined },
+      { slots: mockSlots },
+    )
+    renderFn()
+
+    const spanCall = mockH.mock.calls.find((call) => call[0] === 'span')
+    expect(spanCall).toBeUndefined()
   })
 })
 

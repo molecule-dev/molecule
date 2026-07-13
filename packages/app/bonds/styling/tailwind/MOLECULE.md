@@ -19,6 +19,10 @@ npm install @molecule/app-styling-tailwind
 
 #### `CVAConfig`
 
+Configuration for a class-variance-authority (`cva`) function: the variant
+definitions, default selections, and compound variants used to resolve a
+component's final class string from its props.
+
 ```typescript
 interface CVAConfig<T extends Record<string, Record<string, string>>> {
     variants?: T;

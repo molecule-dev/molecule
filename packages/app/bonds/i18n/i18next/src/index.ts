@@ -21,6 +21,20 @@
  * setProvider(provider)
  * ```
  *
+ * @remarks
+ * **Startup locale vs. `detection`:** with `detection: true` (the default),
+ * `defaultLocale` is only the FALLBACK — the actual startup locale is
+ * whatever the browser detector resolves (querystring, then `navigator`, by
+ * default). Apps that want a pinned startup locale must pass
+ * `detection: false` (or an explicit `i18nextOptions.lng`).
+ *
+ * **`setLocale()` contract:** THROWS `Error('Locale "<code>" not found')`
+ * for a locale that was never registered — via the `locales` config,
+ * `addLocale()`, or `addTranslations()` (all three register it). It does
+ * NOT fall through to real i18next's own `changeLanguage()` degrade-to-
+ * `fallbackLng` behavior, matching `@molecule/app-i18n`'s core simple
+ * provider and `@molecule/api-i18n-simple`.
+ *
  * @module
  */
 

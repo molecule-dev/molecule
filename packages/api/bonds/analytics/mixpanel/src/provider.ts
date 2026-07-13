@@ -80,6 +80,14 @@ export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => 
           event.name,
           {
             distinct_id: event.userId ?? event.anonymousId,
+            // Deliberately seconds, NOT the pinned `mixpanel` SDK's own
+            // millisecond convention (its `ensure_timestamp` passes numbers
+            // through unchanged and only converts a `Date` to ms). Mixpanel's
+            // ingestion API auto-detects the unit by magnitude, so both work
+            // — this only costs sub-second precision. Left as-is: switching
+            // to `event.timestamp` (ms) has no user-visible benefit and isn't
+            // worth the churn. Do not "fix" this without also confirming
+            // ingestion still auto-detects the new magnitude correctly.
             time: event.timestamp ? Math.floor(event.timestamp.getTime() / 1000) : undefined,
             ...event.properties,
           },

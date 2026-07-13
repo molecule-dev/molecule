@@ -151,6 +151,39 @@ describe('@molecule/api-database-sqlite × REAL better-sqlite3', () => {
     expect(literal.map((r) => r.title)).toEqual(['100%_done report'])
   })
 
+  it('CROSS-BOND CONTRACT: like is case-insensitive AND honors the caller-supplied wildcard pattern (identical to the postgresql/mysql bonds)', async () => {
+    await store.create('todos', { user_id: 'user-like', title: 'Buy MILK' })
+    await store.create('todos', { user_id: 'user-like', title: 'buy milk later' })
+    await store.create('todos', { user_id: 'user-like', title: 'Sell eggs' })
+
+    // Case-insensitive: 'MILK' matches lowercase 'milk' too — before the fix,
+    // sqlite's raw LIKE already did this for ASCII by default, but the postgres
+    // bond escaped the value into an exact-match, breaking the fleet's
+    // `{ operator: 'like', value: \`%${search}%\` }` search filters on postgres
+    // while working here. The contract is now IDENTICAL and explicit (LOWER()),
+    // not an accident of SQLite's default PRAGMA.
+    const milk = await store.findMany<{ title: string }>('todos', {
+      where: [
+        { field: 'user_id', operator: '=', value: 'user-like' },
+        { field: 'title', operator: 'like', value: '%MILK%' },
+      ],
+      orderBy: [{ field: 'title', direction: 'asc' }],
+    })
+    expect(milk.map((r) => r.title)).toEqual(['Buy MILK', 'buy milk later'])
+
+    // Unlike ilike, `like` does NOT escape the caller's wildcards — a literal
+    // '_' in the pattern matches ANY single character (SQL LIKE semantics),
+    // so 'B_y' also matches 'Buy'.
+    const wildcard = await store.findMany<{ title: string }>('todos', {
+      where: [
+        { field: 'user_id', operator: '=', value: 'user-like' },
+        { field: 'title', operator: 'like', value: 'b_y%' },
+      ],
+      orderBy: [{ field: 'title', direction: 'asc' }],
+    })
+    expect(wildcard.map((r) => r.title)).toEqual(['Buy MILK', 'buy milk later'])
+  })
+
   it('CONSUMER PROPERTY: raw query() honors the $N placeholder style the core docs teach — out of order and repeated', async () => {
     // The core `@molecule/api-database` docs teach `query(sql, values)` with
     // $1/$2 placeholders. $N is positional; sqlite's ? is sequential — the bond
@@ -248,6 +281,60 @@ describe('@molecule/api-database-sqlite × REAL better-sqlite3', () => {
     ])
     await trx2.commit()
     expect(await store.findById('todos', 'trx-commit')).not.toBeNull()
+  })
+
+  it('CONCURRENCY: a second transaction() started before the first commits serializes instead of racing BEGIN', async () => {
+    const trxA = await pool.transaction!()
+    await trxA.query(`INSERT INTO "todos" ("id", "user_id", "title") VALUES ($1, $2, $3)`, [
+      'conc-trx-a',
+      'user-conc',
+      'trx A',
+    ])
+
+    // Start trxB WITHOUT awaiting yet — before the fix this synchronously issues
+    // a second BEGIN on the shared connection and throws "cannot start a
+    // transaction within a transaction" (trxA is still open).
+    const trxBPromise = pool.transaction!()
+
+    await trxA.commit()
+
+    // Must resolve (not throw) once trxA releases the connection.
+    const trxB = await trxBPromise
+    await trxB.query(`INSERT INTO "todos" ("id", "user_id", "title") VALUES ($1, $2, $3)`, [
+      'conc-trx-b',
+      'user-conc',
+      'trx B',
+    ])
+    await trxB.commit()
+
+    expect(await store.findById('todos', 'conc-trx-a')).not.toBeNull()
+    expect(await store.findById('todos', 'conc-trx-b')).not.toBeNull()
+  })
+
+  it('CONCURRENCY: a plain query() issued while a transaction is open is queued, not run inside it', async () => {
+    const trx = await pool.transaction!()
+    await trx.query(`INSERT INTO "todos" ("id", "user_id", "title") VALUES ($1, $2, $3)`, [
+      'conc-inside',
+      'user-conc2',
+      'inside trx, will roll back',
+    ])
+
+    // Fire a plain store.create() (→ pool.query()) WITHOUT awaiting, while the
+    // transaction is still open. Before the fix, this ran INSIDE trx's open
+    // BEGIN on the shared connection and vanished when trx.rollback() ran —
+    // an unrelated request's write silently discarded by someone else's
+    // rollback.
+    const plainInsert = store.create('todos', {
+      id: 'conc-outside',
+      user_id: 'user-conc2',
+      title: 'outside trx, must persist',
+    })
+
+    await trx.rollback()
+    await plainInsert
+
+    expect(await store.findById('todos', 'conc-inside')).toBeNull() // rolled back
+    expect(await store.findById('todos', 'conc-outside')).not.toBeNull() // survived
   })
 
   it('filters, sorts, paginates, and counts through real SQL', async () => {

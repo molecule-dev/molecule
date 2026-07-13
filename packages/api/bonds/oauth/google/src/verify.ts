@@ -64,6 +64,27 @@ const DEFAULT_TOKEN_URL = `https://www.googleapis.com/oauth2/v4/token`
 const DEFAULT_USER_URL = `https://www.googleapis.com/oauth2/v3/userinfo`
 
 /**
+ * Serializes params as `application/x-www-form-urlencoded`, dropping
+ * `undefined`/empty values (mirroring what `JSON.stringify` used to drop
+ * silently). RFC 6749 §4.1.3 requires the token-exchange body to be
+ * form-encoded — Google's docs mandate it, and `@molecule/api-http`'s
+ * default client only form-encodes a request when the caller supplies an
+ * already-encoded STRING body; an object body is always JSON-encoded.
+ *
+ * @param record - The token-request parameters to encode.
+ * @returns The `application/x-www-form-urlencoded` request body.
+ */
+const formEncode = (record: Record<string, string | undefined>): string => {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value === 'string' && value.length > 0) {
+      params.append(key, value)
+    }
+  }
+  return params.toString()
+}
+
+/**
  * Verifies a Google OAuth code and responds with OAuth-related user props.
  *
  * Endpoints can be overridden via `OAUTH_GOOGLE_TOKEN_URL` and
@@ -85,27 +106,25 @@ export const verify: OAuthVerifier = async (
   try {
     const tokenUrl = process.env.OAUTH_GOOGLE_TOKEN_URL || DEFAULT_TOKEN_URL
     const userUrl = process.env.OAUTH_GOOGLE_USER_URL || DEFAULT_USER_URL
+    const body = formEncode({
+      client_id: process.env.OAUTH_GOOGLE_CLIENT_ID,
+      client_secret: process.env.OAUTH_GOOGLE_CLIENT_SECRET,
+      code,
+      code_verifier: codeVerifier,
+      grant_type: `authorization_code`,
+      redirect_uri: redirectUri || process.env.APP_ORIGIN,
+    })
     const response = await post<{
       access_token: string
       token_type: string
       scope: string
-    }>(
-      tokenUrl,
-      {
-        client_id: process.env.OAUTH_GOOGLE_CLIENT_ID,
-        client_secret: process.env.OAUTH_GOOGLE_CLIENT_SECRET,
-        code,
-        code_verifier: codeVerifier,
-        grant_type: `authorization_code`,
-        redirect_uri: redirectUri || process.env.APP_ORIGIN,
+    }>(tokenUrl, body, {
+      headers: {
+        accept: `application/json`,
+        'content-type': `application/x-www-form-urlencoded`,
       },
-      {
-        headers: {
-          accept: `application/json`,
-        },
-        timeout: 15_000,
-      },
-    )
+      timeout: 15_000,
+    })
 
     const token = response.data.access_token
 

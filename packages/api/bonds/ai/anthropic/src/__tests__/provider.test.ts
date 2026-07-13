@@ -135,7 +135,12 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(events[0].message).toBe('AI service error. Please try again.')
     })
 
-    it('other 4xx (e.g. 400) yields generic error message', async () => {
+    it('a plain 400 (invalid param, not context-length) yields a distinct non-retryable message — NOT the generic "try again"', async () => {
+      // Regression: every non-context-length 400 used to fall through to the
+      // same generic "AI service error. Please try again." as a genuinely
+      // retryable 5xx — a permanently-invalid request (bad temperature, a
+      // malformed tool schema) sounds retryable, sending an executor into a
+      // retry loop that can never succeed.
       mockFetch.mockResolvedValue(
         mockErrorResponse(400, JSON.stringify({ error: { message: 'max_tokens must be > 0' } })),
       )
@@ -144,7 +149,10 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
 
       expect(events).toHaveLength(1)
       expect(events[0].type).toBe('error')
-      expect(events[0].message).toBe('AI service error. Please try again.')
+      expect(events[0].message).toBe(
+        'AI request was invalid — check the model and request parameters.',
+      )
+      expect(events[0].message).not.toBe('AI service error. Please try again.')
     })
 
     it('raw API error body is NOT leaked to the client', async () => {
@@ -189,6 +197,97 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       const events = await collectEventsWithRetries(provider.chat(minimalParams))
 
       expect(events[0].errorKey).toBe('ai.error.apiError')
+    })
+  })
+
+  // =========================================================================
+  // Retry-After parsing (HTTP-date form must not degrade to a NaN delay)
+  // =========================================================================
+
+  describe('Retry-After header parsing', () => {
+    it('an HTTP-date Retry-After (not delta-seconds) falls back to exponential backoff, not a ~0ms retry', async () => {
+      // Regression: parseInt() on an HTTP-date ('Wed, 21 Oct ... GMT') yields
+      // NaN. Math.min(NaN, 60000) is NaN, and setTimeout(resolve, NaN)
+      // coerces to a ~0ms delay — the 429/529 backoff degraded to rapid-fire
+      // retries against an already rate-limiting API.
+      let call = 0
+      mockFetch.mockImplementation(() => {
+        call += 1
+        if (call === 1) {
+          return Promise.resolve({
+            ok: false,
+            status: 429,
+            statusText: 'Too Many Requests',
+            text: vi.fn().mockResolvedValue('{}'),
+            json: vi.fn().mockRejectedValue(new Error('not json')),
+            headers: new Headers({ 'retry-after': 'Wed, 21 Oct 2026 07:28:00 GMT' }),
+            body: null,
+          })
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers(),
+          body: {
+            getReader: () => ({
+              read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+              releaseLock: vi.fn(),
+            }),
+          },
+        })
+      })
+
+      const eventsPromise = collectEvents(provider.chat(minimalParams))
+
+      // If the HTTP-date parsed as NaN (pre-fix), the retry fetch would have
+      // already fired well before 500ms (a NaN/negative setTimeout delay
+      // coerces to ~0). The fixed code falls back to exponential backoff
+      // (attempt 0 = 1000ms), so the second fetch must NOT have happened yet.
+      await vi.advanceTimersByTimeAsync(500)
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+
+      // Advance past the exponential-backoff delay to let the retry resolve.
+      await vi.advanceTimersByTimeAsync(2_000)
+      await eventsPromise
+
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('a valid delta-seconds Retry-After is still honored', async () => {
+      let call = 0
+      mockFetch.mockImplementation(() => {
+        call += 1
+        if (call === 1) {
+          return Promise.resolve({
+            ok: false,
+            status: 429,
+            statusText: 'Too Many Requests',
+            text: vi.fn().mockResolvedValue('{}'),
+            json: vi.fn().mockRejectedValue(new Error('not json')),
+            headers: new Headers({ 'retry-after': '2' }),
+            body: null,
+          })
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers(),
+          body: {
+            getReader: () => ({
+              read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+              releaseLock: vi.fn(),
+            }),
+          },
+        })
+      })
+
+      const eventsPromise = collectEvents(provider.chat(minimalParams))
+      // A 2-second Retry-After must still be honored (not fire early).
+      await vi.advanceTimersByTimeAsync(1_000)
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      await vi.advanceTimersByTimeAsync(1_500)
+      await eventsPromise
+      expect(mockFetch).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -683,5 +782,97 @@ describe('secret registration', () => {
     await import('../index.js')
     const { getSecretDefinition } = await import('@molecule/api-secrets')
     expect(getSecretDefinition('ANTHROPIC_API_KEY')).toBeDefined()
+  })
+})
+
+describe('createProvider — fail-fast on a missing API key', () => {
+  it('throws naming ANTHROPIC_API_KEY when neither config.apiKey nor the env var is set', () => {
+    // Regression: a missing key used to silently send the request with an
+    // empty key, surfacing only as a sanitized 401 "AI service configuration
+    // error." — the env var name was never surfaced, so the caller had to
+    // guess which secret was missing.
+    const prev = process.env.ANTHROPIC_API_KEY
+    delete process.env.ANTHROPIC_API_KEY
+    try {
+      expect(() => createProvider()).toThrow(/ANTHROPIC_API_KEY/)
+    } finally {
+      if (prev === undefined) delete process.env.ANTHROPIC_API_KEY
+      else process.env.ANTHROPIC_API_KEY = prev
+    }
+  })
+
+  it('does not throw when apiKey is supplied via config', () => {
+    expect(() => createProvider({ apiKey: 'k' })).not.toThrow()
+  })
+
+  it('does not throw when ANTHROPIC_API_KEY is set in the environment', () => {
+    const prev = process.env.ANTHROPIC_API_KEY
+    process.env.ANTHROPIC_API_KEY = 'env-key'
+    try {
+      expect(() => createProvider()).not.toThrow()
+    } finally {
+      if (prev === undefined) delete process.env.ANTHROPIC_API_KEY
+      else process.env.ANTHROPIC_API_KEY = prev
+    }
+  })
+})
+
+describe('AnthropicAIProvider — non-streaming response (stream: false)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch)
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  const provider = createProvider({ apiKey: 'k', baseUrl: 'https://test.api' })
+
+  /** Mocks a non-streaming JSON Response for the Anthropic Messages API. */
+  function jsonResponse(body: Record<string, unknown>): Record<string, unknown> {
+    return {
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      json: vi.fn().mockResolvedValue(body),
+    }
+  }
+
+  it('yields a thinking event for a thinking content block (previously silently dropped)', async () => {
+    // Regression: parseNonStreamingResponse only handled 'text' and
+    // 'tool_use' blocks — a 'thinking' block (present when stream:false is
+    // used with thinking enabled) was silently dropped with no signal, even
+    // though the streaming path yields the equivalent thinking_delta events.
+    mockFetch.mockResolvedValue(
+      jsonResponse({
+        content: [
+          { type: 'thinking', thinking: 'Let me work through this step by step.' },
+          { type: 'text', text: 'The answer is 42.' },
+        ],
+        usage: { input_tokens: 10, output_tokens: 5 },
+      }),
+    )
+
+    const events = await collectEvents(
+      provider.chat({
+        messages: [{ role: 'user' as const, content: 'What is the answer?' }],
+        stream: false,
+      }),
+    )
+
+    expect(events.find((e) => e.type === 'thinking')).toMatchObject({
+      type: 'thinking',
+      content: 'Let me work through this step by step.',
+    })
+    expect(events.find((e) => e.type === 'text')).toMatchObject({
+      type: 'text',
+      content: 'The answer is 42.',
+    })
+    // Thinking must be emitted BEFORE the final text, mirroring the model's
+    // actual reasoning-then-answer order (and the streaming path's ordering).
+    const iThinking = events.findIndex((e) => e.type === 'thinking')
+    const iText = events.findIndex((e) => e.type === 'text')
+    expect(iThinking).toBeLessThan(iText)
   })
 })

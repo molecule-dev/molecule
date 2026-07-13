@@ -5,4 +5,6 @@ export const ka: AiTranslations = {
   'ai.error.noProvider': 'AI პროვაიდერი არ არის კონფიგურირებული. ჯერ დააკავშირეთ AI პროვაიდერი.',
   'ai.error.apiError': 'AI API მოთხოვნა ვერ შესრულდა.',
   'ai.error.noResponseBody': 'AI პასუხის ტანი ცარიელია.',
+  'ai.error.ambiguousProvider':
+    'დაკავშირებულია რამდენიმე სახელდებული AI პროვაიდერი და ნაგულისხმევი არ არის დაყენებული. გამოიყენეთ getProviderByName(name) ერთის ასარჩევად.',
 }

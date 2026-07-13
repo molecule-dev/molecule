@@ -260,6 +260,13 @@ type MessageHandler<T = unknown> = (message: ReceivedMessage<T>) => Promise<void
 Creates a Redis/BullMQ queue provider. Connects to Redis using `REDIS_URL` or
 individual `REDIS_HOST`/`PORT`/`PASSWORD` env vars. Queue names are prefixed with `molecule:queue:` by default.
 
+The producer connection (send/receive/size/purge/delete) is configured to fail fast — a
+bounded `maxRetriesPerRequest` and `enableOfflineQueue: false` — instead of buffering
+commands indefinitely while Redis is unreachable, which previously made `await send()` hang
+forever with no actionable error. The worker connection (`subscribe()`) keeps ioredis's
+default indefinite-retry behavior — BullMQ requires `maxRetriesPerRequest: null` there, and
+a long-running background consumer SHOULD keep trying to reconnect rather than give up.
+
 ```typescript
 function createProvider(options?: RedisQueueOptions): QueueProvider
 ```
@@ -326,13 +333,29 @@ Delivery semantics (at-least-once — handlers must be idempotent):
   in the failed set (inspectable — not silently dropped).
 - **`receive()` is a PEEK, not a lease**: it returns jobs from the waiting
   list without locking them, so `ReceiveOptions.visibilityTimeout` has no
-  effect and a concurrently running `subscribe()` worker can process a job
-  you are holding. Prefer `subscribe()` for real consumption; use
-  `receive()` + `ack()` only in single-consumer flows.
-- **`QueueMessage.attributes`, `groupId`, and `deduplicationId` are not
-  persisted** by this bond (BullMQ has no message-attribute concept).
-  Deduplicate by passing a stable `message.id` — BullMQ ignores a second
-  job with the same job id. Put data the handler needs in `body`.
-- Providing a `message.id` that was ever used before (even for a completed
-  job that has not been cleaned up) makes the send a silent no-op — ids
-  must be unique per logical job, e.g. `` `welcome-${userId}` ``.
+  effect (a warning is logged if you pass it) and a concurrently running
+  `subscribe()` worker can process a job you are holding. Prefer
+  `subscribe()` for real consumption; use `receive()` + `ack()` only in
+  single-consumer flows.
+- **`QueueMessage.attributes` round-trip through `receive()`/`subscribe()`**
+  (persisted in a small versioned envelope inside `job.data`) — the
+  received `attributes` are your own data, never BullMQ's internal
+  `job.opts` (retry/backoff settings). A job already in Redis from before
+  this envelope existed decodes as a plain body with `attributes:
+  undefined`, so upgrading is safe with jobs in flight.
+- **`deduplicationId` maps onto BullMQ's native job-id dedup**: when set
+  without an explicit `message.id`, it becomes the BullMQ job id, so a
+  second `send()` with the same `deduplicationId` is a no-op — the closest
+  real equivalent to SQS FIFO deduplication this backend has. `groupId`
+  has no effect (BullMQ has no FIFO-group/ordering concept).
+- Providing a `message.id` (or `deduplicationId`) that was ever used before
+  (even for a completed job that has not been cleaned up) makes the send a
+  silent no-op — ids must be unique per logical job, e.g.
+  `` `welcome-${userId}` ``.
+- **Redis being unreachable fails fast for producer calls** (`send`,
+  `sendBatch`, `receive`, `size`, `purge`, `deleteQueue`) instead of
+  hanging forever on ioredis's default offline command buffer — the
+  rejection names `REDIS_URL`/`REDIS_HOST` so the failure is actionable.
+  The `subscribe()` worker connection intentionally keeps retrying
+  indefinitely in the background (appropriate for a long-running
+  consumer) — BullMQ requires this for its blocking connection regardless.

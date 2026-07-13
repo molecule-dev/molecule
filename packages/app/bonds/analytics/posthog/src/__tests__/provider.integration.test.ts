@@ -104,4 +104,17 @@ describe('@molecule/app-analytics-posthog × REAL posthog-js', () => {
       initSpy.mockRestore()
     }
   })
+
+  it('CONSUMER PROPERTY: the real SDK exposes __loaded as the flag that gates re-init (the property our double-init warning reads)', () => {
+    // Confirms against the REAL posthog-js .d.ts/runtime shape (not a guess)
+    // that `__loaded` exists and starts falsy — the mocked unit suite
+    // (provider.test.ts) exercises the actual warning branch by toggling
+    // this same property on its mock, since driving the real SDK through a
+    // second real `.init()` call requires a browser environment this
+    // package's tests intentionally never spin up (see the no-token tests
+    // above — this file only ever configures the SDK with an EMPTY token to
+    // stay network-free).
+    expect(posthog.__loaded).toBe(false)
+    expect(typeof posthog.__loaded).toBe('boolean')
+  })
 })

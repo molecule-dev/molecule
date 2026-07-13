@@ -149,8 +149,13 @@ function hasSink(): boolean
 Records a captured activity event to the bonded sink.
 
 No-ops silently if no sink is bonded, so capture providers can call this
-unconditionally without checking {@link hasSink} first. Delegates to the
-sink's `record()` otherwise.
+unconditionally without checking {@link hasSink} first. Otherwise
+delegates to the sink's `record()` — best-effort: a sink that throws or
+rejects is caught and logged (`logger.warn`), never re-thrown, so a
+broken/unreachable activity sink can never break the business operation
+(send email, enqueue job, etc.) that emitted the event. `ActivitySink`
+implementations are already documented to catch their own errors; this is
+belt-and-suspenders for a sink that doesn't honor that.
 
 ```typescript
 function record(event: ActivityEvent): Promise<void>
@@ -182,3 +187,12 @@ function setSink(sink: ActivitySink): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+**`record()` is best-effort by contract.** Activity recording is a
+side-channel for dev visibility (the IDE Activity panel, inline Synthase
+chat cards) — it must never break the real business operation (sending an
+email, enqueueing a job, dispatching a webhook, …) that emitted the event.
+A sink that throws or rejects inside `record()` is caught and logged via
+`logger.warn`, never re-thrown. `ActivitySink` implementations are
+themselves documented to catch their own errors; this accessor-level catch
+is defense-in-depth for a sink that doesn't honor that.

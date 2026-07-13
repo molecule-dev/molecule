@@ -5,4 +5,5 @@ export const mt: UploadsTranslations = {
   'uploads.error.noProvider':
     'Il-fornitur tat-tlughhijiet mhux ikkonfigurat. Sejjah setProvider() l-ewwel.',
   'uploads.error.streamLimitReached': 'Il-limitu tal-istreaming intlahaq.',
+  'uploads.error.aborted': 'It-tlugh ġie kkanċellat.',
 }

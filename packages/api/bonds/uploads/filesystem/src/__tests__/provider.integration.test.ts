@@ -186,9 +186,53 @@ describe('@molecule/api-uploads-filesystem × REAL fs', () => {
     const onDisk = path.join(mod.uploadPath, file.id)
     expect(fs.existsSync(onDisk)).toBe(true)
 
+    // abortUpload() now rejects uploadPromise (see the dedicated test below) —
+    // capture + swallow it so this test's own assertions (which are about the
+    // disk side-effect only) aren't reported as an unhandled rejection.
+    const uploadPromise = file.uploadPromise
     mod.provider.abortUpload(file)
+    await uploadPromise!.catch(() => {})
 
     // unlink is async inside abortUpload — poll deterministically until it lands.
+    await vi.waitFor(() => {
+      expect(fs.existsSync(onDisk)).toBe(false)
+    })
+  })
+
+  it('[ambiguous-failure fix] abortUpload rejects uploadPromise with a real UploadAbortedError instead of resolving it as success — a consumer awaiting uploadPromise can no longer mistake an aborted upload for a completed one', async () => {
+    const { UploadAbortedError } = await import('@molecule/api-uploads')
+
+    const source = new PassThrough()
+    const onError = vi.fn()
+
+    const file = mod.upload(
+      'doc',
+      source,
+      { filename: 'aborted.bin', encoding: 'binary', mimeType: 'application/octet-stream' },
+      onError,
+    )
+    // Capture the promise BEFORE aborting — abortUpload() deletes `file.uploadPromise`
+    // from the file object, so the caller must already hold its own reference (exactly
+    // as a real consumer would, from the `upload()` return value).
+    const uploadPromise = file.uploadPromise
+
+    source.write('data that will never finish uploading')
+    await delay(50) // let the real write stream open and flush
+
+    const onDisk = path.join(mod.uploadPath, file.id)
+    expect(fs.existsSync(onDisk)).toBe(true)
+
+    mod.provider.abortUpload(file)
+
+    // Pre-fix, this promise RESOLVED (the write stream's .end() fired 'finish') —
+    // the exact bug: a caller awaiting uploadPromise saw "success" for a file that
+    // was simultaneously being unlinked from disk underneath it.
+    await expect(uploadPromise).rejects.toBeInstanceOf(UploadAbortedError)
+
+    // An intentional abort is not a transport/storage failure — onError must stay silent.
+    expect(onError).not.toHaveBeenCalled()
+    expect(file.uploaded).toBe(false)
+
     await vi.waitFor(() => {
       expect(fs.existsSync(onDisk)).toBe(false)
     })

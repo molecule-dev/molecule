@@ -25,7 +25,28 @@ import { getClassMap } from '@molecule/app-ui'
 import { getIconSvg } from '../utilities/render-icon.js'
 
 /**
+ * Get the inline style for the modal centering wrapper. `dialogWrapper` has
+ * no dedicated ClassMap resolver option (it's a fixed token, not a
+ * `{ centered }`-parameterized one), so a top-anchored (non-centered) layout
+ * is expressed via the one inline-style exception the workspace styling rule
+ * allows for values ClassMap genuinely cannot express.
+ *
+ * A standalone function (rather than a class member) so it's unit-testable
+ * without constructing `MoleculeModal` — the class can't be `new`'d outside
+ * an Angular injection context (`sanitizer = inject(DomSanitizer)` runs at
+ * field-initializer time).
+ * @param centered - Whether the modal is vertically centered.
+ * @returns An inline style object, or `undefined` when centered.
+ */
+export function getModalWrapperStyle(centered: boolean): Record<string, string> | undefined {
+  return centered ? undefined : { alignItems: 'flex-start' }
+}
+
+/**
  * Angular Modal UI component with UIClassMap-driven styling.
+ *
+ * `centered` (default `true`) vertically centers the dialog; `centered:
+ * false` top-anchors it instead, via `getModalWrapperStyle()`.
  */
 @Component({
   selector: 'mol-modal',
@@ -37,7 +58,7 @@ import { getIconSvg } from '../utilities/render-icon.js'
       <div [class]="overlayClass" aria-hidden="true"></div>
 
       <!-- Centering wrapper -->
-      <div [class]="wrapperClass" (click)="onOverlayClick($event)">
+      <div [class]="wrapperClass" [style]="wrapperStyle" (click)="onOverlayClick($event)">
         <!-- Content -->
         <div
           role="dialog"
@@ -126,6 +147,14 @@ export class MoleculeModal implements OnInit, OnDestroy, OnChanges {
    */
   get wrapperClass(): string {
     return this.cm.dialogWrapper
+  }
+
+  /**
+   * Retrieves the inline style for the modal centering wrapper.
+   * @returns An inline style object, or `undefined` when centered.
+   */
+  get wrapperStyle(): Record<string, string> | undefined {
+    return getModalWrapperStyle(this.centered)
   }
 
   /**

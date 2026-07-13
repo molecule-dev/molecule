@@ -5,4 +5,5 @@ export const hr: UploadsTranslations = {
   'uploads.error.noProvider':
     'Pružatelj učitavanja nije konfiguriran. Najprije pozovite setProvider().',
   'uploads.error.streamLimitReached': 'Dosegnuto je ograničenje toka.',
+  'uploads.error.aborted': 'Učitavanje je prekinuto.',
 }

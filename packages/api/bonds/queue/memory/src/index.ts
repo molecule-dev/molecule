@@ -44,6 +44,15 @@
  * serialized). `close()` clears all timers, resolves pending long-polls with
  * `[]`, and stops all delivery.
  *
+ * Two distinct redelivery delays (both `MemoryQueueOptions`, provider-wide):
+ * an explicit `nack()` redelivers per `redeliveryDelaySeconds` (default `0`
+ * — a deliberate caller decision, honored immediately), while an UNCAUGHT
+ * `subscribe()` handler throw redelivers per
+ * `handlerFailureRedeliveryDelaySeconds` (default `1` — an unplanned failure
+ * gets a real retry window instead of burning all `maxReceiveCount` attempts
+ * within milliseconds, mirroring the Redis bond's `attempts: 3, backoff:
+ * { type: 'exponential', delay: 1000 }`).
+ *
  * @module
  */
 

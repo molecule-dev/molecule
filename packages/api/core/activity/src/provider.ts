@@ -9,7 +9,7 @@
  * @module
  */
 
-import { bond, get as bondGet, isBonded } from '@molecule/api-bond'
+import { bond, get as bondGet, getLogger, isBonded } from '@molecule/api-bond'
 
 import type { ActivityEvent, ActivitySink } from './types.js'
 
@@ -47,8 +47,13 @@ export function hasSink(): boolean {
  * Records a captured activity event to the bonded sink.
  *
  * No-ops silently if no sink is bonded, so capture providers can call this
- * unconditionally without checking {@link hasSink} first. Delegates to the
- * sink's `record()` otherwise.
+ * unconditionally without checking {@link hasSink} first. Otherwise
+ * delegates to the sink's `record()` — best-effort: a sink that throws or
+ * rejects is caught and logged (`logger.warn`), never re-thrown, so a
+ * broken/unreachable activity sink can never break the business operation
+ * (send email, enqueue job, etc.) that emitted the event. `ActivitySink`
+ * implementations are already documented to catch their own errors; this is
+ * belt-and-suspenders for a sink that doesn't honor that.
  *
  * @param event - The captured activity event to record.
  */
@@ -57,5 +62,13 @@ export async function record(event: ActivityEvent): Promise<void> {
   if (!sink) {
     return
   }
-  await sink.record(event)
+  try {
+    await sink.record(event)
+  } catch (error) {
+    getLogger().warn('Activity sink failed to record event; continuing (best-effort)', {
+      eventId: event.id,
+      eventType: event.type,
+      error,
+    })
+  }
 }

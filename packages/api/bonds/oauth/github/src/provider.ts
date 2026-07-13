@@ -93,6 +93,29 @@ const DEFAULT_USER_URL = `https://api.github.com/user`
 const DEFAULT_AUTHORIZE_URL = `https://github.com/login/oauth/authorize`
 
 /**
+ * Serializes params as `application/x-www-form-urlencoded`, dropping
+ * `undefined`/empty values (mirroring what `JSON.stringify` used to drop
+ * silently). GitHub's token endpoint accepts both JSON and form-encoded
+ * bodies, but RFC 6749 §4.1.3 requires form-encoding — swept here for
+ * consistency with the gitlab/google/twitter/apple/microsoft bonds, all of
+ * which form-encode. `@molecule/api-http`'s default client only
+ * form-encodes a request when the caller supplies an already-encoded
+ * STRING body; an object body is always JSON-encoded.
+ *
+ * @param record - The token-request parameters to encode.
+ * @returns The `application/x-www-form-urlencoded` request body.
+ */
+const formEncode = (record: Record<string, string | undefined>): string => {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value === 'string' && value.length > 0) {
+      params.append(key, value)
+    }
+  }
+  return params.toString()
+}
+
+/**
  * Builds the GitHub authorization URL for OAuth initiation
  * (`GET /users/oauth/:provider` 302s the browser here). Embeds this bond's
  * client id and scopes (`read:user user:email`) plus the caller's CSRF
@@ -137,33 +160,40 @@ export const getAuthorizeUrl: OAuthAuthorizeUrlBuilder = ({
  *
  * @param code - The authorization code from the OAuth callback.
  * @param codeVerifier - The PKCE code verifier (if PKCE was used in the auth request).
+ * @param redirectUri - The redirect URI used in the authorization request. Included in the
+ * token exchange (falling back to `APP_ORIGIN`) — GitHub.com is lenient about a mismatch, but
+ * a redirect_uri-enforcing GitHub Enterprise instance or strict proxy would otherwise reject
+ * the exchange with an error that looks unrelated to the missing parameter.
  * @returns An `OAuthUserInfo` with the user's GitHub username, email, and OAuth ID.
  */
-export const verify: OAuthVerifier = async (code: string, codeVerifier?: string) => {
+export const verify: OAuthVerifier = async (
+  code: string,
+  codeVerifier?: string,
+  redirectUri?: string,
+) => {
   try {
     const tokenUrl = process.env.OAUTH_GITHUB_TOKEN_URL || DEFAULT_TOKEN_URL
     const userUrl = process.env.OAUTH_GITHUB_USER_URL || DEFAULT_USER_URL
 
+    const body = formEncode({
+      client_id: process.env.OAUTH_GITHUB_CLIENT_ID,
+      client_secret: process.env.OAUTH_GITHUB_CLIENT_SECRET,
+      code,
+      code_verifier: codeVerifier,
+      grant_type: `authorization_code`,
+      redirect_uri: redirectUri || process.env.APP_ORIGIN,
+    })
     const response = await post<{
       access_token: string
       token_type: string
       scope: string
-    }>(
-      tokenUrl,
-      {
-        client_id: process.env.OAUTH_GITHUB_CLIENT_ID,
-        client_secret: process.env.OAUTH_GITHUB_CLIENT_SECRET,
-        code,
-        code_verifier: codeVerifier,
-        grant_type: `authorization_code`,
+    }>(tokenUrl, body, {
+      headers: {
+        accept: `application/json`,
+        'content-type': `application/x-www-form-urlencoded`,
       },
-      {
-        headers: {
-          accept: `application/json`,
-        },
-        timeout: 15_000,
-      },
-    )
+      timeout: 15_000,
+    })
 
     const token = response.data.access_token
 

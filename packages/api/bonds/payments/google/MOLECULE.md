@@ -185,11 +185,12 @@ function verifyProduct(productId: string, purchaseToken: string): Promise<androi
 - `productId` — The Google Play product ID for the one-time purchase.
 - `purchaseToken` — The purchase token received from the Google Play client.
 
-**Returns:** The raw `ProductPurchase` data from Google, or `null` on error.
+**Returns:** The raw `ProductPurchase` data from Google.
 
 #### `verifySubscription(productId, purchaseToken)`
 
-Verifies a Google Play subscription purchase using the Android Publisher API v2.
+Verifies a Google Play subscription purchase via the Android Publisher API v3
+(`purchases.subscriptionsv2.get`, returning a `SubscriptionPurchaseV2`).
 
 ```typescript
 function verifySubscription(productId: string, purchaseToken: string): Promise<androidpublisher_v3.Schema$SubscriptionPurchaseV2 | null>
@@ -198,7 +199,7 @@ function verifySubscription(productId: string, purchaseToken: string): Promise<a
 - `productId` — The Google Play subscription product ID (used for context; the token is the lookup key).
 - `purchaseToken` — The purchase token received from the Google Play client.
 
-**Returns:** The raw `SubscriptionPurchaseV2` data from Google, or `null` on error.
+**Returns:** The raw `SubscriptionPurchaseV2` data from Google.
 
 ### Constants
 
@@ -257,6 +258,27 @@ Peer dependencies:
 - `GOOGLE_PLAY_PACKAGE_NAME` *(required)* — Google Play package name
   - Setup: Your Android application ID as published on Google Play (used to verify purchases).
   - Example: `com.example.app`
+
+**`parseNotification` handles all three RTDN kinds** — `subscriptionNotification`
+(the primary flow: verified via `purchases.subscriptionsv2.get`, mapped to
+`renewed`/`canceled`/`expired`/etc.), `oneTimeProductNotification` (verified via
+`purchases.products.get`, mapped to `purchased`/`canceled` — no `expiresAt` is
+ever set, since a one-time purchase doesn't expire; a generic subscription-plan
+handler correctly no-ops on `'purchased'`, so apps selling one-time products
+must handle that `type` explicitly), and `voidedPurchaseNotification` (a
+refund/chargeback for EITHER kind — mapped to `refund`; NOT re-verified against
+Google's API, since the payload carries no product id to verify against, only
+used to look up an EXISTING payment record by `transactionId`/`orderId` and
+revoke it, so a forged one can only no-op, never grant). `testNotification`
+(Play Console's "Send test notification") logs at `info` and returns `null`.
+
+**A missing `GOOGLE_API_SERVICE_KEY_OBJECT`/`GOOGLE_PLAY_PACKAGE_NAME` is NOT
+the same as "invalid purchase."** Both throw a tagged config-not-configured
+error; `verifyPurchase` on {@link paymentProvider} detects that tag
+(`isConfigNotConfiguredError` from `@molecule/api-payments`) and RETHROWS it
+instead of swallowing it into the same `null` a genuine bad-token verification
+returns — so a caller can tell "the operator forgot to set the secret" apart
+from "this purchase isn't valid" and surface the actionable 503.
 
 ## Translations
 

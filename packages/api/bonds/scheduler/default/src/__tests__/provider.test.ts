@@ -487,6 +487,55 @@ describe('@molecule/api-scheduler-default', () => {
     })
   })
 
+  describe('stagger cap on repeated re-schedule (HOSTILE-DEFAULT FIX)', () => {
+    it('does not accrue an ever-growing delay when the same task is re-scheduled many times after start()', async () => {
+      // The bug this pins: taskIndex incremented monotonically for the
+      // process's whole lifetime and only reset on start(). Pre-fix, the
+      // 30th schedule() call after start() would wait 29 * staggerMs before
+      // its first run, growing without bound as an app kept replacing a
+      // task at runtime.
+      const provider = createProvider({ staggerMs: 1000 })
+      provider.schedule(createTask('bg-a'))
+      provider.schedule(createTask('bg-b'))
+      provider.start()
+
+      // Let the two boot-time tasks run past their own stagger.
+      await vi.advanceTimersByTimeAsync(1001)
+
+      let lastHandler: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(undefined)
+      for (let i = 0; i < 30; i++) {
+        lastHandler = vi.fn().mockResolvedValue(undefined)
+        provider.schedule(createTask('replaced-task', { handler: lastHandler }))
+      }
+
+      // With the fix, the stagger index wraps at the current enabled task
+      // count (3: bg-a, bg-b, replaced-task) instead of growing to 29, so
+      // the worst possible delay is (3 - 1) * 1000ms = 2000ms — nowhere
+      // near the 29000ms the unfixed code would require.
+      await vi.advanceTimersByTimeAsync(2000)
+
+      expect(lastHandler).toHaveBeenCalledTimes(1)
+    })
+
+    it('bounds the delay to (enabledTaskCount - 1) * staggerMs regardless of total lifetime schedule() calls', async () => {
+      const provider = createProvider({ staggerMs: 500 })
+      provider.start()
+
+      // Register and immediately replace a single task many times — the
+      // map only ever holds one entry for it, so the enabled task count
+      // stays 1 and the capped delay must stay 0 every time.
+      for (let i = 0; i < 50; i++) {
+        provider.schedule(createTask('solo-task'))
+      }
+      const finalHandler = vi.fn().mockResolvedValue(undefined)
+      provider.schedule(createTask('solo-task', { handler: finalHandler }))
+
+      await vi.advanceTimersByTimeAsync(1)
+
+      expect(finalHandler).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('double start', () => {
     it('should be a no-op when already started', async () => {
       const provider = createProvider({ staggerMs: 0 })

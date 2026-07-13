@@ -4,7 +4,7 @@ Translations for molecule AI package in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/api-ai` package which has 3 translation keys.
+Provides translations for the `@molecule/api-ai` package which has 4 translation keys.
 
 ## Languages
 
@@ -24,6 +24,7 @@ import type { AiTranslationKey, AiTranslations } from '@molecule/api-locales-ai'
 | `ai.error.noProvider` | AI provider not configured. Bond an AI provider first. |
 | `ai.error.apiError` | AI API request failed. |
 | `ai.error.noResponseBody` | AI response body is empty. |
+| `ai.error.ambiguousProvider` | Multiple named AI providers are bonded and no default was set. Use getProviderByName(name) to select one. |
 
 ## Metadata
 

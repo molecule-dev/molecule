@@ -104,7 +104,13 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
         break
       }
       case 'like':
-        parts.push(`\`${cond.field}\` LIKE ?`)
+        // Case-insensitive RAW pattern match — the caller supplies the full SQL
+        // pattern (their own %/_ wildcards are honored, NOT escaped). LOWER()
+        // both sides so the contract holds under case-SENSITIVE (_bin/_cs)
+        // collations too, not just the (usual) case-insensitive default — see
+        // the `like` contract documented on `WhereCondition['operator']` in
+        // `@molecule/api-database`; it must be IDENTICAL across every bond.
+        parts.push(`LOWER(\`${cond.field}\`) LIKE LOWER(?)`)
         values.push(cond.value)
         break
       case 'ilike':

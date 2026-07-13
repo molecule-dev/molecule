@@ -46,12 +46,12 @@ export const Tabs: React.FC<TabsProps> = ({
 
   return (
     <View className={className} testID={testId}>
-      <View className={cm.cn(cm.tabsList, fitted && cm.tabsFitted)}>
+      <View className={cm.cn(cm.tabsList(), fitted && cm.tabsFitted)}>
         {items.map((item) => (
           <Pressable
             key={item.value}
             className={cm.cn(
-              cm.tabsTrigger,
+              cm.tabsTrigger(),
               fitted && cm.tabTriggerFitted,
               item.value === activeValue && cm.borderBPrimary,
             )}
@@ -68,7 +68,7 @@ export const Tabs: React.FC<TabsProps> = ({
         ))}
       </View>
       {!!activeItem?.content && (
-        <View className={cm.tabsContent} accessibilityRole="summary">
+        <View className={cm.tabsContent()} accessibilityRole="summary">
           {activeItem.content as React.ReactNode}
         </View>
       )}

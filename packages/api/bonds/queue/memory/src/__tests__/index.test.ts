@@ -259,6 +259,22 @@ describe('@molecule/api-queue-memory', () => {
       expect(redelivered.receiveCount).toBe(2)
     })
 
+    it('nack stays instant even when handlerFailureRedeliveryDelaySeconds is configured (the two delays are independent)', async () => {
+      // A caller's explicit nack() is a deliberate decision — it must not be
+      // throttled by the SEPARATE delay used for uncaught handler failures.
+      const queue = makeProvider({ handlerFailureRedeliveryDelaySeconds: 10 }).queue(
+        'nack-independent',
+      )
+      await queue.send({ body: 'again' })
+
+      const [message] = await queue.receive({ visibilityTimeout: 5 })
+      await message.nack!()
+
+      const [redelivered] = await queue.receive()
+      expect(redelivered).toBeDefined()
+      expect(redelivered.receiveCount).toBe(2)
+    })
+
     it('long-polls until a message arrives (waitTimeSeconds)', async () => {
       const queue = makeProvider().queue('long-poll')
 
@@ -329,6 +345,30 @@ describe('@molecule/api-queue-memory', () => {
       unsubscribe()
     })
 
+    it('gives an uncaught handler failure a real retry window instead of burning all attempts within milliseconds (default hostile-default fix)', async () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {})
+      // maxReceiveCount: 2 so the SECOND (final) attempt's delivery time is
+      // directly observable — under the old redeliveryDelaySeconds=0 default
+      // this would fire within single-digit milliseconds; the fix ensures a
+      // real gap (handlerFailureRedeliveryDelaySeconds defaults to 1s).
+      const queue = makeProvider({ maxReceiveCount: 2 }).queue('sub-real-window')
+      const deliveryTimestamps: number[] = []
+      const unsubscribe = queue.subscribe(async () => {
+        deliveryTimestamps.push(Date.now())
+        throw new Error('always failing')
+      })
+
+      const sentAt = Date.now()
+      await queue.send({ body: 'poison' })
+      await waitFor(() => deliveryTimestamps.length === 2, 4000)
+
+      const gapMs = deliveryTimestamps[1] - sentAt
+      // Comfortably below the 1s default would mean the fix regressed to a
+      // hot loop; comfortably above proves a real window existed.
+      expect(gapMs).toBeGreaterThanOrEqual(900)
+      unsubscribe()
+    })
+
     it('redelivers when the handler throws, then succeeds', async () => {
       vi.spyOn(console, 'warn').mockImplementation(() => {})
       const queue = makeProvider().queue('sub-retry')
@@ -341,7 +381,10 @@ describe('@molecule/api-queue-memory', () => {
       })
 
       await queue.send({ body: 'eventually' })
-      await waitFor(() => attempts === 3)
+      // Two handler-failure redeliveries at the default 1s each (~2000ms
+      // cumulative) before the 3rd attempt succeeds — wider than the
+      // default 2000ms waitFor budget to avoid a hairline-flaky timeout.
+      await waitFor(() => attempts === 3, 4000)
 
       await waitFor(async () => (await queue.size!()) === 0)
       unsubscribe()

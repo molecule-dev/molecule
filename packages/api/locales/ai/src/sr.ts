@@ -5,4 +5,6 @@ export const sr: AiTranslations = {
   'ai.error.noProvider': 'AI провајдер није конфигурисан. Прво повежите AI провајдера.',
   'ai.error.apiError': 'AI API захтев није успео.',
   'ai.error.noResponseBody': 'Тело AI одговора је празно.',
+  'ai.error.ambiguousProvider':
+    'Повезано је више именованих AI провајдера и није постављен подразумевани. Користите getProviderByName(name) да изаберете једног.',
 }

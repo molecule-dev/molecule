@@ -60,11 +60,15 @@ export const getAllProviders = (): Map<string, NotificationsProvider> => {
 }
 
 /**
- * Sends a notification through ALL bonded channels. Failures in one channel
- * do not prevent other channels from being tried. Errors are logged, not thrown.
+ * Sends a notification through ALL bonded channels CONCURRENTLY (via
+ * `Promise.allSettled`), so one slow/hanging channel cannot delay every
+ * other channel behind it. Failures in one channel do not prevent other
+ * channels from being tried. Errors are logged, not thrown. Results are
+ * reassembled in registration (Map insertion) order regardless of which
+ * channel settles first.
  *
  * @param notification - The notification to send.
- * @returns Array of results, one per channel.
+ * @returns Array of results, one per channel, in registration order.
  */
 export const notifyAll = async (notification: Notification): Promise<NotificationResult[]> => {
   const providers = getAll<NotificationsProvider>(BOND_TYPE)
@@ -79,22 +83,26 @@ export const notifyAll = async (notification: Notification): Promise<Notificatio
     return []
   }
 
-  const results: NotificationResult[] = []
+  const entries = [...providers.entries()]
+  const sentAt = new Date().toISOString()
+  const settled = await Promise.allSettled(
+    entries.map(([, provider]) => provider.send(notification)),
+  )
 
-  for (const [name, provider] of providers) {
-    const sentAt = new Date().toISOString()
-    try {
-      const result = await provider.send(notification)
-      results.push({ ...result, channel: name, sentAt })
+  return entries.map(([name], i) => {
+    const outcome = settled[i]
+
+    if (outcome.status === 'fulfilled') {
+      const result = outcome.value
       if (!result.success) {
         logger.warn(`Notification channel '${name}' failed: ${result.error}`)
       }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      logger.error(`Notification channel '${name}' threw: ${message}`)
-      results.push({ success: false, error: message, channel: name, sentAt })
+      return { ...result, channel: name, sentAt }
     }
-  }
 
-  return results
+    const message =
+      outcome.reason instanceof Error ? outcome.reason.message : String(outcome.reason)
+    logger.error(`Notification channel '${name}' threw: ${message}`)
+    return { success: false, error: message, channel: name, sentAt }
+  })
 }

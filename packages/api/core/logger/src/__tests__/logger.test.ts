@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as BondModule from '@molecule/api-bond'
+
 import type * as LoggerModule from '../logger.js'
 import type { Logger, LogLevel } from '../types.js'
 
@@ -9,6 +11,8 @@ let setLogger: typeof LoggerModule.setLogger
 let resetLogger: typeof LoggerModule.resetLogger
 let setLevel: typeof LoggerModule.setLevel
 let getLevel: typeof LoggerModule.getLevel
+let hasLogger: typeof LoggerModule.hasLogger
+let bond: typeof BondModule.bond
 
 describe('logger', () => {
   const consoleMocks = {
@@ -18,6 +22,7 @@ describe('logger', () => {
     warn: vi.fn(),
     error: vi.fn(),
   }
+  const originalLogLevel = process.env.LOG_LEVEL
 
   beforeEach(async () => {
     // Reset modules to get fresh state
@@ -36,6 +41,14 @@ describe('logger', () => {
     resetLogger = loggerModule.resetLogger
     setLevel = loggerModule.setLevel
     getLevel = loggerModule.getLevel
+    hasLogger = loggerModule.hasLogger
+
+    // Resolve the SAME `@molecule/api-bond` module instance that
+    // `../logger.js` pulled into this fresh module registry, so `bond()`
+    // here mutates the exact registry `hasLogger()`/`getCurrentLogger()`
+    // read from.
+    const bondModule = await import('@molecule/api-bond')
+    bond = bondModule.bond
   })
 
   afterEach(() => {
@@ -45,6 +58,8 @@ describe('logger', () => {
     consoleMocks.info.mockClear()
     consoleMocks.warn.mockClear()
     consoleMocks.error.mockClear()
+    if (originalLogLevel === undefined) delete process.env.LOG_LEVEL
+    else process.env.LOG_LEVEL = originalLogLevel
   })
 
   describe('default console logger', () => {
@@ -127,6 +142,103 @@ describe('logger', () => {
       expect(consoleMocks.info).not.toHaveBeenCalled()
       expect(consoleMocks.warn).not.toHaveBeenCalled()
       expect(consoleMocks.error).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('LOG_LEVEL resolved lazily (env-assumption fix)', () => {
+    it('honors LOG_LEVEL set AFTER this module was first imported', async () => {
+      // Simulate an app whose dotenv/.env load happens after its first
+      // transitive import of @molecule/api-logger: LOG_LEVEL is unset at
+      // import time...
+      delete process.env.LOG_LEVEL
+      vi.resetModules()
+      const fresh = await import('../logger.js')
+
+      // ...then becomes set only afterward, before the FIRST log call.
+      process.env.LOG_LEVEL = 'debug'
+
+      fresh.logger.debug('debug message')
+
+      // On the pre-fix code (level captured once at module-import time),
+      // this would still be gated at the 'info' default and never reach
+      // console.debug — this assertion fails without the lazy-resolution fix.
+      expect(consoleMocks.debug).toHaveBeenCalledWith('debug message')
+      expect(fresh.getLevel()).toBe('debug')
+    })
+
+    it('still defaults to info when LOG_LEVEL is never set', async () => {
+      delete process.env.LOG_LEVEL
+      vi.resetModules()
+      const fresh = await import('../logger.js')
+
+      expect(fresh.getLevel()).toBe('info')
+    })
+
+    it('setLevel() always overrides the resolved/cached env value', async () => {
+      process.env.LOG_LEVEL = 'error'
+      vi.resetModules()
+      const fresh = await import('../logger.js')
+
+      expect(fresh.getLevel()).toBe('error')
+
+      fresh.setLevel('trace')
+      expect(fresh.getLevel()).toBe('trace')
+    })
+  })
+
+  describe('hasLogger (bond-registry-derived, ambiguous-failure fix)', () => {
+    it('returns false before any provider is bonded', () => {
+      expect(hasLogger()).toBe(false)
+    })
+
+    it('returns true after setLogger()', () => {
+      const customLogger: Logger = {
+        trace: vi.fn(),
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      }
+
+      setLogger(customLogger)
+
+      expect(hasLogger()).toBe(true)
+    })
+
+    it('returns false again after resetLogger()', () => {
+      const customLogger: Logger = {
+        trace: vi.fn(),
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      }
+
+      setLogger(customLogger)
+      resetLogger()
+
+      expect(hasLogger()).toBe(false)
+    })
+
+    it('returns true when a provider is wired directly via bond("logger", provider) — bypassing setLogger()', () => {
+      const customLogger: Logger = {
+        trace: vi.fn(),
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      }
+
+      // On the pre-fix code, hasLogger() tracked a module-private flag set
+      // ONLY by setLogger(), so a provider wired via the raw bond() call
+      // (the same path every bond package's getLogger() honors) left
+      // hasLogger() reporting false while a custom logger was actively in
+      // use — this assertion fails without the bond-registry-derived fix.
+      bond('logger', customLogger)
+
+      expect(hasLogger()).toBe(true)
+      logger.info('routed through the directly-bonded provider')
+      expect(customLogger.info).toHaveBeenCalledWith('routed through the directly-bonded provider')
     })
   })
 

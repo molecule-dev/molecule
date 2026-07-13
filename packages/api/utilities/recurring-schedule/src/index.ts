@@ -10,6 +10,12 @@
  * zone never shift occurrences by an hour. Wall-clock-of-day from the
  * seed `startDate` is preserved across every emitted occurrence.
  *
+ * `validateRule` (called internally by both `nextOccurrence` and
+ * `expandOccurrences`) rejects duplicate values within `byDay`,
+ * `byMonthDay`, or `byMonth` (e.g. `byDay: ['MO', 'MO']`) — a duplicate
+ * would otherwise silently double-emit the same instant and burn
+ * `count`/`maxOccurrences` twice per real occurrence.
+ *
  * Designed for personal-finance recurring transactions, meeting
  * scheduler, medication reminders, habit trackers, productivity
  * recurring tasks, and other apps that need to project a rule forward

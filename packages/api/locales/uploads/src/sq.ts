@@ -5,4 +5,5 @@ export const sq: UploadsTranslations = {
   'uploads.error.noProvider':
     'Ofruesi i ngarkimit nuk është konfiguruar. Thirrisni setProvider() së pari.',
   'uploads.error.streamLimitReached': 'Kufiri i rrjedhës u arrit.',
+  'uploads.error.aborted': 'Ngarkimi u anulua.',
 }

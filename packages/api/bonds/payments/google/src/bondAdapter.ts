@@ -9,13 +9,19 @@
 
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
-import type {
-  ParsedNotification,
-  PaymentProvider,
-  VerifiedSubscription,
+import {
+  isConfigNotConfiguredError,
+  type ParsedNotification,
+  type PaymentProvider,
+  type VerifiedSubscription,
 } from '@molecule/api-payments'
 
-import { acknowledgeSubscription, verifySubscription } from './verification.js'
+import {
+  acknowledgeProduct,
+  acknowledgeSubscription,
+  verifyProduct,
+  verifySubscription,
+} from './verification.js'
 
 /**
  * Google RTDN (Real-Time Developer Notification) notification types.
@@ -39,13 +45,52 @@ const notificationTypeMap: Record<number, string> = {
 }
 
 /**
+ * Google RTDN one-time-product notification types.
+ *
+ * @see https://developer.android.com/google/play/billing/rtdn-reference#one-time
+ */
+const ONE_TIME_PRODUCT_TYPE_MAP: Record<number, string> = {
+  1: 'purchased', // ONE_TIME_PRODUCT_PURCHASED
+  2: 'canceled', // ONE_TIME_PRODUCT_CANCELED
+}
+
+/**
  * Shape of the decoded RTDN message data from Google Pub/Sub.
+ *
+ * Exactly one of `subscriptionNotification` / `oneTimeProductNotification` /
+ * `voidedPurchaseNotification` / `testNotification` is present per message.
  */
 interface RTDNData {
   subscriptionNotification?: {
     notificationType?: number
     purchaseToken?: string
     subscriptionId?: string
+  }
+  /**
+   * A one-time (non-subscription) product purchase or cancellation.
+   *
+   * @see https://developer.android.com/google/play/billing/rtdn-reference#one-time
+   */
+  oneTimeProductNotification?: {
+    version?: string
+    notificationType?: number
+    purchaseToken?: string
+    sku?: string
+  }
+  /**
+   * A purchase (subscription OR one-time) was voided — refunded or charged
+   * back. Unlike the other notification kinds, Google does NOT include a
+   * product/SKU identifier here — only `purchaseToken` + `orderId`.
+   *
+   * @see https://developer.android.com/google/play/billing/rtdn-reference#voided-purchase
+   */
+  voidedPurchaseNotification?: {
+    purchaseToken?: string
+    orderId?: string
+    /** `1` = subscription, `2` = one-time product. */
+    productType?: number
+    /** `1` = full refund, `2` = quantity-based partial refund. */
+    refundType?: number
   }
   /** Sent by Play Console's "Send test notification" button. */
   testNotification?: {
@@ -157,6 +202,13 @@ export const paymentProvider: PaymentProvider = {
 
       return verified
     } catch (error) {
+      // A missing GOOGLE_API_SERVICE_KEY_OBJECT/GOOGLE_PLAY_PACKAGE_NAME is a
+      // DIFFERENT failure than "invalid purchase" — rethrow so the resource
+      // handler's catch can surface the actionable 503 instead of a generic
+      // 400 that reads identically to a genuinely bad purchase token.
+      if (isConfigNotConfiguredError(error)) {
+        throw error
+      }
       logger.error('Google Play: verifyPurchase error:', error)
       return null
     }
@@ -202,12 +254,21 @@ export const paymentProvider: PaymentProvider = {
         return null
       }
 
+      if (data.oneTimeProductNotification) {
+        return await parseOneTimeProductNotification(data.oneTimeProductNotification)
+      }
+
+      if (data.voidedPurchaseNotification) {
+        return parseVoidedPurchaseNotification(data.voidedPurchaseNotification)
+      }
+
       const notification = data.subscriptionNotification
 
       if (!notification) {
-        // One-time product / voided-purchase notifications land here too:
-        // only subscription notifications are supported by this bond.
-        logger.error('Google Play: parseNotification missing subscriptionNotification')
+        logger.error(
+          'Google Play: parseNotification body has none of subscriptionNotification/' +
+            'oneTimeProductNotification/voidedPurchaseNotification/testNotification',
+        )
         return null
       }
 
@@ -261,4 +322,98 @@ export const paymentProvider: PaymentProvider = {
       return null
     }
   },
+}
+
+/**
+ * Parses a Google RTDN one-time (non-subscription) product notification.
+ *
+ * AUTHENTICITY: mirrors the subscription path — the notification's `sku` +
+ * `purchaseToken` are re-submitted to Google's `purchases.products.get`
+ * (via {@link verifyProduct}) and every field returned is derived from that
+ * VERIFIED response, never trusted from the (attacker-forgeable) body.
+ *
+ * @param notification - The decoded `oneTimeProductNotification` object.
+ * @returns The parsed notification (`type: 'purchased' | 'canceled'`), or
+ *   `null` if it cannot be authenticated. No `expiresAt` is ever set — a
+ *   one-time purchase does not expire the way a subscription does, so a
+ *   generic subscription-plan handler that requires `expiresAt` to grant a
+ *   plan will correctly no-op on a `'purchased'` notification; consumers
+ *   that DO sell one-time products should handle `'purchased'` explicitly.
+ */
+const parseOneTimeProductNotification = async (
+  notification: NonNullable<RTDNData['oneTimeProductNotification']>,
+): Promise<ParsedNotification | null> => {
+  const notificationType = notification.notificationType
+  const type =
+    notificationType != null
+      ? (ONE_TIME_PRODUCT_TYPE_MAP[notificationType] ?? 'unknown')
+      : 'unknown'
+
+  if (!notification.purchaseToken || !notification.sku) {
+    logger.warn(
+      'Google Play: parseNotification (one-time product) missing purchaseToken/sku — cannot verify, rejecting',
+    )
+    return null
+  }
+
+  let purchase: Awaited<ReturnType<typeof verifyProduct>>
+  try {
+    purchase = await verifyProduct(notification.sku, notification.purchaseToken)
+  } catch (verifyError) {
+    logger.error('Google Play: parseNotification (one-time product) verify error:', verifyError)
+    return null
+  }
+
+  if (!purchase) {
+    logger.warn('Google Play: parseNotification (one-time product) verification failed — rejecting')
+    return null
+  }
+
+  // Acknowledge a fresh purchase so Google knows it was delivered (unacknowledged
+  // purchases are refunded after 3 days) — non-fatal, mirrors verifyPurchase.
+  if (type === 'purchased') {
+    try {
+      await acknowledgeProduct(notification.sku, notification.purchaseToken)
+    } catch (ackError) {
+      logger.error('Google Play: failed to acknowledge one-time product:', ackError)
+    }
+  }
+
+  return {
+    transactionId: purchase.orderId ?? undefined,
+    productId: notification.sku,
+    type,
+  }
+}
+
+/**
+ * Parses a Google RTDN voided-purchase notification (a refund or chargeback,
+ * for either a subscription or a one-time product).
+ *
+ * Unlike the other notification kinds, Google's voided-purchase payload
+ * carries no product/SKU identifier to re-verify against (`purchases.products.get`
+ * requires a `productId` the body doesn't supply, and re-deriving one would mean
+ * trusting attacker-controlled data) — so this bond does not re-authenticate it
+ * against Google's API. It is instead treated the same as a subscription
+ * CANCELED/EXPIRED event: `transactionId` (the `orderId`) is used ONLY to look
+ * up an EXISTING payment record already bound to a user (never to grant), so a
+ * forged notification can at most trigger a revocation-that-does-nothing (no
+ * matching record) — it cannot grant or extend entitlement. The endpoint itself
+ * is additionally gated by `PAYMENT_NOTIFICATION_REQUIRE_SECRET` upstream.
+ *
+ * @param notification - The decoded `voidedPurchaseNotification` object.
+ * @returns The parsed notification (`type: 'refund'`), or `null` when it carries no `orderId`/`purchaseToken` to act on.
+ */
+const parseVoidedPurchaseNotification = (
+  notification: NonNullable<RTDNData['voidedPurchaseNotification']>,
+): ParsedNotification | null => {
+  if (!notification.orderId || !notification.purchaseToken) {
+    logger.warn('Google Play: parseNotification (voided purchase) missing orderId/purchaseToken')
+    return null
+  }
+
+  return {
+    transactionId: notification.orderId,
+    type: 'refund',
+  }
 }

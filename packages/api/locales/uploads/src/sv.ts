@@ -5,4 +5,5 @@ export const sv: UploadsTranslations = {
   'uploads.error.noProvider':
     'Uppladdningsleverantör är inte konfigurerad. Anropa setProvider() först.',
   'uploads.error.streamLimitReached': 'Strömgränsen har nåtts.',
+  'uploads.error.aborted': 'Uppladdningen avbröts.',
 }

@@ -5,4 +5,5 @@ export const ky: UploadsTranslations = {
   'uploads.error.noProvider':
     'Жүктөө провайдери конфигурацияланган эмес. Адегенде setProvider() чакырыңыз.',
   'uploads.error.streamLimitReached': 'Агым чегине жетти.',
+  'uploads.error.aborted': 'Жүктөө токтотулду.',
 }

@@ -52,6 +52,27 @@
  *   automatic relay to the room.
  * - The managed `createRoom()`/`joinRoom()` API (`room_N` ids) is unchanged
  *   and coexists with protocol rooms; `getRooms()` returns both.
+ * - **Creating a provider NEVER binds a port as a side effect unless told
+ *   to.** `createProvider()` with no `port`, no `httpServer`, and no
+ *   `deferAttach` does NOT bind anything — it behaves exactly like
+ *   `deferAttach: true` (waits for `attachHttpServer(server)`), logging an
+ *   info line naming the bond so the omission is visible instead of silent.
+ *   An **explicit** `port` (`createProvider({ port })`) or an explicit
+ *   `httpServer` (`createProvider({ httpServer })`) is a real instruction and
+ *   binds immediately, same as before — this is a genuine, working mode for a
+ *   standalone realtime service, it just no longer happens by accident. In a
+ *   real deployment prefer `createProvider({ deferAttach: true })` +
+ *   `provider.attachHttpServer(server)` once the API's HTTP server exists, so
+ *   SSE shares the API's port instead of a standalone one a container/proxy
+ *   may not expose (mirrors the `-socketio` and `-ws` bonds'
+ *   `deferAttach`/`attachHttpServer` contract). A standalone bind failure
+ *   (e.g. the resolved port already in use) is logged via the bonded logger
+ *   naming this bond and the port, instead of crashing the process with an
+ *   unattributed `EADDRINUSE`.
+ * - **`corsOrigin` defaults to `'*'` outside production**, but in production
+ *   defaults to `APP_ORIGIN`/`SITE_ORIGIN` (same env vars the CORS middleware
+ *   bond reads) when set, falling back to `'*'` with a logged warning only
+ *   when neither is configured — see {@link SseRealtimeConfig.corsOrigin}.
  */
 
 import { randomUUID } from 'node:crypto'
@@ -133,12 +154,56 @@ function extractRoom(payload: unknown): string | undefined {
  */
 export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider {
   const {
-    port = 3000,
     path = '/sse',
     keepAliveInterval = 30_000,
     headers: customHeaders = {},
-    corsOrigin = '*',
+    httpServer,
+    deferAttach = false,
   } = config
+
+  // Resolve the port a standalone bind would use (mirrors the ws/socketio
+  // bonds' resolution order), so multiple flagships COULD run side-by-side
+  // without colliding on port 3000 if they opt into a standalone bind:
+  //   1. explicit `config.port`
+  //   2. `process.env.SSE_PORT`
+  //   3. `process.env.PORT + 1000` (matches `npm run dev`'s API port + 1000)
+  //   4. fall back to 3000 for back-compat with examples
+  // This value is only USED to actually bind when `config.port` is explicit
+  // (see the bind-timing decision below) — otherwise it's surfaced in the
+  // deferred-mode log line as a suggested value, never bound automatically.
+  const envPort = process.env.SSE_PORT && Number(process.env.SSE_PORT)
+  const apiPort = process.env.PORT && Number(process.env.PORT)
+  const port =
+    config.port ??
+    (envPort && Number.isFinite(envPort) ? envPort : undefined) ??
+    (apiPort && Number.isFinite(apiPort) ? apiPort + 1000 : undefined) ??
+    3000
+
+  /**
+   * Resolves the default `corsOrigin` when the caller didn't set one
+   * explicitly. Outside production `'*'` is a harmless dev convenience.
+   * In production, defaults to the app's own origin (`APP_ORIGIN` /
+   * `SITE_ORIGIN` — the same env vars `@molecule/api-middleware-cors-express`
+   * reads) so the realtime endpoints aren't exposed cross-origin by default;
+   * only when NEITHER is configured does it fall back to `'*'`, logging an
+   * actionable warning instead of doing so silently.
+   *
+   * @returns The resolved `Access-Control-Allow-Origin` value.
+   */
+  const resolveDefaultCorsOrigin = (): string => {
+    if (process.env.NODE_ENV === 'production') {
+      const appOrigin = process.env.APP_ORIGIN ?? process.env.SITE_ORIGIN
+      if (appOrigin) return appOrigin
+      logger.warn(
+        'Realtime SSE corsOrigin defaulted to "*" in production because neither corsOrigin, ' +
+          'APP_ORIGIN, nor SITE_ORIGIN is set — the realtime stream and message endpoints are ' +
+          'reachable cross-origin. Set corsOrigin explicitly, or APP_ORIGIN/SITE_ORIGIN, to close this.',
+      )
+    }
+    return '*'
+  }
+
+  const corsOrigin = config.corsOrigin ?? resolveDefaultCorsOrigin()
 
   /** Rooms managed through the provider API. */
   const rooms = new Map<string, RoomState>()
@@ -655,16 +720,74 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
   /*  Attach to HTTP server                                              */
   /* ------------------------------------------------------------------ */
 
+  /** The standalone server this provider created itself, if any. */
   let ownServer: HttpServer | undefined
+
+  /** The server (own or given/attached) currently serving `handleRequest`. */
+  let attachedServer: HttpServer | undefined
 
   /** Set once close() has run — makes shutdown idempotent. */
   let closed = false
 
-  if (config.httpServer) {
-    config.httpServer.on('request', handleRequest)
-  } else {
+  /**
+   * Attaches the SSE routes to `server` (shared-port path), or — when no
+   * `server` is given — creates and binds a standalone HTTP server on the
+   * resolved port. Idempotent: a second call (either path) is a no-op, so
+   * both an eager construction-time bind and a later `attachHttpServer()`
+   * call are safe to compose.
+   *
+   * @param server - An existing HTTP server to share; omitted for standalone mode.
+   */
+  const attach = (server?: HttpServer): void => {
+    if (attachedServer) return
+    if (server) {
+      attachedServer = server
+      server.on('request', handleRequest)
+      return
+    }
     ownServer = createServer(handleRequest)
+    attachedServer = ownServer
+    // A standalone server's 'error' event (e.g. EADDRINUSE when the resolved
+    // port is already taken) has no default listener — without one it
+    // crashes the process with an unattributed uncaught exception. Logging
+    // it here names the bond and the port so an executor debugging the crash
+    // has something to act on instead of a bare stack trace.
+    ownServer.on('error', (error: Error) => {
+      logger.error(
+        `Realtime SSE server error binding standalone port ${String(port)} — realtime ` +
+          'connections will not work until this is resolved. If deploying behind a shared ' +
+          'HTTP server or a container/proxy, use deferAttach + attachHttpServer(server) ' +
+          'instead of a standalone port.',
+        { error },
+      )
+    })
     ownServer.listen(port)
+  }
+
+  // Bind timing:
+  // - A given `httpServer` is itself an explicit attach step (the caller
+  //   already decided where the transport lives) — binds immediately
+  //   regardless of `deferAttach`.
+  // - An explicit `config.port` is likewise an explicit instruction to run a
+  //   standalone server — binds immediately (keeps existing standalone
+  //   callers working unchanged).
+  // - Otherwise (true zero-config — no `httpServer`, no `port` — or an
+  //   explicit `deferAttach: true`) the provider does NOT bind anything.
+  //   Zero-config used to eagerly bind a standalone port derived from
+  //   ambient `SSE_PORT`/`PORT` env vars (or 3000), which silently collides
+  //   with the API's own port in a container/proxy that doesn't expose a
+  //   second port — creating a provider must never bind a port as a side
+  //   effect. It waits for `attachHttpServer()`; a caller who genuinely
+  //   wants a standalone bind should pass `{ port }` explicitly.
+  if (httpServer) {
+    attach(httpServer)
+  } else if (config.port !== undefined && !deferAttach) {
+    attach()
+  } else if (!deferAttach) {
+    logger.info(
+      `Realtime SSE provider created with no port or httpServer — deferring until attachHttpServer(server) is called. ` +
+        `Pass { port } (e.g. { port: ${String(port)} }) to bind a standalone server immediately instead.`,
+    )
   }
 
   /* ------------------------------------------------------------------ */
@@ -793,6 +916,13 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
       return [...managed, ...protocol]
     },
 
+    attachHttpServer(server: HttpServer): void {
+      // Deferred path: attach the SSE routes to the API's HTTP server now
+      // that it exists, so SSE shares the API port. No-op if already
+      // attached/bound (matches the ws/socketio sibling bonds).
+      attach(server)
+    },
+
     async close(): Promise<void> {
       // Idempotent: a second close() (double teardown is a normal shutdown
       // pattern) must not reject with Node's ERR_SERVER_NOT_RUNNING.
@@ -819,17 +949,27 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
       disconnectionHandlers.length = 0
       joinGuards.length = 0
 
-      // Detach from a shared server so a closed provider stops serving new
-      // SSE subscriptions on its path (previously the listener stayed
-      // attached and kept accepting clients after close()).
-      if (config.httpServer) {
-        config.httpServer.off('request', handleRequest)
+      // Detach from a shared server (given at construction OR attached later
+      // via attachHttpServer) so a closed provider stops serving new SSE
+      // subscriptions on its path (previously the listener stayed attached
+      // and kept accepting clients after close()). A standalone `ownServer`
+      // is fully closed below instead of just detached.
+      if (attachedServer && attachedServer !== ownServer) {
+        attachedServer.off('request', handleRequest)
       }
 
       if (ownServer) {
         await new Promise<void>((resolve, reject) => {
           ownServer!.close((err) => {
-            if (err) {
+            // A standalone server whose bind FAILED (e.g. the resolved port
+            // was already taken — see the 'error' handler in `attach()`)
+            // never reaches 'listening', so Node's own close() reports
+            // ERR_SERVER_NOT_RUNNING. From close()'s perspective that is
+            // already the desired end state, not a teardown failure — treat
+            // it the same as the idempotent double-close case above rather
+            // than rejecting a caller that is doing the right thing by
+            // calling close() after a bind error.
+            if (err && (err as NodeJS.ErrnoException).code !== 'ERR_SERVER_NOT_RUNNING') {
               reject(err)
             } else {
               resolve()

@@ -155,6 +155,16 @@ export interface I18nProvider {
 
   /**
    * Sets the current locale.
+   *
+   * **Fleet contract:** every conformant provider (the core simple provider,
+   * `@molecule/api-i18n-simple`, `@molecule/app-i18n-i18next`, and
+   * `@molecule/app-i18n-react-i18next`) MUST throw `Error('Locale "<code>"
+   * not found')` when `locale` is not registered — via the constructor's
+   * `initialLocales`/`locales` config, `addLocale()`, or `addTranslations()`
+   * (all three register a locale). It must NOT silently degrade to
+   * fallback-locale text while `getLocale()` reports the unregistered code —
+   * that divergence makes a misconfigured locale switch indistinguishable
+   * from a working one until a user notices the wrong language on screen.
    */
   setLocale(locale: string): Promise<void>
 
@@ -182,11 +192,26 @@ export interface I18nProvider {
 
   /**
    * Adds translations to a locale. Auto-creates the locale if it doesn't exist.
+   *
+   * **Fleet contract:** merges are DEEP, not a shallow spread — registering
+   * two calls (e.g. two modules) that share a top-level namespace key merges
+   * their subtrees instead of the second call clobbering the first's nested
+   * translations wholesale. `@molecule/api-i18n-simple` implements the same
+   * contract on the API side.
    */
   addTranslations(locale: string, translations: Translations, namespace?: string): void
 
   /**
    * Translates a key with optional interpolation values and pluralization.
+   *
+   * **Fleet plural contract (matches i18next's own key resolution order):**
+   * when `options.count` is provided, the plural-suffixed key
+   * (`` `${key}_${pluralForm}` ``, e.g. `item_one`/`item_few`/…, falling back
+   * to `` `${key}_other` ``) is looked up FIRST and wins over the base `key`
+   * if BOTH are registered. Only when no plural-suffixed key exists at all
+   * does resolution fall back to the base key. A catalog that ships both
+   * `item` and `item_one`/`item_other` therefore pluralizes identically
+   * whichever provider is bonded.
    *
    * @returns The translated string, or the default value / key if not found.
    */
@@ -197,7 +222,15 @@ export interface I18nProvider {
   ): string
 
   /**
-   * Checks if a translation key exists in the current locale.
+   * Checks if a translation key exists.
+   *
+   * **Fleet contract:** follows the SAME locale-resolution chain as `t()` —
+   * the active locale, then the English fallback — so `exists(key) === true`
+   * whenever `t(key)` would render real translated text (not the raw key or
+   * an inline `defaultValue`). Do not narrow this to "only the active
+   * locale's own catalog"; that made `exists()` return `false` for keys `t()`
+   * happily rendered via the English fallback, and the answer differed by
+   * provider.
    *
    * @returns `true` if the key has a translation.
    */

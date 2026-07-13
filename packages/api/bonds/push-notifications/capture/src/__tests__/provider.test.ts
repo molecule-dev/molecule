@@ -61,9 +61,18 @@ describe('push capture provider', () => {
       expect(record).toHaveBeenCalledTimes(2)
     })
 
-    it('returns empty vapid keys and undefined public key', () => {
+    it('throws an actionable error from generateVapidKeys instead of returning empty-string keys', () => {
+      // ROOT-CAUSE REGRESSION GUARD: returning `{ publicKey: '', privateKey: '' }`
+      // looked like success — a caller that persisted the empty key and handed
+      // it to a browser subscribe() failed later with a cryptic DOMException
+      // far from this line. Fail loudly and immediately here instead.
       const push = createPushCaptureProvider()
-      expect(push.generateVapidKeys()).toEqual({ publicKey: '', privateKey: '' })
+      expect(() => push.generateVapidKeys()).toThrow(/cannot generate VAPID keys/)
+      expect(() => push.generateVapidKeys()).toThrow(/createPushCaptureProvider\(realProvider\)/)
+    })
+
+    it('still leaves getPublicKey() honest (undefined, no env var set)', () => {
+      const push = createPushCaptureProvider()
       expect(push.getPublicKey()).toBeUndefined()
     })
 

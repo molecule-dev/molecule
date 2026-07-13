@@ -1,6 +1,11 @@
 import { get, getAnalytics, getLogger, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
-import type { PaymentProvider, PaymentRecordService, PlanService } from '@molecule/api-payments'
+import {
+  isConfigNotConfiguredError,
+  type PaymentProvider,
+  type PaymentRecordService,
+  type PlanService,
+} from '@molecule/api-payments'
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
@@ -406,6 +411,19 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Resour
 
       return result
     } catch (error) {
+      // A bonded payment provider rethrows a tagged config-not-configured error
+      // (e.g. STRIPE_SECRET_KEY/APPLE_SHARED_SECRET/GOOGLE_API_SERVICE_KEY_OBJECT
+      // unset) instead of swallowing it into the same `null` a genuine failed
+      // verification returns — pass its REAL statusCode/errorKey through so the
+      // actionable "which key, where to get it" message reaches the caller
+      // instead of a generic 500 that reads identically to "bad receipt."
+      if (isConfigNotConfiguredError(error)) {
+        logger.warn(error.message, { errorKey: error.errorKey, provider: providerName })
+        return {
+          statusCode: error.statusCode,
+          body: { error: error.message, errorKey: error.errorKey },
+        }
+      }
       logger.error(`${providerName} verifyPayment error:`, error)
       return {
         statusCode: 500,

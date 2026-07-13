@@ -52,14 +52,20 @@
  * - `'yjs:update'` / `'yjs:awareness'` payloads MUST be `Uint8Array`s — any
  *   other type throws (`Event "yjs:update" requires Uint8Array data`); the
  *   doc is never partially mutated.
- * - **Awareness ↔ client correlation is keyed by `clientIdToAwarenessId()`**
- *   (exported): `getPresence()` only merges awareness metadata, and
- *   `leaveRoom()` only removes a peer's awareness instantly, for awareness
- *   entries whose numeric id equals `clientIdToAwarenessId(moleculeClientId)`
- *   — align the collaborating client's `doc.clientID` with it. Clients using
- *   their own random `doc.clientID` still converge fine; their awareness is
- *   just uncorrelated and clears via the Yjs Awareness 30s staleness timeout
- *   instead of instantly on leave.
+ * - **Awareness ↔ client correlation is automatic — no `doc.clientID`
+ *   alignment required.** Every `'yjs:awareness'` frame you push through
+ *   `applyInbound()` is decoded (via the Awareness instance's own `'update'`
+ *   event) to learn which numeric Awareness ids that specific molecule
+ *   `clientId` introduced. `getPresence()` merges awareness metadata for
+ *   ANY of those ids, and `leaveRoom()` removes ALL of them instantly — the
+ *   collaborating client's real `doc.clientID` (random by default in every
+ *   Yjs client) never needs to match anything. `clientIdToAwarenessId()`
+ *   (still exported) is now only an ADDITIONAL fallback id checked after the
+ *   tracked ones, for callers that still align `doc.clientID` by convention.
+ *   The one remaining gap: awareness state pushed WITHOUT ever going through
+ *   `applyInbound` for that room/client (e.g. only via the low-level
+ *   `broadcast()` API) has nothing to attribute it to a molecule client, so
+ *   it still relies on the legacy hash id or the 30s staleness timeout.
  * - This bond has no client-initiated join path: `onJoinRequest` is left
  *   undefined, so join guards registered via `@molecule/api-realtime` are
  *   logged as unenforceable (joins happen through the server-driven

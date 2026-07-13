@@ -568,6 +568,22 @@ Wires `@molecule/api-realtime-socketio` to `@molecule/api-realtime`.
 function setupRealtimeSocketio(): Promise<void>
 ```
 
+#### `setupRealtimeSse()`
+
+Wires `@molecule/api-realtime-sse` to `@molecule/api-realtime`.
+
+```typescript
+function setupRealtimeSse(): Promise<void>
+```
+
+#### `setupRealtimeWs()`
+
+Wires `@molecule/api-realtime-ws` to `@molecule/api-realtime`.
+
+```typescript
+function setupRealtimeWs(): Promise<void>
+```
+
 #### `setupReportingDatabase()`
 
 Wires `@molecule/api-reporting-database` to `@molecule/api-reporting`.
@@ -790,6 +806,8 @@ Peer dependencies:
 - `@molecule/api-rate-limit-memory` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
 - `@molecule/api-realtime-socketio` ^1.0.0
+- `@molecule/api-realtime-sse` ^1.0.0
+- `@molecule/api-realtime-ws` ^1.0.0
 - `@molecule/api-reporting` ^1.0.0
 - `@molecule/api-reporting-database` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
@@ -810,3 +828,12 @@ Peer dependencies:
 - `@molecule/api-webhook-http` ^1.0.0
 - `@molecule/api-workflow` ^1.0.0
 - `@molecule/api-workflow-database` ^1.0.0
+
+- **Realtime setups (`setupRealtimeSocketio`, `setupRealtimeWs`,
+  `setupRealtimeSse`) all defer-attach.** Each dynamic-imports its provider's
+  `createProvider({ deferAttach: true })`, calls `setProvider()`, then
+  `registerServerCreatedHook((server) => provider.attachHttpServer?.(server))`
+  from `@molecule/api-server-default-express` — so the realtime transport
+  shares the API's HTTP server/port once it exists, instead of a standalone
+  port a containerized sandbox / proxied deploy may not expose. Add new
+  realtime bonds by mirroring this pattern exactly.

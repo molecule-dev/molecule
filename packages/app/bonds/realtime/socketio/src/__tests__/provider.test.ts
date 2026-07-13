@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ConnectionOptions, RealtimeClientProvider } from '@molecule/app-realtime'
+import type {
+  ConnectionOptions,
+  PresenceInfo,
+  RealtimeClientProvider,
+} from '@molecule/app-realtime'
 
 // ---------------------------------------------------------------------------
 // socket.io-client mock — a controllable fake socket
@@ -627,7 +631,36 @@ describe('@molecule/app-realtime-socketio', () => {
       const presence = [{ clientId: 'user-1' }, { clientId: 'user-2' }]
       socket.fireServerEvent('molecule:presence', { room: 'room-1', presence })
       expect(conn.getPresence('room-1')).toEqual(presence)
-      expect(handler).toHaveBeenCalledWith(presence)
+      // The handler receives the room id the update is FOR — a consumer
+      // joined to multiple rooms needs this to know which room's member
+      // list just changed (see PresenceChangeHandler).
+      expect(handler).toHaveBeenCalledWith(presence, 'room-1')
+    })
+
+    it('CONSUMER PROPERTY: a single handler joined to TWO rooms can tell which room each presence update is for', async () => {
+      // Regression: before roomId was passed, a consumer joined to multiple
+      // rooms had no way to distinguish "this update is room A's member
+      // list" from "this update is room B's" and would render one room's
+      // presence into another room's UI.
+      const { conn, socket } = await createConnection()
+      socket.fireConnect()
+      const received: Array<{ presence: PresenceInfo[]; roomId: string }> = []
+      conn.onPresenceChange((presence, roomId) => {
+        received.push({ presence, roomId })
+      })
+
+      const roomAPresence = [{ clientId: 'alice' }]
+      const roomBPresence = [{ clientId: 'bob' }, { clientId: 'carol' }]
+      socket.fireServerEvent('molecule:presence', { room: 'room-A', presence: roomAPresence })
+      socket.fireServerEvent('molecule:presence', { room: 'room-B', presence: roomBPresence })
+
+      expect(received).toEqual([
+        { presence: roomAPresence, roomId: 'room-A' },
+        { presence: roomBPresence, roomId: 'room-B' },
+      ])
+      // The two rooms' presence lists never merge into one another.
+      expect(conn.getPresence('room-A')).toEqual(roomAPresence)
+      expect(conn.getPresence('room-B')).toEqual(roomBPresence)
     })
 
     it('getPresence returns an empty array for unknown rooms', async () => {
@@ -816,7 +849,7 @@ describe('@molecule/app-realtime-socketio', () => {
       const presence = [{ clientId: 'user-1', metadata: { name: 'Alice' } }]
       conn._setPresence('room-1', presence)
       expect(conn.getPresence('room-1')).toEqual(presence)
-      expect(handler).toHaveBeenCalledWith(presence)
+      expect(handler).toHaveBeenCalledWith(presence, 'room-1')
     })
 
     it('_setState overrides the local state machine and notifies handlers', async () => {

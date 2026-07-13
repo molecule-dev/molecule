@@ -4,5 +4,7 @@ import type { IconsTranslations } from './types.js'
 export const mk: IconsTranslations = {
   'icons.error.noIconSet':
     'Не е поставен IconSet. Повикајте setIconSet() при стартување на апликацијата со библиотека на икони (на пр., @molecule/app-icons-molecule).',
+  'icons.error.noProvider':
+    '@molecule/app-icons: Не е поврзан ниту еден сет на икони. Повикајте setIconSet() со IconSet (на пр., експортот од @molecule/app-icons-molecule).',
   'icons.error.notFound': 'Иконата "{{name}}" не е пронајдена во тековниот сет на икони.',
 }

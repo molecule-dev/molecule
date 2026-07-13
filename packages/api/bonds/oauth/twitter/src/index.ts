@@ -49,6 +49,12 @@
  *
  * > **Your users should now be able to log in via Twitter!**
  *
+ * @remarks
+ * The token exchange (`verify`'s call to X's token endpoint) is
+ * `application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 and X's own docs —
+ * matching every other molecule.dev OAuth bond (google, gitlab, github,
+ * apple, microsoft).
+ *
  * @module
  */
 

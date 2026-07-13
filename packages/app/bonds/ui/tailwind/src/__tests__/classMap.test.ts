@@ -168,6 +168,21 @@ describe('classMap', () => {
       expect(sm).toContain('h-5')
       expect(lg).toContain('h-7')
     })
+
+    it('defaults to the primary color, reproducing the exact old hardcoded classes', () => {
+      const OLD_SWITCH_BASE =
+        'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-secondary focus-visible:ring-primary h-6 w-11'
+      const tokens = (s: string): string[] => s.split(/\s+/).filter(Boolean).sort()
+      expect(tokens(classMap.switchBase())).toEqual(tokens(OLD_SWITCH_BASE))
+    })
+
+    it('maps every ColorVariant to a distinct switchBase class string', () => {
+      const colors = ['primary', 'secondary', 'success', 'warning', 'error', 'info'] as const
+      const results = colors.map((color) => classMap.switchBase({ color }))
+      expect(new Set(results).size).toBe(colors.length)
+      expect(classMap.switchBase({ color: 'success' })).toContain('data-[state=checked]:bg-success')
+      expect(classMap.switchBase({ color: 'error' })).toContain('data-[state=checked]:bg-error')
+    })
   })
 
   describe('label()', () => {
@@ -309,6 +324,71 @@ describe('classMap', () => {
     })
   })
 
+  describe('tabsList() / tabsTrigger() / tabsContent()', () => {
+    // Order-independent token comparison: Tailwind utility classes don't
+    // care about their position within the `class` attribute, only the CVA
+    // concatenation order changed (base, then variant, then size) — not the
+    // set of classes rendered for the pre-existing (now default) look.
+    const tokens = (s: string): string[] => s.split(/\s+/).filter(Boolean).sort()
+
+    it('tabsList() with no options reproduces the exact old hardcoded class SET', () => {
+      const OLD_TABS_LIST =
+        'inline-flex h-10 items-center justify-center rounded-md bg-surface-secondary p-1 text-foreground-secondary'
+      expect(tokens(classMap.tabsList())).toEqual(tokens(OLD_TABS_LIST))
+    })
+
+    it('tabsTrigger() with no options reproduces the exact old hardcoded class SET', () => {
+      const OLD_TABS_TRIGGER =
+        'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm'
+      expect(tokens(classMap.tabsTrigger())).toEqual(tokens(OLD_TABS_TRIGGER))
+    })
+
+    it('tabsContent() with no options reproduces the exact old hardcoded class SET', () => {
+      const OLD_TABS_CONTENT =
+        'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+      expect(tokens(classMap.tabsContent())).toEqual(tokens(OLD_TABS_CONTENT))
+    })
+
+    it('tabsList differs across the 3 container shapes (soft/solid-rounded share one pill track — only the trigger differs between them)', () => {
+      const line = classMap.tabsList({ variant: 'line' })
+      const enclosed = classMap.tabsList({ variant: 'enclosed' })
+      const softRounded = classMap.tabsList({ variant: 'soft-rounded' })
+      const solidRounded = classMap.tabsList({ variant: 'solid-rounded' })
+      expect(new Set([line, enclosed, softRounded]).size).toBe(3)
+      expect(solidRounded).toBe(softRounded)
+    })
+
+    it('every tabsTrigger variant produces a distinct class string, each keying active state off data-[state=active]', () => {
+      const variants = ['line', 'enclosed', 'soft-rounded', 'solid-rounded'] as const
+      const results = variants.map((variant) => classMap.tabsTrigger({ variant }))
+      expect(new Set(results).size).toBe(variants.length)
+      for (const result of results) {
+        expect(result).toContain('data-[state=active]:')
+      }
+    })
+
+    it('tabsContent spacing differs across the 3 container shapes (soft/solid-rounded share spacing)', () => {
+      const line = classMap.tabsContent({ variant: 'line' })
+      const enclosed = classMap.tabsContent({ variant: 'enclosed' })
+      const softRounded = classMap.tabsContent({ variant: 'soft-rounded' })
+      const solidRounded = classMap.tabsContent({ variant: 'solid-rounded' })
+      expect(new Set([line, enclosed, softRounded]).size).toBe(3)
+      expect(solidRounded).toBe(softRounded)
+    })
+
+    it('tabsList/tabsTrigger size options produce distinct height/padding per size', () => {
+      const sizes = ['xs', 'sm', 'md', 'lg', 'xl'] as const
+      const listSizes = new Set(sizes.map((size) => classMap.tabsList({ size })))
+      const triggerSizes = new Set(sizes.map((size) => classMap.tabsTrigger({ size })))
+      // xs/sm collapse onto the same 3-tier Tailwind size (matching every
+      // other resolver's size3Map), so only 3 distinct outputs are expected.
+      expect(listSizes.size).toBe(3)
+      expect(triggerSizes.size).toBe(3)
+      expect(classMap.tabsTrigger({ size: 'lg' })).toContain('text-base')
+      expect(classMap.tabsTrigger({ size: 'sm' })).toContain('text-xs')
+    })
+  })
+
   describe('static resolvers', () => {
     it('should return tooltip classes', () => {
       expect(classMap.tooltip()).toBeTruthy()
@@ -393,9 +473,6 @@ describe('classMap', () => {
       'tableHead',
       'tableCell',
       'tableCaption',
-      'tabsList',
-      'tabsTrigger',
-      'tabsContent',
       'tooltipContent',
       'toastViewport',
       'toastTitle',

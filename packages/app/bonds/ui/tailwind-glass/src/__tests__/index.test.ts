@@ -47,7 +47,13 @@ describe('@molecule/app-ui-tailwind-glass', () => {
     })
 
     it('adds backdrop-blur to tabsList', () => {
-      expect(classMap.tabsList).toContain('backdrop-blur')
+      expect(classMap.tabsList()).toContain('backdrop-blur')
+    })
+
+    it('preserves variant/size options while layering on backdrop-blur', () => {
+      const lineTabsList = classMap.tabsList({ variant: 'line' })
+      expect(lineTabsList).toContain('backdrop-blur')
+      expect(lineTabsList).toContain('border-b')
     })
 
     it('adds backdrop-blur to actionSheet', () => {

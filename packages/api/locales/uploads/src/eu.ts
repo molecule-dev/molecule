@@ -5,4 +5,5 @@ export const eu: UploadsTranslations = {
   'uploads.error.noProvider':
     'Igoera-hornitzailea ez dago konfiguratuta. Lehenik setProvider() deitu.',
   'uploads.error.streamLimitReached': 'Korrontearen muga gainditu da.',
+  'uploads.error.aborted': 'Igoera bertan behera utzi da.',
 }

@@ -8,6 +8,18 @@
  * through the core `chat()` / `requireProvider()`, NOT the Anthropic SDK directly, so the app
  * stays provider-agnostic and can swap models/providers by changing only the bond.
  *
+ * **Missing `ANTHROPIC_API_KEY` fails fast**: the provider throws naming the exact env var on
+ * first use (the exported `provider` is a lazy proxy, so this fires on the first `chat()` call,
+ * not at bond/module-load time) — it never silently sends an empty key and surfaces only as a
+ * generic 401 later.
+ *
+ * **Error message disambiguation**: a non-OK response yields a sanitized `error` ChatEvent
+ * (never a throw). A permanently-invalid request — a plain 400 that ISN'T a context-length
+ * error (bad param, malformed tool schema) — gets its own non-retryable message ("AI request
+ * was invalid — check the model and request parameters.") distinct from the generic "AI service
+ * error. Please try again." used for retryable failures; don't retry a plain 400 as if it might
+ * succeed on a second attempt.
+ *
  * @module
  */
 

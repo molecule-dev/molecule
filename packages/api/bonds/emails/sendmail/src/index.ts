@@ -20,6 +20,16 @@
  * guard) — inspect the message/`code` to tell configuration problems apart
  * from delivery problems.
  *
+ * The `accepted`-from-envelope mapping above exists because `@types/nodemailer`
+ * declares `accepted`/`rejected`/`pending` on `SendmailTransport.SentMessageInfo`
+ * (and `SESTransport.SentMessageInfo`), but nodemailer's actual sendmail (and
+ * SES) transports never set them — only the SMTP transports do. Code written
+ * against the typings type-checks cleanly and reads `undefined`/`[]` at
+ * runtime. If you upgrade `nodemailer` or `@types/nodemailer`, re-verify this
+ * against the transport implementations themselves
+ * (`lib/sendmail-transport/index.js`), not the shipped `.d.ts` — the typings
+ * are exactly what drifted last time.
+ *
  * @see https://www.npmjs.com/package/nodemailer
  *
  * @module

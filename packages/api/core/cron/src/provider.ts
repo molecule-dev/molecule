@@ -125,3 +125,17 @@ export const resume = async (jobId: string): Promise<void> => {
 export const runNow = async (jobId: string): Promise<void> => {
   return getProvider().runNow(jobId)
 }
+
+/**
+ * Releases the bonded provider's resources (timers, queue/worker
+ * connections) so the process can exit cleanly. Call during graceful
+ * shutdown and in test teardown. A no-op when the bonded provider does not
+ * implement `close()` (in-process providers with no persistent resources
+ * may omit it).
+ *
+ * @returns Resolves when cleanup completes.
+ * @throws {Error} If no cron provider has been bonded.
+ */
+export const close = async (): Promise<void> => {
+  await getProvider().close?.()
+}

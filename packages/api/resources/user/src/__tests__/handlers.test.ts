@@ -1686,6 +1686,53 @@ describe('updatePlan handler — privilege escalation prevention', () => {
     expect(result?.body?.errorKey).toBe('user.error.subscriptionActivationRequiresVerification')
     expect(mockResourceUpdate).not.toHaveBeenCalled()
   })
+
+  it('surfaces a bond config-not-configured error as its real 503, not a generic 500 [ambiguous-failure]', async () => {
+    // Regression: a bonded provider's updateSubscription (e.g. Stripe) now
+    // RETHROWS instead of swallowing a missing-secret error to
+    // `{ updated: false }`. This handler's catch must pass the tagged
+    // statusCode/errorKey through rather than flattening it to a generic
+    // 500 that reads identically to an unrelated server bug.
+    mockFindById.mockResolvedValue({ id: 'user-free', planKey: '', planExpiresAt: null })
+
+    const plansService = {
+      findPlan: vi.fn((key: string) => {
+        if (key === 'proMonthly') {
+          return { planKey: 'proMonthly', platformKey: 'stripe', platformProductId: 'price_pro' }
+        }
+        if (key === '') return { planKey: '', platformKey: undefined }
+        return null
+      }),
+      findPlanByProductId: vi.fn(),
+      getDefaultPlan: vi.fn(),
+      getAllPlans: vi.fn(),
+    }
+
+    const configError = Object.assign(
+      new Error('STRIPE_SECRET_KEY is not set — payments is disabled.'),
+      { statusCode: 503, errorKey: 'config.notConfigured' },
+    )
+
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'plans') return plansService
+      if (category === 'payments') {
+        return {
+          providerName: 'stripe',
+          updateSubscription: vi.fn().mockRejectedValue(configError),
+        }
+      }
+      return undefined
+    })
+
+    const req = makeReq({ params: { id: 'user-free' }, body: { planKey: 'proMonthly' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(503)
+    expect(result?.body?.errorKey).toBe('config.notConfigured')
+    expect(result?.body?.error).toContain('STRIPE_SECRET_KEY')
+    expect(mockResourceUpdate).not.toHaveBeenCalled()
+  })
 })
 
 // ===== 9. Profile avatar + bio updates (update.ts) =========================

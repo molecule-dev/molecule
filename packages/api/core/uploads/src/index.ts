@@ -14,12 +14,23 @@
  * - **Validate server-side; never trust the client's declared type/size.** Check
  *   {@link FileInfo} (mimeType, filename) AND enforce a max-byte cap while streaming, and
  *   reject disallowed types — a client can lie about `Content-Type`.
+ * - **The max-size cap comes from the multipart parser's limits, not from this package.**
+ *   `UploadHandler` takes a plain `NodeJS.ReadableStream` — the bundled bonds enforce a size
+ *   cap ONLY by listening for the multipart parser's `'limit'` event on that stream (busboy's
+ *   `fileSize` option triggers it) and reporting it to `onError` as `'Stream limit reached.'`.
+ *   Configure the cap on your multipart parser (e.g. busboy's `limits.fileSize`) — a plain
+ *   stream that never emits `'limit'` is NEVER size-limited by these bonds.
  * - **Private by default.** Do NOT put user uploads on a public, guessable path; serve them
  *   through an authenticated route (or a short-lived signed URL). Public buckets leak files.
  * - **Never build a storage key from the raw client filename** — sanitize/generate the key
  *   server-side (path traversal / overwrite).
  * - Stream to storage (the API takes a `NodeJS.ReadableStream`); never buffer a whole upload
  *   in memory.
+ * - **Aborting an upload is neither a success nor a failure.** `abortUpload()` rejects the
+ *   file's `uploadPromise` with {@link UploadAbortedError} — it never resolves `uploadPromise`
+ *   and never invokes the `upload()` call's `onError` for the abort itself. This holds across
+ *   every bundled provider, so swapping providers never changes what a consumer observes on
+ *   abort. See {@link UploadAbortedError} for the full contract.
  *
  * @example
  * ```ts
@@ -45,5 +56,6 @@
  * @module
  */
 
+export * from './errors.js'
 export * from './provider.js'
 export * from './types.js'

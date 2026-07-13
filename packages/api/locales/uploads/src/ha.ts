@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const ha: UploadsTranslations = {
   'uploads.error.noProvider': 'Ba a saita mai ba da lodawa ba. Fara da kiran setProvider().',
   'uploads.error.streamLimitReached': 'An kai iyakar rafi.',
+  'uploads.error.aborted': 'An dakatar da lodawa.',
 }

@@ -653,5 +653,42 @@ describe('@molecule/app-file-upload-filepond', () => {
 
       vi.unstubAllGlobals()
     })
+
+    it('[other fix] does not fire onAllComplete while a file is still "processing" — checkAllComplete must treat every non-terminal FileUploadStatus as pending', async () => {
+      // This implementation never sets 'processing' itself (only idle -> uploading
+      // -> complete/error/cancelled), but checkAllComplete must still honor it: a
+      // future provider/consumer using the shared FileUploadStatus enum can leave a
+      // file in 'processing', and onAllComplete must not fire while that's true.
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('"ok"'),
+      })
+      vi.stubGlobal('fetch', mockFetch)
+
+      const onAllComplete = vi.fn()
+      const uploader = provider.createUploader(createOptions({ events: { onAllComplete } }))
+
+      const [fileA, fileB] = uploader.addFiles([createFile('a.txt'), createFile('b.txt')])
+
+      // Simulate fileB sitting in the core 'processing' state before any upload
+      // starts — processQueue only picks up 'idle' files, so fileB is skipped and
+      // stays 'processing' for the whole test.
+      const trackedFileB = uploader.getFile(fileB.id)
+      expect(trackedFileB).toBeDefined()
+      trackedFileB!.status = 'processing'
+
+      uploader.upload() // only fileA is 'idle'
+
+      await vi.waitFor(() => {
+        expect(uploader.getFile(fileA.id)?.status).toBe('complete')
+      })
+
+      // Pre-fix: checkAllComplete's pending set didn't include 'processing', so with
+      // fileA complete and fileB (wrongly) not counted as pending, onAllComplete
+      // fired here — even though fileB was never actually done.
+      expect(onAllComplete).not.toHaveBeenCalled()
+
+      vi.unstubAllGlobals()
+    })
   })
 })

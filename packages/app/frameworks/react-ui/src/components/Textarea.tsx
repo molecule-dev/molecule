@@ -60,17 +60,33 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const generatedId = useId()
     const textareaId = id || name || generatedId
 
+    const resize = useCallback(() => {
+      const element = internalRef.current
+      if (!autoResize || !element) return
+      element.style.height = 'auto'
+      const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20
+      const minHeight = minRows * lineHeight
+      const maxHeight = maxRows ? maxRows * lineHeight : Infinity
+      const newHeight = Math.min(Math.max(element.scrollHeight, minHeight), maxHeight)
+      element.style.height = `${newHeight}px`
+    }, [autoResize, minRows, maxRows])
+
+    // Controlled usage (value tracked by the caller) recomputes here.
     useEffect(() => {
-      if (autoResize && internalRef.current) {
-        const element = internalRef.current
-        element.style.height = 'auto'
-        const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20
-        const minHeight = minRows * lineHeight
-        const maxHeight = maxRows ? maxRows * lineHeight : Infinity
-        const newHeight = Math.min(Math.max(element.scrollHeight, minHeight), maxHeight)
-        element.style.height = `${newHeight}px`
-      }
-    }, [value, autoResize, minRows, maxRows])
+      resize()
+    }, [value, resize])
+
+    // Uncontrolled usage (defaultValue + the user typing) never changes
+    // `value`, so the effect above never re-runs — autoResize silently did
+    // nothing for every uncontrolled textarea. Listening for real `input`
+    // events on the element itself catches keystrokes, paste, and IME
+    // composition regardless of whether the caller tracks `value`.
+    useEffect(() => {
+      const element = internalRef.current
+      if (!autoResize || !element) return
+      element.addEventListener('input', resize)
+      return () => element.removeEventListener('input', resize)
+    }, [autoResize, resize])
 
     const textareaClasses = cm.cn(cm.textarea({ error: !!error }), className)
 

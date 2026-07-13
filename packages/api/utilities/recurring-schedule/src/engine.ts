@@ -66,6 +66,12 @@ export function validateRule(rule: RecurrenceRule): void {
         throw new Error(`Invalid byDay: ${d}`)
       }
     }
+    // A duplicate weekday would otherwise double-emit the same instant
+    // (WEEKLY with byDay:['MO','MO'] yields each Monday twice, burning
+    // count/maxOccurrences twice per real occurrence) with no error.
+    if (new Set(rule.byDay).size !== rule.byDay.length) {
+      throw new Error(`Duplicate byDay values: ${rule.byDay.join(', ')}`)
+    }
   }
   if (rule.byMonthDay) {
     for (const d of rule.byMonthDay) {
@@ -73,12 +79,18 @@ export function validateRule(rule: RecurrenceRule): void {
         throw new Error(`Invalid byMonthDay value: ${d}`)
       }
     }
+    if (new Set(rule.byMonthDay).size !== rule.byMonthDay.length) {
+      throw new Error(`Duplicate byMonthDay values: ${rule.byMonthDay.join(', ')}`)
+    }
   }
   if (rule.byMonth) {
     for (const m of rule.byMonth) {
       if (!Number.isInteger(m) || m < 1 || m > 12) {
         throw new Error(`Invalid byMonth value: ${m}`)
       }
+    }
+    if (new Set(rule.byMonth).size !== rule.byMonth.length) {
+      throw new Error(`Duplicate byMonth values: ${rule.byMonth.join(', ')}`)
     }
   }
 }

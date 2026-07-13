@@ -130,7 +130,11 @@ export interface AppFixtureSet {
 export interface ResponseState {
   /** The state of the response */
   state: 'success' | 'empty' | 'error' | 'unauthorized'
-  /** Additional delay in ms before responding */
+  /**
+   * Additional delay in ms before responding. Clamped to `MAX_MOCK_DELAY_MS`
+   * (60s, see {@link applyDelay}) — an oversized value is capped and logged
+   * rather than honored verbatim, so it cannot hang a request indefinitely.
+   */
   delay?: number
   /** Custom status code override */
   statusCode?: number
@@ -164,9 +168,52 @@ export interface MockServer {
   port: number
   /** The app type being served */
   appType: string
-  /** Set the state for a specific endpoint */
+  /**
+   * Set a persistent state override for one endpoint (key: `"METHOD /path"`,
+   * e.g. `'GET /accounts'` — the bare and `/api/`-prefixed forms are
+   * equivalent keys). This is the HIGHEST-priority source of state for that
+   * endpoint. Full per-request precedence (highest first):
+   *
+   * 1. `setState(endpointKey, ...)` (this method)
+   * 2. per-request `?_state` query param / `X-Mock-State` header
+   * 3. `setDefaultState(...)` / the server's configured `defaultState`
+   *
+   * So a forgotten `setState('GET /accounts', { state: 'error' })` left over
+   * from an earlier test SILENTLY beats every later `?_state=success` on
+   * that endpoint — the request looks like `?_state` is being ignored.
+   * **Calling `setState(key, { state: 'success' })` does NOT remove the
+   * override** — it replaces it with an override that happens to look like
+   * the default, but per-request `?_state`/`X-Mock-State` still can't reach
+   * that endpoint (the override still outranks them). Use
+   * {@link MockServer.clearState} to actually remove the override and hand
+   * control back to per-request/default state. `setDefaultState()` never
+   * clears endpoint overrides either — the default is only the fallback used
+   * when no endpoint override exists at all.
+   * @param endpointKey - `"METHOD /path"`, e.g. `'GET /accounts'`.
+   * @param state - The state this endpoint returns for every request until
+   *   `setState` is called again, or `clearState`d, for the same key.
+   */
   setState: (endpointKey: string, state: ResponseState) => void
-  /** Set the default state for all endpoints */
+  /**
+   * Remove a persistent per-endpoint override previously set with
+   * {@link MockServer.setState}, restoring per-request `?_state`/
+   * `X-Mock-State` (and ultimately `setDefaultState()`) control over that
+   * endpoint. Pass the EXACT same key string used in the matching
+   * `setState()` call — keys are matched as opaque strings, not normalized,
+   * so `setState('GET /accounts', ...)` and `setState('GET /api/accounts',
+   * ...)` are independent overrides and each needs its own `clearState()`.
+   * Clearing a key with no active override is a harmless no-op.
+   * @param endpointKey - The same `"METHOD /path"` key passed to `setState`.
+   */
+  clearState: (endpointKey: string) => void
+  /**
+   * Set the fallback state used for any endpoint that has no per-endpoint
+   * `setState()` override — see {@link MockServer.setState} for the full
+   * precedence chain. A per-request `?_state`/`X-Mock-State` value still
+   * wins over this default; only an active `setState()` override outranks
+   * both.
+   * @param state - The fallback response state for endpoints with no override.
+   */
   setDefaultState: (state: 'success' | 'empty' | 'error' | 'unauthorized') => void
   /** Get the fixture set being served */
   getFixtures: () => AppFixtureSet

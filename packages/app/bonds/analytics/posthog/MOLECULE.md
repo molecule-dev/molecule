@@ -174,6 +174,12 @@ When no `host` is provided, the SDK's own default (PostHog Cloud US,
 `https://us.i.posthog.com`) applies — EU projects must pass their region host
 (`https://eu.i.posthog.com`).
 
+Calling this a second time with a DIFFERENT config (e.g. Vite HMR re-running
+a bonds.ts setup function) does NOT re-configure the SDK: `posthog-js`'s
+`posthog` export is a module-level singleton, so the second `.init()` call
+is a no-op that keeps the FIRST configuration. This logs one actionable
+warning naming the ignored call before the SDK's own generic warning fires.
+
 ```typescript
 function createProvider(options?: PostHogOptions): AnalyticsProvider
 ```
@@ -197,14 +203,22 @@ Implements `@molecule/app-analytics` interface.
 
 ## Bond Wiring
 
-Setup function to register this provider with the core interface:
+This provider cannot self-configure: app-side bonds never read env internally (Vite only embeds `import.meta.env`, not `process.env`), so the bare `provider` export can never receive the required VITE_POSTHOG_KEY secret. Bonding it directly (`setProvider(provider)`) silently ships a no-op even when the secret IS set correctly in your app's env — call `createProvider(options)` with the secret read from your app's env, then pass the result to `setProvider()`.
+
+See Quick Start above for the exact wiring:
 
 ```typescript
 import { setProvider } from '@molecule/app-analytics'
-import { provider } from '@molecule/app-analytics-posthog'
+import { createProvider } from '@molecule/app-analytics-posthog'
 
-export function setupAnalyticsPosthog(): void {
-  setProvider(provider)
+// Canonical wiring: read the browser-side key from Vite client env and pass
+// it through options. `importMetaEnv` stands for Vite's `import.meta.env` —
+// in your app write `import.meta.env?.VITE_POSTHOG_KEY` directly. Without a
+// key, skip bonding — analytics calls no-op.
+const apiKey = importMetaEnv?.VITE_POSTHOG_KEY as string | undefined
+const host = importMetaEnv?.VITE_POSTHOG_HOST as string | undefined
+if (apiKey) {
+  setProvider(createProvider({ apiKey, ...(host ? { host } : {}) }))
 }
 ```
 
@@ -243,3 +257,11 @@ browser console for that warning FIRST. When no `host` is passed, the SDK's
 own default (PostHog Cloud US, `https://us.i.posthog.com`) applies — EU
 projects MUST set `VITE_POSTHOG_HOST=https://eu.i.posthog.com` or events are
 sent to the US region and silently never appear in the EU project.
+
+`createProvider()` called a second time (e.g. Vite HMR re-running a
+bonds.ts setup function) does NOT re-configure PostHog: `posthog-js`'s
+underlying client is a module-level singleton, so the second call's
+`host`/`autocapture`/etc. are silently ignored by the SDK — the FIRST
+configuration always wins. This logs one actionable console warning naming
+the ignored call before the SDK's own generic "already initialized"
+warning fires.

@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const ig: UploadsTranslations = {
   'uploads.error.noProvider': 'Ahazighị onye na-enye ọrụ nbugo. Kpọọ setProvider() na mbụ.',
   'uploads.error.streamLimitReached': 'Erugoro nke iyi.',
+  'uploads.error.aborted': 'Ịbugo akwụkwọ akwụsịla.',
 }

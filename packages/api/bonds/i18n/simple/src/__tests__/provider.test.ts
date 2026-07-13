@@ -135,6 +135,61 @@ describe('@molecule/api-i18n-simple', () => {
       expect(i18n.exists('greeting')).toBe(true)
       expect(i18n.exists('nonexistent')).toBe(false)
     })
+
+    it('exists() reports true via the English fallback (matches t()) for a key missing from the active locale', () => {
+      // FAILURE-DISAMBIGUATION regression: exists() previously checked ONLY
+      // the active locale's own catalog, so it disagreed with t() (which
+      // falls back to English) for every partially-translated locale.
+      i18n.setLocale('fr')
+      expect(i18n.t('farewell')).toBe('Goodbye') // renders via English fallback
+      expect(i18n.exists('farewell')).toBe(true) // must agree with t()
+      expect(i18n.exists('nonexistent')).toBe(false) // truly absent stays false
+    })
+  })
+
+  describe('plural resolution order (matches i18next)', () => {
+    it('prefers the plural-suffixed key over the base key when count is provided', () => {
+      // Regression: previously the base `key` won whenever it existed, so a
+      // catalog shipping both `item` and `item_one`/`item_other` never
+      // pluralized under this provider even though i18next-backed bonds did.
+      const i18n = createSimpleI18nProvider('en', [
+        {
+          code: 'en',
+          name: 'English',
+          translations: {
+            item: 'the item (no count)',
+            item_one: '{{count}} item',
+            item_other: '{{count}} items',
+          },
+        },
+      ])
+      expect(i18n.t('item', undefined, { count: 1 })).toBe('1 item')
+      expect(i18n.t('item', undefined, { count: 5 })).toBe('5 items')
+      // Without a count, pluralization isn't requested — the base key wins.
+      expect(i18n.t('item')).toBe('the item (no count)')
+    })
+
+    it('falls back to the base key when no plural-suffixed key is registered', () => {
+      const i18n = createSimpleI18nProvider('en', [
+        { code: 'en', name: 'English', translations: { widget: 'widget(s)' } },
+      ])
+      expect(i18n.t('widget', undefined, { count: 3 })).toBe('widget(s)')
+    })
+  })
+
+  describe('addTranslations deep merge', () => {
+    it('merges nested translation subtrees instead of clobbering a sibling key', () => {
+      // Regression: a shallow spread merge dropped the ENTIRE `auth` subtree
+      // from the first call when the second call registered another key
+      // under the same top-level `auth` namespace.
+      const i18n = createSimpleI18nProvider('en', [
+        { code: 'en', name: 'English', translations: {} },
+      ])
+      i18n.addTranslations('en', { auth: { login: 'Log in' } })
+      i18n.addTranslations('en', { auth: { signup: 'Sign up' } })
+      expect(i18n.t('auth.login')).toBe('Log in')
+      expect(i18n.t('auth.signup')).toBe('Sign up')
+    })
   })
 
   describe('formatting', () => {

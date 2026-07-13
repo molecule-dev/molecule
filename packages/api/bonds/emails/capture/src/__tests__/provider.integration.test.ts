@@ -122,5 +122,35 @@ describe('@molecule/api-emails-capture × REAL api-activity + api-emails', () =>
       expect(recorded[0]!.status).toBe('failed')
       expect(recorded[0]!.result).toEqual({ error: 'SMTP 451 temporary failure' })
     })
+
+    it('FAILURE DISAMBIGUATION: a throwing REAL ActivitySink never turns an actually-sent email into a rejected sendMail() (no duplicate-send risk)', async () => {
+      // A misbehaving sink (webhook down, DB write failed, whatever) must not
+      // make the caller believe delivery failed when it did not — that belief
+      // is exactly what drives retry-and-duplicate behavior in a caller.
+      setSink({
+        async record(): Promise<void> {
+          throw new Error('activity sink write failed')
+        },
+      })
+
+      const delivered: EmailMessage[] = []
+      const realResult: EmailSendResult = {
+        accepted: ['user@example.com'],
+        rejected: [],
+        messageId: '<real-2@esp.example>',
+      }
+      const realTransport: EmailTransport = {
+        async sendMail(msg: EmailMessage): Promise<EmailSendResult> {
+          delivered.push(msg)
+          return realResult
+        },
+      }
+
+      setTransport(createEmailCaptureProvider(realTransport))
+      const result = await sendMail(message)
+
+      expect(delivered).toEqual([message])
+      expect(result).toBe(realResult)
+    })
   })
 })

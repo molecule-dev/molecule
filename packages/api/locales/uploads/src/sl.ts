@@ -5,4 +5,5 @@ export const sl: UploadsTranslations = {
   'uploads.error.noProvider':
     'Ponudnik nalaganja ni konfiguriran. Najprej pokličite setProvider().',
   'uploads.error.streamLimitReached': 'Dosežena je omejitev toka.',
+  'uploads.error.aborted': 'Nalaganje je bilo prekinjeno.',
 }

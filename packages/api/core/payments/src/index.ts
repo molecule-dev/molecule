@@ -20,10 +20,21 @@
  * `bond('payments', provider)` / `get('payments', name)` hands you, and its verify
  * methods take the OPAQUE id/receipt only. The two-argument
  * {@link SubscriptionVerifier}/{@link PurchaseVerifier} interfaces (returning
- * {@link NormalizedSubscription}/{@link NormalizedPurchase}) are auxiliary
- * abstractions for app-level services; no `@molecule/api-payments-*` bond
+ * {@link NormalizedSubscription}/{@link NormalizedPurchase}) are `@deprecated`
+ * auxiliary abstractions for app-level services; no `@molecule/api-payments-*` bond
  * implements them — do not call `verifySubscription(productId, token)` on a bonded
  * provider (the extra argument is silently ignored and the lookup fails).
+ *
+ * **A missing secret (`STRIPE_SECRET_KEY`, `APPLE_SHARED_SECRET`,
+ * `GOOGLE_API_SERVICE_KEY_OBJECT`, …) is a DIFFERENT failure than "not entitled".**
+ * The shipped bonds rethrow a tagged config-not-configured error (see
+ * {@link isConfigNotConfiguredError}) from their verify/update/cancel methods
+ * instead of swallowing it into the same `null` result a genuine verification
+ * failure returns — a resource-layer catch block MUST check
+ * `isConfigNotConfiguredError(error)` and pass its `statusCode`/`errorKey`
+ * through (rather than flattening to a generic 400/500) so the actionable
+ * "which key, where to get it" message reaches the caller instead of only the
+ * server log.
  *
  * Things a weak integration gets wrong — do NOT:
  * - read the plan/entitlement from a request body, query param, or client state and act
@@ -76,5 +87,6 @@
  * @module
  */
 
+export * from './errors.js'
 export * from './subscription.js'
 export * from './types.js'

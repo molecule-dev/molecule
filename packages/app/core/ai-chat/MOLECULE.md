@@ -381,11 +381,24 @@ type ChatStreamEvent =
   // Discovery done + starting point chosen — the client boots the sandbox.
   | { type: 'ready_to_build' }
   // The agent asks the IDE to perform a non-mutating UI action (reload/navigate
-  // the preview, open a file). Handled by the host app, not rendered in the chat.
+  // the preview, open a file, or drive the preview's interaction bridge).
+  // Handled by the host app, not rendered in the chat.
   | {
       type: 'client_action'
-      action: 'reload_preview' | 'navigate_preview' | 'open_file'
+      action: 'reload_preview' | 'navigate_preview' | 'open_file' | 'preview_ui'
       path?: string
+      /** preview_ui: correlates the command with its ui-result round-trip. */
+      requestId?: string
+      /** preview_ui: the interaction the preview bridge should perform. */
+      command?: 'snapshot' | 'click' | 'fill' | 'select' | 'waitFor'
+      /** preview_ui: the `data-mol-id` of the target element (preferred). */
+      molId?: string
+      /** preview_ui: CSS-selector fallback when no molId is available. */
+      selector?: string
+      /** preview_ui: visible-label match for apps whose elements carry no molId. */
+      text?: string
+      /** preview_ui: value to set for fill/select. */
+      value?: string
     }
 ```
 

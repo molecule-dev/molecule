@@ -5,4 +5,6 @@ export const te: AiTranslations = {
   'ai.error.noProvider': 'AI ప్రొవైడర్ కాన్ఫిగర్ చేయబడలేదు. ముందుగా AI ప్రొవైడర్‌ను బాండ్ చేయండి.',
   'ai.error.apiError': 'AI API అభ్యర్థన విఫలమైంది.',
   'ai.error.noResponseBody': 'AI ప్రతిస్పందన బాడీ ఖాళీగా ఉంది.',
+  'ai.error.ambiguousProvider':
+    'బహుళ పేరు గల AI ప్రొవైడర్‌లు బాండ్ చేయబడ్డాయి మరియు డిఫాల్ట్ సెట్ చేయబడలేదు. ఒకదాన్ని ఎంచుకోవడానికి getProviderByName(name) ఉపయోగించండి.',
 }

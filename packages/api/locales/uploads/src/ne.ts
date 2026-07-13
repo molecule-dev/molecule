@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const ne: UploadsTranslations = {
   'uploads.error.noProvider': 'अपलोड प्रदायक कन्फिगर गरिएको छैन। पहिले setProvider() कल गर्नुहोस्।',
   'uploads.error.streamLimitReached': 'स्ट्रिम सीमा पुग्यो।',
+  'uploads.error.aborted': 'अपलोड रद्द गरियो।',
 }

@@ -4,7 +4,7 @@ Translations for molecule IDE components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-ide` package which has 436 translation keys.
+Provides translations for the `@molecule/app-ide` package which has 442 translation keys.
 
 ## Languages
 
@@ -72,6 +72,10 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.switchedToPlan` | Switched to plan mode |
 | `ide.chat.switchedToExecute` | Switched to execute mode |
 | `ide.chat.costError` | Unable to fetch usage data. |
+| `ide.chat.usageAllowanceLine` | This conversation has used ~{{percent}}% of a day |
+| `ide.chat.models.colUsageRate` | Usage rate |
+| `ide.chat.models.usageRateHint` | How fast this model uses your AI allowance, relative to the most economical model |
+| `ide.chat.models.usageRateValue` | ×{{rate}} usage |
 | `ide.chat.undoNoChanges` | No file changes to undo. |
 | `ide.chat.undoComplete` | Failed to revert changes. |
 | `ide.chat.commitNoChanges` | No changes to commit. |
@@ -79,6 +83,9 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.autoFixEnabled` | Auto-fix enabled. |
 | `ide.chat.autoFixDisabled` | Auto-fix disabled. |
 | `ide.chat.autoFixError` | Failed to update auto-fix setting. |
+| `ide.chat.autoApproveEnabled` | Auto-approve on — destructive commands run without asking. The exfiltration guard still asks. Turn off with /autoapprove. |
+| `ide.chat.autoApproveDisabled` | Auto-approve off — destructive commands ask before running. |
+| `ide.chat.autoApproveError` | Failed to update auto-approve setting. |
 | `ide.chat.modelUsage` | Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001) |
 | `ide.chat.modelUpgradeRequired` | {{model}} is available on Pro. Upgrade to access all models. |
 | `ide.chat.maxLoopsReached` | Max loops limit reached. |
@@ -146,6 +153,7 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.search.toggleFilters` | Toggle Filters |
 | `ide.search.includeFiles` | Files to include (e.g. *.ts) |
 | `ide.search.excludeFiles` | Files to exclude (e.g. *.min.js) |
+| `ide.search.excludedDirs` | Excluded folders (applies to all searches, including the agent) |
 | `ide.search.resultsTruncated` | {{count}} results in {{files}} files (truncated) |
 | `ide.search.searching` | Searching… |
 | `ide.sidebar.files` | Explorer |
@@ -297,22 +305,18 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.autoCommit.cancelled` | Auto-commit cancelled. |
 | `ide.chat.autoCommit.enabled` | Auto-commit on: committing {{seconds}}s after the last file change.\nSet to 0 to disable autocommit. |
 | `ide.chat.autoCommit.usage` | Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels. |
-| `ide.chat.effort.current` | Reasoning effort: {{level}} ({{label}}) |
 | `ide.chat.effort.error` | Failed to update reasoning effort. |
-| `ide.chat.effort.levelLine` |   {{level}} — {{label}} |
-| `ide.chat.effort.levelsHeader` | Levels: |
-| `ide.chat.effort.noneSupported` | No bonded model exposes a configurable reasoning budget — effort still scales the agent loop budget. |
-| `ide.chat.effort.set` | Reasoning effort set to {{level}} ({{label}}). |
-| `ide.chat.effort.supported` | Tunes the reasoning budget on: {{models}}. Other models still get the effort applied to the agent loop budget. |
-| `ide.chat.effort.usage` | Usage: /effort <S|M|L|XL>. Use /effort ? to see the current level. |
+| `ide.chat.effort.fixedForModel` | Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set. |
+| `ide.chat.effort.header` | Reasoning effort per mode: |
+| `ide.chat.effort.modeFixed` |   {{mode}} ({{model}}): fixed — this model has one reasoning mode |
+| `ide.chat.effort.modeLine` |   {{mode}} ({{model}}): {{current}} — available: {{levels}} |
+| `ide.chat.effort.setMode` | Reasoning effort for {{mode}} set to {{level}} ({{model}}). |
+| `ide.chat.effort.usage` | Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status. |
 | `ide.chat.effort.notSupportedForModel` | {{level}} isn |
-| `ide.chat.effort.currentModelLevels` | Effort levels for {{model}}: {{levels}} |
 | `ide.chat.models.colContext` | Context |
-| `ide.chat.models.colCost` | Cost / 1M |
 | `ide.chat.models.colCutoff` | Cutoff |
 | `ide.chat.models.colFree` | Free |
 | `ide.chat.models.colName` | Model |
-| `ide.chat.models.costBreakdown` | Input ${{input}} + output ${{output}} per 1M tokens |
 | `ide.chat.models.freeNo` | — |
 | `ide.chat.models.freeYes` | ✓ Free |
 | `ide.chat.models.sortBy` | Sort by {{column}} |
@@ -330,7 +334,8 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.planModelSet` | Plan-mode model set to {{name}} |
 | `ide.chat.modelSortLabel` | Sort |
 | `ide.chat.modelSortDirection` | Toggle sort direction |
-| `ide.chat.costSummary` | Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens\nTotal cost this conversation (all models): ~${{cost}} |
+| `ide.chat.costSummary` | Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens |
+| `ide.chat.costStreamingNote` | Running total — includes the response currently streaming. |
 | `ide.chat.lintErrorsCount` | {{count}} lint errors |
 | `ide.chat.lintWarningsCount` | {{count}} warnings |
 | `ide.chat.typeErrorsCount` | {{count}} type errors |
@@ -410,7 +415,8 @@ import type { IdeTranslationKey, IdeTranslations } from '@molecule/app-locales-i
 | `ide.chat.settings.on` | On |
 | `ide.chat.settings.soundsSummary` | {{enabled}} of {{total}} events enabled |
 | `ide.chat.settings.modelFollowsDefault` | Follows default model |
-| `ide.chat.settings.effortValue` | {{label}} ({{level}}) |
+| `ide.chat.settings.effortValue` | plan: {{plan}} · execute: {{execute}} |
+| `ide.chat.settings.effortFixed` | fixed |
 | `ide.chat.settings.autoCommitEvery` | Every {{seconds}}s |
 | `ide.chat.settings.hooksValue` | In project settings |
 | `ide.chat.share.heading` | Share project |

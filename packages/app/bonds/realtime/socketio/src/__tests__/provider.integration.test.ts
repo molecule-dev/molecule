@@ -11,10 +11,11 @@
  * deny-vs-teardown disambiguation, and reconnect-rejoin after a dropped
  * transport.
  *
- * NOTE on the server import: `socket.io` is not a dependency of this app
- * bond (the bond itself only needs socket.io-client). The test-side server
- * resolves from the workspace root node_modules, where it is pinned (4.8.3)
- * by the protocol's server counterpart `@molecule/api-realtime-socketio`.
+ * NOTE on the server import: `socket.io` is not a runtime dependency of this
+ * app bond (the bond itself only needs socket.io-client) — it is a
+ * devDependency pinned (4.8.3) here solely so this test-side server resolves,
+ * matching the version pinned by the protocol's server counterpart
+ * `@molecule/api-realtime-socketio`.
  *
  * @module
  */

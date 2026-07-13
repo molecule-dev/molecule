@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const am: UploadsTranslations = {
   'uploads.error.noProvider': 'የስቀላ አቅራቢ አልተዋቀረም። መጀመሪያ setProvider() ይደውሉ።',
   'uploads.error.streamLimitReached': 'የዥረት ገደብ ደርሷል።',
+  'uploads.error.aborted': 'ስቀላው ተቋርጧል።',
 }

@@ -76,3 +76,13 @@ export function setupPushNotificationsCapture(): void {
 Peer dependencies:
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-push-notifications` ^1.0.0
+
+In intercept-only mode (no `realProvider`), `generateVapidKeys()` THROWS —
+there is no real push transport behind it to generate real keys with.
+Wrap a real provider (`createPushCaptureProvider(realProvider)`) to
+delegate key generation, or generate VAPID keys once with a real provider
+(e.g. `@molecule/api-push-notifications-web-push`'s `generateVapidKeys()`)
+and set `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY`. `getPublicKey()` is
+unaffected — it honestly falls back to the `VAPID_PUBLIC_KEY` env var so
+the enable-push UI keeps working in capture mode even though sends stay
+captured.

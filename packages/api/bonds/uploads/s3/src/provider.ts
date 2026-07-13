@@ -12,6 +12,7 @@ import { PassThrough } from 'stream'
 import { v4 as uuid } from 'uuid'
 
 import { getLogger } from '@molecule/api-bond'
+import { UploadAbortedError } from '@molecule/api-uploads'
 import type { FileInfo, UploadProvider } from '@molecule/api-uploads'
 const logger = getLogger()
 // Side-effect import: registers this bond's secret definitions so the
@@ -144,6 +145,18 @@ export const upload = (
     },
   })
 
+  // [ambiguous-failure fix] Set by `file.abort` below BEFORE calling
+  // `s3Upload.abort()`. `@aws-sdk/lib-storage` makes an aborted upload's `done()`
+  // REJECT with an AbortError — without this flag that rejection fell into the
+  // generic .catch() and was reported via onError, so an intentional cancel
+  // masqueraded as a transport failure (and disagreed with the filesystem bond,
+  // whose old `.end()`-based abort instead resolved as a false success — the two
+  // swappable providers gave opposite answers for the same operation). Normalized:
+  // neither bond ever calls onError NOR resolves uploadPromise for an abort; both
+  // reject it with the same UploadAbortedError. See @molecule/api-uploads'
+  // AbortHandler remarks for the full contract.
+  let aborted = false
+
   const uploadPromise = new Promise<void>((resolve, reject) => {
     s3Upload
       .done()
@@ -157,6 +170,10 @@ export const upload = (
       .catch((error) => {
         delete file.abort
         delete file.uploadPromise
+        if (aborted) {
+          reject(new UploadAbortedError())
+          return
+        }
         onError(error)
         reject(error)
       })
@@ -170,7 +187,10 @@ export const upload = (
     mimetype,
     size: 0,
     stream,
-    abort: () => s3Upload.abort(),
+    abort: async () => {
+      aborted = true
+      await s3Upload.abort()
+    },
     uploadPromise,
     uploaded: false,
   }
@@ -210,6 +230,8 @@ export const upload = (
 
 /**
  * Aborts an in-progress S3 upload. Removes stream listeners and calls the S3 multipart abort.
+ * Rejects the file's `uploadPromise` with `UploadAbortedError` — never as a success, and
+ * never routed through the `upload()` call's `onError` (parity with the filesystem bond).
  * @param file - The `File` object returned by `upload()`.
  */
 export const abortUpload = async (file: File): Promise<void> => {

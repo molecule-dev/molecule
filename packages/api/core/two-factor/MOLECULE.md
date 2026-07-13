@@ -30,16 +30,23 @@ router.post('/setup', async (_req, res) => {
 
 router.post('/enable', async (req, res) => {
   const rec = await store.get(userId)
-  const { valid, timeStep, reason } = await verify({
-    secret: rec.secret, token: req.body.token, afterTimeStep: rec.last_time_step,
-  })
-  if (!valid) {
-    // reason === 'replay' means the code was ALREADY USED — tell the user to wait for
-    // the next one; anything else is a wrong/expired code.
-    return res.status(400).json({ error: reason === 'replay' ? 'Code already used — wait for the next one' : 'Invalid code' })
+  try {
+    const { valid, timeStep, reason } = await verify({
+      secret: rec.secret, token: req.body.token, afterTimeStep: rec.last_time_step,
+    })
+    if (!valid) {
+      // reason === 'replay' means the code was ALREADY USED — tell the user to wait for
+      // the next one; anything else is a wrong/expired code.
+      return res.status(400).json({ error: reason === 'replay' ? 'Code already used — wait for the next one' : 'Invalid code' })
+    }
+    await store.upsert(userId, { enabled: true, last_time_step: timeStep })
+    res.json({ enabled: true })
+  } catch (error) {
+    // The STORED secret itself is unusable (corrupted record) — not a wrong code.
+    // Tell the user to re-run setup rather than re-enter a code that can never verify.
+    logger.error('2FA verify failed — stored secret unusable', { error, userId })
+    res.status(500).json({ error: 'Two-factor setup is corrupted — please re-run setup' })
   }
-  await store.upsert(userId, { enabled: true, last_time_step: timeStep })
-  res.json({ enabled: true })
 })
 ```
 
@@ -115,6 +122,13 @@ interface TwoFactorProvider {
    * Verifies a TOTP token against a secret. Returns whether the token is valid
    * and, on success, the matched RFC 6238 time step so the caller can persist
    * it and reject reuse of the same/earlier code (replay protection).
+   *
+   * A rejected/wrong/expired code resolves to `{ valid: false }` (optionally
+   * with {@link TwoFactorVerifyResult.reason}) — it never throws. `verify()`
+   * MAY still reject the promise when the STORED `secret` itself is unusable
+   * (missing or not valid base32): that is server-side data corruption, not
+   * an invalid code, and callers must handle it separately (message "re-run
+   * setup", not "wrong code").
    */
   verify(params: TwoFactorVerifyParams): Promise<TwoFactorVerifyResult>
 }
@@ -197,12 +211,27 @@ interface TwoFactorVerifyResult {
    * - `'replay'` — the token WOULD have verified but its time step is
    *   `<= afterTimeStep`: the code was already used (replay protection).
    *   Tell the user to wait for the NEXT code — this is not a wrong or
-   *   expired code, and not a library fault.
+   *   expired code, and not a library fault. A provider MAY also report
+   *   `'replay'` when the persisted `afterTimeStep` sits further ahead than
+   *   the current time step plus the acceptance window can reach — this
+   *   happens after the SERVER clock moves backward (VM snapshot restore,
+   *   NTP correction, container clock drift) following a prior successful
+   *   verify. In that case no token can be newer than the one already
+   *   consumed until wall-clock time catches back up, so it is reported the
+   *   same way rather than as a crash. See `@molecule/api-two-factor-otplib`'s
+   *   provider for the reference implementation of this check.
    * - `'format'` — the token is not a syntactically valid one-time code
    *   (wrong length or non-digits; grouping whitespace from authenticator-app
    *   display formatting such as `"123 456"` is stripped before this check).
    *   Prompt the user to re-enter the code — nothing is wrong with the secret
    *   or the wiring, and the underlying library was never consulted.
+   *
+   * `verify()` may still REJECT (throw/reject the promise) instead of
+   * returning `valid:false` when the STORED SECRET itself is unusable
+   * (missing, malformed, not valid base32) — that is server-side data
+   * corruption, not an invalid code, and must never be silently treated as
+   * one. Catch it separately from a normal `!valid` result and steer the
+   * user to re-run 2FA setup rather than re-enter a code.
    */
   reason?: 'replay' | 'format'
 }
@@ -323,11 +352,18 @@ the default acceptance window is `[60, 30]` (≈60–90s of past validity). So:
   legitimately expires — on `valid:false`, generate a FRESH code and retry ONCE before
   suspecting your wiring (or this library).
 - `{ valid: false, reason: 'replay' }` means the code was ALREADY USED (single-use
-  protection): wait for the NEXT code. This is correct behavior, not a bug.
+  protection): wait for the NEXT code. This is correct behavior, not a bug. A provider
+  may also report this when the SERVER clock has moved backward since the last successful
+  verify (VM snapshot restore, NTP correction, container clock drift) — no code can be
+  newer than the one already consumed until wall-clock time catches back up. Same message
+  ("wait"), different root cause; it will resolve on its own once the clock is correct.
 - `{ valid: false, reason: 'format' }` means the token isn't a syntactically valid code
   (wrong length / non-digits). Authenticator-app grouping whitespace (`"123 456"`) is
   stripped automatically before this check, so this is a real typo: prompt the user to
   re-enter the code — the secret and the wiring are fine.
+- `verify()` THROWS (does not resolve `valid:false`) when the STORED SECRET itself is
+  unusable — missing, or not valid base32 (server-side data corruption). Handle this
+  separately from a normal rejection: tell the user to re-run setup, not to re-enter a code.
 - Re-running setup regenerates the PENDING secret — codes computed from the previous
   QR/secret will never verify again. Do not click "set up" twice and reuse the first QR.
 - `verify()`, `getUrls()`, and otplib v13's `generate()` are all ASYNC — always `await`.

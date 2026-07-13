@@ -1,3 +1,5 @@
+const mockLoggerWarn = vi.fn()
+
 vi.mock('@molecule/api-bond', () => {
   let store: Record<string, unknown> = {}
   return {
@@ -7,7 +9,7 @@ vi.mock('@molecule/api-bond', () => {
     expectBond: vi.fn(),
     getLogger: () => ({
       info: vi.fn(),
-      warn: vi.fn(),
+      warn: mockLoggerWarn,
       error: vi.fn(),
       debug: vi.fn(),
     }),
@@ -264,6 +266,63 @@ describe('jwt provider', () => {
     it('JWT_REFRESH_TIME defaults to 1 hour (3600)', async () => {
       const mod = await import('../provider.js')
       expect(mod.JWT_REFRESH_TIME).toBe(60 * 60)
+    })
+  })
+
+  describe('JWT_ALGORITHM validation (env-assumption fix)', () => {
+    const original = process.env.JWT_ALGORITHM
+
+    beforeEach(() => {
+      mockLoggerWarn.mockClear()
+    })
+
+    afterEach(() => {
+      if (original === undefined) {
+        delete process.env.JWT_ALGORITHM
+      } else {
+        process.env.JWT_ALGORITHM = original
+      }
+    })
+
+    it('accepts a valid, exactly-cased algorithm from JWT_ALGORITHM without warning', async () => {
+      process.env.JWT_ALGORITHM = 'HS256'
+      vi.resetModules()
+
+      const mod = await import('../provider.js')
+
+      expect(mod.JWT_ALGORITHM).toBe('HS256')
+      expect(mockLoggerWarn).not.toHaveBeenCalled()
+    })
+
+    it(
+      'falls back to RS256 AND logs an actionable warning naming the bad value for a ' +
+        'lowercase typo (previously: no boot-time signal at all — every sign()/verify() ' +
+        'call failed later with the underlying library\'s generic "invalid algorithm" error)',
+      async () => {
+        process.env.JWT_ALGORITHM = 'rs256'
+        vi.resetModules()
+
+        const mod = await import('../provider.js')
+
+        expect(mod.JWT_ALGORITHM).toBe('RS256')
+        expect(mockLoggerWarn).toHaveBeenCalledTimes(1)
+        const [message] = mockLoggerWarn.mock.calls[0] as [string]
+        // The warning must name the actual bad value so a developer can spot
+        // the typo instead of chasing a "token problem" that isn't one.
+        expect(message).toContain('rs256')
+        expect(message).toContain('JWT_ALGORITHM')
+      },
+    )
+
+    it('falls back to RS256 and warns for a malformed value like "RS-256"', async () => {
+      process.env.JWT_ALGORITHM = 'RS-256'
+      vi.resetModules()
+
+      const mod = await import('../provider.js')
+
+      expect(mod.JWT_ALGORITHM).toBe('RS256')
+      expect(mockLoggerWarn).toHaveBeenCalledTimes(1)
+      expect((mockLoggerWarn.mock.calls[0] as [string])[0]).toContain('RS-256')
     })
   })
 })

@@ -20,6 +20,16 @@
  *   `ack()` is only needed in pull-style `receive()` flows (and calling it in a subscriber is a
  *   safe no-op). `nack()` rejects the message for redelivery.
  *
+ * **`QueueMessage.delaySeconds` support by bond** — every bond either honors it for real or
+ * throws/documents an explicit alternative; NONE silently no-op it:
+ *
+ * | Bond | Mechanism | Notes |
+ * |------|-----------|-------|
+ * | `@molecule/api-queue-memory` | Native (`visibleAt` timestamp) | No cap. |
+ * | `@molecule/api-queue-redis` (BullMQ) | Native (`delay` job option) | No cap. |
+ * | `@molecule/api-queue-sqs` | Native (`DelaySeconds`) | Capped at 900s (15 min) by SQS itself. |
+ * | `@molecule/api-queue-rabbitmq` | Per-delay "wait" queue (`x-message-ttl` + dead-letter back to the real queue) | Real delayed delivery with **no** `rabbitmq-delayed-message-exchange` plugin required — the bond creates one durable queue per distinct delay value used. |
+ *
  * @example
  * ```ts
  * import { send, subscribe } from '@molecule/api-queue'

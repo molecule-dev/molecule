@@ -7,7 +7,7 @@
  * @module
  */
 
-import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, getLogger, isBonded, require as bondRequire } from '@molecule/api-bond'
 
 import { JWT_PRIVATE_KEY, JWT_PUBLIC_KEY } from './keys.js'
 import type {
@@ -20,14 +20,62 @@ import type {
   JwtVerifyOptions,
 } from './types.js'
 
+const logger = getLogger()
+
 const BOND_TYPE = 'jwt'
 expectBond(BOND_TYPE)
 
+/** Every algorithm the {@link JwtAlgorithm} union accepts. */
+const VALID_JWT_ALGORITHMS: readonly JwtAlgorithm[] = [
+  'RS256',
+  'RS384',
+  'RS512',
+  'HS256',
+  'HS384',
+  'HS512',
+  'ES256',
+  'ES384',
+  'ES512',
+  'PS256',
+  'PS384',
+  'PS512',
+]
+
+/**
+ * Resolves and validates `JWT_ALGORITHM` at module load. An unset env var
+ * silently defaults to `RS256` (already-supported behavior). A SET-but-invalid
+ * value (a typo like `rs256` or `RS-256`) would otherwise produce no boot-time
+ * signal at all — every `sign()`/`verify()` call would instead fail later, at
+ * request time, with the underlying library's generic "invalid algorithm"
+ * error, which reads like a token problem rather than a config problem. Warn
+ * here, naming the bad value, and fall back to `RS256` so the process still
+ * boots and serves traffic while the misconfiguration gets fixed.
+ *
+ * @returns A valid `JwtAlgorithm`.
+ */
+const resolveJwtAlgorithm = (): JwtAlgorithm => {
+  const raw = process.env.JWT_ALGORITHM
+  if (!raw) {
+    return `RS256`
+  }
+  if ((VALID_JWT_ALGORITHMS as readonly string[]).includes(raw)) {
+    return raw as JwtAlgorithm
+  }
+  logger.warn(
+    `JWT_ALGORITHM is set to "${raw}", which is not a supported JWT algorithm. ` +
+      `Falling back to RS256. Supported values: ${VALID_JWT_ALGORITHMS.join(', ')}.`,
+  )
+  return `RS256`
+}
+
 /**
  * The signing algorithm used for JWT operations. Read from the `JWT_ALGORITHM`
- * environment variable, defaulting to `RS256`.
+ * environment variable, defaulting to `RS256`. An unrecognized value logs an
+ * actionable warning at module load and falls back to `RS256` rather than
+ * failing every `sign()`/`verify()` call later with an unexplained
+ * "invalid algorithm" error.
  */
-export const JWT_ALGORITHM = (process.env.JWT_ALGORITHM || `RS256`) as JwtAlgorithm
+export const JWT_ALGORITHM = resolveJwtAlgorithm()
 
 /**
  * Token lifetime in seconds. Read from the `JWT_EXPIRES_TIME` environment

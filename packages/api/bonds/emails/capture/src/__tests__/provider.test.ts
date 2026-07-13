@@ -85,5 +85,44 @@ describe('email capture provider', () => {
       expect(record).toHaveBeenCalledTimes(1)
       expect(record.mock.calls[0][0].status).toBe('failed')
     })
+
+    it('FAILURE DISAMBIGUATION: a throwing ActivitySink does NOT turn a successful real send into a rejection', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const realResult: EmailSendResult = {
+        accepted: ['user@example.com'],
+        rejected: [],
+        messageId: 'real-456',
+      }
+      const real: EmailTransport = { sendMail: vi.fn(() => Promise.resolve(realResult)) }
+      const transport = createEmailCaptureProvider(real)
+
+      // The real transport already succeeded — the caller must see that
+      // success, not the sink's failure (which would cause a retry and a
+      // duplicate email to the recipient).
+      await expect(transport.sendMail(message)).resolves.toBe(realResult)
+    })
+
+    it('FAILURE DISAMBIGUATION: a throwing ActivitySink does NOT mask the real transport error with the sink error', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const real: EmailTransport = {
+        sendMail: vi.fn(() => Promise.reject(new Error('smtp down'))),
+      }
+      const transport = createEmailCaptureProvider(real)
+
+      // The caller must see WHY the send actually failed, not a sink error
+      // that has nothing to do with email delivery.
+      await expect(transport.sendMail(message)).rejects.toThrow('smtp down')
+    })
+  })
+
+  describe('when the ActivitySink throws (intercept-only path)', () => {
+    it('still returns the synthetic captured result', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const transport = createEmailCaptureProvider()
+
+      const result = await transport.sendMail(message)
+      expect(result.messageId).toMatch(/^captured-/)
+      expect(result.accepted).toEqual(['user@example.com'])
+    })
   })
 })

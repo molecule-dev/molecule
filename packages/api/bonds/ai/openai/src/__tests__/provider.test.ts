@@ -44,9 +44,20 @@ afterEach(() => {
 
 describe('createProvider / constructor', () => {
   it('factory returns an OpenaiAIProvider instance', () => {
-    const provider = createProvider()
+    const provider = createProvider({ apiKey: 'k' })
     expect(provider).toBeInstanceOf(OpenaiAIProvider)
     expect(provider.name).toBe('openai')
+  })
+
+  it('throws naming OPENAI_API_KEY when no key is configured (config or env)', () => {
+    const prev = process.env.OPENAI_API_KEY
+    delete process.env.OPENAI_API_KEY
+    try {
+      expect(() => createProvider()).toThrow(/OPENAI_API_KEY/)
+    } finally {
+      if (prev === undefined) delete process.env.OPENAI_API_KEY
+      else process.env.OPENAI_API_KEY = prev
+    }
   })
 
   it('reads apiKey from config when supplied', () => {
@@ -69,7 +80,7 @@ describe('createProvider / constructor', () => {
 
   it('defaults model to gpt-4o-mini and maxTokens to 4096', () => {
     // Indirectly verified through the request body in the test below.
-    const provider = createProvider()
+    const provider = createProvider({ apiKey: 'k' })
     expect(provider).toBeInstanceOf(OpenaiAIProvider)
   })
 
@@ -462,6 +473,72 @@ describe('chat() — HTTP error handling', () => {
       events.push(e)
     }
     expectError(events, /service error/i)
+  })
+
+  it('a plain 400 (invalid param, not context-length) → distinct non-retryable message, NOT the generic "try again"', async () => {
+    // Regression: every non-context-length 400 used to fall through to the
+    // same generic message as a genuinely retryable 5xx.
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(400, { error: { message: 'temperature must be <= 2' } }))
+
+    const provider = createProvider({ apiKey: 'k' })
+    const events: unknown[] = []
+    for await (const e of provider.chat({
+      messages: [{ role: 'user', content: 'x' }],
+      stream: false,
+    })) {
+      events.push(e)
+    }
+    const err = events.find((e) => (e as { type: string }).type === 'error') as { message: string }
+    expect(err.message).toBe('AI request was invalid — check the model and request parameters.')
+    expect(err.message).not.toBe('AI service error. Please try again.')
+  })
+})
+
+describe('chat() — Retry-After header parsing', () => {
+  it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      let call = 0
+      fetch.mockImplementation(() => {
+        call += 1
+        if (call === 1) {
+          return Promise.resolve(
+            jsonResponse(
+              429,
+              { error: { message: 'rate limited' } },
+              { 'retry-after': 'Wed, 21 Oct 2026 07:28:00 GMT' },
+            ),
+          )
+        }
+        return Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+      })
+
+      const provider = createProvider({ apiKey: 'k' })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'x' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+
+      // A NaN-degraded delay (pre-fix) would have already retried well
+      // before 500ms; the fixed exponential backoff (attempt 0 = 1000ms)
+      // must not have fired the second fetch yet.
+      await vi.advanceTimersByTimeAsync(500)
+      expect(fetch).toHaveBeenCalledTimes(1)
+
+      await vi.advanceTimersByTimeAsync(2_000)
+      await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 

@@ -46,6 +46,16 @@ export interface ComposeGeneratorConfig {
  * `nginx.conf` from the staging directory — it is NOT inside the app build
  * context).
  *
+ * The `api` and `app` services each define a `healthcheck:` (previously only
+ * `db` did) so `health()` can read the real `Health` field from `docker
+ * compose ps` instead of treating container `State === 'running'` as
+ * healthy — a process that is up but never came up serving (or is
+ * crash-looping between polls) used to read as a fully healthy environment.
+ * `api`'s probe hits the `/health` route every molecule-scaffolded API
+ * server exposes (`server.ts` — this driver already assumes that shape via
+ * the hardcoded `node dist/server.js` Dockerfile CMD); `app`'s probe hits the
+ * Nginx root, which always serves the built `index.html`.
+ *
  * @param env - The staging environment descriptor.
  * @param config - Port and path configuration.
  * @returns A Docker Compose YAML string.
@@ -95,6 +105,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - ${network}
 
@@ -110,6 +126,12 @@ services:
         VITE_API_URL: http://localhost:${config.apiPort}/api
     ports:
       - "${config.appPort}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80/ || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     networks:
       - ${network}
 

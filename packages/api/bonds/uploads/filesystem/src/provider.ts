@@ -14,6 +14,7 @@ import path from 'path'
 import { v4 as uuid } from 'uuid'
 
 import { getLogger } from '@molecule/api-bond'
+import { UploadAbortedError } from '@molecule/api-uploads'
 import type { FileInfo, UploadProvider } from '@molecule/api-uploads'
 const logger = getLogger()
 import { t } from '@molecule/api-i18n'
@@ -92,17 +93,33 @@ export const upload = (
 
   const uploadStream = fs.createWriteStream(path.join(uploadPath, id))
 
+  // Guards the 'finish'/'error' listeners below from double-settling uploadPromise
+  // once abortUpload() has taken over: destroy() (called from `file.abort` further
+  // down) does not itself emit 'finish', but this flag also protects against any
+  // stream implementation quirk that fires a settled-adjacent event post-destroy.
+  let aborted = false
+  // Captured from the executor below so `file.abort` (defined outside the executor,
+  // since it needs to close over `file` for cleanup) can reject uploadPromise
+  // deterministically instead of depending on stream-event timing.
+  let rejectUploadPromise: (error: Error) => void = () => {}
+
   const uploadPromise = new Promise<void>((resolve, reject) => {
+    rejectUploadPromise = reject
+
     uploadStream.on(`finish`, () => {
+      if (aborted) return
       delete file.upload
       delete file.uploadPromise
+      delete file.abort
       file.uploaded = true
       resolve()
     })
 
     uploadStream.on(`error`, (error) => {
+      if (aborted) return
       delete file.upload
       delete file.uploadPromise
+      delete file.abort
       // Best-effort cleanup of the partially written file: abortUpload() early-returns
       // once `file.upload` is gone (deleted just above), so without this unlink a
       // failed write would orphan the partial file on disk forever.
@@ -127,6 +144,27 @@ export const upload = (
     size: 0,
     stream,
     upload: uploadStream,
+    // [ambiguous-failure fix] abortUpload() used to call uploadStream.end(), which
+    // fires 'finish' — so uploadPromise RESOLVED (success) for a deliberately
+    // aborted upload, after the file had already been unlinked from disk. destroy()
+    // never fires 'finish', and rejecting here (instead of relying on stream events)
+    // deterministically settles uploadPromise with a distinguishable
+    // UploadAbortedError — never a silent success, never routed through onError
+    // (an abort is not a transport failure). See @molecule/api-uploads' AbortHandler
+    // remarks for the full cross-provider contract (parity with the S3 bond).
+    abort: () => {
+      aborted = true
+      uploadStream.destroy()
+      fs.unlink(path.join(uploadPath, id), (unlinkError) => {
+        if (unlinkError && unlinkError.code !== 'ENOENT') {
+          logger.warn(`Could not remove partial upload after abort (id: ${id})`, unlinkError)
+        }
+      })
+      rejectUploadPromise(new UploadAbortedError())
+      delete file.upload
+      delete file.uploadPromise
+      delete file.abort
+    },
     uploadPromise,
     uploaded: false,
   }
@@ -151,8 +189,9 @@ export const upload = (
 }
 
 /**
- * Aborts an in-progress file upload. Removes stream listeners, ends the write stream,
- * and deletes the partially-written file from disk.
+ * Aborts an in-progress file upload. Removes stream listeners, destroys the write
+ * stream, deletes the partially-written file from disk, and rejects the file's
+ * `uploadPromise` with an `UploadAbortedError`.
  * @param file - The `File` object returned by `upload()`.
  */
 export const abortUpload = (file: File): void => {
@@ -163,6 +202,19 @@ export const abortUpload = (file: File): void => {
     delete file.stream
   }
 
+  // Files created by `upload()` (the normal path) carry a self-contained `abort`
+  // closure — it destroys the write stream (never `.end()`, which would fire
+  // 'finish' and resolve uploadPromise as a false success) and rejects
+  // uploadPromise with UploadAbortedError. See the [ambiguous-failure fix] note
+  // on `file.abort` in upload() for why this replaced `uploadStream.end()`.
+  if (file.abort) {
+    file.abort()
+    return
+  }
+
+  // Fallback for a `File` not produced by `upload()` (e.g. a hand-built object, or
+  // one whose upload already settled and cleared `abort`): nothing to reject, so
+  // just clean up storage. Mirrors the pre-fix behavior for this edge case only.
   if (!file.upload && !file.uploaded) {
     return
   }

@@ -34,7 +34,14 @@ import {
   generateAppDockerfile,
   generateNginxConf,
 } from '../dockerfile-generator.js'
-import { provider } from '../provider.js'
+import {
+  containerStatus,
+  fallbackPort,
+  isComposeVersionSufficient,
+  isContainerHealthy,
+  parseComposeVersion,
+  provider,
+} from '../provider.js'
 
 const STAGING_DIR = '.molecule/staging'
 
@@ -268,7 +275,143 @@ describe('@molecule/api-staging-docker-compose × REAL fs + REAL yaml', () => {
     expect(Array.isArray(result.missing)).toBe(true)
     expect(result.met).toBe(result.missing.length === 0)
     for (const item of result.missing) {
-      expect(['docker', 'docker-compose']).toContain(item)
+      // Either the binary/plugin is entirely absent, or it's present but
+      // below the 2.24 floor this driver's compose files require — named
+      // explicitly (with the detected version) instead of a bare label.
+      expect(
+        item === 'docker' || item === 'docker-compose' || item.startsWith('docker-compose >= '),
+      ).toBe(true)
     }
+  })
+
+  it('CONSUMER PROPERTY: logs({ follow: true }) throws a NAMED error instead of silently returning a static tail', async () => {
+    // The core StagingDriver interface accepts `follow`, but this provider
+    // has no streaming channel — before this fix it silently ignored the
+    // option and returned one snapshot, indistinguishable from "follow
+    // worked and there's just nothing new yet."
+    const env = makeEnv('feat-login', 'feature/login')
+    await scaffoldEnvironment(projectPath, env, { apiPort: 4001, appPort: 5174, dbPort: 5433 })
+    const config = { name: 'docker-compose', projectPath }
+
+    await expect(provider.logs(env, config, { follow: true })).rejects.toThrow(/follow/i)
+  })
+})
+
+describe('generateComposeFile() × REAL yaml parser — api/app healthchecks', () => {
+  // CONSUMER PROPERTY: health() used to equate container State === 'running'
+  // with healthy because ONLY `db` defined a healthcheck — an api container
+  // whose process is up but not serving (or crash-looping between polls)
+  // read as fully healthy. Asserted against the REAL parsed document (not a
+  // substring match) so a shape regression — e.g. the healthcheck landing
+  // under the wrong service — is caught, not just its presence somewhere in
+  // the file.
+  const env: StagingEnvironment = {
+    slug: 'feat-login',
+    branch: 'feature/login',
+    type: 'staging',
+    name: 'staging-feat-login',
+    createdAt: '2026-07-13T12:00:00.000Z',
+    driver: 'docker-compose',
+  }
+
+  it('defines a healthcheck for the api service hitting its /health route', () => {
+    const doc = parse(generateComposeFile(env, { apiPort: 4001, appPort: 5174, dbPort: 5433 })) as {
+      services: { api: { healthcheck?: { test: string[] } } }
+    }
+    expect(doc.services.api.healthcheck).toBeDefined()
+    expect(doc.services.api.healthcheck?.test.join(' ')).toMatch(/localhost:4000\/health/)
+  })
+
+  it('defines a healthcheck for the app service hitting its Nginx port', () => {
+    const doc = parse(generateComposeFile(env, { apiPort: 4001, appPort: 5174, dbPort: 5433 })) as {
+      services: { app: { healthcheck?: { test: string[] } } }
+    }
+    expect(doc.services.app.healthcheck).toBeDefined()
+    expect(doc.services.app.healthcheck?.test.join(' ')).toMatch(/localhost:80/)
+  })
+})
+
+describe('checkPrerequisites() version parsing (in-process, no docker exec)', () => {
+  it('parses "Docker Compose version v2.24.5" (the real CLI output shape)', () => {
+    expect(parseComposeVersion('Docker Compose version v2.24.5')).toEqual({
+      major: 2,
+      minor: 24,
+    })
+  })
+
+  it('parses the bare --short form "2.24.5"', () => {
+    expect(parseComposeVersion('2.24.5\n')).toEqual({ major: 2, minor: 24 })
+  })
+
+  it('returns null for unparseable output instead of throwing', () => {
+    expect(parseComposeVersion('command not found')).toBeNull()
+  })
+
+  it('FAILURE DISAMBIGUATION: a pre-2.24 engine is insufficient, 2.24+ is sufficient', () => {
+    expect(isComposeVersionSufficient({ major: 2, minor: 23 })).toBe(false)
+    expect(isComposeVersionSufficient({ major: 2, minor: 24 })).toBe(true)
+    expect(isComposeVersionSufficient({ major: 2, minor: 30 })).toBe(true)
+    expect(isComposeVersionSufficient({ major: 1, minor: 29 })).toBe(false)
+    expect(isComposeVersionSufficient({ major: 3, minor: 0 })).toBe(true)
+  })
+})
+
+describe('fallbackPort() — deterministic per-slug port derivation', () => {
+  it('is deterministic: the same slug always yields the same port', () => {
+    expect(fallbackPort(4001, 'feat-login')).toBe(fallbackPort(4001, 'feat-login'))
+  })
+
+  it('CONSUMER PROPERTY: two different slugs land on different ports (collision the old fixed default always had)', () => {
+    // Before this fix, EVERY environment without driverMeta fell back to the
+    // exact same 4001/5174/5433 — a second concurrently-staged environment
+    // always collided. Different slugs must usually disagree.
+    const a = fallbackPort(4001, 'feat-login')
+    const b = fallbackPort(4001, 'fix-nav-bug')
+    expect(a).not.toBe(b)
+  })
+
+  it('stays within [base, base + range)', () => {
+    const port = fallbackPort(4001, 'some-very-long-branch-name-slug', 100)
+    expect(port).toBeGreaterThanOrEqual(4001)
+    expect(port).toBeLessThan(4101)
+  })
+
+  it("api/app/db offset windows never overlap, so one slug's 3 fallback ports never collide with each other", () => {
+    const slug = 'feat-login'
+    const apiPort = fallbackPort(4001, slug)
+    const appPort = fallbackPort(5174, slug)
+    const dbPort = fallbackPort(5433, slug)
+    const ports = new Set([apiPort, appPort, dbPort])
+    expect(ports.size).toBe(3)
+  })
+})
+
+describe('health() status parsing (in-process, no docker exec)', () => {
+  it('FAILURE DISAMBIGUATION: a running-but-unhealthy container (real healthcheck reporting) is NOT healthy', () => {
+    // This is the exact bug: before the fix, a container whose process is up
+    // but never came up serving (Health: 'unhealthy' from the new
+    // healthcheck) reported healthy because State was 'running'.
+    expect(isContainerHealthy({ Service: 'api', State: 'running', Health: 'unhealthy' })).toBe(
+      false,
+    )
+    expect(isContainerHealthy({ Service: 'api', State: 'running', Health: 'starting' })).toBe(false)
+    expect(isContainerHealthy({ Service: 'api', State: 'running', Health: 'healthy' })).toBe(true)
+  })
+
+  it('falls back to State==="running" only when there is NO healthcheck (empty Health)', () => {
+    expect(isContainerHealthy({ Service: 'db', State: 'running', Health: '' })).toBe(true)
+    expect(isContainerHealthy({ Service: 'db', State: 'exited', Health: '' })).toBe(false)
+  })
+
+  it('an absent container is never healthy', () => {
+    expect(isContainerHealthy(undefined)).toBe(false)
+  })
+
+  it('containerStatus() surfaces the real Health value, not just running/exited', () => {
+    expect(containerStatus({ Service: 'api', State: 'running', Health: 'unhealthy' })).toBe(
+      'unhealthy',
+    )
+    expect(containerStatus({ Service: 'db', State: 'running', Health: '' })).toBe('running')
+    expect(containerStatus(undefined)).toBe('not found')
   })
 })

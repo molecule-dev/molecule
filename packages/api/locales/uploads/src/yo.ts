@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const yo: UploadsTranslations = {
   'uploads.error.noProvider': 'Olupese igbasilẹ ko ti ṣeto. Pe setProvider() ni akọkọ.',
   'uploads.error.streamLimitReached': 'A ti de opin ṣiṣan.',
+  'uploads.error.aborted': 'A fagile igbasilẹ.',
 }

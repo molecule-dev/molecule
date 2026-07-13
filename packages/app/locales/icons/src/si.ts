@@ -4,5 +4,7 @@ import type { IconsTranslations } from './types.js'
 export const si: IconsTranslations = {
   'icons.error.noIconSet':
     'IconSet කිසිවක් සකසා නැත. යෙදුම ආරම්භ කිරීමේදී නිරූපක පුස්තකාලයක් සමඟ setIconSet() ඇමතීම් කරන්න (උදා., @molecule/app-icons-molecule).',
+  'icons.error.noProvider':
+    '@molecule/app-icons: කිසිදු නිරූපක කට්ටලයක් සම්බන්ධ කර නැත. IconSet එකක් සමඟ setIconSet() අමතන්න (උදා., @molecule/app-icons-molecule වෙතින් නිර්යාතය).',
   'icons.error.notFound': 'නිරූපකය "{{name}}" වත්මන් නිරූපක කට්ටලයේ හමු නොවීය.',
 }

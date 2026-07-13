@@ -87,3 +87,13 @@ Peer dependencies:
   - Setup: Create a secret key on the OpenAI platform (API keys page).
   - Get it here: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
   - Example: `sk-proj-...`
+
+Config: `OPENAI_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
+
+**Missing `OPENAI_API_KEY` fails fast**: the provider throws naming the exact env var on
+first use (the exported `provider` is a lazy proxy, so this fires on the first `chat()` call,
+not at bond/module-load time) — it never silently sends an empty key.
+
+**Error message disambiguation**: a plain 400 that ISN'T a context-length error (bad param,
+malformed tool schema) gets its own non-retryable message distinct from the generic
+"AI service error. Please try again." used for retryable failures.

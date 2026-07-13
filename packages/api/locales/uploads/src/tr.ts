@@ -5,4 +5,5 @@ export const tr: UploadsTranslations = {
   'uploads.error.noProvider':
     'Yükleme sağlayıcısı yapılandırılmamış. Önce setProvider() çağrısı yapın.',
   'uploads.error.streamLimitReached': 'Akış sınırına ulaşıldı.',
+  'uploads.error.aborted': 'Yükleme iptal edildi.',
 }

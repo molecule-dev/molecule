@@ -115,4 +115,22 @@ describe('generateComposeFile', () => {
     expect(result).toContain('pg_isready')
     expect(result).toContain('service_healthy')
   })
+
+  it('should include api and app healthchecks, not just db', () => {
+    // Before this fix, health() equated container State === 'running' with
+    // healthy because ONLY db defined a healthcheck.
+    const result = generateComposeFile(mockEnv, {
+      apiPort: 4001,
+      appPort: 5174,
+      dbPort: 5433,
+    })
+
+    const apiSection = result.split('  app:')[0]
+    const appSection = result.split('  app:')[1].split('  db:')[0]
+
+    expect(apiSection).toContain('healthcheck:')
+    expect(apiSection).toContain('wget -qO- http://localhost:4000/health')
+    expect(appSection).toContain('healthcheck:')
+    expect(appSection).toContain('wget -qO- http://localhost:80/')
+  })
 })

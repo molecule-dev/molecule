@@ -4,5 +4,7 @@ import type { IconsTranslations } from './types.js'
 export const zhTW: IconsTranslations = {
   'icons.error.noIconSet':
     '未設定 IconSet。請在應用程式啟動時使用圖示庫呼叫 setIconSet()（例如 @molecule/app-icons-molecule）。',
+  'icons.error.noProvider':
+    '@molecule/app-icons: 未繫結圖示集。請使用 IconSet 呼叫 setIconSet()（例如 @molecule/app-icons-molecule 的匯出）。',
   'icons.error.notFound': '在目前的圖示集中找不到圖示 "{{name}}"。',
 }

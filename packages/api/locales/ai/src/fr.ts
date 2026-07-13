@@ -6,4 +6,6 @@ export const fr: AiTranslations = {
     "Le fournisseur d'IA n'est pas configuré. Liez d'abord un fournisseur d'IA.",
   'ai.error.apiError': "La requête API d'IA a échoué.",
   'ai.error.noResponseBody': "Le corps de la réponse d'IA est vide.",
+  'ai.error.ambiguousProvider':
+    "Plusieurs fournisseurs d'IA nommés sont liés et aucun n'a été défini par défaut. Utilisez getProviderByName(name) pour en sélectionner un.",
 }

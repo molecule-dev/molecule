@@ -4,5 +4,7 @@ import type { IconsTranslations } from './types.js'
 export const lv: IconsTranslations = {
   'icons.error.noIconSet':
     'Nav iestatīts neviens IconSet. Izsauciet setIconSet() lietotnes palaišanas laikā ar ikonu bibliotēku (piem., @molecule/app-icons-molecule).',
+  'icons.error.noProvider':
+    '@molecule/app-icons: Nav pievienots neviens ikonu komplekts. Izsauciet setIconSet() ar IconSet (piem., eksports no @molecule/app-icons-molecule).',
   'icons.error.notFound': 'Ikona "{{name}}" nav atrasta pašreizējā ikonu komplektā.',
 }

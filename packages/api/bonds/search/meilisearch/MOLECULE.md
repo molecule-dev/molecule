@@ -245,6 +245,13 @@ A full-text search query with optional filters, facets, sorting, and pagination.
 interface SearchQuery {
     /**
      * The search text.
+     *
+     * Empty or whitespace-only text is "browse" mode: bond implementations
+     * MUST match ALL documents (subject to `filters`, `sort`, and pagination)
+     * rather than erroring or returning zero hits. Every bundled bond
+     * (Elasticsearch, Meilisearch, Typesense, PostgreSQL) follows this
+     * contract, so swapping providers doesn't silently change what an empty
+     * search box shows.
      */
     text: string;
     /**

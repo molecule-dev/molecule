@@ -22,6 +22,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import React, { useState } from 'react'
 import { act } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { IconData, IconSet } from '@molecule/app-icons'
@@ -31,16 +32,22 @@ import { setClassMap } from '@molecule/app-ui'
 
 import {
   Accordion,
+  Alert,
   Button,
   Checkbox,
+  Dropdown,
+  FloatingInput,
+  FormField,
   Icon,
   Input,
   Modal,
   Progress,
   RadioGroup,
+  Select,
   Switch,
   Table,
   Tabs,
+  Textarea,
   Toast,
   Tooltip,
 } from '../index.js'
@@ -72,6 +79,9 @@ const FUNCTION_MEMBERS = new Set([
   'separator',
   'accordion',
   'pagination',
+  'tabsList',
+  'tabsTrigger',
+  'tabsContent',
   'tooltip',
   'progress',
   'progressBar',
@@ -105,6 +115,13 @@ const flattenClassValue = (value: ClassMapValue): string[] => {
     .map(([k]) => k)
 }
 
+// These resolvers take meaningful options (`variant`/`size`/`color`) that a
+// component is responsible for actually threading through — unlike the rest
+// of FUNCTION_MEMBERS (which just echo their own token name), these encode
+// whichever opts they were called with, so a render test can assert the
+// PROPS actually reached the ClassMap call, not just that a class exists.
+const OPTS_AWARE_MEMBERS = new Set(['tabsList', 'tabsTrigger', 'tabsContent', 'switchBase'])
+
 const classMap = new Proxy(
   {},
   {
@@ -119,6 +136,10 @@ const classMap = new Proxy(
           typeof a === 'object' && a !== null
             ? Object.fromEntries(Object.entries(a).map(([k, v]) => [`--sp-${k}`, String(v)]))
             : `sp-${String(a)}-${String(b)}`
+      }
+      if (OPTS_AWARE_MEMBERS.has(prop)) {
+        return (opts?: { variant?: unknown; size?: unknown; color?: unknown }) =>
+          `${prop}(variant=${String(opts?.variant ?? '')},size=${String(opts?.size ?? '')},color=${String(opts?.color ?? '')})`
       }
       if (FUNCTION_MEMBERS.has(prop)) return () => prop
       return prop
@@ -285,18 +306,22 @@ describe('@molecule/app-ui-react × REAL react-dom + REAL @molecule/app-ui bonds
       <Toast title="Saved" onDismiss={() => dismissed++} />
     )
     const view = render(ui())
-    expect(screen.getByRole('alert')).toBeTruthy()
+    // Default status is 'info' — role="status" (polite), not the assertive
+    // "alert": a routine toast interrupting a screen reader mid-sentence is
+    // the same over-announcing trap role="alert" creates for non-urgent
+    // content everywhere else it's misused.
+    expect(screen.getByRole('status')).toBeTruthy()
 
     // Re-render at 1.5s, 3s and 4.5s — inside the 5s default window.
     for (let i = 0; i < 3; i++) {
       act(() => vi.advanceTimersByTime(1500))
       view.rerender(ui())
-      expect(screen.getByRole('alert')).toBeTruthy() // still visible mid-flow
+      expect(screen.getByRole('status')).toBeTruthy() // still visible mid-flow
     }
 
     // 4500ms elapsed; the ORIGINAL 5000ms deadline is 500ms away.
     act(() => vi.advanceTimersByTime(500))
-    expect(screen.queryByRole('alert')).toBeNull()
+    expect(screen.queryByRole('status')).toBeNull()
     expect(dismissed).toBe(1)
   })
 
@@ -307,12 +332,12 @@ describe('@molecule/app-ui-react × REAL react-dom + REAL @molecule/app-ui bonds
 
     // "0 for persistent" (documented contract): a full minute passes, still shown.
     act(() => vi.advanceTimersByTime(60_000))
-    expect(screen.getByRole('alert')).toBeTruthy()
+    expect(screen.getByRole('status')).toBeTruthy()
     expect(onDismiss).not.toHaveBeenCalled()
 
     // The close button (i18n defaultValue fallback) dismisses it.
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
-    expect(screen.queryByRole('alert')).toBeNull()
+    expect(screen.queryByRole('status')).toBeNull()
     expect(onDismiss).toHaveBeenCalledTimes(1)
   })
 
@@ -431,6 +456,139 @@ describe('@molecule/app-ui-react × REAL react-dom + REAL @molecule/app-ui bonds
     expect(document.getElementById(panel2.getAttribute('aria-labelledby') as string)).toBe(
       screen.getByRole('tab', { name: 'Second' }),
     )
+  })
+
+  it('Tabs: WAI-ARIA APG keyboard nav — Right/Left/Home/End move focus AND selection, roving tabindex skips disabled', () => {
+    const items = [
+      { value: 'one', label: 'First', content: 'first' },
+      { value: 'two', label: 'Second', content: 'second', disabled: true },
+      { value: 'three', label: 'Third', content: 'third' },
+    ]
+    render(<Tabs items={items} defaultValue="one" />)
+
+    const first = screen.getByRole('tab', { name: 'First' })
+    const second = screen.getByRole('tab', { name: 'Second' })
+    const third = screen.getByRole('tab', { name: 'Third' })
+    const tablist = screen.getByRole('tablist')
+
+    // Roving tabindex: only the active tab is a Tab stop — previously every
+    // trigger was individually tabbable.
+    expect(first.tabIndex).toBe(0)
+    expect(second.tabIndex).toBe(-1)
+    expect(third.tabIndex).toBe(-1)
+
+    // ArrowRight from "First" skips the disabled "Second" and lands on
+    // "Third" — automatic activation moves BOTH focus and selection.
+    fireEvent.keyDown(tablist, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(third)
+    expect(third.getAttribute('aria-selected')).toBe('true')
+    expect(third.tabIndex).toBe(0)
+    expect(first.tabIndex).toBe(-1)
+    expect(screen.getByRole('tabpanel').textContent).toBe('third')
+
+    // Home returns focus + selection to the first enabled tab.
+    fireEvent.keyDown(tablist, { key: 'Home' })
+    expect(document.activeElement).toBe(first)
+    expect(first.getAttribute('aria-selected')).toBe('true')
+
+    // ArrowLeft wraps around past the disabled tab to the last enabled one.
+    fireEvent.keyDown(tablist, { key: 'ArrowLeft' })
+    expect(document.activeElement).toBe(third)
+
+    // End jumps straight to the last enabled tab from anywhere.
+    fireEvent.keyDown(tablist, { key: 'Home' })
+    fireEvent.keyDown(tablist, { key: 'End' })
+    expect(document.activeElement).toBe(third)
+  })
+
+  it('Tabs: variant/size are read from props and passed to tabsList/tabsTrigger/tabsContent — not silently dropped', () => {
+    const items = [{ value: 'one', label: 'First', content: 'first body' }]
+    const { rerender } = render(<Tabs items={items} defaultValue="one" variant="line" size="lg" />)
+    expect(screen.getByRole('tablist').className).toContain('tabsList(variant=line,size=lg,color=)')
+    expect(screen.getByRole('tab', { name: 'First' }).className).toContain(
+      'tabsTrigger(variant=line,size=lg,color=)',
+    )
+    expect(screen.getByRole('tabpanel').className).toContain(
+      'tabsContent(variant=line,size=lg,color=)',
+    )
+
+    // A different variant/size re-render produces DIFFERENT classes — proves
+    // the props are read on every render, not baked in once.
+    rerender(<Tabs items={items} defaultValue="one" variant="solid-rounded" size="sm" />)
+    expect(screen.getByRole('tablist').className).toContain(
+      'tabsList(variant=solid-rounded,size=sm,color=)',
+    )
+    expect(screen.getByRole('tab', { name: 'First' }).className).toContain(
+      'tabsTrigger(variant=solid-rounded,size=sm,color=)',
+    )
+  })
+
+  it('Switch: color is read from props and passed to switchBase — not silently dropped', () => {
+    const { rerender } = render(<Switch label="Notify" checked color="success" size="lg" />)
+    expect(screen.getByRole('switch').className).toContain(
+      'switchBase(variant=,size=lg,color=success)',
+    )
+    rerender(<Switch label="Notify" checked color="error" size="sm" />)
+    expect(screen.getByRole('switch').className).toContain(
+      'switchBase(variant=,size=sm,color=error)',
+    )
+  })
+
+  it('Select: chevron is a real inline SVG using currentColor (cm.textMuted) — no hardcoded hex backgroundImage', () => {
+    const { container } = render(
+      <Select options={[{ value: 'a', label: 'A' }]} value="a" onValueChange={() => {}} />,
+    )
+    const select = container.querySelector('select') as HTMLSelectElement
+    // The old fix baked '#6b7280' into a CSS backgroundImage data URI —
+    // confirm that entire mechanism is gone.
+    expect(select.style.backgroundImage).toBe('')
+    const svg = container.querySelector('svg') as SVGElement
+    expect(svg).toBeTruthy()
+    expect(svg.getAttribute('fill')).toBe('currentColor')
+    // Styled via the ClassMap token every other muted icon uses — real
+    // currentColor cascades with the active theme; a baked hex never could.
+    expect(svg.getAttribute('class')).toContain('textMuted')
+  })
+
+  it('Select: clearable + placeholder never renders TWO value="" options; the clear label goes through i18n', () => {
+    const options = [{ value: 'a', label: 'A' }]
+    const { container, rerender } = render(
+      <Select
+        options={options}
+        placeholder="Choose one"
+        clearable
+        value=""
+        onValueChange={() => {}}
+      />,
+    )
+    const select = container.querySelector('select') as HTMLSelectElement
+    const emptyOptions = Array.from(select.options).filter((o) => o.value === '')
+    expect(emptyOptions).toHaveLength(1)
+    expect(emptyOptions[0].textContent).toBe('Choose one')
+
+    // Without a placeholder, the clearable option renders — through t()'s
+    // defaultValue fallback, not a hardcoded string bypassing i18n.
+    rerender(<Select options={options} clearable value="" onValueChange={() => {}} />)
+    const select2 = container.querySelector('select') as HTMLSelectElement
+    const clearOption = Array.from(select2.options).find((o) => o.value === '')
+    expect(clearOption?.textContent).toBe('--')
+  })
+
+  it('Textarea autoResize works UNCONTROLLED — real `input` events resize it, not just the `value` prop', () => {
+    render(<Textarea autoResize defaultValue="line one" minRows={2} testId="ta" />)
+    const el = screen.getByTestId('ta') as HTMLTextAreaElement
+    const initialHeight = el.style.height
+
+    // jsdom never lays out text, so scrollHeight stays 0 — stub what a real
+    // browser would report once several more lines were typed.
+    Object.defineProperty(el, 'scrollHeight', { value: 400, configurable: true })
+    // Uncontrolled: no `value`/`onChange` prop drives this element, so only
+    // a real native `input` listener (not the `[value, …]` effect deps) can
+    // observe the keystroke and recompute.
+    fireEvent.input(el, { target: { value: 'line one\nline two\nline three\nline four' } })
+
+    expect(el.style.height).not.toBe(initialHeight)
+    expect(el.style.height).toBe('400px')
   })
 
   it('Accordion real lifecycle: expand/collapse with resolvable aria-controls', () => {
@@ -591,6 +749,99 @@ describe('a11y contract — what assistive technology actually receives', () => 
     expect(screen.getByRole('switch').getAttribute('aria-checked')).toBe('true')
   })
 
+  it('Switch dispatches a REAL native Event: preventDefault/currentTarget work, and event.target.checked matches the pattern every flagship template uses', () => {
+    // The universal fleet consumer pattern (accounting-invoicing,
+    // ai-data-analyst, ai-meeting-notes, discussion-boards …):
+    //   onChange={(e) => toggle((e.target as HTMLInputElement).checked)}
+    // The previous `{ target: { checked } } as unknown as Event` cast
+    // happened to read back `.checked` but crashed the instant a caller
+    // called any real Event method (preventDefault/stopPropagation).
+    // Read everything a caller would actually need SYNCHRONOUSLY inside the
+    // handler — exactly where every flagship template reads it — because a
+    // CONTROLLED checkbox's `.checked` gets reconciled back to the (in this
+    // test, unchanged) `checked` prop once the dispatch finishes, same as a
+    // real native controlled `<input type="checkbox">` would.
+    let capturedChecked: boolean | null = null
+    let currentTargetIsInput = false
+    let preventDefaultThrew = false
+    let stopPropagationThrew = false
+    const onChange = vi.fn((e: Event) => {
+      try {
+        e.preventDefault()
+      } catch (_error) {
+        // Intentional: the assertion below is exactly "did this throw?" —
+        // the pre-fix synthetic event crashed here with "not a function".
+        preventDefaultThrew = true
+      }
+      try {
+        e.stopPropagation()
+      } catch (_error) {
+        // Intentional — see above.
+        stopPropagationThrew = true
+      }
+      const target = e.target as HTMLInputElement
+      capturedChecked = target.checked
+      currentTargetIsInput = e.currentTarget === target
+    })
+    render(<Switch label="Notify me" checked={false} onChange={onChange} />)
+    fireEvent.click(screen.getByRole('switch'))
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+    // Neither real Event method crashes — the previous
+    // `{ target: { checked } } as unknown as Event` cast threw "not a
+    // function" the instant either was called.
+    expect(preventDefaultThrew).toBe(false)
+    expect(stopPropagationThrew).toBe(false)
+    // The universal fleet consumer pattern —
+    // `onChange={(e) => toggle((e.target as HTMLInputElement).checked)}` —
+    // now reads the real, correct next value.
+    expect(capturedChecked).toBe(true)
+    expect(currentTargetIsInput).toBe(true)
+  })
+
+  it('FormField wires aria-describedby + a real id onto its child input (useId fallback when name is absent)', () => {
+    render(
+      <FormField label="Email" error="Required">
+        <input type="email" />
+      </FormField>,
+    )
+    const label = screen.getByText('Email')
+    const input = screen.getByLabelText('Email') as HTMLInputElement
+    expect(label.getAttribute('for')).toBe(input.id)
+    expect(input.id).toBeTruthy()
+    const describedBy = input.getAttribute('aria-describedby') as string
+    expect(describedBy).toBeTruthy()
+    expect(document.getElementById(describedBy)?.textContent).toBe('Required')
+    expect(input.getAttribute('aria-invalid')).toBe('true')
+  })
+
+  it('FormField: two id-less fields never collide on "undefined-error"', () => {
+    render(
+      <div>
+        <FormField label="Field A" error="err a">
+          <input />
+        </FormField>
+        <FormField label="Field B" error="err b">
+          <input />
+        </FormField>
+      </div>,
+    )
+    expect(document.getElementById('undefined-error')).toBeNull()
+    const a = screen.getByLabelText('Field A').getAttribute('aria-describedby')
+    const b = screen.getByLabelText('Field B').getAttribute('aria-describedby')
+    expect(a).toBeTruthy()
+    expect(a).not.toBe(b)
+    expect(document.getElementById(a as string)?.textContent).toBe('err a')
+  })
+
+  it('FloatingInput label is a REAL <label htmlFor>, not a bare unassociated <span>', () => {
+    render(<FloatingInput placeholder="Full name" />)
+    // Fails before the fix: a bare <span> gives no programmatic
+    // association, so getByLabelText finds nothing and throws.
+    const input = screen.getByLabelText('Full name') as HTMLInputElement
+    expect(input.id).toBeTruthy()
+  })
+
   it('Checkbox error is programmatically associated, matching Input/Textarea/Select', () => {
     render(<Checkbox label="Accept terms" error="You must accept the terms" />)
     const box = screen.getByRole('checkbox')
@@ -712,5 +963,307 @@ describe('a11y contract — what assistive technology actually receives', () => 
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0')
     rerender(<Progress value={40} max={100} label="Upload" indeterminate />)
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBeNull()
+  })
+})
+
+describe('Modal — focus management (WAI-ARIA APG dialog pattern)', () => {
+  it('CONSUMER PROPERTY: opening moves focus into the dialog; Escape closes it AND restores focus to the trigger', () => {
+    const Harness = (): React.JSX.Element => {
+      const [open, setOpen] = useState(false)
+      return (
+        <div>
+          <button type="button" onClick={() => setOpen(true)}>
+            Open
+          </button>
+          <Modal open={open} onClose={() => setOpen(false)} title="Confirm">
+            <button type="button">First</button>
+            <button type="button">Second</button>
+          </Modal>
+        </div>
+      )
+    }
+    render(<Harness />)
+    const openButton = screen.getByRole('button', { name: 'Open' })
+    openButton.focus()
+    expect(document.activeElement).toBe(openButton)
+
+    fireEvent.click(openButton)
+    // The header close button renders before the body buttons in DOM order,
+    // so it's the first focusable element — focus must land there, not stay
+    // on the trigger behind the (aria-modal) overlay.
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close' }))
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.activeElement).toBe(openButton)
+  })
+
+  it('focuses the dialog element itself when it has no focusable content', () => {
+    render(
+      <Modal open onClose={() => {}} title="Empty" showCloseButton={false}>
+        <p>Nothing focusable here</p>
+      </Modal>,
+    )
+    expect(document.activeElement).toBe(screen.getByRole('dialog'))
+  })
+
+  it('traps Tab: Shift+Tab from the first focusable wraps to the last, and vice versa', () => {
+    render(
+      <Modal open onClose={() => {}} title="Confirm" showCloseButton={false}>
+        <button type="button">First</button>
+        <button type="button">Last</button>
+      </Modal>,
+    )
+    const first = screen.getByRole('button', { name: 'First' })
+    const last = screen.getByRole('button', { name: 'Last' })
+    expect(document.activeElement).toBe(first)
+
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(last)
+
+    fireEvent.keyDown(document, { key: 'Tab' })
+    expect(document.activeElement).toBe(first)
+  })
+
+  it('FAILURE DISAMBIGUATION: Escape closes only the TOPMOST of two stacked dialogs', () => {
+    const outerClose = vi.fn()
+    const innerClose = vi.fn()
+    render(
+      <div>
+        <Modal open onClose={outerClose} title="Outer">
+          outer body
+        </Modal>
+        <Modal open onClose={innerClose} title="Inner">
+          inner body
+        </Modal>
+      </div>,
+    )
+    fireEvent.keyDown(document, { key: 'Escape' })
+    // A confirm dialog stacked over a drawer must not vanish BOTH on one
+    // Escape press — only the later-mounted (topmost) one responds.
+    expect(innerClose).toHaveBeenCalledTimes(1)
+    expect(outerClose).not.toHaveBeenCalled()
+  })
+
+  it('reference-counts the body scroll lock: closing one of two open dialogs keeps scroll locked', () => {
+    const Harness = (): React.JSX.Element => {
+      const [showInner, setShowInner] = useState(true)
+      return (
+        <div>
+          <Modal open onClose={() => {}} title="Outer">
+            outer
+          </Modal>
+          {showInner && (
+            <Modal open onClose={() => setShowInner(false)} title="Inner">
+              inner
+            </Modal>
+          )}
+        </div>
+      )
+    }
+    render(<Harness />)
+    expect(document.body.style.overflow).toBe('hidden')
+    // Close the INNER dialog (topmost — its own Escape fires) while the
+    // OUTER one stays open.
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.getAllByRole('dialog')).toHaveLength(1)
+    // A naive (non-reference-counted) lock would reset overflow to '' here,
+    // silently unlocking page scroll behind the dialog still open.
+    expect(document.body.style.overflow).toBe('hidden')
+  })
+
+  it('centered=false top-anchors the dialog instead of vertically centering it', () => {
+    const { rerender } = render(
+      <Modal open onClose={() => {}} title="A">
+        body
+      </Modal>,
+    )
+    const wrapper = document.querySelector('.dialogWrapper') as HTMLElement
+    expect(wrapper.style.alignItems).toBe('')
+    rerender(
+      <Modal open onClose={() => {}} title="A" centered={false}>
+        body
+      </Modal>,
+    )
+    expect(wrapper.style.alignItems).toBe('flex-start')
+  })
+})
+
+describe('Dropdown — WAI-ARIA APG menu-button pattern', () => {
+  // Dropdown reads `useLocation()` (to auto-close on route change), so every
+  // render needs a real Router context — this file exercises the REAL
+  // dependency graph rather than mocking react-router-dom away.
+  it('CONSUMER PROPERTY: ArrowDown on the trigger opens the menu and focuses the first item', () => {
+    const items = [
+      { value: 'a', label: 'Item A' },
+      { value: 'b', label: 'Item B' },
+    ]
+    render(
+      <MemoryRouter>
+        <Dropdown trigger={<button type="button">Actions</button>} items={items} />
+      </MemoryRouter>,
+    )
+    const trigger = screen.getByRole('button', { name: 'Actions' })
+    expect(trigger.getAttribute('aria-haspopup')).toBe('menu')
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    const menuItems = screen.getAllByRole('menuitem')
+    expect(document.activeElement).toBe(menuItems[0])
+  })
+
+  it('ArrowUp on the trigger opens the menu and focuses the LAST item', () => {
+    const items = [
+      { value: 'a', label: 'Item A' },
+      { value: 'b', label: 'Item B' },
+    ]
+    render(
+      <MemoryRouter>
+        <Dropdown trigger={<button type="button">Actions</button>} items={items} />
+      </MemoryRouter>,
+    )
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Actions' }), { key: 'ArrowUp' })
+    const menuItems = screen.getAllByRole('menuitem')
+    expect(document.activeElement).toBe(menuItems[1])
+  })
+
+  it('ArrowDown/ArrowUp/Home/End roving-navigate the open menu (only the active item is tabbable)', () => {
+    const items = [
+      { value: 'a', label: 'Item A' },
+      { value: 'b', label: 'Item B' },
+      { value: 'c', label: 'Item C' },
+    ]
+    render(
+      <MemoryRouter>
+        <Dropdown trigger={<button type="button">Actions</button>} items={items} />
+      </MemoryRouter>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Actions' }))
+    const menuItems = screen.getAllByRole('menuitem')
+    expect(document.activeElement).toBe(menuItems[0])
+    expect(menuItems[0].tabIndex).toBe(0)
+    expect(menuItems[1].tabIndex).toBe(-1)
+
+    fireEvent.keyDown(menuItems[0], { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(menuItems[1])
+
+    fireEvent.keyDown(menuItems[1], { key: 'End' })
+    expect(document.activeElement).toBe(menuItems[2])
+
+    fireEvent.keyDown(menuItems[2], { key: 'Home' })
+    expect(document.activeElement).toBe(menuItems[0])
+  })
+
+  it('FAILURE DISAMBIGUATION: Escape restores focus to the trigger; an outside click does NOT', () => {
+    const items = [{ value: 'a', label: 'Item A' }]
+    render(
+      <MemoryRouter>
+        <div>
+          <Dropdown trigger={<button type="button">Actions</button>} items={items} />
+          <button type="button">Elsewhere</button>
+        </div>
+      </MemoryRouter>,
+    )
+    const trigger = screen.getByRole('button', { name: 'Actions' })
+    fireEvent.click(trigger)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('menu')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
+
+    fireEvent.click(trigger)
+    const elsewhere = screen.getByRole('button', { name: 'Elsewhere' })
+    elsewhere.focus()
+    fireEvent.mouseDown(elsewhere)
+    expect(screen.queryByRole('menu')).toBeNull()
+    // The user's attention already moved elsewhere — an outside-click close
+    // must not yank focus back to the trigger.
+    expect(document.activeElement).toBe(elsewhere)
+  })
+
+  it('a non-element trigger (plain text) falls back to a keyboard-operable role="button" wrapper', () => {
+    const items = [{ value: 'a', label: 'Item A' }]
+    render(
+      <MemoryRouter>
+        <Dropdown trigger="Menu" items={items} />
+      </MemoryRouter>,
+    )
+    const trigger = screen.getByRole('button', { name: 'Menu' })
+    expect(trigger.tabIndex).toBe(0)
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    expect(screen.getByRole('menu')).toBeTruthy()
+  })
+
+  it('width="trigger" never renders the invalid literal CSS value "trigger"', () => {
+    const items = [{ value: 'a', label: 'Item A' }]
+    render(
+      <MemoryRouter>
+        <Dropdown trigger={<button type="button">Actions</button>} items={items} width="trigger" />
+      </MemoryRouter>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Actions' }))
+    // Before the fix, the first-open frame (before the trigger ref is
+    // measurable) rendered the literal string 'trigger' as the CSS `width`
+    // value — invalid, silently ignored by the browser.
+    expect(screen.getByRole('menu').style.width).not.toBe('trigger')
+  })
+})
+
+describe('Tooltip — hasArrow and programmatic content association', () => {
+  it('hasArrow renders a themed pointer only when requested', () => {
+    render(
+      <Tooltip content="Help text">
+        <button type="button">Trigger</button>
+      </Tooltip>,
+    )
+    fireEvent.mouseOver(
+      screen.getByRole('button', { name: 'Trigger' }).parentElement as HTMLElement,
+    )
+    const tooltip = screen.getByRole('tooltip')
+    expect(tooltip.parentElement?.querySelector('[aria-hidden="true"]')).toBeNull()
+    cleanup()
+
+    render(
+      <Tooltip content="Help text" hasArrow>
+        <button type="button">Trigger</button>
+      </Tooltip>,
+    )
+    fireEvent.mouseOver(
+      screen.getByRole('button', { name: 'Trigger' }).parentElement as HTMLElement,
+    )
+    const tooltipWithArrow = screen.getByRole('tooltip')
+    const arrow = tooltipWithArrow.parentElement?.querySelector(
+      '[aria-hidden="true"]',
+    ) as HTMLElement
+    expect(arrow).toBeTruthy()
+    expect(arrow.style.transform).toContain('rotate(45deg)')
+  })
+
+  it('CONSUMER PROPERTY: the visible tooltip is programmatically associated with the focused trigger', () => {
+    render(
+      <Tooltip content="Help text">
+        <button type="button">Trigger</button>
+      </Tooltip>,
+    )
+    const trigger = screen.getByRole('button', { name: 'Trigger' })
+    expect(trigger.getAttribute('aria-describedby')).toBeNull()
+    fireEvent.mouseOver(trigger.parentElement as HTMLElement)
+    const tooltipId = screen.getByRole('tooltip').id
+    expect(tooltipId).toBeTruthy()
+    // The child that actually receives focus/hover carries the reference —
+    // not the wrapper div, which is never itself the focused element.
+    expect(trigger.getAttribute('aria-describedby')).toBe(tooltipId)
+    fireEvent.mouseOut(trigger.parentElement as HTMLElement)
+    expect(trigger.getAttribute('aria-describedby')).toBeNull()
+  })
+})
+
+describe('Alert — `live` prop drives assertive vs polite announcement', () => {
+  it('defaults to the assertive role="alert" (unchanged default); live={false} announces politely instead', () => {
+    const { rerender } = render(<Alert>Static banner</Alert>)
+    expect(screen.getByRole('alert')).toBeTruthy()
+    rerender(<Alert live={false}>Static banner</Alert>)
+    expect(screen.queryByRole('alert')).toBeNull()
+    expect(screen.getByRole('status')).toBeTruthy()
   })
 })

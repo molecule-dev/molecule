@@ -122,6 +122,20 @@ export interface NotificationCenterState {
   loading: boolean
   /** Whether more notifications are available to load. */
   hasMore: boolean
+  /**
+   * The error from the most recent failed `refresh()` / `loadMore()` /
+   * `poll()` attempt, or `undefined` if the last attempt (or the most
+   * recent one per-operation) succeeded. Providers MUST clear this (set it
+   * back to `undefined`) on the next successful fetch — it is not a sticky
+   * banner.
+   *
+   * Without this field a provider that swallows fetch failures (documented
+   * noop) renders identically whether the user genuinely has zero
+   * notifications OR the very first fetch failed (network/server error):
+   * both look like an empty inbox with `loading: false`. Consumers should
+   * check this field to show a retry banner instead of a bare empty state.
+   */
+  lastError?: Error
 }
 
 /**

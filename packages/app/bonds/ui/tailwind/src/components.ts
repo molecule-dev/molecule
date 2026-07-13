@@ -156,14 +156,28 @@ export const radio = cva(
 
 /**
  * Switch component classes.
+ *
+ * The `color` axis maps 1:1 to the semantic `ColorVariant` scale (same
+ * `primary`/`secondary`/`success`/`warning`/`error`/`info` tokens
+ * `progressColor` already uses) — no lookup table needed, unlike `button`'s
+ * differently-named CVA variants.
  */
 export const switchBase = cva(
   'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
-      variant: {
-        default:
+      color: {
+        primary:
           'data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-secondary focus-visible:ring-primary',
+        secondary:
+          'data-[state=checked]:bg-secondary data-[state=unchecked]:bg-surface-secondary focus-visible:ring-secondary',
+        success:
+          'data-[state=checked]:bg-success data-[state=unchecked]:bg-surface-secondary focus-visible:ring-success',
+        warning:
+          'data-[state=checked]:bg-warning data-[state=unchecked]:bg-surface-secondary focus-visible:ring-warning',
+        error:
+          'data-[state=checked]:bg-error data-[state=unchecked]:bg-surface-secondary focus-visible:ring-error',
+        info: 'data-[state=checked]:bg-info data-[state=unchecked]:bg-surface-secondary focus-visible:ring-info',
       },
       size: {
         sm: 'h-5 w-9',
@@ -172,7 +186,7 @@ export const switchBase = cva(
       },
     },
     defaultVariants: {
-      variant: 'default',
+      color: 'primary',
       size: 'md',
     },
   },
@@ -445,15 +459,99 @@ export const tableCell = 'p-4 align-middle [&:has([role=checkbox])]:pr-0'
  */
 export const tableCaption = 'mt-4 text-sm text-foreground-secondary'
 
-/** Tabs list container classes. */
-export const tabsList =
-  'inline-flex h-10 items-center justify-center rounded-md bg-surface-secondary p-1 text-foreground-secondary'
-/** Tabs trigger button classes. */
-export const tabsTrigger =
-  'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm'
-/** Tabs content panel classes. */
-export const tabsContent =
-  'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+/**
+ * Tabs list (tablist container) classes.
+ *
+ * `variant` controls shape/background (a full-width underline rail for
+ * `line`; a filled/bordered box for `enclosed`; a soft or solid pill track
+ * for `*-rounded`); `size` controls only the container height, so it never
+ * conflicts with `tabsTrigger`'s own `size`-driven padding.
+ *
+ * `enclosed`+`md` (the defaults) reproduce the single style this used to be
+ * hardcoded to, token-for-token.
+ */
+export const tabsList = cva('inline-flex items-center text-foreground-secondary', {
+  variants: {
+    variant: {
+      line: 'w-full gap-6 border-b border-border',
+      enclosed: 'justify-center rounded-md bg-surface-secondary p-1',
+      'soft-rounded': 'gap-1 rounded-full bg-surface-secondary p-1',
+      'solid-rounded': 'gap-1 rounded-full bg-surface-secondary p-1',
+    },
+    size: {
+      sm: 'h-8',
+      md: 'h-10',
+      lg: 'h-12',
+    },
+  },
+  defaultVariants: {
+    variant: 'enclosed',
+    size: 'md',
+  },
+})
+
+/**
+ * Tabs trigger (individual tab button) classes.
+ *
+ * `variant` controls the shape/color of the ACTIVE state via
+ * `data-[state=active]:*` attribute selectors — the caller (see
+ * `@molecule/app-ui-react`'s `Tabs`) sets `data-state="active"|"inactive"` on
+ * the element; nothing here reads a JS `active` flag. `size` controls
+ * padding/font-size only, shared across every variant so it can never
+ * conflict with a variant's own classes.
+ *
+ * `enclosed`+`md` (the defaults) reproduce the single style this used to be
+ * hardcoded to, token-for-token.
+ */
+export const tabsTrigger = cva(
+  'inline-flex items-center justify-center whitespace-nowrap font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  {
+    variants: {
+      variant: {
+        line: 'border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary',
+        enclosed:
+          'rounded-sm data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+        'soft-rounded':
+          'rounded-full data-[state=active]:bg-primary/10 data-[state=active]:text-primary',
+        'solid-rounded':
+          'rounded-full data-[state=active]:bg-primary data-[state=active]:text-on-primary',
+      },
+      size: {
+        sm: 'px-2.5 py-1 text-xs',
+        md: 'px-3 py-1.5 text-sm',
+        lg: 'px-4 py-2 text-base',
+      },
+    },
+    defaultVariants: {
+      variant: 'enclosed',
+      size: 'md',
+    },
+  },
+)
+
+/**
+ * Tabs content (panel) classes.
+ *
+ * `variant` only adjusts the top spacing beneath the tablist — `enclosed`
+ * (the default) reproduces the single style this used to be hardcoded to,
+ * token-for-token.
+ */
+export const tabsContent = cva(
+  'ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+  {
+    variants: {
+      variant: {
+        line: 'mt-4',
+        enclosed: 'mt-2',
+        'soft-rounded': 'mt-3',
+        'solid-rounded': 'mt-3',
+      },
+    },
+    defaultVariants: {
+      variant: 'enclosed',
+    },
+  },
+)
 
 /** Tooltip content container classes. */
 export const tooltipContent =

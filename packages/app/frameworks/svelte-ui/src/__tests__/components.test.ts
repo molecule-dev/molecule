@@ -82,6 +82,48 @@ describe('representative generators return class strings', () => {
   })
 })
 
+describe('getModalWrapperStyle', () => {
+  it('returns undefined when centered (the default)', () => {
+    expect(components.getModalWrapperStyle()).toBeUndefined()
+    expect(components.getModalWrapperStyle(true)).toBeUndefined()
+  })
+
+  it('top-anchors the wrapper with an inline style when not centered', () => {
+    expect(components.getModalWrapperStyle(false)).toEqual({ alignItems: 'flex-start' })
+  })
+})
+
+describe('getTooltipArrowStyle', () => {
+  const placements = [
+    'top',
+    'top-start',
+    'top-end',
+    'bottom',
+    'bottom-start',
+    'bottom-end',
+    'left',
+    'right',
+  ] as const
+
+  it('returns a themed inline style for every placement', () => {
+    for (const placement of placements) {
+      const style = components.getTooltipArrowStyle(placement)
+      expect(style.position).toBe('absolute')
+      expect(style.width).toBe('8px')
+      expect(style.height).toBe('8px')
+      expect(style.background).toBe('var(--color-surface)')
+      expect(style.border).toBe('1px solid var(--color-border)')
+    }
+  })
+
+  it('positions the arrow at the edge opposite the tooltip body', () => {
+    expect(components.getTooltipArrowStyle('top').bottom).toBe('-4px')
+    expect(components.getTooltipArrowStyle('bottom').top).toBe('-4px')
+    expect(components.getTooltipArrowStyle('left').right).toBe('-4px')
+    expect(components.getTooltipArrowStyle('right').left).toBe('-4px')
+  })
+})
+
 describe('icon-data + helper exports', () => {
   it('getAlertIconData resolves a known status to icon data', () => {
     expect(components.getAlertIconData('success')).toMatchObject({ name: expect.any(String) })

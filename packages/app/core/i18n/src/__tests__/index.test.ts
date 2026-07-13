@@ -388,6 +388,54 @@ describe('@molecule/app-i18n', () => {
       it('should return false for non-existent key', () => {
         expect(provider.exists('nonexistent')).toBe(false)
       })
+
+      it('reports true via the English fallback (matches t()) for a key missing from the active locale', async () => {
+        // FAILURE-DISAMBIGUATION regression: exists() previously checked ONLY
+        // the active locale's own catalog, disagreeing with t() (which falls
+        // back to English) for every partially-translated locale.
+        await provider.setLocale('fr')
+        expect(provider.t('nested.message')).toBe('Nested message') // via English fallback
+        expect(provider.exists('nested.message')).toBe(true) // must agree with t()
+        expect(provider.exists('nonexistent')).toBe(false)
+      })
+    })
+
+    describe('plural resolution order (matches i18next)', () => {
+      it('prefers the plural-suffixed key over the base key when count is provided', () => {
+        // Regression: previously the base `key` won whenever it existed, so a
+        // catalog shipping both a base key and `key_one`/`key_other` never
+        // pluralized under this provider even though i18next-backed bonds did.
+        const p = createSimpleI18nProvider('en', [
+          {
+            code: 'en',
+            name: 'English',
+            translations: {
+              item: 'the item (no count)',
+              item_one: '{{count}} item',
+              item_other: '{{count}} items',
+            },
+          },
+        ])
+        expect(p.t('item', undefined, { count: 1 })).toBe('1 item')
+        expect(p.t('item', undefined, { count: 5 })).toBe('5 items')
+        // Without a count, pluralization isn't requested — the base key wins.
+        expect(p.t('item')).toBe('the item (no count)')
+      })
+    })
+
+    describe('addTranslations deep merge', () => {
+      it('merges nested translation subtrees instead of clobbering a sibling key', () => {
+        // Regression: a shallow spread merge dropped the ENTIRE `auth` subtree
+        // from the first call when the second call registered another key
+        // under the same top-level `auth` namespace.
+        const p = createSimpleI18nProvider('en', [
+          { code: 'en', name: 'English', translations: {} },
+        ])
+        p.addTranslations('en', { auth: { login: 'Log in' } })
+        p.addTranslations('en', { auth: { signup: 'Sign up' } })
+        expect(p.t('auth.login')).toBe('Log in')
+        expect(p.t('auth.signup')).toBe('Sign up')
+      })
     })
 
     describe('formatNumber', () => {

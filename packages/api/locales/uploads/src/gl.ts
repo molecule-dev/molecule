@@ -5,4 +5,5 @@ export const gl: UploadsTranslations = {
   'uploads.error.noProvider':
     'O provedor de subida non está configurado. Chame primeiro a setProvider().',
   'uploads.error.streamLimitReached': 'Alcanzouse o límite do fluxo.',
+  'uploads.error.aborted': 'A subida foi cancelada.',
 }

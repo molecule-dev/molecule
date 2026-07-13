@@ -27,6 +27,7 @@ import type {
   DatabaseTransaction,
   QueryResult,
 } from '@molecule/api-database'
+import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import type { MysqlFieldMeta } from './utilities.js'
 import { coerceMysqlParam, convertPlaceholders, normalizeMysqlRows } from './utilities.js'
@@ -156,15 +157,17 @@ const createMySQLPool = (mysqlPool: Pool): DatabasePool => ({
     await mysqlPool.end()
   },
 
-  stats(): { total: number; idle: number; waiting: number } {
-    // mysql2 pool doesn't expose stats directly
-    // We return what we can
-    return {
-      total: 0,
-      idle: 0,
-      waiting: 0,
-    }
-  },
+  // `stats` is intentionally OMITTED (the `DatabasePool.stats` method is optional)
+  // rather than fabricated: mysql2's pool exposes NO public stats API, and a prior
+  // version returned hardcoded `{ total: 0, idle: 0, waiting: 0 }` — a health/
+  // monitoring page reading those zeros could not tell "MySQL bond, stats
+  // unsupported" from "pool down, zero connections" (the postgres bond DOES
+  // return real counts). Callers already use the optional-call form
+  // (`pool.stats?.()`, e.g. `molecule-dev/api/src/db/pool-monitor.ts`), which
+  // correctly reads `undefined` as "unavailable" instead of a misleading healthy
+  // zero. Reaching into mysql2's private `_allConnections`/`_freeConnections`
+  // internals (unexported, no public types) to fake real numbers would be a
+  // second undocumented-internals coupling on top of the first misleading one.
 })
 
 /**
@@ -177,13 +180,27 @@ const createMySQLPool = (mysqlPool: Pool): DatabasePool => ({
  */
 export const createPool = (config?: DatabaseConfig): DatabasePool => {
   const connectionString = config?.connectionString ?? process.env.MYSQL_URL
+  const database = config?.database ?? process.env.MYSQL_DATABASE
+
+  // Fail fast with an actionable message instead of silently defaulting to
+  // host=localhost/user=root/no-password: without this, an unconfigured app's
+  // first query failed with a raw driver ECONNREFUSED/ER_ACCESS_DENIED instead
+  // of naming the missing env var. Only fires when NOTHING identifies a target
+  // database — no connection string/MYSQL_URL, no database name/MYSQL_DATABASE,
+  // AND no explicit config object at all. An explicit config (even partial,
+  // e.g. a discrete-var setup passing just `host`+`user`) is the caller's
+  // deliberate choice and is never second-guessed here.
+  const hasExplicitConfig = config != null && Object.keys(config).length > 0
+  if (!connectionString && !database && !hasExplicitConfig) {
+    throw configNotConfiguredError('MYSQL_URL', 'the MySQL database connection')
+  }
 
   const poolConfig: PoolOptions = connectionString
     ? { uri: connectionString }
     : {
         host: config?.host ?? process.env.MYSQL_HOST ?? 'localhost',
         port: config?.port ?? parseInt(process.env.MYSQL_PORT ?? '3306', 10),
-        database: config?.database ?? process.env.MYSQL_DATABASE,
+        database,
         user: config?.user ?? process.env.MYSQL_USER ?? 'root',
         password: config?.password ?? process.env.MYSQL_PASSWORD,
         waitForConnections: true,

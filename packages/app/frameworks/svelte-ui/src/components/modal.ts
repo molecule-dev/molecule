@@ -110,6 +110,31 @@ export function getModalWrapperClass(): string {
 }
 
 /**
+ * Get the inline style for the modal centering wrapper. `dialogWrapper` has
+ * no dedicated ClassMap resolver option (it's a fixed token, not a
+ * `{ centered }`-parameterized one), so a top-anchored (non-centered) layout
+ * is expressed via the one inline-style exception the workspace styling rule
+ * allows for values ClassMap genuinely cannot express.
+ *
+ * Usage in Svelte:
+ * ```svelte
+ * <script>
+ *   import { getModalWrapperClass, getModalWrapperStyle } from '`@molecule/app-ui-svelte`'
+ *   export let centered = true
+ *   $: wrapperStyle = getModalWrapperStyle(centered)
+ * </script>
+ * <div class={getModalWrapperClass()} style={wrapperStyle} on:click={onOverlayClick}>
+ *   ...
+ * </div>
+ * ```
+ * @param centered - Whether the modal is vertically centered. Defaults to `true`.
+ * @returns An inline style object, or `undefined` when centered (the default).
+ */
+export function getModalWrapperStyle(centered = true): Record<string, string> | undefined {
+  return centered ? undefined : { alignItems: 'flex-start' }
+}
+
+/**
  * Get the modal body class string.
  *
  * @returns The modal body class string.

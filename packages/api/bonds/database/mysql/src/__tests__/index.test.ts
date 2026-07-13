@@ -44,7 +44,10 @@ describe('@molecule/api-database-mysql index exports', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env = { ...originalEnv }
+    // A safe baseline so createPool() with no args doesn't trip the
+    // [env-assumption fix] fail-fast check in tests that aren't specifically
+    // exercising it (see provider.test.ts for the dedicated fail-fast tests).
+    process.env = { ...originalEnv, MYSQL_DATABASE: 'testdb' }
   })
 
   afterEach(() => {
@@ -119,7 +122,9 @@ describe('@molecule/api-database-mysql index exports', () => {
       expect(pool.connect).toBeDefined()
       expect(pool.transaction).toBeDefined()
       expect(pool.end).toBeDefined()
-      expect(pool.stats).toBeDefined()
+      // `stats` is intentionally omitted (optional on `DatabasePool`) rather than
+      // a fabricated always-zero value — see the `stats()` describe block below.
+      expect(pool.stats).toBeUndefined()
     })
   })
 
@@ -133,7 +138,7 @@ describe('@molecule/api-database-mysql index exports', () => {
       expect(pool.connect).toBeDefined()
       expect(pool.transaction).toBeDefined()
       expect(pool.end).toBeDefined()
-      expect(pool.stats).toBeDefined()
+      expect(pool.stats).toBeUndefined()
     })
 
     it('should create a pool with connection string', async () => {
@@ -515,17 +520,12 @@ describe('@molecule/api-database-mysql index exports', () => {
     })
 
     describe('stats()', () => {
-      it('should return pool statistics', async () => {
+      it('is undefined — mysql2 exposes no real stats, so this bond does not fabricate one [ambiguous-failure fix]', async () => {
         const { createPool } = await import('../index.js')
 
         const pool = createPool()
-        const stats = pool.stats()
 
-        expect(stats).toEqual({
-          total: 0,
-          idle: 0,
-          waiting: 0,
-        })
+        expect(pool.stats).toBeUndefined()
       })
     })
   })
@@ -539,7 +539,7 @@ describe('@molecule/api-database-mysql index exports', () => {
       expect(typeof pool.connect).toBe('function')
       expect(typeof pool.transaction).toBe('function')
       expect(typeof pool.end).toBe('function')
-      expect(typeof pool.stats).toBe('function')
+      expect(pool.stats).toBeUndefined()
     })
 
     it('should allow querying via the default pool', async () => {

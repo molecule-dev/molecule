@@ -5,4 +5,5 @@ export const hy: UploadsTranslations = {
   'uploads.error.noProvider':
     'Veraberrnman matakarary kazmadzevats chi. Nakh kanchek setProvider().',
   'uploads.error.streamLimitReached': 'Hoskի sahmanë hasel ē.',
+  'uploads.error.aborted': 'Verberumy chexarkvel e.',
 }

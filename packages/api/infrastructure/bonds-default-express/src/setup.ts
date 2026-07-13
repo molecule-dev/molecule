@@ -222,6 +222,40 @@ export async function setupRealtimeSocketio(): Promise<void> {
   registerServerCreatedHook((server) => provider.attachHttpServer?.(server))
 }
 
+/** Wires `@molecule/api-realtime-ws` to `@molecule/api-realtime`. */
+export async function setupRealtimeWs(): Promise<void> {
+  const [{ setProvider: setRealtime }, { createProvider }, { registerServerCreatedHook }] =
+    await Promise.all([
+      import('@molecule/api-realtime'),
+      import('@molecule/api-realtime-ws'),
+      import('@molecule/api-server-default-express'),
+    ])
+  // Defer ws binding and attach to the API's HTTP server once the factory
+  // creates it — so realtime shares the API port instead of a standalone port
+  // that a containerized sandbox / proxied deploy may not expose (mirrors
+  // setupRealtimeSocketio's deferAttach contract).
+  const provider = createProvider({ deferAttach: true })
+  setRealtime(provider)
+  registerServerCreatedHook((server) => provider.attachHttpServer?.(server))
+}
+
+/** Wires `@molecule/api-realtime-sse` to `@molecule/api-realtime`. */
+export async function setupRealtimeSse(): Promise<void> {
+  const [{ setProvider: setRealtime }, { createProvider }, { registerServerCreatedHook }] =
+    await Promise.all([
+      import('@molecule/api-realtime'),
+      import('@molecule/api-realtime-sse'),
+      import('@molecule/api-server-default-express'),
+    ])
+  // Defer SSE binding and attach to the API's HTTP server once the factory
+  // creates it — so realtime shares the API port instead of a standalone port
+  // that a containerized sandbox / proxied deploy may not expose (mirrors
+  // setupRealtimeSocketio's deferAttach contract).
+  const provider = createProvider({ deferAttach: true })
+  setRealtime(provider)
+  registerServerCreatedHook((server) => provider.attachHttpServer?.(server))
+}
+
 /** Wires `@molecule/api-cron-node-cron` to `@molecule/api-cron`. */
 export async function setupCronNodeCron(): Promise<void> {
   const [{ setProvider: setCron }, { provider }] = await Promise.all([

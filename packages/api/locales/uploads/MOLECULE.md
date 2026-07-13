@@ -4,7 +4,7 @@ Translations for molecule uploads package in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/api-uploads` package which has 2 translation keys.
+Provides translations for the `@molecule/api-uploads` package which has 3 translation keys.
 
 ## Languages
 
@@ -23,6 +23,7 @@ import type { UploadsTranslationKey, UploadsTranslations } from '@molecule/api-l
 |-----|---------|
 | `uploads.error.noProvider` | Upload provider not configured. Call setProvider() first. |
 | `uploads.error.streamLimitReached` | Stream limit reached. |
+| `uploads.error.aborted` | Upload was aborted. |
 
 ## Metadata
 

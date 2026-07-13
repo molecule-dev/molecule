@@ -94,13 +94,21 @@ describe('verifySignature', () => {
     expect(await verifySignature({}, 'Subject=hi')).toBe(false)
   })
 
-  it('returns false when MAILGUN_API_KEY is unset (without leaking the key)', async () => {
+  it('throws a tagged config.notConfigured error (not a leaked-key, not a bare false) when MAILGUN_API_KEY is unset', async () => {
     delete process.env.MAILGUN_API_KEY
     vi.resetModules()
     const { verifySignature } = await import('../provider.js')
     const body = buildSignedFormBody({ Subject: 'hi' })
-    const result = await verifySignature({}, body)
-    expect(result).toBe(false)
+
+    // A misconfigured server must not resolve `false` — that is
+    // indistinguishable from a forged/stale/malformed webhook (401 with no
+    // trace). It throws a tagged 503 instead, and the message names the
+    // missing env var without ever including the actual key value.
+    await expect(verifySignature({}, body)).rejects.toMatchObject({
+      statusCode: 503,
+      errorKey: 'config.notConfigured',
+    })
+    await expect(verifySignature({}, body)).rejects.toThrow(/MAILGUN_API_KEY/u)
   })
 
   it('honours MAILGUN_INBOUND_REPLAY_WINDOW_SECONDS override', async () => {
@@ -215,14 +223,26 @@ describe('parseWebhookPayload', () => {
     expect(email.attachments?.[1]?.contentId).toBeUndefined()
   })
 
-  it('falls back to a generated id when Message-Id is absent', async () => {
+  it('falls back to a deterministic hashed id (NOT the per-request token) when Message-Id is absent', async () => {
     const { parseWebhookPayload } = await import('../provider.js')
-    const body = new URLSearchParams({
-      token: 'token-1',
+    const fields = {
+      From: 'alice@example.com',
       Subject: 'no message-id',
-    }).toString()
-    const email = await parseWebhookPayload({}, body)
-    expect(email.id).toBe('token-1')
+      'message-headers': JSON.stringify([['Date', 'Mon, 01 Jan 2024 00:00:00 +0000']]),
+    }
+
+    // Two "delivery attempts" of the same message carry DIFFERENT per-request
+    // tokens (as Mailgun regenerates on every retry) but identical mail
+    // content — the fallback id must ignore the token and still match.
+    const attempt1 = new URLSearchParams({ token: 'token-1', ...fields }).toString()
+    const attempt2 = new URLSearchParams({ token: 'token-2', ...fields }).toString()
+
+    const email1 = await parseWebhookPayload({}, attempt1)
+    const email2 = await parseWebhookPayload({}, attempt2)
+
+    expect(email1.id).not.toBe('token-1')
+    expect(email1.id).toMatch(/^mailgun-[0-9a-f]{32}$/u)
+    expect(email1.id).toBe(email2.id)
   })
 
   it('skips attachments that fail to JSON-parse', async () => {

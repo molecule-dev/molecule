@@ -77,6 +77,78 @@ describe('Mock Database', () => {
         expect(result.rows).toEqual([])
         expect(result.rowCount).toBe(0)
       })
+
+      it('setQueryResult is persistent — every subsequent query sees the same result, not just the next one', async () => {
+        // This is the ambiguous-failure trap: the name reads like a one-shot
+        // `mockResolvedValueOnce`, but it is not. A test that (wrongly) assumes
+        // one-shot semantics and issues two queries expecting two different
+        // results would get the SAME result both times.
+        db.setQueryResult({ rows: [{ id: 'persistent' }], rowCount: 1 })
+
+        const first = await db.query('SELECT * FROM users WHERE id = 1')
+        const second = await db.query('SELECT * FROM users WHERE id = 2')
+
+        expect(first.rows).toEqual([{ id: 'persistent' }])
+        expect(second.rows).toEqual([{ id: 'persistent' }])
+      })
+    })
+
+    describe('setQueryResultOnce', () => {
+      it('varies the result per query, consumed in FIFO order', async () => {
+        db.setQueryResultOnce({ rows: [{ id: 'first' }], rowCount: 1 })
+        db.setQueryResultOnce({ rows: [{ id: 'second' }], rowCount: 1 })
+
+        const first = await db.query('SELECT 1')
+        const second = await db.query('SELECT 2')
+
+        expect(first.rows).toEqual([{ id: 'first' }])
+        expect(second.rows).toEqual([{ id: 'second' }])
+      })
+
+      it('falls back to the persistent setQueryResult value once the once-queue drains', async () => {
+        db.setQueryResult({ rows: [{ id: 'persistent' }], rowCount: 1 })
+        db.setQueryResultOnce({ rows: [{ id: 'once' }], rowCount: 1 })
+
+        const first = await db.query('SELECT 1')
+        const second = await db.query('SELECT 2')
+        const third = await db.query('SELECT 3')
+
+        expect(first.rows).toEqual([{ id: 'once' }])
+        expect(second.rows).toEqual([{ id: 'persistent' }])
+        expect(third.rows).toEqual([{ id: 'persistent' }])
+      })
+
+      it('falls back to the empty default once-queue drains with no persistent result set', async () => {
+        db.setQueryResultOnce({ rows: [{ id: 'once' }], rowCount: 1 })
+
+        const first = await db.query('SELECT 1')
+        const second = await db.query('SELECT 2')
+
+        expect(first.rows).toEqual([{ id: 'once' }])
+        expect(second.rows).toEqual([])
+      })
+
+      it('applies to connection- and transaction-scoped queries too', async () => {
+        db.setQueryResultOnce({ rows: [{ id: 'conn-once' }], rowCount: 1 })
+        const conn = await db.connect()
+        const connResult = await conn.query('SELECT 1')
+        expect(connResult.rows).toEqual([{ id: 'conn-once' }])
+
+        db.setQueryResultOnce({ rows: [{ id: 'tx-once' }], rowCount: 1 })
+        const tx = await db.transaction()
+        const txResult = await tx.query('SELECT 1')
+        expect(txResult.rows).toEqual([{ id: 'tx-once' }])
+        await tx.commit()
+      })
+
+      it('reset() drains any queued once-results', async () => {
+        db.setQueryResultOnce({ rows: [{ id: 'once' }], rowCount: 1 })
+
+        db.reset()
+
+        const result = await db.query('SELECT 1')
+        expect(result.rows).toEqual([])
+      })
     })
 
     describe('reset', () => {

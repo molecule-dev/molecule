@@ -247,3 +247,13 @@ function setProvider(provider: SMSProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+Delivery-status polling (`getStatus()`) is PROVIDER-DEPENDENT, not a
+universal capability — the Quick Start's `getStatus()` call is not safe to
+assume for every bonded provider:
+- `@molecule/api-sms-twilio`: supported — polls the Twilio REST API.
+- `@molecule/api-sms-vonage`: NOT supported — `getStatus()` always throws
+  `'Vonage SMS API does not support message status polling.'`. Vonage only
+  reports delivery via DLR (delivery receipt) webhooks: pass
+  `options.callbackUrl` to `send()`/`sendBulk()` and receive delivery
+  updates on that endpoint instead of polling.

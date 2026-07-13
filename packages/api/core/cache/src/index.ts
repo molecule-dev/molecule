@@ -22,6 +22,15 @@
  * - `getOrSet` does not lock: concurrent misses on the same key each run the factory
  *   (last write wins). Fine for idempotent loaders; don't put side-effecting work in one.
  * - Don't cache a raw secret; cache derived, non-sensitive data.
+ * - **`clear()` must be scoped to the bonded provider's own namespace, never a shared
+ *   store.** A conformant `CacheProvider.clear()` implementation removes ONLY keys it
+ *   created (its `keyPrefix`/namespace) — it must NEVER issue a database-wide flush
+ *   (Redis `FLUSHDB`/`FLUSHALL`, Memcached `flush_all`) that would also wipe sessions,
+ *   queues, rate limiters, or another app's data sharing the same store. See
+ *   `@molecule/api-cache-redis` (`SCAN` + batched `UNLINK` by `keyPrefix`) and
+ *   `@molecule/api-cache-memcached` (namespace versioning, since Memcached has no
+ *   key-enumeration command to scope a delete) for the two canonical strategies —
+ *   implement whichever fits a new provider's capabilities, but never the raw flush.
  *
  * @example
  * ```typescript

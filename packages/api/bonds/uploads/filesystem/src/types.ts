@@ -36,4 +36,13 @@ export interface File extends UploadedFile {
    * The stream being written to disk.
    */
   upload?: NodeJS.WritableStream
+
+  /**
+   * Aborts the in-progress write: destroys the write stream (so `'finish'` never
+   * fires and `uploadPromise` cannot resolve as success), removes the partially
+   * written file from disk, and rejects `uploadPromise` with an `UploadAbortedError`.
+   * Set internally by `upload()`; not intended for external use — call the exported
+   * `abortUpload()` instead.
+   */
+  abort?: () => void
 }

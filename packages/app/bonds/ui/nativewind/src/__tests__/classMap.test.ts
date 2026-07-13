@@ -484,6 +484,35 @@ describe('@molecule/app-ui-nativewind classMap', () => {
         expect(xl).toContain('h-16')
       })
     })
+
+    describe('tabsList() / tabsTrigger() / tabsContent() (resolver functions, not overridden — inherited via spread)', () => {
+      it('should return functions, not static strings', () => {
+        expect(typeof classMap.tabsList).toBe('function')
+        expect(typeof classMap.tabsTrigger).toBe('function')
+        expect(typeof classMap.tabsContent).toBe('function')
+      })
+
+      it('should map the "line" variant distinctly from the default', () => {
+        const defaultList = classMap.tabsList()
+        const lineList = classMap.tabsList({ variant: 'line' })
+        expect(lineList).not.toBe(defaultList)
+        expect(lineList).toContain('border-b')
+      })
+
+      it('should map tabsTrigger size to distinct padding', () => {
+        expect(classMap.tabsTrigger({ size: 'lg' })).toContain('text-base')
+        expect(classMap.tabsTrigger({ size: 'sm' })).toContain('text-xs')
+      })
+    })
+
+    describe('switchBase() color option (inherited via spread)', () => {
+      it('should map color to a distinct data-[state=checked] background', () => {
+        expect(classMap.switchBase({ color: 'success' })).toContain(
+          'data-[state=checked]:bg-success',
+        )
+        expect(classMap.switchBase({ color: 'error' })).toContain('data-[state=checked]:bg-error')
+      })
+    })
   })
 
   // =================================================================
@@ -537,9 +566,6 @@ describe('@molecule/app-ui-nativewind classMap', () => {
       'tableHead',
       'tableCell',
       'tableCaption',
-      'tabsList',
-      'tabsTrigger',
-      'tabsContent',
       'tooltipContent',
       'toastViewport',
       'toastTitle',

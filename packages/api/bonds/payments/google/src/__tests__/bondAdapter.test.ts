@@ -9,15 +9,25 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { mockVerifySubscription, mockAcknowledgeSubscription, mockLogger } = vi.hoisted(() => ({
+const {
+  mockVerifySubscription,
+  mockAcknowledgeSubscription,
+  mockVerifyProduct,
+  mockAcknowledgeProduct,
+  mockLogger,
+} = vi.hoisted(() => ({
   mockVerifySubscription: vi.fn(),
   mockAcknowledgeSubscription: vi.fn(),
+  mockVerifyProduct: vi.fn(),
+  mockAcknowledgeProduct: vi.fn(),
   mockLogger: { error: vi.fn(), warn: vi.fn(), debug: vi.fn(), info: vi.fn() },
 }))
 
 vi.mock('../verification.js', () => ({
   verifySubscription: mockVerifySubscription,
   acknowledgeSubscription: mockAcknowledgeSubscription,
+  verifyProduct: mockVerifyProduct,
+  acknowledgeProduct: mockAcknowledgeProduct,
 }))
 
 vi.mock('@molecule/api-bond', () => ({
@@ -110,6 +120,22 @@ describe('paymentProvider', () => {
 
       expect(result).toBeNull()
       expect(mockLogger.error).toHaveBeenCalled()
+    })
+
+    it('RETHROWS a config-not-configured error instead of swallowing it to null [ambiguous-failure]', async () => {
+      // A missing GOOGLE_API_SERVICE_KEY_OBJECT/GOOGLE_PLAY_PACKAGE_NAME is a
+      // DIFFERENT failure than "invalid purchase" — it must propagate so the
+      // resource handler can surface the actionable 503 instead of a generic
+      // 400 that reads identically to a genuinely bad purchase token.
+      const configError = Object.assign(
+        new Error('GOOGLE_PLAY_PACKAGE_NAME is not set — payments is disabled.'),
+        { statusCode: 503, errorKey: 'config.notConfigured' },
+      )
+      mockVerifySubscription.mockRejectedValue(configError)
+
+      await expect(
+        paymentProvider.verifyPurchase('token-abc', 'premium_monthly'),
+      ).rejects.toMatchObject({ statusCode: 503, errorKey: 'config.notConfigured' })
     })
 
     it('returns null for expired subscription (anti-replay)', async () => {
@@ -385,14 +411,14 @@ describe('paymentProvider', () => {
       expect(mockLogger.error).toHaveBeenCalled()
     })
 
-    it('returns null when subscriptionNotification is missing', async () => {
+    it('returns null when NONE of subscriptionNotification/oneTimeProductNotification/voidedPurchaseNotification/testNotification is present', async () => {
       const body = makePubSubBody({ packageName: 'com.example.app' })
 
       const result = await paymentProvider.parseNotification!(body)
 
       expect(result).toBeNull()
       expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.stringContaining('missing subscriptionNotification'),
+        expect.stringContaining('none of subscriptionNotification'),
       )
     })
 
@@ -415,6 +441,151 @@ describe('paymentProvider', () => {
       expect(result).not.toBeNull()
       expect(result!.type).toBe('on_hold')
       expect(mockVerifySubscription).toHaveBeenCalledWith('sub-hold', 'pt-hold')
+    })
+
+    // ---------------------------------------------------------------
+    // oneTimeProductNotification [ambiguous-failure fix]
+    // ---------------------------------------------------------------
+    describe('oneTimeProductNotification', () => {
+      it('REGRESSION: wires a purchased one-time product through verifyProduct/acknowledgeProduct instead of erroring', async () => {
+        mockVerifyProduct.mockResolvedValue({
+          orderId: 'GPA.one-time-order',
+          productId: 'coins_100',
+          purchaseState: 0,
+        })
+        mockAcknowledgeProduct.mockResolvedValue(undefined)
+
+        const body = makePubSubBody({
+          oneTimeProductNotification: {
+            version: '1.0',
+            notificationType: 1, // ONE_TIME_PRODUCT_PURCHASED
+            purchaseToken: 'pt-onetime',
+            sku: 'coins_100',
+          },
+        })
+
+        const result = await paymentProvider.parseNotification!(body)
+
+        expect(mockVerifyProduct).toHaveBeenCalledWith('coins_100', 'pt-onetime')
+        expect(result).toEqual({
+          transactionId: 'GPA.one-time-order',
+          productId: 'coins_100',
+          type: 'purchased',
+        })
+        expect(mockAcknowledgeProduct).toHaveBeenCalledWith('coins_100', 'pt-onetime')
+        // Never logged as an ERROR — this is now a recognized, handled kind.
+        expect(mockLogger.error).not.toHaveBeenCalled()
+      })
+
+      it('maps notificationType 2 to canceled and does NOT acknowledge', async () => {
+        mockVerifyProduct.mockResolvedValue({ orderId: 'GPA.canceled-order', purchaseState: 1 })
+
+        const body = makePubSubBody({
+          oneTimeProductNotification: {
+            notificationType: 2, // ONE_TIME_PRODUCT_CANCELED
+            purchaseToken: 'pt-canceled',
+            sku: 'coins_100',
+          },
+        })
+
+        const result = await paymentProvider.parseNotification!(body)
+
+        expect(result?.type).toBe('canceled')
+        expect(mockAcknowledgeProduct).not.toHaveBeenCalled()
+      })
+
+      it('rejects (null) without calling verifyProduct when purchaseToken/sku is missing — cannot authenticate', async () => {
+        const body = makePubSubBody({
+          oneTimeProductNotification: { notificationType: 1, sku: 'coins_100' },
+        })
+
+        const result = await paymentProvider.parseNotification!(body)
+
+        expect(result).toBeNull()
+        expect(mockVerifyProduct).not.toHaveBeenCalled()
+      })
+
+      it('REGRESSION: rejects (null) when verifyProduct fails to authenticate the token (forged notification)', async () => {
+        mockVerifyProduct.mockResolvedValue(null)
+
+        const body = makePubSubBody({
+          oneTimeProductNotification: {
+            notificationType: 1,
+            purchaseToken: 'forged-token',
+            sku: 'coins_100',
+          },
+        })
+
+        const result = await paymentProvider.parseNotification!(body)
+
+        expect(result).toBeNull()
+      })
+
+      it('returns null and logs an error when verifyProduct throws', async () => {
+        mockVerifyProduct.mockRejectedValue(new Error('network error'))
+
+        const body = makePubSubBody({
+          oneTimeProductNotification: {
+            notificationType: 1,
+            purchaseToken: 'pt-x',
+            sku: 'coins_100',
+          },
+        })
+
+        const result = await paymentProvider.parseNotification!(body)
+
+        expect(result).toBeNull()
+        expect(mockLogger.error).toHaveBeenCalled()
+      })
+    })
+
+    // ---------------------------------------------------------------
+    // voidedPurchaseNotification [ambiguous-failure fix]
+    // ---------------------------------------------------------------
+    describe('voidedPurchaseNotification', () => {
+      it('REGRESSION: maps a voided purchase to a refund notification instead of erroring', async () => {
+        const body = makePubSubBody({
+          voidedPurchaseNotification: {
+            purchaseToken: 'pt-voided',
+            orderId: 'GS.0000-0000-0000',
+            productType: 1, // subscription
+            refundType: 1, // full refund
+          },
+        })
+
+        const result = await paymentProvider.parseNotification!(body)
+
+        expect(result).toEqual({ transactionId: 'GS.0000-0000-0000', type: 'refund' })
+        // No re-verification call is made — see the module doc for why.
+        expect(mockVerifySubscription).not.toHaveBeenCalled()
+        expect(mockVerifyProduct).not.toHaveBeenCalled()
+        expect(mockLogger.error).not.toHaveBeenCalled()
+      })
+
+      it('also maps a one-time-product voided purchase (productType=2) to refund', async () => {
+        const body = makePubSubBody({
+          voidedPurchaseNotification: {
+            purchaseToken: 'pt-voided-2',
+            orderId: 'GS.1111-1111-1111',
+            productType: 2, // one-time product
+            refundType: 2, // quantity-based partial refund
+          },
+        })
+
+        const result = await paymentProvider.parseNotification!(body)
+
+        expect(result).toEqual({ transactionId: 'GS.1111-1111-1111', type: 'refund' })
+      })
+
+      it('returns null when orderId is missing — nothing to look up', async () => {
+        const body = makePubSubBody({
+          voidedPurchaseNotification: { purchaseToken: 'pt-voided', productType: 1, refundType: 1 },
+        })
+
+        const result = await paymentProvider.parseNotification!(body)
+
+        expect(result).toBeNull()
+      })
     })
   })
 

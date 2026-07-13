@@ -29,6 +29,7 @@ import { requireProvider, setProvider as setAgentsProvider } from '@molecule/api
 import { configure, reset } from '@molecule/api-bond'
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { AgentRunError } from '../errors.js'
 import { provider as agents } from '../provider.js'
 
 /**
@@ -192,6 +193,40 @@ describe('@molecule/api-ai-agents-llm × REAL api-bond + api-ai wiring', () => {
     )
   })
 
+  it('PARTIAL METERING: a mid-run provider failure rejects with an AgentRunError carrying turn-1 usage + steps, not a plain Error that drops them', async () => {
+    const { provider: ai } = scriptedAi([
+      [
+        { type: 'tool_use', id: 't1', name: 'lookup', input: { key: 'alpha' } },
+        { type: 'done', usage: { inputTokens: 10, outputTokens: 5 } },
+      ],
+      [
+        {
+          type: 'error',
+          message: 'AI service is temporarily overloaded. Please try again in a moment.',
+        },
+      ],
+    ])
+    setAiProvider(ai)
+
+    let caught: unknown
+    try {
+      await agents.run({ task: 'go', tools: [lookupTool] })
+    } catch (error) {
+      caught = error
+    }
+
+    // Pre-fix this was a plain Error with no `usage`/`steps` — the turn-1
+    // spend (already billed by the real provider) was silently unrecoverable.
+    expect(caught).toBeInstanceOf(AgentRunError)
+    const runError = caught as AgentRunError
+    expect(runError.message).toMatch(/temporarily overloaded/)
+    // Turn 1 completed (tool call + its usage) before turn 2 failed — that
+    // must survive on the thrown error, not vanish with the rejection.
+    expect(runError.usage).toEqual({ inputTokens: 10, outputTokens: 5 })
+    expect(runError.steps).toHaveLength(1)
+    expect(runError.steps[0].toolCalls[0]).toMatchObject({ id: 't1', name: 'lookup' })
+  })
+
   it('rejects when BOTH task and messages are supplied instead of silently discarding the task', async () => {
     const { provider: ai, calls } = scriptedAi([
       [
@@ -242,8 +277,49 @@ describe('@molecule/api-ai-agents-llm × REAL api-bond + api-ai wiring', () => {
 
     const controller = new AbortController()
     controller.abort()
-    await expect(
-      agents.run({ task: 'go', tools: [lookupTool], signal: controller.signal }),
-    ).rejects.toThrow(/aborted/)
+    let caught: unknown
+    try {
+      await agents.run({ task: 'go', tools: [lookupTool], signal: controller.signal })
+    } catch (error) {
+      caught = error
+    }
+    expect((caught as Error).message).toMatch(/aborted/)
+    // PARTIAL METERING: the turn that produced the tool_use already billed
+    // its usage before the abort was noticed — it must survive on the error.
+    expect(caught).toBeInstanceOf(AgentRunError)
+    expect((caught as AgentRunError).usage).toEqual({ inputTokens: 1, outputTokens: 1 })
+  })
+
+  it('CACHE + STREAM PASSTHROUGH: cacheControl reaches every turn and stream defaults true (not the old hardcoded false)', async () => {
+    const { provider: ai, calls } = scriptedAi([
+      [
+        { type: 'text', content: 'answer' },
+        { type: 'done', usage: { inputTokens: 1, outputTokens: 1 } },
+      ],
+    ])
+    setAiProvider(ai)
+
+    await agents.run({ task: 'hi', cacheControl: { type: 'ephemeral' } })
+
+    expect(calls).toHaveLength(1)
+    expect(calls[0].cacheControl).toEqual({ type: 'ephemeral' })
+    // Regression: the loop used to hardcode `stream: false` on every turn,
+    // which defeats `onEvent` as a live hook and risks HTTP timeouts on large
+    // non-streamed tool-input turns.
+    expect(calls[0].stream).toBe(true)
+  })
+
+  it('CACHE + STREAM PASSTHROUGH: input.stream === false is still honored (opt out of the new default)', async () => {
+    const { provider: ai, calls } = scriptedAi([
+      [
+        { type: 'text', content: 'answer' },
+        { type: 'done', usage: { inputTokens: 1, outputTokens: 1 } },
+      ],
+    ])
+    setAiProvider(ai)
+
+    await agents.run({ task: 'hi', stream: false })
+
+    expect(calls[0].stream).toBe(false)
   })
 })

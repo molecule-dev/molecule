@@ -70,12 +70,27 @@ export interface TwoFactorVerifyResult {
    * - `'replay'` — the token WOULD have verified but its time step is
    *   `<= afterTimeStep`: the code was already used (replay protection).
    *   Tell the user to wait for the NEXT code — this is not a wrong or
-   *   expired code, and not a library fault.
+   *   expired code, and not a library fault. A provider MAY also report
+   *   `'replay'` when the persisted `afterTimeStep` sits further ahead than
+   *   the current time step plus the acceptance window can reach — this
+   *   happens after the SERVER clock moves backward (VM snapshot restore,
+   *   NTP correction, container clock drift) following a prior successful
+   *   verify. In that case no token can be newer than the one already
+   *   consumed until wall-clock time catches back up, so it is reported the
+   *   same way rather than as a crash. See `@molecule/api-two-factor-otplib`'s
+   *   provider for the reference implementation of this check.
    * - `'format'` — the token is not a syntactically valid one-time code
    *   (wrong length or non-digits; grouping whitespace from authenticator-app
    *   display formatting such as `"123 456"` is stripped before this check).
    *   Prompt the user to re-enter the code — nothing is wrong with the secret
    *   or the wiring, and the underlying library was never consulted.
+   *
+   * `verify()` may still REJECT (throw/reject the promise) instead of
+   * returning `valid:false` when the STORED SECRET itself is unusable
+   * (missing, malformed, not valid base32) — that is server-side data
+   * corruption, not an invalid code, and must never be silently treated as
+   * one. Catch it separately from a normal `!valid` result and steer the
+   * user to re-run 2FA setup rather than re-enter a code.
    */
   reason?: 'replay' | 'format'
 }
@@ -101,6 +116,13 @@ export interface TwoFactorProvider {
    * Verifies a TOTP token against a secret. Returns whether the token is valid
    * and, on success, the matched RFC 6238 time step so the caller can persist
    * it and reject reuse of the same/earlier code (replay protection).
+   *
+   * A rejected/wrong/expired code resolves to `{ valid: false }` (optionally
+   * with {@link TwoFactorVerifyResult.reason}) — it never throws. `verify()`
+   * MAY still reject the promise when the STORED `secret` itself is unusable
+   * (missing or not valid base32): that is server-side data corruption, not
+   * an invalid code, and callers must handle it separately (message "re-run
+   * setup", not "wrong code").
    */
   verify(params: TwoFactorVerifyParams): Promise<TwoFactorVerifyResult>
 }

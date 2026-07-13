@@ -42,10 +42,26 @@ export interface MemoryQueueOptions {
   maxReceiveCount?: number
 
   /**
-   * Delay in seconds before a message is redelivered after a subscriber
-   * handler failure or a `nack()`. Defaults to `0` (immediate redelivery).
+   * Delay in seconds before a message is redelivered after an explicit
+   * `nack()` (a pull `receive()` consumer's deliberate "put this back now").
+   * Defaults to `0` (immediate redelivery) — an explicit `nack()` is a
+   * caller decision that should be honored right away, not throttled.
    */
   redeliveryDelaySeconds?: number
+
+  /**
+   * Delay in seconds before a message is redelivered after an UNCAUGHT
+   * `subscribe()` handler failure (a thrown error) — distinct from
+   * `redeliveryDelaySeconds` because a throw is an unplanned failure (e.g. a
+   * downstream 503) that deserves a real retry window, mirroring the Redis
+   * bond's `attempts: 3, backoff: { type: 'exponential', delay: 1000 }`.
+   * Defaults to `1`. With the default `maxReceiveCount` of `3`, a
+   * `redeliveryDelaySeconds` of `0` would burn all delivery attempts within
+   * milliseconds and drop the message with no real chance for a transient
+   * downstream failure to recover — this option exists so "retry" means a
+   * few real seconds apart, not a hot loop.
+   */
+  handlerFailureRedeliveryDelaySeconds?: number
 }
 
 /**
@@ -66,9 +82,15 @@ export interface MemoryQueueConfig {
   maxReceiveCount: number
 
   /**
-   * Delay in seconds before redelivery after handler failure or `nack()`.
+   * Delay in seconds before redelivery after an explicit `nack()`.
    */
   redeliveryDelaySeconds: number
+
+  /**
+   * Delay in seconds before redelivery after an uncaught `subscribe()`
+   * handler failure.
+   */
+  handlerFailureRedeliveryDelaySeconds: number
 
   /**
    * Whether this queue enforces FIFO semantics (per-`groupId` ordered,

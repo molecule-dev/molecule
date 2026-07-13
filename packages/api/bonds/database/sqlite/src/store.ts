@@ -97,7 +97,18 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
         break
       }
       case 'like':
-        parts.push(`"${cond.field}" LIKE ?`)
+        // Case-insensitive RAW pattern match — the caller supplies the full SQL
+        // pattern (their own %/_ wildcards are honored, NOT escaped). LOWER()
+        // both sides so the contract holds even when `PRAGMA case_sensitive_like`
+        // is set (SQLite's native LIKE is only case-insensitive for ASCII by
+        // default — that pragma is mutable) — see the `like` contract documented
+        // on `WhereCondition['operator']` in `@molecule/api-database`; it must be
+        // IDENTICAL across every bond. ESCAPE '\' pins backslash as THE escape
+        // character in the caller's pattern — UNLIKE postgres/mysql, SQLite's
+        // LIKE has NO escape character at all without an explicit ESCAPE clause
+        // (a literal backslash would otherwise mean something different here
+        // than on the other two bonds).
+        parts.push(`LOWER("${cond.field}") LIKE LOWER(?) ESCAPE '\\'`)
         values.push(cond.value)
         break
       case 'ilike':

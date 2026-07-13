@@ -36,4 +36,12 @@ export interface BullMQCronConfig {
 
   /** Default timezone for all jobs. */
   timezone?: string
+
+  /**
+   * Called whenever the underlying BullMQ queue or worker emits a
+   * connection-level `'error'` event (e.g. Redis unreachable). These errors
+   * are always logged via the bonded logger regardless of this callback —
+   * use it for additional handling (alerting, metrics, a fail-fast exit).
+   */
+  onError?: (error: Error) => void
 }

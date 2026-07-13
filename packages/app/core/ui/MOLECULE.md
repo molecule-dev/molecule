@@ -1440,6 +1440,12 @@ Options for switch class resolution.
 ```typescript
 interface SwitchClassOptions {
   size?: Size
+  /**
+   * Color used for the checked/on track. Reuses the same semantic color
+   * scale as `ButtonClassOptions.color`/`BadgeClassOptions.variant`.
+   * @default 'primary'
+   */
+  color?: ColorVariant
 }
 ```
 
@@ -1607,6 +1613,26 @@ interface TableProps<T> extends HTMLElementProps {
    * Row click handler.
    */
   onRowClick?: (row: T, index: number) => void
+}
+```
+
+#### `TabsClassOptions`
+
+Options for resolving tabs (`tabsList`/`tabsTrigger`/`tabsContent`) CSS
+classes via UIClassMap. Active vs inactive trigger styling is NOT one of
+these options — it is expressed as `data-[state=active]` CSS attribute
+selectors baked into the returned class string, driven by the
+`data-state="active"|"inactive"` attribute the framework binding already
+sets on the trigger element (see `@molecule/app-ui-react`'s `Tabs`).
+
+```typescript
+interface TabsClassOptions {
+  /**
+   * Visual style: underline indicator, bordered/filled boxes, a soft-bg
+   * pill, or a solid-bg pill.
+   */
+  variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded'
+  size?: Size
 }
 ```
 
@@ -1862,6 +1888,9 @@ interface UIClassMap {
   separator(opts?: SeparatorClassOptions): string
   accordion(opts?: AccordionClassOptions): string
   pagination(opts?: PaginationClassOptions): string
+  tabsList(opts?: TabsClassOptions): string
+  tabsTrigger(opts?: TabsClassOptions): string
+  tabsContent(opts?: TabsClassOptions): string
   tooltip(): string
   progress(): string
   progressBar(): string
@@ -1942,9 +1971,6 @@ interface UIClassMap {
   tableHead: string
   tableCell: string
   tableCaption: string
-  tabsList: string
-  tabsTrigger: string
-  tabsContent: string
   tooltipContent: string
   toastViewport: string
   toastTitle: string
@@ -2997,6 +3023,11 @@ mistake.
   a helper name or option value; an invalid `cm.*` value is a type error or a silent no-op.
 - **Every interactive element needs a stable `data-mol-id`** — spread {@link molIdProps} (or
   set {@link MOL_ID_ATTR} via {@link molId}) so AI agents and tests can target it.
+- **`tabsList`/`tabsTrigger`/`tabsContent` are resolver functions**, not static strings —
+  call `cm.tabsList(opts)`/`cm.tabsTrigger(opts)`/`cm.tabsContent(opts)` with an optional
+  {@link TabsClassOptions} (`variant`/`size`). Active-tab styling stays a `data-state`
+  attribute selector the caller sets, not one of these options. `cm.switchBase(opts)` also
+  accepts a `color` ({@link SwitchClassOptions}) alongside `size`.
 
 ## Translations
 

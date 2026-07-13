@@ -14,8 +14,20 @@
  *   ]}
  *   onMarkAllRead={() => markAllRead()}
  *   onViewAll={() => navigate('/notifications')}
+ *   lastError={notificationCenter.getState().lastError}
+ *   onRetry={() => notificationCenter.refresh()}
  * />
  * ```
+ *
+ * @remarks
+ * Pass `lastError` from `NotificationCenterState.lastError` (see
+ * `@molecule/app-notification-center`) and `onRetry` wired to the
+ * notification center instance's `refresh()`. When `lastError` is set the
+ * panel renders an error banner with a retry button ABOVE the item list —
+ * it never replaces `items` or the empty state, so a stale-but-populated
+ * list with a currently-failing background poll still surfaces the
+ * failure alongside the last-known-good data.
+ *
  * @module
  */
 

@@ -16,6 +16,8 @@ import { NotificationCenter } from '@molecule/app-notification-center-react'
   ]}
   onMarkAllRead={() => markAllRead()}
   onViewAll={() => navigate('/notifications')}
+  lastError={notificationCenter.getState().lastError}
+  onRetry={() => notificationCenter.refresh()}
 />
 ```
 
@@ -53,7 +55,7 @@ interface NotificationItem {
 
 ### Functions
 
-#### `NotificationCenter(root0, root0, root0, root0, root0, root0, root0)`
+#### `NotificationCenter(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
 
 Standalone notification panel — title + mark-all-read action +
 scrollable item list + footer "View all". Drop inside a popover /
@@ -67,6 +69,8 @@ function NotificationCenter({
   emptyState,
   title,
   className,
+  lastError,
+  onRetry,
 }: NotificationCenterProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
@@ -77,6 +81,8 @@ function NotificationCenter({
 - `root0` — .emptyState
 - `root0` — .title
 - `root0` — .className
+- `root0` — .lastError
+- `root0` — .onRetry
 
 ## Injection Notes
 
@@ -87,3 +93,11 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+Pass `lastError` from `NotificationCenterState.lastError` (see
+`@molecule/app-notification-center`) and `onRetry` wired to the
+notification center instance's `refresh()`. When `lastError` is set the
+panel renders an error banner with a retry button ABOVE the item list —
+it never replaces `items` or the empty state, so a stale-but-populated
+list with a currently-failing background poll still surfaces the
+failure alongside the last-known-good data.

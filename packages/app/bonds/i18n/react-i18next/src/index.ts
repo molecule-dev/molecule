@@ -19,6 +19,20 @@
  * setProvider(provider)
  * ```
  *
+ * @remarks
+ * **Startup locale vs. `detection`:** with `detection: true` (the default),
+ * `defaultLocale` is only the FALLBACK — the actual startup locale is
+ * whatever the browser detector resolves (querystring, then `navigator`, by
+ * default). Apps that want a pinned startup locale must pass
+ * `detection: false` (or an explicit `i18nextOptions.lng`).
+ *
+ * **`setLocale()` contract:** `createReactI18nextProvider()` is a thin
+ * wrapper over `@molecule/app-i18n-i18next`'s `createI18nextProvider()`, so
+ * its `setLocale()` THROWS for an unregistered locale — see that package's
+ * remarks for the fleet-wide contract. The separate `useI18n()` hook below,
+ * however, calls `react-i18next`'s raw `i18n.changeLanguage()` directly and
+ * is NOT an `I18nProvider` — it does not throw for an unregistered locale.
+ *
  * @module
  */
 

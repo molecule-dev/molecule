@@ -123,6 +123,16 @@ interface I18nProvider {
     getLocale(): string;
     /**
      * Sets the current locale.
+     *
+     * **Fleet contract:** every conformant provider (the core simple provider,
+     * `@molecule/api-i18n-simple`, `@molecule/app-i18n-i18next`, and
+     * `@molecule/app-i18n-react-i18next`) MUST throw `Error('Locale "<code>"
+     * not found')` when `locale` is not registered — via the constructor's
+     * `initialLocales`/`locales` config, `addLocale()`, or `addTranslations()`
+     * (all three register a locale). It must NOT silently degrade to
+     * fallback-locale text while `getLocale()` reports the unregistered code —
+     * that divergence makes a misconfigured locale switch indistinguishable
+     * from a working one until a user notices the wrong language on screen.
      */
     setLocale(locale: string): Promise<void>;
     /**
@@ -145,11 +155,26 @@ interface I18nProvider {
      */
     removeLocale(code: string): boolean;
     /**
-     * Adds translations to a locale.
+     * Adds translations to a locale. Auto-creates the locale if it doesn't exist.
+     *
+     * **Fleet contract:** merges are DEEP, not a shallow spread — registering
+     * two calls (e.g. two modules) that share a top-level namespace key merges
+     * their subtrees instead of the second call clobbering the first's nested
+     * translations wholesale. `@molecule/api-i18n-simple` implements the same
+     * contract on the API side.
      */
     addTranslations(locale: string, translations: Translations, namespace?: string): void;
     /**
      * Translates a key with optional interpolation values and pluralization.
+     *
+     * **Fleet plural contract (matches i18next's own key resolution order):**
+     * when `options.count` is provided, the plural-suffixed key
+     * (`` `${key}_${pluralForm}` ``, e.g. `item_one`/`item_few`/…, falling back
+     * to `` `${key}_other` ``) is looked up FIRST and wins over the base `key`
+     * if BOTH are registered. Only when no plural-suffixed key exists at all
+     * does resolution fall back to the base key. A catalog that ships both
+     * `item` and `item_one`/`item_other` therefore pluralizes identically
+     * whichever provider is bonded.
      *
      * @returns The translated string, or the default value / key if not found.
      */
@@ -158,7 +183,15 @@ interface I18nProvider {
         count?: number;
     }): string;
     /**
-     * Checks if a translation key exists in the current locale.
+     * Checks if a translation key exists.
+     *
+     * **Fleet contract:** follows the SAME locale-resolution chain as `t()` —
+     * the active locale, then the English fallback — so `exists(key) === true`
+     * whenever `t(key)` would render real translated text (not the raw key or
+     * an inline `defaultValue`). Do not narrow this to "only the active
+     * locale's own catalog"; that made `exists()` return `false` for keys `t()`
+     * happily rendered via the English fallback, and the answer differed by
+     * provider.
      *
      * @returns `true` if the key has a translation.
      */
@@ -406,3 +439,16 @@ export function setupI18nReactI18next(): void {
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+**Startup locale vs. `detection`:** with `detection: true` (the default),
+`defaultLocale` is only the FALLBACK — the actual startup locale is
+whatever the browser detector resolves (querystring, then `navigator`, by
+default). Apps that want a pinned startup locale must pass
+`detection: false` (or an explicit `i18nextOptions.lng`).
+
+**`setLocale()` contract:** `createReactI18nextProvider()` is a thin
+wrapper over `@molecule/app-i18n-i18next`'s `createI18nextProvider()`, so
+its `setLocale()` THROWS for an unregistered locale — see that package's
+remarks for the fleet-wide contract. The separate `useI18n()` hook below,
+however, calls `react-i18next`'s raw `i18n.changeLanguage()` directly and
+is NOT an `I18nProvider` — it does not throw for an unregistered locale.

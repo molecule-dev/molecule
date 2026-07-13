@@ -433,8 +433,17 @@ function createUploaderInstance(
    * Checks if all files have been processed and fires onAllComplete if so.
    */
   function checkAllComplete(): void {
+    // Every non-terminal FileUploadStatus counts as pending, including 'processing'
+    // (this implementation never sets it — startUpload() only moves a file through
+    // 'idle' -> 'uploading' -> 'complete'/'error'/'cancelled' — but a future
+    // contributor using the core FileUploadStatus enum must not get an early
+    // onAllComplete for a file the core contract still calls in-flight).
     const pending = files.some(
-      (f) => f.status === 'idle' || f.status === 'uploading' || f.status === 'preparing',
+      (f) =>
+        f.status === 'idle' ||
+        f.status === 'uploading' ||
+        f.status === 'preparing' ||
+        f.status === 'processing',
     )
     if (!pending && files.length > 0) {
       events.onAllComplete?.([...files])

@@ -4,18 +4,18 @@
  * @module
  */
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when auth.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import {
   androidpublisher,
   type androidpublisher_v3,
   auth as googleAuth,
 } from '@googleapis/androidpublisher'
 
-// Side-effect import: registers this bond's secret definitions so the
-// runtime registry is populated even when auth.js is imported directly
-// (not through the package barrel).
-import './secrets.js'
-
 import { t } from '@molecule/api-i18n'
+import { configNotConfiguredError } from '@molecule/api-secrets'
 
 /**
  * Cached parse of `GOOGLE_API_SERVICE_KEY_OBJECT`, keyed by the raw env value so
@@ -37,16 +37,19 @@ let cachedServiceKey: { raw: string; parsed: Record<string, unknown> } | null = 
  * throw still claimed "not configured").
  *
  * @returns The parsed service account key object.
- * @throws {Error} When the env var is missing, or set but not valid JSON (with `cause`).
+ * @throws {Error} A tagged config-not-configured error (`statusCode: 503`,
+ *   `errorKey: 'config.notConfigured'`) when the env var is missing — see
+ *   `isConfigNotConfiguredError` in `@molecule/api-payments`. A different,
+ *   untagged `Error` (with `cause`) when it's set but not valid JSON —
+ *   that's an operator paste error, not a "not configured" state.
  */
 const getServiceKeyObject = (): Record<string, unknown> => {
   const raw = process.env.GOOGLE_API_SERVICE_KEY_OBJECT
   if (!raw) {
-    throw new Error(
-      `${t('payments.google.error.serviceKeyNotConfigured', undefined, {
-        defaultValue: 'Google API service key object not configured',
-      })} — set GOOGLE_API_SERVICE_KEY_OBJECT to the service account JSON key.`,
-    )
+    // Tagged so the bond adapter's catch can rethrow instead of swallowing it
+    // into the same `null` a genuine verification failure returns (mirrors
+    // the Stripe/Apple bonds' getClient()/verifyReceipt()).
+    throw configNotConfiguredError('GOOGLE_API_SERVICE_KEY_OBJECT', 'payments')
   }
   if (cachedServiceKey?.raw === raw) {
     return cachedServiceKey.parsed

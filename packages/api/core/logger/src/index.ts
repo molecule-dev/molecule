@@ -31,11 +31,21 @@
  *   `'info'` when unset/invalid). A "missing" debug line means the gate is
  *   filtering it — call `setLevel('debug')` or set `LOG_LEVEL=debug`; the
  *   logger is not broken.
+ * - **`LOG_LEVEL` is read lazily, on the first call that needs the level**
+ *   (`logger.*`/`getLevel()`), not at module-import time — and the result is
+ *   then cached until `setLevel()` overrides it. This means an app that loads
+ *   `dotenv`/`.env` AFTER its first transitive import of this module still
+ *   sees `LOG_LEVEL`, as long as env loading finishes before the first log
+ *   call (true in virtually every app — real logging starts after startup
+ *   config, not during module evaluation).
  * - Filtering happens ONCE, here in the core, before the bonded provider is
  *   invoked. Provider bonds (pino/winston/loglevel) deliberately pass every
  *   level through, so this gate is the single knob — don't also configure a
  *   level in the bond unless you want a second, stricter gate.
  * - `setLevel('silent')` drops everything, including `logger.error(...)`.
+ * - **`hasLogger()` reflects the bond registry**, not just `setLogger()`
+ *   calls: it also returns `true` after `bond('logger', provider)` wired a
+ *   provider directly (the path every bond package's `getLogger()` uses).
  *
  * @module
  */

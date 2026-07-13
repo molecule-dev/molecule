@@ -5,4 +5,5 @@ export const ml: UploadsTranslations = {
   'uploads.error.noProvider':
     'അപ്‌ലോഡ് പ്രൊവൈഡര്‍ കോണ്‍ഫിഗര്‍ ചെയ്തിട്ടില്ല. ആദ്യം setProvider() വിളിക്കുക.',
   'uploads.error.streamLimitReached': 'സ്ട്രീം പരിധി എത്തി.',
+  'uploads.error.aborted': 'അപ്‌ലോഡ് റദ്ദാക്കി.',
 }

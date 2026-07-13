@@ -25,6 +25,16 @@
  * Create checkout with SERVER-configured price ids ({@link createCheckoutSession}) — never an
  * amount sent by the client.
  *
+ * **A missing `STRIPE_SECRET_KEY` is NOT the same as "no active subscription."**
+ * `getClient()` throws a tagged config-not-configured error; `verifySubscription`,
+ * `updateSubscription`, and `cancelSubscription` on {@link paymentProvider} detect
+ * that tag (`isConfigNotConfiguredError` from `@molecule/api-payments`) and
+ * RETHROW it instead of swallowing it into the same `null` / `{ updated: false }`
+ * / `false` a genuine verification/update failure returns — so a caller (or its
+ * own catch block) can tell "the operator forgot to set the secret" apart from
+ * "this subscription/card is invalid" and surface the actionable 503 instead of
+ * a generic 400/500.
+ *
  * @module
  */
 

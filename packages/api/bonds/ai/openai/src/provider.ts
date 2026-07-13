@@ -52,6 +52,16 @@ export class OpenaiAIProvider implements AIProvider {
     this.defaultModel = config.defaultModel ?? 'gpt-4o-mini'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.OPENAI_BASE_URL ?? 'https://api.openai.com'
+
+    // Fail fast with an actionable local error rather than a cryptic 401 on the
+    // first request. The default `provider` export constructs lazily on first
+    // use (see index.ts), so this surfaces the moment the provider is actually
+    // used, not at bond/module-load time.
+    if (!this.apiKey) {
+      throw new Error(
+        'OPENAI_API_KEY is not set. Add it to your environment to use the OpenAI AI provider.',
+      )
+    }
   }
 
   /**
@@ -117,10 +127,15 @@ export class OpenaiAIProvider implements AIProvider {
 
       if (response.status === 429 || response.status === 503) {
         if (attempt < MAX_RETRIES) {
+          // Retry-After is equally-valid as delta-seconds or an HTTP-date;
+          // parseInt on the date form yields NaN, degrading the backoff to a
+          // ~0ms retry against an already rate-limiting API. Guard it.
           const retryAfter = response.headers.get('retry-after')
-          const delayMs = retryAfter
-            ? Math.min(parseInt(retryAfter, 10) * 1000, 60_000)
-            : Math.min(1000 * 2 ** attempt, 30_000)
+          const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
+          const delayMs =
+            Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+              ? Math.min(parsedRetryAfterSeconds * 1000, 60_000)
+              : Math.min(1000 * 2 ** attempt, 30_000)
           logger.warn('OpenAI API rate limited, retrying', {
             status: response.status,
             attempt: attempt + 1,
@@ -163,9 +178,11 @@ export class OpenaiAIProvider implements AIProvider {
             : response!.status === 400 &&
                 /context.*length|maximum context|too many tokens|prompt is too long/i.test(detail)
               ? "Conversation too long for the model's context window."
-              : response!.status === 503 || response!.status === 502
-                ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                : 'AI service error. Please try again.'
+              : response!.status === 400
+                ? 'AI request was invalid — check the model and request parameters.'
+                : response!.status === 503 || response!.status === 502
+                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                  : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }

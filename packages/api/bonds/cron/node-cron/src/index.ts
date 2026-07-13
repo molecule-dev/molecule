@@ -29,6 +29,14 @@
  *   seconds-granularity (`'* * * * * *'` = every second) expressions work.
  * - Jobs are in-memory only: they are lost on process restart, so re-register
  *   them at startup. For persistent/distributed jobs use `@molecule/api-cron-bullmq`.
+ * - `CronOptions.noOverlap: true` skips a tick that arrives while the
+ *   previous execution of the same job is still running (node-cron logs
+ *   `'task still running, new execution blocked by overlap prevention!'`
+ *   itself). Default `false` — overlapping runs are allowed, unchanged from
+ *   before this option existed.
+ * - `CronOptions.maxRuns` is enforced both on scheduled ticks AND on manual
+ *   `runNow()` calls — once the cap is reached (by either), the job is
+ *   marked `'completed'` and stops ticking.
  *
  * @module
  */

@@ -77,12 +77,26 @@ describe('@molecule/api-database-postgresql/setup', () => {
     })
   })
 
-  describe('superSQLFilenames', () => {
-    it('should export super SQL filenames', async () => {
-      const { superSQLFilenames } = await import('../setup/setup.js')
+  describe('SUPERPGUSER superuser path — removed [doc-drift fix]', () => {
+    it('no longer creates a superuser client, even when SUPERPGUSER is set — the path was dead-on-arrival (role.sql/database.sql never shipped)', async () => {
+      process.env.SUPERPGUSER = 'superuser'
+      process.env.SUPERPGPASSWORD = 'superpass'
+      process.env.SUPERPGHOST = 'superhost'
+      vi.resetModules()
 
-      expect(superSQLFilenames).toContain('role.sql')
-      expect(superSQLFilenames).toContain('database.sql')
+      const pg = await import('pg')
+      const { setup } = await import('../setup/setup.js')
+
+      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+
+      await setup()
+
+      // Exactly ONE client (the regular DATABASE_URL/PG* client) is ever created —
+      // no second superuser-authenticated client, and no ENOENT reading role.sql.
+      expect(pg.Client).toHaveBeenCalledTimes(1)
+      expect(pg.Client).not.toHaveBeenCalledWith(expect.objectContaining({ user: 'superuser' }))
+
+      consoleSpy.mockRestore()
     })
   })
 
@@ -123,7 +137,7 @@ describe('@molecule/api-database-postgresql/setup', () => {
       consoleSpy.mockRestore()
     })
 
-    it('should handle SQL execution errors', async () => {
+    it('logs AND rethrows on a SQL execution error [ambiguous-failure fix — was swallowed]', async () => {
       const pg = await import('pg')
       const { runSQL } = await import('../setup/setup.js')
 
@@ -133,8 +147,9 @@ describe('@molecule/api-database-postgresql/setup', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
 
-      await runSQL(mockClient as never, '/test/file.sql')
-
+      // Before the fix, a broken SQL file was only warn-logged — runSQL()
+      // resolved normally and the caller had no way to detect the failure.
+      await expect(runSQL(mockClient as never, '/test/file.sql')).rejects.toThrow('SQL Error')
       expect(consoleSpy).toHaveBeenCalled()
 
       consoleSpy.mockRestore()
@@ -170,36 +185,6 @@ describe('@molecule/api-database-postgresql/setup', () => {
       expect(glob).toHaveBeenCalledWith('custom/**/*.sql', {
         cwd: '/custom/path',
         absolute: true,
-      })
-
-      consoleSpy.mockRestore()
-    })
-
-    it('should use superuser credentials when SUPERPGUSER is set', async () => {
-      process.env.SUPERPGUSER = 'superuser'
-      process.env.SUPERPGPASSWORD = 'superpass'
-      process.env.SUPERPGHOST = 'superhost'
-      process.env.SUPERPGPORT = '5433'
-      vi.resetModules()
-
-      const pg = await import('pg')
-      const { setup } = await import('../setup/setup.js')
-
-      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
-
-      await setup()
-
-      // Should create two clients: super client and regular client
-      expect(pg.Client).toHaveBeenCalledTimes(2)
-      expect(pg.Client).toHaveBeenCalledWith({
-        user: 'superuser',
-        password: 'superpass',
-        host: 'superhost',
-        // Maintenance DB falls back to the superuser's own name (Postgres
-        // convention) when SUPERPGDATABASE is unset. This previously asserted
-        // the bug: the HOSTNAME ('superhost') used as the database name.
-        database: 'superuser',
-        port: 5433,
       })
 
       consoleSpy.mockRestore()
@@ -270,35 +255,31 @@ describe('@molecule/api-database-postgresql/setup', () => {
       consoleSpy.mockRestore()
     })
 
-    it('should use PGHOST as fallback for SUPERPGHOST', async () => {
-      process.env.SUPERPGUSER = 'superuser'
-      process.env.SUPERPGPASSWORD = 'superpass'
-      process.env.PGHOST = 'fallback-host'
-      process.env.PGPORT = '5434'
-      delete process.env.SUPERPGHOST
-      delete process.env.SUPERPGPORT
+    it('propagates a failure as a thrown, summarized error instead of a silent success [doc-drift/ambiguous-failure fix]', async () => {
       vi.resetModules()
 
       const pg = await import('pg')
       const { setup } = await import('../setup/setup.js')
 
-      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+      const mockClient = new pg.Client()
+      vi.mocked(mockClient.query).mockRejectedValueOnce(new Error('permission denied'))
 
-      await setup()
+      const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      expect(pg.Client).toHaveBeenCalledWith(
-        expect.objectContaining({
-          host: 'fallback-host',
-          port: 5434,
-        }),
-      )
+      // Before the fix, runSQL() swallowed the error and setup() always resolved
+      // — a broken SQL file "succeeded" (exit 0) having done nothing.
+      await expect(setup()).rejects.toThrow(/permission denied/)
+      // The connection is still closed even though the run failed.
+      expect(mockClient.end).toHaveBeenCalled()
 
-      consoleSpy.mockRestore()
+      infoSpy.mockRestore()
+      errorSpy.mockRestore()
     })
   })
 
   describe('runSQL() edge cases', () => {
-    it('should replace multiple placeholder values', async () => {
+    it('replaces EVERY occurrence of a placeholder, not just the first [doc-drift fix]', async () => {
       process.env.PGDATABASE = 'test-db'
       process.env.PGUSER = 'test-user'
       process.env.PGPASSWORD = 'test-pass'
@@ -306,8 +287,10 @@ describe('@molecule/api-database-postgresql/setup', () => {
 
       const pg = await import('pg')
       const fs = await import('fs')
+      // 'molecule-database' appears TWICE — a first-occurrence-only .replace()
+      // would leave the second GRANT target un-substituted.
       vi.mocked(fs.readFileSync).mockReturnValueOnce(
-        'GRANT ALL ON DATABASE "molecule-database" TO "molecule-user";',
+        'CREATE DATABASE "molecule-database"; GRANT ALL ON DATABASE "molecule-database" TO "molecule-user";',
       )
 
       const { runSQL } = await import('../setup/setup.js')
@@ -316,9 +299,9 @@ describe('@molecule/api-database-postgresql/setup', () => {
 
       await runSQL(mockClient as never, '/test/grants.sql')
 
-      // Note: The current implementation only replaces first occurrence
-      // This test documents current behavior
-      expect(mockClient.query).toHaveBeenCalled()
+      expect(mockClient.query).toHaveBeenCalledWith(
+        'CREATE DATABASE "test-db"; GRANT ALL ON DATABASE "test-db" TO "test-user";',
+      )
 
       consoleSpy.mockRestore()
     })
@@ -357,7 +340,7 @@ describe('@molecule/api-database-postgresql/setup', () => {
       consoleSpy.mockRestore()
     })
 
-    it('should log error with basename on failure', async () => {
+    it('should log error with basename on failure, then rethrow', async () => {
       vi.resetModules()
 
       const pg = await import('pg')
@@ -369,7 +352,7 @@ describe('@molecule/api-database-postgresql/setup', () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
 
-      await runSQL(mockClient as never, '/path/to/broken.sql')
+      await expect(runSQL(mockClient as never, '/path/to/broken.sql')).rejects.toThrow(error)
 
       expect(errorSpy).toHaveBeenCalledWith('Error executing broken.sql:', error)
 
@@ -383,9 +366,11 @@ describe('@molecule/api-database-postgresql/setup', () => {
       const setupIndex = await import('../setup/index.js')
 
       expect(setupIndex.replacements).toBeDefined()
-      expect(setupIndex.superSQLFilenames).toBeDefined()
       expect(setupIndex.runSQL).toBeDefined()
       expect(setupIndex.setup).toBeDefined()
+      // The SUPERPGUSER superuser path (role.sql/database.sql) was removed —
+      // it was dead-on-arrival, no such files ever shipped in this package.
+      expect((setupIndex as Record<string, unknown>).superSQLFilenames).toBeUndefined()
     })
   })
 })

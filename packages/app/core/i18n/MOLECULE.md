@@ -68,6 +68,16 @@ interface I18nProvider {
 
   /**
    * Sets the current locale.
+   *
+   * **Fleet contract:** every conformant provider (the core simple provider,
+   * `@molecule/api-i18n-simple`, `@molecule/app-i18n-i18next`, and
+   * `@molecule/app-i18n-react-i18next`) MUST throw `Error('Locale "<code>"
+   * not found')` when `locale` is not registered — via the constructor's
+   * `initialLocales`/`locales` config, `addLocale()`, or `addTranslations()`
+   * (all three register a locale). It must NOT silently degrade to
+   * fallback-locale text while `getLocale()` reports the unregistered code —
+   * that divergence makes a misconfigured locale switch indistinguishable
+   * from a working one until a user notices the wrong language on screen.
    */
   setLocale(locale: string): Promise<void>
 
@@ -94,12 +104,27 @@ interface I18nProvider {
   removeLocale(code: string): boolean
 
   /**
-   * Adds translations to a locale.
+   * Adds translations to a locale. Auto-creates the locale if it doesn't exist.
+   *
+   * **Fleet contract:** merges are DEEP, not a shallow spread — registering
+   * two calls (e.g. two modules) that share a top-level namespace key merges
+   * their subtrees instead of the second call clobbering the first's nested
+   * translations wholesale. `@molecule/api-i18n-simple` implements the same
+   * contract on the API side.
    */
   addTranslations(locale: string, translations: Translations, namespace?: string): void
 
   /**
    * Translates a key with optional interpolation values and pluralization.
+   *
+   * **Fleet plural contract (matches i18next's own key resolution order):**
+   * when `options.count` is provided, the plural-suffixed key
+   * (`` `${key}_${pluralForm}` ``, e.g. `item_one`/`item_few`/…, falling back
+   * to `` `${key}_other` ``) is looked up FIRST and wins over the base `key`
+   * if BOTH are registered. Only when no plural-suffixed key exists at all
+   * does resolution fall back to the base key. A catalog that ships both
+   * `item` and `item_one`/`item_other` therefore pluralizes identically
+   * whichever provider is bonded.
    *
    * @returns The translated string, or the default value / key if not found.
    */
@@ -110,7 +135,15 @@ interface I18nProvider {
   ): string
 
   /**
-   * Checks if a translation key exists in the current locale.
+   * Checks if a translation key exists.
+   *
+   * **Fleet contract:** follows the SAME locale-resolution chain as `t()` —
+   * the active locale, then the English fallback — so `exists(key) === true`
+   * whenever `t(key)` would render real translated text (not the raw key or
+   * an inline `defaultValue`). Do not narrow this to "only the active
+   * locale's own catalog"; that made `exists()` return `false` for keys `t()`
+   * happily rendered via the English fallback, and the answer differed by
+   * provider.
    *
    * @returns `true` if the key has a translation.
    */
@@ -367,6 +400,7 @@ function addLocale(config: LocaleConfig): void
 #### `addTranslations(locale, translations, namespace)`
 
 Adds translations to a locale, optionally under a namespace prefix.
+Auto-creates the locale if it doesn't already exist.
 
 ```typescript
 function addTranslations(locale: string, translations: Translations, namespace?: string): void
@@ -392,6 +426,24 @@ function createSimpleI18nProvider(initialLocale?: string, initialLocales?: Local
 - `initialLocales` — Pre-registered locale configurations with optional translations.
 
 **Returns:** A fully functional `I18nProvider` instance.
+
+#### `deepMerge(target, source)`
+
+Recursively merges source translation entries into a COPY of the target
+object, preserving existing keys and overwriting only the leaves that
+conflict. Used by `addTranslations()` so registering two modules that
+share a top-level namespace key merges their subtrees instead of one
+module's translations clobbering the other's — matching the deep-merge
+contract documented on `I18nProvider.addTranslations`.
+
+```typescript
+function deepMerge(target: Translations, source: Translations): Translations
+```
+
+- `target` — The base translations object (not mutated).
+- `source` — The translations to merge on top.
+
+**Returns:** A new object with `source` deep-merged over `target`.
 
 #### `formatDate(value, options)`
 
@@ -419,15 +471,16 @@ function formatNumber(value: number, options?: NumberFormatOptions): string
 
 **Returns:** The locale-formatted number string.
 
-#### `formatRelativeTime(value)`
+#### `formatRelativeTime(value, options)`
 
 Formats a relative time (e.g. "2 hours ago", "in 3 days").
 
 ```typescript
-function formatRelativeTime(value: number | Date): string
+function formatRelativeTime(value: number | Date, options?: { unit?: Intl.RelativeTimeFormatUnit; }): string
 ```
 
 - `value` — The date or timestamp to express relative to now.
+- `options` — Optional settings; `unit` forces the difference to be expressed in that unit.
 
 **Returns:** The locale-formatted relative time string.
 
@@ -611,6 +664,21 @@ entry: `t('hero', { tagline }, { defaultValue: 'Eat well — {{tagline}}' })` an
 `heroTitle: 'Eat well — {{tagline}}'`. The locale entry takes priority over the
 `defaultValue`, so a single-brace locale entry shows `{tagline}` even when the
 default is correct — the #1 i18n footgun.
+
+**Fleet provider contract** (every `I18nProvider` — this package's own
+`createSimpleI18nProvider`, `@molecule/api-i18n-simple`,
+`@molecule/app-i18n-i18next`, `@molecule/app-i18n-react-i18next` — must
+behave identically; see the JSDoc on each `I18nProvider` method for the
+normative text):
+
+- `setLocale()` THROWS for an unregistered locale — never silently
+  degrades to fallback text while `getLocale()` reports the bad code.
+- `t()` prefers the plural-suffixed key (`key_one`/`key_other`/…) over the
+  base `key` whenever `options.count` is provided (matches i18next).
+- `addTranslations()` deep-merges nested translation objects.
+- `exists(key)` follows the same locale-fallback chain as `t()` (active
+  locale, then English), so it agrees with whether `t(key)` renders real
+  translated text.
 
 ## Translations
 

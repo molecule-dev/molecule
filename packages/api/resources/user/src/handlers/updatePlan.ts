@@ -1,7 +1,11 @@
 import { get, getAnalytics, getLogger } from '@molecule/api-bond'
 import { findById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
-import type { PaymentProvider, PlanService } from '@molecule/api-payments'
+import {
+  isConfigNotConfiguredError,
+  type PaymentProvider,
+  type PlanService,
+} from '@molecule/api-payments'
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
@@ -247,6 +251,18 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
       invalidateEntitlementsCacheSafe(id)
       return result
     } catch (error) {
+      // A bonded payment provider rethrows a tagged config-not-configured
+      // error (e.g. STRIPE_SECRET_KEY unset) instead of swallowing it — pass
+      // its REAL statusCode/errorKey through instead of flattening it to a
+      // generic 500. Otherwise a missing secret is indistinguishable from an
+      // unexpected server error at the exact moment a user tries to upgrade.
+      if (isConfigNotConfiguredError(error)) {
+        logger.warn(error.message, { errorKey: error.errorKey })
+        return {
+          statusCode: error.statusCode,
+          body: { error: error.message, errorKey: error.errorKey },
+        }
+      }
       logger.error(error)
       return {
         statusCode: 500,

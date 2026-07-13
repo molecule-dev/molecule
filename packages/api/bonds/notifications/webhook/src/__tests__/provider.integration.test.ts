@@ -94,11 +94,13 @@ describe('@molecule/api-notifications-webhook × REAL fetch + HTTP receiver', ()
     expect(req!.headers['content-type']).toBe('application/json')
 
     // The receiver-side contract: the body parses as JSON and carries the
-    // notification fields plus the spread metadata.
+    // notification fields plus metadata NESTED under its own key (never
+    // spread at the top level, so a metadata key can't collide with/
+    // overwrite subject/body/timestamp).
     const parsed = JSON.parse(req!.rawBody) as Record<string, unknown>
     expect(parsed.subject).toBe('Service Down')
     expect(parsed.body).toBe('API is not responding')
-    expect(parsed.severity).toBe('high')
+    expect(parsed.metadata).toEqual({ severity: 'high' })
     expect(typeof parsed.timestamp).toBe('string')
     expect(Number.isNaN(Date.parse(parsed.timestamp as string))).toBe(false)
 

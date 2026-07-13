@@ -7,6 +7,7 @@ import {
   getProvider,
   getProviderByName,
   hasProvider,
+  requireProvider,
   setProvider,
 } from '../provider.js'
 import type { AIProvider } from '../types.js'
@@ -78,11 +79,49 @@ describe('AI provider bond', () => {
       expect(getProvider()).toBe(mockAnthropicProvider)
     })
 
-    it('does not overwrite singleton when a second named provider is added', () => {
+    it('DECLINES (returns null) once a second differently-named provider is registered — the ambiguity bug', () => {
+      // Regression: registration order used to silently decide which
+      // provider answered forever (the FIRST named provider auto-promoted to
+      // the singleton, and a later distinct name never displaced it). Now
+      // getProvider() declines instead of returning a stale first-registered
+      // pick — matching the documented "ambiguous → null" rule that already
+      // applied to the no-singleton-at-all case.
+      setProvider('anthropic', mockAnthropicProvider)
+      expect(getProvider()).toBe(mockAnthropicProvider) // single named provider: unambiguous
+      setProvider('openai', mockOpenAIProvider)
+      expect(getProvider()).toBeNull() // now ambiguous: two distinct named providers, no explicit default
+      // Both remain reachable by name — callers must disambiguate explicitly.
+      expect(getProviderByName('anthropic')).toBe(mockAnthropicProvider)
+      expect(getProviderByName('openai')).toBe(mockOpenAIProvider)
+    })
+
+    it('an explicit singleton set BEFORE named providers is unaffected by later ambiguity', () => {
+      const explicitDefault: AIProvider = {
+        name: 'explicit',
+        async *chat() {
+          yield { type: 'done' as const, usage: { inputTokens: 0, outputTokens: 0 } }
+        },
+      }
+      setProvider(explicitDefault)
       setProvider('anthropic', mockAnthropicProvider)
       setProvider('openai', mockOpenAIProvider)
-      // The singleton should still be the first one registered
-      expect(getProvider()).toBe(mockAnthropicProvider)
+      // An explicit setProvider(provider) singleton always wins — it was never
+      // an auto-promotion, so the "second name → decline" rule does not apply.
+      expect(getProvider()).toBe(explicitDefault)
+    })
+
+    it('an explicit singleton set AFTER auto-promotion also always wins', () => {
+      setProvider('anthropic', mockAnthropicProvider) // auto-promotes anthropic
+      setProvider('openai', mockOpenAIProvider) // now ambiguous
+      expect(getProvider()).toBeNull()
+      const explicitDefault: AIProvider = {
+        name: 'explicit',
+        async *chat() {
+          yield { type: 'done' as const, usage: { inputTokens: 0, outputTokens: 0 } }
+        },
+      }
+      setProvider(explicitDefault) // explicit call clears the auto-promoted flag
+      expect(getProvider()).toBe(explicitDefault)
     })
   })
 
@@ -98,6 +137,32 @@ describe('AI provider bond', () => {
     it('returns the singleton provider', () => {
       setProvider(mockAnthropicProvider)
       expect(getProvider()).toBe(mockAnthropicProvider)
+    })
+  })
+
+  // -------------------------------------------------------------------------
+  // requireProvider
+  // -------------------------------------------------------------------------
+
+  describe('requireProvider', () => {
+    it('throws the generic "not configured" message when nothing is bonded', () => {
+      expect(() => requireProvider()).toThrow(/not configured/i)
+    })
+
+    it('returns the resolved provider when unambiguous', () => {
+      setProvider('anthropic', mockAnthropicProvider)
+      expect(requireProvider()).toBe(mockAnthropicProvider)
+    })
+
+    it('throws a DISTINCT, actionable message when declining due to ambiguity — disambiguated from "nothing bonded"', () => {
+      setProvider('anthropic', mockAnthropicProvider)
+      setProvider('openai', mockOpenAIProvider)
+      // Pre-fix, this threw the same generic "not configured" message as the
+      // true-nothing-bonded case even though two real providers ARE bonded —
+      // an executor debugging this had no way to tell "bond something" from
+      // "pick one of the two already-bonded providers".
+      expect(() => requireProvider()).toThrow(/getProviderByName/)
+      expect(() => requireProvider()).not.toThrow(/not configured/i)
     })
   })
 

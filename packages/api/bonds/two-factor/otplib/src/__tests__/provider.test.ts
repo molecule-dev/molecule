@@ -222,6 +222,86 @@ describe('@molecule/api-two-factor-otplib', () => {
       })
     })
 
+    it('REGRESSION: an unreachable afterTimeStep (clock rollback) resolves reason:"replay" instead of throwing', async () => {
+      // Raw otplib 13 throws AfterTimeStepRangeExceededError when afterTimeStep sits
+      // further ahead than the current time step plus the tolerance window can reach —
+      // the shape produced by a server clock rollback after a prior successful verify.
+      // The provider must never pass a cursor that would trigger this throw; it should
+      // fall back to verifying without the cursor and label the result 'replay'.
+      mockVerifySync.mockReturnValue({ valid: true, timeStep: 1, delta: 0, epoch: 0 })
+
+      const farFutureCursor = Math.floor(Date.now() / 1000 / 30) + 1_000_000
+      const result = await provider.verify({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        afterTimeStep: farFutureCursor,
+      })
+
+      // Called WITHOUT afterTimeStep — passing the unreachable cursor would throw.
+      expect(mockVerifySync).toHaveBeenCalledWith({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        epochTolerance: [60, 30],
+      })
+      expect(mockVerifySync).toHaveBeenCalledTimes(1)
+      expect(result).toEqual({ valid: false, reason: 'replay' })
+    })
+
+    it('REGRESSION: an unreachable afterTimeStep with a genuinely wrong code is a plain rejection', async () => {
+      mockVerifySync.mockReturnValue({ valid: false })
+
+      const farFutureCursor = Math.floor(Date.now() / 1000 / 30) + 1_000_000
+      const result = await provider.verify({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '000000',
+        afterTimeStep: farFutureCursor,
+      })
+
+      expect(result).toEqual({ valid: false })
+    })
+
+    it('REGRESSION: a corrupted (non-base32) stored secret throws a labeled error with cause', async () => {
+      // otplib/scure throw a raw, generically-named Error for a malformed base32 secret —
+      // server-side data corruption, correctly re-thrown (never masked as an invalid
+      // code), but rewrapped so the message names the side (secret, not token) and the
+      // fix (re-run setup) instead of leaking an opaque scure stack.
+      const rawError = new Error('Invalid Base32 string: Unknown letter: "0". Allowed: ABC...')
+      mockVerifySync.mockImplementation(() => {
+        throw rawError
+      })
+
+      await expect(
+        provider.verify({ secret: 'not-valid-base32!!!', token: '123456' }),
+      ).rejects.toMatchObject({
+        message: expect.stringContaining('re-run setup'),
+        cause: rawError,
+      })
+    })
+
+    it('REGRESSION: an otplib Secret*Error (missing/too-short secret) is also rewrapped', async () => {
+      const rawError = new Error('Secret must be at least 16 bytes (128 bits), got 2 bytes')
+      rawError.name = 'SecretTooShortError'
+      mockVerifySync.mockImplementation(() => {
+        throw rawError
+      })
+
+      await expect(provider.verify({ secret: 'AAAA', token: '123456' })).rejects.toMatchObject({
+        message: expect.stringContaining('re-run setup'),
+        cause: rawError,
+      })
+    })
+
+    it('does NOT rewrap unrelated otplib errors (e.g. a genuine library bug)', async () => {
+      const rawError = new Error('Something else entirely broke')
+      mockVerifySync.mockImplementation(() => {
+        throw rawError
+      })
+
+      await expect(provider.verify({ secret: 'JBSWY3DPEHPK3PXP', token: '123456' })).rejects.toBe(
+        rawError,
+      )
+    })
+
     it('honors a caller-supplied epochTolerance override (stricter threat models)', async () => {
       mockVerifySync.mockReturnValue({ valid: true, timeStep: 57600002, delta: 0, epoch: 0 })
 

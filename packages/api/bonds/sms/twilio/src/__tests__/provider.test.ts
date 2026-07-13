@@ -48,8 +48,26 @@ describe('@molecule/api-sms-twilio', () => {
   })
 
   describe('createProvider', () => {
-    it('creates a Twilio client with provided credentials', () => {
+    it('does NOT construct the Twilio client eagerly — only on first use', async () => {
+      // ROOT-CAUSE REGRESSION GUARD: createProvider() used to build the
+      // client (and throw on missing credentials) immediately, so
+      // `setProvider(createProvider())` crashed the whole API at startup
+      // when secrets weren't filled in yet. It must now stay lazy.
+      expect(MockTwilio).not.toHaveBeenCalled()
+
+      mockCreate.mockResolvedValueOnce({ sid: 'SM1', status: 'queued', to: '+1' })
+      await provider.send('+1', 'hi')
+
       expect(MockTwilio).toHaveBeenCalledWith('ACtest123', 'token123')
+      expect(MockTwilio).toHaveBeenCalledTimes(1)
+    })
+
+    it('memoises the client across multiple sends (does not reconstruct)', async () => {
+      mockCreate.mockResolvedValue({ sid: 'SM1', status: 'queued', to: '+1' })
+      await provider.send('+1', 'a')
+      await provider.send('+1', 'b')
+
+      expect(MockTwilio).toHaveBeenCalledTimes(1)
     })
 
     it('registers its secret definitions at import time', async () => {
@@ -61,24 +79,47 @@ describe('@molecule/api-sms-twilio', () => {
     it('accepts explicit config over env vars', async () => {
       vi.clearAllMocks()
       const { createProvider } = await import('../provider.js')
-      createProvider({
+      const p = createProvider({
         accountSid: 'ACexplicit',
         authToken: 'explicitToken',
         defaultFrom: '+15559999999',
       })
+      mockCreate.mockResolvedValueOnce({ sid: 'SM1', status: 'queued', to: '+1' })
+      await p.send('+1', 'hi')
       expect(MockTwilio).toHaveBeenCalledWith('ACexplicit', 'explicitToken')
     })
 
-    it('throws when accountSid is missing', async () => {
+    it('does not throw synchronously when accountSid is missing (deferred to first use)', async () => {
       delete process.env.TWILIO_ACCOUNT_SID
       const { createProvider } = await import('../provider.js')
-      expect(() => createProvider({ authToken: 'token' })).toThrow('accountSid is required')
+      expect(() => createProvider({ authToken: 'token' })).not.toThrow()
     })
 
-    it('throws when authToken is missing', async () => {
+    it('throws the actionable accountSid error on first send, not at bond time', async () => {
+      delete process.env.TWILIO_ACCOUNT_SID
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider({ authToken: 'token' })
+      await expect(p.send('+1', 'hi')).rejects.toThrow('accountSid is required')
+    })
+
+    it('does not throw synchronously when authToken is missing (deferred to first use)', async () => {
       delete process.env.TWILIO_AUTH_TOKEN
       const { createProvider } = await import('../provider.js')
-      expect(() => createProvider({ accountSid: 'ACtest' })).toThrow('authToken is required')
+      expect(() => createProvider({ accountSid: 'ACtest' })).not.toThrow()
+    })
+
+    it('throws the actionable authToken error on first send, not at bond time', async () => {
+      delete process.env.TWILIO_AUTH_TOKEN
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider({ accountSid: 'ACtest' })
+      await expect(p.send('+1', 'hi')).rejects.toThrow('authToken is required')
+    })
+
+    it('throws the actionable accountSid error from getStatus when credentials are missing', async () => {
+      delete process.env.TWILIO_ACCOUNT_SID
+      const { createProvider } = await import('../provider.js')
+      const p = createProvider({ authToken: 'token' })
+      await expect(p.getStatus('SM123')).rejects.toThrow('accountSid is required')
     })
   })
 

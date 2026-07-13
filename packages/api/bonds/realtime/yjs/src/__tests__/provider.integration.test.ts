@@ -89,6 +89,72 @@ describe('@molecule/api-realtime-yjs × REAL yjs/y-protocols peer replicas', () 
     await provider.close()
   })
 
+  it('CONSUMER PROPERTY: awareness correlates and is removed instantly even with a REAL, UNALIGNED doc.clientID (no clientIdToAwarenessId alignment)', async () => {
+    // Regression: before this fix, correlation ONLY worked when the
+    // collaborating client's doc.clientID happened to equal
+    // clientIdToAwarenessId(moleculeClientId) — every real Yjs client
+    // defaults to a RANDOM clientID, so getPresence() silently omitted
+    // awareness and leaveRoom() could not remove it instantly (it only
+    // cleared via the 30s Awareness staleness timeout). This pins the fixed
+    // behavior with a genuinely random, unaligned doc.clientID.
+    const sent: YjsOutboundMessage[] = []
+    const provider = createProvider({ transport: { send: (m) => sent.push(m) } })
+    const room = await provider.createRoom('board', { persistent: true })
+    await provider.joinRoom(room.id, 'alice')
+    await provider.joinRoom(room.id, 'bob')
+
+    // alice's REAL client uses Yjs's own default (random) clientID — deliberately
+    // NOT aligned to clientIdToAwarenessId('alice').
+    const aliceDoc = new Y.Doc()
+    expect(aliceDoc.clientID).not.toBe(clientIdToAwarenessId('alice'))
+    const aliceAwareness = new Awareness(aliceDoc)
+    aliceAwareness.setLocalState({ user: 'alice', cursor: { x: 5, y: 9 } })
+    provider.applyInbound({
+      roomId: room.id,
+      clientId: 'alice',
+      event: YJS_AWARENESS_EVENT,
+      data: encodeAwarenessUpdate(aliceAwareness, [aliceDoc.clientID]),
+    })
+
+    // getPresence correlates the unaligned id to the molecule client.
+    const presence = await provider.getPresence(room.id)
+    const alicePresence = presence.find((p) => p.clientId === 'alice')
+    expect(alicePresence?.metadata?.awareness).toEqual({ user: 'alice', cursor: { x: 5, y: 9 } })
+
+    // bob is a REAL peer replica applying every relayed awareness frame.
+    const bobAwareness = new Awareness(new Y.Doc())
+    const applyRelayedAwarenessTo = (target: Awareness, forClient: string): void => {
+      for (const m of sent) {
+        if (m.event === YJS_AWARENESS_EVENT && m.clientId === forClient) {
+          applyAwarenessUpdate(target, m.data as Uint8Array, 'wire')
+        }
+      }
+    }
+    applyRelayedAwarenessTo(bobAwareness, 'bob')
+    expect(bobAwareness.getStates().get(aliceDoc.clientID)).toEqual({
+      user: 'alice',
+      cursor: { x: 5, y: 9 },
+    })
+
+    sent.length = 0
+    await provider.leaveRoom(room.id, 'alice')
+
+    // Server side: alice's UNALIGNED id is gone instantly — not left for the
+    // 30s staleness timeout.
+    const serverAwareness = provider.getAwareness(room.id)!
+    expect(serverAwareness.getStates().has(aliceDoc.clientID)).toBe(false)
+    // getPresence no longer lists alice at all (she left the room).
+    const afterLeave = await provider.getPresence(room.id)
+    expect(afterLeave.find((p) => p.clientId === 'alice')).toBeUndefined()
+
+    // Peer side: the relayed removal frame actually removes alice's
+    // unaligned id on bob's REAL replica.
+    applyRelayedAwarenessTo(bobAwareness, 'bob')
+    expect(bobAwareness.getStates().has(aliceDoc.clientID)).toBe(false)
+
+    await provider.close()
+  })
+
   it('CONSUMER PROPERTY: a late joiner’s REAL Y.Doc converges from the join snapshot (slow collaborator arrives after edits)', async () => {
     const sent: YjsOutboundMessage[] = []
     const provider = createProvider({ transport: { send: (m) => sent.push(m) } })

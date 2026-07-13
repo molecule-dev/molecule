@@ -4,7 +4,15 @@
  * @module
  */
 
-import React, { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { createPortal } from 'react-dom'
 
 import type { TooltipPlacement, TooltipProps } from '@molecule/app-ui'
@@ -13,6 +21,52 @@ import { getClassMap } from '@molecule/app-ui'
 interface Position {
   top: number
   left: number
+}
+
+/** Arrow square size (px) before the 45° rotation that turns it into a diamond. */
+const ARROW_SIZE = 8
+
+/**
+ * Returns the arrow's inline position style for a given placement. The arrow
+ * has no dedicated ClassMap resolver (`tooltip()` takes no options), so its
+ * shape/position is expressed via a small inline style — the sanctioned
+ * exception for values ClassMap cannot express. Its color is NOT hardcoded:
+ * `var(--color-surface)` / `var(--color-border)` are the same CSS custom
+ * properties the `bg-surface`/`border` Tailwind utilities in `tooltipContent`
+ * resolve to (see `@molecule/app-ui-tailwind/base.css`), so the arrow always
+ * matches the tooltip body in both themes.
+ * @param placement - The tooltip's resolved placement.
+ * @returns Inline style positioning the rotated-square arrow for that placement.
+ */
+function getArrowStyle(placement: TooltipPlacement): React.CSSProperties {
+  const half = ARROW_SIZE / 2
+  const base: React.CSSProperties = {
+    position: 'absolute',
+    width: ARROW_SIZE,
+    height: ARROW_SIZE,
+    background: 'var(--color-surface)',
+    border: '1px solid var(--color-border)',
+  }
+  switch (placement) {
+    case 'top':
+      return { ...base, bottom: -half, left: '50%', transform: 'translateX(-50%) rotate(45deg)' }
+    case 'top-start':
+      return { ...base, bottom: -half, left: 12, transform: 'rotate(45deg)' }
+    case 'top-end':
+      return { ...base, bottom: -half, right: 12, transform: 'rotate(45deg)' }
+    case 'bottom':
+      return { ...base, top: -half, left: '50%', transform: 'translateX(-50%) rotate(45deg)' }
+    case 'bottom-start':
+      return { ...base, top: -half, left: 12, transform: 'rotate(45deg)' }
+    case 'bottom-end':
+      return { ...base, top: -half, right: 12, transform: 'rotate(45deg)' }
+    case 'left':
+      return { ...base, right: -half, top: '50%', transform: 'translateY(-50%) rotate(45deg)' }
+    case 'right':
+      return { ...base, left: -half, top: '50%', transform: 'translateY(-50%) rotate(45deg)' }
+    default:
+      return base
+  }
 }
 
 // Position the tooltip in a LAYOUT effect (synchronous, before the browser paints) so
@@ -80,19 +134,19 @@ function calculatePosition(
 
 /**
  * Tooltip component.
+ *
+ * `children` must be a single valid React element (e.g. one `<button>` or
+ * one custom component that forwards `aria-describedby`) for the tooltip's
+ * content to be programmatically associated with it — this is what lets a
+ * screen reader announce the tooltip text for the actually-focused control.
+ * A non-element `children` (plain text, a fragment, multiple nodes) still
+ * shows the tooltip visually on hover/focus, but without that association.
+ * `hasArrow` renders a small themed pointer at the resolved `placement`
+ * edge.
  */
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
   (
-    {
-      content,
-      children,
-      placement = 'top',
-      delay = 0,
-      hasArrow: _hasArrow,
-      className,
-      style,
-      testId,
-    },
+    { content, children, placement = 'top', delay = 0, hasArrow = false, className, style, testId },
     _ref,
   ) => {
     const [isVisible, setIsVisible] = useState(false)
@@ -100,6 +154,12 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
     const triggerRef = useRef<HTMLDivElement>(null)
     const tooltipRef = useRef<HTMLDivElement>(null)
     const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+    // Programmatically associates the tooltip with its trigger. A previous
+    // version relied on the WRAPPER div's hover/focus — but the wrapper is
+    // not itself the focused element, so its `aria-describedby` would never
+    // be announced for the child that actually receives focus (see the
+    // single-child cloning below).
+    const tooltipId = useId()
 
     const cm = getClassMap()
 
@@ -185,23 +245,43 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
       }
     }, [])
 
+    // Outer positioned wrapper carries the top/left/zIndex placement; the
+    // arrow renders as its SIBLING (not nested inside the visible box),
+    // because `tooltipContent` sets `overflow-hidden` — an arrow meant to
+    // poke past the box's own edge would be clipped invisible if it were a
+    // descendant of that element instead.
     const tooltipElement = isVisible && (
-      <div
-        ref={tooltipRef}
-        role="tooltip"
-        className={cm.cn(cm.tooltipContent, className)}
-        style={{
-          ...style,
-          position: 'absolute',
-          top: position.top,
-          left: position.left,
-          zIndex: 9999,
-        }}
-        data-testid={testId}
-      >
-        {content as React.ReactNode}
+      <div style={{ position: 'absolute', top: position.top, left: position.left, zIndex: 9999 }}>
+        <div
+          ref={tooltipRef}
+          id={tooltipId}
+          role="tooltip"
+          className={cm.cn(cm.tooltipContent, className)}
+          style={style}
+          data-testid={testId}
+        >
+          {content as React.ReactNode}
+        </div>
+        {hasArrow && <span aria-hidden="true" style={getArrowStyle(placement)} />}
       </div>
     )
+
+    // Single-child API (mirrors every mainstream tooltip library): when
+    // `children` is exactly one valid element, clone it to inject
+    // `aria-describedby` onto the actual focused/hovered node while the
+    // tooltip is visible — that id is what a screen reader announces
+    // alongside the element's accessible name. `children` is typed as
+    // `ReactNode` (it could be a string, a fragment, or multiple nodes); for
+    // anything other than a single element there is no single DOM node to
+    // attach the id to, so the association is skipped rather than guessed —
+    // documented in the module JSDoc as the supported contract.
+    const isCloneableChild =
+      React.isValidElement(children) && (children as React.ReactElement).type !== React.Fragment
+    const describedChildren = isCloneableChild
+      ? React.cloneElement(children as React.ReactElement<{ 'aria-describedby'?: string }>, {
+          'aria-describedby': isVisible ? tooltipId : undefined,
+        })
+      : (children as React.ReactNode)
 
     return (
       <>
@@ -224,7 +304,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
           onClick={hide}
           className={cm.tooltipTrigger}
         >
-          {children as React.ReactNode}
+          {describedChildren}
         </div>
         {typeof document !== 'undefined' &&
           tooltipElement &&

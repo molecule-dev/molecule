@@ -4,5 +4,7 @@ import type { IconsTranslations } from './types.js'
 export const ja: IconsTranslations = {
   'icons.error.noIconSet':
     'IconSetが設定されていません。アプリの起動時にアイコンライブラリを指定してsetIconSet()を呼び出してください（例：@molecule/app-icons-molecule）。',
+  'icons.error.noProvider':
+    '@molecule/app-icons: アイコンセットがバインドされていません。IconSetを指定してsetIconSet()を呼び出してください（例：@molecule/app-icons-moleculeのエクスポート）。',
   'icons.error.notFound': 'アイコン "{{name}}" は現在のアイコンセットに見つかりませんでした。',
 }

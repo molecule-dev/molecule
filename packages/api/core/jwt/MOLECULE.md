@@ -269,14 +269,17 @@ the output directory if it does not exist.
 function writeKeys(outputPath?: string): void
 ```
 
-- `outputPath` — Directory to write the PEM files into; defaults to `.keys/{NODE_ENV}/`.
+- `outputPath` — Directory to write the PEM files into; defaults to `{JWT_KEYS_DIR}/{NODE_ENV}/`.
 
 ### Constants
 
 #### `JWT_ALGORITHM`
 
 The signing algorithm used for JWT operations. Read from the `JWT_ALGORITHM`
-environment variable, defaulting to `RS256`.
+environment variable, defaulting to `RS256`. An unrecognized value logs an
+actionable warning at module load and falls back to `RS256` rather than
+failing every `sign()`/`verify()` call later with an unexplained
+"invalid algorithm" error.
 
 ```typescript
 const JWT_ALGORITHM: JwtAlgorithm
@@ -363,3 +366,13 @@ anything security-relevant; `decode()` is only for reading a token you do NOT tr
 - Set `JWT_PRIVATE_KEY` and `JWT_PUBLIC_KEY` together (or neither). If only the private
   key is set, the matching public key is DERIVED from it automatically; setting only the
   public key is for verify-only deployments.
+- When neither key env var is set, a key pair is auto-generated on disk at
+  `{JWT_KEYS_DIR}/{NODE_ENV}/` — default `JWT_KEYS_DIR`: `process.cwd() + '/.keys'`, a
+  stable app-level directory (NOT inside `node_modules`, so `npm ci`/reinstall never
+  wipes it). Set `JWT_KEYS_DIR` to relocate it (e.g. a persistent volume in production).
+  A pre-existing pair at the legacy `node_modules`-relative location is migrated forward
+  automatically (with a logged warning) instead of being silently regenerated.
+- `JWT_ALGORITHM` (default `RS256`) is validated at module load against the
+  {@link JwtAlgorithm} union; an unrecognized value (e.g. a typo like `rs256`) logs an
+  actionable warning and falls back to `RS256` instead of failing every `sign()`/`verify()`
+  call later with an opaque "invalid algorithm" error.

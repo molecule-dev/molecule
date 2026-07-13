@@ -81,17 +81,15 @@ describe('Twitter OAuth Provider', () => {
       // Check that Basic auth header is used
       expect(mockPost).toHaveBeenCalledWith(
         'https://api.twitter.com/2/oauth2/token',
-        {
-          client_id: 'test-twitter-client-id',
-          code: 'test-auth-code',
-          code_verifier: undefined,
-          grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost:3000',
-        },
+        // RFC 6749 §4.1.3 requires the token-exchange body to be
+        // form-encoded, not JSON — this pins the wire format, not just the
+        // logical params.
+        'client_id=test-twitter-client-id&code=test-auth-code&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A3000',
         {
           headers: {
             Authorization: expect.stringContaining('Basic '),
             accept: 'application/json',
+            'content-type': 'application/x-www-form-urlencoded',
           },
           timeout: 15000,
         },
@@ -120,6 +118,34 @@ describe('Twitter OAuth Provider', () => {
         },
       })
     })
+
+    it(
+      'form-encodes the token request per RFC 6749 §4.1.3 (was: a plain JS object, which ' +
+        "@molecule/api-http JSON-encodes and content-types as application/json — X's real " +
+        'token endpoint requires form-encoding)',
+      async () => {
+        mockPost.mockResolvedValue({
+          data: { access_token: 'tok', token_type: 'bearer', scope: 'users.read' },
+        })
+        mockGet.mockResolvedValue({ data: { data: { id: '1', username: 'a' } } })
+
+        const { verify } = await import('../verify.js')
+        await verify('a-code', 'a-verifier')
+
+        const [, body, options] = mockPost.mock.calls[0] as [
+          string,
+          unknown,
+          { headers: Record<string, string> },
+        ]
+        expect(typeof body).toBe('string')
+        expect(body).not.toMatch(/^\s*\{/)
+        expect(options.headers['content-type']).toBe('application/x-www-form-urlencoded')
+        const parsed = new URLSearchParams(body as string)
+        expect(parsed.get('code')).toBe('a-code')
+        expect(parsed.get('code_verifier')).toBe('a-verifier')
+        expect(parsed.get('grant_type')).toBe('authorization_code')
+      },
+    )
 
     it('honours OAUTH_TWITTER_TOKEN_URL and OAUTH_TWITTER_USER_URL overrides (E2E mocks)', async () => {
       process.env.OAUTH_TWITTER_TOKEN_URL = 'http://127.0.0.1:9999/2/oauth2/token'
@@ -179,6 +205,7 @@ describe('Twitter OAuth Provider', () => {
           headers: {
             Authorization: `Basic ${expectedAuth}`,
             accept: 'application/json',
+            'content-type': 'application/x-www-form-urlencoded',
           },
           timeout: 15000,
         },
@@ -207,13 +234,8 @@ describe('Twitter OAuth Provider', () => {
 
       await verify('test-auth-code', 'test-code-verifier')
 
-      expect(mockPost).toHaveBeenCalledWith(
-        'https://api.twitter.com/2/oauth2/token',
-        expect.objectContaining({
-          code_verifier: 'test-code-verifier',
-        }),
-        expect.anything(),
-      )
+      const [, body] = mockPost.mock.calls[0] as [string, string]
+      expect(new URLSearchParams(body).get('code_verifier')).toBe('test-code-verifier')
     })
 
     it('should handle custom redirect_uri', async () => {
@@ -238,13 +260,8 @@ describe('Twitter OAuth Provider', () => {
 
       await verify('test-auth-code', undefined, 'https://custom.example.com')
 
-      expect(mockPost).toHaveBeenCalledWith(
-        'https://api.twitter.com/2/oauth2/token',
-        expect.objectContaining({
-          redirect_uri: 'https://custom.example.com',
-        }),
-        expect.anything(),
-      )
+      const [, body] = mockPost.mock.calls[0] as [string, string]
+      expect(new URLSearchParams(body).get('redirect_uri')).toBe('https://custom.example.com')
     })
 
     it('should handle user without email', async () => {
@@ -495,13 +512,8 @@ describe('Twitter OAuth Provider', () => {
 
       await verify('test-auth-code')
 
-      expect(mockPost).toHaveBeenCalledWith(
-        'https://api.twitter.com/2/oauth2/token',
-        expect.objectContaining({
-          redirect_uri: 'https://myapp.example.com',
-        }),
-        expect.anything(),
-      )
+      const [, body] = mockPost.mock.calls[0] as [string, string]
+      expect(new URLSearchParams(body).get('redirect_uri')).toBe('https://myapp.example.com')
     })
   })
 

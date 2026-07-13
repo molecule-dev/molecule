@@ -77,6 +77,26 @@ function urlCredsAreLocalPlaceholders(line) {
   })
 }
 
+/**
+ * A private-key-block match that is provably NOT key material: every PEM header
+ * on the line is immediately terminated by a string-literal quote (`'`, `"`, or
+ * a backtick). A string that ENDS at the header cannot contain the key body —
+ * this is the shape of test assertions (`expect(pem).toContain('-----BEGIN
+ * PRIVATE KEY-----')`) on keys generated at runtime. A real leaked key's header
+ * line is bare (a PEM file) or continues with `\n`+base64 inside the same
+ * literal — neither is excused.
+ *
+ * @param line - The added line that matched the private-key-block rule.
+ * @returns True when every PEM header on the line terminates its string literal.
+ */
+function pemHeadersAreQuoteTerminated(line) {
+  const matches = [
+    ...line.matchAll(/-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY-----(.?)/g),
+  ]
+  if (matches.length === 0) return false
+  return matches.every(([, next]) => next === "'" || next === '"' || next === '`')
+}
+
 /** This scanner necessarily CONTAINS the shapes it hunts (its rules + their test cases). */
 const SELF = /(?:^|\/)(?:precommit-secret-scan\.mjs|precommit-secret-scan\.test\.mjs)$/
 
@@ -94,6 +114,7 @@ for (const line of staged.split('\n')) {
   for (const [label, re] of RULES) {
     if (!re.test(added)) continue
     if (label === 'URL credentials' && urlCredsAreLocalPlaceholders(added)) continue
+    if (label === 'Private key block' && pemHeadersAreQuoteTerminated(added)) continue
     hits.push({ file: currentFile, label, line: added.trim().slice(0, 120) })
   }
 }

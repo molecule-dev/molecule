@@ -5,4 +5,5 @@ export const ca: UploadsTranslations = {
   'uploads.error.noProvider':
     'El proveïdor de pujada no està configurat. Crideu setProvider() primer.',
   'uploads.error.streamLimitReached': "S'ha assolit el límit del flux.",
+  'uploads.error.aborted': "S'ha cancel·lat la pujada.",
 }

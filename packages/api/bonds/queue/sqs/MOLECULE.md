@@ -6,7 +6,10 @@ Uses `AWS_REGION` (default `us-east-1`) with the standard AWS credential
 chain; set `SQS_ENDPOINT` to target LocalStack. Queue URLs are resolved
 lazily on first operation — the queue must already exist (create it with
 `createQueue()` or in AWS) or the first send/receive rejects with the AWS
-`QueueDoesNotExist` error.
+`QueueDoesNotExist` error. Pass `{ autoCreateQueues: true }` to
+`createProvider()` to auto-create a standard queue on first use instead
+(opt-in — unlike the memory/redis bonds, silently creating AWS resources
+has cost/IAM implications, so it is never the default).
 
 ## Quick Start
 
@@ -242,6 +245,18 @@ interface SQSOptions {
   secretAccessKey?: string
   endpoint?: string
   accountId?: string
+
+  /**
+   * When `true`, resolving a queue name that does not yet exist in AWS
+   * auto-creates a standard (non-FIFO) queue with default settings instead
+   * of rejecting with `QueueDoesNotExist` — matching the memory/redis
+   * bonds' "just works" first-send behavior. Off by default: unlike an
+   * in-process or self-hosted broker, silently creating AWS resources has
+   * cost and IAM-permission implications, so opting in is a deliberate
+   * choice. When off (the default), create the queue via `createQueue()`,
+   * the AWS console, or infrastructure-as-code before sending to it.
+   */
+  autoCreateQueues?: boolean
 }
 ```
 
@@ -266,7 +281,7 @@ optional explicit credentials, and optional custom endpoint (e.g. for LocalStack
 function createProvider(options?: SQSOptions): QueueProvider
 ```
 
-- `options` — Optional AWS region, credentials, and endpoint configuration. Falls back to environment variables.
+- `options` — Optional AWS region, credentials, endpoint, and auto-create configuration. Falls back to environment variables.
 
 **Returns:** A `QueueProvider` that manages SQS queues. Queue URLs are resolved lazily on first operation.
 
@@ -342,3 +357,8 @@ Delivery semantics (at-least-once — handlers must be idempotent):
   appends it) and a `groupId` per message; a `deduplicationId` is derived
   from the message id when not provided.
 - `delaySeconds` is capped at 900 (15 minutes) by SQS itself.
+- `subscribe()` retries a failed queue-URL resolution (bad region,
+  credentials not yet propagated, a `QueueDoesNotExist` race) with bounded
+  exponential backoff (1s → 30s) instead of logging once and leaving the
+  subscription permanently dead — it self-heals once the queue/credentials
+  become valid.

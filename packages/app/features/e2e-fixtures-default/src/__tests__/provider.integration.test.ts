@@ -113,6 +113,33 @@ test('vite dev-noise console errors are always ignored', async ({ page }) => {
   await seen
   await expect(page.locator('h1')).toHaveText('ok')
 })
+
+test('a real Chrome DevTools source-map failure for a third-party https CDN bundle is ignored', async ({ page }) => {
+  // This is the REAL Chrome message text (verified against a live probe +
+  // public reports, not guessed): "DevTools failed to load SourceMap: Could
+  // not load content for <url>: ...". The old pattern required the word
+  // "fetch" (real text says "load") AND a ".cdn." substring in the host —
+  // js.stripe.com and maps.googleapis.com have neither, so it never matched.
+  const seen = page.waitForEvent('console')
+  await page.setContent(
+    '<script>console.error("DevTools failed to load SourceMap: Could not load content for https://js.stripe.com/v3/m-outer-3437aa9c33b8d5a0.js.map: HTTP error: status code 404, net::ERR_HTTP_RESPONSE_CODE_FAILURE")</script><h1>ok</h1>',
+  )
+  await seen
+  await expect(page.locator('h1')).toHaveText('ok')
+})
+
+test('a same-origin (http) DevTools source-map failure is NOT swallowed by the https-only scope', async ({ page }) => {
+  // The broadened pattern intentionally requires https:// (third-party CDN
+  // bundles are always TLS) so it can never accidentally silence a genuinely
+  // broken source map in the app's OWN build, served over plain http from
+  // the local dev/preview server.
+  const seen = page.waitForEvent('console')
+  await page.setContent(
+    '<script>console.error("DevTools failed to load SourceMap: Could not load content for http://localhost:5173/assets/index-abc123.js.map: HTTP error: status code 404")</script><h1>ok</h1>',
+  )
+  await seen
+  await expect(page.locator('h1')).toHaveText('ok')
+})
 `
 
 const CONFIG = `
@@ -207,5 +234,24 @@ describe('@molecule/app-e2e-fixtures-default × REAL @playwright/test + Chromium
 
   it('CONSUMER PROPERTY: known dev noise ([vite] connecting…) never fails a spec', () => {
     expect(results.get('vite dev-noise console errors are always ignored')?.status).toBe('passed')
+  })
+
+  it('DOC-DRIFT FIX: a real DevTools source-map failure for a third-party https CDN host is ignored', () => {
+    // Pre-fix, this exact real-world message would have FAILED the spec —
+    // the ALWAYS_IGNORE pattern's comment claimed Stripe/Google Maps
+    // coverage it did not actually provide (wrong verb + wrong host check).
+    expect(
+      results.get(
+        'a real Chrome DevTools source-map failure for a third-party https CDN bundle is ignored',
+      )?.status,
+    ).toBe('passed')
+  })
+
+  it('the https-only scope still fails on a same-origin (http) source-map error, not just any source-map text', () => {
+    const result = results.get(
+      'a same-origin (http) DevTools source-map failure is NOT swallowed by the https-only scope',
+    )
+    expect(result?.status).toBe('failed')
+    expect(result?.message).toContain('Browser console error(s) during test')
   })
 })

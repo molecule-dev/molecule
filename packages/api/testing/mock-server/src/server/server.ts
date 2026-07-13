@@ -221,6 +221,9 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
     setState(endpointKey: string, state: ResponseState) {
       stateOverrides.set(endpointKey, state)
     },
+    clearState(endpointKey: string) {
+      stateOverrides.delete(endpointKey)
+    },
     setDefaultState(state: 'success' | 'empty' | 'error' | 'unauthorized') {
       currentDefaultState = { state, delay: defaultDelay }
     },

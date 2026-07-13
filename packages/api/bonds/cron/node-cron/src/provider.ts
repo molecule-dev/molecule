@@ -35,6 +35,8 @@ interface JobRecord {
   lastRun?: Date
   /** Total number of executions. */
   runCount: number
+  /** Maximum number of executions, mirrored from the schedule options so `runNow` can enforce it too. */
+  maxRuns?: number
 }
 
 /**
@@ -74,6 +76,7 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
         handler,
         status: 'active',
         runCount: 0,
+        maxRuns: options?.maxRuns,
         task: null as unknown as cron.ScheduledTask,
       }
 
@@ -130,6 +133,11 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
           timezone,
           name,
           maxExecutions: options?.maxRuns,
+          // node-cron 4 natively skips a tick while the previous execution's
+          // promise is still pending (and logs a warning) — no bookkeeping
+          // needed on our side. Defaults to false (current behavior) when
+          // omitted, matching the core CronOptions default.
+          noOverlap: options?.noOverlap,
         },
       )
 
@@ -191,6 +199,14 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
       record.runCount += 1
       record.lastRun = new Date()
       await record.handler()
+
+      // Manual runs count toward maxRuns too — without this, runNow() could
+      // push a capped job's total executions past maxRuns before the next
+      // scheduled tick finally catches up and marks it 'completed'.
+      if (record.maxRuns !== undefined && record.runCount >= record.maxRuns) {
+        record.status = 'completed'
+        record.task.stop()
+      }
     },
 
     async close(): Promise<void> {

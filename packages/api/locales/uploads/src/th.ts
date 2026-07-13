@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const th: UploadsTranslations = {
   'uploads.error.noProvider': 'ผู้ให้บริการอัปโหลดยังไม่ได้กำหนดค่า กรุณาเรียก setProvider() ก่อน',
   'uploads.error.streamLimitReached': 'ถึงขีดจำกัดของสตรีมแล้ว',
+  'uploads.error.aborted': 'การอัปโหลดถูกยกเลิก',
 }

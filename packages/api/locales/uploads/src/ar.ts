@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const ar: UploadsTranslations = {
   'uploads.error.noProvider': 'لم يتم تكوين مزود الرفع. قم باستدعاء setProvider() أولاً.',
   'uploads.error.streamLimitReached': 'تم الوصول إلى حد التدفق.',
+  'uploads.error.aborted': 'تم إلغاء الرفع.',
 }

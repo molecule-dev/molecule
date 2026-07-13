@@ -18,22 +18,73 @@ import type {
 } from '@molecule/api-queue'
 
 /**
+ * Wire envelope this bond stores in `job.data`, versioned so a future shape
+ * change can coexist with jobs already sitting in Redis. `attributes` and
+ * `deduplicationId` are captured here so they survive the round trip through
+ * `receive()`/`subscribe()` instead of being silently dropped — BullMQ's
+ * `job.data` has no concept of message attributes on its own.
+ */
+interface QueueEnvelope<T> {
+  __molecule_queue_envelope: 1
+  body: T
+  attributes?: Record<string, string | number | boolean>
+}
+
+const isEnvelope = (data: unknown): data is QueueEnvelope<unknown> =>
+  typeof data === 'object' &&
+  data !== null &&
+  (data as Record<string, unknown>).__molecule_queue_envelope === 1
+
+/** Matches ioredis errors that mean "Redis is unreachable" (vs. a genuine application-level failure). */
+const CONNECTION_ERROR_PATTERN =
+  /ECONNREFUSED|ENOTFOUND|EAI_AGAIN|enableOfflineQueue|max retries per request|Connection is closed|Stream isn't writeable/i
+
+/**
+ * Runs a BullMQ operation and, if it fails with a connection-level error (Redis
+ * unreachable), rethrows with an actionable message naming the env vars to check —
+ * instead of letting ioredis's raw (and often opaque) error surface unexplained.
+ * @param queueName - The queue name, included in the wrapped error for context.
+ * @param operation - The async BullMQ call to run.
+ * @returns The operation's resolved value.
+ */
+const withConnectionErrorContext = async <T>(
+  queueName: string,
+  operation: () => Promise<T>,
+): Promise<T> => {
+  try {
+    return await operation()
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    if (CONNECTION_ERROR_PATTERN.test(message)) {
+      throw new Error(
+        `Redis queue "${queueName}" is unreachable — check REDIS_URL (or REDIS_HOST/REDIS_PORT/REDIS_PASSWORD).`,
+        { cause: error },
+      )
+    }
+    throw error
+  }
+}
+
+/**
  * Creates a `Queue` backed by BullMQ (Redis). Supports send/sendBatch (with delay and exponential backoff retries),
  * receive (polling waiting jobs), subscribe (via BullMQ `Worker`), size, and purge.
- * @param connection - The BullMQ/Redis connection options.
+ * @param connections - Connection options for the producer (send/receive/size/purge — configured to
+ *   fail fast instead of buffering commands forever against an unreachable Redis) and the worker
+ *   (subscribe — BullMQ requires `maxRetriesPerRequest: null` on this one, so it keeps ioredis's
+ *   default indefinite-retry behavior, appropriate for a long-running background consumer).
  * @param queueName - The queue name used as the BullMQ queue identifier.
  * @param prefix - The Redis key prefix for all queue-related keys (default: `'molecule:queue:'`).
- * @param registerCleanup - Optional callback receiving a disposer that closes this queue's BullMQ queue and workers; the provider collects these so `provider.close()` actually releases the Redis connections.
+ * @param registerCleanup - Optional callback receiving a disposer that closes this queue's BullMQ queue and workers; the provider collects these so `provider.close()` (and `deleteQueue()`) actually release the Redis connections.
  * @returns A `Queue` object with send/receive/subscribe/size/purge methods.
  */
 export const createQueue = (
-  connection: ConnectionOptions,
+  connections: { producer: ConnectionOptions; worker: ConnectionOptions },
   queueName: string,
   prefix: string,
   registerCleanup?: (cleanup: () => Promise<void>) => void,
 ): Queue => {
   const bullQueue = new BullQueue(queueName, {
-    connection,
+    connection: connections.producer,
     prefix,
   })
 
@@ -51,27 +102,44 @@ export const createQueue = (
     name: queueName,
 
     async send<T = unknown>(message: QueueMessage<T>): Promise<string> {
-      const id = message.id ?? crypto.randomUUID()
+      // A stable `deduplicationId` (without an explicit `id`) rides on
+      // BullMQ's native "adding a job with an existing jobId is a no-op"
+      // mechanism — the closest real equivalent to SQS FIFO deduplication
+      // this backend has.
+      const id = message.id ?? message.deduplicationId ?? crypto.randomUUID()
 
-      const job = await bullQueue.add('message', message.body, {
-        jobId: id,
-        delay: message.delaySeconds ? message.delaySeconds * 1000 : undefined,
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 1000,
-        },
-      })
+      const envelope: QueueEnvelope<T> = {
+        __molecule_queue_envelope: 1,
+        body: message.body,
+        attributes: message.attributes,
+      }
+
+      const job = await withConnectionErrorContext(queueName, () =>
+        bullQueue.add('message', envelope, {
+          jobId: id,
+          delay: message.delaySeconds ? message.delaySeconds * 1000 : undefined,
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
+        }),
+      )
 
       return job.id ?? id
     },
 
     async sendBatch<T = unknown>(messages: QueueMessage<T>[]): Promise<string[]> {
       const jobs = messages.map((message) => {
-        const id = message.id ?? crypto.randomUUID()
+        const id = message.id ?? message.deduplicationId ?? crypto.randomUUID()
+        const envelope: QueueEnvelope<T> = {
+          __molecule_queue_envelope: 1,
+          body: message.body,
+          attributes: message.attributes,
+        }
         return {
           name: 'message',
-          data: message.body,
+          data: envelope,
           opts: {
             jobId: id,
             delay: message.delaySeconds ? message.delaySeconds * 1000 : undefined,
@@ -84,15 +152,23 @@ export const createQueue = (
         }
       })
 
-      const addedJobs = await bullQueue.addBulk(jobs)
+      const addedJobs = await withConnectionErrorContext(queueName, () => bullQueue.addBulk(jobs))
       return addedJobs.map((job) => job.id ?? '')
     },
 
     async receive<T = unknown>(options?: ReceiveOptions): Promise<ReceivedMessage<T>[]> {
+      if (options?.visibilityTimeout) {
+        logger.warn(
+          `Redis queue "${queueName}".receive({ visibilityTimeout }) has no effect — receive() is a PEEK (getJobs('waiting')), not a lease. The job is not locked, so a concurrently running subscribe() worker can pick up and process the same job. Use subscribe() for real single-consumer delivery.`,
+        )
+      }
+
       // BullMQ doesn't have a direct "receive" like SQS
       // We get jobs that are waiting
       const maxMessages = options?.maxMessages ?? 10
-      const waitingJobs = await bullQueue.getJobs(['waiting'], 0, maxMessages - 1)
+      const waitingJobs = await withConnectionErrorContext(queueName, () =>
+        bullQueue.getJobs(['waiting'], 0, maxMessages - 1),
+      )
 
       return waitingJobs.map((job) => createReceivedMessage<T>(job))
     },
@@ -123,7 +199,7 @@ export const createQueue = (
           }
         },
         {
-          connection,
+          connection: connections.worker,
           prefix,
           concurrency: options?.maxMessages ?? 1,
         },
@@ -155,12 +231,14 @@ export const createQueue = (
     },
 
     async size(): Promise<number> {
-      const counts = await bullQueue.getJobCounts('waiting', 'active', 'delayed')
+      const counts = await withConnectionErrorContext(queueName, () =>
+        bullQueue.getJobCounts('waiting', 'active', 'delayed'),
+      )
       return counts.waiting + counts.active + counts.delayed
     },
 
     async purge(): Promise<void> {
-      await bullQueue.drain()
+      await withConnectionErrorContext(queueName, () => bullQueue.drain())
     },
   }
 }
@@ -169,15 +247,24 @@ export const createQueue = (
  * Wraps a BullMQ `Job` into a `ReceivedMessage` with `ack` (removes the job) and `nack`
  * (fails the job so BullMQ retries it) methods. In the `subscribe()` worker path these are
  * overridden: there the job is locked, completion acks, and `nack()` triggers a retry throw.
+ *
+ * Unwraps this bond's versioned envelope (see `QueueEnvelope`) so `attributes` sent via
+ * `send()` round-trip correctly; a job whose `data` predates the envelope (already in the
+ * queue when this version deployed) is treated as a raw body with no attributes, exactly
+ * matching the previous behavior — never `job.opts`, which are BullMQ's own retry/backoff
+ * settings, not caller-supplied attributes.
  * @param job - The BullMQ job to wrap.
  * @returns A `ReceivedMessage` with the job's data, metadata, and acknowledgement methods.
  */
-export const createReceivedMessage = <T>(job: Job<T>): ReceivedMessage<T> => {
+export const createReceivedMessage = <T>(job: Job<unknown>): ReceivedMessage<T> => {
+  const raw = job.data
+  const envelope = isEnvelope(raw) ? raw : null
+
   return {
     id: job.id ?? '',
-    body: job.data,
+    body: (envelope ? envelope.body : raw) as T,
     receiptHandle: job.id ?? '',
-    attributes: job.opts as unknown as Record<string, string | number | boolean>,
+    attributes: envelope?.attributes,
     receiveCount: job.attemptsMade + 1,
     sentTimestamp: job.timestamp ? new Date(job.timestamp) : undefined,
 

@@ -5,4 +5,6 @@ export const nl: AiTranslations = {
   'ai.error.noProvider': 'AI-provider is niet geconfigureerd. Koppel eerst een AI-provider.',
   'ai.error.apiError': 'AI API-verzoek mislukt.',
   'ai.error.noResponseBody': 'AI-antwoordinhoud is leeg.',
+  'ai.error.ambiguousProvider':
+    'Er zijn meerdere benoemde AI-providers gebonden en er is geen standaard ingesteld. Gebruik getProviderByName(name) om er een te selecteren.',
 }

@@ -12,6 +12,7 @@ vi.mock('@molecule/api-i18n', () => ({
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { bond, unbond } from '@molecule/api-bond'
 import type { CheckResult, HealthCheck, MonitoringProvider } from '@molecule/api-monitoring'
 
 import { createProvider } from '../provider.js'
@@ -192,6 +193,98 @@ describe('@molecule/api-monitoring-default', () => {
       expect(Object.keys(health.checks)).toEqual(expect.arrayContaining(['db', 'stripe']))
       expect(health.checks['db'].name).toBe('db')
       expect(health.checks['stripe'].name).toBe('stripe')
+    })
+  })
+
+  describe('runAll() logging (log only on status TRANSITION)', () => {
+    const mockLogger = {
+      trace: vi.fn(),
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    }
+
+    beforeEach(() => {
+      Object.values(mockLogger).forEach((fn) => fn.mockClear())
+      bond('logger', mockLogger)
+    })
+
+    afterEach(() => {
+      unbond('logger')
+    })
+
+    it('CONSUMER PROPERTY: a check that is down on EVERY poll logs at warn once (the transition), then debug (steady-state) — not warn on every call', async () => {
+      provider.register(makeCheck('flaky', 'external', { status: 'down', message: 'ECONNREFUSED' }))
+
+      // On the pre-fix code, EVERY runAll() call logged a fresh warn line for
+      // an unchanged down check — a /health endpoint polled every 10s would
+      // emit ~360 identical warn lines/hour, burying the transition that
+      // actually matters. This assertion fails without the fix.
+      await provider.runAll()
+      await provider.runAll()
+      await provider.runAll()
+
+      expect(mockLogger.warn).toHaveBeenCalledTimes(1)
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("Health check 'flaky' is down"),
+      )
+      expect(
+        mockLogger.debug.mock.calls.filter(([msg]) => String(msg).includes('flaky')),
+      ).toHaveLength(2)
+    })
+
+    it('re-warns when severity WORSENS (degraded → down) — that IS a transition', async () => {
+      const check = makeCheck('db', 'infrastructure', { status: 'degraded' })
+      provider.register(check)
+      await provider.runAll()
+      expect(mockLogger.warn).toHaveBeenCalledTimes(1)
+
+      // Same check now reports 'down' instead of 'degraded'.
+      ;(check.check as ReturnType<typeof vi.fn>).mockResolvedValue({ status: 'down' })
+      await provider.runAll()
+
+      expect(mockLogger.warn).toHaveBeenCalledTimes(2)
+      expect(mockLogger.warn).toHaveBeenLastCalledWith(expect.stringContaining("'db' is down"))
+    })
+
+    it('logs an info-level recovery line when a check transitions back to operational', async () => {
+      const check = makeCheck('cache', 'infrastructure', { status: 'down', message: 'timeout' })
+      provider.register(check)
+      await provider.runAll()
+      expect(mockLogger.warn).toHaveBeenCalledTimes(1)
+      ;(check.check as ReturnType<typeof vi.fn>).mockResolvedValue({ status: 'operational' })
+      await provider.runAll()
+
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.stringContaining("Health check 'cache' recovered (was down, now operational)"),
+      )
+      // No additional warn for the recovered check.
+      expect(mockLogger.warn).toHaveBeenCalledTimes(1)
+    })
+
+    it('never logs a per-check line for a check that is operational on every poll (steady-state, no transition)', async () => {
+      provider.register(makeCheck('db', 'infrastructure', { status: 'operational' }))
+
+      await provider.runAll()
+      await provider.runAll()
+
+      // `runAll()` always logs one summary line ("Health checks completed:
+      // ...") at debug per call — that's unrelated to this fix. What must
+      // NOT happen is a per-check line mentioning 'db' at any level.
+      expect(mockLogger.warn).not.toHaveBeenCalled()
+      expect(mockLogger.info).not.toHaveBeenCalled()
+      expect(
+        mockLogger.debug.mock.calls.filter(([msg]) => String(msg).includes("'db'")),
+      ).toHaveLength(0)
+    })
+
+    it('does not log a spurious recovery line on the very FIRST runAll() (no previous snapshot to recover from)', async () => {
+      provider.register(makeCheck('db', 'infrastructure', { status: 'operational' }))
+
+      await provider.runAll()
+
+      expect(mockLogger.info).not.toHaveBeenCalled()
     })
   })
 

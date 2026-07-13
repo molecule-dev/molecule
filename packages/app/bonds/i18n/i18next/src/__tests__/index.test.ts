@@ -338,6 +338,24 @@ describe('@molecule/app-i18n-i18next', () => {
         await testProvider.setLocale('fr')
         expect(listener).toHaveBeenCalledWith('fr')
       })
+
+      it('should throw for an unregistered locale, naming it (unified I18nProvider contract)', async () => {
+        // Regression: this bond previously delegated straight to i18next's
+        // changeLanguage(), which never throws — degrading to fallbackLng
+        // text instead, diverging from the core simple provider (which
+        // throws). Both now throw the SAME message shape.
+        await expect(testProvider.setLocale('xx-not-registered')).rejects.toThrow(
+          'Locale "xx-not-registered" not found',
+        )
+        // The locale never actually changed.
+        expect(testProvider.getLocale()).toBe('en')
+      })
+
+      it('should allow setLocale for a locale registered only via addTranslations (no locales[] entry, no addLocale())', async () => {
+        testProvider.addTranslations('nl', { greeting: 'Hallo' })
+        await expect(testProvider.setLocale('nl')).resolves.not.toThrow()
+        expect(testProvider.getLocale()).toBe('nl')
+      })
     })
 
     describe('getLocales', () => {
@@ -419,6 +437,17 @@ describe('@molecule/app-i18n-i18next', () => {
 
         testProvider.addTranslations('fr', { content: 'Contenu' })
         expect(listener).not.toHaveBeenCalled()
+      })
+
+      it('should auto-register a brand-new locale (not previously in locales[] or addLocale())', () => {
+        // Without this, a locale populated only via addTranslations() never
+        // satisfied setLocale()'s registered-locale check and was silently
+        // missing from getLocales() too.
+        expect(testProvider.getLocales().map((l) => l.code)).not.toContain('nl')
+        testProvider.addTranslations('nl', { greeting: 'Hallo' })
+        const locales = testProvider.getLocales()
+        expect(locales.map((l) => l.code)).toContain('nl')
+        expect(locales.find((l) => l.code === 'nl')?.translations?.greeting).toBe('Hallo')
       })
     })
 

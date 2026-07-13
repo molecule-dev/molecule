@@ -1162,7 +1162,7 @@ interface UsePushResult {
     token: PushToken | null;
     checkPermission: () => Promise<PermissionStatus>;
     requestPermission: () => Promise<PermissionStatus>;
-    register: () => Promise<PushToken>;
+    register: (options?: PushRegisterOptions) => Promise<PushToken>;
     unregister: () => Promise<void>;
     onNotificationReceived: (listener: NotificationReceivedListener) => () => void;
     onNotificationAction: (listener: NotificationActionListener) => () => void;

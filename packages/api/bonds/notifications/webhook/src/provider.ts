@@ -40,11 +40,16 @@ export const createProvider = (config?: WebhookConfig): NotificationsProvider =>
         return { success: false, error: 'Webhook URL not configured.' }
       }
 
+      // `metadata` is nested under its own key rather than spread at the top
+      // level — a top-level spread let metadata keys named subject/body/
+      // timestamp silently OVERWRITE the canonical envelope fields on the
+      // wire, so a receiver (including one verifying the HMAC signature)
+      // couldn't trust which value was authoritative.
       const body = JSON.stringify({
         subject: notification.subject,
         body: notification.body,
         timestamp: new Date().toISOString(),
-        ...notification.metadata,
+        metadata: notification.metadata,
       })
 
       const headers: Record<string, string> = {

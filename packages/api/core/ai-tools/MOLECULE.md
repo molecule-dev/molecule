@@ -152,6 +152,28 @@ interface ToolBuildConfig {
   /** Whether to block dangerous shell commands (env dumps, /proc access). Default: false. */
   blockDangerousCommands?: boolean
 
+  /**
+   * Consumer-specific command guard for `exec_command`, checked BEFORE execution (after
+   * the built-in dangerous-command check). Return an error string to block the command —
+   * it is returned to the model verbatim, so make it actionable (say what to do instead) —
+   * or `null`/`undefined` to allow it. Keeps environment-specific rules (e.g. an IDE
+   * sandbox forbidding installs that would break its preinstalled library) out of this
+   * shared package.
+   *
+   * @param command - The shell command the model asked to run.
+   * @param cwd - The resolved working directory it would run in.
+   * @returns An error string to block, or null/undefined to allow.
+   */
+  blockCommand?: (command: string, cwd: string) => string | null | undefined
+
+  /**
+   * Directory names `search_files` and `find_files` skip (VS Code
+   * `search.exclude` semantics). Defaults to `DEFAULT_SEARCH_EXCLUDED_DIRS`
+   * (node_modules, VCS dirs, build output). Pass the consumer's per-project
+   * setting so every search surface shares ONE synchronized set.
+   */
+  searchExcludedDirs?: string[]
+
   /** Post-write hook (e.g. auto-format via Prettier/ESLint). Called after every write_file/edit_file. */
   onAfterWrite?: (path: string) => Promise<void>
 
@@ -413,6 +435,19 @@ function whitespaceTolerantReplace(content: string, oldString: string, newString
 **Returns:** The new content if a unique fuzzy run matched, else null.
 
 ### Constants
+
+#### `DEFAULT_SEARCH_EXCLUDED_DIRS`
+
+Default directory names `search_files`/`find_files` skip — VS Code's
+`search.exclude` + `files.exclude` defaults (node_modules, bower_components,
+VCS dirs) plus the platform's vendored/build dirs. Overridable per consumer
+via `ToolBuildConfig.searchExcludedDirs` (a per-project, user-editable
+setting in molecule.dev — keep the APP-SIDE copy in
+`@molecule/app-ide-react`'s search types in sync with this list).
+
+```typescript
+const DEFAULT_SEARCH_EXCLUDED_DIRS: readonly ["node_modules", "bower_components", ".git", ".svn", ".hg", "CVS", "dist", ".next", ".vite", "molecule"]
+```
 
 #### `MAX_FIND_RESULTS`
 

@@ -5,4 +5,6 @@ export const el: AiTranslations = {
   'ai.error.noProvider': 'Ο πάροχος AI δεν έχει ρυθμιστεί. Συνδέστε πρώτα έναν πάροχο AI.',
   'ai.error.apiError': 'Το αίτημα API AI απέτυχε.',
   'ai.error.noResponseBody': 'Το σώμα απόκρισης AI είναι κενό.',
+  'ai.error.ambiguousProvider':
+    'Έχουν συνδεθεί πολλοί κατονομασμένοι πάροχοι AI και δεν έχει οριστεί προεπιλογή. Χρησιμοποιήστε το getProviderByName(name) για να επιλέξετε έναν.',
 }

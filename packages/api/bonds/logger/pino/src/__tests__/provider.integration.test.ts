@@ -110,6 +110,24 @@ describe('@molecule/api-logger-pino × REAL pino', () => {
     expect(records().map((r) => r.level)).toEqual([10, 20, 30, 40, 50])
   })
 
+  it('CONSUMER PROPERTY: createLogger() with level OMITTED passes debug/trace through to real pino (no hidden second gate)', () => {
+    const lines: string[] = []
+    // Deliberately no `level` — this is the "hostile default" finding: the
+    // instance used to silently default to 'info', dropping debug/trace
+    // even after a consumer called the core's setLevel('debug'). Against
+    // the real pino library, an omitted level must now behave exactly like
+    // an explicit `level: 'trace'`.
+    const logger = createLogger({
+      destination: { write: (msg: string) => void lines.push(msg) },
+    })
+
+    logger.debug('debug line')
+    logger.trace('trace line')
+
+    const records = lines.map((l) => JSON.parse(l) as Record<string, unknown>)
+    expect(records.map((r) => r.msg)).toEqual(['debug line', 'trace line'])
+  })
+
   it("a 'silent' bond-side gate emits nothing (the caller opted into double-gating)", () => {
     const lines: string[] = []
     const logger = createLogger({

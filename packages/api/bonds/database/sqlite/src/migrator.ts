@@ -23,6 +23,22 @@ import Database from 'better-sqlite3'
 import { translateDdlToSqlite } from './utilities.js'
 
 /**
+ * Returns true when `err` looks like an "already exists" / duplicate-object
+ * idempotency error — the class of error an `IF NOT EXISTS` migration is
+ * EXPECTED to hit on a re-run. better-sqlite3 sets `.code` to the generic
+ * `SQLITE_ERROR` for every one of these (no fine-grained code like Postgres's
+ * SQLSTATE or mysql2's `ER_*`), so this bond can ONLY match on message text —
+ * `table X already exists`, `index X already exists`, `duplicate column name: X`.
+ *
+ * @param err - The error thrown by `db.exec(sql)`.
+ * @returns True if the error is safe to warn-and-continue past.
+ */
+function isIdempotencyError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err)
+  return /already exists/i.test(msg) || /duplicate column name/i.test(msg)
+}
+
+/**
  * Returns a `runMigrations()` bound to a migrations directory.
  *
  * @param migrationsDir - Absolute path to the directory of ordered `*.sql`
@@ -57,6 +73,8 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         return
       }
 
+      const failures: { file: string; message: string }[] = []
+
       for (const file of sqlFiles) {
         // Resource/template setup migrations are authored in Postgres dialect;
         // translate the few Postgres-only syntax constructs (gen_random_uuid(),
@@ -70,9 +88,26 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
           console.log(`✓ ${file}`)
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err)
-          // IF NOT EXISTS migrations are idempotent — log, don't fail the run.
-          console.warn(`⚠ ${file}: ${msg}`)
+          if (isIdempotencyError(err)) {
+            // IF NOT EXISTS re-runs are expected to hit this — warn, don't fail.
+            console.warn(`⚠ ${file}: ${msg}`)
+          } else {
+            // A genuinely broken migration must NOT be swallowed as if it were
+            // idempotent — that boots the app with a missing/partial schema and
+            // the failure resurfaces later, far from the real cause. Collect it
+            // and keep going so ONE boot log reports every broken file at once.
+            console.error(`✗ ${file}: ${msg}`)
+            failures.push({ file, message: msg })
+          }
         }
+      }
+
+      if (failures.length > 0) {
+        throw new Error(
+          `Migrations failed — ${failures.length} file(s) had non-idempotency errors; ` +
+            `the app would boot with a missing/partial schema:\n` +
+            failures.map((f) => `  - ${f.file}: ${f.message}`).join('\n'),
+        )
       }
 
       console.log('Migrations complete.')

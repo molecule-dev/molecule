@@ -25,10 +25,17 @@ import type { Queue, QueueCreateOptions, QueueProvider } from '@molecule/api-que
 import { createLazyQueue } from './lazy-queue.js'
 import type { SQSOptions } from './types.js'
 
+/** True when `error` is the AWS SDK's `QueueDoesNotExist` fault (checked by name, not `instanceof`, so it also works against test doubles that don't extend the real exception class). */
+const isQueueDoesNotExistError = (error: unknown): boolean =>
+  typeof error === 'object' &&
+  error !== null &&
+  'name' in error &&
+  (error as { name?: unknown }).name === 'QueueDoesNotExist'
+
 /**
  * Creates an AWS SQS queue provider. Connects using `AWS_REGION` env var (default `'us-east-1'`),
  * optional explicit credentials, and optional custom endpoint (e.g. for LocalStack).
- * @param options - Optional AWS region, credentials, and endpoint configuration. Falls back to environment variables.
+ * @param options - Optional AWS region, credentials, endpoint, and auto-create configuration. Falls back to environment variables.
  * @returns A `QueueProvider` that manages SQS queues. Queue URLs are resolved lazily on first operation.
  */
 export const createProvider = (options?: SQSOptions): QueueProvider => {
@@ -62,8 +69,22 @@ export const createProvider = (options?: SQSOptions): QueueProvider => {
         url = result.QueueUrl!
         queueUrls.set(name, url)
       } catch (error) {
-        // Queue might not exist yet
-        logger.error('SQS getQueueUrl error:', error)
+        if (options?.autoCreateQueues && isQueueDoesNotExistError(error)) {
+          logger.warn(
+            `SQS queue "${name}" does not exist — auto-creating a standard queue (autoCreateQueues is enabled)`,
+          )
+          const created = await client.send(new CreateQueueCommand({ QueueName: name }))
+          url = created.QueueUrl!
+          queueUrls.set(name, url)
+          return url
+        }
+        // Unlike the memory/redis bonds (which auto-create on first access),
+        // SQS requires the queue to already exist in AWS — a typo'd name
+        // fails LOUD here instead of silently going nowhere.
+        logger.error(
+          `SQS getQueueUrl error for queue "${name}" — the queue must already exist in AWS. Create it via createQueue(), the AWS console, or infrastructure-as-code, or pass { autoCreateQueues: true } to createProvider() to create it automatically:`,
+          error,
+        )
         throw error
       }
     }

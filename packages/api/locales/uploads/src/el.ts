@@ -5,4 +5,5 @@ export const el: UploadsTranslations = {
   'uploads.error.noProvider':
     'Ο πάροχος μεταφόρτωσης δεν έχει ρυθμιστεί. Καλέστε πρώτα setProvider().',
   'uploads.error.streamLimitReached': 'Συμπληρώθηκε το όριο ροής.',
+  'uploads.error.aborted': 'Η μεταφόρτωση ακυρώθηκε.',
 }

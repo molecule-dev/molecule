@@ -230,6 +230,48 @@ describe('verifySignature', () => {
     expect(await verifySignature({}, body)).toBe(false)
   })
 
+  it('bounds the (uncached) cert fetch with an AbortSignal timeout', async () => {
+    const fetchSpy = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      // Pre-fix, `fetch(url)` was called with no second argument at all, so
+      // `init` would be `undefined` here and this assertion would fail.
+      expect(init?.signal).toBeInstanceOf(AbortSignal)
+      expect(init?.signal?.aborted).toBe(false)
+      return okCertResponse()
+    })
+    vi.stubGlobal('fetch', fetchSpy)
+    const { verifySignature } = await import('../provider.js')
+    const { body } = buildSignedNotification()
+    expect(await verifySignature({}, body)).toBe(true)
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('FAILURE DISAMBIGUATION: an aborted (timed-out) cert fetch resolves `false` — never hangs, never throws', async () => {
+    // Simulates a hanging SigningCertURL endpoint: fetch never resolves on
+    // its own, only reacting to the AbortSignal firing (exactly how the real
+    // undici `fetch` behaves once its signal aborts).
+    const fetchSpy = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
+      return new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => {
+          reject(new DOMException('The operation was aborted.', 'AbortError'))
+        })
+      })
+    })
+    vi.stubGlobal('fetch', fetchSpy)
+    const { verifySignature } = await import('../provider.js')
+    const { body } = buildSignedNotification()
+
+    const verifyPromise = verifySignature({}, body)
+    // Let the microtask queue flush so `fetch` has been invoked and captured
+    // its signal, then simulate the AbortSignal.timeout() firing — a unit
+    // test cannot wait out the real 5s timeout.
+    await Promise.resolve()
+    const signal = fetchSpy.mock.calls[0]?.[1]?.signal
+    expect(signal).toBeInstanceOf(AbortSignal)
+    ;(signal as AbortSignal).dispatchEvent(new Event('abort'))
+
+    expect(await verifyPromise).toBe(false)
+  })
+
   it('returns false when the cert body is not a PEM certificate', async () => {
     installFetchMock(() => new Response('not-a-cert', { status: 200 }))
     const { verifySignature } = await import('../provider.js')

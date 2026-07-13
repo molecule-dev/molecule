@@ -187,6 +187,19 @@ export const createI18nextProvider = (
     async setLocale(locale: string): Promise<void> {
       if (!initialized) await initialize()
 
+      // Fleet contract (documented on `I18nProvider.setLocale` in
+      // @molecule/app-i18n): reject an unregistered locale instead of
+      // silently degrading to `fallbackLng` text. Real i18next's own
+      // `changeLanguage()` never throws for an unknown code — it just
+      // renders fallback translations while `getLocale()` reports the
+      // unregistered code — which let this bond diverge from the core
+      // simple provider (which throws). "Registered" means added via the
+      // `locales` config, `addLocale()`, or `addTranslations()` (all three
+      // populate `localeConfigs`).
+      if (!localeConfigs.has(locale)) {
+        throw new Error(`Locale "${locale}" not found`)
+      }
+
       // Load lazy translations if this locale has a loader and hasn't been loaded yet
       const localeConfig = localeConfigs.get(locale)
       if (localeConfig?.loader && !loadedLocales.has(locale)) {
@@ -243,13 +256,21 @@ export const createI18nextProvider = (
       }
       i18n.addResourceBundle(locale, namespace, translations, true, true)
 
-      // Update local config
-      const existing = localeConfigs.get(locale)
-      if (existing) {
-        existing.translations = {
-          ...existing.translations,
-          ...translations,
-        }
+      // Auto-register the locale's metadata entry if it doesn't exist yet —
+      // mirrors the api-i18n-simple bond and the app-i18n core provider,
+      // whose addTranslations() auto-creates an unknown locale rather than
+      // leaving it unregistered. Without this, a locale populated ONLY via
+      // addTranslations() (no `locales` config entry, no addLocale() call)
+      // never satisfies setLocale()'s "is this locale registered?" check,
+      // and getLocales() silently omits it too.
+      let existing = localeConfigs.get(locale)
+      if (!existing) {
+        existing = { code: locale, name: locale, translations: {} }
+        localeConfigs.set(locale, existing)
+      }
+      existing.translations = {
+        ...existing.translations,
+        ...translations,
       }
 
       // Notify listeners when translations are added for the active locale

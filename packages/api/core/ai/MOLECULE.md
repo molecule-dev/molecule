@@ -292,6 +292,13 @@ accessors. When multiple named providers are bonded, the fallback
 declines (returns `null`) because the choice is ambiguous — those
 call sites must use `getProviderByName(name)` explicitly.
 
+This also applies to an auto-promoted singleton: `setProvider('a', p1)`
+followed by `setProvider('b', p2)` does NOT leave `getProvider()` stuck
+returning `p1` forever — once `'b'` is registered the pick is genuinely
+ambiguous and `getProvider()` declines (`null`), same as if neither had
+been auto-promoted. An explicit `setProvider(provider)` singleton is
+unaffected by how many named providers exist.
+
 ```typescript
 function getProvider(): AIProvider | null
 ```
@@ -327,10 +334,13 @@ function hasProvider(name?: string): boolean
 Retrieves the bonded AI provider, throwing if none is bonded.
 Use this when AI functionality is required.
 
-Routes through `getProvider()` so the same single-named-bond fallback
-applies — apps that wire `bond('ai', 'anthropic', provider)` directly
-still satisfy this call without having to switch to the explicit
-`getProviderByName()` pattern.
+Routes through the same resolution as `getProvider()` so the single-named-
+bond fallback applies — apps that wire `bond('ai', 'anthropic', provider)`
+directly still satisfy this call without having to switch to the explicit
+`getProviderByName()` pattern. When resolution declined because MULTIPLE
+named providers are bonded with no explicit singleton, the thrown message
+says so (distinct from "nothing bonded at all") and points at
+`getProviderByName()`.
 
 ```typescript
 function requireProvider(): AIProvider
@@ -389,6 +399,14 @@ the model, or gets billed:
   open, unauthenticated AI route is an unbounded bill.
 - `chat()` returns an async iterable of `ChatEvent` (text chunks, tool calls, a final
   `done` with usage) — iterate it and forward chunks to the client.
+- **`setProvider(name, provider)` ambiguity:** the FIRST named provider you register also
+  auto-promotes to the singleton (so plain `getProvider()`/`requireProvider()` work without
+  the caller knowing the name) — but that promotion is a single-provider convenience, not a
+  permanent pick. The moment a SECOND, differently-named provider is registered,
+  `getProvider()` stops returning the first one and declines (`null`) instead —
+  `requireProvider()` throws pointing at `getProviderByName(name)`. Call the explicit
+  `setProvider(provider)` (no name) form if you want one provider to always win regardless of
+  how many named providers you also register.
 
 ## Translations
 

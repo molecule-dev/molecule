@@ -12,6 +12,14 @@
  *   traffic. Fix the URL / CA instead (e.g. `?sslmode=require`).
  * - Tables are created by timestamped `.sql` files in `migrations/` (the runner applies them
  *   on boot) — never `CREATE TABLE` at runtime; ids are UUID strings (see `@molecule/api-database`).
+ * - **Pool `max` defaults to 10** (not the server's `max_connections`) — tune with
+ *   `DATABASE_POOL_MAX`. A migration file with a genuine error (not an idempotent
+ *   "already exists") now FAILS the boot with every broken file named, instead of
+ *   warn-logging and booting with a partial schema.
+ * - **`like` is case-insensitive (emits `ILIKE`) and does NOT escape the value** — the
+ *   caller's own `%`/`_` are honored as wildcards, identical to the sqlite/mysql bonds. For
+ *   human-typed search input, use `ilike` instead (escapes + auto-wraps `%…%`) — see
+ *   `WhereCondition['operator']` in `@molecule/api-database`.
  *
  * @module
  */
@@ -120,9 +128,15 @@ function getPoolInstance(): DatabasePool {
       : {}
 
     // Production-safe defaults: prevent runaway queries and idle transactions.
-    // Pool size of 100 handles thousands of concurrent users while staying within
-    // PostgreSQL's default max_connections (100). Tune via DATABASE_POOL_MAX if needed.
-    poolConfig.max = poolConfig.max ?? parseInt(process.env.DATABASE_POOL_MAX ?? '100', 10)
+    // Pool max defaults to 10 (pg's own default; 10-20 covers the fleet). A
+    // pool max EQUAL to the server's max_connections (previously 100, "within
+    // Postgres's default max_connections") lets ONE app instance consume every
+    // slot the server has — Postgres reserves superuser_reserved_connections=3,
+    // so non-superuser clients get only 97 to start with — starving a second
+    // app instance, the migrator, and even a debugging `psql` session with
+    // "remaining connection slots are reserved…", which reads as a server
+    // outage rather than a pool-size default. Tune via DATABASE_POOL_MAX.
+    poolConfig.max = poolConfig.max ?? parseInt(process.env.DATABASE_POOL_MAX ?? '10', 10)
     poolConfig.connectionTimeoutMillis = poolConfig.connectionTimeoutMillis ?? 10_000
     poolConfig.idleTimeoutMillis = poolConfig.idleTimeoutMillis ?? 30_000
 

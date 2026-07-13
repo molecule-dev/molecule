@@ -69,6 +69,11 @@
  * - `disconnect()` is terminal for the connection object: it tears down the
  *   socket and rejects pending joins. Create a new connection via the
  *   provider to reconnect.
+ * - `onPresenceChange(handler)` registers ONE handler that fires for EVERY
+ *   joined room's presence update, so `handler`'s second argument (`roomId`)
+ *   is which room the update is FOR — a consumer joined to more than one
+ *   room must branch on it (e.g. `if (roomId === activeRoomId) render(...)`)
+ *   instead of assuming the update is always for "the" room.
  *
  * @module
  */

@@ -68,7 +68,8 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'
 
 #### `getLevel()`
 
-Returns the current minimum log level.
+Returns the current minimum log level, resolving it from the `LOG_LEVEL`
+environment variable on first call if `setLevel()` has not been used yet.
 
 ```typescript
 function getLevel(): LogLevel
@@ -78,13 +79,18 @@ function getLevel(): LogLevel
 
 #### `hasLogger()`
 
-Checks whether a custom logger has been bonded via `setLogger()`.
+Checks whether a custom logger provider is active — either bonded via
+`setLogger()` directly, or wired through `bond('logger', provider)` (the
+path every bond package's `getLogger()` and this module's own
+`getCurrentLogger()` honor). Reflects the actual bond registry rather than
+a flag private to `setLogger()`, so it stays accurate regardless of which
+wiring path bonded the provider.
 
 ```typescript
 function hasLogger(): boolean
 ```
 
-**Returns:** `true` if a custom logger provider has been set.
+**Returns:** `true` if a custom (non-console) logger provider is bonded.
 
 #### `resetLogger()`
 
@@ -150,8 +156,18 @@ Peer dependencies:
   `'info'` when unset/invalid). A "missing" debug line means the gate is
   filtering it — call `setLevel('debug')` or set `LOG_LEVEL=debug`; the
   logger is not broken.
+- **`LOG_LEVEL` is read lazily, on the first call that needs the level**
+  (`logger.*`/`getLevel()`), not at module-import time — and the result is
+  then cached until `setLevel()` overrides it. This means an app that loads
+  `dotenv`/`.env` AFTER its first transitive import of this module still
+  sees `LOG_LEVEL`, as long as env loading finishes before the first log
+  call (true in virtually every app — real logging starts after startup
+  config, not during module evaluation).
 - Filtering happens ONCE, here in the core, before the bonded provider is
   invoked. Provider bonds (pino/winston/loglevel) deliberately pass every
   level through, so this gate is the single knob — don't also configure a
   level in the bond unless you want a second, stricter gate.
 - `setLevel('silent')` drops everything, including `logger.error(...)`.
+- **`hasLogger()` reflects the bond registry**, not just `setLogger()`
+  calls: it also returns `true` after `bond('logger', provider)` wired a
+  provider directly (the path every bond package's `getLogger()` uses).

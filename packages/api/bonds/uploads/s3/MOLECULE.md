@@ -108,6 +108,8 @@ interface UploadedFile {
 #### `abortUpload(file)`
 
 Aborts an in-progress S3 upload. Removes stream listeners and calls the S3 multipart abort.
+Rejects the file's `uploadPromise` with `UploadAbortedError` — never as a success, and
+never routed through the `upload()` call's `onError` (parity with the filesystem bond).
 
 ```typescript
 function abortUpload(file: File): Promise<void>
@@ -241,3 +243,16 @@ the own-every-file / validate rules). Config is all ENV, server-side: `AWS_ACCES
   object public just to "make it load".
 - The AWS credentials are server-only (never in the browser) — the browser uploads to YOUR
   API, which streams to S3.
+- **Every object is uploaded with `Content-Disposition: attachment`** — a deliberate
+  stored-XSS safety default (S3 has no server-side rendering, so this stops a browser from
+  ever executing an uploaded HTML/SVG file inline). This means a browser hitting the object
+  directly (a raw S3 URL, or an `<img src>`/`<iframe>` pointing at a presigned URL) always
+  DOWNLOADS it instead of rendering it inline — including otherwise-safe images. If you need
+  inline rendering, serve the file THROUGH your API's `getFile` route, which lets you set
+  your own `Content-Disposition`/`Content-Type` after your own validation — do not rely on
+  this bond's default for that. There is no override for this default in the current
+  revision.
+- **Aborting an upload rejects `uploadPromise` with `UploadAbortedError`** (from
+  `@molecule/api-uploads`) — it never resolves as success and never calls the `upload()`
+  call's `onError`. Identical behavior to the `@molecule/api-uploads-filesystem` bond; see
+  that core package's `AbortHandler` remarks for the full cross-provider contract.

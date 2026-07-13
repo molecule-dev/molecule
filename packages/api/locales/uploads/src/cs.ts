@@ -5,4 +5,5 @@ export const cs: UploadsTranslations = {
   'uploads.error.noProvider':
     'Poskytovatel nahrávání není nakonfigurován. Nejprve zavolejte setProvider().',
   'uploads.error.streamLimitReached': 'Byl dosažen limit streamu.',
+  'uploads.error.aborted': 'Nahrávání bylo přerušeno.',
 }

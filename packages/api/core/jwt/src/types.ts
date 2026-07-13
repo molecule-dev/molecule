@@ -123,6 +123,12 @@ declare global {
       JWT_ALGORITHM?: string
       JWT_EXPIRES_TIME?: string
       JWT_REFRESH_TIME?: string
+      /**
+       * Directory to store auto-generated JWT key pairs in (only used when
+       * `JWT_PRIVATE_KEY`/`JWT_PUBLIC_KEY` are unset). Absolute, or resolved
+       * relative to `process.cwd()`. Defaults to `process.cwd() + '/.keys'`.
+       */
+      JWT_KEYS_DIR?: string
     }
   }
 }

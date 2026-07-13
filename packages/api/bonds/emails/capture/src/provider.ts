@@ -13,6 +13,7 @@
  * @module
  */
 
+import type { ActivityEvent } from '@molecule/api-activity'
 import { record } from '@molecule/api-activity'
 import type {
   EmailAddress,
@@ -20,6 +21,31 @@ import type {
   EmailSendResult,
   EmailTransport,
 } from '@molecule/api-emails'
+
+/**
+ * Calls {@link record}, but never lets a throwing {@link ActivitySink}
+ * escape to the caller. `ActivitySink` implementations are documented as
+ * best-effort; without this guard, a sink that throws AFTER a real
+ * transport already succeeded turns an actually-SENT email into what looks
+ * like a rejected `sendMail()` — the caller retries and the recipient gets
+ * a duplicate. The proper long-term fix is enforcing best-effort centrally
+ * in `@molecule/api-activity`'s `record()` (outside this package's owned
+ * files); until then every call site here goes through this wrapper. See
+ * integration-audit-findings.md → [email] "api-emails-capture —
+ * ambiguous-failure".
+ *
+ * @param event - The activity event to record.
+ */
+async function recordBestEffort(event: ActivityEvent): Promise<void> {
+  try {
+    await record(event)
+  } catch (_error) {
+    // Intentional noop — see the doc comment above. This package has no
+    // logging channel available (no logger peer dependency), and adding one
+    // is out of scope for this fix; a thrown/logged failure here would
+    // either break the caller's send outcome or require a new dependency.
+  }
+}
 
 /**
  * Normalizes the `to` field of an {@link EmailMessage} into a flat list of
@@ -53,7 +79,9 @@ export function createEmailCaptureProvider(realTransport?: EmailTransport): Emai
       if (realTransport) {
         try {
           const result = await realTransport.sendMail(message)
-          await record({
+          // Best-effort: the real transport already succeeded — a throwing
+          // sink here must never turn this into a rejected sendMail().
+          await recordBestEffort({
             id,
             type: 'email',
             status: 'sent',
@@ -65,7 +93,10 @@ export function createEmailCaptureProvider(realTransport?: EmailTransport): Emai
           })
           return result
         } catch (error) {
-          await record({
+          // Best-effort: a throwing sink here must not replace the REAL
+          // transport error with a sink error — the caller needs to see why
+          // the send actually failed.
+          await recordBestEffort({
             id,
             type: 'email',
             status: 'failed',
@@ -85,7 +116,9 @@ export function createEmailCaptureProvider(realTransport?: EmailTransport): Emai
         messageId: `captured-${id}`,
       }
 
-      await record({
+      // Best-effort: the intercepted (dev, no ESP key) path must keep working
+      // with zero configuration even if a bonded sink misbehaves.
+      await recordBestEffort({
         id,
         type: 'email',
         status: 'captured',

@@ -15,7 +15,7 @@
  */
 
 import { Buffer } from 'node:buffer'
-import { createHmac, timingSafeEqual } from 'node:crypto'
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
 
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
@@ -99,22 +99,34 @@ const safeEqualHex = (a: string, b: string): boolean => {
  * signing fields. Header-only signing schemes are not supported by Mailgun
  * Routes.
  *
+ * Distinguishes SERVER MISCONFIGURATION from a genuinely invalid webhook:
+ * an unset `MAILGUN_API_KEY` THROWS the tagged `config.notConfigured` error
+ * (mapped by the API error middleware to a clean 503) instead of returning
+ * `false`. Stale timestamps, missing signing fields, and a tampered
+ * signature all still resolve to `false` (401) — those ARE the "this
+ * request is not from Mailgun" class. Collapsing every failure mode into
+ * the same `false` made a misconfigured server indistinguishable from
+ * active forgery, with no trace either way (see
+ * integration-audit-findings.md → [email] ambiguous-failure).
+ *
  * @param _headers - HTTP headers (unused — Mailgun signs via form fields).
  * @param body - Raw HTTP request body (form-encoded).
- * @returns `true` when the signature verifies and the timestamp is fresh.
+ * @returns `true` when the signature verifies and the timestamp is fresh;
+ *   `false` for a malformed/stale/forged webhook.
+ * @throws {Error} The tagged `config.notConfigured` error when
+ *   `MAILGUN_API_KEY` is unset — a caller MUST NOT treat this as `false`
+ *   (that would 401-with-no-trace every inbound webhook instead of
+ *   surfacing the actionable 503).
  */
 export const verifySignature = async (
   _headers: Record<string, string | string[] | undefined>,
   body: Buffer | string,
 ): Promise<boolean> => {
-  let apiKey: string
-  try {
-    apiKey = getApiKey()
-  } catch (_error) {
-    // MAILGUN_API_KEY is not configured — cannot verify. Treat as invalid rather
-    // than throwing so the caller receives a clean false instead of a 500.
-    return false
-  }
+  // Deliberately NOT caught here: an unconfigured key is a server
+  // misconfiguration, not "signature invalid," and must propagate as the
+  // tagged config error so the caller (the API error middleware) can 503
+  // instead of silently 401ing every webhook. See @throws above.
+  const apiKey = getApiKey()
 
   const fields = parseFormBody(body)
   const timestamp = fields.timestamp
@@ -203,6 +215,33 @@ const parseFormAttachments = (fields: Record<string, string>): InboundEmailAttac
 }
 
 /**
+ * Derives a stable fallback identifier for an inbound email that has no
+ * `Message-Id` (some senders omit it). Hashes the sender, the ORIGINAL
+ * message's `Date` header, and the subject — deliberately NOT the webhook
+ * delivery `timestamp`/`token` fields, which Mailgun regenerates on every
+ * retry of the SAME message. A retry-stable input keeps retries of an
+ * id-less message hashing to the same id, so the core contract's "used for
+ * deduplication when the same webhook is retried" still holds (see
+ * integration-audit-findings.md → [email] doc-drift).
+ *
+ * @param from - The normalized sender address.
+ * @param dateHeader - The original message's `Date` header, if present in
+ *   `message-headers` (absent for form-only, non-MIME deliveries).
+ * @param subject - The normalized subject line.
+ * @returns A `mailgun-`-prefixed, deterministic fallback id.
+ */
+const deriveStableFallbackId = (
+  from: string,
+  dateHeader: string | undefined,
+  subject: string,
+): string => {
+  const digest = createHash('sha256')
+    .update(`${from} ${dateHeader ?? ''} ${subject}`)
+    .digest('hex')
+  return `mailgun-${digest.slice(0, 32)}`
+}
+
+/**
  * Parses a Mailgun Routes inbound webhook payload into a normalized
  * {@link InboundEmail}.
  *
@@ -211,6 +250,10 @@ const parseFormAttachments = (fields: Record<string, string>): InboundEmailAttac
  * `In-Reply-To`, `References`, `attachment-count`, `attachment-N`, plus
  * the signing triple. We only extract domain-relevant fields here;
  * verification is done separately by {@link verifySignature}.
+ *
+ * When `Message-Id` is absent, `id` falls back to
+ * {@link deriveStableFallbackId} rather than the per-request signing
+ * `token` — see that function's docs for why.
  *
  * @param _headers - HTTP headers (unused — Mailgun puts everything in the body).
  * @param body - The raw form-encoded body, a string, or an already-parsed object.
@@ -237,11 +280,16 @@ export const parseWebhookPayload = async (
     ? new Date(timestampSeconds * 1000)
     : new Date()
 
+  const from = fields.From ?? fields.from ?? fields.sender ?? ''
+  const subject = fields.Subject ?? fields.subject ?? ''
+  const dateHeaderRaw = messageHeaders.date
+  const dateHeader = Array.isArray(dateHeaderRaw) ? dateHeaderRaw[0] : dateHeaderRaw
+
   const email: InboundEmail = {
-    id: messageId ?? fields.token ?? `mailgun-${String(Date.now())}`,
-    from: fields.From ?? fields.from ?? fields.sender ?? '',
+    id: messageId ?? deriveStableFallbackId(from, dateHeader, subject),
+    from,
     to: splitAddressList(fields.To ?? fields.to ?? fields.recipient),
-    subject: fields.Subject ?? fields.subject ?? '',
+    subject,
     headers: messageHeaders,
     receivedAt,
   }

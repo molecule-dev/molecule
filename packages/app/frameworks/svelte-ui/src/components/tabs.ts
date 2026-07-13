@@ -50,7 +50,7 @@ export interface TabsListClassOptions {
 export function getTabsListClasses(options: TabsListClassOptions = {}): string {
   const { fitted = false, className } = options
   const cm = getClassMap()
-  return cm.cn(cm.tabsList, fitted && cm.tabsFitted, className)
+  return cm.cn(cm.tabsList(), fitted && cm.tabsFitted, className)
 }
 
 /**
@@ -66,7 +66,7 @@ export function getTabsTriggerClasses(
 ): string {
   const { fitted = false, className } = options
   const cm = getClassMap()
-  return cm.cn(cm.tabsTrigger, fitted && cm.tabTriggerFitted, className)
+  return cm.cn(cm.tabsTrigger(), fitted && cm.tabTriggerFitted, className)
 }
 
 /**
@@ -75,5 +75,5 @@ export function getTabsTriggerClasses(
  * @returns The tabs content class string.
  */
 export function getTabsContentClass(): string {
-  return getClassMap().tabsContent
+  return getClassMap().tabsContent()
 }

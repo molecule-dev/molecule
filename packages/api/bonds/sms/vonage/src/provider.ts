@@ -7,6 +7,10 @@
  * @module
  */
 
+// Side-effect import: registers this bond's secret definitions so the
+// runtime registry is populated even when provider.js is imported directly
+// (not through the package barrel).
+import './secrets.js'
 import { Vonage } from '@vonage/server-sdk'
 
 import type {
@@ -23,6 +27,13 @@ import type { VonageSMSConfig } from './types.js'
 /**
  * Creates a Vonage-backed {@link SMSProvider}.
  *
+ * Credential validation is DEFERRED to first use (send/sendBulk) rather
+ * than thrown here — matching the slack/web-push bonds in this category.
+ * An app that has selected Vonage but hasn't filled in its secrets yet can
+ * still boot; only the first actual SMS attempt throws the actionable
+ * "apiKey/apiSecret is required" error, instead of the whole API crashing
+ * at `setProvider(createProvider())` startup time.
+ *
  * @param config - Vonage provider configuration. Falls back to environment
  *   variables when individual fields are omitted.
  * @returns A fully initialised `SMSProvider` backed by Vonage.
@@ -32,18 +43,32 @@ export function createProvider(config: VonageSMSConfig = {}): SMSProvider {
   const apiSecret = config.apiSecret ?? process.env.VONAGE_API_SECRET
   const defaultFrom = config.defaultFrom ?? process.env.VONAGE_FROM_NUMBER
 
-  if (!apiKey) {
-    throw new Error('Vonage apiKey is required. Set config.apiKey or VONAGE_API_KEY.')
-  }
+  let vonage: Vonage | undefined
 
-  if (!apiSecret) {
-    throw new Error('Vonage apiSecret is required. Set config.apiSecret or VONAGE_API_SECRET.')
+  /**
+   * Lazily constructs (and memoises) the Vonage client, throwing the same
+   * actionable error `createProvider()` used to throw eagerly — now
+   * surfaced at first use instead of at bond time.
+   *
+   * @returns The memoised Vonage client.
+   */
+  function getClient(): Vonage {
+    if (!apiKey) {
+      throw new Error('Vonage apiKey is required. Set config.apiKey or VONAGE_API_KEY.')
+    }
+    if (!apiSecret) {
+      throw new Error('Vonage apiSecret is required. Set config.apiSecret or VONAGE_API_SECRET.')
+    }
+    if (!vonage) {
+      vonage = new Vonage({ apiKey, apiSecret })
+    }
+    return vonage
   }
-
-  const vonage = new Vonage({ apiKey, apiSecret })
 
   const provider: SMSProvider = {
     async send(to: string, message: string, options?: SMSOptions): Promise<SMSResult> {
+      const vonage = getClient()
+
       const from = options?.from ?? defaultFrom
       if (!from) {
         throw new Error(

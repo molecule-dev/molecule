@@ -19,6 +19,17 @@
  * const status = await getStatus(result.id)
  * console.log(status.status) // 'delivered'
  * ```
+ *
+ * @remarks
+ * Delivery-status polling (`getStatus()`) is PROVIDER-DEPENDENT, not a
+ * universal capability — the Quick Start's `getStatus()` call is not safe to
+ * assume for every bonded provider:
+ * - `@molecule/api-sms-twilio`: supported — polls the Twilio REST API.
+ * - `@molecule/api-sms-vonage`: NOT supported — `getStatus()` always throws
+ *   `'Vonage SMS API does not support message status polling.'`. Vonage only
+ *   reports delivery via DLR (delivery receipt) webhooks: pass
+ *   `options.callbackUrl` to `send()`/`sendBulk()` and receive delivery
+ *   updates on that endpoint instead of polling.
  */
 
 export * from './provider.js'

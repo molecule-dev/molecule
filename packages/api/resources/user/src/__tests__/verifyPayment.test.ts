@@ -459,3 +459,32 @@ describe('verifyPayment — Stripe subscription replay defense (M3-1)', () => {
     expect(mockUpdateFn).not.toHaveBeenCalled()
   })
 })
+
+describe('verifyPayment — bond config-not-configured passthrough [ambiguous-failure]', () => {
+  it('surfaces a rethrown config-not-configured error as its real 503, not a generic 500', async () => {
+    // Regression: a bonded provider's verifySubscription/verifyReceipt/
+    // verifyPurchase now RETHROWS a tagged config-not-configured error
+    // instead of swallowing it to `null` (which this handler would otherwise
+    // report as a generic 400 'verificationFailed' — indistinguishable from
+    // an actually-bad receipt). The handler's catch must pass the real
+    // statusCode/errorKey through.
+    const { provider } = wire({ verifiedCustomerId: 'cus_me', viaCheckoutSession: true })
+    const configError = Object.assign(
+      new Error('STRIPE_SECRET_KEY is not set — payments is disabled.'),
+      { statusCode: 503, errorKey: 'config.notConfigured' },
+    )
+    provider.verifySubscription.mockRejectedValue(configError)
+
+    const req = makeReq({
+      params: { id: 'me', provider: 'stripe' },
+      query: { subscriptionId: 'cs_my_session' },
+    })
+
+    const result = await handler(req)
+
+    expect(result?.statusCode).toBe(503)
+    expect((result?.body as { errorKey?: string })?.errorKey).toBe('config.notConfigured')
+    expect((result?.body as { error?: string })?.error).toContain('STRIPE_SECRET_KEY')
+    expect(mockUpdateFn).not.toHaveBeenCalled()
+  })
+})

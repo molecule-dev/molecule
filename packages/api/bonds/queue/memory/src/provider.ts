@@ -18,13 +18,14 @@ import type { MemoryQueueHandle, MemoryQueueOptions } from './types.js'
  * visibility-timeout, retention, and dead-letter options. All state lives in
  * this process and is lost on restart.
  *
- * @param options - Optional delivery defaults (visibility timeout, delivery cap, redelivery delay). Everything defaults sensibly — no configuration is required.
+ * @param options - Optional delivery defaults (visibility timeout, delivery cap, nack redelivery delay, handler-failure redelivery delay). Everything defaults sensibly — no configuration is required.
  * @returns A `QueueProvider` backed by in-process queues.
  */
 export const createProvider = (options?: MemoryQueueOptions): QueueProvider => {
   const visibilityTimeoutSeconds = options?.visibilityTimeoutSeconds ?? 30
   const maxReceiveCount = options?.maxReceiveCount ?? 3
   const redeliveryDelaySeconds = options?.redeliveryDelaySeconds ?? 0
+  const handlerFailureRedeliveryDelaySeconds = options?.handlerFailureRedeliveryDelaySeconds ?? 1
 
   const handles = new Map<string, MemoryQueueHandle>()
 
@@ -36,6 +37,7 @@ export const createProvider = (options?: MemoryQueueOptions): QueueProvider => {
           createOptions?.visibilityTimeout ?? visibilityTimeoutSeconds,
         maxReceiveCount,
         redeliveryDelaySeconds,
+        handlerFailureRedeliveryDelaySeconds,
         fifo: createOptions?.fifo ?? false,
         messageRetentionSeconds: createOptions?.messageRetentionSeconds,
         deadLetterQueue: createOptions?.deadLetterQueue,

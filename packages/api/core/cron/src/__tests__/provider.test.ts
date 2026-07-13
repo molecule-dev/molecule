@@ -12,6 +12,7 @@ let list: typeof ProviderModule.list
 let pause: typeof ProviderModule.pause
 let resume: typeof ProviderModule.resume
 let runNow: typeof ProviderModule.runNow
+let close: typeof ProviderModule.close
 
 const createMockProvider = (overrides?: Partial<CronProvider>): CronProvider => ({
   schedule: vi.fn().mockResolvedValue('job-1'),
@@ -36,6 +37,7 @@ describe('cron provider', () => {
     pause = providerModule.pause
     resume = providerModule.resume
     runNow = providerModule.runNow
+    close = providerModule.close
   })
 
   describe('provider management', () => {
@@ -101,6 +103,20 @@ describe('cron provider', () => {
       await runNow('job-1')
       expect(mockProvider.runNow).toHaveBeenCalledWith('job-1')
     })
+
+    it('should delegate close to provider when the provider implements it', async () => {
+      const closeFn = vi.fn().mockResolvedValue(undefined)
+      mockProvider.close = closeFn
+      await close()
+      expect(closeFn).toHaveBeenCalled()
+    })
+
+    it('should not throw when the bonded provider omits close()', async () => {
+      // Providers that manage no persistent resources may leave `close`
+      // undefined entirely — the convenience function must no-op, not throw.
+      expect(mockProvider.close).toBeUndefined()
+      await expect(close()).resolves.toBeUndefined()
+    })
   })
 
   describe('error handling', () => {
@@ -136,6 +152,12 @@ describe('cron provider', () => {
 
     it('should throw on runNow when no provider is set', async () => {
       await expect(runNow('job-1')).rejects.toThrow(
+        'Cron provider not configured. Call setProvider() first.',
+      )
+    })
+
+    it('should throw on close when no provider is set', async () => {
+      await expect(close()).rejects.toThrow(
         'Cron provider not configured. Call setProvider() first.',
       )
     })

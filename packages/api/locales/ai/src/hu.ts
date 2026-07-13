@@ -6,4 +6,6 @@ export const hu: AiTranslations = {
     'Az AI szolgáltató nincs konfigurálva. Először kössön be egy AI szolgáltatót.',
   'ai.error.apiError': 'Az AI API kérés sikertelen.',
   'ai.error.noResponseBody': 'Az AI válasz törzse üres.',
+  'ai.error.ambiguousProvider':
+    'Több elnevezett AI szolgáltató van bekötve, és nincs beállítva alapértelmezett. Használja a getProviderByName(name) függvényt egy kiválasztásához.',
 }

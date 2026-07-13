@@ -4,4 +4,5 @@ import type { UploadsTranslations } from './types.js'
 export const bs: UploadsTranslations = {
   'uploads.error.noProvider': 'Provajder za upload nije konfigurisan. Prvo pozovite setProvider().',
   'uploads.error.streamLimitReached': 'Dostignut je limit toka.',
+  'uploads.error.aborted': 'Otpremanje je prekinuto.',
 }

@@ -10,7 +10,7 @@ vi.mock('amqplib', () => ({
 import type { Channel, ConsumeMessage, GetMessage } from 'amqplib'
 import amqp from 'amqplib'
 
-import { connect, createProvider } from '../provider.js'
+import { connect, createProvider, provider } from '../provider.js'
 import { createQueue, createReceivedMessage, createReceivedMessageFromGet } from '../queue.js'
 
 describe('RabbitMQ Queue Provider', () => {
@@ -31,6 +31,7 @@ describe('RabbitMQ Queue Provider', () => {
     deleteQueue: Mock
     purgeQueue: Mock
     close: Mock
+    on: Mock
   }
 
   beforeEach(() => {
@@ -48,6 +49,7 @@ describe('RabbitMQ Queue Provider', () => {
       deleteQueue: vi.fn().mockResolvedValue(undefined),
       purgeQueue: vi.fn().mockResolvedValue(undefined),
       close: vi.fn().mockResolvedValue(undefined),
+      on: vi.fn(),
     }
 
     mockConnection = {
@@ -137,6 +139,109 @@ describe('RabbitMQ Queue Provider', () => {
         )
       } finally {
         process.env = originalEnv
+      }
+    })
+  })
+
+  describe('reconnect (channel-killing errors / dropped connections no longer permanently break every queue)', () => {
+    it('should reconnect with backoff and re-attach subscribers after the connection drops', async () => {
+      vi.useFakeTimers()
+      try {
+        const providerInstance = await createProvider()
+        const queue = providerInstance.queue('resilient-queue')
+        const handler = vi.fn()
+        queue.subscribe(handler)
+
+        // Let the async subscribe setup complete before disconnecting.
+        await vi.advanceTimersByTimeAsync(0)
+        expect(mockChannel.consume).toHaveBeenCalledTimes(1)
+
+        // A fresh connection/channel pair standing in for the reconnect.
+        const reconnectedChannel = {
+          ...mockChannel,
+          consume: vi.fn().mockResolvedValue({ consumerTag: 'reconnected-consumer-tag' }),
+          assertQueue: vi.fn().mockResolvedValue({ messageCount: 0, consumerCount: 0 }),
+          on: vi.fn(),
+        }
+        const reconnectedConnection = {
+          createChannel: vi.fn().mockResolvedValue(reconnectedChannel),
+          on: vi.fn(),
+          close: vi.fn().mockResolvedValue(undefined),
+        }
+        ;(amqp.connect as Mock).mockResolvedValueOnce(reconnectedConnection)
+
+        // Simulate the broker dropping the connection.
+        const onClose = mockConnection.on.mock.calls.find(([event]) => event === 'close')?.[1] as (
+          error?: Error,
+        ) => void
+        expect(onClose).toBeInstanceOf(Function)
+        onClose(new Error('connection reset'))
+
+        // The first backoff attempt fires after ~1s (RECONNECT_INITIAL_DELAY_MS).
+        await vi.advanceTimersByTimeAsync(1000)
+
+        expect(amqp.connect).toHaveBeenCalledTimes(2)
+        expect(reconnectedConnection.createChannel).toHaveBeenCalled()
+        // The previously-active subscriber is replayed onto the NEW channel —
+        // without this the subscription would be permanently dead.
+        expect(reconnectedChannel.consume).toHaveBeenCalledWith(
+          'resilient-queue',
+          expect.any(Function),
+          { noAck: false },
+        )
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should back off and keep retrying when a reconnect attempt itself fails', async () => {
+      vi.useFakeTimers()
+      try {
+        await createProvider()
+
+        const onClose = mockConnection.on.mock.calls.find(([event]) => event === 'close')?.[1] as (
+          error?: Error,
+        ) => void
+        onClose(new Error('connection reset'))
+        ;(amqp.connect as Mock).mockRejectedValueOnce(new Error('still down'))
+        await vi.advanceTimersByTimeAsync(1000) // first attempt (1s delay) fails
+        ;(amqp.connect as Mock).mockResolvedValueOnce(mockConnection)
+        await vi.advanceTimersByTimeAsync(2000) // second attempt (2s delay, doubled) succeeds
+
+        // Original connect + 2 reconnect attempts.
+        expect(amqp.connect).toHaveBeenCalledTimes(3)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('should also reconnect when only the channel closes unexpectedly (connection stays alive)', async () => {
+      vi.useFakeTimers()
+      try {
+        await createProvider()
+
+        const reconnectedChannel = {
+          ...mockChannel,
+          on: vi.fn(),
+        }
+        const reconnectedConnection = {
+          createChannel: vi.fn().mockResolvedValue(reconnectedChannel),
+          on: vi.fn(),
+          close: vi.fn().mockResolvedValue(undefined),
+        }
+        ;(amqp.connect as Mock).mockResolvedValueOnce(reconnectedConnection)
+
+        const onChannelClose = mockChannel.on.mock.calls.find(
+          ([event]) => event === 'close',
+        )?.[1] as (error?: Error) => void
+        expect(onChannelClose).toBeInstanceOf(Function)
+        onChannelClose()
+
+        await vi.advanceTimersByTimeAsync(1000)
+
+        expect(amqp.connect).toHaveBeenCalledTimes(2)
+      } finally {
+        vi.useRealTimers()
       }
     })
   })
@@ -256,6 +361,49 @@ describe('RabbitMQ Queue Provider', () => {
       expect(connect).toBe(createProvider)
     })
   })
+
+  describe('lazy default provider (retries instead of permanently swallowing a connect failure)', () => {
+    afterEach(async () => {
+      // The exported `provider` is a module-level singleton — reset its
+      // internal realProvider/connectPromise so state never leaks into
+      // another test.
+      await provider.close()
+    })
+
+    it('retries subscribe() with backoff instead of giving up after the first connect failure', async () => {
+      vi.useFakeTimers()
+      try {
+        ;(amqp.connect as Mock).mockRejectedValueOnce(new Error('ECONNREFUSED'))
+
+        const handler = vi.fn()
+        provider.queue('lazy-retry-queue').subscribe(handler)
+
+        // The first attempt rejects — flush the microtask queue.
+        await vi.advanceTimersByTimeAsync(0)
+
+        // The retry (1s backoff) succeeds against the default mocked connection.
+        await vi.advanceTimersByTimeAsync(1000)
+
+        expect(mockChannel.consume).toHaveBeenCalledWith('lazy-retry-queue', expect.any(Function), {
+          noAck: false,
+        })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('retries a fresh connection on the next call after the first attempt fails, instead of replaying the same rejection forever', async () => {
+      ;(amqp.connect as Mock).mockRejectedValueOnce(new Error('ECONNREFUSED'))
+
+      await expect(provider.queue('replay-queue').send({ body: 'x' })).rejects.toThrow(
+        'ECONNREFUSED',
+      )
+
+      // No explicit re-mock needed — amqp.connect falls back to the
+      // beforeEach's default mockResolvedValue(mockConnection) for the 2nd call.
+      await expect(provider.queue('replay-queue').send({ body: 'y' })).resolves.toBeDefined()
+    })
+  })
 })
 
 describe('RabbitMQ Queue', () => {
@@ -338,7 +486,7 @@ describe('RabbitMQ Queue', () => {
       )
     })
 
-    it('should send a message with delay', async () => {
+    it('should send a delayed message to a per-delay wait queue with TTL + dead-letter back to the real queue (no plugin required)', async () => {
       const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
 
       await queue.send({
@@ -346,12 +494,75 @@ describe('RabbitMQ Queue', () => {
         delaySeconds: 30,
       })
 
+      // The wait queue is asserted with the exact TTL and a dead-letter
+      // route back to the real queue via the default exchange.
+      expect(mockChannel.assertQueue).toHaveBeenCalledWith('test-queue.delay.30000', {
+        durable: true,
+        arguments: {
+          'x-message-ttl': 30000,
+          'x-dead-letter-exchange': '',
+          'x-dead-letter-routing-key': 'test-queue',
+        },
+      })
+
+      // The message is published to the WAIT queue, never directly to the
+      // real queue — a plugin-dependent 'x-delay' header is no longer used.
+      expect(mockChannel.sendToQueue).toHaveBeenCalledWith(
+        'test-queue.delay.30000',
+        expect.any(Buffer),
+        expect.not.objectContaining({
+          headers: expect.objectContaining({ 'x-delay': expect.anything() }),
+        }),
+      )
+      expect(mockChannel.sendToQueue).not.toHaveBeenCalledWith(
+        'test-queue',
+        expect.any(Buffer),
+        expect.anything(),
+      )
+    })
+
+    it('should route different delay values to different wait queues (no head-of-queue TTL staggering)', async () => {
+      const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+
+      await queue.send({ body: 'short', delaySeconds: 5 })
+      await queue.send({ body: 'long', delaySeconds: 3600 })
+
+      expect(mockChannel.assertQueue).toHaveBeenCalledWith(
+        'test-queue.delay.5000',
+        expect.objectContaining({ arguments: expect.objectContaining({ 'x-message-ttl': 5000 }) }),
+      )
+      expect(mockChannel.assertQueue).toHaveBeenCalledWith(
+        'test-queue.delay.3600000',
+        expect.objectContaining({
+          arguments: expect.objectContaining({ 'x-message-ttl': 3600000 }),
+        }),
+      )
+      expect(mockChannel.sendToQueue).toHaveBeenCalledWith(
+        'test-queue.delay.5000',
+        expect.any(Buffer),
+        expect.anything(),
+      )
+      expect(mockChannel.sendToQueue).toHaveBeenCalledWith(
+        'test-queue.delay.3600000',
+        expect.any(Buffer),
+        expect.anything(),
+      )
+    })
+
+    it('should publish directly to the real queue when delaySeconds is 0 or absent', async () => {
+      const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+
+      await queue.send({ body: 'immediate', delaySeconds: 0 })
+      await queue.send({ body: 'also immediate' })
+
+      const waitQueueCalls = mockChannel.sendToQueue.mock.calls.filter((call) =>
+        String(call[0]).includes('.delay.'),
+      )
+      expect(waitQueueCalls).toHaveLength(0)
       expect(mockChannel.sendToQueue).toHaveBeenCalledWith(
         'test-queue',
         expect.any(Buffer),
-        expect.objectContaining({
-          headers: expect.objectContaining({ 'x-delay': 30000 }),
-        }),
+        expect.anything(),
       )
     })
 
@@ -635,6 +846,35 @@ describe('RabbitMQ Queue', () => {
       await new Promise((resolve) => setTimeout(resolve, 10))
 
       expect(mockChannel.cancel).toHaveBeenCalledWith('test-consumer-tag')
+    })
+
+    it('reattachSubscribers() re-consumes every active subscription (used by the provider after a reconnect)', async () => {
+      const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+      const handler = vi.fn()
+
+      queue.subscribe(handler)
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      expect(mockChannel.consume).toHaveBeenCalledTimes(1)
+
+      mockChannel.consume.mockClear()
+      await (queue as unknown as { reattachSubscribers(): Promise<void> }).reattachSubscribers()
+
+      expect(mockChannel.consume).toHaveBeenCalledWith('test-queue', expect.any(Function), {
+        noAck: false,
+      })
+    })
+
+    it('reattachSubscribers() is a no-op once every subscriber has unsubscribed', async () => {
+      const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+      const unsubscribe = queue.subscribe(vi.fn())
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
+      unsubscribe()
+      mockChannel.consume.mockClear()
+
+      await (queue as unknown as { reattachSubscribers(): Promise<void> }).reattachSubscribers()
+
+      expect(mockChannel.consume).not.toHaveBeenCalled()
     })
   })
 

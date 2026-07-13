@@ -215,6 +215,11 @@ function getAuthorizeUrl({
 
 Verifies a Twitter OAuth code and responds with OAuth-related user props.
 
+The token and user-info URLs default to api.twitter.com, but can be
+overridden via `OAUTH_TWITTER_TOKEN_URL` and `OAUTH_TWITTER_USER_URL`
+(pairing with `OAUTH_TWITTER_AUTHORIZE_URL` for E2E mock OAuth servers,
+consistent with the github/gitlab/google bonds).
+
 ```typescript
 function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: false; oauthServer: "twitter"; oauthId: string; oauthData: Record<string, unknown>; } | null>
 ```
@@ -277,3 +282,8 @@ Peer dependencies:
 - `OAUTH_TWITTER_CLIENT_SECRET` *(required)* — X (Twitter) OAuth client secret
   - Setup: Shown when enabling OAuth 2.0 for your app in the X developer portal.
   - Get it here: [https://developer.x.com/en/portal/dashboard](https://developer.x.com/en/portal/dashboard)
+
+The token exchange (`verify`'s call to X's token endpoint) is
+`application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 and X's own docs —
+matching every other molecule.dev OAuth bond (google, gitlab, github,
+apple, microsoft).

@@ -426,7 +426,11 @@ describe('GoogleAIProvider — errors, retries, abort', () => {
 
   const provider = createProvider({ apiKey: 'test-key', baseUrl: 'https://test.api' })
 
-  it('non-OK HTTP emits a sanitized error event and returns gracefully (no throw)', async () => {
+  it('non-OK HTTP (a plain 400, not context-length) emits a distinct non-retryable error event and returns gracefully (no throw)', async () => {
+    // Regression: every non-context-length 400 used to fall through to the
+    // same generic message as a genuinely retryable 5xx — a permanently
+    // invalid request (bad model, malformed schema) sounds retryable,
+    // sending an executor into a retry loop that can never succeed.
     mockFetch.mockResolvedValue(
       errorResponse(400, JSON.stringify({ error: { message: 'model xyz not found' } })),
     )
@@ -440,9 +444,22 @@ describe('GoogleAIProvider — errors, retries, abort', () => {
     expect(events).toHaveLength(1)
     expect(events[0]).toMatchObject({
       type: 'error',
-      message: 'AI service error. Please try again.',
+      message: 'AI request was invalid — check the model and request parameters.',
       errorKey: 'ai.error.apiError',
     })
+    expect(events[0].message).not.toBe('AI service error. Please try again.')
+  })
+
+  it('500 with no matching detail still falls through to the generic overloaded/service-error branches', async () => {
+    mockFetch.mockResolvedValue(
+      errorResponse(418, JSON.stringify({ error: { message: 'teapot' } })),
+    )
+
+    const events = await collectEvents(provider.chat(minimalParams))
+
+    // A status not otherwise handled (not 400/401/403/429/500/503) must not be
+    // swallowed by the new 400-specific branch.
+    expect(events[0].message).toBe('AI service error. Please try again.')
   })
 
   it('401/403 maps to a configuration error and does not leak the raw body', async () => {
@@ -482,6 +499,34 @@ describe('GoogleAIProvider — errors, retries, abort', () => {
     expect(events).toHaveLength(1)
     expect(events[0].message).toBe('AI rate limit exceeded. Please try again shortly.')
     expect(events[0].errorKey).toBe('ai.error.apiError')
+  })
+
+  it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {
+    // Regression: parseInt() on an HTTP-date Retry-After ('Wed, 21 Oct ...
+    // GMT') yields NaN, and setTimeout(resolve, NaN) coerces to a ~0ms delay
+    // — the 429 backoff degraded to rapid-fire retries.
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        statusText: 'Too Many Requests',
+        text: vi.fn().mockResolvedValue('{}'),
+        json: vi.fn().mockRejectedValue(new Error('not json')),
+        headers: new Headers({ 'retry-after': 'Wed, 21 Oct 2026 07:28:00 GMT' }),
+        body: null,
+      })
+      .mockResolvedValue(emptyStream())
+
+    const promise = collectEvents(provider.chat(minimalParams))
+
+    // A NaN-degraded delay would already have retried well before 500ms; the
+    // exponential-backoff fallback (attempt 0 = 1000ms) must not have.
+    await vi.advanceTimersByTimeAsync(500)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(2_000)
+    await promise
+    expect(mockFetch).toHaveBeenCalledTimes(2)
   })
 
   it('a non-abort stream error emits an error event and returns (no throw)', async () => {

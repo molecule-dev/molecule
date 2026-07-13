@@ -74,6 +74,18 @@ interface RoomState {
 
   /** Per-client presence metadata. */
   presence: Map<string, PresenceInfo>
+
+  /**
+   * Which numeric Awareness client ids each molecule `clientId` has
+   * introduced or touched via `applyInbound()`'s `'yjs:awareness'` frames —
+   * decoded from the Awareness instance's own synchronous `'update'` event
+   * (see `applyTrackedAwarenessUpdate`). Lets `getPresence()`/`leaveRoom()`
+   * correlate awareness state with a molecule client WITHOUT requiring the
+   * collaborating client's `doc.clientID` to equal
+   * `clientIdToAwarenessId(clientId)` — see that function's JSDoc for the
+   * legacy hash-alignment path this supersedes.
+   */
+  introducedAwarenessIds: Map<string, Set<number>>
 }
 
 /**
@@ -186,7 +198,14 @@ export function createProvider(
       const room: Room = { id, name, clients: [], metadata: options.metadata }
       const doc = new Y.Doc()
       const awareness = new Awareness(doc)
-      rooms.set(id, { room, options, doc, awareness, presence: new Map() })
+      rooms.set(id, {
+        room,
+        options,
+        doc,
+        awareness,
+        presence: new Map(),
+        introducedAwarenessIds: new Map(),
+      })
       return { ...room }
     },
 
@@ -247,19 +266,30 @@ export function createProvider(
       state.presence.delete(clientId)
 
       // Drop awareness for the departing client and tell everyone else.
-      // `removeAwarenessStates` deletes THAT client's entry; encoding the
-      // update AFTER removal produces a `state: null` frame that peers apply
-      // as a removal. (The previous `setLocalState(null)` here was an API
+      // `removeAwarenessStates` deletes each given entry; encoding the
+      // update AFTER removal produces `state: null` frames that peers apply
+      // as removals. (The previous `setLocalState(null)` here was an API
       // misuse: it removed the SERVER's own local awareness entry instead of
       // the departing peer's, and the broadcast re-encoded the peer's
       // still-present state — a no-op on every receiver, leaving ghost
       // collaborators until the 30s awareness timeout.)
-      const awarenessClientId = clientIdToAwarenessId(clientId)
-      if (state.awareness.getStates().has(awarenessClientId)) {
-        removeAwarenessStates(state.awareness, [awarenessClientId], clientId)
-        const removalUpdate = encodeAwarenessUpdate(state.awareness, [awarenessClientId])
+      //
+      // Remove EVERY awareness id this client actually introduced (tracked
+      // by `applyTrackedAwarenessUpdate` from real `'yjs:awareness'` frames)
+      // — this works regardless of the collaborating client's `doc.clientID`
+      // — UNION the legacy `clientIdToAwarenessId()` hash id for back-compat
+      // with the alignment convention. Filtering to ids that currently have
+      // a live state avoids `encodeAwarenessUpdate` failing on an id whose
+      // meta was never set (already expired, or never introduced).
+      const idsToRemove = new Set(state.introducedAwarenessIds.get(clientId) ?? [])
+      idsToRemove.add(clientIdToAwarenessId(clientId))
+      const liveIdsToRemove = [...idsToRemove].filter((id) => state.awareness.getStates().has(id))
+      if (liveIdsToRemove.length > 0) {
+        removeAwarenessStates(state.awareness, liveIdsToRemove, clientId)
+        const removalUpdate = encodeAwarenessUpdate(state.awareness, liveIdsToRemove)
         broadcastExcept(roomId, clientId, YJS_AWARENESS_EVENT, removalUpdate)
       }
+      state.introducedAwarenessIds.delete(clientId)
 
       if (state.room.clients.length === 0 && !state.options.persistent) {
         state.awareness.destroy()
@@ -327,8 +357,7 @@ export function createProvider(
       // cursor/selection/user info alongside join time.
       const result: PresenceInfo[] = []
       for (const [cid, info] of state.presence) {
-        const awarenessId = clientIdToAwarenessId(cid)
-        const awarenessState = state.awareness.getStates().get(awarenessId)
+        const awarenessState = resolveAwarenessState(state, cid)
         result.push({
           clientId: info.clientId,
           joinedAt: info.joinedAt,
@@ -388,7 +417,7 @@ export function createProvider(
 
       if (message.event === YJS_AWARENESS_EVENT) {
         const update = ensureUint8Array(message.data, YJS_AWARENESS_EVENT)
-        applyAwarenessUpdate(state.awareness, update, message.clientId)
+        applyTrackedAwarenessUpdate(state, message.clientId, update)
         broadcastExcept(message.roomId, message.clientId, YJS_AWARENESS_EVENT, update)
         return
       }
@@ -417,19 +446,86 @@ export function createProvider(
 }
 
 /**
- * Stable mapping from molecule clientId (arbitrary string) to the numeric
- * id that Yjs Awareness uses internally. Hashes the string into a 32-bit
- * unsigned integer.
+ * Applies an inbound `'yjs:awareness'` update to a room's Awareness instance
+ * while indexing which numeric Awareness client ids the given molecule
+ * `clientId` introduced or touched, into
+ * {@link RoomState.introducedAwarenessIds}. This is the PRIMARY
+ * client-correlation mechanism: it decodes "which ids did this frame touch"
+ * from the Awareness instance's own synchronous `'update'` event (fired
+ * inside `applyAwarenessUpdate`) rather than assuming any relationship
+ * between the molecule `clientId` and the collaborating client's
+ * `doc.clientID` — so `getPresence()`/`leaveRoom()` correlate correctly
+ * regardless of what `doc.clientID` the client happens to use (see
+ * `clientIdToAwarenessId`'s JSDoc for the legacy hash-alignment path this
+ * supersedes).
  *
- * The bond correlates awareness entries with molecule clients through this
- * mapping — `getPresence()` merges awareness state and `leaveRoom()` removes
- * it ONLY for awareness entries keyed by `clientIdToAwarenessId(clientId)`.
- * Transport adapters that want those features must align ids on the client
- * side (e.g. set the collaborating `Y.Doc`'s `clientID` to
- * `clientIdToAwarenessId(moleculeClientId)` before creating its Awareness).
- * Clients using their own random `doc.clientID` still converge fine; their
- * awareness is simply uncorrelated and is cleaned up by the Yjs Awareness
- * 30-second staleness timeout instead of instantly on leave.
+ * @param state - The room's internal state.
+ * @param clientId - The molecule client the update was received from.
+ * @param update - The raw awareness update bytes.
+ */
+function applyTrackedAwarenessUpdate(state: RoomState, clientId: string, update: Uint8Array): void {
+  const touched = new Set<number>()
+  const captureTouchedIds = ({ added, updated }: { added: number[]; updated: number[] }): void => {
+    for (const id of added) touched.add(id)
+    for (const id of updated) touched.add(id)
+  }
+  state.awareness.once('update', captureTouchedIds)
+  try {
+    applyAwarenessUpdate(state.awareness, update, clientId)
+  } finally {
+    // `once` self-unregisters when it fires, but `applyAwarenessUpdate` emits
+    // nothing for a no-op update (stale clock) — remove defensively so a
+    // no-op frame never leaves a stale listener registered.
+    state.awareness.off('update', captureTouchedIds)
+  }
+  if (touched.size === 0) return
+  let ids = state.introducedAwarenessIds.get(clientId)
+  if (!ids) {
+    ids = new Set()
+    state.introducedAwarenessIds.set(clientId, ids)
+  }
+  for (const id of touched) ids.add(id)
+}
+
+/**
+ * Resolves the live Awareness state for a molecule client: prefers the ids
+ * tracked by `applyTrackedAwarenessUpdate` (works for any `doc.clientID`),
+ * falling back to the legacy `clientIdToAwarenessId()` hash id so clients
+ * that align `doc.clientID` by convention (rather than routing awareness
+ * through `applyInbound`) still resolve.
+ *
+ * @param state - The room's internal state.
+ * @param clientId - The molecule client to resolve awareness for.
+ * @returns The client's current awareness state object, or `undefined`.
+ */
+function resolveAwarenessState(
+  state: RoomState,
+  clientId: string,
+): Record<string, unknown> | undefined {
+  const introducedIds = state.introducedAwarenessIds.get(clientId)
+  if (introducedIds) {
+    for (const id of introducedIds) {
+      const awarenessState = state.awareness.getStates().get(id)
+      if (awarenessState) return awarenessState
+    }
+  }
+  return state.awareness.getStates().get(clientIdToAwarenessId(clientId))
+}
+
+/**
+ * Legacy stable mapping from molecule clientId (arbitrary string) to a
+ * numeric Yjs Awareness id, by hashing the string into a 32-bit unsigned
+ * integer.
+ *
+ * **Superseded as the primary correlation mechanism** by automatic
+ * per-client id tracking (see `applyTrackedAwarenessUpdate` /
+ * {@link RoomState.introducedAwarenessIds}): `getPresence()` and
+ * `leaveRoom()` now correlate awareness state with a molecule client from
+ * the ids that client's own `'yjs:awareness'` frames actually touched, with
+ * NO requirement that the collaborating client's `doc.clientID` equal this
+ * hash. This function remains as an ADDITIONAL fallback id checked after the
+ * tracked ids — it still works for a client that aligns `doc.clientID` to
+ * `clientIdToAwarenessId(moleculeClientId)` by convention.
  *
  * @param clientId - The molecule client identifier.
  * @returns A 32-bit unsigned integer suitable for `Awareness`.
