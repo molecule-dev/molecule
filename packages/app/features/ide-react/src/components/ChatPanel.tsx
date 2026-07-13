@@ -2641,12 +2641,25 @@ function ChatInner({
       if (event.type === 'ready_to_build') {
         onReadyToBuildRef.current?.()
       }
-      // The agent asked the IDE to reload/navigate the preview or open a file.
-      // Forward to the host (Workspace); not rendered in the transcript.
-      if (event.type === 'client_action') {
+      // The agent asked the IDE to reload/navigate the preview, open a file, or drive the
+      // preview bridge. Forward to the host (Workspace); not rendered in the transcript.
+      // Forward EVERY IdeClientAction field (keep this list in sync with that interface):
+      // preview_ui carries requestId/command/molId/selector/text/value, and forwarding only
+      // {action, path} silently broke the SSE delivery path (only the host's collab-socket
+      // duplicate made interact_preview work at all).
+      if (event.type === 'client_action' && typeof event.action === 'string') {
+        const e = event as Record<string, unknown>
+        const str = (k: string): string | undefined =>
+          typeof e[k] === 'string' ? (e[k] as string) : undefined
         onClientActionRef.current?.({
           action: event.action as IdeClientAction['action'],
-          path: event.path as string | undefined,
+          path: str('path'),
+          requestId: str('requestId'),
+          command: str('command') as IdeClientAction['command'],
+          molId: str('molId'),
+          selector: str('selector'),
+          text: str('text'),
+          value: str('value'),
         })
       }
       // Turn finished (done OR error) — let the host know. Used to keep the boot

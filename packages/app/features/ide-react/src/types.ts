@@ -26,13 +26,27 @@ export interface WorkspaceLayoutProps {
  */
 /**
  * A non-mutating UI action the AI agent asks the IDE to perform — reload or
- * navigate the live preview, or open a file in the editor. Delivered via the
- * `client_action` chat-stream event.
+ * navigate the live preview, open a file in the editor, or drive the preview's
+ * interaction bridge (`preview_ui`). Delivered via the `client_action`
+ * chat-stream event (and, for `preview_ui`, also via the host's collab socket
+ * so a mid-build tab reload can't orphan it).
  */
 export interface IdeClientAction {
-  action: 'reload_preview' | 'navigate_preview' | 'open_file'
+  action: 'reload_preview' | 'navigate_preview' | 'open_file' | 'preview_ui'
   /** navigate_preview: a URL path (e.g. "/dashboard"). open_file: a file path. */
   path?: string
+  /** preview_ui: correlates the command with its ui-result round-trip. */
+  requestId?: string
+  /** preview_ui: the interaction the preview bridge should perform. */
+  command?: 'snapshot' | 'click' | 'fill' | 'select' | 'waitFor'
+  /** preview_ui: the `data-mol-id` of the target element (preferred). */
+  molId?: string
+  /** preview_ui: CSS-selector fallback when no molId is available. */
+  selector?: string
+  /** preview_ui: visible-label match for apps whose elements carry no molId. */
+  text?: string
+  /** preview_ui: value to set for fill/select. */
+  value?: string
 }
 
 /**
@@ -353,6 +367,8 @@ export interface PreviewUiCommand {
   molId?: string
   /** CSS-selector fallback when no molId is available. */
   selector?: string
+  /** Visible-label match — targets apps whose elements carry no `data-mol-id`. */
+  text?: string
   /** Value to set for `fill` / `select`. */
   value?: string
 }

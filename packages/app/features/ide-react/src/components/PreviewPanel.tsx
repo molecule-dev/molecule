@@ -308,6 +308,7 @@ export function PreviewPanel({
       action: uiCommand.action,
       molId: uiCommand.molId,
       selector: uiCommand.selector,
+      text: uiCommand.text,
       value: uiCommand.value,
     }
     // Post repeatedly until the bridge replies (or ~12s, under the tool's 15s wait). A single post
