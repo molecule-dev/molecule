@@ -57,3 +57,15 @@ if [ -n "$PKG_SRC" ]; then
     echo "ℹ registry-export check skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'npm run verify:registry-exports' to verify"
   fi
 fi
+
+# Doc-example gate (cross-repo, same skip semantics as the registry check above).
+# MOLECULE.md examples are copied nearly verbatim by molecule.dev's executor; a
+# non-compiling example (removed upstream API, missing await, phantom package)
+# is a guaranteed executor debugging tangent. Scoped to staged packages whose
+# src/index.ts changed, so it stays fast under parallel agents. The fleet was
+# brought to zero failures when this gate landed — keep it there.
+IDX_CHANGED=$(echo "$STAGED" | grep -E '^packages/.+/src/index\.ts$' || true)
+if [ -n "$IDX_CHANGED" ] && [ -f ../scripts/verify-doc-examples.mjs ]; then
+  IDX_DIRS=$(echo "$IDX_CHANGED" | while IFS= read -r f; do echo "${f%%/src/*}"; done | sort -u)
+  ( cd .. && node scripts/verify-doc-examples.mjs $IDX_DIRS )
+fi
