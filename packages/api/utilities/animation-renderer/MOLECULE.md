@@ -18,13 +18,19 @@ returns a {@link RenderJob} handle whose `done` promise resolves to a
 
 ```ts
 // Wire adapters once at startup.
-import { configureAnimationRenderer } from '@molecule/api-animation-renderer'
-import { renderCanvasDocument } from '@molecule/api-canvas-render'
-import { spawnFfmpeg } from './my-ffmpeg-wrapper.js'
+import { configureAnimationRenderer, type FfmpegAdapter } from '@molecule/api-animation-renderer'
+import { type CanvasDocument, renderCanvasDocument } from '@molecule/api-canvas-render'
+
+// Thin ffmpeg wrapper — e.g. shell out to `ffmpeg` and resolve the encoded buffer.
+const ffmpeg: FfmpegAdapter = {
+  encodeMp4: async (frames, { fps, width, height }) => { ... },
+  encodeGif: async (frames, { fps, width, height }) => { ... },
+}
 
 configureAnimationRenderer({
-  canvas: { renderFrame: (doc, opts) => renderCanvasDocument(doc, opts) },
-  ffmpeg: spawnFfmpeg,
+  // Each per-frame snapshot is canvas-render-shaped — its layers ARE canvas-render layers.
+  canvas: { renderFrame: (doc, opts) => renderCanvasDocument(doc as CanvasDocument, opts) },
+  ffmpeg,
   concurrency: 2,
 })
 ```

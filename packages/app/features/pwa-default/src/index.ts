@@ -6,8 +6,12 @@
  *
  * @example
  * ```ts
- * // src/pwa.ts
- * export { registerPWA } from '@molecule/app-pwa-default'
+ * // src/pwa.ts is a 1-line re-export:
+ * //   export { registerPWA } from '@molecule/app-pwa-default'
+ * // then call it once at app startup (e.g. in main.tsx):
+ * import { registerPWA } from '@molecule/app-pwa-default'
+ *
+ * registerPWA()
  * ```
  *
  * @module

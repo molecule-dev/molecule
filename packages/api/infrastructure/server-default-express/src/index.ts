@@ -9,21 +9,24 @@
  *
  * @example
  * ```ts
- * import { fileURLToPath } from 'node:url'
  * import { createServerFactory } from '@molecule/api-server-default-express'
  *
- * import { setupBonds } from './bonds/index.js'
- * import { runMigrations } from './scripts/migrate.js'
- *
- * export const create = createServerFactory({
+ * // In your app's api/src/server.ts these come from the scaffolded files:
+ * //   import { setupBonds } from './bonds/index.js'
+ * //   import { runMigrations } from './scripts/migrate.js'
+ * const create = createServerFactory({
  *   setupBonds,
  *   runMigrations,
- *   getRouter: () => import('./App/router.js'),
+ *   // Router loads lazily AFTER setupBonds() so bond-conditional route
+ *   // maps see fully-registered providers. The module must export
+ *   // `router`. In your app: getRouter: () => import('./App/router.js')
+ *   getRouter: async () => ({ router }),
  * })
  *
- * if (process.argv[1] === fileURLToPath(import.meta.url)) {
- *   create()
- * }
+ * // Runs migrations → wires bonds → mounts middleware + router at /api →
+ * // listens on PORT (default 4000). The scaffolded server.ts exports
+ * // `create` and invokes it when the file is run directly.
+ * await create()
  * ```
  *
  * @module

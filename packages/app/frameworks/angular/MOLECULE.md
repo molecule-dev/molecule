@@ -12,7 +12,7 @@ interfaces with Angular's idioms (services, DI, RxJS observables, etc.).
 // main.ts
 import { bootstrapApplication } from '@angular/platform-browser'
 import { provideMolecule } from '@molecule/app-angular'
-import { provider as stateProvider } from '@molecule/app-state-ngrx'
+import { provider as stateProvider } from '@molecule/app-state-zustand'
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -25,6 +25,7 @@ bootstrapApplication(AppComponent, {
 })
 
 // component.ts
+import { inject } from '@angular/core'
 import { MoleculeAuthService, MoleculeThemeService } from '@molecule/app-angular'
 
 ## Type

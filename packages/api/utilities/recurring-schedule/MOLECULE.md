@@ -19,10 +19,10 @@ without persisting state.
 ## Quick Start
 
 ```typescript
-import { expandOccurrences, nextOccurrence } from '@molecule/api-recurring-schedule'
+import { expandOccurrences, nextOccurrence, type RecurrenceRule } from '@molecule/api-recurring-schedule'
 
-const rule = {
-  frequency: 'WEEKLY' as const,
+const rule: RecurrenceRule = {
+  frequency: 'WEEKLY',
   startDate: '2026-01-05T09:00:00.000Z', // a Monday
   byDay: ['MO', 'WE', 'FR'],
   count: 6,

@@ -21,8 +21,24 @@ Extracted from the iot-device-manager flagship.
 
 ```ts
 import express from 'express'
-import { createFirmwareRouter } from '@molecule/api-resource-firmware'
-import { requireDeviceToken } from './middleware/device-token-auth.js'
+import {
+  createFirmwareRouter,
+  type DeviceTokenMiddleware,
+} from '@molecule/api-resource-firmware'
+
+// Device-auth implementations vary per deployment (token, mTLS, JWT, …),
+// so the status-report endpoint takes a caller-supplied authorizer. On
+// success it MUST set `res.locals.deviceAuth = { deviceId, ownerId }`;
+// on failure it responds 401.
+const requireDeviceToken: DeviceTokenMiddleware = async (req, res, next) => {
+  const device = await verifyDeviceToken(req.header('authorization'))
+  if (!device) {
+    res.sendStatus(401)
+    return
+  }
+  res.locals.deviceAuth = { deviceId: device.id, ownerId: device.ownerId }
+  next()
+}
 
 const app = express()
 app.use('/api/firmware', createFirmwareRouter({ requireDeviceToken }))

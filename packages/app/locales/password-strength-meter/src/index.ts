@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import * as locales from '@molecule/app-locales-password-strength-meter-react'
+ * import * as locales from '@molecule/app-locales-password-strength-meter'
  * import { registerLocaleModule } from '@molecule/app-i18n'
  *
  * registerLocaleModule(locales)

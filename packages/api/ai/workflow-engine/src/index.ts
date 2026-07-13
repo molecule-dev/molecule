@@ -15,7 +15,7 @@
  *     'webhook.received': async (ctx) => ctx.payload,
  *   },
  *   actions: {
- *     'http.post': async ({ url, body }) => fetch(url, { method: 'POST', body: JSON.stringify(body) }),
+ *     'http.post': async ({ url, body }) => fetch(String(url), { method: 'POST', body: JSON.stringify(body) }),
  *     'slack.message': async ({ channel, text }) => slackClient.chat.postMessage({ channel, text }),
  *   },
  * })

@@ -14,11 +14,13 @@ injection finds it correctly.
 /// <reference lib="webworker" />
 import { setupDefaultServiceWorker } from '@molecule/app-service-worker-default'
 
-declare const self: ServiceWorkerGlobalScope & {
+// Must live in the app's own src/service-worker.ts so vite-plugin-pwa's
+// build-time injection finds the `__WB_MANIFEST` token.
+const sw = self as unknown as ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<{ url: string; revision: string | null }>
 }
 
-setupDefaultServiceWorker(self, self.__WB_MANIFEST)
+setupDefaultServiceWorker(sw, sw.__WB_MANIFEST)
 ```
 
 ## Type

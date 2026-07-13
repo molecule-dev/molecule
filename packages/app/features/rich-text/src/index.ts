@@ -7,7 +7,7 @@
  * @example
  * ```ts
  * import { setProvider, createEditor, htmlToValue } from '@molecule/app-rich-text'
- * import { quillProvider } from '@molecule/app-rich-text-quill'
+ * import { provider as quillProvider } from '@molecule/app-rich-text-quill'
  *
  * // Wire the provider once at app startup
  * setProvider(quillProvider)

@@ -8,10 +8,12 @@ PostHog analytics provider for molecule.dev frontend.
 import { setProvider } from '@molecule/app-analytics'
 import { createProvider } from '@molecule/app-analytics-posthog'
 
-// Canonical wiring: read the browser-side key from Vite env and pass it
-// through options. Without a key, skip bonding — analytics calls no-op.
-const apiKey = import.meta.env?.VITE_POSTHOG_KEY as string | undefined
-const host = import.meta.env?.VITE_POSTHOG_HOST as string | undefined
+// Canonical wiring: read the browser-side key from Vite client env and pass
+// it through options. `importMetaEnv` stands for Vite's `import.meta.env` —
+// in your app write `import.meta.env?.VITE_POSTHOG_KEY` directly. Without a
+// key, skip bonding — analytics calls no-op.
+const apiKey = importMetaEnv?.VITE_POSTHOG_KEY as string | undefined
+const host = importMetaEnv?.VITE_POSTHOG_HOST as string | undefined
 if (apiKey) {
   setProvider(createProvider({ apiKey, ...(host ? { host } : {}) }))
 }

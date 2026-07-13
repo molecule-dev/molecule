@@ -12,14 +12,15 @@
  * @example
  * ```ts
  * import { setupI18nDefault } from '@molecule/app-i18n-default-react'
- * import { ui as en } from '../locales/en/ui.js'
  *
+ * // `en` is the app's eagerly-imported English UI translations —
+ * // in your app: `import { ui as en } from '../locales/en/ui.js'`.
+ * // The lazy loader MUST stay in the app so Vite can code-split
+ * // each locale's ui.ts into its own chunk.
  * const lazyLoadUi = (code: string) =>
  *   import(`../locales/${code}/ui.ts`).then((m) => m.ui)
  *
- * export function setupI18nDefaultBond(): void {
- *   setupI18nDefault({ enUi: en, lazyLoadUi })
- * }
+ * setupI18nDefault({ enUi: en, lazyLoadUi })
  * ```
  *
  * @module

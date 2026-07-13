@@ -8,7 +8,9 @@
  *
  * // Canonical wiring: read the browser-side token from Vite env and pass it
  * // through options. Without a token, skip bonding — analytics calls no-op.
- * const token = import.meta.env?.VITE_MIXPANEL_TOKEN as string | undefined
+ * // VITE_MIXPANEL_TOKEN below stands for `import.meta.env.VITE_MIXPANEL_TOKEN`
+ * // (write the `import.meta.env` read in your app's bond-setup file).
+ * const token = VITE_MIXPANEL_TOKEN as string | undefined
  * if (token) {
  *   setProvider(createProvider({ token }))
  * }

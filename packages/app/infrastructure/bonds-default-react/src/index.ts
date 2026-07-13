@@ -7,8 +7,12 @@
  * `app/src/bonds/<name>.ts` becomes a 1-line re-export:
  *
  * ```ts
- * // app/src/bonds/app-fonts-arimo.ts
- * export { setupAppFontsArimo } from '@molecule/app-bonds-default-react'
+ * // app/src/bonds/app-fonts-arimo.ts is a 1-line re-export:
+ * //   export { setupAppFontsArimo } from '@molecule/app-bonds-default-react'
+ * // so the existing bonds/index.ts call site keeps working unchanged:
+ * import { setupAppFontsArimo } from '@molecule/app-bonds-default-react'
+ *
+ * setupAppFontsArimo()
  * ```
  *
  * @example

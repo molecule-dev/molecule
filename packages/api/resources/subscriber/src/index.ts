@@ -20,7 +20,9 @@
  * import { routes, requestHandlerMap } from '@molecule/api-resource-subscriber'
  *
  * for (const route of routes) {
- *   const middlewares = (route.middlewares ?? []).map((name) => requestHandlerMap[name])
+ *   // Only the admin-only routes declare `middlewares` (routes is a const union).
+ *   const names = 'middlewares' in route ? route.middlewares : []
+ *   const middlewares = names.map((name) => requestHandlerMap[name])
  *   app[route.method](route.path, ...middlewares, requestHandlerMap[route.handler])
  * }
  * ```

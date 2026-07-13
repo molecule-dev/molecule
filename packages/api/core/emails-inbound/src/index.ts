@@ -19,9 +19,9 @@
  *   parseWebhookPayload,
  *   verifySignature,
  * } from '@molecule/api-emails-inbound'
- * import { provider as mailgunRoutes } from '@molecule/api-emails-inbound-mailgun-routes'
+ * import { provider as mailgunInbound } from '@molecule/api-emails-inbound-mailgun'
  *
- * setProvider(mailgunRoutes)
+ * setProvider(mailgunInbound)
  *
  * // In an HTTP handler bound to the inbound webhook URL:
  * const ok = await verifySignature(req.headers, req.rawBody)

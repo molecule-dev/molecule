@@ -25,8 +25,8 @@ framework-agnostic `GET /openapi.json` HTTP handler.
 ## Quick Start
 
 ```ts
-import { z } from 'zod'
 import {
+  type RouteDefinition,
   defineOpenApi,
   routeToOperation,
   addRouteToDoc,
@@ -37,14 +37,24 @@ import {
 
 const doc = defineOpenApi({ info: { title: 'Demo API', version: '1.0.0' } })
 
-const route = {
-  method: 'post' as const,
+// Pre-built JSON Schema — see @remarks for passing zod schemas.
+const route: RouteDefinition = {
+  method: 'post',
   path: '/users',
   summary: 'Create user',
   request: {
-    body: z.object({ email: z.string().email(), name: z.string().min(1) }),
+    body: {
+      type: 'object',
+      required: ['email', 'name'],
+      properties: {
+        email: { type: 'string', format: 'email' },
+        name: { type: 'string', minLength: 1 },
+      },
+    },
   },
-  response: { '201': z.object({ id: z.string().uuid() }) },
+  response: {
+    '201': { type: 'object', properties: { id: { type: 'string', format: 'uuid' } } },
+  },
 }
 
 const operation = routeToOperation(route)
@@ -52,7 +62,7 @@ annotateOperation(route, operation, doc)
 addRouteToDoc(doc, route, operation)
 
 const result = validateRequest(operation, { body: { email: 'a@b.co', name: 'Ada' } })
-if (!result.success) console.error(result.errors)
+if (result.success === false) console.error(result.errors)
 
 const handler = createOpenApiHandler(doc)
 // app.get('/openapi.json', handler)
@@ -721,9 +731,48 @@ function zodToJsonSchema(schema: ZodLikeSchema | JsonSchema): JsonSchema
 
 ## Injection Notes
 
+for passing zod schemas.
+const route: RouteDefinition = {
+  method: 'post',
+  path: '/users',
+  summary: 'Create user',
+  request: {
+    body: {
+      type: 'object',
+      required: ['email', 'name'],
+      properties: {
+        email: { type: 'string', format: 'email' },
+        name: { type: 'string', minLength: 1 },
+      },
+    },
+  },
+  response: {
+    '201': { type: 'object', properties: { id: { type: 'string', format: 'uuid' } } },
+  },
+}
+
+const operation = routeToOperation(route)
+annotateOperation(route, operation, doc)
+addRouteToDoc(doc, route, operation)
+
+const result = validateRequest(operation, { body: { email: 'a@b.co', name: 'Ada' } })
+if (result.success === false) console.error(result.errors)
+
+const handler = createOpenApiHandler(doc)
+// app.get('/openapi.json', handler)
+```
+
+@remarks
 The validator prefers zod schemas when they're attached via
 `annotateOperation()` — this gives you zod's full error messages,
-coercion rules, and refinements. For handcrafted JSON Schemas a
+coercion rules, and refinements. Note the TypeScript caveat, though:
+zod 4's static types don't structurally satisfy the permissive
+`ZodLikeSchema` duck type, so assigning a `z.object(...)` directly
+to a `RouteDefinition` schema slot fails `tsc` (the runtime
+converter accepts it fine). In typed code, pass pre-built JSON
+Schema as in the example, or narrow the zod schema with the
+exported `isZodSchema()` guard before assigning it.
+For handcrafted JSON Schemas a
 built-in mini-validator handles the keywords this package emits
 (`type`, `required`, `properties`, `items`, `enum`, `const`,
 `pattern`, length and numeric bounds, `additionalProperties`,

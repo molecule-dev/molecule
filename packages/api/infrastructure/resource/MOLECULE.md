@@ -14,20 +14,33 @@ import {
   read,
   update,
   del,
-  query
+  query,
+  type MoleculeRequest,
 } from '@molecule/api-resource'
 
-// Create a handler factory for your resource
+// Each CRUD factory takes the resource descriptor and returns an async
+// operation, e.g. ({ props }) or ({ id }) => { statusCode, body }
 const createUser = create<UserProps>({
   name: 'User',
   tableName: 'users',
   schema: userSchema,
 })
+const readUser = read<UserProps>({
+  name: 'User',
+  tableName: 'users',
+  schema: userSchema,
+})
 
-// Wrap with request handler for Express
-export const requestHandlerMap = {
-  create: createRequestHandler(createUser),
-  read: createRequestHandler(readUser),
+// Operations do NOT take (req, res) directly — adapt each one by mapping
+// request fields (req.body, req.params.id) to its arguments, then wrap
+// with createRequestHandler for Express
+const requestHandlerMap = {
+  create: createRequestHandler(async (req: MoleculeRequest) =>
+    await createUser({ props: req.body }),
+  ),
+  read: createRequestHandler(async (req: MoleculeRequest) =>
+    await readUser({ id: req.params.id }),
+  ),
   // ...
 }
 ```

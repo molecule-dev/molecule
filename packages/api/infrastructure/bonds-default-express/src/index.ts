@@ -7,8 +7,12 @@
  * wiring files. Per-app bond files become 1-line re-exports:
  *
  * ```ts
- * // api/src/bonds/config-env.ts
- * export { setupConfigEnv } from '@molecule/api-bonds-default-express'
+ * // api/src/bonds/config-env.ts is a 1-line re-export:
+ * //   export { setupConfigEnv } from '@molecule/api-bonds-default-express'
+ * // so the existing bonds/index.ts call site keeps working unchanged:
+ * import { setupConfigEnv } from '@molecule/api-bonds-default-express'
+ *
+ * setupConfigEnv()
  * ```
  *
  * @module

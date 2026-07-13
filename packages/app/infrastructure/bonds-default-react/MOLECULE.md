@@ -8,8 +8,12 @@ storage-localstorage, styling-tailwind). Each app's
 `app/src/bonds/<name>.ts` becomes a 1-line re-export:
 
 ```ts
-// app/src/bonds/app-fonts-arimo.ts
-export { setupAppFontsArimo } from '@molecule/app-bonds-default-react'
+// app/src/bonds/app-fonts-arimo.ts is a 1-line re-export:
+//   export { setupAppFontsArimo } from '@molecule/app-bonds-default-react'
+// so the existing bonds/index.ts call site keeps working unchanged:
+import { setupAppFontsArimo } from '@molecule/app-bonds-default-react'
+
+setupAppFontsArimo()
 ```
 
 ## Quick Start
@@ -214,10 +218,11 @@ function setupAppStorageLocalstorage(): void
 
 #### `setupAppStylingTailwind()`
 
-No-op wiring for `@molecule/app-styling-tailwind` — Tailwind is
-configured via env vars and the Vite plugin rather than runtime
-provider injection. Retained so `bonds/index.ts` `setupProviders()`
-can call it alongside the other defaults without exceptions.
+Wires `@molecule/app-styling-tailwind`: registers `tailwind-merge` as the
+class merger for `@molecule/app-styling`'s `cn()`, so conflicting Tailwind
+utilities resolve (last wins). Tailwind itself is configured via env vars +
+the Vite plugin; this is the one runtime hook the framework-agnostic styling
+core needs so it carries no Tailwind dependency of its own.
 
 ```typescript
 function setupAppStylingTailwind(): void
@@ -260,6 +265,7 @@ Peer dependencies:
 - `@molecule/app-routing-react-router` ^1.0.0
 - `@molecule/app-storage` ^1.0.0
 - `@molecule/app-storage-localstorage` ^1.0.0
+- `@molecule/app-styling-tailwind` ^1.0.0
 - `@molecule/app-theme` ^1.0.0
 - `@molecule/app-theme-css-variables` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

@@ -10,7 +10,7 @@
  * // main.ts
  * import { bootstrapApplication } from '@angular/platform-browser'
  * import { provideMolecule } from '@molecule/app-angular'
- * import { provider as stateProvider } from '@molecule/app-state-ngrx'
+ * import { provider as stateProvider } from '@molecule/app-state-zustand'
  *
  * bootstrapApplication(AppComponent, {
  *   providers: [
@@ -23,6 +23,7 @@
  * })
  *
  * // component.ts
+ * import { inject } from '@angular/core'
  * import { MoleculeAuthService, MoleculeThemeService } from '@molecule/app-angular'
  *
  * @Component({
@@ -34,14 +35,12 @@
  *     </div>
  *   `
  * })
- * export class DashboardComponent {
+ * class DashboardComponent {
+ *   private authService = inject(MoleculeAuthService)
+ *   private themeService = inject(MoleculeThemeService)
+ *
  *   user$ = this.authService.user$
  *   theme$ = this.themeService.theme$
- *
- *   constructor(
- *     private authService: MoleculeAuthService,
- *     private themeService: MoleculeThemeService
- *   ) {}
  *
  *   logout() {
  *     this.authService.logout()

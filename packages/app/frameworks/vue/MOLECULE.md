@@ -10,8 +10,8 @@ interfaces with Vue's idioms (Composition API, provide/inject, etc.).
 
 ```ts
 import { createApp } from 'vue'
-import { moleculePlugin, useAuth, useTheme, useStore } from '@molecule/app-vue'
-import { provider as stateProvider } from '@molecule/app-state-pinia'
+import { moleculePlugin } from '@molecule/app-vue'
+import { provider as stateProvider } from '@molecule/app-state-zustand'
 
 // Setup plugin
 const app = createApp(App)
@@ -28,7 +28,7 @@ import { useAuth, useTheme, useStore } from '@molecule/app-vue'
 
 const { user, logout } = useAuth()
 const { theme, toggleTheme } = useTheme()
-const count = useStore(counterStore)
+const count = useStore(counterStore, { selector: (s: { count: number }) => s.count })
 // </script>
 ```
 

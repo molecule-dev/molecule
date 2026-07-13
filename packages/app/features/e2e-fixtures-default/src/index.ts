@@ -25,7 +25,8 @@
  *
  * @example
  * ```ts
- * import { test, expect } from './_helpers.js'   // re-exports from here
+ * // In fleet apps, the per-app `./_helpers.ts` re-exports these:
+ * import { test, expect } from '@molecule/app-e2e-fixtures-default'
  *
  * test('login lands on dashboard', async ({ page }) => {
  *   await page.goto('/login')

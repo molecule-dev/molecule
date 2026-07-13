@@ -11,7 +11,7 @@ import { send, subscribe } from '@molecule/api-queue'
 
 await send('emails', { body: { userId, kind: 'welcome' } }) // an id, not the email body/secret
 
-subscribe('emails', async (msg) => {
+subscribe<{ userId: string; kind: string }>('emails', async (msg) => {
   const user = await findById('users', msg.body.userId) // re-load server-side; re-scope
   if (user?.welcomeSentAt) return // idempotent — already done, skip the redelivery
   await sendMail({ from, to: user.email, subject: 'Welcome' })

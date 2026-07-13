@@ -10,9 +10,13 @@
  * ```ts
  * import { defineConfig } from 'vite'
  * import { createDefaultViteConfig } from '@molecule/app-vite-config-default'
- * import { APP_DESCRIPTION, APP_NAME, BRAND_COLOR } from './src/branding.js'
+ * // APP_NAME, APP_DESCRIPTION and BRAND_COLOR come from the app's own
+ * // scaffolded branding module:
+ * //   import { APP_DESCRIPTION, APP_NAME, BRAND_COLOR } from './src/branding.js'
  *
- * export default defineConfig(createDefaultViteConfig({ APP_NAME, APP_DESCRIPTION, BRAND_COLOR }))
+ * // The app's vite.config.ts wraps this exact call in `export default`:
+ * //   export default defineConfig(createDefaultViteConfig({ APP_NAME, APP_DESCRIPTION, BRAND_COLOR }))
+ * const config = defineConfig(createDefaultViteConfig({ APP_NAME, APP_DESCRIPTION, BRAND_COLOR }))
  * ```
  *
  * @module

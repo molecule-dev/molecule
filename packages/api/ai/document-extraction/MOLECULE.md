@@ -11,13 +11,14 @@ pre-process with `@molecule/api-pdf` or your OCR provider to get the
 
 ```ts
 import { extractFields, missingRequiredFields } from '@molecule/api-ai-document-extraction'
+import type { ExtractionField } from '@molecule/api-ai-document-extraction'
 
-const fields = [
+const fields: ExtractionField[] = [
   { name: 'invoice_number', type: 'string', required: true, description: 'The invoice ID/number' },
   { name: 'total_amount', type: 'number', required: true, description: 'Total amount due in cents' },
   { name: 'due_date', type: 'date', description: 'Payment due date' },
   { name: 'vendor', type: 'string', description: 'Vendor / supplier name' },
-] as const
+]
 
 const result = await extractFields({ text: invoiceText, fields, context: 'Invoice from a B2B vendor' })
 const missing = missingRequiredFields(result, fields)
