@@ -57,6 +57,10 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'સ્વતઃ-સુધારો સક્ષમ.',
   'ide.chat.autoFixDisabled': 'ઓટો-ફિક્સ અક્ષમ.',
   'ide.chat.autoFixError': 'ઓટો-ફિક્સ સેટિંગ અપડેટ કરવામાં નિષ્ફળ.',
+  'ide.chat.autoApproveEnabled':
+    'સ્વતઃ-મંજૂરી ચાલુ છે — વિનાશક આદેશો પૂછ્યા વગર ચાલે છે. એક્સફિલ્ટ્રેશન ગાર્ડ હજુ પણ પૂછે છે. /autoapprove વડે બંધ કરો.',
+  'ide.chat.autoApproveDisabled': 'સ્વતઃ-મંજૂરી બંધ છે — વિનાશક આદેશો ચાલતા પહેલા પૂછે છે.',
+  'ide.chat.autoApproveError': 'સ્વતઃ-મંજૂરી સેટિંગ અપડેટ કરવામાં નિષ્ફળ.',
   'ide.chat.modelUsage':
     'ઉપયોગ: /મોડેલ<model-name> (દા.ત. ક્લાઉડ-ઓપસ-4-6, ક્લાઉડ-સોનેટ-4-6, ક્લાઉડ-હાઈકુ-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

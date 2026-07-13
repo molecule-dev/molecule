@@ -57,6 +57,11 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automātiskā labošana ir iespējota.',
   'ide.chat.autoFixDisabled': 'Automātiskā labošana ir atspējota.',
   'ide.chat.autoFixError': 'Neizdevās atjaunināt automātiskās labošanas iestatījumu.',
+  'ide.chat.autoApproveEnabled':
+    'Automātiskā apstiprināšana ir ieslēgta — destruktīvas komandas tiek izpildītas bez jautāšanas. Aizsardzība pret datu noplūdi joprojām jautā. Izslēdziet ar /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automātiskā apstiprināšana ir izslēgta — destruktīvas komandas jautā pirms izpildes.',
+  'ide.chat.autoApproveError': 'Neizdevās atjaunināt automātiskās apstiprināšanas iestatījumu.',
   'ide.chat.modelUsage':
     'Lietojums: /model<model-name> (piemēram, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

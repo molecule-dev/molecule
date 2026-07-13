@@ -57,6 +57,11 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Ավտոմատ ուղղումը միացված է։',
   'ide.chat.autoFixDisabled': 'Ավտոմատ ուղղումը անջատված է։',
   'ide.chat.autoFixError': 'Չհաջողվեց թարմացնել ավտոմատ ուղղման կարգավորումը։',
+  'ide.chat.autoApproveEnabled':
+    'Ավտոմատ հաստատումը միացված է — կործանարար հրամանները գործարկվում են առանց հարցնելու։ Արտահոսքից պաշտպանությունը դեռ հարցնում է հաստատում։ Անջատեք՝ /autoapprove։',
+  'ide.chat.autoApproveDisabled':
+    'Ավտոմատ հաստատումը անջատված է — կործանարար հրամանները հարցնում են հաստատում գործարկումից առաջ։',
+  'ide.chat.autoApproveError': 'Չհաջողվեց թարմացնել ավտոմատ հաստատման կարգավորումը։',
   'ide.chat.modelUsage':
     'Օգտագործումը՝ /մոդել<model-name> (օրինակ՝ claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

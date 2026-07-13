@@ -55,6 +55,11 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Аўтавыпраўленне ўключана.',
   'ide.chat.autoFixDisabled': 'Аўтавыпраўленне выключана.',
   'ide.chat.autoFixError': 'Не ўдалося абнавіць наладу аўтавыпраўлення.',
+  'ide.chat.autoApproveEnabled':
+    'Аўтазацвярджэнне ўключана — разбуральныя каманды выконваюцца без запыту. Абарона ад эксфільтрацыі ўсё роўна пытаецца. Выключыце з дапамогай /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Аўтазацвярджэнне выключана — разбуральныя каманды пытаюцца пацвярджэння перад выкананнем.',
+  'ide.chat.autoApproveError': 'Не ўдалося абнавіць наладу аўтазацвярджэння.',
   'ide.chat.viewPlans': 'Прагляд планаў',
   'ide.chat.cancel': 'Адмяніць',
   'ide.chat.save': 'Захаваць',

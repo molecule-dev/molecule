@@ -84,6 +84,11 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatisk korrigering aktivert.',
   'ide.chat.autoFixDisabled': 'Automatisk reparasjon deaktivert.',
   'ide.chat.autoFixError': 'Kunne ikke oppdatere innstillingen for automatisk reparasjon.',
+  'ide.chat.autoApproveEnabled':
+    'Automatisk godkjenning på — ødeleggende kommandoer kjøres uten å spørre. Eksfiltreringsvakten spør fortsatt. Slå av med /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatisk godkjenning av — ødeleggende kommandoer spør før de kjøres.',
+  'ide.chat.autoApproveError': 'Kunne ikke oppdatere innstillingen for automatisk godkjenning.',
   'ide.chat.modelUsage':
     'Bruk: /modell<model-name> (f.eks. claude-opus-4-6, claude-sonnett-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Maksimalt antall løkker er nådd.',

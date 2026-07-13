@@ -92,6 +92,12 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatische correctie ingeschakeld.',
   'ide.chat.autoFixDisabled': 'Automatische correctie uitgeschakeld.',
   'ide.chat.autoFixError': 'Het bijwerken van de automatische herstelinstelling is mislukt.',
+  'ide.chat.autoApproveEnabled':
+    'Automatisch goedkeuren aan — destructieve opdrachten worden uitgevoerd zonder te vragen. De exfiltratiebeveiliging vraagt nog steeds om bevestiging. Zet uit met /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatisch goedkeuren uit — destructieve opdrachten vragen om bevestiging voordat ze worden uitgevoerd.',
+  'ide.chat.autoApproveError':
+    'Het bijwerken van de instelling voor automatisch goedkeuren is mislukt.',
   'ide.chat.modelUsage':
     'Gebruik: /model<model-name> (bijv. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Het maximale aantal herhalingen is bereikt.',

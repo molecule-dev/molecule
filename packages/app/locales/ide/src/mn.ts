@@ -58,6 +58,11 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Автомат засварыг идэвхжүүлсэн.',
   'ide.chat.autoFixDisabled': 'Автоматаар засахыг идэвхгүй болгосон.',
   'ide.chat.autoFixError': 'Автоматаар засах тохиргоог шинэчилж чадсангүй.',
+  'ide.chat.autoApproveEnabled':
+    'Автомат зөвшөөрлийг идэвхжүүлсэн — сүйтгэх командууд асуултгүйгээр ажиллана. Мэдээлэл алдагдуулахаас хамгаалах хамгаалалт хэвээрээ асууна. /autoapprove-оор унтраа.',
+  'ide.chat.autoApproveDisabled':
+    'Автомат зөвшөөрлийг идэвхгүй болгосон — сүйтгэх командууд ажиллахын өмнө асууна.',
+  'ide.chat.autoApproveError': 'Автомат зөвшөөрлийн тохиргоог шинэчилж чадсангүй.',
   'ide.chat.modelUsage':
     'Хэрэглээ: /загвар<model-name> (жишээ нь claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

@@ -95,6 +95,12 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.autoFixDisabled': 'Automatische Fehlerbehebung deaktiviert.',
   'ide.chat.autoFixError':
     'Die Aktualisierung der automatischen Fehlerbehebungseinstellung ist fehlgeschlagen.',
+  'ide.chat.autoApproveEnabled':
+    'Automatische Genehmigung aktiviert — destruktive Befehle werden ohne Rückfrage ausgeführt. Der Exfiltrationsschutz fragt weiterhin nach. Mit /autoapprove deaktivieren.',
+  'ide.chat.autoApproveDisabled':
+    'Automatische Genehmigung deaktiviert — destruktive Befehle fragen vor der Ausführung nach.',
+  'ide.chat.autoApproveError':
+    'Die Aktualisierung der Einstellung für automatische Genehmigung ist fehlgeschlagen.',
   'ide.chat.modelUsage':
     'Verwendung: /model<model-name> (z. B. claude-opus-4-6, claude-sonett-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Maximale Schleifenanzahl erreicht.',

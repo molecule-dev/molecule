@@ -57,6 +57,11 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'ഓട്ടോ-ഫിക്സ് പ്രാപ്തമാക്കി.',
   'ide.chat.autoFixDisabled': 'ഓട്ടോ-ഫിക്സ് പ്രവർത്തനരഹിതമാക്കി.',
   'ide.chat.autoFixError': 'ഓട്ടോ-ഫിക്സ് ക്രമീകരണം അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
+  'ide.chat.autoApproveEnabled':
+    'ഓട്ടോ-അപ്രൂവ് ഓണാണ് — നാശകരമായ കമാൻഡുകൾ ചോദിക്കാതെ തന്നെ പ്രവർത്തിക്കും. ഡാറ്റ ചോർച്ച തടയുന്ന സുരക്ഷാസംവിധാനം ഇപ്പോഴും ചോദിക്കും. /autoapprove ഉപയോഗിച്ച് ഓഫാക്കാം.',
+  'ide.chat.autoApproveDisabled':
+    'ഓട്ടോ-അപ്രൂവ് ഓഫാണ് — നാശകരമായ കമാൻഡുകൾ പ്രവർത്തിക്കുന്നതിന് മുമ്പ് ചോദിക്കും.',
+  'ide.chat.autoApproveError': 'ഓട്ടോ-അപ്രൂവ് ക്രമീകരണം അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
   'ide.chat.modelUsage':
     'ഉപയോഗം: /മോഡൽ<model-name> (ഉദാ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

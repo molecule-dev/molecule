@@ -95,6 +95,11 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Włączono funkcję automatycznej naprawy.',
   'ide.chat.autoFixDisabled': 'Autonaprawa wyłączona.',
   'ide.chat.autoFixError': 'Nie udało się zaktualizować ustawień automatycznej naprawy.',
+  'ide.chat.autoApproveEnabled':
+    'Automatyczna akceptacja włączona — destrukcyjne polecenia są wykonywane bez pytania o potwierdzenie. Zabezpieczenie przed eksfiltracją danych nadal pyta o potwierdzenie. Wyłącz poleceniem /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatyczna akceptacja wyłączona — destrukcyjne polecenia pytają o potwierdzenie przed wykonaniem.',
+  'ide.chat.autoApproveError': 'Nie udało się zaktualizować ustawień automatycznej akceptacji.',
   'ide.chat.modelUsage':
     'Użycie: /model<model-name> (np. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Osiągnięto limit maksymalnej liczby pętli.',

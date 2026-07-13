@@ -58,6 +58,11 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'اصلاح خودکار فعال شد.',
   'ide.chat.autoFixDisabled': 'رفع خودکار غیرفعال است.',
   'ide.chat.autoFixError': 'به‌روزرسانی تنظیمات اصلاح خودکار ناموفق بود.',
+  'ide.chat.autoApproveEnabled':
+    'تأیید خودکار روشن است — دستورهای مخرب بدون پرسش اجرا می‌شوند. محافظ نشت اطلاعات همچنان سؤال می‌کند. برای خاموش کردن از /autoapprove استفاده کنید.',
+  'ide.chat.autoApproveDisabled':
+    'تأیید خودکار خاموش است — دستورهای مخرب پیش از اجرا سؤال می‌کنند.',
+  'ide.chat.autoApproveError': 'به‌روزرسانی تنظیمات تأیید خودکار ناموفق بود.',
   'ide.chat.modelUsage':
     'کاربرد: /مدل<model-name> (به عنوان مثال claude-opus-4-6، claude-sonnet-4-6، claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

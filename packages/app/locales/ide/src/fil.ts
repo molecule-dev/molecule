@@ -83,6 +83,11 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Naka-enable ang awtomatikong pag-aayos.',
   'ide.chat.autoFixDisabled': 'Hindi pinagana ang awtomatikong pag-aayos.',
   'ide.chat.autoFixError': 'Nabigong i-update ang setting ng auto-fix.',
+  'ide.chat.autoApproveEnabled':
+    'Naka-on ang auto-approve — awtomatikong tumatakbo ang mga mapanirang command nang walang paghingi ng kumpirmasyon. Humihingi pa rin ng kumpirmasyon ang exfiltration guard. I-off gamit ang /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Naka-off ang auto-approve — humihingi muna ng kumpirmasyon ang mga mapanirang command bago tumakbo.',
+  'ide.chat.autoApproveError': 'Nabigong i-update ang setting ng auto-approve.',
   'ide.chat.modelUsage':
     'Paggamit: /modelo<model-name> (hal. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Naabot na ang limitasyon sa max loops.',

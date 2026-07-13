@@ -57,6 +57,10 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'ເປີດໃຊ້ການແກ້ໄຂອັດຕະໂນມັດແລ້ວ.',
   'ide.chat.autoFixDisabled': 'ການແກ້ໄຂອັດຕະໂນມັດຖືກປິດໃຊ້ງານ.',
   'ide.chat.autoFixError': 'ອັບເດດການຕັ້ງຄ່າແກ້ໄຂອັດຕະໂນມັດບໍ່ສຳເລັດ.',
+  'ide.chat.autoApproveEnabled':
+    'ອະນຸມັດອັດຕະໂນມັດເປີດຢູ່ — ຄຳສັ່ງທີ່ທຳລາຍຈະຖືກປະຕິບັດໂດຍບໍ່ຖາມ. ລະບົບປ້ອງກັນການຮົ່ວໄຫຼຂໍ້ມູນຍັງຄົງຖາມຢູ່. ປິດໄດ້ດ້ວຍ /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'ອະນຸມັດອັດຕະໂນມັດປິດຢູ່ — ຄຳສັ່ງທີ່ທຳລາຍຈະຖາມກ່ອນປະຕິບັດ.',
+  'ide.chat.autoApproveError': 'ອັບເດດການຕັ້ງຄ່າອະນຸມັດອັດຕະໂນມັດບໍ່ສຳເລັດ.',
   'ide.chat.modelUsage':
     'ການນຳໃຊ້: /ຮູບແບບ<model-name> (ຕົວຢ່າງ: claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired': '{{ໂມເດວ}} ມີຢູ່ໃນ Pro. ອັບເກຣດເພື່ອເຂົ້າເຖິງທຸກລຸ້ນ.',

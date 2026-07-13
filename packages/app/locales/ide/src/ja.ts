@@ -96,6 +96,10 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': '自動修正機能が有効になっています。',
   'ide.chat.autoFixDisabled': '自動修正機能は無効になっています。',
   'ide.chat.autoFixError': '自動修正設定の更新に失敗しました。',
+  'ide.chat.autoApproveEnabled':
+    '自動承認がオンです — 破壊的なコマンドは確認なしで実行されます。データ持ち出しを検知するガードは引き続き確認を求めます。オフにするには /autoapprove と入力してください。',
+  'ide.chat.autoApproveDisabled': '自動承認がオフです — 破壊的なコマンドは実行前に確認を求めます。',
+  'ide.chat.autoApproveError': '自動承認設定の更新に失敗しました。',
   'ide.chat.modelUsage':
     '使用方法: /model<model-name> (例: クロード-作品-4-6、クロード-ソネット-4-6、クロード-俳句-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'ループ回数の上限に達しました。',

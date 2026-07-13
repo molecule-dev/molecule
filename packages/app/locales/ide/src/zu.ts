@@ -58,6 +58,12 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Ukulungisa okuzenzakalelayo kuvuliwe.',
   'ide.chat.autoFixDisabled': 'Ukulungisa okuzenzakalelayo kukhutshaziwe.',
   'ide.chat.autoFixError': 'Yehlulekile ukubuyekeza isilungiselelo sokulungisa ngokuzenzakalelayo.',
+  'ide.chat.autoApproveEnabled':
+    'Ukuvuma ngokuzenzakalelayo kuvuliwe — imiyalo ebhubhisayo isetshenziswa ngaphandle kokubuza. Isivikelo sokwephulwa kwedatha sisabuza. Sebenzisa /autoapprove ukuze uyivale.',
+  'ide.chat.autoApproveDisabled':
+    'Ukuvuma ngokuzenzakalelayo kukhutshaziwe — imiyalo ebhubhisayo iyabuza ngaphambi kokusetshenziswa.',
+  'ide.chat.autoApproveError':
+    'Yehlulekile ukubuyekeza isilungiselelo sokuvuma ngokuzenzakalelayo.',
   'ide.chat.modelUsage':
     'Ukusetshenziswa: /imodeli<model-name> (isb. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

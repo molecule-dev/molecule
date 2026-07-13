@@ -57,6 +57,11 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'ავტომატური შეკეთება ჩართულია.',
   'ide.chat.autoFixDisabled': 'ავტომატური შეკეთება გამორთულია.',
   'ide.chat.autoFixError': 'ავტომატური შესწორების პარამეტრის განახლება ვერ მოხერხდა.',
+  'ide.chat.autoApproveEnabled':
+    'ავტომატური დამტკიცება ჩართულია — დესტრუქციული ბრძანებები სრულდება დადასტურების გარეშე. მონაცემთა გაჟონვის დაცვა კვლავ ითხოვს დადასტურებას. გამორთეთ /autoapprove-ით.',
+  'ide.chat.autoApproveDisabled':
+    'ავტომატური დამტკიცება გამორთულია — დესტრუქციული ბრძანებები დადასტურებას ითხოვენ გაშვებამდე.',
+  'ide.chat.autoApproveError': 'ავტომატური დამტკიცების პარამეტრის განახლება ვერ მოხერხდა.',
   'ide.chat.modelUsage':
     'გამოყენება: /მოდელი<model-name> (მაგ. კლოდ-ოპუს-4-6, კლოდ-სონეტი-4-6, კლოდ-ჰაიკუ-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

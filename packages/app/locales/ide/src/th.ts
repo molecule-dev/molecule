@@ -57,6 +57,11 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'เปิดใช้งานการแก้ไขอัตโนมัติแล้ว',
   'ide.chat.autoFixDisabled': 'ปิดใช้งานการแก้ไขอัตโนมัติแล้ว',
   'ide.chat.autoFixError': 'ไม่สามารถอัปเดตการตั้งค่าการแก้ไขอัตโนมัติได้',
+  'ide.chat.autoApproveEnabled':
+    'เปิดใช้งานการอนุมัติอัตโนมัติแล้ว — คำสั่งที่ทำลายข้อมูลจะทำงานโดยไม่ต้องถามก่อน ระบบป้องกันการรั่วไหลของข้อมูลยังคงถามอยู่เสมอ ปิดได้ด้วยคำสั่ง /autoapprove',
+  'ide.chat.autoApproveDisabled':
+    'ปิดใช้งานการอนุมัติอัตโนมัติแล้ว — คำสั่งที่ทำลายข้อมูลจะถามก่อนทำงานทุกครั้ง',
+  'ide.chat.autoApproveError': 'ไม่สามารถอัปเดตการตั้งค่าการอนุมัติอัตโนมัติได้',
   'ide.chat.modelUsage':
     'วิธีใช้งาน: /model<model-name> (เช่น claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

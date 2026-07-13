@@ -57,6 +57,11 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Uath-cheartú cumasaithe.',
   'ide.chat.autoFixDisabled': 'Uath-cheartú díchumasaithe.',
   'ide.chat.autoFixError': 'Theip ar an socrú uath-cheartúcháin a nuashonrú.',
+  'ide.chat.autoApproveEnabled':
+    'Tá an t-uath-cheadú ar siúl — ritear orduithe millteacha gan cead a iarraidh. Iarrann an chosaint frithsceite cead fós. Múch le /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Tá an t-uath-cheadú as — iarrann orduithe millteacha cead sula ritear iad.',
+  'ide.chat.autoApproveError': 'Theip ar an socrú uath-cheadaithe a nuashonrú.',
   'ide.chat.modelUsage':
     'Úsáid: /samhail<model-name> (m.sh. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

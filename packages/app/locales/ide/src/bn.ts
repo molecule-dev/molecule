@@ -57,6 +57,11 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'স্বয়ংক্রিয় সমাধান সক্রিয় করা হয়েছে।',
   'ide.chat.autoFixDisabled': 'স্বয়ংক্রিয় সমাধান নিষ্ক্রিয় করা হয়েছে।',
   'ide.chat.autoFixError': 'স্বয়ংক্রিয়-সংশোধন সেটিং আপডেট করতে ব্যর্থ হয়েছে।',
+  'ide.chat.autoApproveEnabled':
+    'স্বয়ংক্রিয়-অনুমোদন চালু — ধ্বংসাত্মক কমান্ড জিজ্ঞাসা না করেই চালানো হয়। তথ্য পাচার সুরক্ষা তবুও জিজ্ঞাসা করে। /autoapprove দিয়ে বন্ধ করুন।',
+  'ide.chat.autoApproveDisabled':
+    'স্বয়ংক্রিয়-অনুমোদন বন্ধ — ধ্বংসাত্মক কমান্ড চালানোর আগে জিজ্ঞাসা করে।',
+  'ide.chat.autoApproveError': 'স্বয়ংক্রিয়-অনুমোদন সেটিং আপডেট করতে ব্যর্থ হয়েছে।',
   'ide.chat.modelUsage':
     'ব্যবহার: /মডেল<model-name> (যেমন claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

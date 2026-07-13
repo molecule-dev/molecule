@@ -55,6 +55,11 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'An kunna gyara kai tsaye.',
   'ide.chat.autoFixDisabled': 'An kashe gyara kai tsaye.',
   'ide.chat.autoFixError': 'An kasa sabunta saitunan gyara kai tsaye.',
+  'ide.chat.autoApproveEnabled':
+    'An kunna amincewa kai tsaye — ana gudanar da umarnin lalatawa ba tare da tambaya ba. Matakin kariya daga satar bayanai har yanzu yana tambaya. A kashe da /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'An kashe amincewa kai tsaye — umarnin lalatawa suna tambaya kafin a gudanar da su.',
+  'ide.chat.autoApproveError': 'An kasa sabunta saitunan amincewa kai tsaye.',
   'ide.chat.viewPlans': 'Duba shirye-shirye',
   'ide.chat.cancel': 'Soke',
   'ide.chat.save': 'Ajiye',

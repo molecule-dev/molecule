@@ -57,6 +57,11 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Tiswija awtomatika attivata.',
   'ide.chat.autoFixDisabled': 'It-tiswija awtomatika hija diżattivata.',
   'ide.chat.autoFixError': 'Ma rnexxiex taġġorna s-setting tal-awto-tiswija.',
+  'ide.chat.autoApproveEnabled':
+    'L-approvazzjoni awtomatika hija attivata — il-kmandi distruttivi jitħaddmu mingħajr ma jistaqsu. Il-protezzjoni kontra t-tnixxija tad-data xorta tistaqsi. Iddiżattivaha billi tuża /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'L-approvazzjoni awtomatika hija diżattivata — il-kmandi distruttivi jistaqsu qabel ma jitħaddmu.',
+  'ide.chat.autoApproveError': 'Ma rnexxiex taġġorna s-setting tal-approvazzjoni awtomatika.',
   'ide.chat.modelUsage':
     'Użu: /mudell<model-name> (eż. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

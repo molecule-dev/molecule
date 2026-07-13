@@ -86,6 +86,11 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Автоматичне виправлення ввімкнено.',
   'ide.chat.autoFixDisabled': 'Автоматичне виправлення вимкнено.',
   'ide.chat.autoFixError': 'Не вдалося оновити налаштування автоматичного виправлення.',
+  'ide.chat.autoApproveEnabled':
+    'Автоматичне підтвердження увімкнено — деструктивні команди виконуються без запиту. Захист від витоку даних усе одно запитує підтвердження. Вимкнути можна командою /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Автоматичне підтвердження вимкнено — деструктивні команди запитують підтвердження перед виконанням.',
+  'ide.chat.autoApproveError': 'Не вдалося оновити налаштування автоматичного підтвердження.',
   'ide.chat.modelUsage':
     'Використання: /модель<model-name> (наприклад, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Досягнуто максимальної кількості циклів.',

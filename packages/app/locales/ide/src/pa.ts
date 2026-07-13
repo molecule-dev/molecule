@@ -58,6 +58,11 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'ਆਟੋ-ਫਿਕਸ ਯੋਗ ਹੈ।',
   'ide.chat.autoFixDisabled': 'ਆਟੋ-ਫਿਕਸ ਅਯੋਗ।',
   'ide.chat.autoFixError': 'ਆਟੋ-ਫਿਕਸ ਸੈਟਿੰਗ ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
+  'ide.chat.autoApproveEnabled':
+    'ਆਟੋ-ਮਨਜ਼ੂਰੀ ਚਾਲੂ ਹੈ — ਵਿਨਾਸ਼ਕਾਰੀ ਕਮਾਂਡਾਂ ਬਿਨਾਂ ਪੁੱਛੇ ਚੱਲਦੀਆਂ ਹਨ। ਡਾਟਾ ਲੀਕ ਸੁਰੱਖਿਆ ਅਜੇ ਵੀ ਪੁੱਛਦੀ ਹੈ। /autoapprove ਨਾਲ ਬੰਦ ਕਰੋ।',
+  'ide.chat.autoApproveDisabled':
+    'ਆਟੋ-ਮਨਜ਼ੂਰੀ ਬੰਦ ਹੈ — ਵਿਨਾਸ਼ਕਾਰੀ ਕਮਾਂਡਾਂ ਚੱਲਣ ਤੋਂ ਪਹਿਲਾਂ ਪੁੱਛਦੀਆਂ ਹਨ।',
+  'ide.chat.autoApproveError': 'ਆਟੋ-ਮਨਜ਼ੂਰੀ ਸੈਟਿੰਗ ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'ide.chat.modelUsage':
     'ਵਰਤੋਂ: /ਮਾਡਲ<model-name> (ਉਦਾਹਰਨ ਲਈ ਕਲਾਉਡ-ਓਪਸ-4-6, ਕਲੌਡ-ਸੋਨੈੱਟ-4-6, ਕਲੌਡ-ਹਾਇਕੂ-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

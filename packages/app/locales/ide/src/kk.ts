@@ -57,6 +57,11 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Автоматты түзету қосылған.',
   'ide.chat.autoFixDisabled': 'Автоматты түзету өшірілген.',
   'ide.chat.autoFixError': 'Автоматты түрде түзету параметрін жаңарту сәтсіз аяқталды.',
+  'ide.chat.autoApproveEnabled':
+    'Автоматты мақұлдау қосулы — бүлдіруші командалар растаусыз орындалады. Дерек ағып кету күзеті бәрібір растауды сұрайды. Өшіру үшін /autoapprove пайдаланыңыз.',
+  'ide.chat.autoApproveDisabled':
+    'Автоматты мақұлдау өшірулі — бүлдіруші командалар орындалу алдында растауды сұрайды.',
+  'ide.chat.autoApproveError': 'Автоматты мақұлдау параметрін жаңарту сәтсіз аяқталды.',
   'ide.chat.modelUsage':
     'Қолданылуы: /модель<model-name> (мысалы, Клод-опус-4-6, Клод-сонет-4-6, Клод-хайку-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

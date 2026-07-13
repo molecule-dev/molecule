@@ -57,6 +57,11 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Outomatiese regstelling geaktiveer.',
   'ide.chat.autoFixDisabled': 'Outomatiese regstelling gedeaktiveer.',
   'ide.chat.autoFixError': 'Kon nie outomatiese regstellinginstelling opdateer nie.',
+  'ide.chat.autoApproveEnabled':
+    'Outomatiese goedkeuring aan — vernietigende opdragte word uitgevoer sonder om te vra. Die eksfiltrasiebeskerming vra steeds. Skakel af met /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Outomatiese goedkeuring af — vernietigende opdragte vra voor uitvoering.',
+  'ide.chat.autoApproveError': 'Kon nie outomatiese goedkeuringinstelling opdateer nie.',
   'ide.chat.modelUsage':
     'Gebruik: /model<model-name> (bv. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

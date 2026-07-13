@@ -87,6 +87,11 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automaattinen korjaus käytössä.',
   'ide.chat.autoFixDisabled': 'Automaattinen korjaus poistettu käytöstä.',
   'ide.chat.autoFixError': 'Automaattisen korjauksen asetuksen päivittäminen epäonnistui.',
+  'ide.chat.autoApproveEnabled':
+    'Automaattinen hyväksyntä käytössä — tuhoisat komennot suoritetaan kysymättä. Tietovuotosuoja kysyy silti vahvistusta. Poista käytöstä komennolla /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automaattinen hyväksyntä pois käytöstä — tuhoisat komennot kysyvät vahvistusta ennen suorittamista.',
+  'ide.chat.autoApproveError': 'Automaattisen hyväksynnän asetuksen päivittäminen epäonnistui.',
   'ide.chat.modelUsage':
     'Käyttö: /malli<model-name> (esim. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Silmukoiden enimmäismäärä saavutettu.',

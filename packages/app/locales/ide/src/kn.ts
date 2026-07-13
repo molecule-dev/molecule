@@ -57,6 +57,11 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'ಸ್ವಯಂ-ಸರಿಪಡಿಸುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ.',
   'ide.chat.autoFixDisabled': 'ಸ್ವಯಂ-ಸರಿಪಡಿಸುವಿಕೆಯನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ.',
   'ide.chat.autoFixError': 'ಸ್ವಯಂ-ಸರಿಪಡಿಸುವಿಕೆ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ.',
+  'ide.chat.autoApproveEnabled':
+    'ಸ್ವಯಂ-ಅನುಮೋದನೆ ಸಕ್ರಿಯವಾಗಿದೆ — ವಿನಾಶಕಾರಿ ಆಜ್ಞೆಗಳು ಕೇಳದೆ ಚಲಾಯಿಸಲ್ಪಡುತ್ತವೆ. ಡೇಟಾ ಸೋರಿಕೆ ರಕ್ಷಣೆ ಇನ್ನೂ ದೃಢೀಕರಣ ಕೇಳುತ್ತದೆ. /autoapprove ಮೂಲಕ ಆಫ್ ಮಾಡಿ.',
+  'ide.chat.autoApproveDisabled':
+    'ಸ್ವಯಂ-ಅನುಮೋದನೆ ನಿಷ್ಕ್ರಿಯವಾಗಿದೆ — ವಿನಾಶಕಾರಿ ಆಜ್ಞೆಗಳು ಚಲಾಯಿಸುವ ಮೊದಲು ದೃಢೀಕರಣ ಕೇಳುತ್ತವೆ.',
+  'ide.chat.autoApproveError': 'ಸ್ವಯಂ-ಅನುಮೋದನೆ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ.',
   'ide.chat.modelUsage':
     'ಬಳಕೆ: /ಮಾದರಿ<model-name> (ಉದಾ ಕ್ಲಾಡ್-ಓಪಸ್-4-6, ಕ್ಲಾಡ್-ಸಾನೆಟ್-4-6, ಕ್ಲಾಡ್-ಹೈಕು-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

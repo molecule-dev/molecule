@@ -57,6 +57,11 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'தானியங்கு சரிசெய்தல் இயக்கப்பட்டுள்ளது.',
   'ide.chat.autoFixDisabled': 'தானியங்கு சரிசெய்தல் முடக்கப்பட்டுள்ளது.',
   'ide.chat.autoFixError': 'தானியங்கு சரிசெய்தல் அமைப்பைப் புதுப்பிக்க முடியவில்லை.',
+  'ide.chat.autoApproveEnabled':
+    'தானியங்கு ஒப்புதல் இயக்கப்பட்டுள்ளது — அழிவுகரமான கட்டளைகள் கேட்காமல் இயக்கப்படும். தரவு கசிவு பாதுகாப்பு இன்னும் கேட்கும். /autoapprove மூலம் அணைக்கவும்.',
+  'ide.chat.autoApproveDisabled':
+    'தானியங்கு ஒப்புதல் முடக்கப்பட்டுள்ளது — அழிவுகரமான கட்டளைகள் இயக்கும் முன் அனுமதி கேட்கும்.',
+  'ide.chat.autoApproveError': 'தானியங்கு ஒப்புதல் அமைப்பைப் புதுப்பிக்க முடியவில்லை.',
   'ide.chat.modelUsage':
     'பயன்பாடு: /model<model-name> (எ.கா. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

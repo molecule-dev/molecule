@@ -70,6 +70,11 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.autoFixDisabled': 'At\\u00FAn\\u1E63e-a\\u00ED-f\\u00FAn-\\u00E0r\\u00E0 ti pa.',
   'ide.chat.autoFixError':
     'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n \\u00E8t\\u00F2 at\\u00FAn\\u1E63e-a\\u00ED-f\\u00FAn-\\u00E0r\\u00E0.',
+  'ide.chat.autoApproveEnabled':
+    'Ìfọwọ́sí-láìfọwọ́yí ti tan — àwọn àṣẹ apanirun a máa ṣiṣẹ́ láìsí ìbéèrè. Ààbò lòdì sí jíjí dátà yóò ṣì máa béèrè. Lo /autoapprove láti pa á.',
+  'ide.chat.autoApproveDisabled':
+    'Ìfọwọ́sí-láìfọwọ́yí ti pa — àwọn àṣẹ apanirun a máa béèrè kí wọ́n tó ṣiṣẹ́.',
+  'ide.chat.autoApproveError': 'Kò lè ṣe ìmúdójúìwọ̀n ètò ìfọwọ́sí-láìfọwọ́yí.',
   'ide.chat.viewPlans': 'Wo \\u00E0w\\u1ECDn \\u00E8t\\u00F2',
   'ide.chat.cancel': 'Fagi l\\u00E9',
   'ide.chat.save': 'Fi pam\\u1ECD\\u0301',

@@ -97,6 +97,10 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'ऑटो-फिक्स सक्षम किया गया।',
   'ide.chat.autoFixDisabled': 'ऑटो-फिक्स अक्षम है।',
   'ide.chat.autoFixError': 'ऑटो-फिक्स सेटिंग को अपडेट करने में विफलता।',
+  'ide.chat.autoApproveEnabled':
+    'ऑटो-अप्रूव चालू है — विनाशकारी कमांड बिना पूछे चलते हैं। एक्सफिल्ट्रेशन गार्ड फिर भी पूछता है। /autoapprove से बंद करें।',
+  'ide.chat.autoApproveDisabled': 'ऑटो-अप्रूव बंद है — विनाशकारी कमांड चलने से पहले पूछते हैं।',
+  'ide.chat.autoApproveError': 'ऑटो-अप्रूव सेटिंग को अपडेट करने में विफलता।',
   'ide.chat.modelUsage':
     'उपयोग: /मॉडल<model-name> (उदाहरण के लिए क्लाउड-ओपस-4-6, क्लाउड-सॉनेट-4-6, क्लाउड-हाइकु-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'अधिकतम लूप सीमा तक पहुँच गया है।',

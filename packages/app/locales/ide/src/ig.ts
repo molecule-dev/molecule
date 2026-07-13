@@ -52,6 +52,11 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Ndozi na-akpaghị aka agbanyere.',
   'ide.chat.autoFixDisabled': 'Ndozi na-akpaghị aka gbanyụọrụ.',
   'ide.chat.autoFixError': 'Ịmelite ntọala ndozi na-akpaghị aka adaghị.',
+  'ide.chat.autoApproveEnabled':
+    'Nkwenye akpaghị aka agbanyere — iwu mbibi na-agba ọsọ na-ajụghị ase. Nchekwa mgbapụ data ka na-ajụ ase. Gbanyụọ ya site na /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Nkwenye akpaghị aka agbanyụọrụ — iwu mbibi na-ajụ ase tupu ha agba ọsọ.',
+  'ide.chat.autoApproveError': 'Ịmelite ntọala nkwenye akpaghị aka adaghị.',
   'ide.chat.viewPlans': 'Lee atụmatụ',
   'ide.chat.cancel': 'Kagbuo',
   'ide.chat.save': 'Chekwaa',

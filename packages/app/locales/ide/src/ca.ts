@@ -57,6 +57,11 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Correcció automàtica activada.',
   'ide.chat.autoFixDisabled': 'Correcció automàtica desactivada.',
   'ide.chat.autoFixError': "No s'ha pogut actualitzar la configuració de correcció automàtica.",
+  'ide.chat.autoApproveEnabled':
+    "Aprovació automàtica activada: les ordres destructives s'executen sense preguntar. La protecció contra exfiltració sempre pregunta. Desactiva-ho amb /autoapprove.",
+  'ide.chat.autoApproveDisabled':
+    "Aprovació automàtica desactivada: les ordres destructives pregunten abans d'executar-se.",
+  'ide.chat.autoApproveError': "No s'ha pogut actualitzar la configuració d'aprovació automàtica.",
   'ide.chat.modelUsage':
     'Ús: /model<model-name> (p. ex. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

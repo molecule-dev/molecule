@@ -87,6 +87,11 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Η αυτόματη διόρθωση είναι ενεργοποιημένη.',
   'ide.chat.autoFixDisabled': 'Η αυτόματη διόρθωση είναι απενεργοποιημένη.',
   'ide.chat.autoFixError': 'Αποτυχία ενημέρωσης της ρύθμισης αυτόματης διόρθωσης.',
+  'ide.chat.autoApproveEnabled':
+    'Η αυτόματη έγκριση είναι ενεργοποιημένη — οι καταστροφικές εντολές εκτελούνται χωρίς ερώτηση. Η προστασία διαρροής δεδομένων εξακολουθεί να ρωτά. Απενεργοποιήστε με /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Η αυτόματη έγκριση είναι απενεργοποιημένη — οι καταστροφικές εντολές ζητούν επιβεβαίωση πριν την εκτέλεση.',
+  'ide.chat.autoApproveError': 'Αποτυχία ενημέρωσης της ρύθμισης αυτόματης έγκρισης.',
   'ide.chat.modelUsage':
     'Χρήση: /μοντέλο<model-name> (π.χ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Έχει επιτευχθεί το μέγιστο όριο βρόχων.',

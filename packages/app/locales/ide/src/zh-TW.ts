@@ -56,6 +56,10 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': '已啟用自動修復功能。',
   'ide.chat.autoFixDisabled': '自動修復功能已停用。',
   'ide.chat.autoFixError': '自動修復設定更新失敗。',
+  'ide.chat.autoApproveEnabled':
+    '已啟用自動核准——破壞性指令將無需確認即可執行。資料外洩防護仍會要求確認。使用 /autoapprove 關閉。',
+  'ide.chat.autoApproveDisabled': '自動核准已關閉——破壞性指令在執行前會要求確認。',
+  'ide.chat.autoApproveError': '自動核准設定更新失敗。',
   'ide.chat.modelUsage':
     '用法：/model<model-name> （如克勞德-opus-4-6、克勞德-十四行詩-4-6、克勞德-俳句-4-5-20251001）',
   'ide.chat.modelUpgradeRequired': '{{模型}}限專業版用戶使用。升級至專業版即可使用所有機型。',

@@ -92,6 +92,12 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Autokorrigering aktiverad.',
   'ide.chat.autoFixDisabled': 'Autokorrigering inaktiverad.',
   'ide.chat.autoFixError': 'Det gick inte att uppdatera inställningen för automatisk korrigering.',
+  'ide.chat.autoApproveEnabled':
+    'Automatiskt godkännande på — destruktiva kommandon körs utan att fråga. Skyddet mot dataexfiltrering frågar fortfarande. Stäng av med /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatiskt godkännande av — destruktiva kommandon frågar innan de körs.',
+  'ide.chat.autoApproveError':
+    'Det gick inte att uppdatera inställningen för automatiskt godkännande.',
   'ide.chat.modelUsage':
     'Användning: /modell<model-name> (t.ex. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Maxgränsen för loopar har uppnåtts.',

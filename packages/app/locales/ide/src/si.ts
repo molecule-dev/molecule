@@ -57,6 +57,11 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'ස්වයංක්‍රීය නිවැරදි කිරීම සක්‍රීය කර ඇත.',
   'ide.chat.autoFixDisabled': 'ස්වයංක්‍රීය නිවැරදි කිරීම අබල කර ඇත.',
   'ide.chat.autoFixError': 'ස්වයංක්‍රීය-නිවැරදි කිරීමේ සැකසීම යාවත්කාලීන කිරීමට අසමත් විය.',
+  'ide.chat.autoApproveEnabled':
+    'ස්වයංක්‍රීය අනුමැතිය සක්‍රීයයි — විනාශකාරී විධාන විමසීමකින් තොරව ක්‍රියාත්මක වේ. දත්ත කාන්දුවීම් ආරක්ෂාව තවමත් විමසයි. /autoapprove මගින් අක්‍රිය කරන්න.',
+  'ide.chat.autoApproveDisabled':
+    'ස්වයංක්‍රීය අනුමැතිය අක්‍රියයි — විනාශකාරී විධාන ක්‍රියාත්මක වීමට පෙර විමසයි.',
+  'ide.chat.autoApproveError': 'ස්වයංක්‍රීය-අනුමැතියේ සැකසීම යාවත්කාලීන කිරීමට අසමත් විය.',
   'ide.chat.modelUsage':
     'භාවිතය: /මාදිලිය<model-name> (උදා: claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

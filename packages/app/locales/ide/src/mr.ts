@@ -57,6 +57,11 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'स्वयंचलित दुरुस्ती सक्षम केली आहे.',
   'ide.chat.autoFixDisabled': 'स्वयंचलित दुरुस्ती अक्षम केली आहे.',
   'ide.chat.autoFixError': 'ऑटो-फिक्स सेटिंग अद्ययावत करण्यात अयशस्वी झाले.',
+  'ide.chat.autoApproveEnabled':
+    'स्वयंचलित मंजुरी सुरू आहे — विध्वंसक कमांड्स न विचारता चालवले जातात. डेटा गळती रोखणारी सुरक्षा तरीही विचारते. /autoapprove वापरून बंद करा.',
+  'ide.chat.autoApproveDisabled':
+    'स्वयंचलित मंजुरी बंद आहे — विध्वंसक कमांड्स चालवण्यापूर्वी विचारतात.',
+  'ide.chat.autoApproveError': 'स्वयंचलित मंजुरी सेटिंग अद्ययावत करण्यात अयशस्वी झाले.',
   'ide.chat.modelUsage':
     'वापर: /model<model-name> (उदा. क्लॉड-ऑपस-4-6, क्लॉड-सॉनेट-4-6, क्लॉड-हायकू-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

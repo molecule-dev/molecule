@@ -58,6 +58,11 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Urekebishaji kiotomatiki umewezeshwa.',
   'ide.chat.autoFixDisabled': 'Kurekebisha kiotomatiki kumezimwa.',
   'ide.chat.autoFixError': 'Imeshindwa kusasisha mpangilio wa kurekebisha kiotomatiki.',
+  'ide.chat.autoApproveEnabled':
+    'Uidhinishaji kiotomatiki umewezeshwa — amri haribifu zinatekelezwa bila kuuliza kwanza. Kinga dhidi ya uvujaji wa data bado inauliza ruhusa. Zima kwa /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Uidhinishaji kiotomatiki umezimwa — amri haribifu zinauliza ruhusa kabla ya kutekelezwa.',
+  'ide.chat.autoApproveError': 'Imeshindwa kusasisha mpangilio wa uidhinishaji kiotomatiki.',
   'ide.chat.modelUsage':
     'Matumizi: /modeli<model-name> (km claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

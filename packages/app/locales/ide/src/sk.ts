@@ -57,6 +57,11 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatická oprava je povolená.',
   'ide.chat.autoFixDisabled': 'Automatická oprava je vypnutá.',
   'ide.chat.autoFixError': 'Nepodarilo sa aktualizovať nastavenie automatickej opravy.',
+  'ide.chat.autoApproveEnabled':
+    'Automatické schvaľovanie je zapnuté — deštruktívne príkazy sa spúšťajú bez potvrdenia. Ochrana proti úniku dát sa naďalej pýta na potvrdenie. Vypnite pomocou /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatické schvaľovanie je vypnuté — deštruktívne príkazy si pred spustením vyžiadajú potvrdenie.',
+  'ide.chat.autoApproveError': 'Nepodarilo sa aktualizovať nastavenie automatického schvaľovania.',
   'ide.chat.modelUsage':
     'Použitie: /model<model-name> (napr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

@@ -92,6 +92,11 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Correzione automatica abilitata.',
   'ide.chat.autoFixDisabled': 'Correzione automatica disabilitata.',
   'ide.chat.autoFixError': 'Impossibile aggiornare le impostazioni di correzione automatica.',
+  'ide.chat.autoApproveEnabled':
+    'Approvazione automatica attiva: i comandi distruttivi vengono eseguiti senza chiedere conferma. La protezione anti-esfiltrazione continua comunque a chiedere conferma. Disattivala con /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Approvazione automatica disattivata: i comandi distruttivi chiedono conferma prima di essere eseguiti.',
+  'ide.chat.autoApproveError': 'Impossibile aggiornare le impostazioni di approvazione automatica.',
   'ide.chat.modelUsage':
     'Utilizzo: /modello<model-name> (es. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Limite massimo di cicli raggiunto.',

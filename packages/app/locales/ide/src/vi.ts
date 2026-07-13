@@ -94,6 +94,11 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Đã bật tính năng tự động sửa lỗi.',
   'ide.chat.autoFixDisabled': 'Chức năng tự động sửa lỗi đã bị vô hiệu hóa.',
   'ide.chat.autoFixError': 'Không thể cập nhật cài đặt tự động sửa lỗi.',
+  'ide.chat.autoApproveEnabled':
+    'Tính năng tự động phê duyệt đã được bật — các lệnh có tính phá hủy sẽ chạy mà không cần hỏi. Cơ chế bảo vệ chống rò rỉ dữ liệu vẫn sẽ hỏi. Tắt bằng lệnh /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Tính năng tự động phê duyệt đã bị tắt — các lệnh có tính phá hủy sẽ hỏi trước khi chạy.',
+  'ide.chat.autoApproveError': 'Không thể cập nhật cài đặt tự động phê duyệt.',
   'ide.chat.modelUsage':
     'Cách sử dụng: /model<model-name> (ví dụ claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Đã đạt giới hạn số vòng lặp tối đa.',

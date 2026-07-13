@@ -57,6 +57,11 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Avtomatik tuzatish yoqilgan.',
   'ide.chat.autoFixDisabled': "Avtomatik tuzatish o'chirilgan.",
   'ide.chat.autoFixError': 'Avtomatik tuzatish sozlamasini yangilashda xatolik yuz berdi.',
+  'ide.chat.autoApproveEnabled':
+    "Avtomatik tasdiqlash yoqilgan — halokatli buyruqlar so'ralmasdan bajariladi. Ma'lumotni tashqariga chiqarishdan himoya baribir so'raydi. Buni /autoapprove orqali o'chirish mumkin.",
+  'ide.chat.autoApproveDisabled':
+    "Avtomatik tasdiqlash o'chirilgan — halokatli buyruqlar bajarilishidan oldin so'raladi.",
+  'ide.chat.autoApproveError': 'Avtomatik tasdiqlash sozlamasini yangilashda xatolik yuz berdi.',
   'ide.chat.modelUsage':
     'Foydalanish: /model<model-name> (masalan, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

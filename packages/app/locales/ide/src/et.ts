@@ -57,6 +57,11 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automaatne parandamine on lubatud.',
   'ide.chat.autoFixDisabled': 'Automaatne parandamine on keelatud.',
   'ide.chat.autoFixError': 'Automaatse parandamise seade värskendamine ebaõnnestus.',
+  'ide.chat.autoApproveEnabled':
+    'Automaatne heakskiitmine on sees — hävitavad käsud käivituvad küsimata. Andmelekke kaitse küsib endiselt kinnitust. Väljalülitamiseks kasuta käsku /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automaatne heakskiitmine on väljas — hävitavad käsud küsivad enne käivitamist kinnitust.',
+  'ide.chat.autoApproveError': 'Automaatse heakskiitmise seade värskendamine ebaõnnestus.',
   'ide.chat.modelUsage':
     'Kasutus: /mudel<model-name> (nt claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

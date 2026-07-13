@@ -57,6 +57,11 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatinis taisymas įjungtas.',
   'ide.chat.autoFixDisabled': 'Automatinis taisymas išjungtas.',
   'ide.chat.autoFixError': 'Nepavyko atnaujinti automatinio taisymo nustatymo.',
+  'ide.chat.autoApproveEnabled':
+    'Automatinis patvirtinimas įjungtas — žalingos komandos vykdomos neklausiant. Apsauga nuo duomenų nutekėjimo vis tiek klaus. Išjunkite naudodami /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatinis patvirtinimas išjungtas — žalingos komandos klaus prieš vykdant.',
+  'ide.chat.autoApproveError': 'Nepavyko atnaujinti automatinio patvirtinimo nustatymo.',
   'ide.chat.modelUsage':
     'Naudojimas: /model<model-name> (pvz., claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

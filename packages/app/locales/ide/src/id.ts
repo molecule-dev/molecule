@@ -92,6 +92,11 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Perbaikan otomatis diaktifkan.',
   'ide.chat.autoFixDisabled': 'Perbaikan otomatis dinonaktifkan.',
   'ide.chat.autoFixError': 'Gagal memperbarui pengaturan perbaikan otomatis.',
+  'ide.chat.autoApproveEnabled':
+    'Persetujuan otomatis aktif — perintah destruktif dijalankan tanpa konfirmasi. Perlindungan eksfiltrasi tetap meminta konfirmasi. Nonaktifkan dengan /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Persetujuan otomatis nonaktif — perintah destruktif meminta konfirmasi sebelum dijalankan.',
+  'ide.chat.autoApproveError': 'Gagal memperbarui pengaturan persetujuan otomatis.',
   'ide.chat.modelUsage':
     'Penggunaan: /model<model-name> (misalnya claude-opus-4-6, claude-soneta-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Batas perulangan maksimum telah tercapai.',

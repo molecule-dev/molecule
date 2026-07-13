@@ -57,6 +57,11 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'آٹو فکس فعال ہے۔',
   'ide.chat.autoFixDisabled': 'آٹو فکس غیر فعال۔',
   'ide.chat.autoFixError': 'آٹو فکس سیٹنگ کو اپ ڈیٹ کرنے میں ناکام۔',
+  'ide.chat.autoApproveEnabled':
+    'خودکار منظوری آن ہے — تباہ کن کمانڈز بغیر پوچھے چلائی جاتی ہیں۔ ڈیٹا چوری سے تحفظ پھر بھی پوچھتا ہے۔ بند کرنے کے لیے /autoapprove استعمال کریں۔',
+  'ide.chat.autoApproveDisabled':
+    'خودکار منظوری بند ہے — تباہ کن کمانڈز چلانے سے پہلے اجازت مانگی جاتی ہے۔',
+  'ide.chat.autoApproveError': 'خودکار منظوری کی سیٹنگ کو اپ ڈیٹ کرنے میں ناکام۔',
   'ide.chat.modelUsage':
     'استعمال: /ماڈل<model-name> (مثلاً claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

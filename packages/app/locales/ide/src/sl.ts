@@ -57,6 +57,11 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Samodejno popravljanje omogočeno.',
   'ide.chat.autoFixDisabled': 'Samodejno popravljanje je onemogočeno.',
   'ide.chat.autoFixError': 'Posodobitev nastavitve samodejnega popravljanja ni uspela.',
+  'ide.chat.autoApproveEnabled':
+    'Samodejna odobritev je omogočena — uničujoči ukazi se izvedejo brez vprašanja za potrditev. Zaščita pred iznosom podatkov še vedno vpraša za potrditev. Izklopite z /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Samodejna odobritev je onemogočena — uničujoči ukazi zahtevajo potrditev pred izvedbo.',
+  'ide.chat.autoApproveError': 'Posodobitev nastavitve samodejne odobritve ni uspela.',
   'ide.chat.modelUsage':
     'Uporaba: /model<model-name> (npr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

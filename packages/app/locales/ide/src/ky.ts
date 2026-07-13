@@ -55,6 +55,11 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Авто-оңдоо иштетилди.',
   'ide.chat.autoFixDisabled': 'Авто-оңдоо өчүрүлдү.',
   'ide.chat.autoFixError': 'Авто-оңдоо жөндөөсүн жаңыртуу ишке ашкан жок.',
+  'ide.chat.autoApproveEnabled':
+    'Авто-ырастоо иштетилди — залалдуу буйруктар суроосуз аткарылат. Маалымат агып кетүүдөн коргоо баары бир сурайт. Аны /autoapprove менен өчүрүңүз.',
+  'ide.chat.autoApproveDisabled':
+    'Авто-ырастоо өчүрүлдү — залалдуу буйруктар аткарылаардан мурун суралат.',
+  'ide.chat.autoApproveError': 'Авто-ырастоо жөндөөсүн жаңыртуу ишке ашкан жок.',
   'ide.chat.viewPlans': 'Пландарды көрүү',
   'ide.chat.cancel': 'Жокко чыгаруу',
   'ide.chat.save': 'Сактоо',

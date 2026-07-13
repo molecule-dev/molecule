@@ -58,6 +58,11 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Corrección automática activada.',
   'ide.chat.autoFixDisabled': 'Corrección automática desactivada.',
   'ide.chat.autoFixError': 'Non se puido actualizar a configuración de corrección automática.',
+  'ide.chat.autoApproveEnabled':
+    'Aprobación automática activada: os comandos destrutivos execútanse sen pedir confirmación. A protección contra a exfiltración segue a pedir confirmación. Desactívaa con /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Aprobación automática desactivada: os comandos destrutivos piden confirmación antes de executarse.',
+  'ide.chat.autoApproveError': 'Non se puido actualizar a configuración de aprobación automática.',
   'ide.chat.modelUsage':
     'Uso: /modelo<model-name> (por exemplo, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

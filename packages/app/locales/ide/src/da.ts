@@ -83,6 +83,11 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatisk rettelse aktiveret.',
   'ide.chat.autoFixDisabled': 'Automatisk rettelse deaktiveret.',
   'ide.chat.autoFixError': 'Kunne ikke opdatere indstillingen for automatisk rettelse.',
+  'ide.chat.autoApproveEnabled':
+    'Automatisk godkendelse slået til — destruktive kommandoer køres uden at spørge. Eksfiltreringsbeskyttelsen spørger stadig. Slå fra med /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatisk godkendelse slået fra — destruktive kommandoer spørger, før de køres.',
+  'ide.chat.autoApproveError': 'Kunne ikke opdatere indstillingen for automatisk godkendelse.',
   'ide.chat.modelUsage':
     'Anvendelse: /model<model-name> (f.eks. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Maksimalt antal loops er nået.',

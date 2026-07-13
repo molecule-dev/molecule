@@ -57,6 +57,10 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'स्वतः समाधान सक्षम पारियो।',
   'ide.chat.autoFixDisabled': 'स्वतः समाधान असक्षम पारियो।',
   'ide.chat.autoFixError': 'स्वतः समाधान सेटिङ अद्यावधिक गर्न असफल भयो।',
+  'ide.chat.autoApproveEnabled':
+    'स्वतः स्वीकृति सक्षम छ — विनाशकारी आदेशहरू सोधीबिना नै चल्छन्। चुहावट सुरक्षा प्रणालीले अझै सोध्छ। /autoapprove बाट बन्द गर्नुहोस्।',
+  'ide.chat.autoApproveDisabled': 'स्वतः स्वीकृति असक्षम छ — विनाशकारी आदेशहरू चल्नु अघि सोध्छन्।',
+  'ide.chat.autoApproveError': 'स्वतः स्वीकृति सेटिङ अद्यावधिक गर्न असफल भयो।',
   'ide.chat.modelUsage':
     'प्रयोग: /मोडेल<model-name> (जस्तै क्लाउड-ऑपस-4-6, क्लाउड-सनेट-4-6, क्लाउड-हाइकु-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

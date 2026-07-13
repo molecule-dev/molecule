@@ -57,6 +57,11 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Avtomatik düzəliş aktivdir.',
   'ide.chat.autoFixDisabled': 'Avtomatik düzəliş deaktiv edildi.',
   'ide.chat.autoFixError': 'Avtomatik düzəliş ayarını yeniləmək alınmadı.',
+  'ide.chat.autoApproveEnabled':
+    'Avtomatik təsdiq aktivdir — dağıdıcı əmrlər soruşmadan icra olunur. Məlumat sızması qoruması isə yenə də soruşur. /autoapprove ilə söndürün.',
+  'ide.chat.autoApproveDisabled':
+    'Avtomatik təsdiq deaktivdir — dağıdıcı əmrlər icra olunmadan əvvəl soruşur.',
+  'ide.chat.autoApproveError': 'Avtomatik təsdiq ayarını yeniləmək alınmadı.',
   'ide.chat.modelUsage':
     'İstifadə: /model<model-name> (məsələn, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

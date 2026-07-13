@@ -57,6 +57,11 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'ఆటో-ఫిక్స్ ప్రారంభించబడింది.',
   'ide.chat.autoFixDisabled': 'ఆటో-ఫిక్స్ నిలిపివేయబడింది.',
   'ide.chat.autoFixError': 'ఆటో-ఫిక్స్ సెట్టింగ్‌ను అప్‌డేట్ చేయడంలో విఫలమైంది.',
+  'ide.chat.autoApproveEnabled':
+    'ఆటో-అప్రూవ్ ఆన్‌లో ఉంది — విధ్వంసక ఆదేశాలు అడగకుండా అమలవుతాయి. డేటా ఎక్స్‌ఫిల్ట్రేషన్ గార్డ్ ఇప్పటికీ అనుమతి అడుగుతుంది. /autoapprove తో ఆఫ్ చేయండి.',
+  'ide.chat.autoApproveDisabled':
+    'ఆటో-అప్రూవ్ ఆఫ్‌లో ఉంది — విధ్వంసక ఆదేశాలు అమలు చేయడానికి ముందు అనుమతి అడుగుతాయి.',
+  'ide.chat.autoApproveError': 'ఆటో-అప్రూవ్ సెట్టింగ్‌ను అప్‌డేట్ చేయడంలో విఫలమైంది.',
   'ide.chat.modelUsage':
     'వాడుక: /మోడల్<model-name> (ఉదా. క్లాడ్-ఓపస్-4-6, క్లాడ్-సోనెట్-4-6, క్లాడ్-హైకూ-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

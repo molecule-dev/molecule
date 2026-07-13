@@ -96,6 +96,10 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': '자동 수정 기능이 활성화되었습니다.',
   'ide.chat.autoFixDisabled': '자동 수정 기능이 비활성화되었습니다.',
   'ide.chat.autoFixError': '자동 수정 설정 업데이트에 실패했습니다.',
+  'ide.chat.autoApproveEnabled':
+    '자동 승인 켜짐 — 파괴적인 명령이 확인 없이 실행됩니다. 데이터 유출 방지 기능은 여전히 확인을 요청합니다. 끄려면 /autoapprove를 입력하세요.',
+  'ide.chat.autoApproveDisabled': '자동 승인 꺼짐 — 파괴적인 명령은 실행 전에 확인을 요청합니다.',
+  'ide.chat.autoApproveError': '자동 승인 설정 업데이트에 실패했습니다.',
   'ide.chat.modelUsage':
     '사용법: /모델<model-name> (예: claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': '최대 반복 횟수 제한에 도달했습니다.',

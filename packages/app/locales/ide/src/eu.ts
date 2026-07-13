@@ -58,6 +58,11 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Konponketa automatikoa gaituta.',
   'ide.chat.autoFixDisabled': 'Konponketa automatikoa desgaituta.',
   'ide.chat.autoFixError': 'Huts egin du konponketa automatikoaren ezarpena eguneratzeak.',
+  'ide.chat.autoApproveEnabled':
+    'Onarpen automatikoa piztuta — komando suntsitzaileak galdetu gabe exekutatzen dira. Datu-ihesen babesak galdetzen jarraitzen du. Desaktibatzeko, erabili /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Onarpen automatikoa itzalita — komando suntsitzaileek exekutatu aurretik baimena eskatzen dute.',
+  'ide.chat.autoApproveError': 'Huts egin du onarpen automatikoaren ezarpena eguneratzeak.',
   'ide.chat.modelUsage':
     'Erabilera: /eredua<model-name> (adibidez, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

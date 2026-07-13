@@ -95,6 +95,11 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'تم تفعيل خاصية الإصلاح التلقائي.',
   'ide.chat.autoFixDisabled': 'تم تعطيل خاصية الإصلاح التلقائي.',
   'ide.chat.autoFixError': 'فشل تحديث إعدادات الإصلاح التلقائي.',
+  'ide.chat.autoApproveEnabled':
+    'الموافقة التلقائية مفعّلة - تُنفَّذ الأوامر المدمرة دون طلب التأكيد. حماية تسريب البيانات لا تزال تطلب التأكيد. أوقفها باستخدام /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'الموافقة التلقائية معطّلة - تطلب الأوامر المدمرة التأكيد قبل التنفيذ.',
+  'ide.chat.autoApproveError': 'فشل تحديث إعدادات الموافقة التلقائية.',
   'ide.chat.modelUsage':
     'طريقة الاستخدام: /model<model-name> (على سبيل المثال، كلود-أوبوس-4-6، كلود-سونيت-4-6، كلود-هايكو-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'تم الوصول إلى الحد الأقصى لعدد الحلقات.',

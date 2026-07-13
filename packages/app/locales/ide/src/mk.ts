@@ -57,6 +57,11 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Автоматското поправање е овозможено.',
   'ide.chat.autoFixDisabled': 'Автоматското поправање е оневозможено.',
   'ide.chat.autoFixError': 'Неуспешно ажурирање на поставката за автоматско поправање.',
+  'ide.chat.autoApproveEnabled':
+    'Автоматското одобрување е вклучено — деструктивните команди се извршуваат без прашање. Заштитата од истекување податоци сепак прашува. Исклучете со /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Автоматското одобрување е исклучено — деструктивните команди прашуваат пред извршување.',
+  'ide.chat.autoApproveError': 'Неуспешно ажурирање на поставката за автоматско одобрување.',
   'ide.chat.modelUsage':
     'Употреба: /модел<model-name> (на пр. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

@@ -86,6 +86,11 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatikus javítás engedélyezve.',
   'ide.chat.autoFixDisabled': 'Automatikus javítás letiltva.',
   'ide.chat.autoFixError': 'Nem sikerült frissíteni az automatikus javítás beállítását.',
+  'ide.chat.autoApproveEnabled':
+    'Automatikus jóváhagyás engedélyezve — a káros parancsok megerősítés nélkül futnak le. A kiszivárgás elleni védelem továbbra is megerősítést kér. Kikapcsolás: /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatikus jóváhagyás letiltva — a káros parancsok futtatás előtt megerősítést kérnek.',
+  'ide.chat.autoApproveError': 'Nem sikerült frissíteni az automatikus jóváhagyás beállítását.',
   'ide.chat.modelUsage':
     'Használat: /modell<model-name> (pl. claude-opus-4-6, claude-szonett-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Elérte a maximális ciklusszámot.',

@@ -57,6 +57,11 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Sjálfvirk leiðrétting virkjuð.',
   'ide.chat.autoFixDisabled': 'Sjálfvirk leiðrétting óvirk.',
   'ide.chat.autoFixError': 'Mistókst að uppfæra stillingu fyrir sjálfvirka leiðréttingu.',
+  'ide.chat.autoApproveEnabled':
+    'Sjálfvirkt samþykki virkt — eyðileggjandi skipanir keyra án staðfestingar. Vörnin gegn gagnaleka biður samt um staðfestingu. Slökktu með /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Sjálfvirkt samþykki óvirkt — eyðileggjandi skipanir biðja um staðfestingu áður en þær keyra.',
+  'ide.chat.autoApproveError': 'Mistókst að uppfæra stillingu fyrir sjálfvirkt samþykki.',
   'ide.chat.modelUsage':
     'Notkun: /líkan<model-name> (td claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

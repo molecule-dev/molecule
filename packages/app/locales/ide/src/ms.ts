@@ -84,6 +84,11 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Pembetulan automatik diaktifkan.',
   'ide.chat.autoFixDisabled': 'Pembetulan automatik dilumpuhkan.',
   'ide.chat.autoFixError': 'Gagal mengemas kini tetapan pembetulan automatik.',
+  'ide.chat.autoApproveEnabled':
+    'Kelulusan automatik diaktifkan — arahan yang merosakkan akan dijalankan tanpa bertanya. Perlindungan kebocoran data masih akan bertanya. Matikan dengan /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Kelulusan automatik dilumpuhkan — arahan yang merosakkan akan bertanya sebelum dijalankan.',
+  'ide.chat.autoApproveError': 'Gagal mengemas kini tetapan kelulusan automatik.',
   'ide.chat.modelUsage':
     'Penggunaan: /model<model-name> (cth claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Had gelung maksimum dicapai.',

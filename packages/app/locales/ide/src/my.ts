@@ -57,6 +57,11 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'အလိုအလျောက်ပြင်ဆင်ခြင်းကို ဖွင့်ထားသည်။',
   'ide.chat.autoFixDisabled': 'အလိုအလျောက်ပြင်ဆင်ခြင်းကို ပိတ်ထားသည်။',
   'ide.chat.autoFixError': 'အလိုအလျောက်ပြင်ဆင်မှုဆက်တင်ကို အပ်ဒိတ်လုပ်၍မရပါ။',
+  'ide.chat.autoApproveEnabled':
+    'အလိုအလျောက်အတည်ပြုချက် ဖွင့်ထားသည် — ဖျက်ဆီးနိုင်သော command များကို မေးမြန်းစရာမလိုဘဲ လုပ်ဆောင်ပါမည်။ ထုတ်ယူမှုကာကွယ်ရေးစနစ်က ဆက်လက်မေးမြန်းပါလိမ့်မည်။ /autoapprove ဖြင့် ပိတ်ပါ။',
+  'ide.chat.autoApproveDisabled':
+    'အလိုအလျောက်အတည်ပြုချက် ပိတ်ထားသည် — ဖျက်ဆီးနိုင်သော command များသည် မလုပ်ဆောင်မီ မေးမြန်းပါမည်။',
+  'ide.chat.autoApproveError': 'အလိုအလျောက်အတည်ပြုမှုဆက်တင်ကို အပ်ဒိတ်လုပ်၍မရပါ။',
   'ide.chat.modelUsage':
     'အသုံးပြုမှု: /မော်ဒယ်<model-name> (ဥပမာ claude-opus-4-6၊ claude-sonnet-4-6၊ claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired':

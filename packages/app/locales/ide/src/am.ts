@@ -56,6 +56,10 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'ራስ-ሰር ማስተካከያ ነቅቷል።',
   'ide.chat.autoFixDisabled': 'ራስ-ሰር ማስተካከያ ተሰናክሏል።',
   'ide.chat.autoFixError': 'የራስ-ሰር ማስተካከያ ቅንብርን ማዘመን አልተሳካም።',
+  'ide.chat.autoApproveEnabled':
+    'ራስ-ሰር ማጽደቅ በርቷል - አጥፊ ትዕዛዞች ሳይጠየቁ ይሰራሉ። የመረጃ ስርቆት መከላከያው አሁንም ይጠይቃል። በ/autoapprove ያጥፉት።',
+  'ide.chat.autoApproveDisabled': 'ራስ-ሰር ማጽደቅ ጠፍቷል - አጥፊ ትዕዛዞች ከመሰራታቸው በፊት ይጠይቃሉ።',
+  'ide.chat.autoApproveError': 'የራስ-ሰር ማጽደቅ ቅንብርን ማዘመን አልተሳካም።',
   'ide.chat.modelUsage':
     'አጠቃቀም: /ሞዴል<model-name> (ለምሳሌ claude-opus-4-6፣ claude-sonnet-4-6፣ claude-haiku-4-5-20251001)',
   'ide.chat.modelUpgradeRequired': '{{ሞዴል}} በፕሮ ላይ ይገኛል። ሁሉንም ሞዴሎች ለመድረስ ያሻሽሉ።',

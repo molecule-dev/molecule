@@ -95,6 +95,11 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Otomatik düzeltme etkinleştirildi.',
   'ide.chat.autoFixDisabled': 'Otomatik düzeltme devre dışı bırakıldı.',
   'ide.chat.autoFixError': 'Otomatik düzeltme ayarı güncellenemedi.',
+  'ide.chat.autoApproveEnabled':
+    'Otomatik onay açık — yıkıcı komutlar sormadan çalıştırılır. Veri sızıntısı koruması yine de sorar. Kapatmak için /autoapprove yazın.',
+  'ide.chat.autoApproveDisabled':
+    'Otomatik onay kapalı — yıkıcı komutlar çalıştırılmadan önce onay ister.',
+  'ide.chat.autoApproveError': 'Otomatik onay ayarı güncellenemedi.',
   'ide.chat.modelUsage':
     'Kullanım: /model<model-name> (örneğin Claude-opus-4-6, Claude-sonnet-4-6, Claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Maksimum döngü sınırı aşıldı.',
