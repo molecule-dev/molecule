@@ -86,13 +86,14 @@ describe('@molecule/api-two-factor-otplib', () => {
 
       const result = await provider.verify({ secret: 'JBSWY3DPEHPK3PXP', token: '123456' })
 
-      // Past-only tolerance [30, 0] halves the acceptance window (no future step);
+      // Default tolerance [60, 30]: a code stays valid ~60–90s (slow human/agent flows) plus
+      // one future step of clock skew — the old past-only [30, 0] expired codes mid-flow.
       // afterTimeStep is OMITTED when the caller has no prior step — otplib 13
       // throws AfterTimeStepNotIntegerError on any non-integer value.
       expect(mockVerifySync).toHaveBeenCalledWith({
         secret: 'JBSWY3DPEHPK3PXP',
         token: '123456',
-        epochTolerance: [30, 0],
+        epochTolerance: [60, 30],
       })
       // The matched time step is surfaced so the caller can persist it for replay protection.
       expect(result).toEqual({ valid: true, timeStep: 57600000 })
@@ -114,7 +115,7 @@ describe('@molecule/api-two-factor-otplib', () => {
       expect(mockVerifySync).toHaveBeenCalledWith({
         secret: 'JBSWY3DPEHPK3PXP',
         token: '123456',
-        epochTolerance: [30, 0],
+        epochTolerance: [60, 30],
       })
       expect(result).toEqual({ valid: true, timeStep: 57600001 })
     })
@@ -129,8 +130,8 @@ describe('@molecule/api-two-factor-otplib', () => {
 
     it('REGRESSION (P2F-03): forwards afterTimeStep so an already-consumed code is rejected', async () => {
       // otplib rejects any token whose timeStep <= afterTimeStep. The provider
-      // MUST forward the caller's last-consumed step (and use past-only tolerance)
-      // — before the fix it passed neither, so a code was replayable in-window.
+      // MUST forward the caller's last-consumed step — before the fix it passed
+      // neither the step nor a tolerance, so a code was replayable in-window.
       mockVerifySync.mockReturnValue({ valid: false })
 
       const result = await provider.verify({
@@ -142,10 +143,51 @@ describe('@molecule/api-two-factor-otplib', () => {
       expect(mockVerifySync).toHaveBeenCalledWith({
         secret: 'JBSWY3DPEHPK3PXP',
         token: '123456',
-        epochTolerance: [30, 0],
+        epochTolerance: [60, 30],
         afterTimeStep: 57600000,
       })
+      // The token is wrong/expired outright (fails even without the replay guard —
+      // the mock returns false for the diagnostic re-check too): no reason attached.
       expect(result).toEqual({ valid: false })
+    })
+
+    it('says WHY when the only failure is the replay guard (reason: "replay")', async () => {
+      // An indistinguishable valid:false sent a debugging executor down a "the library is
+      // broken" spiral when the correct action was "wait for the next code". When the token
+      // verifies fine WITHOUT afterTimeStep, the failure is single-use protection — say so.
+      mockVerifySync
+        .mockReturnValueOnce({ valid: false }) // with the replay guard → rejected
+        .mockReturnValueOnce({ valid: true, timeStep: 57600000, delta: 0, epoch: 0 }) // without → fine
+
+      const result = await provider.verify({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        afterTimeStep: 57600000,
+      })
+
+      expect(result).toEqual({ valid: false, reason: 'replay' })
+      // The diagnostic re-check runs WITHOUT the replay guard, same tolerance.
+      expect(mockVerifySync).toHaveBeenLastCalledWith({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        epochTolerance: [60, 30],
+      })
+    })
+
+    it('honors a caller-supplied epochTolerance override (stricter threat models)', async () => {
+      mockVerifySync.mockReturnValue({ valid: true, timeStep: 57600002, delta: 0, epoch: 0 })
+
+      await provider.verify({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        epochTolerance: [30, 0],
+      })
+
+      expect(mockVerifySync).toHaveBeenCalledWith({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        epochTolerance: [30, 0],
+      })
     })
   })
 })

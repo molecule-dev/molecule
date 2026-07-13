@@ -35,6 +35,15 @@ export interface TwoFactorVerifyParams {
    * after each successful verification and pass it back here on the next one.
    */
   afterTimeStep?: number
+  /**
+   * Acceptance window in SECONDS as `[past, future]` around the current time
+   * step. Defaults to the provider's `[60, 30]` — two steps of past skew (a
+   * code stays valid ~60–90s after it was shown, tolerant of slow entry) and
+   * one step of future skew (a fast client clock). Override only when your
+   * threat model needs a tighter window (e.g. `[30, 0]`); tighter windows make
+   * codes expire while a slow flow is still typing them.
+   */
+  epochTolerance?: [number, number]
 }
 
 /**
@@ -53,6 +62,13 @@ export interface TwoFactorVerifyResult {
    * protection).
    */
   timeStep?: number
+  /**
+   * Present only when `valid` is `false` and the token WOULD have verified but
+   * its time step is `<= afterTimeStep`: the code was already used (replay
+   * protection). Callers should tell the user to wait for the NEXT code — this
+   * is not a wrong or expired code, and not a library fault.
+   */
+  reason?: 'replay'
 }
 
 /**

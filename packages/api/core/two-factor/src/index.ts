@@ -33,6 +33,17 @@
  * {@link TwoFactorVerifyParams.afterTimeStep} on the next `verify()` for single-use
  * replay protection.
  *
+ * **Code freshness — what a failed verify() actually means.** TOTP codes rotate every 30s;
+ * the default acceptance window is `[60, 30]` (≈60–90s of past validity). So:
+ * - Generate/read the code IMMEDIATELY before verifying. A code that sat through a slow flow
+ *   legitimately expires — on `valid:false`, generate a FRESH code and retry ONCE before
+ *   suspecting your wiring (or this library).
+ * - `{ valid: false, reason: 'replay' }` means the code was ALREADY USED (single-use
+ *   protection): wait for the NEXT code. This is correct behavior, not a bug.
+ * - Re-running setup regenerates the PENDING secret — codes computed from the previous
+ *   QR/secret will never verify again. Do not click "set up" twice and reuse the first QR.
+ * - `verify()`, `getUrls()`, and otplib v13's `generate()` are all ASYNC — always `await`.
+ *
  * **E2E verification — how to PROVE this integration works (do this before calling it done).**
  * Drive the app's REAL UI as the user would (in molecule.dev: `navigate_preview` →
  * `read_preview_ui` → `interact_preview`, targeting elements by `data-mol-id`), asserting each
@@ -100,7 +111,10 @@
  * // working on every later build. Real provider, real datastore, NO mocks. Computing a real
  * // TOTP from the enrollment secret is what catches a broken verify(); asserting a wrong code
  * // REJECTS is what catches a verify() that always returns true.
- * import { authenticator } from 'otplib' // or any TOTP lib the app already has
+ * //
+ * // otplib v13 API: `generate` (NOT the removed v12 `authenticator.generate`), and BOTH
+ * // otplib's generate() and this package's verify()/getUrls() are ASYNC — always await.
+ * import { generate } from 'otplib'
  * import { expect, test } from 'vitest'
  *
  * import { generateSecret, setProvider, verify } from '@molecule/api-two-factor'
@@ -113,15 +127,17 @@
  *   const secret = generateSecret()
  *   await store.upsert(userId, { secret, enabled: false })        // pending, like /setup
  *
- *   const code = authenticator.generate(secret)                   // a REAL code
- *   const enable = verify({ secret, token: code })
+ *   const code = await generate({ secret })                       // a REAL, FRESH code
+ *   const enable = await verify({ secret, token: code })          // verify immediately
  *   expect(enable.valid).toBe(true)                               // fails here if wiring is broken
  *   await store.upsert(userId, { enabled: true, last_time_step: enable.timeStep })
  *
- *   // Replay protection: the SAME code (same time step) must not verify twice.
- *   expect(verify({ secret, token: code, afterTimeStep: enable.timeStep }).valid).toBe(false)
+ *   // Replay protection: the SAME code (same time step) must not verify twice — and the
+ *   // result SAYS it was a replay, so callers can tell "already used" from "wrong/expired".
+ *   const replayed = await verify({ secret, token: code, afterTimeStep: enable.timeStep })
+ *   expect(replayed).toEqual({ valid: false, reason: 'replay' })
  *   // A wrong code must reject — a verify() that always passes is a broken integration.
- *   expect(verify({ secret, token: '000000' }).valid).toBe(false)
+ *   expect((await verify({ secret, token: '000000' })).valid).toBe(false)
  *
  *   await store.delete(userId)                                    // disable
  * })
