@@ -35,7 +35,10 @@ let hasProvider: typeof ProviderModule.hasProvider
 let getOptionalProvider: typeof ProviderModule.getOptionalProvider
 let schedule: typeof ProviderModule.schedule
 let unschedule: typeof ProviderModule.unschedule
+let getStatus: typeof ProviderModule.getStatus
 let getAllStatuses: typeof ProviderModule.getAllStatuses
+let start: typeof ProviderModule.start
+let stop: typeof ProviderModule.stop
 
 /**
  * Creates a mock SchedulerProvider for testing.
@@ -77,7 +80,10 @@ describe('scheduler provider', () => {
     getOptionalProvider = providerModule.getOptionalProvider
     schedule = providerModule.schedule
     unschedule = providerModule.unschedule
+    getStatus = providerModule.getStatus
     getAllStatuses = providerModule.getAllStatuses
+    start = providerModule.start
+    stop = providerModule.stop
   })
 
   describe('setProvider', () => {
@@ -260,6 +266,61 @@ describe('scheduler provider', () => {
       const result = getAllStatuses()
 
       expect(result).toEqual([])
+    })
+  })
+
+  describe('getStatus', () => {
+    it('should throw when no provider is bonded', () => {
+      expect(() => getStatus('cleanup')).toThrow(
+        'Scheduler provider not configured. Call setProvider() first.',
+      )
+    })
+
+    it('should delegate to the bonded provider', () => {
+      const status: TaskStatus = {
+        name: 'cleanup',
+        lastRunAt: '2026-01-01T00:00:00.000Z',
+        nextRunAt: '2026-01-01T00:01:00.000Z',
+        isRunning: false,
+        lastError: null,
+        durationMs: 42,
+        totalRuns: 5,
+        totalFailures: 0,
+        lastSuccessAt: '2026-01-01T00:00:00.000Z',
+        enabled: true,
+      }
+      const mockProvider = createMockProvider({
+        getStatus: vi.fn().mockReturnValue(status),
+      })
+      setProvider(mockProvider)
+
+      expect(getStatus('cleanup')).toEqual(status)
+      expect(mockProvider.getStatus).toHaveBeenCalledWith('cleanup')
+    })
+
+    it('should return null for an unknown task', () => {
+      const mockProvider = createMockProvider()
+      setProvider(mockProvider)
+
+      expect(getStatus('nonexistent')).toBeNull()
+    })
+  })
+
+  describe('start / stop', () => {
+    it('should throw when no provider is bonded', () => {
+      expect(() => start()).toThrow('Scheduler provider not configured. Call setProvider() first.')
+      expect(() => stop()).toThrow('Scheduler provider not configured. Call setProvider() first.')
+    })
+
+    it('should delegate to the bonded provider', () => {
+      const mockProvider = createMockProvider()
+      setProvider(mockProvider)
+
+      start()
+      expect(mockProvider.start).toHaveBeenCalledOnce()
+
+      stop()
+      expect(mockProvider.stop).toHaveBeenCalledOnce()
     })
   })
 })

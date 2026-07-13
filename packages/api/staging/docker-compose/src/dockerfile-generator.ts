@@ -42,7 +42,12 @@ CMD ["node", "dist/server.js"]
  * then runs the Vite build. ARG → ENV ensures \`process.env.VITE_*\` is
  * available to Vite at build time (takes precedence over .env files).
  *
- * Stage 2 (serve): copies built static assets into Nginx.
+ * Stage 2 (serve): copies built static assets into Nginx. The nginx.conf is
+ * copied from the \`staging\` named build context (the \`.molecule/staging/\`
+ * directory, wired via \`additional_contexts\` in the generated compose file) —
+ * NOT from the app build context: the app project has no nginx.conf of its
+ * own, so a plain \`COPY nginx.conf\` would fail every build with
+ * "not found in build context".
  *
  * @param envVars - Build-time environment variables to inject (e.g. \`{ VITE_API_URL: '...' }\`).
  * @returns Dockerfile content as a string.
@@ -67,7 +72,7 @@ RUN npm run build
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=staging nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 `
 }

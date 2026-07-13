@@ -40,7 +40,11 @@ describe('@molecule/api-two-factor-otplib × REAL otplib', () => {
     expect(replayed).toEqual({ valid: false, reason: 'replay' })
 
     // A PAST guard step must not block a current code (the replay guard rejects <=, not <).
-    const past = await provider.verify({ secret, token, afterTimeStep: (ok.timeStep as number) - 10 })
+    const past = await provider.verify({
+      secret,
+      token,
+      afterTimeStep: (ok.timeStep as number) - 10,
+    })
     expect(past.valid).toBe(true)
 
     // A wrong code is a plain rejection — no replay label.
@@ -56,6 +60,48 @@ describe('@molecule/api-two-factor-otplib × REAL otplib', () => {
     const secret = provider.generateSecret()
     const oldToken = await generate({ secret, epoch: Math.floor(Date.now() / 1000) - 45 })
     const result = await provider.verify({ secret, token: oldToken })
+    expect(result.valid).toBe(true)
+  })
+
+  it('CONSUMER PROPERTY: an authenticator-app formatted paste ("123 456 ") still verifies', async () => {
+    // Google Authenticator DISPLAYS codes with grouping whitespace and users paste them
+    // verbatim, often with a trailing space. Raw otplib THROWS TokenLengthError on the
+    // 7-char string — the provider must normalize instead of failing the paste.
+    const secret = provider.generateSecret()
+    const token = await generate({ secret })
+    const pasted = `${token.slice(0, 3)} ${token.slice(3)} `
+    const result = await provider.verify({ secret, token: pasted })
+    expect(result.valid).toBe(true)
+    expect(Number.isInteger(result.timeStep)).toBe(true)
+  })
+
+  it('FAILURE DISAMBIGUATION: a malformed token is a labeled rejection, never a crash', async () => {
+    // Raw otplib 13 THROWS (TokenLengthError / TokenFormatError) on all of these — an
+    // unhandled user typo would 500 the login route with an opaque stack. The provider
+    // answers { valid: false, reason: 'format' } so callers can tell "re-enter the
+    // 6-digit code" apart from "wrong/expired" and from "already used".
+    const secret = provider.generateSecret()
+    expect(await provider.verify({ secret, token: '12345' })).toEqual({
+      valid: false,
+      reason: 'format',
+    })
+    expect(await provider.verify({ secret, token: 'abcdef' })).toEqual({
+      valid: false,
+      reason: 'format',
+    })
+    expect(await provider.verify({ secret, token: '' })).toEqual({
+      valid: false,
+      reason: 'format',
+    })
+  })
+
+  it('a -1 "no previous step" column sentinel verifies instead of throwing', async () => {
+    // Raw otplib 13 throws AfterTimeStepNegativeError on -1; a schema defaulting
+    // last_time_step to -1 (instead of NULL) would make enabling 2FA impossible.
+    // Like NULL/undefined, -1 means "no code consumed yet" — no replay guard.
+    const secret = provider.generateSecret()
+    const token = await generate({ secret })
+    const result = await provider.verify({ secret, token, afterTimeStep: -1 })
     expect(result.valid).toBe(true)
   })
 

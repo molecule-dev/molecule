@@ -181,7 +181,7 @@ export interface I18nProvider {
   removeLocale(code: string): boolean
 
   /**
-   * Adds translations to a locale.
+   * Adds translations to a locale. Auto-creates the locale if it doesn't exist.
    */
   addTranslations(locale: string, translations: Translations, namespace?: string): void
 

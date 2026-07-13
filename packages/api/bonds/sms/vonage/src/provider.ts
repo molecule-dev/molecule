@@ -74,11 +74,30 @@ export function createProvider(config: VonageSMSConfig = {}): SMSProvider {
         params.statusReportReq = true
       }
 
-      const result = await vonage.sms.send(params)
+      let result
+      try {
+        result = await vonage.sms.send(params)
+      } catch (error) {
+        // The v3 SDK THROWS (MessageSendAllFailure) when Vonage rejects the
+        // message — a plain `status !== '0'` never reaches this code. The
+        // thrown message is just "All SMS messages failed to send", which for
+        // a single send hides the actual reason (e.g. "Non-Whitelisted
+        // Destination" on trial accounts). Surface the per-message error text
+        // so callers can tell a bad destination from bad credentials.
+        const failure = error as { response?: { messages?: Array<{ errorText?: string }> } }
+        const errorText = failure.response?.messages?.[0]?.errorText
+        if (errorText) {
+          throw new Error(`Vonage rejected the SMS to ${to}: ${errorText}`, { cause: error })
+        }
+        throw error
+      }
       const msg = result.messages[0]
 
       return {
-        id: msg['message-id'] ?? '',
+        // The v3 SDK camelCases response keys at runtime (`messageId`), while
+        // its response TYPE still declares the raw kebab-case `'message-id'`.
+        // Read both so the id survives SDK-side normalization either way.
+        id: msg.messageId ?? msg['message-id'] ?? '',
         status: msg.status === '0' ? 'queued' : 'failed',
         to: msg.to ?? to,
       }

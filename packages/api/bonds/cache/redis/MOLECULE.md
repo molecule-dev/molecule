@@ -203,3 +203,14 @@ Peer dependencies:
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: Redis connection string (redis:// or rediss:// for TLS). molecule.dev runs a Redis inside your app's container automatically (dev and production) — set this only to use an external/managed Redis; locally, the Docker Compose default works.
   - Example: `redis://localhost:6379`
+
+- **`clear()` runs `FLUSHDB` — it wipes the ENTIRE Redis database**, not just keys under
+  this provider's `keyPrefix`. Never call it on a Redis db shared with sessions, queues,
+  or another app; prefer `deleteMany()`/`invalidateTag()` for scoped invalidation.
+- **When Redis is unreachable, commands do not fail fast** — ioredis queues them offline
+  and retries (default `maxRetriesPerRequest: 20`, ~10s+ per command) before rejecting.
+  A "cache miss" and "Redis down" therefore feel very different to callers: one is
+  instant `undefined`, the other is a long stall then a thrown error. Pass ioredis
+  options via `createClient`/`REDIS_URL` tuning if you need fail-fast cache semantics.
+- Tag index sets (`_tag:<tag>`) are stored WITHOUT a TTL: they persist until
+  `invalidateTag()` is called, even after all tagged entries expire.

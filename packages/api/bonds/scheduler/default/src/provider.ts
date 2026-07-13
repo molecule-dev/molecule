@@ -12,6 +12,8 @@ import type { DefaultSchedulerOptions } from './types.js'
 interface TaskEntry {
   task: ScheduledTask
   timer: ReturnType<typeof setInterval> | null
+  /** Pending staggered-startup timeout — tracked so stopTask can cancel it. */
+  staggerTimer: ReturnType<typeof setTimeout> | null
   lastRunAt: string | null
   nextRunAt: string | null
   isRunning: boolean
@@ -60,20 +62,32 @@ export const createProvider = (options?: DefaultSchedulerOptions): SchedulerProv
   }
 
   const startTask = (entry: TaskEntry, staggerIndex: number): void => {
-    if (entry.timer) return
+    if (entry.timer || entry.staggerTimer) return
     const delay = staggerIndex * staggerMs
 
-    setTimeout(() => {
+    // The stagger timeout MUST be tracked on the entry: unschedule()/stop()/a
+    // schedule() replacement during the stagger window used to leave this
+    // anonymous timeout pending, and when it fired it started an interval that
+    // nothing could ever stop (the entry was already removed from `tasks`, so
+    // even stop() couldn't reach it) — the old task kept executing forever.
+    entry.staggerTimer = setTimeout(() => {
+      entry.staggerTimer = null
       if (!started) return
       runTask(entry)
       entry.timer = setInterval(() => runTask(entry), entry.task.intervalMs)
       entry.timer?.unref?.()
     }, delay)
+    // unref like the interval below so pending staggers never hold the process open.
+    entry.staggerTimer?.unref?.()
 
     entry.nextRunAt = new Date(Date.now() + delay).toISOString()
   }
 
   const stopTask = (entry: TaskEntry): void => {
+    if (entry.staggerTimer) {
+      clearTimeout(entry.staggerTimer)
+      entry.staggerTimer = null
+    }
     if (entry.timer) {
       clearInterval(entry.timer)
       entry.timer = null
@@ -91,6 +105,7 @@ export const createProvider = (options?: DefaultSchedulerOptions): SchedulerProv
       const entry: TaskEntry = {
         task,
         timer: null,
+        staggerTimer: null,
         lastRunAt: null,
         nextRunAt: null,
         isRunning: false,

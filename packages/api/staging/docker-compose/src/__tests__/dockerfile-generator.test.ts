@@ -79,10 +79,13 @@ describe('generateAppDockerfile', () => {
     expect(result).toContain('COPY --from=build /app/dist /usr/share/nginx/html')
   })
 
-  it('should copy nginx.conf into the container', () => {
+  it('should copy nginx.conf from the staging named context (not the app context)', () => {
     const result = generateAppDockerfile()
 
-    expect(result).toContain('COPY nginx.conf /etc/nginx/conf.d/default.conf')
+    // The app build context is the app project, which has NO nginx.conf — a
+    // bare `COPY nginx.conf` fails every build with "not found in build
+    // context". It must come from the `staging` additional context.
+    expect(result).toContain('COPY --from=staging nginx.conf /etc/nginx/conf.d/default.conf')
   })
 })
 

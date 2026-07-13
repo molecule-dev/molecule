@@ -135,5 +135,9 @@ export const createMockQueue = (): QueueProvider & {
   }
 }
 
-/** Pre-configured mock queue provider instance for quick test setup. */
+/**
+ * Pre-configured mock queue provider instance for quick test setup. Shared
+ * module-level instance — call `reset()` in `beforeEach` so queued messages
+ * and subscribers don't bleed between tests.
+ */
 export const mockQueue = createMockQueue()

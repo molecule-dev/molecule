@@ -43,7 +43,9 @@ export const createProvider = async (options?: RabbitMQOptions): Promise<QueuePr
     channel = await connection.createChannel()
 
     if (options?.prefetch) {
-      channel.prefetch(options.prefetch)
+      // amqplib's prefetch is async — un-awaited, consumers could start
+      // before the QoS cap is applied (and a rejection would be unhandled).
+      await channel.prefetch(options.prefetch)
     }
 
     logger.debug('RabbitMQ connected')

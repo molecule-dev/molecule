@@ -74,7 +74,10 @@ export const setup = async (
       user: process.env.SUPERPGUSER,
       password: process.env.SUPERPGPASSWORD,
       host: process.env.SUPERPGHOST || process.env.PGHOST,
-      database: process.env.SUPERPGHOST || process.env.SUPERPGUSER,
+      // Postgres convention: the maintenance database defaults to the user's own
+      // name. (This previously read SUPERPGHOST — a hostname — as the database
+      // name, so setting SUPERPGHOST broke the superuser connection.)
+      database: process.env.SUPERPGDATABASE || process.env.SUPERPGUSER,
       port: Number(process.env.SUPERPGPORT || process.env.PGPORT),
     })
 

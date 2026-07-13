@@ -29,10 +29,14 @@ const ROUTER_USE_RE = /router\.use\(\s*['"]([^'"]+)['"]\s*,\s*(\w+)\s*\)/g
  * router.get('/', async ...)
  * router.post('/', validateBody(schema), async ...)
  * router.put('/:id', validateBody(schema), async ...)
+ * router.patch('/:id', validateBody(schema), async ...)
  * Uses a permissive capture for the middleware chain to handle nested parentheses.
+ * PATCH is included — 185 fleet template handler files use `router.patch`, and
+ * omitting it silently routed every partial-update call to the unmatched
+ * catch-all (`{}` + X-Mock-Unmatched) instead of the resource fixture.
  */
 const ROUTER_METHOD_RE =
-  /router\.(get|post|put|delete)\(\s*['"]([^'"]+)['"]\s*,\s*([\s\S]*?)\basync\b/g
+  /router\.(get|post|put|patch|delete)\(\s*['"]([^'"]+)['"]\s*,\s*([\s\S]*?)\basync\b/g
 
 /**
  * Pattern for validateBody(schemaName) in middleware chain
@@ -285,7 +289,7 @@ export function scanHandlers(handlersPath: string, appType: string): HandlerScan
       // Slice this route's handler body — from this match to the next
       // router.method() call (or EOF) — and extract its response shape.
       const afterMatch = match.index + match[0].length
-      const nextRel = source.slice(afterMatch).search(/router\.(get|post|put|delete)\(/)
+      const nextRel = source.slice(afterMatch).search(/router\.(get|post|put|patch|delete)\(/)
       const handlerBody = source.slice(
         match.index,
         nextRel === -1 ? source.length : afterMatch + nextRel,

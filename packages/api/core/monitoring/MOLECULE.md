@@ -9,7 +9,7 @@ bond registry checks, and custom checks).
 ## Quick Start
 
 ```typescript
-import { setProvider, runAll, createDatabaseCheck, createHttpCheck } from '@molecule/api-monitoring'
+import { getProvider, setProvider, runAll, createDatabaseCheck, createHttpCheck } from '@molecule/api-monitoring'
 import { provider } from '@molecule/api-monitoring-default'
 
 setProvider(provider)
@@ -97,7 +97,7 @@ interface HttpCheckOptions {
   category?: string
   /** Request timeout in milliseconds. Defaults to 5000. */
   timeoutMs?: number
-  /** Expected HTTP status code range. Defaults to 200-299. */
+  /** Exact expected HTTP status code. When omitted, any 2xx (200-299) is accepted. */
   expectedStatus?: number
   /** Latency threshold in ms above which status degrades to 'degraded'. */
   degradedThresholdMs?: number

@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useId } from 'react'
 
 import { getIconDataUrl } from '@molecule/app-icons'
 import type { SelectProps } from '@molecule/app-ui'
@@ -38,7 +38,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps<string>>(
     ref,
   ) => {
     const cm = getClassMap()
-    const selectId = id || name
+    // Fall back to a generated id so label htmlFor / aria-describedby never
+    // point at `undefined-error` (which also collides across multiple
+    // id-less selects on the same page).
+    const generatedId = useId()
+    const selectId = id || name || generatedId
 
     const selectClasses = cm.cn(cm.select({ error: !!error, size }), cm.selectNative, className)
 

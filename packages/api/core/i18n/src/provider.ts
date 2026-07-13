@@ -18,6 +18,22 @@ import { getNestedValue, interpolate } from './utilities.js'
 const RTL_LOCALES = new Set(['ar', 'he', 'fa', 'ur', 'ps', 'sd', 'yi'])
 
 /**
+ * Milliseconds per relative-time unit (calendar units are approximations:
+ * 30-day month, 90-day quarter, 365-day year — matching the auto-select
+ * thresholds in `formatRelativeTime`).
+ */
+const UNIT_MS: Record<string, number> = {
+  second: 1000,
+  minute: 60_000,
+  hour: 3_600_000,
+  day: 86_400_000,
+  week: 604_800_000,
+  month: 2_592_000_000,
+  quarter: 7_776_000_000,
+  year: 31_536_000_000,
+}
+
+/**
  * Recursively merges source translation entries into the target object,
  * preserving existing keys and overwriting conflicts.
  *
@@ -150,16 +166,37 @@ export const createSimpleI18nProvider = (defaultLocale = 'en'): I18nProvider => 
 
     formatDate(value: Date | number | string, options?: DateFormatOptions): string {
       const date = value instanceof Date ? value : new Date(value)
+      // Honor `relative: true` — `DateFormatOptions.relative` is part of the
+      // interface and the api-i18n-simple bond honors it; silently ignoring it
+      // here made the auto-created fallback provider print an absolute date
+      // where every bonded provider prints "2 hours ago".
+      if (options?.relative) {
+        return provider.formatRelativeTime(date)
+      }
       const intlOptions: Intl.DateTimeFormatOptions = {}
       if (options?.dateStyle) intlOptions.dateStyle = options.dateStyle
       if (options?.timeStyle) intlOptions.timeStyle = options.timeStyle
       return new Intl.DateTimeFormat(currentLocale, intlOptions).format(date)
     },
 
-    formatRelativeTime(value: Date | number): string {
+    formatRelativeTime(
+      value: Date | number,
+      options?: { unit?: Intl.RelativeTimeFormatUnit },
+    ): string {
       const now = Date.now()
       const timestamp = value instanceof Date ? value.getTime() : value
       const diffMs = timestamp - now
+
+      // An explicit unit means "express the difference IN that unit" —
+      // previously the option was accepted by the interface but ignored here.
+      if (options?.unit) {
+        const unitMs = UNIT_MS[options.unit.replace(/s$/, '')] ?? 1000
+        return new Intl.RelativeTimeFormat(currentLocale, { numeric: 'auto' }).format(
+          Math.round(diffMs / unitMs),
+          options.unit,
+        )
+      }
+
       const diffSeconds = Math.round(diffMs / 1000)
       const absDiffSeconds = Math.abs(diffSeconds)
 

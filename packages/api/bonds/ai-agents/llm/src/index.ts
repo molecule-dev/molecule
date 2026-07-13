@@ -52,7 +52,18 @@
  * A thrown tool error or an unknown tool name becomes an error `tool_result`
  * (recorded with `isError: true`) instead of aborting the run, so the model can
  * recover. `run()` requires exactly one of `task` (a single user turn) or
- * `messages` (a full history); it throws if neither is supplied.
+ * `messages` (a full history); it throws if neither — or both — is supplied.
+ *
+ * Failure semantics (how to tell failure modes apart):
+ * - **Tool failure** (throwing `execute()`, unknown tool name) — NON-fatal:
+ *   recorded on the step with `isError: true` and fed back to the model.
+ * - **AI provider API failure** (rate limit, bad key, overload, network — the
+ *   `ai` bond emits an in-band `error` ChatEvent) — FATAL: `run()` rejects with
+ *   the provider's error message. It never resolves with a silently empty
+ *   `output`, so an empty `result.output` means the model genuinely produced
+ *   no text, not that the API failed.
+ * - **Step budget exhausted** — resolves normally; `output` is the last
+ *   assistant text or an explicit "step budget exhausted" note.
  *
  * Swappable like any bond: replace this LLM agent with your own
  * `AIAgentsProvider` via `bond('ai-agents', myProvider)` — nothing else changes.

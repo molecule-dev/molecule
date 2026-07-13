@@ -102,8 +102,25 @@ export const upload = (
     'application/xml',
   ])
   if (BLOCKED_MIME_TYPES.has(mimetype.toLowerCase())) {
+    // Drain the rejected stream: an unconsumed file stream stalls the multipart
+    // parser (busboy pauses on backpressure), which hangs the whole request even
+    // after the handler has responded with the 4xx.
+    stream.resume()
     const error = new Error(`File type ${mimetype} is not allowed for upload`)
     onError(error)
+    return { id, fieldname, filename, encoding, mimetype, size: 0, uploaded: false } as File
+  }
+
+  const bucket = getBucketName()
+  if (!bucket) {
+    // Fail fast with an actionable message: with an empty Bucket the SDK rejects
+    // later with a cryptic serialization error that never names the missing env var.
+    stream.resume()
+    onError(
+      new Error(
+        'AWS_S3_BUCKET is not set — set it to the S3 bucket name for uploads (see @molecule/api-uploads-s3 secrets).',
+      ),
+    )
     return { id, fieldname, filename, encoding, mimetype, size: 0, uploaded: false } as File
   }
 
@@ -119,7 +136,7 @@ export const upload = (
   const s3Upload = new Upload({
     client: getS3Client(),
     params: {
-      Bucket: getBucketName(),
+      Bucket: bucket,
       Key: id,
       Body: body,
       ContentType: mimetype,
@@ -236,16 +253,29 @@ export const deleteFile = async (id: string): Promise<void> => {
 /**
  * Downloads a file from S3 by its UUID key using `GetObjectCommand`.
  * @param id - The UUID file identifier (S3 object key).
- * @returns A readable stream of the file contents, or `null` if no body is returned.
+ * @returns A readable stream of the file contents, or `null` if the file does not exist.
  */
 export const getFile = async (id: string): Promise<NodeJS.ReadableStream | null> => {
-  const response = await s3Client.send(
-    new GetObjectCommand({
-      Bucket: getBucketName(),
-      Key: id,
-    }),
-  )
-  return (response.Body as NodeJS.ReadableStream) ?? null
+  try {
+    const response = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: getBucketName(),
+        Key: id,
+      }),
+    )
+    return (response.Body as NodeJS.ReadableStream) ?? null
+  } catch (error) {
+    // GetFileHandler contract (and parity with the filesystem bond): resolve `null`
+    // when the file does not exist so callers can 404, and THROW only for real
+    // failures (bad credentials, missing bucket, network). Without this, a deleted
+    // key was indistinguishable from an outage. Keyed on the SDK's NoSuchKey error
+    // name — NoSuchBucket and auth errors still throw (they are misconfiguration,
+    // not "file not found", and must stay loud).
+    if ((error as { name?: string }).name === 'NoSuchKey') {
+      return null
+    }
+    throw error
+  }
 }
 
 /**

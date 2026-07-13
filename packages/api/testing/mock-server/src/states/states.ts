@@ -86,7 +86,10 @@ export function getResponseBody(
 /**
  * Parse a state string into a ResponseState object.
  * @param stateStr - The state string (e.g. 'success', 'error', 'empty', 'unauthorized')
- * @returns The parsed ResponseState
+ * @returns The parsed ResponseState. An unrecognized string falls back to
+ *   `DEFAULT_STATES.success` — the same forgiving behavior as the per-request
+ *   `?_state` middleware (which additionally labels the response with an
+ *   `X-Mock-Invalid-State` header so typos are detectable).
  */
 export function parseState(stateStr: string): ResponseState {
   const normalized = stateStr.toLowerCase().trim()

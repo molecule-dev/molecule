@@ -9,6 +9,7 @@
  */
 
 import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { t } from '@molecule/api-i18n'
 
 import type { DataStore, FindManyOptions, MutationResult, WhereCondition } from './store.js'
 
@@ -32,7 +33,20 @@ export const setStore = (store: DataStore): void => {
  * @throws {Error} If no DataStore has been bonded.
  */
 export const getStore = (): DataStore => {
-  return bondRequire<DataStore>(BOND_TYPE)
+  try {
+    return bondRequire<DataStore>(BOND_TYPE)
+  } catch (error) {
+    // Same actionable shape as getPool(): the generic bond error suggests
+    // `bond('datastore', provider)`, but the API this package documents is
+    // `setStore(store)` — point the caller at the actual fix. The locale key
+    // already existed in @molecule/api-locales-database; it was never wired.
+    throw new Error(
+      t('database.error.storeNotConfigured', undefined, {
+        defaultValue: 'DataStore not configured. Call setStore() first.',
+      }),
+      { cause: error },
+    )
+  }
 }
 
 /**

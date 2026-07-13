@@ -124,6 +124,12 @@ export interface NormalizedPurchase {
 
 /**
  * Interface for subscription verification.
+ *
+ * @remarks
+ * Auxiliary abstraction for app-level verification services. The shipped
+ * `@molecule/api-payments-*` bonds do NOT implement this two-argument
+ * interface — they implement {@link PaymentProviderInterface}, whose
+ * `verifySubscription(subscriptionId)` takes only the provider's opaque id.
  */
 export interface SubscriptionVerifier {
   /**
@@ -134,6 +140,12 @@ export interface SubscriptionVerifier {
 
 /**
  * Interface for purchase verification (one-time purchases).
+ *
+ * @remarks
+ * Auxiliary abstraction for app-level verification services. The shipped
+ * `@molecule/api-payments-*` bonds do NOT implement this interface — they
+ * implement {@link PaymentProviderInterface} (`verifyPurchase(receipt, productId)`
+ * for Google-style flows).
  */
 export interface PurchaseVerifier {
   /**

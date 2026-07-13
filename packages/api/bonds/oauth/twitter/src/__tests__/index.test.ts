@@ -121,6 +121,32 @@ describe('Twitter OAuth Provider', () => {
       })
     })
 
+    it('honours OAUTH_TWITTER_TOKEN_URL and OAUTH_TWITTER_USER_URL overrides (E2E mocks)', async () => {
+      process.env.OAUTH_TWITTER_TOKEN_URL = 'http://127.0.0.1:9999/2/oauth2/token'
+      process.env.OAUTH_TWITTER_USER_URL = 'http://127.0.0.1:9999/2/users/me'
+
+      mockPost.mockResolvedValue({
+        data: {
+          access_token: 'test-access-token',
+          token_type: 'bearer',
+          scope: 'users.read tweet.read',
+        },
+      })
+      mockGet.mockResolvedValue({
+        data: { data: { id: '1', username: 'testuser' } },
+      })
+
+      const { verify } = await import('../verify.js')
+      await verify('test-auth-code')
+
+      expect(mockPost).toHaveBeenCalledWith(
+        'http://127.0.0.1:9999/2/oauth2/token',
+        expect.anything(),
+        expect.anything(),
+      )
+      expect(mockGet).toHaveBeenCalledWith('http://127.0.0.1:9999/2/users/me', expect.anything())
+    })
+
     it('should use Basic auth with base64 encoded credentials', async () => {
       mockPost.mockResolvedValue({
         data: {

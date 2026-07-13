@@ -18,6 +18,18 @@
  * })
  * ```
  *
+ * @remarks
+ * - A handler that throws does NOT cancel the job: the error is logged (with
+ *   the job id and name) and the job stays `active` for its next tick — the
+ *   same keep-running semantics as the BullMQ bond and real crontab. Add your
+ *   own retry/alerting inside the handler if a failure needs escalation.
+ * - `schedule()` rejects a malformed cron expression up front with an error
+ *   naming the job and the expression (raw node-cron would throw an opaque
+ *   `TypeError`/`RangeError`). Both 5-field (`'0 3 * * *'`) and 6-field
+ *   seconds-granularity (`'* * * * * *'` = every second) expressions work.
+ * - Jobs are in-memory only: they are lost on process restart, so re-register
+ *   them at startup. For persistent/distributed jobs use `@molecule/api-cron-bullmq`.
+ *
  * @module
  */
 

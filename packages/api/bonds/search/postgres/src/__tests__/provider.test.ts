@@ -149,6 +149,28 @@ describe('postgres search provider', () => {
       expect(result.page).toBe(3)
       expect(result.perPage).toBe(10)
     })
+
+    it('escapes tsquery operators and quotes in user text (no tsquery syntax errors)', async () => {
+      // Verified against a real PostgreSQL 16: unquoted `widget!:*` and `:*`
+      // throw `syntax error in tsquery`; the quoted-lexeme forms below parse.
+      mockQuery
+        .mockResolvedValueOnce({ rows: [] })
+        .mockResolvedValueOnce({ rows: [{ total: '0' }] })
+
+      const p = createProvider()
+      await p.search('products', { text: `widget! (deluxe) don't a\\b` })
+
+      const [, params] = mockQuery.mock.calls[0]
+      expect(params[1]).toBe(`'widget!':* & '(deluxe)':* & 'don''t':* & 'a\\\\b':*`)
+    })
+
+    it('returns empty results for empty/whitespace-only text without querying', async () => {
+      const p = createProvider()
+      const result = await p.search('products', { text: '   ' })
+
+      expect(result).toMatchObject({ hits: [], total: 0, page: 1, perPage: 20 })
+      expect(mockQuery).not.toHaveBeenCalled()
+    })
   })
 
   describe('delete', () => {
@@ -176,6 +198,24 @@ describe('postgres search provider', () => {
 
       expect(suggestions).toHaveLength(2)
       expect(suggestions[0].text).toBe('Widget')
+    })
+
+    it('escapes tsquery operators in suggest text', async () => {
+      mockQuery.mockResolvedValueOnce({ rows: [] })
+
+      const p = createProvider()
+      await p.suggest('products', 'wid!')
+
+      const [, params] = mockQuery.mock.calls[0]
+      expect(params[1]).toBe(`'wid!':*`)
+    })
+
+    it('returns no suggestions for empty text without querying', async () => {
+      const p = createProvider()
+      const suggestions = await p.suggest('products', '')
+
+      expect(suggestions).toEqual([])
+      expect(mockQuery).not.toHaveBeenCalled()
     })
   })
 

@@ -94,6 +94,39 @@ function isTestMode(): boolean {
 }
 
 /**
+ * Collects the recipient addresses (`to`/`cc`/`bcc`) from a nodemailer-shaped
+ * message into a flat list of plain address strings.
+ *
+ * @param sendOptions - The message whose recipients to collect.
+ * @returns The recipient addresses as strings.
+ */
+const collectRecipients = (sendOptions: {
+  to?: unknown
+  cc?: unknown
+  bcc?: unknown
+}): string[] => {
+  const recipients: string[] = []
+  const collect = (raw: unknown): void => {
+    if (!raw) return
+    if (typeof raw === 'string') {
+      recipients.push(raw)
+      return
+    }
+    if (Array.isArray(raw)) {
+      for (const item of raw) collect(item)
+      return
+    }
+    if (typeof raw === 'object' && 'address' in (raw as Record<string, unknown>)) {
+      recipients.push(String((raw as { address: string }).address))
+    }
+  }
+  collect(sendOptions.to)
+  collect(sendOptions.cc)
+  collect(sendOptions.bcc)
+  return recipients
+}
+
+/**
  * Sends an email message via the Mailgun API, with automatic test-mode handling for sandbox domains.
  *
  * @param message - The email message (to, from, subject, text/html, attachments).
@@ -113,10 +146,19 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
     const result = await getTransport().sendMail(sendOptions)
 
     return {
-      accepted: (result.accepted || []) as string[],
-      rejected: (result.rejected || []) as string[],
+      // nodemailer-mailgun-transport resolves with the raw mailgun.js response
+      // (`{ id, message, status }`) plus `messageId` — it NEVER sets
+      // `accepted`/`rejected`. A 200 from Mailgun means the message was queued
+      // for every recipient, so fall back to the message's own recipients —
+      // without this, every successful send reported `accepted: []` and
+      // callers gating on "was my recipient accepted?" concluded delivery
+      // failed. `response` falls back to Mailgun's status line
+      // (e.g. "Queued. Thank you.").
+      accepted: (result.accepted ?? collectRecipients(sendOptions)) as string[],
+      rejected: (result.rejected ?? []) as string[],
       messageId: result.messageId,
-      response: result.response,
+      response:
+        result.response ?? (typeof result.message === 'string' ? result.message : undefined),
     }
   } catch (error) {
     // Mailgun sandbox domains reject delivery to any recipient that hasn't
@@ -141,26 +183,8 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
         'Mailgun sandbox domain rejected unauthorised recipient; reporting synthetic success because MAILGUN_TEST_MODE is active.',
         err.details,
       )
-      const recipients: string[] = []
-      const collect = (raw: unknown): void => {
-        if (!raw) return
-        if (typeof raw === 'string') {
-          recipients.push(raw)
-          return
-        }
-        if (Array.isArray(raw)) {
-          for (const item of raw) collect(item)
-          return
-        }
-        if (typeof raw === 'object' && 'address' in (raw as Record<string, unknown>)) {
-          recipients.push(String((raw as { address: string }).address))
-        }
-      }
-      collect((sendOptions as { to?: unknown }).to)
-      collect((sendOptions as { cc?: unknown }).cc)
-      collect((sendOptions as { bcc?: unknown }).bcc)
       return {
-        accepted: recipients,
+        accepted: collectRecipients(sendOptions),
         rejected: [],
         messageId: `<sandbox-${Date.now()}-${Math.random().toString(36).slice(2, 10)}@${
           process.env.MAILGUN_DOMAIN ?? 'mailgun.test'

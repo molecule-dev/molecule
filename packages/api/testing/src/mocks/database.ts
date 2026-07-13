@@ -77,6 +77,7 @@ export const createMockDatabase = (): DatabasePool & {
 }
 
 /**
- * Pre-configured mock database for quick setup.
+ * Pre-configured mock database for quick setup. Shared module-level instance —
+ * call `reset()` in `beforeEach` so recorded queries don't bleed between tests.
  */
 export const mockDatabase = createMockDatabase()

@@ -13,14 +13,17 @@
  * - Store each {@link PushSubscription} server-side, scoped to its user, and send from the
  *   server with {@link send}/{@link sendMany}. The browser never sends notifications and
  *   never holds another user's subscription.
- * - Prune dead endpoints: when a send returns {@link SendResult} `statusCode` 404/410 the
- *   subscription is gone — delete that row so you stop pushing to it.
+ * - Prune dead endpoints: a gone subscription (HTTP 404/410 from the push service) surfaces
+ *   as a **failed** send — with the web-push bond the per-subscription `error` in
+ *   {@link SendManyResult} (a `WebPushError` carrying `statusCode`), NOT a resolved
+ *   {@link SendResult}. Check `r.error` for 404/410 and delete that row so you stop pushing
+ *   to it. (`send()` for a single subscription *throws* in that case.)
  * - `configure()` once at startup with your {@link VapidConfig} (email + keys).
  *
  * @example
  * ```ts
  * import { configure, sendMany, getPublicKey } from '@molecule/api-push-notifications'
- * configure({ email: 'mailto:ops@app.com', publicKey: VAPID_PUBLIC, privateKey: VAPID_PRIVATE })
+ * configure({ email: 'ops@app.com', publicKey: VAPID_PUBLIC, privateKey: VAPID_PRIVATE })
  *
  * // Browser subscribes with the PUBLIC key only; the API stores the subscription per user.
  * router.post('/push/subscribe', async (req, res) => {
@@ -28,11 +31,14 @@
  *   res.json({ ok: true })
  * })
  *
- * // Server sends, then prunes subscriptions the provider reports as gone (404/410).
+ * // Server sends, then prunes subscriptions the push service reports as gone.
+ * // A dead endpoint REJECTS (it lands in r.error with a statusCode), it does not
+ * // resolve into r.result — checking r.result for 404/410 would never prune anything.
  * const rows = await subscriptionsFor(userId)
  * const results = await sendMany(rows.map((r) => r.subscription), { title: 'Hi', options: { body: '…' } })
  * results.forEach((r, i) => {
- *   if (r.result && (r.result.statusCode === 404 || r.result.statusCode === 410)) deleteSubscription(rows[i].id)
+ *   const gone = (r.error as { statusCode?: number } | undefined)?.statusCode
+ *   if (gone === 404 || gone === 410) deleteSubscription(rows[i].id)
  * })
  * ```
  *

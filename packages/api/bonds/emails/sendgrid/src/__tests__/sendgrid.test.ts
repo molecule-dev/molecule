@@ -204,6 +204,22 @@ describe('SendGrid Email Provider', () => {
       expect(mockSetApiKey).not.toHaveBeenCalled()
     })
 
+    it('tags the missing-key error as a config-missing 503 (statusCode + errorKey)', async () => {
+      // The API middleware (classifyTaggedError) maps this to a clean 503 +
+      // 'config.notConfigured' instead of an opaque SendGrid 401.
+      delete process.env.SENDGRID_API_KEY
+      vi.resetModules()
+      const { sendMail } = await import('../sendMail.js')
+      let caught: unknown
+      await sendMail({ from: 'a@x', to: 'test@test.com', subject: 'Test' }).catch((e: unknown) => {
+        caught = e
+      })
+      expect((caught as { message?: string }).message).toContain('SENDGRID_API_KEY is not set')
+      expect((caught as { statusCode?: number }).statusCode).toBe(503)
+      expect((caught as { errorKey?: string }).errorKey).toBe('config.notConfigured')
+      expect(mockSend).not.toHaveBeenCalled()
+    })
+
     it('should set the base URL when SENDGRID_BASE_URL is set', async () => {
       process.env.SENDGRID_BASE_URL = 'https://broker.example.com'
       vi.resetModules()

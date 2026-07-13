@@ -5,6 +5,7 @@
  */
 
 import {
+  ChangeMessageVisibilityCommand,
   DeleteMessageCommand,
   GetQueueAttributesCommand,
   PurgeQueueCommand,
@@ -116,7 +117,9 @@ export const createQueue = (client: SQSClient, queueName: string, queueUrl: stri
         VisibilityTimeout: options?.visibilityTimeout,
         WaitTimeSeconds: options?.waitTimeSeconds ?? 0,
         MessageAttributeNames: ['All'],
-        AttributeNames: ['All'],
+        // `AttributeNames` is deprecated in the AWS SDK in favor of
+        // `MessageSystemAttributeNames` (same values, same behavior).
+        MessageSystemAttributeNames: ['All'],
       })
 
       const result = await client.send(command)
@@ -142,7 +145,16 @@ export const createQueue = (client: SQSClient, queueName: string, queueUrl: stri
             if (!subscribers.get(subscriberId)?.active) break
             try {
               await handler(message)
+              // Handler success acks (deletes) — matching the memory/BullMQ
+              // bonds and the core @example, whose handler never calls ack().
+              // Without this every successfully processed message reappears
+              // after the visibility timeout and is re-handled forever.
+              // A safe no-op when the handler already acked or nacked.
+              await message.ack()
             } catch (error) {
+              // A throw = retry: the un-deleted message becomes visible again
+              // after the visibility timeout; the queue's redrive policy
+              // (createQueue's deadLetterQueue) bounds poison messages.
               logger.error('SQS message handler error:', error)
             }
           }
@@ -189,7 +201,9 @@ export const createQueue = (client: SQSClient, queueName: string, queueUrl: stri
 
 /**
  * Wraps a raw SQS message into a `ReceivedMessage` with `ack` (deletes via `DeleteMessageCommand`) and
- * `nack` (lets the message become visible again after the visibility timeout expires) methods.
+ * `nack` (returns the message to the queue immediately via `ChangeMessageVisibilityCommand` with a
+ * visibility timeout of 0) methods. Both settle at most once: after an `ack()` or `nack()`, further
+ * calls are safe no-ops (so the subscriber auto-ack never double-settles a handler's own ack/nack).
  * Parses the message body as JSON; falls back to raw string if parsing fails.
  * @param client - The `SQSClient` for sending ack/nack commands.
  * @param queueUrl - The SQS queue URL needed for the `DeleteMessageCommand`.
@@ -226,6 +240,9 @@ export const createReceivedMessage = <T>(
       )
     : undefined
 
+  // Settle-once latch: the first ack/nack wins; later settlements are no-ops.
+  let settled = false
+
   return {
     id: msg.MessageId ?? '',
     body,
@@ -237,6 +254,8 @@ export const createReceivedMessage = <T>(
       : undefined,
 
     async ack(): Promise<void> {
+      if (settled) return
+      settled = true
       const command = new DeleteMessageCommand({
         QueueUrl: queueUrl,
         ReceiptHandle: msg.ReceiptHandle,
@@ -245,10 +264,16 @@ export const createReceivedMessage = <T>(
     },
 
     async nack(): Promise<void> {
-      // SQS doesn't have nack - message will become visible again after visibility timeout
-      // We can change visibility to 0 to make it immediately visible
-      // For now, just log that we're not acking
-      logger.debug('SQS nack: message will become visible after visibility timeout')
+      if (settled) return
+      settled = true
+      // SQS has no native nack — zeroing the visibility timeout returns the
+      // message to the queue immediately instead of waiting out the lease.
+      const command = new ChangeMessageVisibilityCommand({
+        QueueUrl: queueUrl,
+        ReceiptHandle: msg.ReceiptHandle,
+        VisibilityTimeout: 0,
+      })
+      await client.send(command)
     },
   }
 }

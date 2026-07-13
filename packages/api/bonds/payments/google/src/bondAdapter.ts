@@ -47,6 +47,10 @@ interface RTDNData {
     purchaseToken?: string
     subscriptionId?: string
   }
+  /** Sent by Play Console's "Send test notification" button. */
+  testNotification?: {
+    version?: string
+  }
   packageName?: string
   eventTimeMillis?: string
 }
@@ -187,9 +191,22 @@ export const paymentProvider: PaymentProvider = {
         data = pubSubBody.message.data as unknown as RTDNData
       }
 
+      // Play Console's "Send test notification" button sends a testNotification
+      // body. It confers no entitlement (still returns null), but it is the
+      // integrator's wiring check — logging it as an ERROR made a WORKING
+      // Pub/Sub setup look broken.
+      if (data.testNotification) {
+        logger.info(
+          'Google Play: received RTDN test notification — Pub/Sub wiring is working. (No entitlement change.)',
+        )
+        return null
+      }
+
       const notification = data.subscriptionNotification
 
       if (!notification) {
+        // One-time product / voided-purchase notifications land here too:
+        // only subscription notifications are supported by this bond.
         logger.error('Google Play: parseNotification missing subscriptionNotification')
         return null
       }

@@ -86,6 +86,37 @@ export const verifyReceipt = async (
 }
 
 /**
+ * Maps Apple's documented `verifyReceipt` status codes to actionable descriptions.
+ *
+ * Apple reports failures as bare numeric statuses (e.g. `21004`), and a raw
+ * "status 21004" log is ambiguous between a bad receipt and a server-side
+ * misconfiguration — 21004 actually means the `APPLE_SHARED_SECRET` env var is
+ * missing or wrong, which is an operator fix, not a client bug. Surfacing the
+ * meaning next to the number keeps a failed verification debuggable from the log
+ * line alone.
+ *
+ * @param status - The numeric `status` from Apple's verifyReceipt response.
+ * @returns A human-readable explanation of the status (with the fix when it is a config issue).
+ */
+export const describeAppleStatus = (status: number): string => {
+  const map: Record<number, string> = {
+    21000: 'The request to Apple was not a valid JSON POST (malformed request).',
+    21002: 'The receipt data was malformed or missing.',
+    21003: 'The receipt could not be authenticated — not a genuine App Store receipt.',
+    21004:
+      'The shared secret does not match Apple’s records — APPLE_SHARED_SECRET is missing or wrong (App Store Connect → App Information → App-Specific Shared Secret).',
+    21005: 'Apple’s receipt server is temporarily unavailable — retry later.',
+    21006: 'The receipt is valid but the subscription has expired.',
+    21007:
+      'This is a SANDBOX receipt sent to the production endpoint (rejected unless APPLE_ALLOW_SANDBOX_RECEIPTS=true, for local/CI testing only).',
+    21008: 'This is a PRODUCTION receipt sent to the sandbox endpoint.',
+    21009: 'Internal Apple data access error — retry later.',
+    21010: 'The user account cannot be found or has been deleted.',
+  }
+  return map[status] ?? 'Unrecognized Apple verifyReceipt status.'
+}
+
+/**
  * Extracts the subscription with the latest expiration date from a receipt verification response.
  * Checks both `latest_receipt_info` and `receipt.in_app` arrays.
  * @param response - The Apple receipt verification response.

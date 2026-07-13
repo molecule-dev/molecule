@@ -19,7 +19,12 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { applyAwarenessUpdate, Awareness, encodeAwarenessUpdate } from 'y-protocols/awareness'
+import {
+  applyAwarenessUpdate,
+  Awareness,
+  encodeAwarenessUpdate,
+  removeAwarenessStates,
+} from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
 import type {
@@ -242,9 +247,16 @@ export function createProvider(
       state.presence.delete(clientId)
 
       // Drop awareness for the departing client and tell everyone else.
+      // `removeAwarenessStates` deletes THAT client's entry; encoding the
+      // update AFTER removal produces a `state: null` frame that peers apply
+      // as a removal. (The previous `setLocalState(null)` here was an API
+      // misuse: it removed the SERVER's own local awareness entry instead of
+      // the departing peer's, and the broadcast re-encoded the peer's
+      // still-present state — a no-op on every receiver, leaving ghost
+      // collaborators until the 30s awareness timeout.)
       const awarenessClientId = clientIdToAwarenessId(clientId)
       if (state.awareness.getStates().has(awarenessClientId)) {
-        state.awareness.setLocalState(null)
+        removeAwarenessStates(state.awareness, [awarenessClientId], clientId)
         const removalUpdate = encodeAwarenessUpdate(state.awareness, [awarenessClientId])
         broadcastExcept(roomId, clientId, YJS_AWARENESS_EVENT, removalUpdate)
       }
@@ -409,10 +421,20 @@ export function createProvider(
  * id that Yjs Awareness uses internally. Hashes the string into a 32-bit
  * unsigned integer.
  *
+ * The bond correlates awareness entries with molecule clients through this
+ * mapping — `getPresence()` merges awareness state and `leaveRoom()` removes
+ * it ONLY for awareness entries keyed by `clientIdToAwarenessId(clientId)`.
+ * Transport adapters that want those features must align ids on the client
+ * side (e.g. set the collaborating `Y.Doc`'s `clientID` to
+ * `clientIdToAwarenessId(moleculeClientId)` before creating its Awareness).
+ * Clients using their own random `doc.clientID` still converge fine; their
+ * awareness is simply uncorrelated and is cleaned up by the Yjs Awareness
+ * 30-second staleness timeout instead of instantly on leave.
+ *
  * @param clientId - The molecule client identifier.
  * @returns A 32-bit unsigned integer suitable for `Awareness`.
  */
-function clientIdToAwarenessId(clientId: string): number {
+export function clientIdToAwarenessId(clientId: string): number {
   let hash = 2166136261
   for (let i = 0; i < clientId.length; i += 1) {
     hash ^= clientId.charCodeAt(i)

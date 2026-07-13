@@ -40,6 +40,10 @@
  *   suspecting your wiring (or this library).
  * - `{ valid: false, reason: 'replay' }` means the code was ALREADY USED (single-use
  *   protection): wait for the NEXT code. This is correct behavior, not a bug.
+ * - `{ valid: false, reason: 'format' }` means the token isn't a syntactically valid code
+ *   (wrong length / non-digits). Authenticator-app grouping whitespace (`"123 456"`) is
+ *   stripped automatically before this check, so this is a real typo: prompt the user to
+ *   re-enter the code — the secret and the wiring are fine.
  * - Re-running setup regenerates the PENDING secret — codes computed from the previous
  *   QR/secret will never verify again. Do not click "set up" twice and reuse the first QR.
  * - `verify()`, `getUrls()`, and otplib v13's `generate()` are all ASYNC — always `await`.

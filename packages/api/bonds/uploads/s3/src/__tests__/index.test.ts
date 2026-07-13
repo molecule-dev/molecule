@@ -155,12 +155,35 @@ describe('S3 Provider Edge Cases', () => {
   })
 
   describe('getFile error handling', () => {
-    it('should throw when S3 returns an error', async () => {
-      mockSend.mockRejectedValue(new Error('NoSuchKey'))
+    it('should throw when S3 returns a real (non-not-found) error', async () => {
+      mockSend.mockRejectedValue(new Error('ServiceUnavailable'))
 
       const { getFile } = await import('../provider.js')
 
-      await expect(getFile('non-existent-file')).rejects.toThrow('NoSuchKey')
+      await expect(getFile('some-file')).rejects.toThrow('ServiceUnavailable')
+    })
+
+    it('should resolve null when the key does not exist (NoSuchKey)', async () => {
+      // The SDK throws a NoSuchKey-named error for a missing object; the
+      // GetFileHandler contract normalizes that to `null` so callers can 404
+      // without confusing "deleted file" with "S3 outage".
+      mockSend.mockRejectedValue(
+        Object.assign(new Error('The specified key does not exist.'), { name: 'NoSuchKey' }),
+      )
+
+      const { getFile } = await import('../provider.js')
+
+      await expect(getFile('non-existent-file')).resolves.toBeNull()
+    })
+
+    it('should still throw for NoSuchBucket (misconfiguration, not "file not found")', async () => {
+      mockSend.mockRejectedValue(
+        Object.assign(new Error('The specified bucket does not exist'), { name: 'NoSuchBucket' }),
+      )
+
+      const { getFile } = await import('../provider.js')
+
+      await expect(getFile('any-file')).rejects.toThrow('bucket')
     })
 
     it('should throw on access denied', async () => {
@@ -478,6 +501,32 @@ describe('Environment Variable Handling', () => {
     await import('../provider.js')
 
     expect(mockLogger.warn).not.toHaveBeenCalled()
+  })
+
+  it('upload without AWS_S3_BUCKET fails fast with an actionable error naming the env var', async () => {
+    vi.stubEnv('AWS_ACCESS_KEY_ID', 'test_key')
+    vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'test_secret')
+    vi.stubEnv('AWS_S3_BUCKET', '')
+
+    const { upload } = await import('../provider.js')
+    const { PassThrough } = await import('stream')
+
+    const stream = new PassThrough()
+    const onError = vi.fn()
+    const file = upload(
+      'file',
+      stream,
+      { filename: 'test.txt', encoding: '7bit', mimeType: 'text/plain' },
+      onError,
+    )
+
+    expect(file.uploaded).toBe(false)
+    expect(file.uploadPromise).toBeUndefined()
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('AWS_S3_BUCKET') }),
+    )
+    // The rejected stream must be drained so the multipart parser can finish.
+    expect(stream.readableFlowing).toBe(true)
   })
 })
 

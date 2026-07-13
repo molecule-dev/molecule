@@ -20,8 +20,11 @@
  * To intentionally let a known error through (rare — almost always a
  * smell that should be fixed in the app), use
  * `test.info().annotations.push({ type: 'allow-console-error', description: 'why' })`
- * inside the test body BEFORE the error fires. The fixture ignores
- * substring matches from those annotations.
+ * inside the test body BEFORE the error fires. The `description` is
+ * matched against the error text as a regular expression; if it is not
+ * a valid regex it is matched as a plain substring instead (so literal
+ * error text with `[`/`(` can be pasted verbatim). An annotation with
+ * no description allows every error — always provide one.
  *
  * @example
  * ```ts
@@ -70,14 +73,24 @@ export const test = base.extend<{ consoleGuard: void }>({
     async ({ page }, use, testInfo) => {
       const buffer: ConsoleErrorEntry[] = []
 
-      const allowedFromAnnotations = (): RegExp[] =>
-        testInfo.annotations
-          .filter((a) => a.type === 'allow-console-error')
-          .map((a) => new RegExp(a.description ?? '.*'))
+      // Each allow-console-error description is tried as a regex; an invalid
+      // pattern (e.g. verbatim error text containing `[` or `(`) falls back to
+      // plain substring matching instead of throwing from inside the guard.
+      const matchesAllowed = (text: string, description: string | undefined): boolean => {
+        if (description === undefined) return true // no description = allow everything
+        try {
+          return new RegExp(description).test(text)
+        } catch (_error) {
+          // Invalid regex — treat the description as a literal substring.
+          return text.includes(description)
+        }
+      }
 
       const shouldIgnore = (text: string): boolean => {
         if (ALWAYS_IGNORE.some((re) => re.test(text))) return true
-        return allowedFromAnnotations().some((re) => re.test(text))
+        return testInfo.annotations
+          .filter((a) => a.type === 'allow-console-error')
+          .some((a) => matchesAllowed(text, a.description))
       }
 
       const onPageError = (err: Error): void => {

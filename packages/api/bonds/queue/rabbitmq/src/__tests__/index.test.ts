@@ -488,7 +488,7 @@ describe('RabbitMQ Queue', () => {
       expect(mockChannel.prefetch).toHaveBeenCalledWith(5)
     })
 
-    it('should process incoming messages through handler', async () => {
+    it('should process incoming messages through handler and auto-ack on success', async () => {
       let messageHandler: ((msg: ConsumeMessage | null) => Promise<void>) | null = null
       mockChannel.consume.mockImplementation(async (_queue, handler) => {
         messageHandler = handler
@@ -517,9 +517,40 @@ describe('RabbitMQ Queue', () => {
           body: { data: 'test' },
         }),
       )
+      // Handler success acks — the core @example's handler never calls ack(),
+      // so without auto-ack every doc-following consumer stalls delivery.
+      expect(mockChannel.ack).toHaveBeenCalledWith(mockMessage)
+      expect(mockChannel.nack).not.toHaveBeenCalled()
     })
 
-    it('should nack message on handler error', async () => {
+    it('should not auto-ack when the handler already settled the message', async () => {
+      let messageHandler: ((msg: ConsumeMessage | null) => Promise<void>) | null = null
+      mockChannel.consume.mockImplementation(async (_queue, handler) => {
+        messageHandler = handler
+        return { consumerTag: 'test-consumer' }
+      })
+
+      const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+      queue.subscribe(async (message) => {
+        await message.ack()
+      })
+
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
+      const mockMessage = {
+        content: Buffer.from(JSON.stringify({ data: 'test' })),
+        properties: { messageId: 'msg-1', headers: {} },
+        fields: { deliveryTag: 1 },
+      } as unknown as ConsumeMessage
+
+      await messageHandler!(mockMessage)
+
+      // Exactly one broker acknowledgement — a second ack of the same
+      // deliveryTag would close the whole channel.
+      expect(mockChannel.ack).toHaveBeenCalledTimes(1)
+    })
+
+    it('should requeue a first-delivery failure once (redelivered=false)', async () => {
       let messageHandler: ((msg: ConsumeMessage | null) => Promise<void>) | null = null
       mockChannel.consume.mockImplementation(async (_queue, handler) => {
         messageHandler = handler
@@ -536,11 +567,40 @@ describe('RabbitMQ Queue', () => {
       const mockMessage = {
         content: Buffer.from(JSON.stringify({ data: 'test' })),
         properties: { messageId: 'msg-1', headers: {} },
-        fields: { deliveryTag: 1 },
+        fields: { deliveryTag: 1, redelivered: false },
       } as unknown as ConsumeMessage
 
       await messageHandler!(mockMessage)
 
+      // A throw = retry (core contract): first failure is requeued.
+      expect(mockChannel.nack).toHaveBeenCalledWith(mockMessage, false, true)
+      expect(mockChannel.ack).not.toHaveBeenCalled()
+    })
+
+    it('should dead-letter/drop (no requeue) when a redelivered message fails again', async () => {
+      let messageHandler: ((msg: ConsumeMessage | null) => Promise<void>) | null = null
+      mockChannel.consume.mockImplementation(async (_queue, handler) => {
+        messageHandler = handler
+        return { consumerTag: 'test-consumer' }
+      })
+
+      const queue = createQueue(mockChannel as unknown as Channel, 'test-queue')
+      const handler = vi.fn().mockRejectedValue(new Error('Handler failed'))
+
+      queue.subscribe(handler)
+
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
+      const mockMessage = {
+        content: Buffer.from(JSON.stringify({ data: 'test' })),
+        properties: { messageId: 'msg-1', headers: {} },
+        fields: { deliveryTag: 2, redelivered: true },
+      } as unknown as ConsumeMessage
+
+      await messageHandler!(mockMessage)
+
+      // Bounded retry: a redelivered failure goes to the DLX (or is dropped)
+      // instead of hot-looping forever.
       expect(mockChannel.nack).toHaveBeenCalledWith(mockMessage, false, false)
     })
 
@@ -636,7 +696,8 @@ describe('createReceivedMessage', () => {
     expect(received.receiptHandle).toBe('456')
     expect(received.attributes).toEqual({ type: 'notification' })
     expect(received.receiveCount).toBe(1)
-    expect(received.sentTimestamp).toEqual(new Date(1700000000))
+    // AMQP timestamps are POSIX seconds — 1700000000 is Nov 2023, not Jan 1970.
+    expect(received.sentTimestamp).toEqual(new Date(1700000000 * 1000))
   })
 
   it('should use deliveryTag as ID when messageId is missing', () => {
@@ -690,6 +751,22 @@ describe('createReceivedMessage', () => {
     await received.nack()
 
     expect(mockChannel.nack).toHaveBeenCalledWith(mockMsg, false, true)
+  })
+
+  it('ack/nack settle once — repeats and ack-after-nack are no-ops (double-settle closes the channel)', async () => {
+    const mockMsg: ConsumeMessage = {
+      content: Buffer.from(JSON.stringify({ data: 'test' })),
+      properties: { messageId: 'msg-123', headers: {} },
+      fields: { deliveryTag: 1 },
+    } as unknown as ConsumeMessage
+
+    const received = createReceivedMessage(mockChannel as unknown as Channel, mockMsg)
+    await received.ack()
+    await received.ack()
+    await received.nack!()
+
+    expect(mockChannel.ack).toHaveBeenCalledTimes(1)
+    expect(mockChannel.nack).not.toHaveBeenCalled()
   })
 })
 

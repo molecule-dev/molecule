@@ -23,7 +23,9 @@ declare global {
        */
       POSTHOG_API_KEY?: string
       /**
-       * PostHog host URL (defaults to PostHog Cloud).
+       * PostHog host URL. When unset, the SDK's own default applies
+       * (PostHog Cloud US, `https://us.i.posthog.com`) — EU projects must
+       * set `https://eu.i.posthog.com`.
        */
       POSTHOG_HOST?: string
     }

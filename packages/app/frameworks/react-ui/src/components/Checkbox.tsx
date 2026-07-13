@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { forwardRef, useEffect, useRef } from 'react'
+import React, { forwardRef, useCallback, useEffect, useId, useRef } from 'react'
 
 import type { CheckboxProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -31,15 +31,31 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     },
     ref,
   ) => {
-    const internalRef = useRef<HTMLInputElement>(null)
-    const checkboxRef = (ref || internalRef) as React.RefObject<HTMLInputElement>
+    // Always track the node in internalRef (for the indeterminate DOM flag)
+    // AND forward it to the caller's ref. The previous `(ref || internalRef)
+    // as RefObject` cast silently broke `indeterminate` whenever the caller
+    // passed a CALLBACK ref (functions have no `.current`).
+    const internalRef = useRef<HTMLInputElement | null>(null)
+    const setRefs = useCallback(
+      (node: HTMLInputElement | null) => {
+        internalRef.current = node
+        if (typeof ref === 'function') ref(node)
+        else if (ref) ref.current = node
+      },
+      [ref],
+    )
 
     const cm = getClassMap()
     const checkboxId = id || name
+    // The error message must be programmatically associated with the input
+    // (like Input/Textarea/Select already do) — a bare sibling <p> is never
+    // announced by screen readers, so the failure reason was invisible.
+    const generatedId = useId()
+    const errorId = `${checkboxId || generatedId}-error`
 
     useEffect(() => {
-      if (checkboxRef.current) {
-        checkboxRef.current.indeterminate = !!indeterminate
+      if (internalRef.current) {
+        internalRef.current.indeterminate = !!indeterminate
       }
     }, [indeterminate])
 
@@ -49,7 +65,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       <div className={cm.formFieldWrapper}>
         <label className={cm.controlLabel}>
           <input
-            ref={checkboxRef}
+            ref={setRefs}
             type="checkbox"
             id={checkboxId}
             name={name}
@@ -57,6 +73,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             disabled={disabled}
             data-state={checked ? 'checked' : 'unchecked'}
             aria-invalid={!!error}
+            aria-describedby={error ? errorId : undefined}
             className={checkboxClasses}
             style={style}
             data-testid={testId}
@@ -69,7 +86,11 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             </span>
           )}
         </label>
-        {error && <p className={cm.cn(cm.formError, cm.sp('mt', 1))}>{error}</p>}
+        {error && (
+          <p id={errorId} className={cm.cn(cm.formError, cm.sp('mt', 1))}>
+            {error}
+          </p>
+        )}
       </div>
     )
   },

@@ -263,6 +263,11 @@ function createSessionFixture(overrides?: Partial<SessionFixtureOverrides>): Ses
 
 Creates a spy function that records all calls with arguments and return values.
 
+The call is recorded even when the implementation throws (with `result`
+left `undefined`), so `callCount` reflects "the spy was invoked", not
+"the implementation returned" — callers can tell "called and threw"
+apart from "never called".
+
 ```typescript
 function createSpy(implementation?: T): Spy<T>
 ```
@@ -344,6 +349,10 @@ function wait(ms: number): Promise<void>
 
 Polls a condition function until it returns true, or throws after the timeout.
 
+The condition is always checked one final time after the deadline passes, so a
+condition that becomes true during the last polling interval still resolves
+instead of being falsely reported as timed out.
+
 ```typescript
 function waitFor(condition: () => boolean | Promise<boolean>, options?: WaitForOptions): Promise<void>
 ```
@@ -355,7 +364,8 @@ function waitFor(condition: () => boolean | Promise<boolean>, options?: WaitForO
 
 #### `mockCache`
 
-Pre-configured mock cache for quick setup.
+Pre-configured mock cache for quick setup. Shared module-level instance —
+call `reset()` in `beforeEach` so stored entries don't bleed between tests.
 
 ```typescript
 const mockCache: CacheProvider & { store: Map<string, { value: unknown; tags?: string[]; }>; reset: () => void; }
@@ -363,7 +373,8 @@ const mockCache: CacheProvider & { store: Map<string, { value: unknown; tags?: s
 
 #### `mockDatabase`
 
-Pre-configured mock database for quick setup.
+Pre-configured mock database for quick setup. Shared module-level instance —
+call `reset()` in `beforeEach` so recorded queries don't bleed between tests.
 
 ```typescript
 const mockDatabase: DatabasePool & { queries: Array<{ text: string; values?: unknown[]; }>; setQueryResult: <T>(result: QueryResult<T>) => void; reset: () => void; }
@@ -371,7 +382,8 @@ const mockDatabase: DatabasePool & { queries: Array<{ text: string; values?: unk
 
 #### `mockEmail`
 
-Pre-configured mock email for quick setup.
+Pre-configured mock email for quick setup. Shared module-level instance —
+call `reset()` in `beforeEach` so sent messages don't bleed between tests.
 
 ```typescript
 const mockEmail: EmailTransport & { sentMessages: EmailMessage[]; reset: () => void; failNext: (error: Error) => void; }
@@ -379,7 +391,9 @@ const mockEmail: EmailTransport & { sentMessages: EmailMessage[]; reset: () => v
 
 #### `mockLogger`
 
-Pre-configured mock logger instance for quick test setup.
+Pre-configured mock logger instance for quick test setup. Shared
+module-level instance — call `reset()` in `beforeEach` so captured log
+entries don't bleed between tests.
 
 ```typescript
 const mockLogger: Logger & { logs: LogEntry[]; reset: () => void; getLogsByLevel: (level: LogEntry["level"]) => LogEntry[]; setLevel: (level: string) => void; getLevel: () => string; }
@@ -387,7 +401,9 @@ const mockLogger: Logger & { logs: LogEntry[]; reset: () => void; getLogsByLevel
 
 #### `mockQueue`
 
-Pre-configured mock queue provider instance for quick test setup.
+Pre-configured mock queue provider instance for quick test setup. Shared
+module-level instance — call `reset()` in `beforeEach` so queued messages
+and subscribers don't bleed between tests.
 
 ```typescript
 const mockQueue: QueueProvider & { queues: Map<string, ReturnType<typeof createMockQueueInstance>>; reset: () => void; }

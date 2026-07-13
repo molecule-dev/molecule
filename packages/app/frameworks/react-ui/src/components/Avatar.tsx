@@ -10,22 +10,8 @@ import { t } from '@molecule/app-i18n'
 import type { AvatarProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+import { getInitials } from '../utilities/initials.js'
 import { renderIcon } from '../utilities/renderIcon.js'
-
-/**
- * Get initials from a name.
- * @param name - The full name to extract initials from.
- * @returns The uppercase initials string.
- */
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-}
 
 /**
  * Avatar component.

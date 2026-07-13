@@ -122,7 +122,12 @@ export interface AITool {
  * through to the API alongside custom tools.
  */
 export interface ServerTool {
-  /** Provider-specific tool type identifier (e.g. `"web_search_20250305"`). */
+  /**
+   * Provider-specific tool type identifier — a VERSIONED string the provider
+   * publishes (e.g. Anthropic's `"web_search_20260209"` on current models;
+   * older models use earlier variants like `"web_search_20250305"`). Copy the
+   * exact value from the provider's docs for the model in use.
+   */
   type: string
   /** Tool name. */
   name: string

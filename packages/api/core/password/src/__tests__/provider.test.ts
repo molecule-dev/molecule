@@ -147,6 +147,35 @@ describe('password provider', () => {
       expect(provider.hash).toHaveBeenCalledWith('pw', 12)
     })
 
+    it('clamps an absurdly high SALT_ROUNDS to 16 (exponential cost — 32 would hang for hours)', async () => {
+      process.env.SALT_ROUNDS = '32'
+      const provider = createMockProvider()
+      setProvider(provider)
+
+      await hash('pw')
+
+      expect(provider.hash).toHaveBeenCalledWith('pw', 16)
+    })
+
+    it('clamps a weak SALT_ROUNDS up to 10 (no silently weak hashes from a typo)', async () => {
+      process.env.SALT_ROUNDS = '4'
+      const provider = createMockProvider()
+      setProvider(provider)
+
+      await hash('pw')
+
+      expect(provider.hash).toHaveBeenCalledWith('pw', 10)
+    })
+
+    it('does NOT clamp an explicitly passed saltRounds argument (deliberate caller choice)', async () => {
+      const provider = createMockProvider()
+      setProvider(provider)
+
+      await hash('pw', 4)
+
+      expect(provider.hash).toHaveBeenCalledWith('pw', 4)
+    })
+
     it('passes provider rejection through unchanged', async () => {
       const provider = createMockProvider({
         hash: vi.fn().mockRejectedValue(new Error('bcrypt failed')),

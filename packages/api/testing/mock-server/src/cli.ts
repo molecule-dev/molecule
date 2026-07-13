@@ -50,22 +50,45 @@ function parseArgs(argv: string[]): CliArgs {
         i++
         break
       case '--port':
-      case '-p':
-        args.port = Number(next) || 4000
+      case '-p': {
+        // Number(next) || 4000 would coerce a valid `--port 0` (ephemeral
+        // port) to 4000 — only fall back when the value isn't a port at all.
+        const port = Number(next)
+        if (Number.isInteger(port) && port >= 0 && port <= 65535) {
+          args.port = port
+        } else {
+          // Same disambiguation as --state: a silent fallback reads as
+          // "the flag was applied" while the server listens elsewhere.
+          console.warn(`Warning: invalid --port "${next ?? ''}" (expected 0-65535) — using 4000.`)
+        }
         i++
         break
+      }
       case '--state':
       case '-s':
         if (next && ['success', 'empty', 'error', 'unauthorized'].includes(next)) {
           args.state = next as CliArgs['state']
+        } else {
+          // A typo'd state silently serving 'success' is a debugging trap.
+          console.warn(
+            `Warning: invalid --state "${next ?? ''}" (expected success|empty|error|unauthorized) — using "success".`,
+          )
         }
         i++
         break
       case '--delay':
-      case '-d':
-        args.delay = Number(next) || 0
+      case '-d': {
+        const delay = Number(next)
+        if (Number.isFinite(delay) && delay >= 0) {
+          args.delay = delay
+        } else {
+          console.warn(
+            `Warning: invalid --delay "${next ?? ''}" (expected milliseconds >= 0) — using 0.`,
+          )
+        }
         i++
         break
+      }
       case '--handlers-path':
         args.handlersPath = next
         i++

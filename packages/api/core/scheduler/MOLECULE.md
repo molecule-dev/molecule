@@ -8,7 +8,7 @@ background task execution.
 ## Quick Start
 
 ```typescript
-import { setProvider, schedule } from '@molecule/api-scheduler'
+import { schedule, setProvider, start } from '@molecule/api-scheduler'
 import { provider } from '@molecule/api-scheduler-default'
 
 setProvider(provider)
@@ -20,6 +20,10 @@ schedule({
     await cleanupExpiredRecords()
   },
 })
+
+// REQUIRED: tasks do not execute until the scheduler is started.
+// (Tasks scheduled after start() begin automatically.)
+start()
 ```
 
 ## Type
@@ -58,8 +62,11 @@ Scheduler provider interface. All scheduler providers must implement this.
 ```typescript
 interface SchedulerProvider {
   /**
-   * Registers and starts a scheduled task.
+   * Registers a scheduled task.
    * If a task with the same name already exists, it is replaced.
+   *
+   * The task does NOT execute until `start()` has been called; a task
+   * scheduled while the scheduler is already running begins automatically.
    *
    * @param task - The task to schedule.
    */
@@ -159,6 +166,18 @@ function getProvider(): SchedulerProvider
 
 **Returns:** The bonded scheduler provider.
 
+#### `getStatus(name)`
+
+Returns the runtime status of a specific task through the bonded provider.
+
+```typescript
+function getStatus(name: string): TaskStatus | null
+```
+
+- `name` — The task name.
+
+**Returns:** The task status, or null if no task with that name is registered.
+
 #### `hasProvider()`
 
 Checks whether a scheduler provider is currently bonded.
@@ -188,6 +207,23 @@ function setProvider(provider: SchedulerProvider): void
 ```
 
 - `provider` — The scheduler provider implementation to bond.
+
+#### `start()`
+
+Starts the bonded scheduler. Registered tasks do not execute until this is
+called; tasks scheduled while the scheduler is running begin automatically.
+
+```typescript
+function start(): void
+```
+
+#### `stop()`
+
+Stops the bonded scheduler. All tasks stop executing; call `start()` to resume.
+
+```typescript
+function stop(): void
+```
 
 #### `unschedule(name)`
 

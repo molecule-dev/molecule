@@ -64,5 +64,9 @@ export const createMockLogger = (): Logger & {
   }
 }
 
-/** Pre-configured mock logger instance for quick test setup. */
+/**
+ * Pre-configured mock logger instance for quick test setup. Shared
+ * module-level instance — call `reset()` in `beforeEach` so captured log
+ * entries don't bleed between tests.
+ */
 export const mockLogger = createMockLogger()

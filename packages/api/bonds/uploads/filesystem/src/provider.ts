@@ -28,9 +28,20 @@ if (!process.env.FILE_UPLOAD_PATH) {
 /** The absolute path where uploaded files are stored. Reads from `FILE_UPLOAD_PATH` env var, defaults to `'uploads'` in the CWD. */
 export const uploadPath = path.join(process.cwd(), process.env.FILE_UPLOAD_PATH || `uploads`)
 
-// Ensure upload directory exists
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true })
+// Ensure upload directory exists — fail fast with an actionable message if it
+// cannot be created (read-only filesystem, bad FILE_UPLOAD_PATH) instead of a
+// bare ENOENT/EROFS that never names the env var controlling the location.
+try {
+  if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true })
+  }
+} catch (error) {
+  throw new Error(
+    `@molecule/api-uploads-filesystem: could not create upload directory "${uploadPath}". ` +
+      `Set FILE_UPLOAD_PATH to a writable path (currently ` +
+      `${process.env.FILE_UPLOAD_PATH ? `"${process.env.FILE_UPLOAD_PATH}"` : `unset, defaulting to "uploads"`}).`,
+    { cause: error },
+  )
 }
 
 /**
@@ -71,6 +82,10 @@ export const upload = (
     'application/xml',
   ])
   if (BLOCKED_MIME_TYPES.has(mimetype.toLowerCase())) {
+    // Drain the rejected stream: an unconsumed file stream stalls the multipart
+    // parser (busboy pauses on backpressure), which hangs the whole request even
+    // after the handler has responded with the 4xx.
+    stream.resume()
     onError(new Error(`File type ${mimetype} is not allowed for upload`))
     return { id, fieldname, filename, encoding, mimetype, size: 0, uploaded: false } as File
   }
@@ -88,6 +103,14 @@ export const upload = (
     uploadStream.on(`error`, (error) => {
       delete file.upload
       delete file.uploadPromise
+      // Best-effort cleanup of the partially written file: abortUpload() early-returns
+      // once `file.upload` is gone (deleted just above), so without this unlink a
+      // failed write would orphan the partial file on disk forever.
+      fs.unlink(path.join(uploadPath, id), (unlinkError) => {
+        if (unlinkError && unlinkError.code !== 'ENOENT') {
+          logger.warn(`Could not remove partial upload after write error (id: ${id})`, unlinkError)
+        }
+      })
       onError(error)
       reject(error)
     })
@@ -203,5 +226,24 @@ export const provider: UploadProvider = {
   upload,
   abortUpload,
   deleteFile,
-  getFile: async (id: string) => getFileStream(id),
+  // Conform to the GetFileHandler contract: resolve `null` when the file does not
+  // exist. `fs.createReadStream` on a missing path returns a stream that emits
+  // ENOENT *asynchronously* — and `pipe()` does NOT forward 'error' events, so a
+  // consumer following the core docs (`if (!stream) return 404; stream.pipe(res)`)
+  // would crash the process on an unhandled 'error' instead of serving a 404.
+  getFile: async (id: string) => {
+    const resolved = path.resolve(uploadPath, id)
+    if (!resolved.startsWith(uploadPath + path.sep) && resolved !== uploadPath) {
+      throw new Error('Invalid file ID')
+    }
+    try {
+      const stats = await fs.promises.stat(resolved)
+      // A directory (e.g. id '' resolving to uploadPath itself) is "no such file".
+      if (!stats.isFile()) return null
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
+      throw error
+    }
+    return fs.createReadStream(resolved)
+  },
 }

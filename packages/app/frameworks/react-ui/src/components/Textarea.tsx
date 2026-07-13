@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { forwardRef, useEffect, useRef } from 'react'
+import React, { forwardRef, useCallback, useEffect, useId, useRef } from 'react'
 
 import type { TextareaProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -39,15 +39,30 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     },
     ref,
   ) => {
-    const internalRef = useRef<HTMLTextAreaElement>(null)
-    const textareaRef = (ref || internalRef) as React.RefObject<HTMLTextAreaElement>
+    // Always track the node in internalRef (for autoResize) AND forward it to
+    // the caller's ref. The previous `(ref || internalRef) as RefObject` cast
+    // silently broke autoResize whenever the caller passed a CALLBACK ref
+    // (functions have no `.current`).
+    const internalRef = useRef<HTMLTextAreaElement | null>(null)
+    const setRefs = useCallback(
+      (node: HTMLTextAreaElement | null) => {
+        internalRef.current = node
+        if (typeof ref === 'function') ref(node)
+        else if (ref) ref.current = node
+      },
+      [ref],
+    )
 
     const cm = getClassMap()
-    const textareaId = id || name
+    // Fall back to a generated id so label htmlFor / aria-describedby never
+    // point at `undefined-error` (which also collides across multiple
+    // id-less textareas on the same page).
+    const generatedId = useId()
+    const textareaId = id || name || generatedId
 
     useEffect(() => {
-      if (autoResize && textareaRef.current) {
-        const element = textareaRef.current
+      if (autoResize && internalRef.current) {
+        const element = internalRef.current
         element.style.height = 'auto'
         const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20
         const minHeight = minRows * lineHeight
@@ -70,7 +85,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           </label>
         )}
         <textarea
-          ref={textareaRef}
+          ref={setRefs}
           id={textareaId}
           name={name}
           value={value}

@@ -195,7 +195,10 @@ describe('@molecule/api-database-postgresql/setup', () => {
         user: 'superuser',
         password: 'superpass',
         host: 'superhost',
-        database: 'superhost',
+        // Maintenance DB falls back to the superuser's own name (Postgres
+        // convention) when SUPERPGDATABASE is unset. This previously asserted
+        // the bug: the HOSTNAME ('superhost') used as the database name.
+        database: 'superuser',
         port: 5433,
       })
 

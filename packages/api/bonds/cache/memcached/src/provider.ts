@@ -19,6 +19,25 @@ import type { MemcachedOptions } from './types.js'
 import { promisify } from './utilities.js'
 
 /**
+ * Memcached's protocol treats an expiration greater than 30 days (2592000 seconds)
+ * as an ABSOLUTE unix timestamp, not a relative TTL. The `memcached` client passes
+ * the lifetime through raw, so e.g. `ttl: 31536000` (1 year) would be read by the
+ * server as February 1971 and the entry would expire IMMEDIATELY.
+ */
+const MEMCACHED_MAX_RELATIVE_TTL = 2592000
+
+/**
+ * Converts a relative TTL in seconds to the lifetime value memcached expects,
+ * so `ttl` always means "seconds from now" regardless of magnitude.
+ *
+ * @param ttl - Relative TTL in seconds (`0` = no expiration, passed through).
+ * @returns The lifetime to send: the TTL itself, or an absolute unix timestamp
+ * when the TTL exceeds memcached's 30-day relative limit.
+ */
+const toMemcachedLifetime = (ttl: number): number =>
+  ttl > MEMCACHED_MAX_RELATIVE_TTL ? Math.floor(Date.now() / 1000) + ttl : ttl
+
+/**
  * Creates a Memcached-backed cache provider that implements the `CacheProvider`
  * interface. Supports tag-based invalidation by storing tag-to-key mappings
  * alongside cached values.
@@ -71,7 +90,7 @@ export const createProvider = (options?: MemcachedOptions): CacheProvider => {
       const ttl = cacheOptions?.ttl ?? 0 // 0 = no expiration
 
       try {
-        await ops.set(fullKey, serialized, ttl)
+        await ops.set(fullKey, serialized, toMemcachedLifetime(ttl))
 
         // Track tags
         if (cacheOptions?.tags) {

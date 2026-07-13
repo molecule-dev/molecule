@@ -4,6 +4,8 @@
  * @module
  */
 
+import { format } from 'node:util'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock pino before importing the module
@@ -236,14 +238,26 @@ describe('@molecule/api-logger-pino', () => {
       expect(provider.error).toBeDefined()
     })
 
-    it('should use pretty in non-production environment', async () => {
-      process.env.NODE_ENV = 'development'
+    it('should not create the pino instance at import time (lazy default)', async () => {
       vi.resetModules()
 
       await import('../provider.js')
 
+      // Merely importing the package must not spawn the pino-pretty worker.
+      expect(mockPino).not.toHaveBeenCalled()
+    })
+
+    it('should use pretty (and pass-through level) in non-production on first use', async () => {
+      process.env.NODE_ENV = 'development'
+      vi.resetModules()
+
+      const { provider } = await import('../provider.js')
+      provider.info('first call initializes')
+
       expect(mockPino).toHaveBeenCalledWith(
         expect.objectContaining({
+          // Level filtering is the core's job — the default instance emits everything.
+          level: 'trace',
           transport: expect.objectContaining({
             target: 'pino-pretty',
           }),
@@ -255,7 +269,8 @@ describe('@molecule/api-logger-pino', () => {
       process.env.NODE_ENV = 'production'
       vi.resetModules()
 
-      await import('../provider.js')
+      const { provider } = await import('../provider.js')
+      provider.info('first call initializes')
 
       const callArgs = mockPino.mock.calls[0][0]
       expect(callArgs.transport).toBeUndefined()
@@ -308,13 +323,15 @@ describe('@molecule/api-logger-pino', () => {
       expect(mockError).toHaveBeenCalledWith('error message')
     })
 
-    it('should pass multiple arguments as array', async () => {
+    it('should format multiple primitive arguments into the message (console semantics)', async () => {
       const { createLogger } = await import('../provider.js')
 
       const logger = createLogger()
       logger.info('message', 123, true)
 
-      expect(mockInfo).toHaveBeenCalledWith(['message', 123, true])
+      // Pino drops placeholder-less extra args and treats arrays as merging
+      // objects, so the bridge pre-formats primitives into one message.
+      expect(mockInfo).toHaveBeenCalledWith('message 123 true')
     })
 
     it('should handle objects', async () => {
@@ -337,14 +354,14 @@ describe('@molecule/api-logger-pino', () => {
       expect(mockError).toHaveBeenCalledWith(error)
     })
 
-    it('should handle empty arguments', async () => {
+    it('should treat a no-arg call as a no-op', async () => {
       const { createLogger } = await import('../provider.js')
 
       const logger = createLogger()
       logger.info()
 
-      // Pino calls info with no args when called with no args
-      expect(mockInfo).toHaveBeenCalled()
+      // Nothing to say = nothing logged (pino would emit a useless empty record).
+      expect(mockInfo).not.toHaveBeenCalled()
     })
   })
 
@@ -388,13 +405,13 @@ describe('@molecule/api-logger-pino', () => {
       expect(mockError).toHaveBeenCalledWith('error')
     })
 
-    it('should handle multiple arguments in child logger', async () => {
+    it('should map (message, context) onto pino-native (context, message) in child logger', async () => {
       const { createChildLogger } = await import('../provider.js')
 
       const childLogger = createChildLogger({ module: 'test' })
       childLogger.info('message', { extra: 'data' })
 
-      expect(mockInfo).toHaveBeenCalledWith(['message', { extra: 'data' }])
+      expect(mockInfo).toHaveBeenCalledWith({ extra: 'data' }, 'message')
     })
   })
 
@@ -509,13 +526,13 @@ describe('@molecule/api-logger-pino', () => {
       expect(mockInfo).toHaveBeenCalledWith('single')
     })
 
-    it('should pass multiple arguments as array', async () => {
+    it('should format multiple strings into one message', async () => {
       const { createLogger } = await import('../provider.js')
 
       const logger = createLogger()
       logger.info('first', 'second')
 
-      expect(mockInfo).toHaveBeenCalledWith(['first', 'second'])
+      expect(mockInfo).toHaveBeenCalledWith('first second')
     })
 
     it('should handle three or more arguments', async () => {
@@ -524,16 +541,35 @@ describe('@molecule/api-logger-pino', () => {
       const logger = createLogger()
       logger.info('a', 'b', 'c', 'd')
 
-      expect(mockInfo).toHaveBeenCalledWith(['a', 'b', 'c', 'd'])
+      expect(mockInfo).toHaveBeenCalledWith('a b c d')
     })
 
-    it('should handle mixed argument types', async () => {
+    it('should format mixed trailing argument types into the message', async () => {
       const { createLogger } = await import('../provider.js')
 
       const logger = createLogger()
       logger.info('message', 42, { data: true }, ['array'])
 
-      expect(mockInfo).toHaveBeenCalledWith(['message', 42, { data: true }, ['array']])
+      expect(mockInfo).toHaveBeenCalledWith(format('message', 42, { data: true }, ['array']))
+    })
+
+    it('should map (message, context object) onto pino-native (context, message)', async () => {
+      const { createLogger } = await import('../provider.js')
+
+      const logger = createLogger()
+      logger.info('Request received', { method: 'GET', path: '/api' })
+
+      expect(mockInfo).toHaveBeenCalledWith({ method: 'GET', path: '/api' }, 'Request received')
+    })
+
+    it('should keep an (object, ...message parts) call pino-native', async () => {
+      const { createLogger } = await import('../provider.js')
+
+      const logger = createLogger()
+      const err = new Error('boom')
+      logger.error(err, 'Database connection failed')
+
+      expect(mockError).toHaveBeenCalledWith(err, 'Database connection failed')
     })
   })
 })

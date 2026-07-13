@@ -4,6 +4,16 @@ Loglevel logger provider for molecule.dev.
 
 Provides a lightweight logger implementation using loglevel.
 
+## Quick Start
+
+```typescript
+import { logger, setLogger } from '@molecule/api-logger'
+import { provider } from '@molecule/api-logger-loglevel'
+
+setLogger(provider)
+logger.info('Server started on port', 3000)
+```
+
 ## Type
 `provider`
 
@@ -46,12 +56,21 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent';
 
 Creates a named loglevel logger that implements the `Logger` interface.
 
+Without an explicit `level`, the instance is set to pass everything through
+(TRACE) — loglevel's own out-of-the-box default is WARN, which silently
+swallows info/debug and makes the logger look broken. Level filtering
+belongs to `@molecule/api-logger`'s single gate (`LOG_LEVEL` / `setLevel()`,
+default `'info'`); pass `level` here only to add a bond-side gate on top.
+
+Note: loglevel caches instances by name, so `createLogger({ name })` with an
+already-used name returns (and re-levels) that same shared instance.
+
 ```typescript
 function createLogger(options?: { level?: LogLevel; name?: string; }): Logger
 ```
 
 - `options` — Logger configuration.
-- `options` — .level - The minimum log level.
+- `options` — .level - The minimum log level. Defaults to pass-through (`'trace'`).
 - `options` — .name - The logger name (used to create a named loglevel instance).
 
 **Returns:** A `Logger` backed by loglevel.
@@ -132,3 +151,13 @@ export function setupLoggerLoglevel(): void {
 
 Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
+
+- The provider passes every level through to loglevel — minimum-level
+  filtering happens once, in `@molecule/api-logger` (`LOG_LEVEL` env var /
+  `setLevel()`, default `'info'`). Raw loglevel's own default level is WARN,
+  which would otherwise silently swallow `logger.info(...)` out of the box.
+- Use this package's `setLevel()`/`createLogger({ level })` only when you
+  want an ADDITIONAL bond-side gate below the core's — a stricter level here
+  makes the core's `setLevel('debug')` appear to do nothing.
+- `trace` delegates to `console.trace`, which prints a stack trace with
+  every call (loglevel behavior, not a bug).

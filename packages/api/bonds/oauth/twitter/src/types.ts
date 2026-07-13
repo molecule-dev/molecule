@@ -43,6 +43,23 @@ declare global {
       OAUTH_TWITTER_AUTHORIZE_URL?: string
 
       /**
+       * Override for the X (Twitter) access-token endpoint. Defaults to
+       * `https://api.twitter.com/2/oauth2/token`.
+       *
+       * Pairs with `OAUTH_TWITTER_AUTHORIZE_URL` / `OAUTH_TWITTER_USER_URL`
+       * for E2E mock OAuth servers.
+       */
+      OAUTH_TWITTER_TOKEN_URL?: string
+
+      /**
+       * Override for the X (Twitter) user-info endpoint. Defaults to
+       * `https://api.twitter.com/2/users/me`.
+       *
+       * Pairs with `OAUTH_TWITTER_TOKEN_URL` for E2E mock setups.
+       */
+      OAUTH_TWITTER_USER_URL?: string
+
+      /**
        * The app origin for OAuth redirect.
        */
       APP_ORIGIN?: string

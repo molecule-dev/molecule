@@ -1,7 +1,9 @@
 /**
  * Anthropic Claude implementation of AIProvider.
  *
- * Uses the Anthropic SDK for streaming chat completions with tool use.
+ * Talks to the Anthropic Messages API (`POST {baseUrl}/v1/messages`) directly
+ * over `fetch` — no `@anthropic-ai/sdk` dependency — parsing the SSE stream
+ * into `ChatEvent`s (text, thinking, tool use, usage snapshots, done).
  *
  * @module
  */

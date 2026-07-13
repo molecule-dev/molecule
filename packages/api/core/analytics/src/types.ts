@@ -64,6 +64,18 @@ export interface AnalyticsEvent {
  */
 export interface AnalyticsPageView {
   /**
+   * User ID the page view belongs to. Server-side providers have no ambient
+   * session — without this (or `anonymousId`) every page view from every user
+   * is attributed to a single shared "anonymous" identity.
+   */
+  userId?: string
+
+  /**
+   * Anonymous ID for non-authenticated users.
+   */
+  anonymousId?: string
+
+  /**
    * Page name or title.
    */
   name?: string

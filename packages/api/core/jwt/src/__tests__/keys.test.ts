@@ -75,3 +75,65 @@ describe('writeKeys', () => {
     expect(first).not.toBe(second)
   })
 })
+
+describe('env key resolution (half-configured env must never produce a MISMATCHED pair)', () => {
+  const originalPrivate = process.env.JWT_PRIVATE_KEY
+  const originalPublic = process.env.JWT_PUBLIC_KEY
+
+  /** Re-import keys.js fresh so its module-load resolution sees the current env. */
+  const importKeys = async (): Promise<typeof import('../keys.js')> => {
+    vi.resetModules()
+    return import('../keys.js')
+  }
+
+  const restore = (name: string, value: string | undefined): void => {
+    if (value === undefined) {
+      delete process.env[name]
+    } else {
+      process.env[name] = value
+    }
+  }
+
+  afterEach(() => {
+    restore('JWT_PRIVATE_KEY', originalPrivate)
+    restore('JWT_PUBLIC_KEY', originalPublic)
+  })
+
+  it('JWT_PRIVATE_KEY set + JWT_PUBLIC_KEY unset → the public key is DERIVED from the private key', async () => {
+    // The regression this pins: previously a half-configured env generated/loaded a
+    // fresh UNRELATED key pair on disk and used ITS public key — so every token this
+    // process signed failed verification with an unexplained "invalid signature".
+    const { privateKey, publicKey } = generateKeyPairSync()
+    process.env.JWT_PRIVATE_KEY = privateKey
+    delete process.env.JWT_PUBLIC_KEY
+
+    const keys = await importKeys()
+
+    expect(keys.JWT_PRIVATE_KEY.toString()).toBe(privateKey)
+    // The derived public key is EXACTLY the pair's public half — a matching pair by
+    // construction, provable without any crypto roundtrip.
+    expect(keys.JWT_PUBLIC_KEY.toString().replace(/\s+/g, '')).toBe(publicKey.replace(/\s+/g, ''))
+  })
+
+  it('derives correctly from a single-line env value with literal \\n escapes (dotenv-style)', async () => {
+    const { privateKey, publicKey } = generateKeyPairSync()
+    process.env.JWT_PRIVATE_KEY = privateKey.replace(/\n/g, '\\n')
+    delete process.env.JWT_PUBLIC_KEY
+
+    const keys = await importKeys()
+
+    expect(keys.JWT_PRIVATE_KEY.toString()).toBe(privateKey)
+    expect(keys.JWT_PUBLIC_KEY.toString().replace(/\s+/g, '')).toBe(publicKey.replace(/\s+/g, ''))
+  })
+
+  it('both env vars set → both are used verbatim (no derivation, no disk)', async () => {
+    const pair = generateKeyPairSync()
+    process.env.JWT_PRIVATE_KEY = pair.privateKey
+    process.env.JWT_PUBLIC_KEY = pair.publicKey
+
+    const keys = await importKeys()
+
+    expect(keys.JWT_PRIVATE_KEY.toString()).toBe(pair.privateKey)
+    expect(keys.JWT_PUBLIC_KEY.toString()).toBe(pair.publicKey)
+  })
+})

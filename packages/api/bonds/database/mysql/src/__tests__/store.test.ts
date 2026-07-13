@@ -69,7 +69,7 @@ describe('createStore (mysql)', () => {
         where: [
           { field: 'role', operator: 'in', value: ['admin', 'editor'] },
           { field: 'name', operator: 'like', value: 'A%' },
-          { field: 'email', operator: 'ilike', value: '%@EXAMPLE.com' },
+          { field: 'email', operator: 'ilike', value: '@EXAMPLE.com' },
           { field: 'deletedAt', operator: 'is_null' },
         ],
       })
@@ -79,7 +79,50 @@ describe('createStore (mysql)', () => {
       expect(sql).toContain('`name` LIKE ?')
       expect(sql).toContain('LOWER(`email`) LIKE LOWER(?)')
       expect(sql).toContain('`deletedAt` IS NULL')
-      expect(values).toEqual(['admin', 'editor', 'A%', '%@EXAMPLE.com'])
+      // ilike is the documented literal-substring contains match: the value's LIKE
+      // metacharacters are escaped and the bond wraps it with %…% (postgres parity).
+      expect(values).toEqual(['admin', 'editor', 'A%', '%@EXAMPLE.com%'])
+    })
+
+    it('treats LIKE wildcards typed into an ilike value as literals (postgres parity)', async () => {
+      mockPool.query.mockResolvedValue({ rows: [], rowCount: 0 })
+      await store.findMany('users', {
+        where: [{ field: 'email', operator: 'ilike', value: '100%_done' }],
+      })
+      const [, values] = mockPool.query.mock.calls[0] as [string, unknown[]]
+      expect(values).toEqual(['%100\\%\\_done%'])
+    })
+
+    it('compiles empty in/not_in arrays to constant predicates instead of `IN ()` syntax errors', async () => {
+      mockPool.query.mockResolvedValue({ rows: [], rowCount: 0 })
+      await store.findMany('users', {
+        where: [
+          { field: 'role', operator: 'in', value: [] },
+          { field: 'status', operator: 'not_in', value: [] },
+        ],
+      })
+      const [sql, values] = mockPool.query.mock.calls[0] as [string, unknown[]]
+      expect(sql).toContain('1 = 0') // in [] matches nothing (= ANY('{}') parity)
+      expect(sql).toContain('1 = 1') // not_in [] matches everything (!= ALL('{}') parity)
+      expect(values).toEqual([])
+    })
+
+    it('rejects a non-array value for in/not_in with an actionable message', async () => {
+      await expect(
+        store.findMany('users', {
+          where: [{ field: 'role', operator: 'in', value: 'admin' }],
+        }),
+      ).rejects.toThrow(`'in' operator requires an array value`)
+      expect(mockPool.query).not.toHaveBeenCalled()
+    })
+
+    it('rejects an unknown operator loudly instead of silently dropping the condition', async () => {
+      await expect(
+        store.findMany('users', {
+          where: [{ field: 'role', operator: 'matches' as never, value: 'x' }],
+        }),
+      ).rejects.toThrow('Invalid SQL operator: matches')
+      expect(mockPool.query).not.toHaveBeenCalled()
     })
 
     it('applies orderBy, limit, and offset safely', async () => {
@@ -167,6 +210,20 @@ describe('createStore (mysql)', () => {
         ['New', 'u1'],
       )
       expect(result).toEqual({ data: { id: 'u1', name: 'New' }, affected: 1 })
+    })
+
+    it('treats an empty update object as a no-op read instead of a SQL syntax error', async () => {
+      // Handlers that strip every input field (Zod .partial().pick) pass {} here;
+      // an empty SET clause would be a syntax error (postgres-bond parity).
+      mockPool.query.mockResolvedValueOnce({ rows: [{ id: 'u1', name: 'Same' }], rowCount: 1 })
+
+      const result = await store.updateById('users', 'u1', {})
+
+      expect(mockPool.query).toHaveBeenCalledTimes(1)
+      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM `users` WHERE `id` = ? LIMIT 1', [
+        'u1',
+      ])
+      expect(result).toEqual({ data: { id: 'u1', name: 'Same' }, affected: 1 })
     })
 
     it('deletes by id', async () => {

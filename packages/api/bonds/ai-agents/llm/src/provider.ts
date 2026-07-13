@@ -31,6 +31,14 @@ interface DrainedStream {
   text: string
   toolUses: Array<{ id: string; name: string; input: unknown }>
   usage: TokenUsage
+  /**
+   * The message of the FIRST `error` ChatEvent, if the provider emitted one.
+   * Provider bonds surface API failures (401/429/529, network errors) as an
+   * in-band `error` event followed by a graceful return — NOT a throw — so a
+   * drain that ignored them turned "the API errored" into a successful-looking
+   * empty turn. The caller uses this to reject the run instead.
+   */
+  errorMessage?: string
 }
 
 /**
@@ -86,6 +94,9 @@ async function drainStream(
   let text = ''
   const toolUses: Array<{ id: string; name: string; input: unknown }> = []
   const usage: TokenUsage = { inputTokens: 0, outputTokens: 0 }
+  let errorMessage: string | undefined
+  let sawDone = false
+  let lastSnapshot: TokenUsage | undefined
 
   for await (const event of stream) {
     onEvent?.(event)
@@ -96,7 +107,17 @@ async function drainStream(
       case 'tool_use':
         toolUses.push({ id: event.id, name: event.name, input: event.input })
         break
+      case 'usage':
+        // Incremental snapshot (latest wins) — booked below if the stream ends
+        // without a `done` (metering contract in @molecule/api-ai ChatEvent).
+        lastSnapshot = event.usage
+        break
+      case 'error':
+        // Keep the FIRST error; providers emit one sanitized error then return.
+        errorMessage ??= event.message
+        break
       case 'done':
+        sawDone = true
         addUsage(usage, event.usage)
         break
       default:
@@ -104,7 +125,14 @@ async function drainStream(
     }
   }
 
-  return { text, toolUses, usage }
+  // METERING CONTRACT: a stream cut without a `done` (provider error event,
+  // upstream disconnect) still billed the tokens reported so far — book the
+  // latest snapshot instead of silently dropping the turn's spend.
+  if (!sawDone && lastSnapshot) {
+    addUsage(usage, lastSnapshot)
+  }
+
+  return { text, toolUses, usage, errorMessage }
 }
 
 /**
@@ -123,6 +151,17 @@ export const provider: AIAgentsProvider = {
       throw new Error(
         t('ai-agents.error.noTaskOrMessages', undefined, {
           defaultValue: 'AgentRunInput requires a `task` string or a non-empty `messages` array.',
+        }),
+      )
+    }
+    // The contract is EXACTLY one of task/messages (see AgentRunInput). The old
+    // behavior silently discarded `task` when both were passed — an executor's
+    // task vanished with no signal. Fail loudly instead.
+    if (input.task && input.messages && input.messages.length > 0) {
+      throw new Error(
+        t('ai-agents.error.bothTaskAndMessages', undefined, {
+          defaultValue:
+            'AgentRunInput accepts either `task` or `messages`, not both. Put the task in the `messages` history (as the last user message) or drop one of the two.',
         }),
       )
     }
@@ -154,6 +193,7 @@ export const provider: AIAgentsProvider = {
           system: input.system,
           tools: input.tools,
           model: input.model,
+          maxTokens: input.maxTokens,
           temperature: input.temperature,
           stream: false,
           signal: input.signal,
@@ -161,6 +201,23 @@ export const provider: AIAgentsProvider = {
         input.onEvent,
       )
       addUsage(usage, turn.usage)
+
+      // A provider API failure (rate limit, auth, overload, network) arrives as
+      // an in-band `error` ChatEvent — the stream ends without text or tools.
+      // Rejecting here disambiguates "the AI provider failed" from "the model
+      // legitimately answered nothing": the old fall-through returned
+      // { output: '', steps, usage } as if the run succeeded, and callers
+      // debugging the empty output had no signal that the API ever errored.
+      if (turn.errorMessage !== undefined) {
+        throw new Error(
+          t(
+            'ai-agents.error.providerError',
+            { message: turn.errorMessage },
+            { defaultValue: `AI provider error during agent run: ${turn.errorMessage}` },
+          ),
+        )
+      }
+
       if (turn.text) lastText = turn.text
 
       // Append the assistant turn: a text block (if any) + one tool_use block

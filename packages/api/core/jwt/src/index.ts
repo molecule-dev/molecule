@@ -21,6 +21,14 @@
  *   and populates `res.locals.session`, so a handler calls `getUserId(res)` — do NOT call
  *   `verify()`/`sign()` by hand for the session (see the `auth` skill). Use these directly
  *   only for a CUSTOM token, e.g. a signed email/reset link.
+ * - **Re-signing decoded claims (refresh flows): strip `exp`/`iat` first.** `sign()`
+ *   always sets `expiresIn` (default {@link JWT_EXPIRES_TIME}), and the underlying library
+ *   throws (`Bad "options.expiresIn" option the payload already has an "exp" property`)
+ *   when the payload still carries the old `exp` — so `const { exp, iat, ...claims } =
+ *   verify(oldToken) as JwtPayload; sign(claims)` is the correct refresh shape.
+ * - Set `JWT_PRIVATE_KEY` and `JWT_PUBLIC_KEY` together (or neither). If only the private
+ *   key is set, the matching public key is DERIVED from it automatically; setting only the
+ *   public key is for verify-only deployments.
  *
  * @example
  * ```ts

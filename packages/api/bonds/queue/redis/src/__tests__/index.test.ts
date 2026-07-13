@@ -252,15 +252,28 @@ describe('@molecule/api-queue-redis', () => {
   })
 
   describe('provider.close', () => {
-    it('should close all connections', async () => {
+    it('should close the underlying BullMQ queues (releasing Redis connections)', async () => {
       const providerInstance = createProvider()
       providerInstance.queue('queue-1')
       providerInstance.queue('queue-2')
 
       await providerInstance.close!()
 
-      // Should not throw
-      expect(true).toBe(true)
+      // One BullQueue per created queue must actually be closed — a close()
+      // that leaks connections keeps the consumer's process alive forever.
+      const mockBullQueue = BullQueue.mock.results[0].value
+      expect(mockBullQueue.close).toHaveBeenCalledTimes(2)
+    })
+
+    it('should close workers created by subscribe()', async () => {
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('worker-close-queue')
+      queue.subscribe(vi.fn())
+
+      await providerInstance.close!()
+
+      const mockWorker = Worker.mock.results[0].value
+      expect(mockWorker.close).toHaveBeenCalled()
     })
   })
 
@@ -551,6 +564,65 @@ describe('@molecule/api-queue-redis', () => {
       expect(mockWorker.close).toHaveBeenCalled()
     })
 
+    it('ack() inside a subscriber handler is a no-op (job is locked; completion is the ack)', async () => {
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('locked-ack-queue')
+
+      queue.subscribe(async (message) => {
+        // The memory-bond docs pattern: handlers may call ack() explicitly.
+        // On a locked BullMQ job, job.remove() throws and FAILS the job —
+        // tripling the work and burning all retries. It must be a no-op.
+        await message.ack()
+      })
+
+      const mockWorker = Worker.mock.results[0].value
+      const processor = mockWorker.__processor as (job: Job) => Promise<void>
+
+      const mockRemove = vi.fn()
+      const lockedJob = {
+        id: 'locked-job',
+        data: { test: 'data' },
+        opts: {},
+        attemptsMade: 0,
+        timestamp: Date.now(),
+        token: 'worker-lock-token',
+        remove: mockRemove,
+        moveToFailed: vi.fn(),
+      } as unknown as Job
+
+      await expect(processor(lockedJob)).resolves.toBeUndefined()
+      expect(mockRemove).not.toHaveBeenCalled()
+    })
+
+    it('nack() inside a subscriber handler rejects the job so BullMQ retries it', async () => {
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('nack-subscriber-queue')
+
+      queue.subscribe(async (message) => {
+        await message.nack!()
+      })
+
+      const mockWorker = Worker.mock.results[0].value
+      const processor = mockWorker.__processor as (job: Job) => Promise<void>
+
+      const mockMoveToFailed = vi.fn()
+      const lockedJob = {
+        id: 'rejected-job',
+        data: { test: 'data' },
+        opts: {},
+        attemptsMade: 0,
+        timestamp: Date.now(),
+        token: 'worker-lock-token',
+        remove: vi.fn(),
+        moveToFailed: mockMoveToFailed,
+      } as unknown as Job
+
+      // The processor must throw (BullMQ's retry path) rather than calling
+      // moveToFailed mid-processing, which corrupts the worker's lock state.
+      await expect(processor(lockedJob)).rejects.toThrow(/rejected/i)
+      expect(mockMoveToFailed).not.toHaveBeenCalled()
+    })
+
     it('should handle multiple subscriptions', () => {
       const providerInstance = createProvider()
       const queue = providerInstance.queue('multi-sub-queue')
@@ -700,7 +772,7 @@ describe('@molecule/api-queue-redis', () => {
         expect(mockMoveToFailed).toHaveBeenCalledWith(expect.any(Error), 'nack-token')
       })
 
-      it('should use empty string as token when job token is undefined', async () => {
+      it('is a safe no-op for an unlocked job (receive() path) instead of a cryptic "Missing lock" throw', async () => {
         const mockMoveToFailed = vi.fn().mockResolvedValue(undefined)
         const mockJob = {
           id: 'no-token-job',
@@ -708,15 +780,17 @@ describe('@molecule/api-queue-redis', () => {
           opts: {},
           attemptsMade: 0,
           timestamp: Date.now(),
-          token: undefined,
+          token: undefined, // getJobs('waiting') jobs hold no lock
           remove: vi.fn(),
           moveToFailed: mockMoveToFailed,
         } as unknown as Job
 
         const receivedMessage = createReceivedMessage(mockJob)
-        await receivedMessage.nack()
+        await expect(receivedMessage.nack!()).resolves.toBeUndefined()
 
-        expect(mockMoveToFailed).toHaveBeenCalledWith(expect.any(Error), '')
+        // moveToFailed('') on an unlocked job throws "Missing lock" in BullMQ —
+        // a waiting job is already "in the queue", so nothing must be sent.
+        expect(mockMoveToFailed).not.toHaveBeenCalled()
       })
     })
   })

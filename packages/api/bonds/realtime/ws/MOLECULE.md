@@ -58,10 +58,10 @@ interface WsRealtimeConfig {
   port?: number
 
   /**
-   * The event name used by clients to send messages.
-   * Clients send JSON with `{ event, data }` structure.
-   *
-   * @defaultValue 'message'
+   * Currently UNUSED — the provider never reads this option. Clients send
+   * JSON frames shaped `{ event, data, room? }` and the frame's own `event`
+   * field (defaulting to `'message'` when absent) is what reaches `onMessage`
+   * handlers; there is no configurable envelope event name.
    */
   messageEvent?: string
 }

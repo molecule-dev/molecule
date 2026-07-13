@@ -45,7 +45,10 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
           ref={ref}
           type="button"
           role="switch"
-          aria-checked={checked}
+          // `role="switch"` REQUIRES aria-checked; coerce so an
+          // undefined/uncontrolled `checked` still announces "off" instead
+          // of omitting the attribute (invalid ARIA, state unreadable).
+          aria-checked={!!checked}
           disabled={disabled}
           data-state={state}
           onClick={handleClick}

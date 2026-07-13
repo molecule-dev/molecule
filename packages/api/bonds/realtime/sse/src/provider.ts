@@ -488,6 +488,14 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
     const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`)
 
     if (url.pathname !== path) {
+      // Attached to a shared server: another handler owns this path — do not
+      // touch the response. Standalone: nothing else will ever respond, so
+      // answer 404 instead of leaving the request hanging until the client
+      // times out.
+      if (ownServer) {
+        res.writeHead(404, { 'Access-Control-Allow-Origin': corsOrigin })
+        res.end()
+      }
       return
     }
 
@@ -649,6 +657,9 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
 
   let ownServer: HttpServer | undefined
 
+  /** Set once close() has run — makes shutdown idempotent. */
+  let closed = false
+
   if (config.httpServer) {
     config.httpServer.on('request', handleRequest)
   } else {
@@ -783,6 +794,10 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
     },
 
     async close(): Promise<void> {
+      // Idempotent: a second close() (double teardown is a normal shutdown
+      // pattern) must not reject with Node's ERR_SERVER_NOT_RUNNING.
+      if (closed) return
+      closed = true
       // Clear keep-alive timers
       for (const timer of keepAliveTimers.values()) {
         clearInterval(timer)
@@ -803,6 +818,13 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
       connectionHandlers.length = 0
       disconnectionHandlers.length = 0
       joinGuards.length = 0
+
+      // Detach from a shared server so a closed provider stops serving new
+      // SSE subscriptions on its path (previously the listener stayed
+      // attached and kept accepting clients after close()).
+      if (config.httpServer) {
+        config.httpServer.off('request', handleRequest)
+      }
 
       if (ownServer) {
         await new Promise<void>((resolve, reject) => {

@@ -21,8 +21,11 @@ four days like this before we noticed — the replay videos were
 To intentionally let a known error through (rare — almost always a
 smell that should be fixed in the app), use
 `test.info().annotations.push({ type: 'allow-console-error', description: 'why' })`
-inside the test body BEFORE the error fires. The fixture ignores
-substring matches from those annotations.
+inside the test body BEFORE the error fires. The `description` is
+matched against the error text as a regular expression; if it is not
+a valid regex it is matched as a plain substring instead (so literal
+error text with `[`/`(` can be pasted verbatim). An annotation with
+no description allows every error — always provide one.
 
 ## Quick Start
 

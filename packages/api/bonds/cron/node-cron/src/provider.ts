@@ -53,6 +53,18 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
       handler: () => Promise<void>,
       options?: CronOptions,
     ): Promise<string> {
+      // Pre-validate: node-cron 4 throws OPAQUE errors on a malformed expression
+      // (`TypeError: Cannot read properties of undefined (reading 'replace')`,
+      // `RangeError: Invalid time value`) with no mention of cron or the input —
+      // indistinguishable from a bug in this package. Fail with the job name and
+      // the offending expression so the caller fixes the expression, not the bond.
+      if (!cron.validate(cronExpression)) {
+        throw new Error(
+          `Invalid cron expression for job '${name}': "${cronExpression}". ` +
+            `Expected 5 or 6 space-separated fields (e.g. '0 3 * * *' or '*/10 * * * * *').`,
+        )
+      }
+
       const timezone = options?.timezone ?? config.timezone
 
       const record: JobRecord = {
@@ -96,14 +108,17 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
           try {
             await handler()
           } catch (error) {
-            logger.warn('Cron job handler threw — marking job as failed', {
+            // A throwing handler must NOT cancel the schedule. Real cron systems
+            // (crontab, BullMQ repeatables — including this category's BullMQ bond —
+            // k8s CronJob) keep firing on the next tick; permanently killing the job
+            // on the FIRST error turned any transient failure (a network blip in a
+            // nightly cleanup) into "my cron silently stopped running" — with only a
+            // warn-level log as the trace. Log it loudly and keep the job active.
+            logger.error('Cron job handler threw — job stays scheduled for its next tick', {
               error,
               jobId: record.id,
               name: record.name,
             })
-            record.status = 'failed'
-            task.stop()
-            return
           }
 
           if (options?.maxRuns !== undefined && record.runCount >= options.maxRuns) {

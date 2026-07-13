@@ -67,6 +67,7 @@ export const addLocale = (config: LocaleConfig): void => getProvider().addLocale
 
 /**
  * Adds translations to a locale, optionally under a namespace prefix.
+ * Auto-creates the locale if it doesn't already exist.
  *
  * @param locale - The locale code to add translations to.
  * @param translations - The translation key-value map.
@@ -146,10 +147,13 @@ export const formatDate = (value: Date | number | string, options?: DateFormatOp
  * Formats a relative time (e.g. "2 hours ago", "in 3 days").
  *
  * @param value - The date or timestamp to express relative to now.
+ * @param options - Optional settings; `unit` forces the difference to be expressed in that unit.
  * @returns The locale-formatted relative time string.
  */
-export const formatRelativeTime = (value: Date | number): string =>
-  getProvider().formatRelativeTime(value)
+export const formatRelativeTime = (
+  value: Date | number,
+  options?: { unit?: Intl.RelativeTimeFormatUnit },
+): string => getProvider().formatRelativeTime(value, options)
 
 /**
  * Subscribes to locale changes. The listener fires whenever `setLocale()` is called.

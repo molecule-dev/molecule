@@ -23,7 +23,7 @@ export interface HttpCheckOptions {
   category?: string
   /** Request timeout in milliseconds. Defaults to 5000. */
   timeoutMs?: number
-  /** Expected HTTP status code range. Defaults to 200-299. */
+  /** Exact expected HTTP status code. When omitted, any 2xx (200-299) is accepted. */
   expectedStatus?: number
   /** Latency threshold in ms above which status degrades to 'degraded'. */
   degradedThresholdMs?: number
@@ -200,6 +200,14 @@ export const createHttpCheck = (url: string, options?: HttpCheckOptions): Health
         clearTimeout(timer)
         const latencyMs = Date.now() - start
         const isAbort = error instanceof Error && error.name === 'AbortError'
+        // Node's fetch (undici) wraps EVERY network failure in a generic
+        // `TypeError: fetch failed` and hides the real reason (ECONNREFUSED,
+        // getaddrinfo ENOTFOUND, TLS errors, …) on `error.cause`. Without the
+        // cause, DNS/refused/TLS failures are indistinguishable to the caller.
+        const cause =
+          error instanceof Error && error.cause instanceof Error && error.cause.message
+            ? `: ${error.cause.message}`
+            : ''
         return {
           status: 'down',
           latencyMs,
@@ -208,7 +216,7 @@ export const createHttpCheck = (url: string, options?: HttpCheckOptions): Health
                 defaultValue: 'Request timed out.',
               })
             : error instanceof Error
-              ? error.message
+              ? `${error.message}${cause}`
               : String(error),
         }
       }

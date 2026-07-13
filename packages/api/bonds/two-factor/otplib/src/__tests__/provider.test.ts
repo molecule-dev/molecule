@@ -120,6 +120,54 @@ describe('@molecule/api-two-factor-otplib', () => {
       expect(result).toEqual({ valid: true, timeStep: 57600001 })
     })
 
+    it('REGRESSION: a NEGATIVE afterTimeStep (-1 column sentinel) must not reach otplib', async () => {
+      // otplib 13 throws AfterTimeStepNegativeError on -1; a schema defaulting
+      // last_time_step to -1 instead of NULL means "no code consumed yet" —
+      // verify without the replay guard, exactly like NULL/undefined.
+      mockVerifySync.mockReturnValue({ valid: true, timeStep: 57600002, delta: 0, epoch: 0 })
+
+      const result = await provider.verify({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        afterTimeStep: -1,
+      })
+
+      expect(mockVerifySync).toHaveBeenCalledWith({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        epochTolerance: [60, 30],
+      })
+      expect(result).toEqual({ valid: true, timeStep: 57600002 })
+    })
+
+    it('strips authenticator-app grouping whitespace ("123 456 ") before calling otplib', async () => {
+      // otplib 13 throws TokenLengthError on the raw 8-char paste — the provider
+      // normalizes so a verbatim paste from the authenticator app verifies.
+      mockVerifySync.mockReturnValue({ valid: true, timeStep: 57600003, delta: 0, epoch: 0 })
+
+      const result = await provider.verify({ secret: 'JBSWY3DPEHPK3PXP', token: '123 456 ' })
+
+      expect(mockVerifySync).toHaveBeenCalledWith({
+        secret: 'JBSWY3DPEHPK3PXP',
+        token: '123456',
+        epochTolerance: [60, 30],
+      })
+      expect(result).toEqual({ valid: true, timeStep: 57600003 })
+    })
+
+    it('answers { valid: false, reason: "format" } for a malformed token WITHOUT calling otplib', async () => {
+      // otplib 13 throws TokenLengthError/TokenFormatError on these — an unhandled
+      // user typo would 500 the route. The labeled rejection lets callers tell
+      // "re-enter the 6-digit code" apart from "wrong/expired" and "already used".
+      for (const token of ['12345', 'abcdef', '']) {
+        expect(await provider.verify({ secret: 'JBSWY3DPEHPK3PXP', token })).toEqual({
+          valid: false,
+          reason: 'format',
+        })
+      }
+      expect(mockVerifySync).not.toHaveBeenCalled()
+    })
+
     it('should return { valid: false } for invalid token', async () => {
       mockVerifySync.mockReturnValue({ valid: false })
 

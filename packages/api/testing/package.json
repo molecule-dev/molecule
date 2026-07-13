@@ -49,6 +49,9 @@
     },
     "@molecule/api-emails": {
       "optional": true
+    },
+    "@molecule/api-logger": {
+      "optional": true
     }
   },
   "devDependencies": {

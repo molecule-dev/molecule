@@ -52,8 +52,11 @@ describe('toYAML — string quoting', () => {
     expect(toYAML(cfg("can't stop"))).toContain("'can''t stop'")
   })
 
-  it('quotes strings containing newlines', () => {
-    expect(toYAML(cfg('line1\nline2'))).toContain("'line1\nline2'")
+  it('serializes strings containing newlines as literal block scalars', () => {
+    // A single-quoted scalar with raw newlines is invalid YAML in block
+    // context (and would fold lines into spaces even where legal) — the
+    // serializer must emit `|-` with indented content instead.
+    expect(toYAML(cfg('line1\nline2'))).toContain('name: |-\n  line1\n  line2')
   })
 })
 
@@ -152,24 +155,21 @@ describe('toYAML — booleans + numbers', () => {
 })
 
 describe('toYAML — empty objects', () => {
-  it('formats empty object value on its own line below the key', () => {
-    // The serializer treats any object value as a "block" (newline +
-    // recursive serialise). For an empty object, the recursive call
-    // returns the literal '{}' at indent=0, so the output is
-    //   workflow_dispatch:
-    //   {}
-    // That's a small quirk worth pinning — change it intentionally if needed.
+  it('formats empty object values inline as `key: {}`', () => {
+    // The old behavior placed `{}` on its own line at PARENT indentation
+    // (`workflow_dispatch:\n{}`), which is invalid YAML — a parser reads it
+    // as a stray implicit map key and rejects the whole document.
     const cfg: WorkflowConfig = {
       name: 'x',
       on: { workflow_dispatch: {} },
       jobs: {},
     }
-    expect(toYAML(cfg)).toContain('workflow_dispatch:\n{}')
+    expect(toYAML(cfg)).toContain('workflow_dispatch: {}')
   })
 
-  it('top-level jobs: {} also renders on the line below', () => {
+  it('top-level jobs: {} also renders inline', () => {
     const cfg: WorkflowConfig = { name: 'x', on: {}, jobs: {} }
-    expect(toYAML(cfg)).toContain('jobs:\n{}')
+    expect(toYAML(cfg)).toContain('jobs: {}')
   })
 })
 

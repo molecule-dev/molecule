@@ -97,7 +97,14 @@ export function UserMenu({
       >
         <Icon name={triggerIcon} size={triggerIconSize} />
       </Button>
-      <Modal open={open} onClose={() => setOpen(false)} className={cm.drawer}>
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        className={cm.drawer}
+        // The drawer has no `title`, so without an explicit label the
+        // dialog is announced as an unnamed "dialog" — give it a name.
+        aria-label={t('userMenu.panelLabel', {}, { defaultValue: 'Account menu' })}
+      >
         <PanelCloseProvider close={() => setOpen(false)}>{children}</PanelCloseProvider>
       </Modal>
     </>

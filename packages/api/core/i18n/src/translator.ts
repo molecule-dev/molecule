@@ -159,10 +159,13 @@ export const formatDate = (value: Date | number | string, options?: DateFormatOp
  * `Intl.RelativeTimeFormat`.
  *
  * @param value - The date or timestamp to express relative to now.
+ * @param options - Optional settings; `unit` forces the difference to be expressed in that unit.
  * @returns The locale-formatted relative time string.
  */
-export const formatRelativeTime = (value: Date | number): string =>
-  getProvider().formatRelativeTime(value)
+export const formatRelativeTime = (
+  value: Date | number,
+  options?: { unit?: Intl.RelativeTimeFormatUnit },
+): string => getProvider().formatRelativeTime(value, options)
 
 /**
  * Registers all locale exports from a locale bond module. Iterates the module's

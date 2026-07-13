@@ -49,11 +49,23 @@ function buildWhere(
         paramIdx++
         break
       case 'in':
+        if (!Array.isArray(cond.value)) {
+          // Fail with the same actionable message as the sqlite/mysql bonds instead
+          // of pg's cryptic runtime "op ANY/ALL (array) requires array" error.
+          throw new Error(
+            `'${cond.operator}' operator requires an array value (field "${cond.field}")`,
+          )
+        }
         parts.push(`"${cond.field}" = ANY($${paramIdx})`)
         values.push(cond.value)
         paramIdx++
         break
       case 'not_in':
+        if (!Array.isArray(cond.value)) {
+          throw new Error(
+            `'${cond.operator}' operator requires an array value (field "${cond.field}")`,
+          )
+        }
         parts.push(`"${cond.field}" != ALL($${paramIdx})`)
         values.push(cond.value)
         paramIdx++

@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useId } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import type { InputProps } from '@molecule/app-ui'
@@ -46,7 +46,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     ref,
   ) => {
     const cm = getClassMap()
-    const inputId = id || name
+    // Fall back to a generated id so label htmlFor / aria-describedby never
+    // point at `undefined-error` (which also collides across multiple
+    // id-less inputs on the same page).
+    const generatedId = useId()
+    const inputId = id || name || generatedId
 
     const inputClasses = cm.cn(
       cm.input({ error: !!error, size }),

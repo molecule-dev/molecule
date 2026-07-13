@@ -38,12 +38,14 @@ export const createProvider = (options?: RedisQueueOptions): QueueProvider => {
       }
 
   const queues = new Map<string, Queue>()
-  const bullQueues: BullQueue[] = []
+  // Disposers registered by each createQueue() — closing these closes the
+  // underlying BullMQ queues + workers (and their Redis connections).
+  const cleanups: Array<() => Promise<void>> = []
 
   const getQueue = (name: string): Queue => {
     let q = queues.get(name)
     if (!q) {
-      q = createQueue(connection, name, prefix)
+      q = createQueue(connection, name, prefix, (cleanup) => cleanups.push(cleanup))
       queues.set(name, q)
     }
     return q
@@ -76,9 +78,13 @@ export const createProvider = (options?: RedisQueueOptions): QueueProvider => {
     },
 
     async close(): Promise<void> {
-      for (const bullQueue of bullQueues) {
-        await bullQueue.close()
+      // Run every disposer (workers + BullMQ queues). The previous
+      // implementation iterated an always-empty array, so close() silently
+      // leaked every Redis connection and kept the process alive.
+      for (const cleanup of cleanups.splice(0)) {
+        await cleanup()
       }
+      queues.clear()
     },
   }
 

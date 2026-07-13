@@ -40,7 +40,11 @@ function wrapPool(pgPool: pg.Pool): DatabasePool {
   pgPool.on('connect', (client: pg.PoolClient) => {
     client
       .query("SET statement_timeout = '30s'; SET idle_in_transaction_session_timeout = '60s';")
-      .catch(() => {})
+      .catch((error: Error) => {
+        // Best-effort, but never silent: without these session settings the
+        // runaway-query / idle-transaction protection is quietly absent.
+        getLogger().warn('Failed to set statement timeouts on new database connection', { error })
+      })
   })
 
   // Handle errors from idle clients in the pool to prevent unhandled exceptions

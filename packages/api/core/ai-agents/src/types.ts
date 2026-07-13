@@ -31,6 +31,13 @@ export interface AgentRunInput {
   maxSteps?: number
   /** Model identifier passed through to the AI provider. */
   model?: string
+  /**
+   * Max output tokens per model turn, passed through to the AI provider.
+   * Without it the provider's default (typically 4096) applies — too small for
+   * turns whose tool input is a whole file; a truncated tool-input JSON parses
+   * as an empty `{}` input, which looks like a model bug to the caller.
+   */
+  maxTokens?: number
   /** Named AI provider to use; falls back to the singleton when omitted. */
   provider?: string
   /** Sampling temperature passed through to the AI provider. */

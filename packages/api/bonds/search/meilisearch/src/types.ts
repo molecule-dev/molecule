@@ -37,6 +37,16 @@ export interface MeilisearchOptions {
    * @default process.env.MEILISEARCH_API_KEY
    */
   apiKey?: string
+
+  /**
+   * How long (in milliseconds) to wait for a Meilisearch task (index/delete/
+   * settings write) to finish before throwing a timeout error. The meilisearch
+   * client's own default of 5000 ms routinely times out on realistic bulk
+   * indexing, so this provider defaults to 30000 ms. Set `0` to wait forever.
+   *
+   * @default 30000
+   */
+  taskTimeoutMs?: number
 }
 
 declare global {

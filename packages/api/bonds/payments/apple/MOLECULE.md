@@ -190,6 +190,25 @@ type SubscriptionStatus = 'active' | 'canceled' | 'expired' | 'past_due' | 'tria
 
 ### Functions
 
+#### `describeAppleStatus(status)`
+
+Maps Apple's documented `verifyReceipt` status codes to actionable descriptions.
+
+Apple reports failures as bare numeric statuses (e.g. `21004`), and a raw
+"status 21004" log is ambiguous between a bad receipt and a server-side
+misconfiguration — 21004 actually means the `APPLE_SHARED_SECRET` env var is
+missing or wrong, which is an operator fix, not a client bug. Surfacing the
+meaning next to the number keeps a failed verification debuggable from the log
+line alone.
+
+```typescript
+function describeAppleStatus(status: number): string
+```
+
+- `status` — The numeric `status` from Apple's verifyReceipt response.
+
+**Returns:** A human-readable explanation of the status (with the fix when it is a config issue).
+
 #### `getLatestSubscription(response)`
 
 Extracts the subscription with the latest expiration date from a receipt verification response.
@@ -293,3 +312,21 @@ Peer dependencies:
 - `APPLE_SHARED_SECRET` *(required)* — Apple app-specific shared secret
   - Setup: App Store Connect → your app → App Information → App-Specific Shared Secret (for receipt validation).
   - Get it here: [https://appstoreconnect.apple.com/](https://appstoreconnect.apple.com/)
+
+Scope limits to know BEFORE wiring this bond:
+
+- **Subscriptions only.** Verification looks for the latest entry with an
+  `expires_date_ms`, so a valid ONE-TIME (consumable/non-consumable) purchase
+  receipt verifies with Apple but yields `null` ("no subscription found") —
+  one-time IAP is not implemented.
+- **v1 server notifications only.** `parseNotification` authenticates v1
+  notifications by re-verifying the embedded receipt with Apple. v2
+  (`signedPayload` JWS) notifications are REJECTED (`null`) — App Store
+  Connect must be configured to send v1 notifications, or entitlement
+  updates will only happen on client-driven verification.
+- Verification uses Apple's legacy `verifyReceipt` endpoint with
+  `APPLE_SHARED_SECRET`. Non-zero Apple statuses are logged with their
+  meaning (see `describeAppleStatus`) — status 21004 means the shared secret
+  is missing/wrong (an env fix, not a client bug).
+- Sandbox receipts are rejected by default (fail-closed); opt in with
+  `APPLE_ALLOW_SANDBOX_RECEIPTS=true` for local/CI testing only.

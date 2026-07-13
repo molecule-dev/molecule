@@ -16,19 +16,44 @@ import type {
   AnalyticsProvider,
   AnalyticsUserProps,
 } from '@molecule/api-analytics'
+import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import type { MixpanelOptions } from './types.js'
 
 /**
  * Create a Mixpanel analytics provider. Uses the token from options or the
  * MIXPANEL_TOKEN environment variable.
- * @param options - Mixpanel configuration (token, API host, debug mode).
+ *
+ * When no token is configured, this does NOT throw (bonding at boot stays
+ * safe — the raw `Mixpanel.init('')` throws an opaque "needs a Mixpanel
+ * token" error): it logs one actionable warning naming MIXPANEL_TOKEN and
+ * returns a no-op provider. Analytics is fire-and-forget telemetry — callers
+ * (`void track(...)` sites don't catch) must never crash or see 503s because
+ * an optional analytics key is unset.
+ *
+ * @param options - Mixpanel configuration (token, debug mode, ingestion host/protocol).
  * @returns An AnalyticsProvider that tracks events via Mixpanel.
  */
 export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => {
   const token = options?.token ?? process.env.MIXPANEL_TOKEN ?? ''
+  if (!token) {
+    // Graceful degradation with a breadcrumb: the warning carries the
+    // registered secret's description + setup URL, so "events never appear in
+    // Mixpanel" is diagnosable from the boot log instead of total silence.
+    console.warn(`[analytics] ${configNotConfiguredError('MIXPANEL_TOKEN', 'analytics').message}`)
+    const noop = async (): Promise<void> => {}
+    return {
+      identify: noop,
+      track: noop,
+      page: noop,
+      group: noop,
+      flush: noop,
+    }
+  }
   const mixpanel = Mixpanel.init(token, {
     debug: options?.debug ?? false,
+    ...(options?.host ? { host: options.host } : {}),
+    ...(options?.protocol ? { protocol: options.protocol } : {}),
   })
 
   return {
@@ -71,6 +96,10 @@ export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => 
         mixpanel.track(
           'Page View',
           {
+            // Server-side has no ambient session — attribute the page view
+            // when the caller supplies an identity (undefined is dropped
+            // during serialization, preserving the previous wire format).
+            distinct_id: pageView.userId ?? pageView.anonymousId,
             page_name: pageView.name,
             page_category: pageView.category,
             page_url: pageView.url,

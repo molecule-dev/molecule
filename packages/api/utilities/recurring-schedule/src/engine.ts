@@ -111,10 +111,16 @@ export function nextOccurrence(
   const lowerBound = after === undefined ? new Date(rule.startDate) : toDate(after)
   const lowerMs = lowerBound.getTime()
 
+  // `maxOccurrences` caps occurrences *returned* (see OccurrenceOptions) — and
+  // this function returns at most one, so occurrences skipped while advancing
+  // from the seed to `after` must NOT count against it. They once did, which
+  // made any unbounded rule older than `max` occurrences (a daily habit seeded
+  // ~3 years ago, under the default of 1000) answer `null` for "what's next
+  // from today" — indistinguishable from "the rule terminated". Pathological
+  // rules are still bounded by the generator's hard iteration ceiling.
   const max = options.maxOccurrences ?? DEFAULT_MAX_OCCURRENCES
-  let i = 0
+  if (max < 1) return null
   for (const occurrence of iterateOccurrences(rule)) {
-    if (++i > max) return null
     if (occurrence.getTime() >= lowerMs) {
       return occurrence.toISOString()
     }
@@ -145,14 +151,20 @@ export function expandOccurrences(
   const endMs = Date.parse(window.end)
   if (endMs <= startMs) return []
 
+  // Count only occurrences actually returned toward `maxOccurrences`:
+  // occurrences skipped while advancing from the seed to the window must not
+  // consume the budget, or an old-but-unbounded rule (>1000 occurrences since
+  // its seed) silently expands to [] for any recent window. The generator's
+  // hard iteration ceiling still bounds pathological rules.
   const max = options.maxOccurrences ?? DEFAULT_MAX_OCCURRENCES
   const out: string[] = []
-  let i = 0
   for (const occurrence of iterateOccurrences(rule)) {
-    if (++i > max) break
     const ms = occurrence.getTime()
     if (ms >= endMs) break
-    if (ms >= startMs) out.push(occurrence.toISOString())
+    if (ms >= startMs) {
+      out.push(occurrence.toISOString())
+      if (out.length >= max) break
+    }
   }
   return out
 }

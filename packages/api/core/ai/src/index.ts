@@ -32,9 +32,11 @@
  *   messages: [{ role: 'user', content: 'Hello!' }],
  *   stream: true,
  * }
+ * let reply = ''
  * for await (const event of ai.chat(params)) {
- *   if (event.type === 'text') process.stdout.write(event.content)
+ *   if (event.type === 'text') reply += event.content // or forward the chunk to the client (SSE)
  * }
+ * console.log(reply)
  * ```
  *
  * @module

@@ -36,10 +36,17 @@ const logger = getLogger()
  */
 class WebPushProvider implements PushNotificationProvider {
   private configured = false
+  private publicKey: string | undefined
 
   /**
    * Configures VAPID credentials for Web Push. Falls back to `VAPID_EMAIL`, `VAPID_PUBLIC_KEY`,
    * and `VAPID_PRIVATE_KEY` environment variables if no config is provided.
+   *
+   * Accepts the contact address with or without a `mailto:` prefix — the secrets
+   * registry teaches the `mailto:you@example.com` form, so blindly prepending
+   * would silently ship a malformed `mailto:mailto:…` VAPID subject that some
+   * push services reject.
+   *
    * @param config - Optional VAPID configuration with email, public key, and private key.
    */
   configure(config?: VapidConfig): void {
@@ -48,8 +55,11 @@ class WebPushProvider implements PushNotificationProvider {
     const privateKey = config?.privateKey ?? process.env.VAPID_PRIVATE_KEY
 
     if (email && publicKey && privateKey) {
-      webPush.setVapidDetails(`mailto:${email}`, publicKey, privateKey)
+      const subject =
+        email.startsWith('mailto:') || email.startsWith('https:') ? email : `mailto:${email}`
+      webPush.setVapidDetails(subject, publicKey, privateKey)
       this.configured = true
+      this.publicKey = publicKey
     } else {
       const missing = [
         !email && 'VAPID_EMAIL',
@@ -117,12 +127,15 @@ class WebPushProvider implements PushNotificationProvider {
   }
 
   /**
-   * Returns the VAPID public key from the `VAPID_PUBLIC_KEY` environment variable.
-   * Clients need this key to create push subscriptions.
-   * @returns The VAPID public key string, or `undefined` if not set.
+   * Returns the VAPID public key clients need to create push subscriptions.
+   * Prefers the key passed to `configure()` (env-only lookup here broke every
+   * app that configured with an explicit `VapidConfig` — the subscribe route
+   * served `undefined` while sends worked), falling back to the
+   * `VAPID_PUBLIC_KEY` environment variable.
+   * @returns The VAPID public key string, or `undefined` if not configured.
    */
   getPublicKey(): string | undefined {
-    return process.env.VAPID_PUBLIC_KEY
+    return this.publicKey ?? process.env.VAPID_PUBLIC_KEY
   }
 }
 

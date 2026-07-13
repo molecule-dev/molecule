@@ -11,6 +11,7 @@ import type {
   EmailMessage,
   EmailSendResult,
 } from '@molecule/api-emails'
+import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import { sgClient } from './transport.js'
 
@@ -99,6 +100,15 @@ const isTestMode = (): boolean => process.env.SENDGRID_TEST_MODE === 'true'
  * @returns Send result with accepted addresses, message ID, and status code.
  */
 export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> => {
+  if (!process.env.SENDGRID_API_KEY) {
+    // Tagged config-missing error → the API middleware returns a clean 503 +
+    // 'config.notConfigured', and the message carries the registered
+    // definition's description + setup URL. Without this guard, @sendgrid/mail
+    // sends the request with no Authorization header and the caller gets an
+    // opaque SendGrid 401 ("The provided authorization grant is invalid...")
+    // that reads like a bad key rather than a missing one.
+    throw configNotConfiguredError('SENDGRID_API_KEY', 'email sending')
+  }
   try {
     const msg: Record<string, unknown> = {
       to: toSgRecipients(message.to),

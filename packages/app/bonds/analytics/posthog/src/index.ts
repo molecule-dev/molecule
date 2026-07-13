@@ -28,6 +28,15 @@
  * project API key (`phc_...`) is a public browser-side credential, safe to
  * embed client-side.
  *
+ * Bonding without a key is failure-safe: `createProvider()` (and the lazy
+ * `provider` export, which cannot receive options) logs ONE console warning
+ * naming VITE_POSTHOG_KEY and returns a no-op provider instead of initializing
+ * the SDK with an empty key. If events never appear in PostHog, check the
+ * browser console for that warning FIRST. When no `host` is passed, the SDK's
+ * own default (PostHog Cloud US, `https://us.i.posthog.com`) applies — EU
+ * projects MUST set `VITE_POSTHOG_HOST=https://eu.i.posthog.com` or events are
+ * sent to the US region and silently never appear in the EU project.
+ *
  * @module
  */
 

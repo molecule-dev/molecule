@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useId } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import type { RadioGroupProps } from '@molecule/app-ui'
@@ -21,6 +21,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
       onChange,
       size: _size,
       label,
+      name,
       direction = 'vertical',
       error,
       className,
@@ -31,6 +32,15 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
     ref,
   ) => {
     const cm = getClassMap()
+    // Radios only form a native group (arrow-key navigation, exclusive
+    // native checked state) when they share a `name` — and that name must be
+    // UNIQUE per group. The old `label`-as-name fallback merged every group
+    // sharing a visible label (e.g. two "Size" pickers) into ONE native
+    // group: selecting in one silently deselected the other. Callers that
+    // need a specific submitted field name pass the `name` prop.
+    const generatedName = useId()
+    const groupName = name || generatedName
+    const errorId = `${groupName}-error`
 
     const handleChange = (optionValue: string): void => {
       onChange?.(optionValue)
@@ -44,6 +54,8 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
         data-testid={testId}
         role="radiogroup"
         aria-label={label ?? t('ui.radioGroup.label', undefined, { defaultValue: 'Radio group' })}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
       >
         {label && (
           <div className={cm.cn(cm.label({ required: false }), cm.sp('mb', 2))}>{label}</div>
@@ -60,7 +72,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
               >
                 <input
                   type="radio"
-                  name={label}
+                  name={groupName}
                   value={option.value}
                   checked={isChecked}
                   disabled={isDisabled}
@@ -73,7 +85,11 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps<string>>(
             )
           })}
         </div>
-        {error && <p className={cm.cn(cm.formError, cm.sp('mt', 1))}>{error}</p>}
+        {error && (
+          <p id={errorId} className={cm.cn(cm.formError, cm.sp('mt', 1))}>
+            {error}
+          </p>
+        )}
       </div>
     )
   },

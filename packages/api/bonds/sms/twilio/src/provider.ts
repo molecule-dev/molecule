@@ -36,14 +36,20 @@ function normaliseTwilioStatus(twilioStatus: string): SMSStatus['status'] {
   switch (twilioStatus) {
     case 'queued':
     case 'accepted':
+    case 'scheduled':
       return 'queued'
     case 'sending':
     case 'sent':
       return 'sent'
+    // 'read' (WhatsApp read receipt) implies delivery.
     case 'delivered':
+    case 'read':
       return 'delivered'
+    // 'canceled' is terminal — reporting it as 'queued' left status pollers
+    // waiting forever on a message that will never send.
     case 'failed':
     case 'undelivered':
+    case 'canceled':
       return 'failed'
     default:
       return 'queued'
@@ -142,7 +148,9 @@ export function createProvider(config: TwilioSMSConfig = {}): SMSProvider {
         status: normaliseTwilioStatus(message.status),
       }
 
-      if (message.dateUpdated) {
+      // dateUpdated changes on EVERY status transition — copying it
+      // unconditionally stamped a "deliveredAt" onto failed/queued messages.
+      if (status.status === 'delivered' && message.dateUpdated) {
         status.deliveredAt = message.dateUpdated
       }
 

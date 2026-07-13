@@ -52,6 +52,12 @@ export interface SendResult {
 
 /**
  * Result entry when sending to multiple subscriptions.
+ *
+ * Exactly one of `result` / `error` is set per entry. A dead subscription
+ * (HTTP 404/410 from the push service) is a FAILURE: it arrives in `error`
+ * (provider errors such as web-push's `WebPushError` carry a `statusCode`),
+ * never as a resolved `result` — prune stored subscriptions by inspecting
+ * `error`, not `result`.
  */
 export interface SendManyResult {
   subscription: PushSubscription

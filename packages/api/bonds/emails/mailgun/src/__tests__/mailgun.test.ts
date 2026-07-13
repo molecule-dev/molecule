@@ -72,12 +72,15 @@ describe('Mailgun Email Provider', () => {
       })
     })
 
-    it('should handle empty accepted and rejected arrays', async () => {
+    it('falls back to the message recipients when the transport reports no accepted list', async () => {
+      // The REAL nodemailer-mailgun-transport resolves with the raw mailgun.js
+      // response ({ id, message, status } + messageId) — no accepted/rejected.
+      // A queued message must still report its recipients as accepted.
       const mockResult = {
-        accepted: undefined,
-        rejected: undefined,
-        messageId: 'test-message-id',
-        response: '250 OK',
+        id: '<test-message-id@test.mailgun.org>',
+        message: 'Queued. Thank you.',
+        status: 200,
+        messageId: '<test-message-id@test.mailgun.org>',
       }
       mockSendMail.mockResolvedValue(mockResult)
 
@@ -86,14 +89,17 @@ describe('Mailgun Email Provider', () => {
       const message = {
         from: 'sender@example.com',
         to: 'recipient@example.com',
+        cc: { name: 'CC', address: 'cc@example.com' },
         subject: 'Test Subject',
         text: 'Test body',
       }
 
       const result = await sendMail(message)
 
-      expect(result.accepted).toEqual([])
+      expect(result.accepted).toEqual(['recipient@example.com', 'cc@example.com'])
       expect(result.rejected).toEqual([])
+      expect(result.messageId).toBe('<test-message-id@test.mailgun.org>')
+      expect(result.response).toBe('Queued. Thank you.')
     })
 
     it('should handle send failure', async () => {

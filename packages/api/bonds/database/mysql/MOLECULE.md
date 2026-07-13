@@ -322,7 +322,8 @@ const databaseMysqlSecretDefinitions: SecretDefinition[]
 
 #### `pool`
 
-The default MySQL pool instance, created with env-based configuration.
+The default MySQL pool instance, created with env-based configuration on
+first use.
 
 ```typescript
 const pool: DatabasePool

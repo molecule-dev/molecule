@@ -106,25 +106,32 @@ describe('setupI18nDefault', () => {
     })
   })
 
-  it('silently skips bond langs not in the provider (be, ha, ig, ky, yo etc.)', () => {
-    // Real bonds ship 79 lang files but LANGUAGE_DEFINITIONS only registers
-    // 74 fleet locales. Bonds shipping extras like `be` (Belarusian),
-    // `ha` (Hausa), `ig` (Igbo), `ky` (Kyrgyz), `yo` (Yoruba) must NOT
-    // throw `Locale "be" not found` at setup time. Skip them silently.
+  it('silently skips bond langs outside LANGUAGE_DEFINITIONS (no crash, no phantom picker entry)', () => {
+    // A bond may ship locales the fleet list doesn't register (e.g. `nn`
+    // Norwegian Nynorsk, `tl` Tagalog). Setup must NOT throw at registration
+    // time, and must NOT auto-create them either — an auto-created locale
+    // would appear in the language picker and never be pruned, because the
+    // supportedLocales pruning only iterates LANGUAGE_DEFINITIONS.
     const bond = {
       en: { 'feature.greet': 'Hi' },
       es: { 'feature.greet': 'Hola' },
-      be: { 'feature.greet': 'Прывітанне' }, // Belarusian — NOT in fleet
-      yo: { 'feature.greet': 'Bawo' }, // Yoruba — NOT in fleet
+      nn: { 'feature.greet': 'Hei' }, // Norwegian Nynorsk — NOT in fleet
+      tl: { 'feature.greet': 'Kumusta' }, // Tagalog — NOT in fleet (fleet uses `fil`)
     }
-    expect(() =>
-      setupI18nDefault({
+    let provider!: ReturnType<typeof setupI18nDefault>
+    expect(() => {
+      provider = setupI18nDefault({
         enUi: {},
         lazyLoadUi: () => Promise.resolve({}),
         supportedLocales: ['es'],
         packageLocales: [bond],
-      }),
-    ).not.toThrow()
+      })
+    }).not.toThrow()
+    const codes = provider.getLocales().map((l) => l.code)
+    expect(codes).not.toContain('nn')
+    expect(codes).not.toContain('tl')
+    // Fleet locales still received the bond translations.
+    expect(provider.t('feature.greet')).toBe('Hi')
   })
 
   it('per-app lazyLoadUi overrides packageLocales for the same key', async () => {
@@ -141,5 +148,52 @@ describe('setupI18nDefault', () => {
     })
     await provider.setLocale('es')
     expect(provider.t('auth.signIn')).toBe('Acceder')
+  })
+
+  it('per-app enUi overrides packageLocales for ENGLISH too (eager-register path)', () => {
+    // English is the one locale whose app translations register eagerly (at
+    // provider creation), so bonds — merged later — used to override `enUi`,
+    // silently inverting the "apps win when they explicitly translate" rule
+    // for the default locale every user sees first.
+    const authBond = {
+      en: { 'auth.signIn': 'BOND VALUE' },
+    }
+    const provider = setupI18nDefault({
+      enUi: { 'auth.signIn': 'App value' },
+      lazyLoadUi: () => Promise.resolve({}),
+      supportedLocales: [],
+      packageLocales: [authBond],
+    })
+    expect(provider.t('auth.signIn')).toBe('App value')
+  })
+
+  it('registers regional bond exports named like zhTW under the canonical zh-TW code', async () => {
+    // ES export identifiers can't contain hyphens, so every locale bond ships
+    // `export const zhTW = {...}` while the fleet registers the locale as
+    // 'zh-TW'. These used to be silently dropped (the code-shaped filter
+    // rejected `zhTW`), losing all package translations for regional locales.
+    const bond = {
+      zhTW: { 'auth.signIn': '登入' },
+    }
+    const provider = setupI18nDefault({
+      enUi: {},
+      lazyLoadUi: () => Promise.resolve({ 'app.key': 'value' }),
+      supportedLocales: ['zh-TW'],
+      packageLocales: [bond],
+    })
+    await provider.setLocale('zh-TW')
+    expect(provider.t('auth.signIn')).toBe('登入')
+  })
+
+  it('regional locales fall back to their base language for common translations (es-MX → es)', async () => {
+    // The common bond has no `esMX` export — es-MX used to silently get the
+    // ENGLISH common strings while the rest of the page rendered in Spanish.
+    const provider = setupI18nDefault({
+      enUi: {},
+      lazyLoadUi: () => Promise.resolve({ 'app.key': 'value' }),
+      supportedLocales: ['es-MX'],
+    })
+    await provider.setLocale('es-MX')
+    expect(provider.t('common.close')).toBe('Cerrar')
   })
 })

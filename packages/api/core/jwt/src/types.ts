@@ -38,6 +38,11 @@ export interface JwtSignOptions {
 
 /**
  * Options for verifying a JWT.
+ *
+ * Note: security-hardened bonds (e.g. `@molecule/api-jwt-jsonwebtoken`)
+ * REFUSE to honor `ignoreExpiration`/`ignoreNotBefore` — an expired token
+ * always fails verification regardless of these flags. To tolerate clock
+ * skew or slow flows, use `clockTolerance` (seconds) instead.
  */
 export interface JwtVerifyOptions {
   algorithms?: JwtAlgorithm[]

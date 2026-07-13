@@ -15,6 +15,10 @@ export const wait = (ms: number): Promise<void> => new Promise((resolve) => setT
 
 /**
  * Polls a condition function until it returns true, or throws after the timeout.
+ *
+ * The condition is always checked one final time after the deadline passes, so a
+ * condition that becomes true during the last polling interval still resolves
+ * instead of being falsely reported as timed out.
  * @param condition - A function that returns `true` (or a Promise resolving to `true`) when the condition is met.
  * @param options - Timeout and polling interval configuration.
  */
@@ -24,10 +28,11 @@ export const waitFor = async (
 ): Promise<void> => {
   const timeout = options?.timeout ?? 5000
   const interval = options?.interval ?? 100
-  const start = Date.now()
+  const deadline = Date.now() + timeout
 
-  while (Date.now() - start < timeout) {
+  for (;;) {
     if (await condition()) return
+    if (Date.now() >= deadline) break
     await wait(interval)
   }
 
@@ -60,11 +65,15 @@ export const expectThrows = async <T extends Error = Error>(
   fn: () => Promise<unknown> | unknown,
   errorType?: new (...args: unknown[]) => T,
 ): Promise<T> => {
+  // Identity sentinel (not message matching), so a function that legitimately
+  // throws an error whose message happens to be 'Expected function to throw'
+  // is still reported as having thrown.
+  const didNotThrow = new Error('Expected function to throw')
   try {
     await fn()
-    throw new Error('Expected function to throw')
+    throw didNotThrow
   } catch (error) {
-    if (error instanceof Error && error.message === 'Expected function to throw') {
+    if (error === didNotThrow) {
       throw error
     }
     if (errorType && !(error instanceof errorType)) {
@@ -79,6 +88,11 @@ export const expectThrows = async <T extends Error = Error>(
 
 /**
  * Creates a spy function that records all calls with arguments and return values.
+ *
+ * The call is recorded even when the implementation throws (with `result`
+ * left `undefined`), so `callCount` reflects "the spy was invoked", not
+ * "the implementation returned" — callers can tell "called and threw"
+ * apart from "never called".
  * @param implementation - Optional real implementation to delegate to.
  * @returns A spy function with `calls`, `callCount`, and `reset()` properties.
  */
@@ -88,9 +102,11 @@ export const createSpy = <T extends (...args: unknown[]) => unknown>(
   const calls: Array<{ args: Parameters<T>; result: ReturnType<T> }> = []
 
   const spy = ((...args: Parameters<T>): ReturnType<T> => {
-    const result = implementation?.(...args) as ReturnType<T>
-    calls.push({ args, result })
-    return result
+    // Record BEFORE invoking so a throwing implementation still counts the call.
+    const entry = { args, result: undefined as ReturnType<T> }
+    calls.push(entry)
+    entry.result = implementation?.(...args) as ReturnType<T>
+    return entry.result
   }) as Spy<T>
 
   Object.defineProperty(spy, 'calls', { get: () => calls })

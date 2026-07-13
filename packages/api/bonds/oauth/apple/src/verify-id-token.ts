@@ -7,7 +7,7 @@
 
 import jwt, { type JwtHeader } from 'jsonwebtoken'
 
-import { getAppleJwks, jwkToPem } from './jwks.js'
+import { getAppleJwks, jwkToPem, resetJwksCache } from './jwks.js'
 import type { AppleIdTokenClaims } from './types.js'
 
 /** The expected `iss` claim for Apple-issued ID tokens. */
@@ -53,8 +53,18 @@ export const verifyIdToken = async (idToken: string): Promise<AppleIdTokenClaims
     throw new Error(`Invalid Apple ID token: unexpected alg '${header.alg}'.`)
   }
 
-  const keys = await getAppleJwks()
-  const jwk = keys.get(header.kid)
+  let keys = await getAppleJwks()
+  let jwk = keys.get(header.kid)
+
+  if (!jwk) {
+    // Key rotation: the cached JWKS (TTL 1h) may predate the key that signed
+    // this token. Force ONE refetch before failing — otherwise every login
+    // fails with "unknown kid" until the cache expires (the microsoft bond
+    // handles rotation the same way via its refresh-on-miss).
+    resetJwksCache()
+    keys = await getAppleJwks()
+    jwk = keys.get(header.kid)
+  }
 
   if (!jwk) {
     throw new Error(`Apple JWKS does not contain a key for kid '${header.kid}'.`)

@@ -72,13 +72,19 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
     const resolvedFixturesPath = fixturesPath ?? resolveFixturesPath(appType)
     if (!resolvedFixturesPath) {
       throw new Error(
-        `No fixture data available for app type: ${appType}. Provide a fixturesPath or ensure fixtures exist at mlcl/templates/apps/${appType}/api/fixtures/`,
+        `No fixture data available for app type: ${appType}. Pass fixturesPath ` +
+          `(a directory of *.json fixture files, e.g. './api/fixtures'). ` +
+          `Resolving by appType alone looks up mlcl/templates/apps/${appType}/api/fixtures/ ` +
+          `and only works inside the molecule workspace — in a scaffolded project, fixturesPath is required.`,
       )
     }
 
     const generated = generateFixtures(resolvedFixturesPath, appType)
     if (!generated) {
-      throw new Error(`No fixture data available at path: ${resolvedFixturesPath}`)
+      throw new Error(
+        `No fixture data available at path: ${resolvedFixturesPath} — ` +
+          `the directory is missing or contains no *.json fixture files.`,
+      )
     }
     fixtures = generated
 
@@ -114,8 +120,16 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
             }
           }
         }
-      } catch (_error) {
-        // Scanner is optional; ignore failures when handlers/fixtures are absent.
+      } catch (error) {
+        // Scanner enrichment is best-effort: a scan failure must not stop the
+        // fixture-file endpoints from serving. But a SILENT failure made an
+        // explicitly passed handlersPath look ignored (its endpoints just
+        // "missing" with no signal), so surface the reason when logging is on.
+        if (logging) {
+          console.warn(
+            `[mock-server] handler scan failed for ${resolvedHandlersPath} — serving fixture-file endpoints only: ${(error as Error).message}`,
+          )
+        }
       }
     }
   }
@@ -132,13 +146,24 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
   const app = express()
   app.use(express.json())
   app.use(corsMiddleware())
-  app.use(stateControlMiddleware(currentDefaultState))
+  // Pass a getter, not the object: setDefaultState() reassigns
+  // currentDefaultState, and a captured object would freeze the default at
+  // its startup value (making setDefaultState a silent no-op).
+  app.use(stateControlMiddleware(() => currentDefaultState))
   if (logging) {
     app.use(loggingMiddleware())
   }
 
-  // Register routes from fixtures
-  for (const [key, fixture] of fixtures.endpoints) {
+  // Register routes from fixtures — static paths before `:param` siblings.
+  // Express matches in registration order, so the dir-CRUD `GET /profile/:id`
+  // route would otherwise shadow a scanner-discovered `GET /profile/me`
+  // (`:id` = 'me') and serve the raw fixture record instead of the handler's
+  // synthesized single-object response shape. Sort is stable, so ordering
+  // within the same param count is preserved.
+  const routeEntries = [...fixtures.endpoints.entries()].sort(
+    ([, a], [, b]) => paramCount(a.endpoint.path) - paramCount(b.endpoint.path),
+  )
+  for (const [key, fixture] of routeEntries) {
     registerRoute(app, key, fixture, stateOverrides, () => currentDefaultState)
   }
 
@@ -147,8 +172,19 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
     res.json({ status: 'ok', appType, endpoints: fixtures.endpoints.size })
   })
 
-  // Catch-all for unmatched API routes (Express 5 path-to-regexp syntax)
+  // Catch-all for unmatched API routes (Express 5 path-to-regexp syntax).
+  // Unmatched routes intentionally return an empty SUCCESS (screenshot/E2E
+  // pages must render, not 404) — but that makes a typo'd endpoint look
+  // identical to legitimately-empty data. The X-Mock-Unmatched header (and a
+  // warn log) lets a caller/debugger tell "no such fixture endpoint" apart
+  // from "endpoint exists and its data is empty".
   app.all('/api/{*path}', (req: Request, res: Response) => {
+    res.setHeader('X-Mock-Unmatched', 'true')
+    if (logging) {
+      console.warn(
+        `[mock-server] no fixture endpoint matches ${req.method} ${req.path} — serving default empty response (X-Mock-Unmatched: true)`,
+      )
+    }
     const state = res.locals.mockState as ResponseState | undefined
     if (state?.state === 'error') {
       res.status(500).json({ error: 'Internal server error' })
@@ -235,6 +271,15 @@ function findWorkspaceRoot(): string | undefined {
 }
 
 /**
+ * Number of `:param` segments in a route path — used to register static
+ * paths before parameterized siblings that would otherwise shadow them.
+ * @param path - The route path (e.g. '/profile/:id')
+ */
+function paramCount(path: string): number {
+  return path.split('/').filter((segment) => segment.startsWith(':')).length
+}
+
+/**
  * Register an Express route for a fixture endpoint.
  * @param app
  * @param key
@@ -302,6 +347,9 @@ function registerRoute(
       break
     case 'PUT':
       app.put(routePath, handler)
+      break
+    case 'PATCH':
+      app.patch(routePath, handler)
       break
     case 'DELETE':
       app.delete(routePath, handler)

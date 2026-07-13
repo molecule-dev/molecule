@@ -1,8 +1,10 @@
 /**
  * Automation ID system for molecule UI components.
  *
- * Every component gets a `data-mol-id` attribute that AI agents, E2E tests
- * (Playwright), and screen readers can use to interact with the app.
+ * Every component gets a `data-mol-id` attribute that AI agents and E2E
+ * tests (Playwright) can use to interact with the app. (It is a tooling
+ * hook only — assistive technology such as screen readers does NOT expose
+ * `data-*` attributes; accessible names come from labels/`aria-*`.)
  *
  * The ID follows a semantic pattern: `{component}-{context}-{qualifier}`
  * Examples: `button-login-submit`, `input-email-field`, `card-product-123`

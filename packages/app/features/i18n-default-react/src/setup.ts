@@ -6,9 +6,15 @@ import { LANGUAGE_DEFINITIONS } from './languages.js'
 
 const COMMON = common as unknown as Record<string, Record<string, string>>
 
-/** Common translations for `code`, falling back to English. */
+/**
+ * Common translations for `code`. Regional codes fall back to their base
+ * language before English (`es-MX` → `esMX` export if present, else `es`,
+ * else `en`) — previously a regional locale with no dedicated common export
+ * silently got ENGLISH common strings while the rest of the page rendered
+ * in the base language.
+ */
 const commonFor = (code: string): Record<string, string> =>
-  COMMON[code.replace('-', '')] ?? COMMON.en
+  COMMON[code.replace('-', '')] ?? COMMON[code.split('-')[0]] ?? COMMON.en
 
 /**
  * Shape of a per-package locale bond passed via `packageLocales`.
@@ -78,7 +84,7 @@ export interface SetupI18nDefaultOptions {
    * choices. `'en'` is always included implicitly; the array doesn't
    * need to list it explicitly.
    *
-   * When omitted, every entry in the fleet's 74-language
+   * When omitted, every entry in the fleet's 80-language
    * {@link LANGUAGE_DEFINITIONS} list is registered (back-compat).
    *
    * Typical call-site idiom uses Vite's `import.meta.glob` to
@@ -99,7 +105,7 @@ export interface SetupI18nDefaultOptions {
 }
 
 /**
- * Wire the molecule i18n provider with the fleet's 74-language list
+ * Wire the molecule i18n provider with the fleet's 80-language list
  * plus a default English bootstrap, then persist the user's locale
  * selection through the bonded storage provider (if available).
  *
@@ -164,12 +170,20 @@ export function setupI18nDefault({
   // ones (preserving the "apps win when they explicitly translate" rule).
   if (packageLocales && packageLocales.length > 0) {
     registerPackageLocales(provider, packageLocales)
+    // Re-assert the app's English UI translations AFTER the package bonds.
+    // English is the one locale whose app translations register eagerly (at
+    // provider creation), so without this the bonds — merged later — would
+    // override `enUi` for overlapping keys, inverting the documented
+    // "apps win when they explicitly translate" rule for the default locale.
+    // (Non-en locales already preserve the rule: their `lazyLoadUi` merge
+    // happens after bond registration.)
+    provider.addTranslations('en', enUi)
   }
 
   // Filter out locales whose app-specific `ui.ts` is empty so the
   // language-picker UI only offers languages the app actually translated.
   //
-  // Strategy: register all 74 up-front (so the existing API stays
+  // Strategy: register all 80 up-front (so the existing API stays
   // back-compatible and locale-change listeners don't see a "loading
   // languages" state), then asynchronously probe each non-en locale and
   // remove the ones whose `lazyLoadUi` returns an empty object. This is
@@ -199,7 +213,13 @@ export function setupI18nDefault({
       })
       get<string>('molecule-locale')
         .then((saved: string | null) => {
-          if (saved && saved !== provider.getLocale()) provider.setLocale(saved)
+          if (saved && saved !== provider.getLocale()) {
+            provider.setLocale(saved).catch(() => {
+              // The saved locale is no longer registered (pruned as unsupported,
+              // or dropped in an app update) — keep the default locale instead of
+              // surfacing an unhandled rejection on every boot.
+            })
+          }
         })
         .catch(() => {
           // No storage provider bonded — the package can be installed without a
@@ -244,15 +264,26 @@ function registerPackageLocales(
   provider: I18nProvider,
   packageLocales: readonly PackageLocaleBond[],
 ): void {
+  // Only attach bond translations to locales the fleet list already registered.
+  // Without this guard a bond shipping a locale outside LANGUAGE_DEFINITIONS
+  // would auto-create it on the provider, adding a phantom entry to the
+  // language picker that the supportedLocales pruning never removes.
+  const registered = new Set(provider.getLocales().map((l) => l.code))
   for (const bond of packageLocales) {
-    for (const [maybeCode, maybeTranslations] of Object.entries(bond)) {
+    for (const [exportName, maybeTranslations] of Object.entries(bond)) {
+      // Normalize regional codes: locale bonds export `zhTW` / `esMX`
+      // (a hyphen is not valid in an ES export identifier) while the fleet's
+      // LANGUAGE_DEFINITIONS use canonical `zh-TW` / `es-MX`. Mirror the
+      // `registerLocaleModule` mapping in `@molecule/app-i18n` — without it,
+      // every bond's regional translations were silently dropped here (the
+      // regex rejects `zhTW`, and `registered` only holds `zh-TW`).
+      const maybeCode = exportName.replace(
+        /^([a-z]{2,3})([A-Z][a-zA-Z]{1,3})$/,
+        (_, base, region) => `${base}-${region}`,
+      )
       if (!LOCALE_CODE_RE.test(maybeCode)) continue
+      if (!registered.has(maybeCode)) continue
       if (!isTranslationRecord(maybeTranslations)) continue
-      // Normalize regional codes: `'zhHant'` exports in the bond should
-      // map to the canonical `'zh-TW'` style used elsewhere in the fleet.
-      // We don't transform anything here — the bond is expected to use
-      // canonical codes (e.g. `'zh-TW'` not `'zhHant'`); registration
-      // mirrors whatever the bond ships.
       provider.addTranslations(maybeCode, maybeTranslations)
     }
   }
@@ -263,7 +294,7 @@ function registerPackageLocales(
  * dynamic `import()` of a locale's `ui.ts`. In dev mode Vite serves
  * each as a separate HTTP request; in production they share a chunk
  * and the probe is essentially free. Keeping concurrency modest avoids
- * stampeding dev-server connections while still finishing the 73 probes
+ * stampeding dev-server connections while still finishing the 79 probes
  * in well under a second on a warm cache.
  */
 const PROBE_CONCURRENCY = 6

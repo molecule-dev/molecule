@@ -13,6 +13,25 @@
  * setProvider(provider)
  * ```
  *
+ * @remarks
+ * Provider-specific behavior to know before debugging (verified against
+ * Typesense 29.0):
+ *
+ * - **`date` fields map to `int64`** — index date values as epoch numbers
+ *   (e.g. `Date.now()` or Unix seconds), NOT as `Date` objects or ISO strings,
+ *   or the document is rejected by the collection schema.
+ * - **When `createIndex()` is given a schema, only the keys of `schema.fields`
+ *   are indexed** — document fields missing from the schema are stored and
+ *   returned, but not searchable or filterable. Without a schema, an
+ *   auto-schema collection (`.*: auto`) indexes every field.
+ * - **Filter string values are backtick-quoted** so punctuation (`&&`, commas,
+ *   parentheses) in values is safe; a literal backtick inside a filter value is
+ *   not representable in Typesense filter syntax. Filtering requires the field
+ *   to be faceted — declare it in `filterableFields`.
+ * - **Empty search text matches ALL documents** — unlike the postgres bond,
+ *   which returns zero hits for empty text.
+ * - `connectionTimeoutSeconds` is in seconds (default 5).
+ *
  * @module
  */
 

@@ -26,11 +26,25 @@ export interface AnalyticsEvent {
   name: string
   /** Arbitrary key-value properties for this event. */
   properties?: Record<string, unknown>
-  /** Event timestamp (defaults to now). */
+  /**
+   * Event timestamp (defaults to now). Only honored where the underlying
+   * browser SDK supports client-set timestamps (PostHog does); the Mixpanel
+   * browser SDK always stamps the time of capture. For reliable historical
+   * timestamps use the API-side `@molecule/api-analytics` bonds.
+   */
   timestamp?: Date
-  /** Identified user who triggered the event. */
+  /**
+   * Identified user who triggered the event. Browser analytics SDKs attribute
+   * events to the AMBIENT identified session — call `identify()` first;
+   * current browser bonds do not honor a per-event userId override. (Exists
+   * for interface parity with `@molecule/api-analytics`, where there is no
+   * ambient session and per-event IDs are required.)
+   */
   userId?: string
-  /** Anonymous identifier for unauthenticated users. */
+  /**
+   * Anonymous identifier for unauthenticated users. Like `userId`, browser
+   * bonds use the SDK's own ambient anonymous identity instead of this field.
+   */
   anonymousId?: string
 }
 

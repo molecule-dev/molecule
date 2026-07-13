@@ -65,11 +65,26 @@ describe('Mixpanel Analytics Provider', () => {
       expect(provider).toBeDefined()
     })
 
-    it('should use empty string when no token is provided', () => {
-      const provider = createProvider()
+    it('should degrade gracefully (no init, warn once, no-op calls) when no token is provided', async () => {
+      // Mixpanel.init('') THROWS in the real library — createProvider must not
+      // call it. Analytics is fire-and-forget telemetry: calls no-op instead
+      // of rejecting (a bare `void track(...)` must never become an unhandled
+      // rejection), and ONE actionable warning names MIXPANEL_TOKEN.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      try {
+        const provider = createProvider()
 
-      expect(Mixpanel.init).toHaveBeenCalledWith('', { debug: false })
-      expect(provider).toBeDefined()
+        expect(Mixpanel.init).not.toHaveBeenCalled()
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('MIXPANEL_TOKEN'))
+        await expect(provider.track({ name: 'x' })).resolves.toBeUndefined()
+        await expect(provider.identify({ userId: 'u1' })).resolves.toBeUndefined()
+        await expect(provider.page({ path: '/' })).resolves.toBeUndefined()
+        await expect(provider.group!('org-1')).resolves.toBeUndefined()
+        await expect(provider.flush!()).resolves.toBeUndefined()
+      } finally {
+        warnSpy.mockRestore()
+      }
     })
 
     it('should enable debug mode when specified', () => {
@@ -461,12 +476,28 @@ describe('Mixpanel Analytics Provider', () => {
 })
 
 describe('Mixpanel instance', () => {
-  it('should export mixpanel instance', async () => {
-    // Import the mixpanel instance
+  beforeEach(() => {
+    vi.clearAllMocks()
+    delete process.env.MIXPANEL_TOKEN
+  })
+
+  it('is lazy: unconfigured access throws an actionable error instead of crashing at import', async () => {
+    // Importing must never initialize the client — Mixpanel.init('') throws in
+    // the real library, which used to crash the whole API at import time when
+    // MIXPANEL_TOKEN was unset.
     const { mixpanel } = await import('../mixpanel.js')
 
     expect(mixpanel).toBeDefined()
-    expect(Mixpanel.init).toHaveBeenCalled()
+    expect(Mixpanel.init).not.toHaveBeenCalled()
+    expect(() => mixpanel.track).toThrowError(/MIXPANEL_TOKEN/)
+  })
+
+  it('initializes from MIXPANEL_TOKEN on first property access', async () => {
+    const { mixpanel } = await import('../mixpanel.js')
+
+    process.env.MIXPANEL_TOKEN = 'lazy-token'
+    expect(typeof mixpanel.track).toBe('function')
+    expect(Mixpanel.init).toHaveBeenCalledWith('lazy-token')
   })
 })
 

@@ -4,6 +4,20 @@
  * Provides a unified analytics API that can be backed by different
  * implementations (PostHog, Mixpanel, etc.).
  *
+ * @remarks
+ * - Every convenience function (`track`, `identify`, `page`, …) swallows
+ *   provider errors and no-ops when nothing is bonded — analytics can never
+ *   break the UI, so `hasProvider()` is the ONLY signal that separates
+ *   "analytics disabled/unbonded" from "events are being tracked". Check it
+ *   (and the bond's own console warning) before debugging tracking code.
+ * - Attribution is AMBIENT in the browser: call `identify(user)` on login and
+ *   `reset()` on logout; per-event `userId`/`anonymousId` fields are not
+ *   honored by browser bonds (they exist for parity with
+ *   `@molecule/api-analytics`).
+ * - `group(groupId)` normalizes the group TYPE to `'company'` in every bond
+ *   (Mixpanel group key, PostHog group type) — look under "company" in the
+ *   provider's UI.
+ *
  * @module
  */
 

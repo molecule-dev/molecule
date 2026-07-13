@@ -85,6 +85,35 @@ describe('meilisearch search provider', () => {
         primaryKey: 'id',
       })
     })
+
+    it('throws a labeled error when the indexing TASK fails (waitTask resolves on failure)', async () => {
+      // meilisearch-js waitTask() RESOLVES with status 'failed'; it must not be
+      // silently reported as success.
+      mockAddDocuments.mockReturnValueOnce({
+        waitTask: vi.fn().mockResolvedValue({
+          status: 'failed',
+          error: { code: 'invalid_document_fields', message: 'Bad field', type: '', link: '' },
+        }),
+      })
+      const p = createProvider()
+
+      await expect(p.index('products', '1', { name: 'Widget' })).rejects.toThrow(
+        /invalid_document_fields: Bad field/,
+      )
+    })
+
+    it('passes the task timeout to waitTask (default 30s, overridable)', async () => {
+      const waitTask = vi.fn().mockResolvedValue({ status: 'succeeded' })
+      mockAddDocuments.mockReturnValueOnce({ waitTask })
+      const p = createProvider()
+      await p.index('products', '1', { name: 'Widget' })
+      expect(waitTask).toHaveBeenCalledWith({ timeout: 30_000 })
+
+      mockAddDocuments.mockReturnValueOnce({ waitTask })
+      const p2 = createProvider({ taskTimeoutMs: 120_000 })
+      await p2.index('products', '1', { name: 'Widget' })
+      expect(waitTask).toHaveBeenLastCalledWith({ timeout: 120_000 })
+    })
   })
 
   describe('bulkIndex', () => {
@@ -108,6 +137,21 @@ describe('meilisearch search provider', () => {
 
       expect(result.failed).toBe(1)
       expect(result.errors['1']).toBe('Bulk failed')
+    })
+
+    it('reports failure (not success) when the bulk TASK fails', async () => {
+      mockAddDocuments.mockReturnValueOnce({
+        waitTask: vi.fn().mockResolvedValue({
+          status: 'failed',
+          error: { code: 'index_primary_key_no_candidate', message: 'No pk', type: '', link: '' },
+        }),
+      })
+      const p = createProvider()
+      const result = await p.bulkIndex('products', [{ id: '1', document: { name: 'Widget' } }])
+
+      expect(result.indexed).toBe(0)
+      expect(result.failed).toBe(1)
+      expect(result.errors['1']).toMatch(/index_primary_key_no_candidate: No pk/)
     })
   })
 
@@ -139,6 +183,35 @@ describe('meilisearch search provider', () => {
 
       expect(result.facets).toBeDefined()
       expect(result.facets!.category).toHaveLength(2)
+    })
+
+    it('requests _rankingScore so SearchHit.score is populated (not always 0)', async () => {
+      mockSearch.mockResolvedValueOnce({
+        hits: [{ id: '1', name: 'Widget', _rankingScore: 0.87 }],
+        estimatedTotalHits: 1,
+      })
+      const p = createProvider()
+      const result = await p.search('products', { text: 'widget' })
+
+      expect(mockSearch).toHaveBeenCalledWith(
+        'widget',
+        expect.objectContaining({ showRankingScore: true }),
+      )
+      expect(result.hits[0].score).toBe(0.87)
+    })
+
+    it('escapes quotes and backslashes in filter values', async () => {
+      mockSearch.mockResolvedValueOnce({ hits: [], estimatedTotalHits: 0 })
+      const p = createProvider()
+      await p.search('products', {
+        text: 'widget',
+        filters: { name: 'say "hi" \\ bye' },
+      })
+
+      expect(mockSearch).toHaveBeenCalledWith(
+        'widget',
+        expect.objectContaining({ filter: ['name = "say \\"hi\\" \\\\ bye"'] }),
+      )
     })
   })
 

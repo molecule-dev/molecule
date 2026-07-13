@@ -16,6 +16,11 @@
  *   ownership scope as a normal query.
  * - **Invalidate on write.** After updating the underlying record, `del()` (or re-`set()`) its
  *   key, or reads keep serving stale data.
+ * - **`undefined` means "not cached" — you cannot cache `undefined`** (cache `null` instead).
+ *   `get()` returns `undefined` for a miss, so a `getOrSet` factory that resolves to
+ *   `undefined` is never treated as cached and will re-run on EVERY call.
+ * - `getOrSet` does not lock: concurrent misses on the same key each run the factory
+ *   (last write wins). Fine for idempotent loaders; don't put side-effecting work in one.
  * - Don't cache a raw secret; cache derived, non-sensitive data.
  *
  * @example

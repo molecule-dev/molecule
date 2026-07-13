@@ -4,6 +4,16 @@
  */
 
 /**
+ * Fixed "now" anchor (2026-04-01T12:00:00Z) for all generated dates.
+ *
+ * Dates are deliberately anchored to a constant instead of the wall clock so
+ * fixture output is byte-stable across runs (reliable screenshot diffs).
+ * Consequence: "recent"/"future" are relative to this anchor, not the real
+ * current time — never assert generated dates against `Date.now()`.
+ */
+export const FIXTURE_NOW = new Date('2026-04-01T12:00:00Z')
+
+/**
  * Create a seeded random number generator using Mulberry32.
  * Returns a function that produces numbers in [0, 1).
  * @param seed - The seed value
@@ -70,15 +80,15 @@ export function randomDollars(rng: () => number, min: number, max: number): numb
 }
 
 /**
- * Generate a recent ISO date string within the last N days.
+ * Generate a "recent" ISO date string within the last N days of the fixed
+ * `FIXTURE_NOW` anchor (NOT the wall clock — see `FIXTURE_NOW`).
  * @param rng - The seeded random function
  * @param daysBack - Maximum days in the past (default 90)
  * @returns An ISO date string
  */
 export function recentDate(rng: () => number, daysBack = 90): string {
-  const now = new Date('2026-04-01T12:00:00Z')
   const offset = Math.floor(rng() * daysBack) * 24 * 60 * 60 * 1000
-  return new Date(now.getTime() - offset).toISOString()
+  return new Date(FIXTURE_NOW.getTime() - offset).toISOString()
 }
 
 /**
@@ -98,13 +108,13 @@ export function seededUUID(rng: () => number): string {
 }
 
 /**
- * Generate a future ISO date string within the next N days.
+ * Generate a "future" ISO date string within the next N days of the fixed
+ * `FIXTURE_NOW` anchor (NOT the wall clock — see `FIXTURE_NOW`).
  * @param rng - The seeded random function
  * @param daysAhead - Maximum days in the future (default 365)
  * @returns An ISO date string
  */
 export function futureDate(rng: () => number, daysAhead = 365): string {
-  const now = new Date('2026-04-01T12:00:00Z')
   const offset = Math.floor(rng() * daysAhead) * 24 * 60 * 60 * 1000
-  return new Date(now.getTime() + offset).toISOString()
+  return new Date(FIXTURE_NOW.getTime() + offset).toISOString()
 }

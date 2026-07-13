@@ -608,13 +608,55 @@ describe('@molecule/api-recurring-schedule', () => {
       expect(occurrences).toHaveLength(5)
     })
 
-    it('returns null from nextOccurrence when cap is exceeded', () => {
+    it('does NOT count occurrences skipped before the lower bound (aged rules stay answerable)', () => {
       const r: RecurrenceRule = {
         frequency: 'DAILY',
         startDate: '2026-01-01T00:00:00.000Z',
       }
-      // far-future lower bound + tiny cap → cap exceeded before reaching it
-      expect(nextOccurrence(r, '2030-01-01T00:00:00.000Z', { maxOccurrences: 5 })).toBeNull()
+      // A far-future lower bound skips ~1461 seed-side occurrences. Under the old
+      // iterated-from-seed accounting this returned null (indistinguishable from
+      // "rule terminated") the moment a rule aged past maxOccurrences.
+      expect(nextOccurrence(r, '2030-01-01T00:00:00.000Z', { maxOccurrences: 5 })).toBe(
+        '2030-01-01T00:00:00.000Z',
+      )
+    })
+
+    it('CONSUMER PROPERTY: a 3-year-old unbounded daily rule still answers with DEFAULT options', () => {
+      // The regression this pins: a personal-finance recurring transaction (or
+      // habit/medication rule) seeded years ago exceeds the default 1000-occurrence
+      // budget just getting from the seed to "today" — nextOccurrence returned null
+      // and expandOccurrences returned [] for the current month, both silently.
+      const r: RecurrenceRule = {
+        frequency: 'DAILY',
+        startDate: '2023-01-15T09:00:00.000Z', // >1200 daily occurrences before mid-2026
+      }
+      expect(nextOccurrence(r, '2026-06-15T00:00:00.000Z')).toBe('2026-06-15T09:00:00.000Z')
+
+      const june = expandOccurrences(r, {
+        start: '2026-06-01T00:00:00.000Z',
+        end: '2026-07-01T00:00:00.000Z',
+      })
+      expect(june).toHaveLength(30)
+      expect(june[0]).toBe('2026-06-01T09:00:00.000Z')
+      expect(june[29]).toBe('2026-06-30T09:00:00.000Z')
+    })
+
+    it('FAILURE DISAMBIGUATION: null now means "rule terminated", never "rule too old"', () => {
+      // Same aged rule, but genuinely terminated via `until` → null is correct.
+      const terminated: RecurrenceRule = {
+        frequency: 'DAILY',
+        startDate: '2023-01-15T09:00:00.000Z',
+        until: '2024-01-01T00:00:00.000Z',
+      }
+      expect(nextOccurrence(terminated, '2026-06-15T00:00:00.000Z')).toBeNull()
+
+      // The identical rule WITHOUT the terminator answers — so a caller reading
+      // null can safely conclude the rule ended instead of debugging the engine.
+      const unbounded: RecurrenceRule = {
+        frequency: 'DAILY',
+        startDate: '2023-01-15T09:00:00.000Z',
+      }
+      expect(nextOccurrence(unbounded, '2026-06-15T00:00:00.000Z')).not.toBeNull()
     })
   })
 })

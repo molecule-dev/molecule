@@ -215,6 +215,40 @@ describe('Memcached Cache Provider', () => {
       )
     })
 
+    it('converts TTLs over 30 days to an absolute unix timestamp (memcached protocol quirk)', async () => {
+      // Memcached reads a lifetime > 2592000s as an absolute unix timestamp; passing a
+      // 1-year relative TTL through raw would be interpreted as Feb 1971 → instant expiry.
+      mockClient.set.mockImplementation(
+        (
+          key: string,
+          value: unknown,
+          ttl: number,
+          cb: (err: Error | null, result: boolean) => void,
+        ) => {
+          cb(null, true)
+        },
+      )
+
+      const oneYear = 31536000
+      const before = Math.floor(Date.now() / 1000)
+      await provider.set('mykey', 'value', { ttl: oneYear })
+      const after = Math.floor(Date.now() / 1000)
+
+      const lifetime = mockClient.set.mock.calls[0][2] as number
+      expect(lifetime).toBeGreaterThanOrEqual(before + oneYear)
+      expect(lifetime).toBeLessThanOrEqual(after + oneYear)
+
+      // A TTL at exactly the 30-day boundary stays relative (still valid on the wire).
+      mockClient.set.mockClear()
+      await provider.set('mykey', 'value', { ttl: 2592000 })
+      expect(mockClient.set).toHaveBeenCalledWith(
+        'test:mykey',
+        '"value"',
+        2592000,
+        expect.any(Function),
+      )
+    })
+
     it('sets value with tags', async () => {
       mockClient.set.mockImplementation(
         (

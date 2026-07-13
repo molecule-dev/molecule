@@ -34,7 +34,6 @@ const customWorkflow: WorkflowConfig = {
       steps: [
         commonSteps.checkout(),
         commonSteps.setupNode('20'),
-        commonSteps.cacheNodeModules(),
         commonSteps.npmInstall(),
         commonSteps.npmLint(),
         commonSteps.npmBuild(),
@@ -210,7 +209,7 @@ Reusable step factory functions for common CI operations. Each method
 returns a `WorkflowStep` that can be included in any workflow job's `steps` array.
 
 ```typescript
-const commonSteps: { checkout: (options?: { "fetch-depth"?: number; }) => WorkflowStep; setupNode: (version?: string) => WorkflowStep; npmInstall: () => WorkflowStep; npmBuild: () => WorkflowStep; npmTest: () => WorkflowStep; npmLint: () => WorkflowStep; cacheNodeModules: () => WorkflowStep; stageUp: (driver?: string) => WorkflowStep; stageDown: () => WorkflowStep; }
+const commonSteps: { checkout: (options?: { "fetch-depth"?: number; }) => WorkflowStep; setupNode: (version?: string, options?: { registryUrl?: string; }) => WorkflowStep; npmInstall: () => WorkflowStep; npmBuild: () => WorkflowStep; npmTest: () => WorkflowStep; npmLint: () => WorkflowStep; cacheNodeModules: () => WorkflowStep; stageUp: (driver?: string) => WorkflowStep; stageDown: () => WorkflowStep; }
 ```
 
 #### `workflows`
@@ -221,3 +220,21 @@ Pre-built workflow template factories. Each method returns a complete
 ```typescript
 const workflows: { ci: () => WorkflowConfig; ciMatrix: (nodeVersions?: string[]) => WorkflowConfig; release: () => WorkflowConfig; integrationTests: () => WorkflowConfig; stagingDeploy: (options?: { driver?: string; excludeBranches?: string[]; }) => WorkflowConfig; stagingTeardown: () => WorkflowConfig; }
 ```
+
+## Injection Notes
+
+Gotchas the generated workflows already account for — keep them in mind when
+building custom configs:
+
+- `setupNode()` caches the npm download cache, which works with `npm ci`.
+  Do NOT add `cacheNodeModules()` to an `npm ci` pipeline — `npm ci` deletes
+  `node_modules` before installing, so that cache is discarded every run.
+- Publishing to npm requires `registry-url` on the setup-node step (see
+  `workflows.release()`); `NODE_AUTH_TOKEN` alone is silently ignored and
+  `npm publish` fails with `ENEEDAUTH`.
+- `workflows.stagingDeploy()` / `stagingTeardown()` with the `docker-compose`
+  driver deploy to the machine running the workflow — on GitHub-hosted
+  runners the environment dies when the job ends; use a persistent
+  self-hosted runner.
+- Version-like strings stay quoted in the YAML output on purpose: unquoted,
+  `'20.10'` parses back as the float `20.1` and installs the wrong Node.

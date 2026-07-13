@@ -172,7 +172,10 @@ interface YjsRealtimeConfig {
   transport?: YjsTransport
 
   /**
-   * Optional client-id generator. Defaults to `crypto.randomUUID()`.
+   * Currently UNUSED — the bond never generates client ids itself: every
+   * client id comes from the caller (`joinRoom(roomId, clientId)` /
+   * `applyInbound({ clientId, … })`). Reserved for a future server-assigned
+   * id path; passing it today has no effect.
    */
   generateClientId?: () => string
 
@@ -221,6 +224,30 @@ type YjsTransportSend = (message: YjsOutboundMessage) => void
 
 ### Functions
 
+#### `clientIdToAwarenessId(clientId)`
+
+Stable mapping from molecule clientId (arbitrary string) to the numeric
+id that Yjs Awareness uses internally. Hashes the string into a 32-bit
+unsigned integer.
+
+The bond correlates awareness entries with molecule clients through this
+mapping — `getPresence()` merges awareness state and `leaveRoom()` removes
+it ONLY for awareness entries keyed by `clientIdToAwarenessId(clientId)`.
+Transport adapters that want those features must align ids on the client
+side (e.g. set the collaborating `Y.Doc`'s `clientID` to
+`clientIdToAwarenessId(moleculeClientId)` before creating its Awareness).
+Clients using their own random `doc.clientID` still converge fine; their
+awareness is simply uncorrelated and is cleaned up by the Yjs Awareness
+30-second staleness timeout instead of instantly on leave.
+
+```typescript
+function clientIdToAwarenessId(clientId: string): number
+```
+
+- `clientId` — The molecule client identifier.
+
+**Returns:** A 32-bit unsigned integer suitable for `Awareness`.
+
 #### `createProvider(config)`
 
 Creates a Yjs-backed {@link RealtimeProvider} together with extras
@@ -268,3 +295,19 @@ Implements `@molecule/api-realtime` interface.
 
 Peer dependencies:
 - `@molecule/api-realtime` ^1.0.0
+
+- `'yjs:update'` / `'yjs:awareness'` payloads MUST be `Uint8Array`s — any
+  other type throws (`Event "yjs:update" requires Uint8Array data`); the
+  doc is never partially mutated.
+- **Awareness ↔ client correlation is keyed by `clientIdToAwarenessId()`**
+  (exported): `getPresence()` only merges awareness metadata, and
+  `leaveRoom()` only removes a peer's awareness instantly, for awareness
+  entries whose numeric id equals `clientIdToAwarenessId(moleculeClientId)`
+  — align the collaborating client's `doc.clientID` with it. Clients using
+  their own random `doc.clientID` still converge fine; their awareness is
+  just uncorrelated and clears via the Yjs Awareness 30s staleness timeout
+  instead of instantly on leave.
+- This bond has no client-initiated join path: `onJoinRequest` is left
+  undefined, so join guards registered via `@molecule/api-realtime` are
+  logged as unenforceable (joins happen through the server-driven
+  `joinRoom()` API only).

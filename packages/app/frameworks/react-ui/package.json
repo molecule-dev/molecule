@@ -57,9 +57,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/app/bonds/ui/tailwind-react"
+    "directory": "packages/app/frameworks/react-ui"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ui/tailwind-react",
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/frameworks/react-ui",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

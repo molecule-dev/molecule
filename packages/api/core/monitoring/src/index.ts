@@ -7,7 +7,7 @@
  *
  * @example
  * ```typescript
- * import { setProvider, runAll, createDatabaseCheck, createHttpCheck } from '@molecule/api-monitoring'
+ * import { getProvider, setProvider, runAll, createDatabaseCheck, createHttpCheck } from '@molecule/api-monitoring'
  * import { provider } from '@molecule/api-monitoring-default'
  *
  * setProvider(provider)

@@ -6,7 +6,7 @@
  *
  * @example
  * ```typescript
- * import { setProvider, schedule } from '@molecule/api-scheduler'
+ * import { schedule, setProvider, start } from '@molecule/api-scheduler'
  * import { provider } from '@molecule/api-scheduler-default'
  *
  * setProvider(provider)
@@ -18,6 +18,10 @@
  *     await cleanupExpiredRecords()
  *   },
  * })
+ *
+ * // REQUIRED: tasks do not execute until the scheduler is started.
+ * // (Tasks scheduled after start() begin automatically.)
+ * start()
  * ```
  *
  * @module

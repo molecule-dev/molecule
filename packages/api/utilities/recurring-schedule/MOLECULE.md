@@ -57,8 +57,13 @@ Options passed to occurrence generators.
 ```typescript
 interface OccurrenceOptions {
   /**
-   * Hard cap on the number of occurrences returned. Defends against
-   * pathological rules. Default: 1000.
+   * Hard cap on the number of occurrences *returned* by
+   * `expandOccurrences`. Occurrences skipped while advancing from the
+   * rule's seed to the requested window/lower bound do NOT count against
+   * it, so an old-but-unbounded rule stays answerable years after its
+   * `startDate`. `nextOccurrence` returns at most one occurrence and is
+   * only short-circuited by a value below 1. Runaway rules are defended
+   * separately by an internal hard iteration ceiling. Default: 1000.
    */
   maxOccurrences?: number
 }

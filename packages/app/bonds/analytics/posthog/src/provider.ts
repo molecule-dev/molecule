@@ -21,15 +21,47 @@ import type { PostHogOptions } from './types.js'
  * Creates a PostHog analytics provider using `posthog-js`. Initializes the SDK with the
  * provided API key and host, and returns an `AnalyticsProvider` that maps molecule events to
  * PostHog's `capture`, `identify`, and `group` APIs.
- * @param options - PostHog configuration including `apiKey`, optional `host`, `autocapture`, and `debug` flags.
+ *
+ * When no API key is provided, this does NOT initialize the SDK (`posthog.init('')`
+ * leaves the singleton uninitialized — the SDK logs its own generic error, but
+ * every subsequent call is silently dropped): it logs one actionable warning
+ * naming VITE_POSTHOG_KEY and returns a no-op provider, so bonding the lazy
+ * `provider` export without configuration degrades gracefully.
+ *
+ * When no `host` is provided, the SDK's own default (PostHog Cloud US,
+ * `https://us.i.posthog.com`) applies — EU projects must pass their region host
+ * (`https://eu.i.posthog.com`).
+ *
+ * @param options - PostHog configuration including `apiKey`, optional `host`, and `autocapture`.
  * @returns An `AnalyticsProvider` backed by the PostHog browser SDK.
  */
 export const createProvider = (options?: PostHogOptions): AnalyticsProvider => {
   const apiKey = options?.apiKey ?? ''
-  const host = options?.host ?? 'https://app.posthog.com'
+  if (!apiKey) {
+    // Graceful degradation with a molecule-canonical breadcrumb: the SDK's own
+    // "initialized without a token" error never names the env var this stack
+    // actually wires (VITE_POSTHOG_KEY), so debugging dead-ends there.
+    console.warn(
+      '[analytics] PostHog API key not configured — analytics events will NOT be delivered. ' +
+        'Pass createProvider({ apiKey }) (canonical source: import.meta.env.VITE_POSTHOG_KEY) ' +
+        'or skip bonding the provider entirely.',
+    )
+    const noop = async (): Promise<void> => {}
+    return {
+      identify: noop,
+      track: noop,
+      page: noop,
+      group: noop,
+      reset: noop,
+      flush: noop,
+    }
+  }
 
   posthog.init(apiKey, {
-    api_host: host,
+    // Only override api_host when the caller supplies one — the SDK's own
+    // default is the CURRENT PostHog Cloud US endpoint (us.i.posthog.com);
+    // hardcoding the legacy app.posthog.com here would re-introduce drift.
+    ...(options?.host ? { api_host: options.host } : {}),
     autocapture: options?.autocapture ?? false,
     capture_pageview: false, // We handle page views manually via auto-tracking
   })
@@ -44,7 +76,13 @@ export const createProvider = (options?: PostHogOptions): AnalyticsProvider => {
     },
 
     async track(event: AnalyticsEvent): Promise<void> {
-      posthog.capture(event.name, event.properties)
+      // posthog-js supports a client-set timestamp via CaptureOptions — honor
+      // the interface's `timestamp` field instead of silently dropping it.
+      if (event.timestamp) {
+        posthog.capture(event.name, event.properties, { timestamp: event.timestamp })
+      } else {
+        posthog.capture(event.name, event.properties)
+      }
     },
 
     async page(pageView: AnalyticsPageView): Promise<void> {

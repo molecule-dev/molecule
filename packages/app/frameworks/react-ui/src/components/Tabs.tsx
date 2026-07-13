@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { forwardRef, useState } from 'react'
+import React, { forwardRef, useId, useState } from 'react'
 
 import type { TabsProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -32,6 +32,11 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
     const activeValue = value !== undefined ? value : internalValue
 
     const cm = getClassMap()
+    // Per-instance id prefix: bare `tab-${value}` ids collided whenever two
+    // Tabs instances on one page shared a tab value (e.g. both have an
+    // "overview" tab) — aria-labelledby/aria-controls then resolved to the
+    // OTHER instance's elements.
+    const idBase = useId()
 
     const handleTabClick = (tabValue: string): void => {
       if (value === undefined) {
@@ -50,10 +55,11 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
             return (
               <button
                 key={item.value}
+                id={`${idBase}-tab-${item.value}`}
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                aria-controls={`tabpanel-${item.value}`}
+                aria-controls={`${idBase}-tabpanel-${item.value}`}
                 data-state={isActive ? 'active' : 'inactive'}
                 disabled={item.disabled}
                 onClick={() => handleTabClick(item.value)}
@@ -70,8 +76,8 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps<string>>(
         {!!activeItem?.content && (
           <div
             role="tabpanel"
-            id={`tabpanel-${activeValue}`}
-            aria-labelledby={activeValue}
+            id={`${idBase}-tabpanel-${activeValue}`}
+            aria-labelledby={`${idBase}-tab-${activeValue}`}
             className={cm.tabsContent}
           >
             {activeItem.content as React.ReactNode}

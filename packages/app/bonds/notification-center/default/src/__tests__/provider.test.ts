@@ -805,4 +805,76 @@ describe('@molecule/app-notification-center-default', () => {
       center.destroy()
     })
   })
+
+  describe('slow/failing consumer flows (regressions)', () => {
+    it('CONSUMER PROPERTY: a failed refresh keeps the previously loaded inbox — never wipes it', async () => {
+      // The old refresh() cleared the list BEFORE fetching, so one transient
+      // network error left the user staring at an empty inbox that was
+      // indistinguishable from "no notifications".
+      const fetchNotifications = vi
+        .fn<(opts: FetchOptions) => Promise<PaginatedResult<AppNotification>>>()
+        .mockResolvedValueOnce(
+          makePaginatedResult([makeNotification({ id: 'keep-1' })], {
+            hasMore: true,
+            nextCursor: 'page-2',
+          }),
+        )
+        .mockRejectedValueOnce(new Error('Network error'))
+        .mockResolvedValueOnce(makePaginatedResult([makeNotification({ id: 'page-2-item' })]))
+      const center = provider.createNotificationCenter(
+        createOptions({ fetchNotifications, fetchUnreadCount: vi.fn(() => Promise.resolve(1)) }),
+      )
+
+      await center.refresh()
+      expect(center.getNotifications().map((n) => n.id)).toEqual(['keep-1'])
+
+      await center.refresh() // fails
+      expect(center.isLoading()).toBe(false)
+      expect(center.getNotifications().map((n) => n.id)).toEqual(['keep-1'])
+      expect(center.getUnreadCount()).toBe(1)
+      // Pagination state survives too: loadMore continues from the old cursor.
+      expect(center.hasMore()).toBe(true)
+      await center.loadMore()
+      expect(fetchNotifications).toHaveBeenLastCalledWith(
+        expect.objectContaining({ cursor: 'page-2' }),
+      )
+      center.destroy()
+    })
+
+    it('CONSUMER PROPERTY: a poll slower than the interval never stacks concurrent fetches onto the API', async () => {
+      // Realistic slow API: each fetch takes 12s while polling every 5s. The
+      // old poll() started a NEW fetch on every tick regardless (6 piled-up
+      // in-flight requests after 30s) — hammering exactly the backend that is
+      // already struggling. Ticks that land mid-poll must be skipped.
+      const onNotification = vi.fn()
+      const fetchNotifications = vi.fn(
+        () =>
+          new Promise<PaginatedResult<AppNotification>>((resolve) => {
+            setTimeout(
+              () => resolve(makePaginatedResult([makeNotification({ id: 'slow-1' })])),
+              12000,
+            )
+          }),
+      )
+      const center = provider.createNotificationCenter(
+        createOptions({
+          fetchNotifications,
+          fetchUnreadCount: vi.fn(() => Promise.resolve(1)),
+          onNotification,
+          pollInterval: 5000,
+        }),
+      )
+
+      // 30s of fake time = 6 poll ticks. With the in-flight guard only the
+      // ticks at t=5s (resolves t=17s) and t=20s (still pending at t=30s)
+      // actually fetch — deterministically 2 calls, not 6.
+      await vi.advanceTimersByTimeAsync(30000)
+      expect(fetchNotifications).toHaveBeenCalledTimes(2)
+
+      // And the state stayed coherent: one notification, one callback.
+      expect(center.getNotifications().map((n) => n.id)).toEqual(['slow-1'])
+      expect(onNotification).toHaveBeenCalledTimes(1)
+      center.destroy()
+    })
+  })
 })

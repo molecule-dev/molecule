@@ -53,6 +53,10 @@ vi.mock('i18next', () => {
       const resource = resources[locale]?.translation as Record<string, string> | undefined
       return resource ? key in resource : false
     }),
+    // Mirrors real i18next's RTL knowledge (subset relevant to tests).
+    dir: vi.fn((lng?: string) =>
+      ['ar', 'he', 'fa', 'ur'].includes((lng || currentLanguage).split('-')[0]) ? 'rtl' : 'ltr',
+    ),
     on: vi.fn((event: string, listener: (...args: unknown[]) => void) => {
       if (!listeners.has(event)) {
         listeners.set(event, new Set())

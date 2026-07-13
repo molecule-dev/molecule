@@ -86,7 +86,9 @@ export const createQueue = (channel: Channel, queueName: string): Queue => {
         await channel.assertQueue(queueName, { durable: true })
 
         if (options?.maxMessages) {
-          channel.prefetch(options.maxMessages)
+          // amqplib's prefetch is async — un-awaited, consume() could start
+          // delivering before the QoS cap is applied.
+          await channel.prefetch(options.maxMessages)
         }
 
         const { consumerTag } = await channel.consume(
@@ -94,13 +96,24 @@ export const createQueue = (channel: Channel, queueName: string): Queue => {
           async (msg) => {
             if (!msg) return
 
-            const receivedMessage = createReceivedMessage<T>(channel, msg)
+            const wrapped = wrapMessage<T>(channel, msg)
             try {
-              await handler(receivedMessage)
+              await handler(wrapped.received)
+              // Handler success acks (matching the memory and BullMQ bonds and
+              // the core @example, whose handler never calls ack()). Without
+              // this, every doc-following consumer leaves messages unacked
+              // forever — delivery stalls once prefetch is exhausted. A no-op
+              // when the handler already acked/nacked.
+              wrapped.settleOnce(() => channel.ack(msg))
             } catch (error) {
               logger.error('RabbitMQ message handler error:', error)
-              // Nack without requeue on handler error
-              channel.nack(msg, false, false)
+              // A throw = retry (core contract): requeue a first failure once;
+              // a redelivered message that fails again goes to the queue's
+              // dead-letter exchange (configure via createQueue) or is
+              // dropped — unconditional requeue would hot-loop poison
+              // messages, unconditional drop breaks "throw on transient
+              // errors to retry".
+              wrapped.settleOnce(() => channel.nack(msg, false, !msg.fields.redelivered))
             }
           },
           { noAck: false },
@@ -136,8 +149,64 @@ export const createQueue = (channel: Channel, queueName: string): Queue => {
 }
 
 /**
+ * Internal wrapper shared by the pull (`channel.get`) and push
+ * (`channel.consume`) paths: builds the `ReceivedMessage` and guards
+ * acknowledgement behind a settle-once latch. RabbitMQ closes the ENTIRE
+ * channel (`PRECONDITION_FAILED — unknown delivery tag`) on a second
+ * ack/nack for the same delivery, killing every queue sharing it — so a
+ * double `ack()`, an `ack()` after `nack()`, or the subscriber auto-ack
+ * racing a handler's own ack must all collapse to a single settlement.
+ *
+ * @param channel - The amqplib channel for acknowledging/rejecting the message.
+ * @param msg - The raw message from `channel.get` or `channel.consume`.
+ * @returns The wrapped message plus a `settleOnce` used by `subscribe`'s auto-ack/nack.
+ */
+const wrapMessage = <T>(
+  channel: Channel,
+  msg: GetMessage | ConsumeMessage,
+): { received: ReceivedMessage<T>; settleOnce: (settle: () => void) => boolean } => {
+  let body: T
+  try {
+    body = JSON.parse(msg.content.toString()) as T
+  } catch (_error) {
+    // JSON parse failure is expected for non-JSON payloads; fall back to raw string body.
+    body = msg.content.toString() as unknown as T
+  }
+
+  let settled = false
+  const settleOnce = (settle: () => void): boolean => {
+    if (settled) return false
+    settled = true
+    settle()
+    return true
+  }
+
+  const received: ReceivedMessage<T> = {
+    id: msg.properties.messageId ?? msg.fields.deliveryTag.toString(),
+    body,
+    receiptHandle: msg.fields.deliveryTag.toString(),
+    attributes: msg.properties.headers as Record<string, string | number | boolean> | undefined,
+    receiveCount: (msg.properties.headers?.['x-death']?.[0]?.count as number) ?? 1,
+    // AMQP 0-9-1 `timestamp` is POSIX SECONDS by convention — convert to ms.
+    sentTimestamp: msg.properties.timestamp ? new Date(msg.properties.timestamp * 1000) : undefined,
+
+    async ack(): Promise<void> {
+      settleOnce(() => channel.ack(msg))
+    },
+
+    async nack(): Promise<void> {
+      settleOnce(() => channel.nack(msg, false, true))
+    },
+  }
+
+  return { received, settleOnce }
+}
+
+/**
  * Wraps an amqplib `GetMessage` (from `channel.get`) into a `ReceivedMessage` with `ack`/`nack` methods.
  * Parses the message content as JSON; falls back to raw string if parsing fails.
+ * `ack()`/`nack()` are idempotent: only the first settlement is sent to the broker
+ * (a repeated acknowledgement of the same delivery tag would close the channel).
  * @param channel - The amqplib channel for acknowledging/rejecting the message.
  * @param msg - The raw `GetMessage` from `channel.get`.
  * @returns A `ReceivedMessage` with parsed body, metadata, and ack/nack methods.
@@ -146,35 +215,14 @@ export const createReceivedMessageFromGet = <T>(
   channel: Channel,
   msg: GetMessage,
 ): ReceivedMessage<T> => {
-  let body: T
-  try {
-    body = JSON.parse(msg.content.toString()) as T
-  } catch (_error) {
-    // JSON parse failure is expected for non-JSON payloads; fall back to raw string body.
-    body = msg.content.toString() as unknown as T
-  }
-
-  return {
-    id: msg.properties.messageId ?? msg.fields.deliveryTag.toString(),
-    body,
-    receiptHandle: msg.fields.deliveryTag.toString(),
-    attributes: msg.properties.headers as Record<string, string | number | boolean> | undefined,
-    receiveCount: (msg.properties.headers?.['x-death']?.[0]?.count as number) ?? 1,
-    sentTimestamp: msg.properties.timestamp ? new Date(msg.properties.timestamp) : undefined,
-
-    async ack(): Promise<void> {
-      channel.ack(msg)
-    },
-
-    async nack(): Promise<void> {
-      channel.nack(msg, false, true)
-    },
-  }
+  return wrapMessage<T>(channel, msg).received
 }
 
 /**
  * Wraps an amqplib `ConsumeMessage` (from `channel.consume`) into a `ReceivedMessage` with `ack`/`nack` methods.
  * Parses the message content as JSON; falls back to raw string if parsing fails.
+ * `ack()`/`nack()` are idempotent: only the first settlement is sent to the broker
+ * (a repeated acknowledgement of the same delivery tag would close the channel).
  * @param channel - The amqplib channel for acknowledging/rejecting the message.
  * @param msg - The raw `ConsumeMessage` from `channel.consume`.
  * @returns A `ReceivedMessage` with parsed body, metadata, and ack/nack methods.
@@ -183,28 +231,5 @@ export const createReceivedMessage = <T>(
   channel: Channel,
   msg: ConsumeMessage,
 ): ReceivedMessage<T> => {
-  let body: T
-  try {
-    body = JSON.parse(msg.content.toString()) as T
-  } catch (_error) {
-    // JSON parse failure is expected for non-JSON payloads; fall back to raw string body.
-    body = msg.content.toString() as unknown as T
-  }
-
-  return {
-    id: msg.properties.messageId ?? msg.fields.deliveryTag.toString(),
-    body,
-    receiptHandle: msg.fields.deliveryTag.toString(),
-    attributes: msg.properties.headers as Record<string, string | number | boolean> | undefined,
-    receiveCount: (msg.properties.headers?.['x-death']?.[0]?.count as number) ?? 1,
-    sentTimestamp: msg.properties.timestamp ? new Date(msg.properties.timestamp) : undefined,
-
-    async ack(): Promise<void> {
-      channel.ack(msg)
-    },
-
-    async nack(): Promise<void> {
-      channel.nack(msg, false, true)
-    },
-  }
+  return wrapMessage<T>(channel, msg).received
 }

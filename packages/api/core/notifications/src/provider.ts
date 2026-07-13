@@ -8,7 +8,7 @@
  * @module
  */
 
-import { bond, get as bondGet, getAll, isBonded } from '@molecule/api-bond'
+import { bond, get as bondGet, getAll } from '@molecule/api-bond'
 import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
@@ -39,10 +39,15 @@ export const getProvider = (name: string): NotificationsProvider | null => {
 /**
  * Checks whether any notifications provider is bonded.
  *
+ * Notification channels are NAMED bonds (`bond('notifications', name, provider)`),
+ * so this checks the named-provider map. (`isBonded('notifications')` alone checks
+ * the singleton map and would always report `false` here — a channel registered
+ * via {@link setProvider} never appears there.)
+ *
  * @returns true if at least one provider is bonded.
  */
 export const hasProvider = (): boolean => {
-  return isBonded(BOND_TYPE)
+  return getAll<NotificationsProvider>(BOND_TYPE).size > 0
 }
 
 /**

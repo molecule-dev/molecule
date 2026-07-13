@@ -42,7 +42,10 @@ export const getNestedValue = (obj: Translations, key: string): string | undefin
  * @returns The string with placeholders replaced by their values.
  */
 export const interpolate = (text: string, values: InterpolationValues): string => {
-  return text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+  // Tolerate inner whitespace ("{{ name }}") — i18next trims interpolation
+  // tokens, and translators routinely add the spaces. Keeping the server-side
+  // interpolation in lockstep avoids "{{ name }}" leaking into emails.
+  return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => {
     const value = values[key]
     if (value === undefined) return `{{${key}}}`
     if (value instanceof Date) return value.toLocaleDateString()

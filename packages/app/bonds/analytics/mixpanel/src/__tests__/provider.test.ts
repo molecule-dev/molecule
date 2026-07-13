@@ -45,12 +45,25 @@ describe('Mixpanel app analytics provider', () => {
       })
     })
 
-    it('should use defaults when no options provided', () => {
-      createProvider()
-      expect(mockInit).toHaveBeenCalledWith('', {
-        debug: false,
-        track_pageview: false,
-      })
+    it('should NOT initialize the SDK without a token — warns once and no-ops instead', async () => {
+      // mixpanel-browser accepts init('') in total silence and then every
+      // event vanishes server-side. The provider must degrade gracefully with
+      // an actionable breadcrumb instead.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      try {
+        const p = createProvider()
+        expect(mockInit).not.toHaveBeenCalled()
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('VITE_MIXPANEL_TOKEN'))
+        // All calls resolve (analytics must never break the UI) and never touch the SDK.
+        await expect(p.track({ name: 'x' })).resolves.toBeUndefined()
+        await expect(p.identify({ userId: 'u1' })).resolves.toBeUndefined()
+        await expect(p.page({ path: '/' })).resolves.toBeUndefined()
+        expect(mockTrack).not.toHaveBeenCalled()
+        expect(mockIdentify).not.toHaveBeenCalled()
+      } finally {
+        warnSpy.mockRestore()
+      }
     })
   })
 

@@ -154,7 +154,7 @@ describe('@molecule/api-logger-loglevel', () => {
 
       setLevel('trace')
 
-      expect(mockSetLevel).toHaveBeenCalledWith(0)
+      expect(mockSetLevel).toHaveBeenCalledWith(0, false)
     })
 
     it('should set level to debug', async () => {
@@ -162,7 +162,7 @@ describe('@molecule/api-logger-loglevel', () => {
 
       setLevel('debug')
 
-      expect(mockSetLevel).toHaveBeenCalledWith(1)
+      expect(mockSetLevel).toHaveBeenCalledWith(1, false)
     })
 
     it('should set level to info', async () => {
@@ -170,7 +170,7 @@ describe('@molecule/api-logger-loglevel', () => {
 
       setLevel('info')
 
-      expect(mockSetLevel).toHaveBeenCalledWith(2)
+      expect(mockSetLevel).toHaveBeenCalledWith(2, false)
     })
 
     it('should set level to warn', async () => {
@@ -178,7 +178,7 @@ describe('@molecule/api-logger-loglevel', () => {
 
       setLevel('warn')
 
-      expect(mockSetLevel).toHaveBeenCalledWith(3)
+      expect(mockSetLevel).toHaveBeenCalledWith(3, false)
     })
 
     it('should set level to error', async () => {
@@ -186,7 +186,7 @@ describe('@molecule/api-logger-loglevel', () => {
 
       setLevel('error')
 
-      expect(mockSetLevel).toHaveBeenCalledWith(4)
+      expect(mockSetLevel).toHaveBeenCalledWith(4, false)
     })
 
     it('should set level to silent', async () => {
@@ -194,7 +194,7 @@ describe('@molecule/api-logger-loglevel', () => {
 
       setLevel('silent')
 
-      expect(mockSetLevel).toHaveBeenCalledWith(5)
+      expect(mockSetLevel).toHaveBeenCalledWith(5, false)
     })
   })
 
@@ -276,6 +276,9 @@ describe('@molecule/api-logger-loglevel', () => {
       expect(logger.warn).toBeDefined()
       expect(logger.error).toBeDefined()
       expect(mockGetLogger).toHaveBeenCalledWith('molecule')
+      // No explicit level = pass-through (TRACE): filtering is the core's job,
+      // and loglevel's own WARN default would silently swallow info/debug.
+      expect(mockSetLevel).toHaveBeenCalledWith(0, false)
     })
 
     it('should create a logger with custom name', async () => {
@@ -291,7 +294,7 @@ describe('@molecule/api-logger-loglevel', () => {
 
       createLogger({ level: 'debug' })
 
-      expect(mockSetLevel).toHaveBeenCalledWith(1)
+      expect(mockSetLevel).toHaveBeenCalledWith(1, false)
     })
 
     it('should create a logger with custom name and level', async () => {
@@ -300,7 +303,7 @@ describe('@molecule/api-logger-loglevel', () => {
       createLogger({ name: 'my-app', level: 'warn' })
 
       expect(mockGetLogger).toHaveBeenCalledWith('my-app')
-      expect(mockSetLevel).toHaveBeenCalledWith(3)
+      expect(mockSetLevel).toHaveBeenCalledWith(3, false)
     })
 
     it('should return a logger that calls underlying methods', async () => {

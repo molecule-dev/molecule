@@ -190,12 +190,21 @@ interface TwoFactorVerifyResult {
    */
   timeStep?: number
   /**
-   * Present only when `valid` is `false` and the token WOULD have verified but
-   * its time step is `<= afterTimeStep`: the code was already used (replay
-   * protection). Callers should tell the user to wait for the NEXT code — this
-   * is not a wrong or expired code, and not a library fault.
+   * Present only when `valid` is `false`, identifying failure modes a caller
+   * should message differently (absent when the token is simply wrong or
+   * expired):
+   *
+   * - `'replay'` — the token WOULD have verified but its time step is
+   *   `<= afterTimeStep`: the code was already used (replay protection).
+   *   Tell the user to wait for the NEXT code — this is not a wrong or
+   *   expired code, and not a library fault.
+   * - `'format'` — the token is not a syntactically valid one-time code
+   *   (wrong length or non-digits; grouping whitespace from authenticator-app
+   *   display formatting such as `"123 456"` is stripped before this check).
+   *   Prompt the user to re-enter the code — nothing is wrong with the secret
+   *   or the wiring, and the underlying library was never consulted.
    */
-  reason?: 'replay'
+  reason?: 'replay' | 'format'
 }
 ```
 
@@ -315,6 +324,10 @@ the default acceptance window is `[60, 30]` (≈60–90s of past validity). So:
   suspecting your wiring (or this library).
 - `{ valid: false, reason: 'replay' }` means the code was ALREADY USED (single-use
   protection): wait for the NEXT code. This is correct behavior, not a bug.
+- `{ valid: false, reason: 'format' }` means the token isn't a syntactically valid code
+  (wrong length / non-digits). Authenticator-app grouping whitespace (`"123 456"`) is
+  stripped automatically before this check, so this is a real typo: prompt the user to
+  re-enter the code — the secret and the wiring are fine.
 - Re-running setup regenerates the PENDING secret — codes computed from the previous
   QR/secret will never verify again. Do not click "set up" twice and reuse the first QR.
 - `verify()`, `getUrls()`, and otplib v13's `generate()` are all ASYNC — always `await`.

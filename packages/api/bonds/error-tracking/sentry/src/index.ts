@@ -27,8 +27,12 @@
  * - The SDK is initialized lazily (once) on first use, from `SENTRY_DSN`,
  *   optional `SENTRY_ENVIRONMENT` (defaults to `NODE_ENV`), and optional
  *   `SENTRY_TRACES_SAMPLE_RATE` (0–1; unset disables tracing).
- * - Call `flush(timeoutMs)` before process exit so buffered events are
- *   delivered.
+ * - **A returned event id does NOT confirm delivery.** The SDK buffers and
+ *   sends asynchronously; a capture can return an id and still never reach
+ *   Sentry (bad DSN, network egress blocked, process exited too soon). Call
+ *   `flush(timeoutMs)` before process exit — `false` means events may have
+ *   been dropped — and check the DSN/network before concluding the
+ *   integration is broken.
  */
 
 export * from './provider.js'

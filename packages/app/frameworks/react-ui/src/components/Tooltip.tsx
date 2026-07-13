@@ -211,6 +211,12 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
           onMouseLeave={hide}
           onFocus={handleFocus}
           onBlur={hide}
+          // WCAG 1.4.13: hover/focus-triggered content must be dismissable
+          // WITHOUT moving the pointer or focus — Escape hides the tooltip
+          // (the keydown on the focused child bubbles up to this wrapper).
+          onKeyDown={(e: React.KeyboardEvent) => {
+            if (e.key === 'Escape') hide()
+          }}
           // Any click on a tooltip-wrapped control hides the tooltip — clicking a
           // button shouldn't leave its hover/focus tooltip lingering. The wrapper
           // wraps children directly, so this single handler covers every

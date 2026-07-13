@@ -8,7 +8,7 @@
 /* ------------------------------------------------------------------ */
 
 /** HTTP methods supported by the mock server */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 /** Hints about the response shape extracted from handler analysis */
 export interface ResponseHint {

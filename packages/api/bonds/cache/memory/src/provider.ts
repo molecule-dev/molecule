@@ -26,6 +26,25 @@ export const createProvider = (options?: MemoryOptions): CacheProvider => {
   const defaultTtl = options?.defaultTtl
   const cleanupInterval = options?.cleanupInterval ?? 60000
 
+  const removeFromTagIndex = (key: string, tags?: string[]): void => {
+    if (!tags) return
+    for (const tag of tags) {
+      const keys = tagIndex.get(tag)
+      if (keys) {
+        keys.delete(key)
+        if (keys.size === 0) tagIndex.delete(tag)
+      }
+    }
+  }
+
+  // Single removal path: keeps the tag index in sync so deleted/evicted/expired
+  // keys don't linger in tag sets (a leak) and `invalidateTag` never deletes an
+  // entry that was later re-set WITHOUT the tag.
+  const removeEntry = (key: string, entry: CacheEntry): void => {
+    cache.delete(key)
+    removeFromTagIndex(key, entry.tags)
+  }
+
   // Cleanup expired entries periodically
   let cleanupTimer: ReturnType<typeof setInterval> | null = null
   if (cleanupInterval > 0) {
@@ -33,7 +52,7 @@ export const createProvider = (options?: MemoryOptions): CacheProvider => {
       const now = Date.now()
       for (const [key, entry] of cache.entries()) {
         if (entry.expiresAt && entry.expiresAt <= now) {
-          cache.delete(key)
+          removeEntry(key, entry)
         }
       }
     }, cleanupInterval)
@@ -47,9 +66,9 @@ export const createProvider = (options?: MemoryOptions): CacheProvider => {
   const evictIfNeeded = (): void => {
     if (cache.size >= maxSize) {
       // Simple LRU: delete the first (oldest) entry
-      const firstKey = cache.keys().next().value
-      if (firstKey) {
-        cache.delete(firstKey)
+      const first = cache.entries().next().value
+      if (first) {
+        removeEntry(first[0], first[1])
       }
     }
   }
@@ -71,7 +90,7 @@ export const createProvider = (options?: MemoryOptions): CacheProvider => {
       const entry = cache.get(key)
       if (!entry) return undefined
       if (isExpired(entry)) {
-        cache.delete(key)
+        removeEntry(key, entry)
         return undefined
       }
       // Move to end for LRU
@@ -81,6 +100,13 @@ export const createProvider = (options?: MemoryOptions): CacheProvider => {
     },
 
     async set<T = unknown>(key: string, value: T, options?: CacheOptions): Promise<void> {
+      // Overwriting an existing key must NOT evict an unrelated sibling (the map
+      // does not grow), must refresh this key's LRU recency, and must drop the old
+      // entry's tag memberships — so remove the existing entry before the size check.
+      const existing = cache.get(key)
+      if (existing !== undefined) {
+        removeEntry(key, existing)
+      }
       evictIfNeeded()
       const ttl = options?.ttl ?? defaultTtl
       const entry: CacheEntry<T> = {
@@ -93,14 +119,17 @@ export const createProvider = (options?: MemoryOptions): CacheProvider => {
     },
 
     async delete(key: string): Promise<boolean> {
-      return cache.delete(key)
+      const entry = cache.get(key)
+      if (entry === undefined) return false
+      removeEntry(key, entry)
+      return true
     },
 
     async has(key: string): Promise<boolean> {
       const entry = cache.get(key)
       if (!entry) return false
       if (isExpired(entry)) {
-        cache.delete(key)
+        removeEntry(key, entry)
         return false
       }
       return true
@@ -126,7 +155,7 @@ export const createProvider = (options?: MemoryOptions): CacheProvider => {
     async deleteMany(keys: string[]): Promise<number> {
       let count = 0
       for (const key of keys) {
-        if (cache.delete(key)) count++
+        if (await this.delete(key)) count++
       }
       return count
     },
@@ -135,8 +164,11 @@ export const createProvider = (options?: MemoryOptions): CacheProvider => {
       const keys = tagIndex.get(tag)
       if (keys) {
         for (const key of keys) {
-          cache.delete(key)
+          const entry = cache.get(key)
+          // removeEntry also detaches the key from its OTHER tags' sets.
+          if (entry !== undefined) removeEntry(key, entry)
         }
+        // removeEntry may have already emptied + dropped this tag's set; idempotent.
         tagIndex.delete(tag)
       }
     },

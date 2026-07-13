@@ -54,8 +54,20 @@ const parseTokenResponse = async (response: Response): Promise<OAuthTokens> => {
     throw new Error(`OAuth token error: ${String(errorDesc)}`)
   }
 
+  // A 2xx response with no `access_token` (and no `error` field) means the
+  // exchange did NOT succeed — e.g. a misconfigured token URL returning an
+  // unrelated JSON page, or a provider 200-encoding failure in a shape we
+  // don't recognize. Silently returning `accessToken: ''` here would defer
+  // the failure to the FIRST authenticated `request()`, which then fails
+  // with the resource server's confusing 401 — far from the actual cause.
+  if (!data.access_token) {
+    throw new Error(
+      `OAuth token response missing access_token (keys: ${Object.keys(data).join(', ') || 'none'}) — check the tokenUrl and client credentials.`,
+    )
+  }
+
   const tokens: OAuthTokens = {
-    accessToken: String(data.access_token ?? ''),
+    accessToken: String(data.access_token),
     tokenType: String(data.token_type ?? 'Bearer'),
   }
 

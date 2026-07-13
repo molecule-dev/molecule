@@ -40,11 +40,25 @@ interface AnalyticsEvent {
     name: string;
     /** Arbitrary key-value properties for this event. */
     properties?: Record<string, unknown>;
-    /** Event timestamp (defaults to now). */
+    /**
+     * Event timestamp (defaults to now). Only honored where the underlying
+     * browser SDK supports client-set timestamps (PostHog does); the Mixpanel
+     * browser SDK always stamps the time of capture. For reliable historical
+     * timestamps use the API-side `@molecule/api-analytics` bonds.
+     */
     timestamp?: Date;
-    /** Identified user who triggered the event. */
+    /**
+     * Identified user who triggered the event. Browser analytics SDKs attribute
+     * events to the AMBIENT identified session — call `identify()` first;
+     * current browser bonds do not honor a per-event userId override. (Exists
+     * for interface parity with `@molecule/api-analytics`, where there is no
+     * ambient session and per-event IDs are required.)
+     */
     userId?: string;
-    /** Anonymous identifier for unauthenticated users. */
+    /**
+     * Anonymous identifier for unauthenticated users. Like `userId`, browser
+     * bonds use the SDK's own ambient anonymous identity instead of this field.
+     */
     anonymousId?: string;
 }
 ```
@@ -148,6 +162,14 @@ Creates a Mixpanel analytics provider using `mixpanel-browser`. Initializes the 
 with the provided token and returns an `AnalyticsProvider` that maps molecule events to
 Mixpanel's `track`, `identify`, `people.set`, and `set_group` APIs.
 
+When no token is provided, this does NOT initialize the SDK (mixpanel-browser
+accepts `init('')` in TOTAL silence and then sends every event to
+api.mixpanel.com with an empty token, where it is dropped server-side with no
+client-side breadcrumb): it logs one actionable warning naming
+VITE_MIXPANEL_TOKEN and returns a no-op provider, so bonding the lazy
+`provider` export without configuration degrades gracefully instead of
+becoming a silent event black hole.
+
 ```typescript
 function createProvider(options?: MixpanelOptions): AnalyticsProvider
 ```
@@ -203,3 +225,14 @@ into the client bundle, and molecule's scaffolded app `.env` only includes
 frontend code — that belongs to `@molecule/api-analytics-mixpanel` and
 never reaches the browser. The Mixpanel project token is a public
 browser-side credential, safe to embed client-side.
+
+Bonding without a token is failure-safe: `createProvider()` (and the lazy
+`provider` export, which cannot receive options) logs ONE console warning
+naming VITE_MIXPANEL_TOKEN and returns a no-op provider — the raw SDK would
+otherwise accept an empty token in total silence and every event would
+vanish with no breadcrumb. If events never appear in Mixpanel, check the
+browser console for that warning FIRST.
+
+`AnalyticsEvent.timestamp` is NOT honored: the Mixpanel browser SDK has no
+supported client-set timestamp and always stamps the time of capture. For
+historical timestamps use `@molecule/api-analytics-mixpanel` server-side.

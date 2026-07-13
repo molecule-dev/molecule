@@ -529,14 +529,16 @@ describe('@molecule/api-analytics-posthog', () => {
       })
     })
 
-    it('should use defaults when no parameters or env vars provided', async () => {
+    it('should leave host to the SDK default when no parameters or env vars provided', async () => {
       const { PostHog } = await import('posthog-node')
       const { createClient } = await import('../index.js')
 
       createClient()
 
+      // host stays undefined so the pinned SDK's own default
+      // (https://us.i.posthog.com) applies — no legacy host override.
       expect(PostHog).toHaveBeenCalledWith('', {
-        host: 'https://app.posthog.com',
+        host: undefined,
       })
     })
   })
@@ -888,7 +890,7 @@ describe('@molecule/api-analytics-posthog', () => {
       })
 
       expect(PostHog).toHaveBeenCalledWith('test-key', {
-        host: 'https://app.posthog.com',
+        host: undefined,
         flushAt: 5,
         flushInterval: 10000,
       })
@@ -904,7 +906,7 @@ describe('@molecule/api-analytics-posthog', () => {
       })
 
       expect(PostHog).toHaveBeenCalledWith('test-key', {
-        host: 'https://app.posthog.com',
+        host: undefined,
         flushAt: 20,
         flushInterval: 2000,
       })

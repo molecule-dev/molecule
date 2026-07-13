@@ -8,14 +8,21 @@
  * @module
  * @example
  * ```typescript
+ * import http from 'node:http'
  * import { createProvider } from '@molecule/api-realtime-sse'
  * import { setProvider } from '@molecule/api-realtime'
  *
- * // Create an SSE-backed realtime provider
- * const sseProvider = createProvider({ port: 3000, path: '/sse' })
+ * // Attach the SSE endpoints to the API's own HTTP server so realtime
+ * // shares the API port (a standalone `port` binds a SECOND port that a
+ * // containerized/proxied deployment usually does not expose — and the
+ * // default port 3000 collides with the typical API port).
+ * const server = http.createServer()
+ * const sseProvider = createProvider({ httpServer: server, path: '/sse' })
  *
  * // Bond it as the active realtime provider
  * setProvider(sseProvider)
+ *
+ * server.listen(3000)
  * ```
  */
 

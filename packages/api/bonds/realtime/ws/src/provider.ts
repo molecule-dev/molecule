@@ -431,6 +431,9 @@ export function createProvider(config: WsRealtimeConfig = {}): RealtimeProvider 
 
   let roomCounter = 0
 
+  /** Set once close() has run — makes shutdown idempotent. */
+  let closed = false
+
   const provider: RealtimeProvider = {
     async createRoom(name: string, options: RoomOptions = {}): Promise<Room> {
       roomCounter += 1
@@ -557,8 +560,21 @@ export function createProvider(config: WsRealtimeConfig = {}): RealtimeProvider 
     },
 
     async close(): Promise<void> {
+      // Idempotent: a second close() (double teardown is a normal shutdown
+      // pattern) must not reject with ws's "The server is not running".
+      if (closed) return
+      closed = true
       rooms.clear()
       protocolRooms.clear()
+      // Terminate every still-open socket BEFORE awaiting wss.close():
+      // `ws`'s WebSocketServer.close() only stops accepting new connections
+      // and waits for existing ones to end on their own — with even one
+      // connected client, close() would otherwise hang forever (verified
+      // against ws 8.x; the sibling socketio/sse bonds already disconnect
+      // their clients on close, this matches them).
+      for (const client of clients.values()) {
+        client.socket.terminate()
+      }
       clients.clear()
       messageHandlers.length = 0
       connectionHandlers.length = 0

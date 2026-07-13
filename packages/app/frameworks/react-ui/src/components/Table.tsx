@@ -92,6 +92,15 @@ export const Table = forwardRef<HTMLTableElement, TableProps<Record<string, unkn
                   )}
                   style={{ width: column.width }}
                   onClick={() => column.sortable && handleSort(column)}
+                  aria-sort={
+                    column.sortable
+                      ? sort?.key === (column.key as string)
+                        ? sort.direction === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                        : 'none'
+                      : undefined
+                  }
                 >
                   <div className={cm.tableSortWrapper}>
                     {column.header as React.ReactNode}

@@ -63,12 +63,21 @@ export interface TwoFactorVerifyResult {
    */
   timeStep?: number
   /**
-   * Present only when `valid` is `false` and the token WOULD have verified but
-   * its time step is `<= afterTimeStep`: the code was already used (replay
-   * protection). Callers should tell the user to wait for the NEXT code — this
-   * is not a wrong or expired code, and not a library fault.
+   * Present only when `valid` is `false`, identifying failure modes a caller
+   * should message differently (absent when the token is simply wrong or
+   * expired):
+   *
+   * - `'replay'` — the token WOULD have verified but its time step is
+   *   `<= afterTimeStep`: the code was already used (replay protection).
+   *   Tell the user to wait for the NEXT code — this is not a wrong or
+   *   expired code, and not a library fault.
+   * - `'format'` — the token is not a syntactically valid one-time code
+   *   (wrong length or non-digits; grouping whitespace from authenticator-app
+   *   display formatting such as `"123 456"` is stripped before this check).
+   *   Prompt the user to re-enter the code — nothing is wrong with the secret
+   *   or the wiring, and the underlying library was never consulted.
    */
-  reason?: 'replay'
+  reason?: 'replay' | 'format'
 }
 
 /**

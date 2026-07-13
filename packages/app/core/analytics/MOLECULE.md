@@ -27,11 +27,25 @@ interface AnalyticsEvent {
   name: string
   /** Arbitrary key-value properties for this event. */
   properties?: Record<string, unknown>
-  /** Event timestamp (defaults to now). */
+  /**
+   * Event timestamp (defaults to now). Only honored where the underlying
+   * browser SDK supports client-set timestamps (PostHog does); the Mixpanel
+   * browser SDK always stamps the time of capture. For reliable historical
+   * timestamps use the API-side `@molecule/api-analytics` bonds.
+   */
   timestamp?: Date
-  /** Identified user who triggered the event. */
+  /**
+   * Identified user who triggered the event. Browser analytics SDKs attribute
+   * events to the AMBIENT identified session — call `identify()` first;
+   * current browser bonds do not honor a per-event userId override. (Exists
+   * for interface parity with `@molecule/api-analytics`, where there is no
+   * ambient session and per-event IDs are required.)
+   */
   userId?: string
-  /** Anonymous identifier for unauthenticated users. */
+  /**
+   * Anonymous identifier for unauthenticated users. Like `userId`, browser
+   * bonds use the SDK's own ambient anonymous identity instead of this field.
+   */
   anonymousId?: string
 }
 ```
@@ -239,6 +253,10 @@ Returns a cleanup function that removes all subscriptions.
 
 Pass any combination of sources — only provided sources are tracked.
 
+The analytics provider is resolved at EVENT time, not at setup time — so
+`setupAutoTracking()` may safely run before the analytics bond is set
+(events fired before bonding no-op; events fired after are tracked).
+
 ```typescript
 function setupAutoTracking(options: AutoTrackingOptions): () => void
 ```
@@ -272,3 +290,16 @@ function track(event: AnalyticsEvent): Promise<void>
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+- Every convenience function (`track`, `identify`, `page`, …) swallows
+  provider errors and no-ops when nothing is bonded — analytics can never
+  break the UI, so `hasProvider()` is the ONLY signal that separates
+  "analytics disabled/unbonded" from "events are being tracked". Check it
+  (and the bond's own console warning) before debugging tracking code.
+- Attribution is AMBIENT in the browser: call `identify(user)` on login and
+  `reset()` on logout; per-event `userId`/`anonymousId` fields are not
+  honored by browser bonds (they exist for parity with
+  `@molecule/api-analytics`).
+- `group(groupId)` normalizes the group TYPE to `'company'` in every bond
+  (Mixpanel group key, PostHog group type) — look under "company" in the
+  provider's UI.

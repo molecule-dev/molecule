@@ -106,6 +106,11 @@ interface JwtSignOptions {
 
 Options for verifying a JWT.
 
+Note: security-hardened bonds (e.g. `@molecule/api-jwt-jsonwebtoken`)
+REFUSE to honor `ignoreExpiration`/`ignoreNotBefore` — an expired token
+always fails verification regardless of these flags. To tolerate clock
+skew or slow flows, use `clockTolerance` (seconds) instead.
+
 ```typescript
 interface JwtVerifyOptions {
   algorithms?: JwtAlgorithm[]
@@ -301,9 +306,12 @@ const JWT_PRIVATE_KEY: string | Buffer<ArrayBufferLike>
 #### `JWT_PUBLIC_KEY`
 
 The RSA public key for verifying JWTs. Read from the `JWT_PUBLIC_KEY`
-environment variable, or loaded from the PEM file on disk.
+environment variable; when only `JWT_PRIVATE_KEY` is set, the matching
+public key is DERIVED from it (a disk fallback could not match an
+env-provided private key and would make every signed token fail
+verification); otherwise loaded from the PEM file on disk.
 
-Throws at startup if neither source provides a key.
+Throws at startup if no source provides a key.
 
 ```typescript
 const JWT_PUBLIC_KEY: string | Buffer<ArrayBufferLike>
@@ -347,3 +355,11 @@ anything security-relevant; `decode()` is only for reading a token you do NOT tr
   and populates `res.locals.session`, so a handler calls `getUserId(res)` — do NOT call
   `verify()`/`sign()` by hand for the session (see the `auth` skill). Use these directly
   only for a CUSTOM token, e.g. a signed email/reset link.
+- **Re-signing decoded claims (refresh flows): strip `exp`/`iat` first.** `sign()`
+  always sets `expiresIn` (default {@link JWT_EXPIRES_TIME}), and the underlying library
+  throws (`Bad "options.expiresIn" option the payload already has an "exp" property`)
+  when the payload still carries the old `exp` — so `const { exp, iat, ...claims } =
+  verify(oldToken) as JwtPayload; sign(claims)` is the correct refresh shape.
+- Set `JWT_PRIVATE_KEY` and `JWT_PUBLIC_KEY` together (or neither). If only the private
+  key is set, the matching public key is DERIVED from it automatically; setting only the
+  public key is for verify-only deployments.

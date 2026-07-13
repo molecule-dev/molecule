@@ -4,7 +4,7 @@
  * @module
  */
 
-import React, { forwardRef, useCallback, useEffect } from 'react'
+import React, { forwardRef, useCallback, useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
 
 import { t } from '@molecule/app-i18n'
@@ -48,6 +48,11 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
     ref,
   ) => {
     const cm = getClassMap()
+    // Per-instance title id. A hardcoded 'modal-title' duplicated the id
+    // whenever two modals were mounted (stacked dialogs, a drawer + a
+    // confirm) — aria-labelledby then resolved to the FIRST match, so
+    // screen readers announced the WRONG dialog title.
+    const titleId = useId()
 
     const handleEscape = useCallback(
       (e: KeyboardEvent) => {
@@ -114,7 +119,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
             ref={ref}
             role="dialog"
             aria-modal="true"
-            aria-labelledby={title ? 'modal-title' : undefined}
+            aria-labelledby={title ? titleId : undefined}
             className={cm.cn(cm.modal({ size }), className)}
             style={style}
             data-testid={testId}
@@ -126,7 +131,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps & { 'data-mol-id'?: s
                 must not spend a full-width header band on just the X. */}
             {title ? (
               <div className={cm.dialogHeader}>
-                <h2 id="modal-title" className={cm.dialogTitle}>
+                <h2 id={titleId} className={cm.dialogTitle}>
                   {title as React.ReactNode}
                 </h2>
                 {closeButton(cm.dialogClose)}

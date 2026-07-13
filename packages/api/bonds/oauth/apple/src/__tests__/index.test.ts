@@ -422,6 +422,33 @@ describe('Apple OAuth Provider', () => {
       expect(mockGet).toHaveBeenCalledTimes(1)
     })
 
+    it('key rotation: refetches the JWKS once when the cached set lacks the token kid', async () => {
+      // A stale cached JWKS (fetched before Apple rotated keys) must not fail
+      // logins for the rest of the TTL — a kid miss forces ONE refetch.
+      const staleKeys = { data: { keys: [{ ...RSA_PUBLIC_JWK, kid: 'OLD-KID', alg: 'RS256' }] } }
+      const freshKeys = {
+        data: { keys: [{ ...RSA_PUBLIC_JWK, kid: APPLE_KID, alg: 'RS256', use: 'sig' }] },
+      }
+      mockGet.mockResolvedValueOnce(staleKeys).mockResolvedValueOnce(freshKeys)
+
+      const { verifyIdToken } = await import('../verify-id-token.js')
+      const claims = await verifyIdToken(signAppleIdToken())
+
+      expect(claims.sub).toBe('001234.apple.user')
+      expect(mockGet).toHaveBeenCalledTimes(2)
+    })
+
+    it('key rotation: a kid missing even after the forced refetch still fails cleanly', async () => {
+      const staleKeys = { data: { keys: [{ ...RSA_PUBLIC_JWK, kid: 'OLD-KID', alg: 'RS256' }] } }
+      mockGet.mockResolvedValue(staleKeys)
+
+      const { verifyIdToken } = await import('../verify-id-token.js')
+      await expect(verifyIdToken(signAppleIdToken())).rejects.toThrow(
+        /does not contain a key for kid/,
+      )
+      expect(mockGet).toHaveBeenCalledTimes(2)
+    })
+
     it('rejects tokens with the wrong issuer', async () => {
       mockJwksOk()
       const idToken = signAppleIdToken({ iss: 'https://evil.example.com' })

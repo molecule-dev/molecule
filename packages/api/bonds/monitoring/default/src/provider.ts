@@ -40,13 +40,19 @@ const worstStatus = (statuses: CheckStatus[]): CheckStatus => {
 
 /**
  * Wraps a check's Promise with a per-check timeout.
+ *
+ * The timer is cleared as soon as the race settles — a lingering timer would
+ * keep the process event loop alive for up to `ms` (10s by default) after
+ * every `runAll()`, stalling short-lived scripts and test runners.
+ *
  * @param promise - The check promise to wrap.
  * @param ms - Timeout duration in milliseconds.
  * @returns A Promise that resolves to a 'down' result if the timeout fires first.
  */
 const withTimeout = (promise: Promise<CheckResult>, ms: number): Promise<CheckResult> => {
-  const timeout = new Promise<CheckResult>((resolve) =>
-    setTimeout(
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<CheckResult>((resolve) => {
+    timer = setTimeout(
       () =>
         resolve({
           status: 'down',
@@ -59,9 +65,9 @@ const withTimeout = (promise: Promise<CheckResult>, ms: number): Promise<CheckRe
           ),
         }),
       ms,
-    ),
-  )
-  return Promise.race([promise, timeout])
+    )
+  })
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer))
 }
 
 /**
@@ -92,7 +98,19 @@ export const createProvider = (options?: DefaultMonitoringOptions): MonitoringPr
       const results = await Promise.all(
         entries.map(async (check): Promise<CheckEntry> => {
           const checkedAt = new Date().toISOString()
-          const result = await withTimeout(check.check(), checkTimeoutMs)
+          let result: CheckResult
+          try {
+            result = await withTimeout(check.check(), checkTimeoutMs)
+          } catch (error) {
+            // A throwing check (easy with createCustomCheck) is THAT check's
+            // failure, not the snapshot's: report it as 'down' with the thrown
+            // message instead of rejecting runAll() — one bad check must not
+            // turn the whole /health endpoint into an opaque 500.
+            result = {
+              status: 'down',
+              message: error instanceof Error ? error.message : String(error),
+            }
+          }
           return {
             name: check.name,
             category: check.category,

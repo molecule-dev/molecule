@@ -53,6 +53,7 @@ export const createMockEmail = (): EmailTransport & {
 }
 
 /**
- * Pre-configured mock email for quick setup.
+ * Pre-configured mock email for quick setup. Shared module-level instance —
+ * call `reset()` in `beforeEach` so sent messages don't bleed between tests.
  */
 export const mockEmail = createMockEmail()

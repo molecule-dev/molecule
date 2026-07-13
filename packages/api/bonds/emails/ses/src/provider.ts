@@ -57,8 +57,16 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
     const result = await nodemailerTransport.sendMail(message as nodemailer.SendMailOptions)
 
     return {
-      accepted: (result.accepted || []) as string[],
-      rejected: (result.rejected || []) as string[],
+      // nodemailer's SES transport resolves with `{ envelope, messageId,
+      // response, raw }` — it NEVER sets `accepted`/`rejected` (only the SMTP
+      // transports do; the @types/nodemailer SentMessageInfo claiming otherwise
+      // is type-level drift). A resolved SendEmail call means SES accepted the
+      // message for every envelope recipient, so map `envelope.to` to
+      // `accepted` — without this, every successful send reported
+      // `accepted: []` and callers gating on "was my recipient accepted?"
+      // concluded delivery failed.
+      accepted: (result.accepted ?? result.envelope?.to ?? []) as string[],
+      rejected: (result.rejected ?? []) as string[],
       messageId: result.messageId,
       response: result.response,
     }

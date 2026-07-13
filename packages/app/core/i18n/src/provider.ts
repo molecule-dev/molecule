@@ -19,6 +19,22 @@ import type {
 import { getNestedValue, interpolate } from './utilities.js'
 
 /**
+ * Milliseconds per relative-time unit (calendar units are approximations:
+ * 30-day month, 90-day quarter, 365-day year — matching the auto-select
+ * thresholds below).
+ */
+const UNIT_MS: Record<string, number> = {
+  second: 1000,
+  minute: 60_000,
+  hour: 3_600_000,
+  day: 86_400_000,
+  week: 604_800_000,
+  month: 2_592_000_000,
+  quarter: 7_776_000_000,
+  year: 31_536_000_000,
+}
+
+/**
  * Creates an in-memory i18n provider with translation lookup, interpolation,
  * pluralization, `Intl`-based formatting, lazy locale loading, and
  * locale change subscription.
@@ -59,7 +75,11 @@ export const createSimpleI18nProvider = (
     listeners.forEach((listener) => listener(currentLocale))
   }
 
-  return {
+  // Named (rather than `return { ... }`) so methods can reference each other
+  // without `this` — `formatDate({ relative: true })` crashed with an opaque
+  // "Cannot read properties of undefined" when callers destructured methods
+  // off the provider (`const { formatDate } = getProvider()`).
+  const provider: I18nProvider = {
     getLocale: () => currentLocale,
 
     async setLocale(locale: string): Promise<void> {
@@ -105,15 +125,16 @@ export const createSimpleI18nProvider = (
     },
 
     addTranslations(locale: string, translations: Translations, namespace?: string): void {
-      const config = locales.get(locale)
+      // Auto-create the locale if it doesn't exist — mirroring the API-side
+      // provider and the i18next bond. Throwing here broke the documented
+      // locale-bond flow (`registerLocaleModule(locales)` registers 79 locales
+      // and crashed on the first one not already configured), leaving the
+      // provider partially mutated.
+      let config = locales.get(locale)
       if (!config) {
-        throw new Error(
-          t(
-            'i18n.error.localeNotFound',
-            { locale },
-            { defaultValue: `Locale "${locale}" not found` },
-          ),
-        )
+        config = { code: locale, name: locale, translations: {} }
+        locales.set(locale, config)
+        notify()
       }
       if (!config.translations) config.translations = {}
 
@@ -141,14 +162,30 @@ export const createSimpleI18nProvider = (
         return values ? interpolate(fallback, values) : fallback
       }
 
-      let text = getNestedValue(config.translations ?? {}, key)
+      const lookup = (translations: Translations, locale: string): string | undefined => {
+        let found = getNestedValue(translations, key)
+        // Handle pluralization
+        if (options?.count !== undefined && found === undefined) {
+          const pluralForm = getPluralForm(options.count, locale)
+          found =
+            getNestedValue(translations, `${key}_${pluralForm}`) ||
+            getNestedValue(translations, `${key}_other`)
+        }
+        return found
+      }
 
-      // Handle pluralization
-      if (options?.count !== undefined && text === undefined) {
-        const pluralForm = getPluralForm(options.count, currentLocale)
-        text =
-          getNestedValue(config.translations ?? {}, `${key}_${pluralForm}`) ||
-          getNestedValue(config.translations ?? {}, `${key}_other`)
+      let text = lookup(config.translations ?? {}, currentLocale)
+
+      // Fall back to the English translations when the key is missing from the
+      // current locale — mirroring the API-side core provider and the
+      // api-i18n-simple bond. Previously a partially-translated locale showed
+      // the raw KEY (or the inline defaultValue) even when a proper English
+      // translation was registered, while the API side showed English text.
+      if (text === undefined && currentLocale !== 'en') {
+        const enConfig = locales.get('en')
+        if (enConfig) {
+          text = lookup(enConfig.translations ?? {}, 'en')
+        }
       }
 
       if (text === undefined) {
@@ -185,7 +222,7 @@ export const createSimpleI18nProvider = (
       const date = value instanceof Date ? value : new Date(value)
 
       if (options?.relative) {
-        return this.formatRelativeTime(date)
+        return provider.formatRelativeTime(date)
       }
 
       return new Intl.DateTimeFormat(currentLocale, {
@@ -202,30 +239,41 @@ export const createSimpleI18nProvider = (
       const now = Date.now()
       const diff = date.getTime() - now
 
-      const absDiff = Math.abs(diff)
-      let unit: Intl.RelativeTimeFormatUnit = options?.unit || 'second'
-      let unitValue = diff / 1000
+      // An explicit unit means "express the difference IN that unit" — convert
+      // the millisecond diff before formatting. Previously the raw seconds
+      // count was labeled with the unit ("7,200 hours ago" for 2 hours).
+      if (options?.unit) {
+        const unitMs = UNIT_MS[options.unit.replace(/s$/, '')] ?? 1000
+        return new Intl.RelativeTimeFormat(currentLocale, { numeric: 'auto' }).format(
+          Math.round(diff / unitMs),
+          options.unit,
+        )
+      }
 
-      if (!options?.unit) {
-        if (absDiff < 60000) {
-          unit = 'second'
-          unitValue = Math.round(diff / 1000)
-        } else if (absDiff < 3600000) {
-          unit = 'minute'
-          unitValue = Math.round(diff / 60000)
-        } else if (absDiff < 86400000) {
-          unit = 'hour'
-          unitValue = Math.round(diff / 3600000)
-        } else if (absDiff < 2592000000) {
-          unit = 'day'
-          unitValue = Math.round(diff / 86400000)
-        } else if (absDiff < 31536000000) {
-          unit = 'month'
-          unitValue = Math.round(diff / 2592000000)
-        } else {
-          unit = 'year'
-          unitValue = Math.round(diff / 31536000000)
-        }
+      const absDiff = Math.abs(diff)
+      // Declared without initializers: the if/else chain below is exhaustive (its final
+      // `else` always assigns), so any seed value here is dead code.
+      let unit: Intl.RelativeTimeFormatUnit
+      let unitValue: number
+
+      if (absDiff < 60000) {
+        unit = 'second'
+        unitValue = Math.round(diff / 1000)
+      } else if (absDiff < 3600000) {
+        unit = 'minute'
+        unitValue = Math.round(diff / 60000)
+      } else if (absDiff < 86400000) {
+        unit = 'hour'
+        unitValue = Math.round(diff / 3600000)
+      } else if (absDiff < 2592000000) {
+        unit = 'day'
+        unitValue = Math.round(diff / 86400000)
+      } else if (absDiff < 31536000000) {
+        unit = 'month'
+        unitValue = Math.round(diff / 2592000000)
+      } else {
+        unit = 'year'
+        unitValue = Math.round(diff / 31536000000)
       }
 
       return new Intl.RelativeTimeFormat(currentLocale, { numeric: 'auto' }).format(
@@ -259,6 +307,8 @@ export const createSimpleI18nProvider = (
       logger.debug('Registered content module', module)
     },
   }
+
+  return provider
 }
 
 /**

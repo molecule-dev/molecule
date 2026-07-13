@@ -47,13 +47,21 @@ export const hasProvider = (): boolean => {
  * Hashes a plain-text password using the bonded provider.
  *
  * @param password - The plain-text password to hash.
- * @param saltRounds - Number of salt rounds (cost factor); defaults to the `SALT_ROUNDS` env var or 12.
+ * The env-derived default is clamped to a sane bcrypt-cost range of 10–16
+ * (mirroring `@molecule/api-password-bcrypt`'s own default): the cost factor
+ * is EXPONENTIAL (each +1 doubles the work), so a misread `SALT_ROUNDS=32`
+ * would otherwise hang every signup for hours with zero error output, and
+ * `SALT_ROUNDS=4` would silently produce weak hashes. An explicitly passed
+ * `saltRounds` argument is honored as-is (a deliberate caller choice, e.g.
+ * fast test fixtures).
+ *
+ * @param saltRounds - Number of salt rounds (cost factor); defaults to the `SALT_ROUNDS` env var (clamped to 10–16) or 12.
  * @returns The resulting password hash string.
  * @throws {Error} If no password provider has been bonded.
  */
 export const hash = (
   password: string,
-  saltRounds: number = Number(process.env.SALT_ROUNDS) || 12,
+  saltRounds: number = Math.min(Math.max(Number(process.env.SALT_ROUNDS) || 12, 10), 16),
 ): Promise<string> => {
   return getProvider().hash(password, saltRounds)
 }

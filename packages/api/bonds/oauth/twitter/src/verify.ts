@@ -57,8 +57,19 @@ const sanitizeError = (error: unknown, secrets: Array<string | undefined>): Erro
   return sanitized
 }
 
+/** Default X (Twitter) access-token endpoint. Overridable via `OAUTH_TWITTER_TOKEN_URL`. */
+const DEFAULT_TOKEN_URL = `https://api.twitter.com/2/oauth2/token`
+/** Default X (Twitter) user-info endpoint. Overridable via `OAUTH_TWITTER_USER_URL`. */
+const DEFAULT_USER_URL = `https://api.twitter.com/2/users/me`
+
 /**
  * Verifies a Twitter OAuth code and responds with OAuth-related user props.
+ *
+ * The token and user-info URLs default to api.twitter.com, but can be
+ * overridden via `OAUTH_TWITTER_TOKEN_URL` and `OAUTH_TWITTER_USER_URL`
+ * (pairing with `OAUTH_TWITTER_AUTHORIZE_URL` for E2E mock OAuth servers,
+ * consistent with the github/gitlab/google bonds).
+ *
  * @param code - The authorization code from the OAuth callback.
  * @param codeVerifier - The PKCE code verifier (if PKCE was used).
  * @param redirectUri - The redirect URI used in the authorization request.
@@ -70,12 +81,15 @@ export const verify: OAuthVerifier = async (
   redirectUri?: string,
 ) => {
   try {
+    const tokenUrl = process.env.OAUTH_TWITTER_TOKEN_URL || DEFAULT_TOKEN_URL
+    const userUrl = process.env.OAUTH_TWITTER_USER_URL || DEFAULT_USER_URL
+
     const response = await post<{
       access_token: string
       token_type: string
       scope: string
     }>(
-      `https://api.twitter.com/2/oauth2/token`,
+      tokenUrl,
       {
         client_id: process.env.OAUTH_TWITTER_CLIENT_ID,
         code,
@@ -109,7 +123,7 @@ export const verify: OAuthVerifier = async (
 
     const {
       data: { data: oauthData },
-    } = await get<{ data: Record<string, unknown> }>(`https://api.twitter.com/2/users/me`, {
+    } = await get<{ data: Record<string, unknown> }>(userUrl, {
       headers: {
         accept: `application/json`,
         authorization: `Bearer ${token}`,

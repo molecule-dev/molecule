@@ -1,7 +1,7 @@
 /**
  * `@molecule/app-i18n-default-react` — default i18n bond setup.
  *
- * Bundles the 74-language fleet definitions + `setupI18nDefault()`
+ * Bundles the 80-language fleet definitions + `setupI18nDefault()`
  * helper that wires the molecule i18n provider with English bootstrap,
  * lazy-loading for every other locale, common-bond translation merging,
  * and locale persistence via the bonded storage provider.

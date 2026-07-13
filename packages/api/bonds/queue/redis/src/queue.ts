@@ -23,12 +23,14 @@ import type {
  * @param connection - The BullMQ/Redis connection options.
  * @param queueName - The queue name used as the BullMQ queue identifier.
  * @param prefix - The Redis key prefix for all queue-related keys (default: `'molecule:queue:'`).
+ * @param registerCleanup - Optional callback receiving a disposer that closes this queue's BullMQ queue and workers; the provider collects these so `provider.close()` actually releases the Redis connections.
  * @returns A `Queue` object with send/receive/subscribe/size/purge methods.
  */
 export const createQueue = (
   connection: ConnectionOptions,
   queueName: string,
   prefix: string,
+  registerCleanup?: (cleanup: () => Promise<void>) => void,
 ): Queue => {
   const bullQueue = new BullQueue(queueName, {
     connection,
@@ -36,6 +38,14 @@ export const createQueue = (
   })
 
   const workers: Map<string, Worker> = new Map()
+
+  registerCleanup?.(async () => {
+    for (const worker of workers.values()) {
+      await worker.close()
+    }
+    workers.clear()
+    await bullQueue.close()
+  })
 
   return {
     name: queueName,
@@ -94,7 +104,23 @@ export const createQueue = (
         queueName,
         async (job) => {
           const receivedMessage = createReceivedMessage<T>(job)
+          let rejected = false
+          receivedMessage.ack = async () => {
+            // Intentional no-op: inside a Worker processor the job is LOCKED,
+            // so the default ack (`job.remove()`) throws "could not be removed
+            // because it is locked by another worker" — which fails the job
+            // and re-runs it. BullMQ acks by the processor returning normally.
+          }
+          receivedMessage.nack = async () => {
+            // Defer to a post-handler throw so BullMQ's own retry/backoff
+            // (attempts: 3, exponential) handles the redelivery — calling
+            // `moveToFailed` mid-processing corrupts the worker's lock state.
+            rejected = true
+          }
           await handler(receivedMessage)
+          if (rejected) {
+            throw new Error(`Message ${job.id} rejected via nack() — requeueing for retry`)
+          }
         },
         {
           connection,
@@ -140,7 +166,9 @@ export const createQueue = (
 }
 
 /**
- * Wraps a BullMQ `Job` into a `ReceivedMessage` with `ack` (removes the job) and `nack` (moves to failed) methods.
+ * Wraps a BullMQ `Job` into a `ReceivedMessage` with `ack` (removes the job) and `nack`
+ * (fails the job so BullMQ retries it) methods. In the `subscribe()` worker path these are
+ * overridden: there the job is locked, completion acks, and `nack()` triggers a retry throw.
  * @param job - The BullMQ job to wrap.
  * @returns A `ReceivedMessage` with the job's data, metadata, and acknowledgement methods.
  */
@@ -160,8 +188,16 @@ export const createReceivedMessage = <T>(job: Job<T>): ReceivedMessage<T> => {
     },
 
     async nack(): Promise<void> {
-      // Move job back to waiting state
-      await job.moveToFailed(new Error('Message rejected'), job.token ?? '')
+      if (job.token) {
+        await job.moveToFailed(new Error('Message rejected'), job.token)
+      } else {
+        // A job pulled via `receive()` (getJobs 'waiting') holds no lock: it
+        // was never removed from the waiting list, so "return it to the
+        // queue" is already true. `moveToFailed` without a real lock token
+        // throws a cryptic "Missing lock" error — a documented no-op is the
+        // correct settlement here.
+        logger.debug(`BullMQ nack: job ${job.id} holds no lock (still waiting) — nothing to return`)
+      }
     },
   }
 }

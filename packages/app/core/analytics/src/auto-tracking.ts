@@ -143,6 +143,10 @@ export interface AutoTrackingOptions {
  *
  * Pass any combination of sources — only provided sources are tracked.
  *
+ * The analytics provider is resolved at EVENT time, not at setup time — so
+ * `setupAutoTracking()` may safely run before the analytics bond is set
+ * (events fired before bonding no-op; events fired after are tracked).
+ *
  * @example
  * ```typescript
  * // Web app
@@ -170,7 +174,10 @@ export interface AutoTrackingOptions {
  */
 export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) => {
   const cleanups: (() => void)[] = []
-  const analytics = getProvider()
+  // Resolve the provider per event — capturing getProvider() once at setup
+  // permanently baked in the no-op provider whenever setupAutoTracking() ran
+  // before the analytics bond was set, silently dropping every event forever.
+  const analytics = (): ReturnType<typeof getProvider> => getProvider()
 
   // Auth events
   if (options.authClient) {
@@ -178,38 +185,42 @@ export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) =>
       switch (event.type) {
         case 'login':
           if (event.user) {
-            analytics
+            analytics()
               .identify({
                 userId: event.user.id,
                 email: event.user.email,
                 name: event.user.name,
               })
               .catch(() => {})
-            analytics
+            analytics()
               .track({ name: 'auth.login', properties: { userId: event.user.id } })
               .catch(() => {})
           }
           break
         case 'register':
           if (event.user) {
-            analytics
+            analytics()
               .identify({
                 userId: event.user.id,
                 email: event.user.email,
                 name: event.user.name,
               })
               .catch(() => {})
-            analytics
+            analytics()
               .track({ name: 'auth.register', properties: { userId: event.user.id } })
               .catch(() => {})
           }
           break
         case 'logout':
-          analytics.track({ name: 'auth.logout' }).catch(() => {})
-          analytics.reset?.().catch(() => {})
+          analytics()
+            .track({ name: 'auth.logout' })
+            .catch(() => {})
+          analytics()
+            .reset?.()
+            .catch(() => {})
           break
         case 'error':
-          analytics
+          analytics()
             .track({ name: 'auth.error', properties: { error: event.error } })
             .catch(() => {})
           break
@@ -221,7 +232,7 @@ export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) =>
   // Route changes
   if (options.router) {
     const removeListener = options.router.subscribe((location) => {
-      analytics
+      analytics()
         .page({
           path: location.pathname,
           url: `${location.pathname}${location.search}${location.hash}`,
@@ -234,7 +245,7 @@ export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) =>
   // HTTP errors
   if (options.httpClient) {
     const removeInterceptor = options.httpClient.addErrorInterceptor((error) => {
-      analytics
+      analytics()
         .track({
           name: 'http.error',
           properties: {
@@ -254,14 +265,14 @@ export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) =>
   if (options.lifecycleClient) {
     const removeStateListener = options.lifecycleClient.onAppStateChange((change) => {
       if (change.current === 'active' && change.previous !== 'active') {
-        analytics
+        analytics()
           .track({
             name: 'app.foreground',
             properties: { previous: change.previous },
           })
           .catch(() => {})
       } else if (change.current === 'background' && change.previous !== 'background') {
-        analytics
+        analytics()
           .track({
             name: 'app.background',
             properties: { previous: change.previous },
@@ -272,7 +283,7 @@ export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) =>
     cleanups.push(removeStateListener)
 
     const removeUrlListener = options.lifecycleClient.onUrlOpen((url) => {
-      analytics
+      analytics()
         .track({
           name: 'deeplink.open',
           properties: { url },
@@ -285,7 +296,7 @@ export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) =>
   // Push notifications (received + tapped)
   if (options.pushClient) {
     const removeReceivedListener = options.pushClient.onNotificationReceived((event) => {
-      analytics
+      analytics()
         .track({
           name: 'push.received',
           properties: {
@@ -299,7 +310,7 @@ export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) =>
     cleanups.push(removeReceivedListener)
 
     const removeActionListener = options.pushClient.onNotificationAction((event) => {
-      analytics
+      analytics()
         .track({
           name: 'push.tapped',
           properties: {

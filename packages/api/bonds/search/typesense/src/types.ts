@@ -39,9 +39,10 @@ export interface TypesenseOptions {
   apiKey?: string
 
   /**
-   * Connection timeout in milliseconds.
+   * Connection timeout in SECONDS (not milliseconds — this is passed straight
+   * to the typesense client's `connectionTimeoutSeconds`).
    *
-   * @default 5000
+   * @default 5
    */
   connectionTimeoutSeconds?: number
 

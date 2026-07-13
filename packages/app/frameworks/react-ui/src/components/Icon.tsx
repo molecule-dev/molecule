@@ -41,12 +41,23 @@ export interface IconProps extends Omit<
  * Any extra HTML/SVG attribute (e.g. `data-mol-id`, `aria-label`,
  * `role="img"`, `onClick`) is forwarded to the root `<svg>` via spread.
  *
+ * Decorative by default: when the caller passes no `aria-label` /
+ * `aria-labelledby` / `role`, the SVG is rendered `aria-hidden` +
+ * `focusable="false"` so screen readers skip it (an unnamed inline SVG is
+ * announced as a stray "image" by some combos). Passing any of those props
+ * opts the icon into the accessibility tree.
+ *
  * @param props - {@link IconProps}
  * @returns An `<svg>` element rendering the named glyph.
  */
 export function Icon({ name, size = 20, className, ...rest }: IconProps): React.JSX.Element {
   const icon = getIcon(name)
   const viewBox = icon.viewBox || '0 0 20 20'
+  // Placed BEFORE {...rest} so an explicit caller aria-hidden/role wins.
+  const decorativeProps =
+    rest['aria-label'] == null && rest['aria-labelledby'] == null && rest.role == null
+      ? ({ 'aria-hidden': true, focusable: 'false' } as const)
+      : {}
 
   if (icon.svg) {
     return (
@@ -57,6 +68,7 @@ export function Icon({ name, size = 20, className, ...rest }: IconProps): React.
         fill={icon.fill || 'none'}
         className={className}
         dangerouslySetInnerHTML={{ __html: icon.svg }}
+        {...decorativeProps}
         {...rest}
       />
     )
@@ -70,6 +82,7 @@ export function Icon({ name, size = 20, className, ...rest }: IconProps): React.
       height={size}
       viewBox={viewBox}
       fill={isStroked ? 'none' : icon.fill || 'currentColor'}
+      {...decorativeProps}
       {...(isStroked
         ? {
             stroke: icon.stroke,

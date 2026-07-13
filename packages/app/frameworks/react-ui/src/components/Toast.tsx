@@ -10,6 +10,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react'
 import { createPortal } from 'react-dom'
@@ -71,15 +72,25 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
     const iconName = statusIconMap[variant]
     const statusIcon = iconName ? renderIcon(iconName, cm.iconMd) : null
 
+    // Keep the latest onDismiss in a ref so the auto-dismiss timer depends
+    // ONLY on `duration`. With onDismiss in the effect deps, every parent
+    // re-render that recreates the callback (e.g. ToastProvider re-rendering
+    // as new toasts arrive) restarted the countdown — a busy toast stack
+    // never auto-dismissed.
+    const onDismissRef = useRef(onDismiss)
+    useEffect(() => {
+      onDismissRef.current = onDismiss
+    }, [onDismiss])
+
     useEffect(() => {
       if (duration > 0) {
         const timer = setTimeout(() => {
           setIsVisible(false)
-          onDismiss?.()
+          onDismissRef.current?.()
         }, duration)
         return () => clearTimeout(timer)
       }
-    }, [duration, onDismiss])
+    }, [duration])
 
     const handleDismiss = useCallback(() => {
       setIsVisible(false)

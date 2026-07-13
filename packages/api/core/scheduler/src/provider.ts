@@ -79,6 +79,17 @@ export const unschedule = (name: string): boolean => {
 }
 
 /**
+ * Returns the runtime status of a specific task through the bonded provider.
+ *
+ * @param name - The task name.
+ * @returns The task status, or null if no task with that name is registered.
+ * @throws {Error} If no scheduler provider is bonded.
+ */
+export const getStatus = (name: string): TaskStatus | null => {
+  return getProvider().getStatus(name)
+}
+
+/**
  * Returns the runtime status of all scheduled tasks.
  *
  * @returns An array of TaskStatus for every registered task.
@@ -86,4 +97,23 @@ export const unschedule = (name: string): boolean => {
  */
 export const getAllStatuses = (): TaskStatus[] => {
   return getProvider().getAllStatuses()
+}
+
+/**
+ * Starts the bonded scheduler. Registered tasks do not execute until this is
+ * called; tasks scheduled while the scheduler is running begin automatically.
+ *
+ * @throws {Error} If no scheduler provider is bonded.
+ */
+export const start = (): void => {
+  getProvider().start()
+}
+
+/**
+ * Stops the bonded scheduler. All tasks stop executing; call `start()` to resume.
+ *
+ * @throws {Error} If no scheduler provider is bonded.
+ */
+export const stop = (): void => {
+  getProvider().stop()
 }

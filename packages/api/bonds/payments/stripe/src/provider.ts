@@ -223,7 +223,12 @@ export const verifyWebhookSignature = (
 ): WebhookEventResult => {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   if (!webhookSecret) {
-    throw new Error('Missing Stripe webhook secret')
+    // Same actionable config-missing treatment as getClient(): the error names
+    // the exact key + setup URL (from the registered secret definition) so a
+    // misconfigured server is distinguishable from a forged/bad signature —
+    // "Missing Stripe webhook secret" read like a request-parsing bug and sent
+    // integrators debugging their webhook wiring instead of their .env.
+    throw configNotConfiguredError('STRIPE_WEBHOOK_SECRET', 'payment webhook verification')
   }
   const event = getClient().webhooks.constructEvent(payload, signature, webhookSecret)
   return {

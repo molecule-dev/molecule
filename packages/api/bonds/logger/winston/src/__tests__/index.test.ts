@@ -269,23 +269,34 @@ describe('@molecule/api-logger-winston', () => {
       expect(mockInfo).toHaveBeenCalledWith('message 123 true')
     })
 
-    it('should handle objects by converting to string', async () => {
+    it('should pass (message, context object) through as winston meta', async () => {
       const { createLogger } = await import('../provider.js')
 
       const logger = createLogger()
       logger.info('message', { key: 'value' })
 
-      expect(mockInfo).toHaveBeenCalledWith('message [object Object]')
+      // The old bridge stringified this to 'message [object Object]'.
+      expect(mockInfo).toHaveBeenCalledWith('message', { key: 'value' })
     })
 
-    it('should handle Error objects', async () => {
+    it('should pass (message, Error) through so the stack survives', async () => {
       const { createLogger } = await import('../provider.js')
 
       const logger = createLogger()
       const error = new Error('test error')
       logger.error('error:', error)
 
-      expect(mockError).toHaveBeenCalledWith(expect.stringContaining('error:'))
+      expect(mockError).toHaveBeenCalledWith('error:', error)
+    })
+
+    it('should pass a lone Error through for the errors({stack}) format', async () => {
+      const { createLogger } = await import('../provider.js')
+
+      const logger = createLogger()
+      const error = new Error('solo')
+      logger.error(error)
+
+      expect(mockError).toHaveBeenCalledWith(error)
     })
 
     it('should handle single argument', async () => {
@@ -297,13 +308,14 @@ describe('@molecule/api-logger-winston', () => {
       expect(mockInfo).toHaveBeenCalledWith('single message')
     })
 
-    it('should handle empty arguments', async () => {
+    it('should treat a no-arg call as a no-op', async () => {
       const { createLogger } = await import('../provider.js')
 
       const logger = createLogger()
       logger.info()
 
-      expect(mockInfo).toHaveBeenCalledWith('')
+      // Nothing to say = nothing logged (winston would emit a useless empty record).
+      expect(mockInfo).not.toHaveBeenCalled()
     })
   })
 

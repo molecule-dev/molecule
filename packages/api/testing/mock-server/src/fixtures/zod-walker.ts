@@ -4,7 +4,7 @@
  */
 
 import type { FixtureConfig, ZodSchemaDefinition } from '../types.js'
-import { createSeededRandom, seededUUID, seedFromPath } from './seed.js'
+import { createSeededRandom, FIXTURE_NOW, recentDate, seededUUID, seedFromPath } from './seed.js'
 import { applySemanticRules } from './semantic-generator.js'
 
 /**
@@ -185,7 +185,7 @@ function walkNumber(
 
 /**
  * Generate a single conformant record from a schema, enriched with
- * standard fields (id, created_at, updated_at, user_id).
+ * standard fields (id, created_at, updated_at).
  * @param schema - The serialized Zod schema definition
  * @param rng - The seeded random function
  * @param index - The item index
@@ -198,8 +198,13 @@ export function generateRecord(
 ): Record<string, unknown> {
   const base: Record<string, unknown> = {
     id: seededUUID(rng),
-    created_at: new Date(Date.now() - Math.floor(rng() * 90 * 24 * 60 * 60 * 1000)).toISOString(),
-    updated_at: new Date().toISOString(),
+    // Anchored to FIXTURE_NOW (not the wall clock) so generated records are
+    // byte-stable across runs — the module's determinism promise held for
+    // seed.ts dates but this function used Date.now(), so timestamps (and any
+    // screenshot rendering them) changed on every run. created_at is always
+    // <= updated_at.
+    created_at: recentDate(rng),
+    updated_at: FIXTURE_NOW.toISOString(),
   }
 
   if (schema && schema.type === 'ZodObject' && schema.shape) {

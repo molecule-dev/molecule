@@ -91,7 +91,10 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
         <div
           className={cm.cn(cm.progress(), cm.progressHeight(size))}
           role="progressbar"
-          aria-valuenow={indeterminate ? undefined : value}
+          // Clamp like the visual bar does — aria-valuenow outside
+          // [valuemin, valuemax] is invalid ARIA and screen readers may
+          // announce nonsense percentages (e.g. value=150 of max=100).
+          aria-valuenow={indeterminate ? undefined : Math.min(Math.max(value, 0), max)}
           aria-valuemin={0}
           aria-valuemax={max}
           aria-label={label ?? t('ui.progress.label', undefined, { defaultValue: 'Progress' })}

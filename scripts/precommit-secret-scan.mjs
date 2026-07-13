@@ -41,6 +41,45 @@ try {
   process.exit(0)
 }
 
+/** Hosts that cannot be reached from the internet — a credential aimed at one leaks nothing. */
+const LOCAL_HOST = /^(?:localhost|127\.0\.0\.1|\[?::1\]?|0\.0\.0\.0)$/i
+/** Well-known placeholder credential pairs used by dev docs / compose fixtures. */
+const PLACEHOLDER_CREDS =
+  /^(?:guest:guest|dev:dev|postgres:postgres|root:root|admin:admin|user:password|molecule:molecule|test:test)$/i
+
+/**
+ * A URL-credentials match that is provably NOT a secret: every `scheme://creds@host` in the
+ * line points at a local host (localhost/127.0.0.1/::1), or carries a well-known placeholder
+ * credential pair at a single-label host (a docker-compose service name like `db`, which does
+ * not resolve outside the compose network). Anything with a real-looking host or credential —
+ * `postgres://u:p@prod.example.com` — is still a hit.
+ *
+ * Rationale: these appear in package docs (`amqp://guest:guest@localhost:5672/` is RabbitMQ's
+ * documented default) and in compose fixtures; without this the gate forces a `--no-verify`
+ * habit on every commit that touches them, which is how a REAL secret eventually walks through.
+ *
+ * @param line - The added line that matched the URL-credentials rule.
+ * @returns True when every credential URL on the line is provably non-secret.
+ */
+function urlCredsAreLocalPlaceholders(line) {
+  const matches = [
+    ...line.matchAll(
+      /[a-zA-Z][a-zA-Z0-9+.-]{0,63}:\/\/([^/\s:@]*):([^/\s:@]+)@([^/\s:?#'"`,)\]]+)/g,
+    ),
+  ]
+  if (matches.length === 0) return false
+  return matches.every(([, user, pass, hostPort]) => {
+    const host = hostPort.replace(/:\d+$/, '')
+    if (LOCAL_HOST.test(host)) return true
+    // Single-label host (no dots) = a compose/service name, unreachable off-network — but only
+    // excuse it when the credentials are an obvious placeholder pair.
+    return !host.includes('.') && PLACEHOLDER_CREDS.test(`${user}:${pass}`)
+  })
+}
+
+/** This scanner necessarily CONTAINS the shapes it hunts (its rules + their test cases). */
+const SELF = /(?:^|\/)(?:precommit-secret-scan\.mjs|precommit-secret-scan\.test\.mjs)$/
+
 let currentFile = null
 const hits = []
 for (const line of staged.split('\n')) {
@@ -50,9 +89,12 @@ for (const line of staged.split('\n')) {
   }
   // Only ADDED content lines (start with a single '+', not the '+++' header).
   if (line[0] !== '+' || line.startsWith('+++')) continue
+  if (currentFile && SELF.test(currentFile)) continue
   const added = line.slice(1)
   for (const [label, re] of RULES) {
-    if (re.test(added)) hits.push({ file: currentFile, label, line: added.trim().slice(0, 120) })
+    if (!re.test(added)) continue
+    if (label === 'URL credentials' && urlCredsAreLocalPlaceholders(added)) continue
+    hits.push({ file: currentFile, label, line: added.trim().slice(0, 120) })
   }
 }
 

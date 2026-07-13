@@ -112,6 +112,9 @@ const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({ item, onSelect, onC
       className={cm.cn(cm.dropdownItem, item.disabled && cm.dropdownItemDisabled)}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
+      // data-disabled only styles; aria-disabled is what assistive tech
+      // reads — without it a disabled item announces as actionable.
+      aria-disabled={item.disabled || undefined}
       data-disabled={item.disabled || undefined}
     >
       {!!item.icon && <span className={cm.dropdownItemIcon}>{item.icon as React.ReactNode}</span>}

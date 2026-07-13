@@ -17,12 +17,27 @@ export const commonSteps = {
     with: options,
   }),
 
-  setupNode: (version: string = '20'): WorkflowStep => ({
+  /**
+   * Step that installs Node.js with npm caching enabled.
+   *
+   * Pass `registryUrl` when a later step runs `npm publish`: actions/setup-node
+   * only writes the `NODE_AUTH_TOKEN` auth line into `.npmrc` when its
+   * `registry-url` input is set — without it the token env var is silently
+   * ignored and publish fails with `ENEEDAUTH` even though the secret is set.
+   *
+   * @param version - Node.js version to install (default: `'20'`).
+   * @param options - Optional settings.
+   * @param options.registryUrl - npm registry to configure for authenticated publishes
+   *   (e.g. `'https://registry.npmjs.org'`).
+   * @returns A workflow step that runs actions/setup-node.
+   */
+  setupNode: (version: string = '20', options?: { registryUrl?: string }): WorkflowStep => ({
     name: 'Setup Node.js',
     uses: 'actions/setup-node@v4',
     with: {
       'node-version': version,
       cache: 'npm',
+      ...(options?.registryUrl ? { 'registry-url': options.registryUrl } : {}),
     },
   }),
 
@@ -46,6 +61,17 @@ export const commonSteps = {
     run: 'npm run lint',
   }),
 
+  /**
+   * Step that caches the `node_modules` directory directly.
+   *
+   * Do NOT combine this with `npmInstall()` (`npm ci`): `npm ci` deletes
+   * `node_modules` before installing, so the restored cache is thrown away on
+   * every run and the step is pure overhead. `setupNode()` already caches the
+   * npm download cache (`cache: 'npm'`), which IS compatible with `npm ci` —
+   * prefer that. Only use this step with plain `npm install` pipelines.
+   *
+   * @returns A workflow step that caches `node_modules` keyed on the lockfile hash.
+   */
   cacheNodeModules: (): WorkflowStep => ({
     name: 'Cache node_modules',
     uses: 'actions/cache@v4',
@@ -149,7 +175,9 @@ export const workflows = {
 
   /**
    * Release workflow triggered by version tags (`v*`). Runs the full CI pipeline
-   * then publishes to npm using the `NPM_TOKEN` secret.
+   * then publishes to npm using the `NPM_TOKEN` secret. The setup-node step sets
+   * `registry-url` — required for `NODE_AUTH_TOKEN` to be picked up at all; without
+   * it `npm publish` fails with `ENEEDAUTH` even when the secret is configured.
    *
    * @returns A workflow config for tag-based releases with npm publish.
    */
@@ -163,7 +191,7 @@ export const workflows = {
         'runs-on': 'ubuntu-latest',
         steps: [
           commonSteps.checkout(),
-          commonSteps.setupNode(),
+          commonSteps.setupNode('20', { registryUrl: 'https://registry.npmjs.org' }),
           commonSteps.npmInstall(),
           commonSteps.npmBuild(),
           commonSteps.npmTest(),
@@ -232,16 +260,23 @@ export const workflows = {
    * Builds the project and deploys an ephemeral staging environment.
    * Uses concurrency groups to cancel outdated deployments.
    *
+   * The default `docker-compose` driver deploys to the machine RUNNING the
+   * workflow: on GitHub-hosted runners the containers (and their localhost
+   * URLs) are destroyed as soon as the job ends, so this workflow only
+   * delivers a reachable environment on a persistent self-hosted runner
+   * (or with a remote driver).
+   *
    * @param options - Optional driver and branch filtering.
    * @param options.driver - Staging driver to use (e.g. `'docker-compose'`).
-   * @param options.excludeBranches - Branch patterns to exclude from staging deploys.
+   * @param options.excludeBranches - Branch patterns to exclude from staging deploys
+   *   (rendered as negative `!pattern` entries in the push branch filter).
    * @returns A workflow config for ephemeral staging deployment.
    */
   stagingDeploy: (options?: { driver?: string; excludeBranches?: string[] }): WorkflowConfig => ({
     name: 'Staging Deploy',
     on: {
       push: {
-        branches: ['**'],
+        branches: ['**', ...(options?.excludeBranches ?? []).map((pattern) => `!${pattern}`)],
         'paths-ignore': ['docs/**', '*.md'],
       },
     },
@@ -286,6 +321,12 @@ export const workflows = {
   /**
    * Staging teardown workflow triggered on PR close and branch deletion.
    * Cleans up the ephemeral staging environment for the closed/deleted branch.
+   *
+   * Like `stagingDeploy`, this assumes the runner that executes it is the
+   * SAME machine that hosts the environments (a persistent self-hosted
+   * runner): the `docker-compose` driver's containers and the
+   * `.molecule/staging.json` state live on that machine, not in the repo,
+   * so on an ephemeral GitHub-hosted runner there is nothing to tear down.
    *
    * @returns A workflow config for staging environment teardown.
    */

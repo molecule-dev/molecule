@@ -430,8 +430,10 @@ describe('Stripe Provider', () => {
       const payload = JSON.stringify({ id: 'evt_123' })
       const signature = 'some_signature'
 
+      // configNotConfiguredError: names the exact key so a misconfigured server
+      // is distinguishable from a bad signature.
       expect(() => verifyWebhookSignature(payload, signature)).toThrow(
-        'Missing Stripe webhook secret',
+        'STRIPE_WEBHOOK_SECRET is not set',
       )
     })
 

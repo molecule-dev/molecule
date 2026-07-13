@@ -16,6 +16,18 @@
  * await track({ name: 'purchase.completed', properties: { amount: 49.99 } })
  * ```
  *
+ * @remarks
+ * Unlike the app-side `@molecule/app-analytics` (which swallows every error so
+ * analytics can never break the UI), these server-side convenience functions
+ * PROPAGATE provider failures: `track()`/`identify()`/`page()` reject when the
+ * provider does, and all of them throw when no provider is bonded. Add
+ * `.catch()` at fire-and-forget call sites (or log-and-continue) so an
+ * analytics outage or missing configuration cannot fail your request handlers.
+ *
+ * `group(groupId)` normalizes the group TYPE to `'company'` in every bond
+ * (Mixpanel group key, PostHog group type) — look under "company" in the
+ * provider's UI.
+ *
  * @module
  */
 

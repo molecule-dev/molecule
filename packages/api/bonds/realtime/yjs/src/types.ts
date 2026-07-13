@@ -86,7 +86,10 @@ export interface YjsRealtimeConfig {
   transport?: YjsTransport
 
   /**
-   * Optional client-id generator. Defaults to `crypto.randomUUID()`.
+   * Currently UNUSED — the bond never generates client ids itself: every
+   * client id comes from the caller (`joinRoom(roomId, clientId)` /
+   * `applyInbound({ clientId, … })`). Reserved for a future server-assigned
+   * id path; passing it today has no effect.
    */
   generateClientId?: () => string
 

@@ -32,6 +32,30 @@ const sanitizeIdentifier = (name: string): string => {
 }
 
 /**
+ * Builds a prefix-matching `tsquery` expression from raw user search text.
+ *
+ * Each whitespace-separated token is emitted as a quoted lexeme (embedded
+ * quotes and backslashes doubled, per PostgreSQL's tsquery quoting rules) so
+ * punctuation or tsquery operators typed by a user (`!`, `(`, `)`, `:`, `&`,
+ * `|`, `'`, …) can never produce a `syntax error in tsquery`. Tokens that
+ * normalize to nothing (pure punctuation, stop words) are safely ignored by
+ * PostgreSQL and simply match nothing.
+ *
+ * @param text - Raw search text as typed by the user.
+ * @returns The tsquery expression, or `null` when the text contains no
+ *   tokens (empty/whitespace-only input) — callers treat that as "match nothing".
+ */
+const buildTsQuery = (text: string): string | null => {
+  const tokens = text.trim().split(/\s+/).filter(Boolean)
+  if (tokens.length === 0) {
+    return null
+  }
+  return tokens
+    .map((token) => `'${token.replace(/\\/g, '\\\\').replace(/'/g, "''")}':*`)
+    .join(' & ')
+}
+
+/**
  * Creates a PostgreSQL full-text search provider instance.
  *
  * @param options - Provider configuration options.
@@ -130,11 +154,18 @@ export const createProvider = (options?: PostgresSearchOptions): SearchProvider 
       const params: unknown[] = []
       let paramIndex = 1
 
-      const tsQuery = searchQuery.text
-        .trim()
-        .split(/\s+/)
-        .map((word) => `${word}:*`)
-        .join(' & ')
+      const tsQuery = buildTsQuery(searchQuery.text)
+      if (tsQuery === null) {
+        // Empty/whitespace-only search text: match nothing instead of sending
+        // an invalid tsquery (`:*`) that PostgreSQL rejects with a syntax error.
+        return {
+          hits: [],
+          total: 0,
+          page,
+          perPage,
+          processingTimeMs: Date.now() - startTime,
+        }
+      }
 
       params.push(searchConfig)
       const configParam = paramIndex++
@@ -225,11 +256,12 @@ export const createProvider = (options?: PostgresSearchOptions): SearchProvider 
       const table = tableName(indexName)
       const limit = options?.limit ?? 10
 
-      const tsQuery = queryText
-        .trim()
-        .split(/\s+/)
-        .map((word) => `${word}:*`)
-        .join(' & ')
+      const tsQuery = buildTsQuery(queryText)
+      if (tsQuery === null) {
+        // Empty/whitespace-only input (common while a typeahead field is being
+        // cleared): no suggestions rather than a tsquery syntax error.
+        return []
+      }
 
       const sql = `SELECT id, document, ts_rank(search_vector, to_tsquery($1, $2)) AS score
         FROM ${table}

@@ -13,24 +13,42 @@ import type { ResponseState } from '../types.js'
 /**
  * Express middleware that extracts state control signals from the request
  * and attaches them to res.locals for the route handler to use.
- * @param defaultState - The default state to use when no override is provided
+ * @param defaultState - The default state to use when no override is provided.
+ *   Pass a function to have the default resolved per-request (a live getter) —
+ *   required for `MockServer.setDefaultState()` to take effect after startup,
+ *   since a plain object is captured once at middleware-creation time.
  * @returns Express middleware function
  */
 export function stateControlMiddleware(
-  defaultState: ResponseState = { state: 'success' },
+  defaultState: ResponseState | (() => ResponseState) = { state: 'success' },
 ): (req: Request, res: Response, next: NextFunction) => void {
   return (req: Request, res: Response, next: NextFunction): void => {
-    // Extract state from query params or headers
-    const stateParam = (req.query._state as string) || req.get('X-Mock-State')
-    const delayParam = (req.query._delay as string) || req.get('X-Mock-Delay')
-    const statusParam = (req.query._status as string) || req.get('X-Mock-Status')
+    // A repeated query param (?_state=a&_state=b) parses as an array — only
+    // accept plain strings so a malformed URL can't crash the middleware.
+    const queryString = (name: string): string | undefined => {
+      const value = req.query[name]
+      return typeof value === 'string' ? value : undefined
+    }
 
-    const state: ResponseState = { ...defaultState }
+    // Extract state from query params or headers
+    const stateParam = queryString('_state') || req.get('X-Mock-State')
+    const delayParam = queryString('_delay') || req.get('X-Mock-Delay')
+    const statusParam = queryString('_status') || req.get('X-Mock-Status')
+
+    const base = typeof defaultState === 'function' ? defaultState() : defaultState
+    const state: ResponseState = { ...base }
 
     if (stateParam) {
       const normalized = stateParam.toLowerCase().trim()
       if (['success', 'empty', 'error', 'unauthorized'].includes(normalized)) {
         state.state = normalized as ResponseState['state']
+      } else {
+        // A typo'd ?_state (e.g. `?_state=eror`) would otherwise silently serve
+        // the DEFAULT state — indistinguishable from the override never having
+        // been sent, which reads as "the mock ignores my state control". Label
+        // the response so a caller can tell "invalid state value" apart from
+        // "state applied".
+        res.setHeader('X-Mock-Invalid-State', stateParam)
       }
     }
 

@@ -64,8 +64,14 @@ export const writeKeys = (outputPath = keysPath): void => {
   }
 }
 
-// Ensure the keys exist if not provided via environment.
-if (!process.env.JWT_PRIVATE_KEY || !process.env.JWT_PUBLIC_KEY) {
+// Ensure key files exist ONLY when the private key must come from disk.
+// When `JWT_PRIVATE_KEY` is provided via env, generating a fresh on-disk pair
+// here would be worse than useless: with `JWT_PUBLIC_KEY` unset, the public
+// key would then be read from the freshly generated file — a key that does
+// NOT match the env private key — and every token this process signs would
+// fail verification with an unexplained "invalid signature". (The public key
+// for an env-provided private key is DERIVED from it below instead.)
+if (!process.env.JWT_PRIVATE_KEY) {
   if (!fs.existsSync(privateKeyPath) || !fs.existsSync(publicKeyPath)) {
     writeKeys()
   }
@@ -97,6 +103,44 @@ const normalizePem = (value: string | Buffer | false): string | Buffer | false =
   return value
 }
 
+const envPrivateKey = normalizePem(process.env.JWT_PRIVATE_KEY || false)
+const envPublicKey = normalizePem(process.env.JWT_PUBLIC_KEY || false)
+
+/**
+ * Derive the SPKI public key from a private key PEM. Works for any
+ * asymmetric key type (RSA, EC, Ed25519) — the public half is embedded
+ * in the private key material.
+ *
+ * Used when `JWT_PRIVATE_KEY` is set but `JWT_PUBLIC_KEY` is not: deriving
+ * guarantees the pair MATCHES. Reading a public key from disk (or generating
+ * a fresh one) in that half-configured state would silently produce a
+ * mismatched pair — every token signed by this process would then fail
+ * verification with an unexplained "invalid signature".
+ *
+ * @param privateKey - The private key PEM (string or Buffer).
+ * @returns The matching public key PEM, or `false` when derivation fails
+ * (e.g. the private key PEM is malformed — signing would fail anyway).
+ */
+const derivePublicKey = (privateKey: string | Buffer): string | false => {
+  try {
+    return crypto.createPublicKey(privateKey).export({ type: 'spki', format: 'pem' }).toString()
+  } catch (error) {
+    logger.error(
+      'JWT_PRIVATE_KEY is set but a public key could not be derived from it — the PEM is likely malformed:',
+      error,
+    )
+    return false
+  }
+}
+
+if (envPublicKey && !envPrivateKey) {
+  logger.warn(
+    'JWT_PUBLIC_KEY is set but JWT_PRIVATE_KEY is not. The private key will be loaded/generated ' +
+      'from disk, so tokens signed by THIS process will NOT verify against JWT_PUBLIC_KEY. ' +
+      'Set both env vars (or neither) unless this deployment only verifies tokens.',
+  )
+}
+
 /**
  * The RSA private key for signing JWTs. Read from the `JWT_PRIVATE_KEY`
  * environment variable, or loaded from the PEM file on disk.
@@ -105,7 +149,7 @@ const normalizePem = (value: string | Buffer | false): string | Buffer | false =
  * empty secret would allow anyone to forge valid JWTs.
  */
 export const JWT_PRIVATE_KEY =
-  normalizePem(process.env.JWT_PRIVATE_KEY || false) ||
+  envPrivateKey ||
   (fs.existsSync(privateKeyPath) && fs.readFileSync(privateKeyPath)) ||
   (() => {
     throw new Error(
@@ -115,12 +159,16 @@ export const JWT_PRIVATE_KEY =
 
 /**
  * The RSA public key for verifying JWTs. Read from the `JWT_PUBLIC_KEY`
- * environment variable, or loaded from the PEM file on disk.
+ * environment variable; when only `JWT_PRIVATE_KEY` is set, the matching
+ * public key is DERIVED from it (a disk fallback could not match an
+ * env-provided private key and would make every signed token fail
+ * verification); otherwise loaded from the PEM file on disk.
  *
- * Throws at startup if neither source provides a key.
+ * Throws at startup if no source provides a key.
  */
 export const JWT_PUBLIC_KEY =
-  normalizePem(process.env.JWT_PUBLIC_KEY || false) ||
+  envPublicKey ||
+  (envPrivateKey && derivePublicKey(envPrivateKey)) ||
   (fs.existsSync(publicKeyPath) && fs.readFileSync(publicKeyPath)) ||
   (() => {
     throw new Error(

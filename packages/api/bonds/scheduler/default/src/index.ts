@@ -6,10 +6,22 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-scheduler'
+ * import { schedule, setProvider, start } from '@molecule/api-scheduler'
  * import { provider } from '@molecule/api-scheduler-default'
  *
  * setProvider(provider)
+ *
+ * schedule({
+ *   name: 'cleanup',
+ *   intervalMs: 60000,
+ *   async handler() {
+ *     // ...
+ *   },
+ * })
+ *
+ * // REQUIRED: nothing runs until start() — scheduling alone does not execute
+ * // tasks. Tasks scheduled after start() begin automatically (staggered).
+ * start()
  * ```
  *
  * @module

@@ -111,6 +111,7 @@ export const createMockCache = (): CacheProvider & {
 }
 
 /**
- * Pre-configured mock cache for quick setup.
+ * Pre-configured mock cache for quick setup. Shared module-level instance —
+ * call `reset()` in `beforeEach` so stored entries don't bleed between tests.
  */
 export const mockCache = createMockCache()

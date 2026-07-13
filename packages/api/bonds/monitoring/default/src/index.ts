@@ -16,6 +16,16 @@
  * const customProvider = createProvider({ checkTimeoutMs: 5000 })
  * setProvider(customProvider)
  * ```
+ * @remarks
+ * - **`runAll()` never rejects.** A check that THROWS (easy with
+ *   `createCustomCheck`) becomes a `'down'` entry carrying the thrown message;
+ *   a check that exceeds `checkTimeoutMs` (default 10000) becomes a `'down'`
+ *   entry with `Check timed out after {ms}ms.` — so callers can tell a hung
+ *   dependency from a failing one, and one bad check never turns the whole
+ *   /health endpoint into an opaque 500.
+ * - The overall `status` is the worst individual status
+ *   (`down` > `degraded` > `operational`); an empty registry reports
+ *   `operational`.
  *
  * @module
  */

@@ -71,6 +71,16 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
         break
       case 'in': {
         const arr = cond.value as unknown[]
+        if (!Array.isArray(arr)) {
+          throw new Error(
+            `'${cond.operator}' operator requires an array value (field "${cond.field}")`,
+          )
+        }
+        if (arr.length === 0) {
+          // `IN ()` is a MySQL syntax error; match Postgres `= ANY('{}')` semantics: no match.
+          parts.push('1 = 0')
+          break
+        }
         const placeholders = arr.map(() => '?').join(', ')
         parts.push(`\`${cond.field}\` IN (${placeholders})`)
         values.push(...arr)
@@ -78,6 +88,16 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
       }
       case 'not_in': {
         const arr = cond.value as unknown[]
+        if (!Array.isArray(arr)) {
+          throw new Error(
+            `'${cond.operator}' operator requires an array value (field "${cond.field}")`,
+          )
+        }
+        if (arr.length === 0) {
+          // `NOT IN ()` is a MySQL syntax error; match Postgres `!= ALL('{}')`: everything matches.
+          parts.push('1 = 1')
+          break
+        }
         const placeholders = arr.map(() => '?').join(', ')
         parts.push(`\`${cond.field}\` NOT IN (${placeholders})`)
         values.push(...arr)
@@ -88,11 +108,16 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
         values.push(cond.value)
         break
       case 'ilike':
-        // MySQL's default collations already compare case-insensitively, but
-        // LOWER() both sides so the contract holds on case-sensitive (_bin/_cs)
-        // collations too.
+        // Case-insensitive CONTAINS on a literal substring — the documented core
+        // contract (`@molecule/api-database` WhereCondition): escape the value's
+        // LIKE metacharacters, wrap with `%…%`. Previously the raw value was
+        // passed through, so `ilike` with value `foo` compiled to `LIKE 'foo'`
+        // (exact match, not contains) and user-typed `%`/`_` acted as wildcards —
+        // both diverging silently from the postgres bond. LOWER() both sides so
+        // the contract holds on case-sensitive (_bin/_cs) collations too; the
+        // backslash escapes rely on MySQL's default LIKE escape character.
         parts.push(`LOWER(\`${cond.field}\`) LIKE LOWER(?)`)
-        values.push(cond.value)
+        values.push(`%${String(cond.value).replace(/[%_\\]/g, '\\$&')}%`)
         break
       case 'is_null':
         parts.push(`\`${cond.field}\` IS NULL`)
@@ -100,6 +125,10 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
       case 'is_not_null':
         parts.push(`\`${cond.field}\` IS NOT NULL`)
         break
+      default:
+        // Parity with the postgres bond: an unknown operator must FAIL LOUDLY, not
+        // silently drop the condition (which would return unfiltered rows).
+        throw new Error(`Invalid SQL operator: ${String((cond as { operator: unknown }).operator)}`)
     }
   }
 
@@ -262,6 +291,16 @@ export function createStore(pool: DatabasePool): DataStore {
     ): Promise<MutationResult<T>> {
       assertSafeIdentifier(table)
       const keys = Object.keys(data)
+      // No-op when there are no fields to update — return the existing row
+      // so callers see `affected: 1` for known-id reads (parity with the
+      // postgres bond). Issuing an UPDATE with an empty SET clause is a SQL
+      // syntax error, which is a surprising failure mode for handlers that
+      // strip every input field via Zod `.partial().pick({...})` and end up
+      // passing `{}` here.
+      if (keys.length === 0) {
+        const existing = await readById<T>(table, id)
+        return { data: existing, affected: existing ? 1 : 0 }
+      }
       for (const k of keys) assertSafeIdentifier(k)
       const setClauses = keys.map((k) => `\`${k}\` = ?`).join(', ')
       const values = [...keys.map((k) => data[k]), id]

@@ -135,6 +135,24 @@ describe('typesense search provider', () => {
       expect(result.hits[0].id).toBe('1')
     })
 
+    it('backtick-quotes string filter values and leaves numbers/booleans raw', async () => {
+      // Verified against Typesense 29.0: unquoted values containing `&&`,
+      // commas, or parens fail with "Could not parse the filter query", while
+      // backticked numerics fail with "invalid comparator" — so only strings
+      // are quoted.
+      mockDocSearch.mockResolvedValueOnce({ hits: [], found: 0 })
+      const p = createProvider()
+      await p.search('products', {
+        text: 'widget',
+        filters: { genre: 'tips && tricks (2nd, rev)', price: 1.5, active: true },
+      })
+
+      const params = mockDocSearch.mock.calls[0][0]
+      expect(params.filter_by).toBe(
+        'genre:=`tips && tricks (2nd, rev)` && price:=1.5 && active:=true',
+      )
+    })
+
     it('should handle empty results', async () => {
       mockDocSearch.mockResolvedValueOnce({ hits: [], found: 0 })
       const p = createProvider()

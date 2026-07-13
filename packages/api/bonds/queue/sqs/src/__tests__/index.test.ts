@@ -38,6 +38,9 @@ vi.mock('@aws-sdk/client-sqs', () => {
     DeleteMessageCommand: vi.fn(function (input: unknown) {
       return { input, _type: 'DeleteMessageCommand' }
     }),
+    ChangeMessageVisibilityCommand: vi.fn(function (input: unknown) {
+      return { input, _type: 'ChangeMessageVisibilityCommand' }
+    }),
     PurgeQueueCommand: vi.fn(function (input: unknown) {
       return { input, _type: 'PurgeQueueCommand' }
     }),
@@ -842,6 +845,89 @@ describe('@molecule/api-queue-sqs', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
+    it('should auto-ack (delete) a message after the handler succeeds', async () => {
+      let delivered = false
+      mockSend.mockImplementation(async (command: MockCommand) => {
+        if (command._type === 'GetQueueUrlCommand') {
+          return { QueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/auto-ack-queue' }
+        }
+        if (command._type === 'ReceiveMessageCommand') {
+          if (delivered) return { Messages: [] }
+          delivered = true
+          return {
+            Messages: [
+              {
+                MessageId: 'auto-ack-msg',
+                Body: JSON.stringify({ data: 'test' }),
+                ReceiptHandle: 'auto-ack-receipt',
+              },
+            ],
+          }
+        }
+        return {}
+      })
+
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('auto-ack-queue')
+
+      const handler = vi.fn() // returns normally, never calls ack()
+      const unsubscribe = queue.subscribe(handler)
+
+      await vi.waitFor(() => {
+        expect(handler).toHaveBeenCalled()
+        // Success must delete the message — otherwise it reappears after the
+        // visibility timeout and is re-processed forever.
+        expect(mockSend).toHaveBeenCalledWith(
+          expect.objectContaining({
+            _type: 'DeleteMessageCommand',
+            input: expect.objectContaining({ ReceiptHandle: 'auto-ack-receipt' }),
+          }),
+        )
+      })
+
+      unsubscribe()
+    })
+
+    it('should NOT delete a message when the handler throws (retry via visibility timeout)', async () => {
+      let delivered = false
+      mockSend.mockImplementation(async (command: MockCommand) => {
+        if (command._type === 'GetQueueUrlCommand') {
+          return { QueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/throw-queue' }
+        }
+        if (command._type === 'ReceiveMessageCommand') {
+          if (delivered) return { Messages: [] }
+          delivered = true
+          return {
+            Messages: [
+              {
+                MessageId: 'throw-msg',
+                Body: JSON.stringify({ data: 'test' }),
+                ReceiptHandle: 'throw-receipt',
+              },
+            ],
+          }
+        }
+        return {}
+      })
+
+      const providerInstance = createProvider()
+      const queue = providerInstance.queue('throw-queue')
+
+      const handler = vi.fn().mockRejectedValue(new Error('handler blew up'))
+      const unsubscribe = queue.subscribe(handler)
+
+      await vi.waitFor(() => {
+        expect(handler).toHaveBeenCalled()
+      })
+
+      const deleteCalls = mockSend.mock.calls.filter(
+        (call) => (call[0] as MockCommand)._type === 'DeleteMessageCommand',
+      )
+      expect(deleteCalls).toHaveLength(0)
+
+      unsubscribe()
+    })
+
     it('should use long polling by default (20 seconds)', async () => {
       mockSend.mockImplementation(async (command: MockCommand) => {
         if (command._type === 'GetQueueUrlCommand') {
@@ -1034,7 +1120,7 @@ describe('@molecule/api-queue-sqs', () => {
     })
 
     describe('nack', () => {
-      it('should log debug message when nacking', async () => {
+      it('should return the message to the queue immediately (visibility timeout 0)', async () => {
         const mockClient = new SQSClient({})
         const queueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/test-queue'
         const msg = {
@@ -1044,12 +1130,52 @@ describe('@molecule/api-queue-sqs', () => {
         }
 
         const receivedMessage = createReceivedMessage(mockClient, queueUrl, msg)
-        await receivedMessage.nack()
+        await receivedMessage.nack!()
 
-        // SQS doesn't have true nack - message becomes visible after timeout
-        expect(mockLogger.debug).toHaveBeenCalledWith(
-          'SQS nack: message will become visible after visibility timeout',
+        expect(mockSend).toHaveBeenCalledWith(
+          expect.objectContaining({
+            _type: 'ChangeMessageVisibilityCommand',
+            input: {
+              QueueUrl: queueUrl,
+              ReceiptHandle: 'nack-receipt',
+              VisibilityTimeout: 0,
+            },
+          }),
         )
+        // The message must NOT be deleted by a nack.
+        const deleteCalls = mockSend.mock.calls.filter(
+          (call) => (call[0] as MockCommand)._type === 'DeleteMessageCommand',
+        )
+        expect(deleteCalls).toHaveLength(0)
+      })
+    })
+
+    describe('settle-once', () => {
+      it('ack after ack, and ack after nack, are no-ops', async () => {
+        const mockClient = new SQSClient({})
+        const queueUrl = 'https://sqs.us-east-1.amazonaws.com/123456789012/test-queue'
+        const msg = {
+          MessageId: 'settle-msg',
+          Body: JSON.stringify({ data: 'test' }),
+          ReceiptHandle: 'settle-receipt',
+        }
+
+        const acked = createReceivedMessage(mockClient, queueUrl, msg)
+        await acked.ack()
+        await acked.ack()
+        const ackDeletes = mockSend.mock.calls.filter(
+          (call) => (call[0] as MockCommand)._type === 'DeleteMessageCommand',
+        )
+        expect(ackDeletes).toHaveLength(1)
+
+        mockSend.mockClear()
+        const nacked = createReceivedMessage(mockClient, queueUrl, msg)
+        await nacked.nack!()
+        await nacked.ack() // must not delete a message the handler rejected
+        const nackDeletes = mockSend.mock.calls.filter(
+          (call) => (call[0] as MockCommand)._type === 'DeleteMessageCommand',
+        )
+        expect(nackDeletes).toHaveLength(0)
       })
     })
   })

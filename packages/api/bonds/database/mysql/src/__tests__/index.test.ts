@@ -332,10 +332,8 @@ describe('@molecule/api-database-mysql index exports', () => {
         const pool = createPool()
         const result = await pool.query('SELECT COUNT(*) as count FROM users')
 
-        expect(mockPool.query).toHaveBeenCalledWith(
-          'SELECT COUNT(*) as count FROM users',
-          undefined,
-        )
+        // No caller values → an empty params array (mysql2 treats [] and undefined alike).
+        expect(mockPool.query).toHaveBeenCalledWith('SELECT COUNT(*) as count FROM users', [])
         expect(result.rows).toEqual([{ count: 10 }])
       })
 

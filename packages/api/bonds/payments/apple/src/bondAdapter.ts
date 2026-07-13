@@ -16,6 +16,7 @@ import type {
 } from '@molecule/api-payments'
 
 import {
+  describeAppleStatus,
   getLatestSubscription,
   isSubscriptionActive,
   verifyReceipt as appleVerifyReceipt,
@@ -93,7 +94,11 @@ export const paymentProvider: PaymentProvider = {
       const response = await appleVerifyReceipt(receipt)
 
       if (response.status !== 0) {
-        logger.warn(`Apple receipt verification returned status ${response.status}`)
+        // Include the status MEANING: a bare number is ambiguous between a bad
+        // receipt and a server misconfiguration (21004 = APPLE_SHARED_SECRET).
+        logger.warn(
+          `Apple receipt verification returned status ${response.status}: ${describeAppleStatus(response.status)}`,
+        )
         return null
       }
 
@@ -200,7 +205,7 @@ export const paymentProvider: PaymentProvider = {
       const verified = await appleVerifyReceipt(latestReceipt)
       if (verified.status !== 0) {
         logger.warn(
-          `Apple parseNotification: receipt verification returned status ${verified.status} — rejecting`,
+          `Apple parseNotification: receipt verification returned status ${verified.status} (${describeAppleStatus(verified.status)}) — rejecting`,
         )
         return null
       }

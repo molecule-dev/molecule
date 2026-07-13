@@ -68,6 +68,7 @@ function createInstance(
 
   const subscribers = new Set<NotificationUpdateHandler>()
   let pollTimer: ReturnType<typeof setInterval> | undefined
+  let pollInFlight = false
   let realtimeHandler: ((data: unknown) => void) | undefined
 
   // -------------------------------------------------------------------------
@@ -141,11 +142,18 @@ function createInstance(
    * the unread count.
    */
   async function poll(): Promise<void> {
-    if (destroyed) return
+    // In-flight guard: when the API is slower than the poll interval, every
+    // tick used to stack ANOTHER concurrent fetch onto the already-struggling
+    // backend (12s responses polled at 5s = 6 piled-up requests in 30s — a
+    // feedback loop that makes the slow backend slower). Skip ticks while a
+    // poll is running; the next idle tick picks up.
+    if (destroyed || pollInFlight) return
+    pollInFlight = true
 
     try {
       // Fetch first page to detect new notifications
       const result = await options.fetchNotifications({ limit: pageSize })
+      if (destroyed) return
 
       // Identify new notifications not already in the list
       const existingIds = new Set(notifications.map((n) => n.id))
@@ -165,6 +173,8 @@ function createInstance(
       emit()
     } catch (_error) {
       // Polling failures are silent — next poll will retry
+    } finally {
+      pollInFlight = false
     }
   }
 
@@ -256,9 +266,6 @@ function createInstance(
       if (destroyed) return
 
       loading = true
-      notifications = []
-      nextCursor = undefined
-      hasMorePages = true
       emit()
 
       try {
@@ -272,7 +279,11 @@ function createInstance(
         hasMorePages = result.hasMore
         unreadCount = count
       } catch (_error) {
-        // refresh failures are non-fatal
+        // Keep the previously loaded state. The old code wiped the list BEFORE
+        // fetching, so one transient network error emptied the user's inbox —
+        // indistinguishable from "no notifications" — until the next successful
+        // refresh. Stale-but-real beats empty-and-wrong; the state swaps
+        // wholesale on success only.
       } finally {
         loading = false
         emit()

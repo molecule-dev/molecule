@@ -7,21 +7,31 @@ Defines common types and interfaces for payment providers.
 ## Quick Start
 
 ```ts
-// Server-side handler: verify BEFORE granting. `verifier` = your bonded payments
-// provider; the client sends only an opaque token/receipt, never a status or amount.
+// Server-side handler: verify BEFORE granting. The bonded provider implements
+// PaymentProviderInterface; the client sends only an opaque id/receipt, never a
+// status or amount. Bonds return null unless the provider confirms a real,
+// currently-entitled subscription — so `sub != null` IS the entitlement gate.
+import { get } from '@molecule/api-bond'
+import type { PaymentProviderInterface } from '@molecule/api-payments'
+
 router.post('/subscriptions/activate', async (req, res) => {
   const userId = getUserId(res)
   if (!userId) return res.status(401).json({ error: 'Authentication required.' })
 
-  const sub = await verifier.verifySubscription(req.body.productId, req.body.token)
-  if (!sub || !isActiveStatus(sub.status)) {
+  // Stripe-style; Apple/Google use payments.verifyReceipt(receipt, productId) /
+  // payments.verifyPurchase(purchaseToken, productId) with the same null contract.
+  const payments = get<PaymentProviderInterface>('payments', 'stripe')
+  const sub = payments?.verifySubscription
+    ? await payments.verifySubscription(req.body.subscriptionId) // opaque `cs_…`/`sub_…` id
+    : null
+  if (!sub) {
     return res.status(402).json({ error: 'No active subscription.' }) // trust the verify, not the client
   }
-  if (await paymentExists(sub.subscriptionId)) {
+  if (sub.transactionId && (await paymentExists(sub.transactionId))) {
     return res.status(409).json({ error: 'This subscription is already linked.' }) // replay guard
   }
-  await grantEntitlement(userId, sub) // store the normalized result server-side
-  res.json({ status: sub.status, activeUntil: sub.currentPeriodEnd })
+  await grantEntitlement(userId, sub) // store the VERIFIED result server-side
+  res.json({ expiresAt: sub.expiresAt, autoRenews: sub.autoRenews })
 })
 ```
 
@@ -559,11 +569,23 @@ function isActiveStatus(status: SubscriptionStatus): boolean
 **Entitlement is granted ONLY on a server-verified payment — NEVER trust the
 client.** A browser can claim any subscription status, product id, or "I paid". The
 one source of truth is a verification performed in YOUR API: pass the provider's
-token/receipt/subscription id to the bonded provider's
-{@link SubscriptionVerifier.verifySubscription} / {@link PurchaseVerifier.verifyPurchase}
-(Stripe/Apple/Google), which calls the provider server-side and returns a
-{@link NormalizedSubscription} / {@link NormalizedPurchase} — or `null` if invalid.
-Grant access from THAT result, never from a value the client sent.
+opaque token/receipt/subscription id to the bonded provider's verify method —
+{@link PaymentProviderInterface.verifySubscription} (Stripe-style: the `cs_…`/`sub_…`
+id), {@link PaymentProviderInterface.verifyReceipt} (Apple: base64 receipt +
+productId), or {@link PaymentProviderInterface.verifyPurchase} (Google: purchase
+token + productId). Each calls the provider server-side and returns a
+{@link VerifiedSubscription} — or `null` when the purchase is invalid OR not
+entitled (expired, refunded, past_due, pending). Grant access from THAT result,
+never from a value the client sent.
+
+**The shipped bonds implement {@link PaymentProviderInterface}** — that is what
+`bond('payments', provider)` / `get('payments', name)` hands you, and its verify
+methods take the OPAQUE id/receipt only. The two-argument
+{@link SubscriptionVerifier}/{@link PurchaseVerifier} interfaces (returning
+{@link NormalizedSubscription}/{@link NormalizedPurchase}) are auxiliary
+abstractions for app-level services; no `@molecule/api-payments-*` bond
+implements them — do not call `verifySubscription(productId, token)` on a bonded
+provider (the extra argument is silently ignored and the lookup fails).
 
 Things a weak integration gets wrong — do NOT:
 - read the plan/entitlement from a request body, query param, or client state and act
@@ -578,5 +600,7 @@ Things a weak integration gets wrong — do NOT:
 - expose the provider SECRET key (`sk_…`) to the browser. Only the publishable key is
   client-side; verification + secret keys stay in the API.
 
-Use {@link isActiveStatus} (true for `active`/`trialing`) instead of hand-checking
-status strings, and store the normalized result server-side keyed by user.
+When you DO handle a normalized status (a {@link NormalizedSubscription} or a
+webhook's {@link WebhookEvent.subscription}), use {@link isActiveStatus} (true for
+`active`/`trialing`) instead of hand-checking status strings, and store the
+verified result server-side keyed by user.

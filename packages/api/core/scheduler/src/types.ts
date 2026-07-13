@@ -48,8 +48,11 @@ export interface TaskStatus {
  */
 export interface SchedulerProvider {
   /**
-   * Registers and starts a scheduled task.
+   * Registers a scheduled task.
    * If a task with the same name already exists, it is replaced.
+   *
+   * The task does NOT execute until `start()` has been called; a task
+   * scheduled while the scheduler is already running begins automatically.
    *
    * @param task - The task to schedule.
    */

@@ -26,6 +26,17 @@
  * never reaches the browser. The Mixpanel project token is a public
  * browser-side credential, safe to embed client-side.
  *
+ * Bonding without a token is failure-safe: `createProvider()` (and the lazy
+ * `provider` export, which cannot receive options) logs ONE console warning
+ * naming VITE_MIXPANEL_TOKEN and returns a no-op provider — the raw SDK would
+ * otherwise accept an empty token in total silence and every event would
+ * vanish with no breadcrumb. If events never appear in Mixpanel, check the
+ * browser console for that warning FIRST.
+ *
+ * `AnalyticsEvent.timestamp` is NOT honored: the Mixpanel browser SDK has no
+ * supported client-set timestamp and always stamps the time of capture. For
+ * historical timestamps use `@molecule/api-analytics-mixpanel` server-side.
+ *
  * @module
  */
 

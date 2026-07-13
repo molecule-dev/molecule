@@ -2,7 +2,7 @@
 
 `@molecule/app-i18n-default-react` — default i18n bond setup.
 
-Bundles the 74-language fleet definitions + `setupI18nDefault()`
+Bundles the 80-language fleet definitions + `setupI18nDefault()`
 helper that wires the molecule i18n provider with English bootstrap,
 lazy-loading for every other locale, common-bond translation merging,
 and locale persistence via the bonded storage provider.
@@ -39,7 +39,7 @@ npm install @molecule/app-i18n-default-react
 
 #### `LanguageDefinition`
 
-Static metadata for the 79 languages supported by the molecule
+Static metadata for the 80 languages supported by the molecule
 flagship fleet. Each entry includes the locale code, native name,
 and text direction.
 
@@ -108,7 +108,7 @@ interface SetupI18nDefaultOptions {
    * choices. `'en'` is always included implicitly; the array doesn't
    * need to list it explicitly.
    *
-   * When omitted, every entry in the fleet's 74-language
+   * When omitted, every entry in the fleet's 80-language
    * {@link LANGUAGE_DEFINITIONS} list is registered (back-compat).
    *
    * Typical call-site idiom uses Vite's `import.meta.glob` to
@@ -159,7 +159,7 @@ type PackageLocaleBond = Record<string, unknown>
   supportedLocales,
 })`
 
-Wire the molecule i18n provider with the fleet's 74-language list
+Wire the molecule i18n provider with the fleet's 80-language list
 plus a default English bootstrap, then persist the user's locale
 selection through the bonded storage provider (if available).
 
@@ -181,7 +181,7 @@ function setupI18nDefault({
 
 #### `LANGUAGE_DEFINITIONS`
 
-Canonical 79-language definition list. The names are written in
+Canonical 80-language definition list. The names are written in
 the language's own script for the language picker dropdown.
 
 ```typescript

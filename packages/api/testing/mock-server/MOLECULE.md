@@ -13,12 +13,15 @@ import { createMockServer } from '@molecule/api-mock-server'
 
 const server = await createMockServer({
   appType: 'personal-finance',
+  fixturesPath: './api/fixtures', // directory of *.json fixture files
   port: 4000,
 })
 
-// Control state programmatically
+// Control state programmatically ('GET /accounts' and 'GET /api/accounts'
+// are equivalent keys)
 server.setState('GET /accounts', { state: 'error', statusCode: 500 })
 server.setState('GET /transactions', { state: 'empty' })
+server.setDefaultState('empty') // flips every endpoint at once
 
 // Teardown
 await server.close()
@@ -279,7 +282,7 @@ interface ZodSchemaDefinition {
 HTTP methods supported by the mock server
 
 ```typescript
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 ```
 
 ### Functions
@@ -365,7 +368,8 @@ function createSeededRandom(seed: number): () => number
 
 #### `futureDate(rng, daysAhead)`
 
-Generate a future ISO date string within the next N days.
+Generate a "future" ISO date string within the next N days of the fixed
+`FIXTURE_NOW` anchor (NOT the wall clock — see `FIXTURE_NOW`).
 
 ```typescript
 function futureDate(rng: () => number, daysAhead?: number): string
@@ -394,7 +398,7 @@ function generateFixtures(fixturesDir: string, appType?: string): AppFixtureSet 
 #### `generateRecord(schema, rng, index)`
 
 Generate a single conformant record from a schema, enriched with
-standard fields (id, created_at, updated_at, user_id).
+standard fields (id, created_at, updated_at).
 
 ```typescript
 function generateRecord(schema: ZodSchemaDefinition | undefined, rng: () => number, index: number): Record<string, unknown>
@@ -424,7 +428,10 @@ function generateRecords(schema: ZodSchemaDefinition | undefined, count: number,
 
 #### `getAppDataPool(fixturesDir, appType)`
 
-Get an AppDataPool for a fixtures directory, with caching.
+Get an AppDataPool for a fixtures directory, with fingerprint-validated
+caching: editing/adding/removing a `*.json` fixture file (mtime or size
+change) invalidates the cached pool, so a mock server re-created in the
+same process serves the fresh data instead of the first load.
 
 ```typescript
 function getAppDataPool(fixturesDir: string, appType: string): AppDataPool | undefined
@@ -509,7 +516,10 @@ function parseState(stateStr: string): ResponseState
 
 - `stateStr` — The state string (e.g. 'success', 'error', 'empty', 'unauthorized')
 
-**Returns:** The parsed ResponseState
+**Returns:** The parsed ResponseState. An unrecognized string falls back to
+ *   `DEFAULT_STATES.success` — the same forgiving behavior as the per-request
+ *   `?_state` middleware (which additionally labels the response with an
+ *   `X-Mock-Invalid-State` header so typos are detectable).
 
 #### `pick(rng, arr)`
 
@@ -554,7 +564,8 @@ function randomInt(rng: () => number, min: number, max: number): number
 
 #### `recentDate(rng, daysBack)`
 
-Generate a recent ISO date string within the last N days.
+Generate a "recent" ISO date string within the last N days of the fixed
+`FIXTURE_NOW` anchor (NOT the wall clock — see `FIXTURE_NOW`).
 
 ```typescript
 function recentDate(rng: () => number, daysBack?: number): string
@@ -624,10 +635,10 @@ Express middleware that extracts state control signals from the request
 and attaches them to res.locals for the route handler to use.
 
 ```typescript
-function stateControlMiddleware(defaultState?: ResponseState): (req: Request, res: Response, next: NextFunction) => void
+function stateControlMiddleware(defaultState?: ResponseState | (() => ResponseState)): (req: Request, res: Response, next: NextFunction) => void
 ```
 
-- `defaultState` — The default state to use when no override is provided
+- `defaultState` — The default state to use when no override is provided.
 
 **Returns:** Express middleware function
 
@@ -665,6 +676,19 @@ Rules are checked in order; the first match wins.
 const defaultSemanticRules: SemanticRule[]
 ```
 
+#### `FIXTURE_NOW`
+
+Fixed "now" anchor (2026-04-01T12:00:00Z) for all generated dates.
+
+Dates are deliberately anchored to a constant instead of the wall clock so
+fixture output is byte-stable across runs (reliable screenshot diffs).
+Consequence: "recent"/"future" are relative to this anchor, not the real
+current time — never assert generated dates against `Date.now()`.
+
+```typescript
+const FIXTURE_NOW: Date
+```
+
 ## Injection Notes
 
 ### Requirements
@@ -673,5 +697,19 @@ Peer dependencies:
 - `zod` >=4.0.0
 
 The server uses deterministic seeded PRNG for stable fixture data, making
-screenshot comparisons reliable. Each app type has curated, realistic data
-pools (e.g., real bank names, merchant descriptions, product catalogs).
+screenshot comparisons reliable. Fixture data comes from the JSON files in
+`fixturesPath` (array files become CRUD resources; `reports`/`storefront`/
+`admin` object files become sub-endpoint groups).
+
+Omitting `fixturesPath` makes the server resolve
+`mlcl/templates/apps/<appType>/api/fixtures/` by walking up from `process.cwd()`
+— that only works inside the molecule workspace. In a scaffolded project,
+always pass `fixturesPath`.
+
+Requests to `/api/*` paths with no matching fixture endpoint return an empty
+success (`200 []` for GET) so pages still render — the response carries an
+`X-Mock-Unmatched: true` header so a typo'd endpoint can be told apart from
+an endpoint that legitimately returned empty data. Similarly, an invalid
+`?_state`/`X-Mock-State` value is ignored (the default state is served) but
+labeled with an `X-Mock-Invalid-State` response header, so a typo'd state
+control is detectable instead of silently looking like "state applied".

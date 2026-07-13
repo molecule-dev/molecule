@@ -6,11 +6,38 @@
 
 /**
  * Convert PostgreSQL-style positional placeholders ($1, $2, ...) to MySQL-style (?) placeholders.
+ * Also reorders the values array to match the placeholder order — `$N` is *positional*
+ * (`$2 … $1` or a repeated `$1`) while `?` is strictly *sequential*, so a plain text
+ * substitution alone silently binds the wrong values for out-of-order placeholders and
+ * under-supplies parameters for repeated ones. Mirrors the sqlite bond's converter.
+ *
  * @param text - SQL query text with $N placeholders.
- * @returns The query text with ? placeholders.
+ * @param values - Parameter values ordered by $N index.
+ * @returns The query text with ? placeholders and the reordered values.
  */
-export const convertPlaceholders = (text: string): string => {
-  return text.replace(/\$(\d+)/g, '?')
+export const convertPlaceholders = (
+  text: string,
+  values?: unknown[],
+): { text: string; values: unknown[] } => {
+  if (!values || values.length === 0) {
+    return { text: text.replace(/\$(\d+)/g, '?'), values: [] }
+  }
+
+  // SQL that already uses `?` placeholders (the store builds queries that way)
+  // maps values 1:1 — pass them through. SQL with neither placeholder style
+  // drops the (unused) values to avoid "too many parameters".
+  if (!/\$\d+/.test(text)) {
+    return { text, values: text.includes('?') ? values : [] }
+  }
+
+  const reorderedValues: unknown[] = []
+  const convertedText = text.replace(/\$(\d+)/g, (_, num) => {
+    const index = parseInt(num, 10) - 1
+    reorderedValues.push(values[index])
+    return '?'
+  })
+
+  return { text: convertedText, values: reorderedValues }
 }
 
 /** Safe index-prefix length for utf8mb4 (191*4=764 bytes; ≤4 cols stay < the 3072-byte key limit). */

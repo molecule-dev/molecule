@@ -41,11 +41,25 @@ interface AnalyticsEvent {
     name: string;
     /** Arbitrary key-value properties for this event. */
     properties?: Record<string, unknown>;
-    /** Event timestamp (defaults to now). */
+    /**
+     * Event timestamp (defaults to now). Only honored where the underlying
+     * browser SDK supports client-set timestamps (PostHog does); the Mixpanel
+     * browser SDK always stamps the time of capture. For reliable historical
+     * timestamps use the API-side `@molecule/api-analytics` bonds.
+     */
     timestamp?: Date;
-    /** Identified user who triggered the event. */
+    /**
+     * Identified user who triggered the event. Browser analytics SDKs attribute
+     * events to the AMBIENT identified session — call `identify()` first;
+     * current browser bonds do not honor a per-event userId override. (Exists
+     * for interface parity with `@molecule/api-analytics`, where there is no
+     * ambient session and per-event IDs are required.)
+     */
     userId?: string;
-    /** Anonymous identifier for unauthenticated users. */
+    /**
+     * Anonymous identifier for unauthenticated users. Like `userId`, browser
+     * bonds use the SDK's own ambient anonymous identity instead of this field.
+     */
     anonymousId?: string;
 }
 ```
@@ -150,11 +164,21 @@ Creates a PostHog analytics provider using `posthog-js`. Initializes the SDK wit
 provided API key and host, and returns an `AnalyticsProvider` that maps molecule events to
 PostHog's `capture`, `identify`, and `group` APIs.
 
+When no API key is provided, this does NOT initialize the SDK (`posthog.init('')`
+leaves the singleton uninitialized — the SDK logs its own generic error, but
+every subsequent call is silently dropped): it logs one actionable warning
+naming VITE_POSTHOG_KEY and returns a no-op provider, so bonding the lazy
+`provider` export without configuration degrades gracefully.
+
+When no `host` is provided, the SDK's own default (PostHog Cloud US,
+`https://us.i.posthog.com`) applies — EU projects must pass their region host
+(`https://eu.i.posthog.com`).
+
 ```typescript
 function createProvider(options?: PostHogOptions): AnalyticsProvider
 ```
 
-- `options` — PostHog configuration including `apiKey`, optional `host`, `autocapture`, and `debug` flags.
+- `options` — PostHog configuration including `apiKey`, optional `host`, and `autocapture`.
 
 **Returns:** An `AnalyticsProvider` backed by the PostHog browser SDK.
 
@@ -210,3 +234,12 @@ and `VITE_POSTHOG_HOST` (the `VITE_` prefix is required: Vite only embeds
 `@molecule/api-analytics-posthog` and never reach the browser. The PostHog
 project API key (`phc_...`) is a public browser-side credential, safe to
 embed client-side.
+
+Bonding without a key is failure-safe: `createProvider()` (and the lazy
+`provider` export, which cannot receive options) logs ONE console warning
+naming VITE_POSTHOG_KEY and returns a no-op provider instead of initializing
+the SDK with an empty key. If events never appear in PostHog, check the
+browser console for that warning FIRST. When no `host` is passed, the SDK's
+own default (PostHog Cloud US, `https://us.i.posthog.com`) applies — EU
+projects MUST set `VITE_POSTHOG_HOST=https://eu.i.posthog.com` or events are
+sent to the US region and silently never appear in the EU project.

@@ -4,7 +4,7 @@
  * No hardcoded app-specific data — all data lives in template fixture directories.
  */
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
 import type {
@@ -184,7 +184,17 @@ export function loadFixturesFromDirectory(
   for (const file of files) {
     const name = basename(file, '.json')
     const raw = readFileSync(join(fixturesDir, file), 'utf-8')
-    const data: unknown = JSON.parse(raw)
+    let data: unknown
+    try {
+      data = JSON.parse(raw)
+    } catch (error) {
+      // A bare SyntaxError ("Unexpected token } at position 47") doesn't say
+      // WHICH of the fixture files is malformed — name it.
+      throw new Error(
+        `Invalid JSON in fixture file ${join(fixturesDir, file)}: ${(error as Error).message}`,
+        { cause: error },
+      )
+    }
 
     if (Array.isArray(data)) {
       // Array → CRUD resource
@@ -220,20 +230,52 @@ export function loadFixturesFromDirectory(
 /*  Pool cache (keyed by fixturesDir path)                             */
 /* ================================================================== */
 
-const poolCache = new Map<string, AppDataPool>()
+const poolCache = new Map<string, { fingerprint: string; pool: AppDataPool }>()
 
 /**
- * Get an AppDataPool for a fixtures directory, with caching.
+ * Cheap change-detection fingerprint for a fixtures directory: the sorted
+ * `*.json` file names with their mtime + size. Used to invalidate the pool
+ * cache — an unconditional path-keyed cache silently served STALE rows when a
+ * caller edited a fixture file and re-created the server in the same process.
+ * @param fixturesDir - Absolute path to the fixtures directory
+ */
+function fixturesFingerprint(fixturesDir: string): string {
+  if (!existsSync(fixturesDir)) return ''
+  try {
+    return readdirSync(fixturesDir)
+      .filter((f) => f.endsWith('.json'))
+      .sort()
+      .map((f) => {
+        const stats = statSync(join(fixturesDir, f))
+        return `${f}:${stats.mtimeMs}:${stats.size}`
+      })
+      .join('|')
+  } catch (error) {
+    // Listing/stat raced with a concurrent file change — return a
+    // never-matching fingerprint so the loader re-reads the directory (and
+    // surfaces any real filesystem error itself).
+    return `unstable:${Date.now()}:${(error as Error).message}`
+  }
+}
+
+/**
+ * Get an AppDataPool for a fixtures directory, with fingerprint-validated
+ * caching: editing/adding/removing a `*.json` fixture file (mtime or size
+ * change) invalidates the cached pool, so a mock server re-created in the
+ * same process serves the fresh data instead of the first load.
  * @param fixturesDir - Absolute path to the fixtures directory
  * @param appType - App type label
  * @returns The loaded pool, or undefined if directory missing/empty
  */
 export function getAppDataPool(fixturesDir: string, appType: string): AppDataPool | undefined {
-  const cached = poolCache.get(fixturesDir)
-  if (cached) return cached
+  const key = `${appType} ${fixturesDir}`
+  const fingerprint = fixturesFingerprint(fixturesDir)
+  const cached = poolCache.get(key)
+  if (cached && cached.fingerprint === fingerprint) return cached.pool
 
   const pool = loadFixturesFromDirectory(fixturesDir, appType)
-  if (pool) poolCache.set(fixturesDir, pool)
+  if (pool) poolCache.set(key, { fingerprint, pool })
+  else poolCache.delete(key)
   return pool
 }
 
@@ -376,7 +418,7 @@ function buildEndpointFixture(endpoint: EndpointDefinition, pool: AppDataPool): 
     }
   }
 
-  if (method === 'PUT') {
+  if (method === 'PUT' || method === 'PATCH') {
     const updated = records[0] ?? { id: 'updated-id' }
     return {
       endpoint,
@@ -558,6 +600,23 @@ export function generateFixtures(fixturesDir: string, appType?: string): AppFixt
     }
     fixtureMap.set(`PUT ${basePath}/:id`, {
       endpoint: updateEndpoint,
+      successResponse: records[0] ?? {},
+      emptyResponse: records[0] ?? {},
+      errorResponse: { error: 'Internal server error' },
+    })
+
+    // PATCH — partial update, same fixture shape as PUT. Fleet template
+    // handlers use router.patch for profile/settings updates; without this
+    // endpoint a PATCH fell through to the unmatched catch-all and returned
+    // `{}`, so the page's update flow silently "succeeded" with no data.
+    const patchEndpoint: EndpointDefinition = {
+      method: 'PATCH',
+      path: `${basePath}/:id`,
+      requiresAuth: true,
+      responseHints: { isList: false, isPaginated: false, hasNestedResources: false, resourceName },
+    }
+    fixtureMap.set(`PATCH ${basePath}/:id`, {
+      endpoint: patchEndpoint,
       successResponse: records[0] ?? {},
       emptyResponse: records[0] ?? {},
       errorResponse: { error: 'Internal server error' },

@@ -43,7 +43,10 @@ export const getNestedValue = (obj: Translations, key: string): string | undefin
  * @returns The interpolated string with all matched placeholders replaced.
  */
 export const interpolate = (text: string, values: InterpolationValues): string => {
-  return text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+  // Tolerate inner whitespace ("{{ name }}") — i18next trims interpolation
+  // tokens, and translators routinely add the spaces. Without this, swapping
+  // the i18next bond for the simple provider rendered "{{ name }}" literally.
+  return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => {
     const value = values[key]
     if (value === undefined) return `{{${key}}}`
     if (value instanceof Date) return value.toLocaleDateString()

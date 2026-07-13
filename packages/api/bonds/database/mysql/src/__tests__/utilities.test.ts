@@ -9,37 +9,79 @@ import {
 
 describe('convertPlaceholders', () => {
   it('should convert PostgreSQL-style placeholders to MySQL-style', () => {
-    expect(convertPlaceholders('SELECT * FROM users WHERE id = $1')).toBe(
-      'SELECT * FROM users WHERE id = ?',
-    )
+    const result = convertPlaceholders('SELECT * FROM users WHERE id = $1', ['u1'])
+    expect(result.text).toBe('SELECT * FROM users WHERE id = ?')
+    expect(result.values).toEqual(['u1'])
   })
 
   it('should convert multiple placeholders', () => {
-    expect(convertPlaceholders('INSERT INTO users (name, email) VALUES ($1, $2)')).toBe(
-      'INSERT INTO users (name, email) VALUES (?, ?)',
-    )
+    const result = convertPlaceholders('INSERT INTO users (name, email) VALUES ($1, $2)', [
+      'Ada',
+      'ada@example.com',
+    ])
+    expect(result.text).toBe('INSERT INTO users (name, email) VALUES (?, ?)')
+    expect(result.values).toEqual(['Ada', 'ada@example.com'])
   })
 
   it('should convert many placeholders in order', () => {
-    const input = 'SELECT * FROM t WHERE a = $1 AND b = $2 AND c = $3 AND d = $4'
-    const expected = 'SELECT * FROM t WHERE a = ? AND b = ? AND c = ? AND d = ?'
-    expect(convertPlaceholders(input)).toBe(expected)
+    const result = convertPlaceholders(
+      'SELECT * FROM t WHERE a = $1 AND b = $2 AND c = $3 AND d = $4',
+      [1, 2, 3, 4],
+    )
+    expect(result.text).toBe('SELECT * FROM t WHERE a = ? AND b = ? AND c = ? AND d = ?')
+    expect(result.values).toEqual([1, 2, 3, 4])
+  })
+
+  it('reorders values for out-of-order placeholders ($2, $1)', () => {
+    // $N is positional; ? is sequential. A text-only substitution used to bind
+    // ['Alice', 30] to ($2, $1) — silently swapping the values.
+    const result = convertPlaceholders('SELECT * FROM users WHERE age = $2 AND name = $1', [
+      'Alice',
+      30,
+    ])
+    expect(result.text).toBe('SELECT * FROM users WHERE age = ? AND name = ?')
+    expect(result.values).toEqual([30, 'Alice'])
+  })
+
+  it('duplicates values for repeated placeholders ($1 … $1)', () => {
+    // Common hand-written SQL: the same param used twice. Text-only substitution
+    // under-supplied parameters (mysql2: "Incorrect arguments" / wrong bindings).
+    const result = convertPlaceholders('SELECT * FROM users WHERE first = $1 OR last = $1', [
+      'Alice',
+    ])
+    expect(result.text).toBe('SELECT * FROM users WHERE first = ? OR last = ?')
+    expect(result.values).toEqual(['Alice', 'Alice'])
   })
 
   it('should handle queries without placeholders', () => {
-    expect(convertPlaceholders('SELECT * FROM users')).toBe('SELECT * FROM users')
+    const result = convertPlaceholders('SELECT * FROM users')
+    expect(result.text).toBe('SELECT * FROM users')
+    expect(result.values).toEqual([])
+  })
+
+  it('drops unused values when the SQL has no placeholders at all', () => {
+    const result = convertPlaceholders('SELECT 1', ['unused'])
+    expect(result.text).toBe('SELECT 1')
+    expect(result.values).toEqual([])
+  })
+
+  it('passes values through unchanged for ?-placeholder SQL (the store builds these)', () => {
+    const result = convertPlaceholders('INSERT INTO t (a, b) VALUES (?, ?)', ['x', 7])
+    expect(result.text).toBe('INSERT INTO t (a, b) VALUES (?, ?)')
+    expect(result.values).toEqual(['x', 7])
   })
 
   it('should handle placeholders with double digits', () => {
-    const input = 'SELECT * FROM t WHERE a = $10 AND b = $11'
-    const expected = 'SELECT * FROM t WHERE a = ? AND b = ?'
-    expect(convertPlaceholders(input)).toBe(expected)
+    const values = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']
+    const result = convertPlaceholders('SELECT * FROM t WHERE a = $10 AND b = $11', values)
+    expect(result.text).toBe('SELECT * FROM t WHERE a = ? AND b = ?')
+    expect(result.values).toEqual(['j', 'k'])
   })
 
   it('should preserve other query content', () => {
-    const input = 'SELECT "column$name" FROM users WHERE id = $1'
-    const expected = 'SELECT "column$name" FROM users WHERE id = ?'
-    expect(convertPlaceholders(input)).toBe(expected)
+    const result = convertPlaceholders('SELECT "column$name" FROM users WHERE id = $1', ['u1'])
+    expect(result.text).toBe('SELECT "column$name" FROM users WHERE id = ?')
+    expect(result.values).toEqual(['u1'])
   })
 })
 

@@ -1,5 +1,5 @@
 /**
- * Static metadata for the 79 languages supported by the molecule
+ * Static metadata for the 80 languages supported by the molecule
  * flagship fleet. Each entry includes the locale code, native name,
  * and text direction.
  *
@@ -13,7 +13,7 @@ export interface LanguageDefinition {
 }
 
 /**
- * Canonical 79-language definition list. The names are written in
+ * Canonical 80-language definition list. The names are written in
  * the language's own script for the language picker dropdown.
  */
 export const LANGUAGE_DEFINITIONS: readonly LanguageDefinition[] = [

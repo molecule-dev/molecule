@@ -313,10 +313,18 @@ describe('@molecule/app-i18n', () => {
         expect(provider.t('ns.key')).toBe('Namespaced value')
       })
 
-      it('should throw error for non-existent locale', () => {
-        expect(() => provider.addTranslations('de', { key: 'value' })).toThrow(
-          'Locale "de" not found',
-        )
+      it('should auto-create a non-existent locale (locale-bond registration flow)', async () => {
+        // registerLocaleModule() registers every locale a bond ships; throwing on
+        // the first unconfigured locale crashed app startup and left the provider
+        // partially mutated. Mirrors the API-side provider and the i18next bond.
+        const listener = vi.fn()
+        provider.onLocaleChange(listener)
+        expect(() => provider.addTranslations('de', { key: 'value' })).not.toThrow()
+        expect(provider.getLocales().some((l) => l.code === 'de')).toBe(true)
+        // Pickers subscribed via onLocaleChange must see the new locale.
+        expect(listener).toHaveBeenCalled()
+        await provider.setLocale('de')
+        expect(provider.t('key')).toBe('value')
       })
     })
 
@@ -352,6 +360,19 @@ describe('@molecule/app-i18n', () => {
       it('should translate in different locale', async () => {
         await provider.setLocale('fr')
         expect(provider.t('greeting')).toBe('Bonjour')
+      })
+
+      it('should fall back to English when the key is missing from a partially-translated locale', async () => {
+        // Mirrors the API-side provider and the api-i18n-simple bond: a locale
+        // that translated SOME keys must render English text for the rest —
+        // not the raw key (and not depend on every call site's defaultValue).
+        await provider.setLocale('fr')
+        expect(provider.t('nested.message')).toBe('Nested message')
+        // Plural keys get the same English fallback.
+        expect(provider.t('items', undefined, { count: 2 })).toBe('2 items')
+        // defaultValue still wins when even English has no entry.
+        expect(provider.t('missing.key', undefined, { defaultValue: 'Default' })).toBe('Default')
+        expect(provider.t('missing.key')).toBe('missing.key')
       })
     })
 
@@ -411,6 +432,15 @@ describe('@molecule/app-i18n', () => {
         const date = new Date('2024-01-15')
         const formatted = provider.formatDate(date, { dateStyle: 'full' })
         expect(formatted).toContain('2024')
+      })
+
+      it('should support relative:true even when the method is destructured off the provider', () => {
+        // Previously used an unbound `this`, so `const { formatDate } = ...`
+        // crashed with "Cannot read properties of undefined".
+        const { formatDate: destructured } = provider
+        expect(destructured(new Date(Date.now() - 2 * 3_600_000), { relative: true })).toBe(
+          '2 hours ago',
+        )
       })
     })
 

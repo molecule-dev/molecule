@@ -16,9 +16,11 @@ const params: ChatParams = {
   messages: [{ role: 'user', content: 'Hello!' }],
   stream: true,
 }
+let reply = ''
 for await (const event of ai.chat(params)) {
-  if (event.type === 'text') process.stdout.write(event.content)
+  if (event.type === 'text') reply += event.content // or forward the chunk to the client (SSE)
 }
+console.log(reply)
 ```
 
 ## Type
@@ -165,7 +167,12 @@ through to the API alongside custom tools.
 
 ```typescript
 interface ServerTool {
-  /** Provider-specific tool type identifier (e.g. `"web_search_20250305"`). */
+  /**
+   * Provider-specific tool type identifier — a VERSIONED string the provider
+   * publishes (e.g. Anthropic's `"web_search_20260209"` on current models;
+   * older models use earlier variants like `"web_search_20250305"`). Copy the
+   * exact value from the provider's docs for the model in use.
+   */
   type: string
   /** Tool name. */
   name: string

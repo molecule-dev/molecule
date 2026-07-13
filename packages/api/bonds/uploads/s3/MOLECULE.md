@@ -135,7 +135,7 @@ function getFile(id: string): Promise<NodeJS.ReadableStream | null>
 
 - `id` — The UUID file identifier (S3 object key).
 
-**Returns:** A readable stream of the file contents, or `null` if no body is returned.
+**Returns:** A readable stream of the file contents, or `null` if the file does not exist.
 
 #### `upload(fieldname, stream, info, onError)`
 

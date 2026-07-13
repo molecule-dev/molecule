@@ -138,7 +138,7 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
 
       if (query.filters) {
         const filterParts = Object.entries(query.filters).map(
-          ([field, value]) => `${field}:=${String(value)}`,
+          ([field, value]) => `${field}:=${formatFilterValue(value)}`,
         )
         params.filter_by = filterParts.join(' && ')
       }
@@ -272,6 +272,24 @@ export const createProvider = (options?: TypesenseOptions): SearchProvider => {
       }
     },
   }
+}
+
+/**
+ * Formats a filter value for a Typesense `filter_by` expression.
+ *
+ * String values are wrapped in backticks so punctuation that is significant to
+ * the filter grammar (`&&`, parentheses, commas, spaces) can't produce a
+ * "Could not parse the filter query" error — verified against Typesense 29.0.
+ * Non-string values (numbers, booleans) stay unquoted, because backticks force
+ * string comparison and make numeric filters fail with "Numerical field has an
+ * invalid comparator". A literal backtick inside a string value is not
+ * representable in Typesense filter syntax and will still be rejected server-side.
+ *
+ * @param value - The raw filter value.
+ * @returns The value formatted for interpolation into `filter_by`.
+ */
+const formatFilterValue = (value: unknown): string => {
+  return typeof value === 'string' ? `\`${value}\`` : String(value)
 }
 
 /**

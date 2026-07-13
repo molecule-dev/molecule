@@ -113,6 +113,11 @@ function getProvider(name: string): NotificationsProvider | null
 
 Checks whether any notifications provider is bonded.
 
+Notification channels are NAMED bonds (`bond('notifications', name, provider)`),
+so this checks the named-provider map. (`isBonded('notifications')` alone checks
+the singleton map and would always report `false` here — a channel registered
+via {@link setProvider} never appears there.)
+
 ```typescript
 function hasProvider(): boolean
 ```

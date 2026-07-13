@@ -243,7 +243,10 @@ function uploadWithFetch(
 
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   if (timeout > 0) {
-    timeoutId = setTimeout(() => controller.abort(), timeout)
+    // Abort with an explicit reason so a timeout rejects with 'Upload timed out'
+    // (parity with the XHR path) instead of a generic AbortError — otherwise a
+    // caller cannot tell a timeout apart from a cancellation or network abort.
+    timeoutId = setTimeout(() => controller.abort(new Error('Upload timed out')), timeout)
   }
 
   const promise = fetch(url, {
@@ -495,9 +498,13 @@ function createUploaderInstance(
 
       const file = files[idx]
 
-      // Cancel if actively uploading
+      // Cancel if actively uploading. Mark 'cancelled' BEFORE aborting so the
+      // transport rejection is recognized as intentional — otherwise removing an
+      // uploading file fires onError with a spurious "Upload cancelled"/abort
+      // message for a user-initiated removal.
       const handle = activeUploads.get(fileId)
       if (handle) {
+        file.status = 'cancelled'
         handle.abort()
         activeUploads.delete(fileId)
       }
@@ -508,6 +515,10 @@ function createUploaderInstance(
 
     clearFiles(): void {
       for (const [id, handle] of activeUploads) {
+        // Mark 'cancelled' before aborting (see removeFile) so cleared files
+        // don't surface onError from their aborted transports.
+        const file = files.find((f) => f.id === id)
+        if (file) file.status = 'cancelled'
         handle.abort()
         activeUploads.delete(id)
       }
@@ -585,7 +596,11 @@ function createUploaderInstance(
     },
 
     destroy(): void {
-      for (const [, handle] of activeUploads) {
+      for (const [id, handle] of activeUploads) {
+        // Mark 'cancelled' before aborting (see removeFile) so no onError fires
+        // after the instance has been destroyed.
+        const file = files.find((f) => f.id === id)
+        if (file) file.status = 'cancelled'
         handle.abort()
       }
       activeUploads.clear()

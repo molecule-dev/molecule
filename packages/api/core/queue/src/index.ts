@@ -16,6 +16,9 @@
  *   throw on a TRANSIENT error (to retry) but log-and-return on a PERMANENT one (so it doesn't
  *   retry forever). A job runs OUTSIDE a request (no session), so include the owner id in the
  *   `body` and re-scope in the handler.
+ * - **Returning normally from a `subscribe` handler ACKS the message** on every bond — explicit
+ *   `ack()` is only needed in pull-style `receive()` flows (and calling it in a subscriber is a
+ *   safe no-op). `nack()` rejects the message for redelivery.
  *
  * @example
  * ```ts

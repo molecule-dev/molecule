@@ -126,6 +126,16 @@ interface MeilisearchOptions {
    * @default process.env.MEILISEARCH_API_KEY
    */
   apiKey?: string
+
+  /**
+   * How long (in milliseconds) to wait for a Meilisearch task (index/delete/
+   * settings write) to finish before throwing a timeout error. The meilisearch
+   * client's own default of 5000 ms routinely times out on realistic bulk
+   * indexing, so this provider defaults to 30000 ms. Set `0` to wait forever.
+   *
+   * @default 30000
+   */
+  taskTimeoutMs?: number
 }
 ```
 
@@ -440,3 +450,23 @@ Peer dependencies:
 - `MEILISEARCH_API_KEY` *(optional)* — Meilisearch API key
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: The master key (or a scoped API key) you configured when launching Meilisearch (--master-key / MEILI_MASTER_KEY). Optional for keyless local or in-container instances.
+
+Provider-specific behavior to know before debugging:
+
+- **Write operations wait for the Meilisearch task and THROW if it failed**,
+  with the Meilisearch error code in the message (e.g.
+  `index_already_exists`, `index_not_found`, `invalid_document_fields`) —
+  so `createIndex()` on an existing index and `deleteIndex()` on a missing
+  one are errors you can tell apart, and a rejected document is never
+  silently reported as indexed. Task waiting times out after
+  `taskTimeoutMs` (default 30 s) — a timeout means "still processing",
+  not "failed".
+- **Filtering requires filterable attributes.** Pass `filterableFields` in the
+  `createIndex()` schema (or the filter errors with `invalid_search_filter`).
+  Filters compare as `field = "value"` string equality; values are escaped, so
+  quotes in data are safe.
+- **`SearchHit.score` is Meilisearch's `_rankingScore`** (requested
+  automatically). `SearchResult.total` is Meilisearch's `estimatedTotalHits` —
+  an estimate, suitable for pagination but not for exact counts.
+- **Empty search text matches ALL documents** (Meilisearch placeholder
+  search) — unlike the postgres bond, which returns zero hits for empty text.

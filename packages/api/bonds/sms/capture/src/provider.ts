@@ -41,7 +41,10 @@ export function createSMSCaptureProvider(realProvider?: SMSProvider): SMSProvide
           await record({
             id,
             type: 'sms',
-            status: 'sent',
+            // A provider can RESOLVE with a failed result (e.g. a bulk-path
+            // rejection) — recording that as 'sent' would show a delivery in
+            // the activity feed that never happened.
+            status: result.status === 'failed' ? 'failed' : 'sent',
             recipient: to,
             summary: message,
             payload: { to, message, options },
@@ -81,15 +84,36 @@ export function createSMSCaptureProvider(realProvider?: SMSProvider): SMSProvide
     },
 
     async sendBulk(messages: BulkSMSMessage[]): Promise<BulkSMSResult> {
+      // Mirror the real providers' bulk contract: one message failing (the
+      // delegated real provider throwing, or returning status 'failed') must
+      // not abort the batch, and the aggregate counts must reflect reality —
+      // hardcoding successful=total here silently misreported delegate+tee
+      // failures as successes.
       const results: SMSResult[] = []
+      let successful = 0
+      let failed = 0
       for (const msg of messages) {
-        results.push(await this.send(msg.to, msg.message, msg.options))
+        try {
+          const result = await this.send(msg.to, msg.message, msg.options)
+          results.push(result)
+          if (result.status === 'failed') {
+            failed += 1
+          } else {
+            successful += 1
+          }
+        } catch (_error) {
+          // The failed delivery is already recorded (status 'failed') by
+          // send()'s capture path; here it becomes a failed result entry so
+          // the rest of the batch still goes out.
+          results.push({ id: '', status: 'failed', to: msg.to })
+          failed += 1
+        }
       }
       return {
         results,
-        total: results.length,
-        successful: results.length,
-        failed: 0,
+        total: messages.length,
+        successful,
+        failed,
       }
     },
 

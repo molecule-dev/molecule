@@ -27,10 +27,12 @@ function requirePackageName(): string {
 }
 
 /**
- * Verifies a Google Play subscription purchase using the Android Publisher API v2.
+ * Verifies a Google Play subscription purchase via the Android Publisher API v3
+ * (`purchases.subscriptionsv2.get`, returning a `SubscriptionPurchaseV2`).
  * @param productId - The Google Play subscription product ID (used for context; the token is the lookup key).
  * @param purchaseToken - The purchase token received from the Google Play client.
- * @returns The raw `SubscriptionPurchaseV2` data from Google, or `null` on error.
+ * @returns The raw `SubscriptionPurchaseV2` data from Google.
+ * @throws {Error} When credentials are missing/invalid or the Google API call fails (logged, then re-thrown — it does NOT return `null` on error).
  */
 export const verifySubscription = async (
   productId: string,
@@ -54,7 +56,8 @@ export const verifySubscription = async (
  * Verifies a Google Play one-time (non-subscription) product purchase.
  * @param productId - The Google Play product ID for the one-time purchase.
  * @param purchaseToken - The purchase token received from the Google Play client.
- * @returns The raw `ProductPurchase` data from Google, or `null` on error.
+ * @returns The raw `ProductPurchase` data from Google.
+ * @throws {Error} When credentials are missing/invalid or the Google API call fails (logged, then re-thrown — it does NOT return `null` on error).
  */
 export const verifyProduct = async (
   productId: string,

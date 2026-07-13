@@ -26,9 +26,12 @@ export interface SocketioRealtimeConfig {
   httpServer?: Server
 
   /**
-   * Port to listen on when no `httpServer` is provided.
-   *
-   * @defaultValue 3000
+   * Port to listen on when no `httpServer` is provided and `deferAttach` is
+   * not set. When omitted the port is resolved env-aware so multiple apps can
+   * run side-by-side: `SOCKETIO_PORT` if set, else `PORT + 1000` (one above
+   * the API convention), else `3000`. Prefer `deferAttach` +
+   * `attachHttpServer()` in real deployments — a standalone port is often not
+   * exposed by containerized/proxied environments.
    */
   port?: number
 

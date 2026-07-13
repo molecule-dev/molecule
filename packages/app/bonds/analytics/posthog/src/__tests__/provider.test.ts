@@ -41,13 +41,35 @@ describe('PostHog app analytics provider', () => {
       })
     })
 
-    it('should use defaults when no options provided', () => {
-      createProvider()
-      expect(mockInit).toHaveBeenCalledWith('', {
-        api_host: 'https://app.posthog.com',
+    it('should leave api_host to the SDK default when no host provided', () => {
+      // The SDK's own default is the current PostHog Cloud US endpoint
+      // (us.i.posthog.com); forcing the legacy app.posthog.com here was drift.
+      createProvider({ apiKey: 'pk_test' })
+      expect(mockInit).toHaveBeenCalledWith('pk_test', {
         autocapture: false,
         capture_pageview: false,
       })
+    })
+
+    it('should NOT initialize the SDK without an API key — warns once and no-ops instead', async () => {
+      // posthog.init('') leaves the singleton uninitialized and every later
+      // call is silently dropped. The provider must degrade gracefully with a
+      // breadcrumb naming the env var this stack actually wires.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      try {
+        const p = createProvider()
+        expect(mockInit).not.toHaveBeenCalled()
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('VITE_POSTHOG_KEY'))
+        // All calls resolve (analytics must never break the UI) and never touch the SDK.
+        await expect(p.track({ name: 'x' })).resolves.toBeUndefined()
+        await expect(p.identify({ userId: 'u1' })).resolves.toBeUndefined()
+        await expect(p.page({ path: '/' })).resolves.toBeUndefined()
+        expect(mockCapture).not.toHaveBeenCalled()
+        expect(mockIdentify).not.toHaveBeenCalled()
+      } finally {
+        warnSpy.mockRestore()
+      }
     })
   })
 
@@ -78,6 +100,12 @@ describe('PostHog app analytics provider', () => {
     it('track should call posthog.capture', async () => {
       await p.track({ name: 'btn.click', properties: { label: 'submit' } })
       expect(mockCapture).toHaveBeenCalledWith('btn.click', { label: 'submit' })
+    })
+
+    it('track should honor a caller-supplied timestamp via CaptureOptions', async () => {
+      const timestamp = new Date('2026-01-01T00:00:00Z')
+      await p.track({ name: 'btn.click', properties: { label: 'submit' }, timestamp })
+      expect(mockCapture).toHaveBeenCalledWith('btn.click', { label: 'submit' }, { timestamp })
     })
 
     it('page should call posthog.capture with $pageview', async () => {

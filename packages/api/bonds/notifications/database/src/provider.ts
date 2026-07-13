@@ -32,7 +32,37 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
 }
 
 /**
+ * Parses a JSON column value that may come back from the DataStore either
+ * already parsed (Postgres `jsonb`) or as the raw stored string (SQLite /
+ * MySQL TEXT). A bare type-cast here would hand consumers a STRING typed as
+ * an object on string-storing engines.
+ *
+ * @param value - The raw column value.
+ * @returns The parsed object, or `undefined` when null/absent/unparsable.
+ */
+function parseJsonColumn(value: unknown): Record<string, unknown> | undefined {
+  if (value == null) return undefined
+  if (typeof value === 'object') return value as Record<string, unknown>
+  if (typeof value === 'string') {
+    try {
+      const parsed: unknown = JSON.parse(value)
+      return typeof parsed === 'object' && parsed !== null
+        ? (parsed as Record<string, unknown>)
+        : undefined
+    } catch (_error) {
+      // A malformed stored value degrades to "no data" rather than crashing
+      // every list/read of the notification that carries it.
+      return undefined
+    }
+  }
+  return undefined
+}
+
+/**
  * Maps a database row to a `Notification` object.
+ *
+ * Normalises engine differences: SQLite/MySQL return booleans as 0/1 and
+ * JSON columns as strings, Postgres returns real booleans and parsed jsonb.
  *
  * @param row - The raw database row.
  * @returns The normalised notification.
@@ -44,8 +74,8 @@ function toNotification(row: Record<string, unknown>): Notification {
     type: row.type as string,
     title: row.title as string,
     body: row.body as string,
-    read: row.read as boolean,
-    data: row.data as Record<string, unknown> | undefined,
+    read: Boolean(row.read),
+    data: parseJsonColumn(row.data),
     createdAt: new Date(row.created_at as string),
   }
 }
@@ -198,14 +228,19 @@ export function createProvider(
       ])
 
       if (!row) {
-        return { ...DEFAULT_PREFERENCES }
+        // Fresh `channels` object per call — `{ ...DEFAULT_PREFERENCES }` alone
+        // copies the `channels` REFERENCE, so one caller mutating its result
+        // (e.g. a prefs UI toggling a channel before saving) would silently
+        // pollute the defaults handed to every other user.
+        return { ...DEFAULT_PREFERENCES, channels: {} }
       }
 
+      // Boolean()/parseJsonColumn: SQLite/MySQL hand back 0/1 and JSON strings.
       return {
-        email: row.email as boolean,
-        push: row.push as boolean,
-        sms: row.sms as boolean,
-        channels: (row.channels as Record<string, boolean>) ?? {},
+        email: Boolean(row.email),
+        push: Boolean(row.push),
+        sms: Boolean(row.sms),
+        channels: (parseJsonColumn(row.channels) as Record<string, boolean> | undefined) ?? {},
       }
     },
 

@@ -14,7 +14,13 @@
  *   hash.
  * - Do not implement your own MD5/SHA/salt scheme, and never put a password in a URL, query
  *   string, or GET request (it lands in logs/history).
- * - `hash()` uses `SALT_ROUNDS` (default 12) from config — don't hardcode a weaker cost.
+ * - `hash()` uses `SALT_ROUNDS` (default 12, env value clamped to 10–16) from config —
+ *   don't hardcode a weaker cost. The cost is EXPONENTIAL (each +1 doubles the work), so
+ *   an unclamped 32 would hang every signup for hours.
+ * - **bcrypt only reads the first 72 BYTES of a password** — two passwords sharing the
+ *   same first 72 bytes compare equal. Don't prepend a long app-controlled prefix (pepper,
+ *   username) to the password before hashing, and don't reject long passphrases thinking
+ *   extra length past ~72 bytes (fewer with multi-byte UTF-8) adds strength.
  *
  * @example
  * ```ts

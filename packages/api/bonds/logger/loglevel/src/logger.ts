@@ -21,7 +21,8 @@ export { log as loglevel } from './provider.js'
  * @param level - The molecule log level to set.
  */
 export const setLevel = (level: LogLevel): void => {
-  log.setLevel(levelMap[level])
+  // `false` = don't persist the level (localStorage) in browser-ish runtimes.
+  log.setLevel(levelMap[level], false)
 }
 
 /**
@@ -42,16 +43,24 @@ export const getLevel = (): LogLevel => {
 /**
  * Creates a named loglevel logger that implements the `Logger` interface.
  *
+ * Without an explicit `level`, the instance is set to pass everything through
+ * (TRACE) — loglevel's own out-of-the-box default is WARN, which silently
+ * swallows info/debug and makes the logger look broken. Level filtering
+ * belongs to `@molecule/api-logger`'s single gate (`LOG_LEVEL` / `setLevel()`,
+ * default `'info'`); pass `level` here only to add a bond-side gate on top.
+ *
+ * Note: loglevel caches instances by name, so `createLogger({ name })` with an
+ * already-used name returns (and re-levels) that same shared instance.
+ *
  * @param options - Logger configuration.
- * @param options.level - The minimum log level.
+ * @param options.level - The minimum log level. Defaults to pass-through (`'trace'`).
  * @param options.name - The logger name (used to create a named loglevel instance).
  * @returns A `Logger` backed by loglevel.
  */
 export const createLogger = (options?: { level?: LogLevel; name?: string }): Logger => {
   const instance = loglevel.getLogger(options?.name ?? 'molecule')
-  if (options?.level) {
-    instance.setLevel(levelMap[options.level])
-  }
+  // `false` = don't persist the level (localStorage) in browser-ish runtimes.
+  instance.setLevel(levelMap[options?.level ?? 'trace'], false)
   return {
     trace: (...args) => instance.trace(...args),
     debug: (...args) => instance.debug(...args),

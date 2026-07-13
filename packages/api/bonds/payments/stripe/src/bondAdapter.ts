@@ -215,9 +215,14 @@ export const paymentProvider: PaymentProvider = {
         : undefined
       const priceId = items?.data?.[0]?.price?.id ? String(items.data[0].price.id) : undefined
 
-      // Get period end from the subscription item (Stripe API v2022+).
+      // Get period end from the subscription item (Stripe API 2025+ moved it
+      // there). Webhook payload shape follows the API version PINNED ON THE
+      // WEBHOOK ENDPOINT — older endpoints still send it top-level on the
+      // subscription, so fall back to that rather than silently dropping the
+      // expiry (a missing expiresAt reads downstream as "never expires").
       const subscriptionItem = (items?.data?.[0] ?? {}) as Record<string, unknown>
-      const periodEnd = subscriptionItem.current_period_end as number | undefined
+      const periodEnd = (subscriptionItem.current_period_end ??
+        subscriptionData.current_period_end) as number | undefined
       const expiresAt = periodEnd ? new Date(periodEnd * 1000).toISOString() : undefined
 
       const autoRenews =
@@ -325,6 +330,13 @@ export const paymentProvider: PaymentProvider = {
       const fallbackAppOrigin = `http://localhost:${apiPort - 1000}`
       const apiOrigin = process.env.API_ORIGIN || process.env.ORIGIN || fallbackApiOrigin
       const appOrigin = process.env.APP_ORIGIN || process.env.ORIGIN || fallbackAppOrigin
+      if (apiOrigin === fallbackApiOrigin || appOrigin === fallbackAppOrigin) {
+        // Silent localhost redirect URLs in a deployed app strand the user on
+        // localhost after paying — make the fallback visible.
+        logger.warn(
+          `Stripe checkout: API_ORIGIN/APP_ORIGIN/ORIGIN not set — falling back to ${fallbackApiOrigin} / ${fallbackAppOrigin} for redirect URLs (fine in dev, wrong in production).`,
+        )
+      }
 
       // Generate idempotency key from userId + priceId + timestamp window (5-min buckets)
       // This prevents duplicate checkout sessions if the user double-clicks or retries

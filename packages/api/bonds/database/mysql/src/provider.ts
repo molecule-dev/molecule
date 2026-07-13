@@ -43,10 +43,10 @@ const wrapConnection = (connection: PoolConnection): DatabaseConnection => ({
     text: string,
     values?: unknown[],
   ): Promise<QueryResult<T>> {
-    const mysqlQuery = convertPlaceholders(text)
+    const { text: mysqlQuery, values: params } = convertPlaceholders(text, values)
     const [rows, fields] = await connection.query<RowDataPacket[]>(
       mysqlQuery,
-      values?.map(coerceMysqlParam),
+      params.map(coerceMysqlParam),
     )
 
     return {
@@ -78,10 +78,10 @@ const wrapTransaction = (connection: PoolConnection): DatabaseTransaction => ({
     text: string,
     values?: unknown[],
   ): Promise<QueryResult<T>> {
-    const mysqlQuery = convertPlaceholders(text)
+    const { text: mysqlQuery, values: params } = convertPlaceholders(text, values)
     const [rows, fields] = await connection.query<RowDataPacket[]>(
       mysqlQuery,
-      values?.map(coerceMysqlParam),
+      params.map(coerceMysqlParam),
     )
 
     return {
@@ -123,10 +123,10 @@ const createMySQLPool = (mysqlPool: Pool): DatabasePool => ({
     text: string,
     values?: unknown[],
   ): Promise<QueryResult<T>> {
-    const mysqlQuery = convertPlaceholders(text)
+    const { text: mysqlQuery, values: params } = convertPlaceholders(text, values)
     const [rows, fields] = await mysqlPool.query<RowDataPacket[]>(
       mysqlQuery,
-      values?.map(coerceMysqlParam),
+      params.map(coerceMysqlParam),
     )
 
     return {
@@ -213,6 +213,37 @@ export const createPool = (config?: DatabaseConfig): DatabasePool => {
 }
 
 /**
- * The default MySQL pool instance, created with env-based configuration.
+ * Lazily-initialized default pool. Created on first property access so that
+ * the `MYSQL_URL` / `MYSQL_*` env vars have been populated by the secrets
+ * layer's `resolveAll()` first — the same pattern as the postgresql and
+ * sqlite bonds. The previous EAGER `createPool()` at module load froze the
+ * connection config at import time, so a `MYSQL_URL` resolved later was
+ * silently ignored and the app connected to `localhost:3306` as `root`.
  */
-export const pool: DatabasePool = createPool()
+let _pool: DatabasePool | null = null
+
+/**
+ * Returns the lazily-initialized default pool, creating it from env-based
+ * configuration on first access.
+ * @returns The singleton `DatabasePool` instance.
+ */
+function getPoolInstance(): DatabasePool {
+  if (!_pool) {
+    _pool = createPool()
+  }
+  return _pool
+}
+
+/**
+ * The default MySQL pool instance, created with env-based configuration on
+ * first use.
+ */
+export const pool: DatabasePool = new Proxy({} as DatabasePool, {
+  get(_, prop, receiver) {
+    return Reflect.get(getPoolInstance(), prop, receiver)
+  },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    return Reflect.set(getPoolInstance(), prop, value)
+  },
+})

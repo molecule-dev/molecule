@@ -70,6 +70,18 @@ Page view event.
 ```typescript
 interface AnalyticsPageView {
   /**
+   * User ID the page view belongs to. Server-side providers have no ambient
+   * session — without this (or `anonymousId`) every page view from every user
+   * is attributed to a single shared "anonymous" identity.
+   */
+  userId?: string
+
+  /**
+   * Anonymous ID for non-authenticated users.
+   */
+  anonymousId?: string
+
+  /**
    * Page name or title.
    */
   name?: string
@@ -292,6 +304,17 @@ function track(event: AnalyticsEvent): Promise<void>
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+Unlike the app-side `@molecule/app-analytics` (which swallows every error so
+analytics can never break the UI), these server-side convenience functions
+PROPAGATE provider failures: `track()`/`identify()`/`page()` reject when the
+provider does, and all of them throw when no provider is bonded. Add
+`.catch()` at fire-and-forget call sites (or log-and-continue) so an
+analytics outage or missing configuration cannot fail your request handlers.
+
+`group(groupId)` normalizes the group TYPE to `'company'` in every bond
+(Mixpanel group key, PostHog group type) — look under "company" in the
+provider's UI.
 
 ## Translations
 

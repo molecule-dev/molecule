@@ -11,7 +11,7 @@
 // runtime registry is populated even when provider.js is imported directly
 // (not through the package barrel).
 import './secrets.js'
-import type { Hit, RecordAny, SearchParams } from 'meilisearch'
+import type { EnqueuedTaskPromise, Hit, RecordAny, SearchParams } from 'meilisearch'
 import { Meilisearch } from 'meilisearch'
 
 import type {
@@ -36,25 +36,60 @@ import type { MeilisearchOptions } from './types.js'
 export const createProvider = (options?: MeilisearchOptions): SearchProvider => {
   const host = options?.host ?? process.env.MEILISEARCH_URL ?? 'http://localhost:7700'
   const apiKey = options?.apiKey ?? process.env.MEILISEARCH_API_KEY ?? ''
+  const taskTimeoutMs = options?.taskTimeoutMs ?? 30_000
 
   const client = new Meilisearch({ host, apiKey })
 
+  /**
+   * Awaits a Meilisearch task and surfaces task-level failures as errors.
+   *
+   * Meilisearch write operations are asynchronous tasks; the client's
+   * `waitTask()` RESOLVES even when the task ends in `status: 'failed'`
+   * (it only rejects on HTTP/timeout errors). Without this check a failed
+   * indexing task would be silently reported as success.
+   *
+   * @param taskPromise - The enqueued task promise from a write operation.
+   * @param operation - Human-readable operation label for the error message.
+   */
+  const awaitTask = async (taskPromise: EnqueuedTaskPromise, operation: string): Promise<void> => {
+    const task = await taskPromise.waitTask({ timeout: taskTimeoutMs })
+    if (task.status === 'failed') {
+      const detail = task.error ? `${task.error.code}: ${task.error.message}` : 'unknown task error'
+      throw new Error(`Meilisearch ${operation} failed — ${detail}`)
+    }
+  }
+
   return {
     async createIndex(name: string, schema?: IndexSchema): Promise<void> {
-      await client.createIndex(name, { primaryKey: 'id' }).waitTask()
+      await awaitTask(client.createIndex(name, { primaryKey: 'id' }), `createIndex('${name}')`)
 
       if (schema) {
         const index = client.index(name)
         const updates: Array<Promise<unknown>> = []
 
         if (schema.searchableFields?.length) {
-          updates.push(index.updateSearchableAttributes(schema.searchableFields).waitTask())
+          updates.push(
+            awaitTask(
+              index.updateSearchableAttributes(schema.searchableFields),
+              `updateSearchableAttributes('${name}')`,
+            ),
+          )
         }
         if (schema.filterableFields?.length) {
-          updates.push(index.updateFilterableAttributes(schema.filterableFields).waitTask())
+          updates.push(
+            awaitTask(
+              index.updateFilterableAttributes(schema.filterableFields),
+              `updateFilterableAttributes('${name}')`,
+            ),
+          )
         }
         if (schema.sortableFields?.length) {
-          updates.push(index.updateSortableAttributes(schema.sortableFields).waitTask())
+          updates.push(
+            awaitTask(
+              index.updateSortableAttributes(schema.sortableFields),
+              `updateSortableAttributes('${name}')`,
+            ),
+          )
         }
 
         await Promise.all(updates)
@@ -62,12 +97,15 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
     },
 
     async deleteIndex(name: string): Promise<void> {
-      await client.deleteIndex(name).waitTask()
+      await awaitTask(client.deleteIndex(name), `deleteIndex('${name}')`)
     },
 
     async index(indexName: string, id: string, document: Record<string, unknown>): Promise<void> {
       const index = client.index(indexName)
-      await index.addDocuments([{ id, ...document }], { primaryKey: 'id' }).waitTask()
+      await awaitTask(
+        index.addDocuments([{ id, ...document }], { primaryKey: 'id' }),
+        `index('${indexName}', '${id}')`,
+      )
     },
 
     async bulkIndex(indexName: string, documents: IndexDocument[]): Promise<BulkIndexResult> {
@@ -75,7 +113,7 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
       const docs = documents.map((d) => ({ id: d.id, ...d.document }))
 
       try {
-        await index.addDocuments(docs, { primaryKey: 'id' }).waitTask()
+        await awaitTask(index.addDocuments(docs, { primaryKey: 'id' }), `bulkIndex('${indexName}')`)
         return { indexed: documents.length, failed: 0, errors: {} }
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error'
@@ -96,11 +134,14 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
       const params: SearchParams = {
         limit: perPage,
         offset: (page - 1) * perPage,
+        // Meilisearch only returns `_rankingScore` when explicitly requested;
+        // without this flag every SearchHit.score would be 0.
+        showRankingScore: true,
       }
 
       if (query.filters) {
         const filterParts = Object.entries(query.filters).map(
-          ([field, value]) => `${field} = "${String(value)}"`,
+          ([field, value]) => `${field} = "${escapeFilterValue(value)}"`,
         )
         params.filter = filterParts
       }
@@ -182,7 +223,7 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
 
     async delete(indexName: string, id: string): Promise<void> {
       const index = client.index(indexName)
-      await index.deleteDocument(id).waitTask()
+      await awaitTask(index.deleteDocument(id), `delete('${indexName}', '${id}')`)
     },
 
     async suggest(
@@ -193,7 +234,7 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
       const index = client.index(indexName)
       const limit = options?.limit ?? 10
 
-      const params: SearchParams = { limit }
+      const params: SearchParams = { limit, showRankingScore: true }
       if (options?.fields) {
         params.attributesToSearchOn = options.fields
       }
@@ -230,6 +271,18 @@ export const createProvider = (options?: MeilisearchOptions): SearchProvider => 
       }
     },
   }
+}
+
+/**
+ * Escapes a filter value for interpolation inside a double-quoted Meilisearch
+ * filter-expression string. Backslashes and double quotes are backslash-escaped
+ * so values containing quotes can't break the filter syntax.
+ *
+ * @param value - The raw filter value.
+ * @returns The escaped string form of the value.
+ */
+const escapeFilterValue = (value: unknown): string => {
+  return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 }
 
 /**

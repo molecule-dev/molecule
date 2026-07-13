@@ -4,6 +4,21 @@ Pino logger provider for molecule.dev.
 
 Provides a high-performance logger implementation using pino.
 
+## Quick Start
+
+```typescript
+import { logger, setLogger } from '@molecule/api-logger'
+import { createLogger, provider } from '@molecule/api-logger-pino'
+
+// Default: pretty in development, JSON in production
+setLogger(provider)
+logger.info('Server started on port', 3000)
+logger.error('Database connection failed', error) // Error lands under `err` with its stack
+
+// Custom instance (level, name, transport, or an in-process destination)
+setLogger(createLogger({ level: 'trace', name: 'api' }))
+```
+
 ## Type
 `provider`
 
@@ -36,12 +51,23 @@ Options for creating a pino logger.
 
 ```typescript
 interface PinoLoggerOptions {
+  /** Minimum log level for the underlying pino instance. Defaults to `'info'`. */
   level?: LogLevel
+  /** Pretty-print via the pino-pretty transport (ignored when `destination` is set). */
   pretty?: boolean
+  /** Instance name included in every record. */
   name?: string
+  /** Worker-thread transport configuration (ignored when `destination` is set). */
   transport?:
     | { target: string; options?: Record<string, unknown> }
     | { targets: PinoTransportTarget[] }
+  /**
+   * In-process destination stream (anything with a `write(msg: string)` —
+   * e.g. `pino.destination(...)`, a file stream, or a test sink). Takes
+   * precedence over `pretty`/`transport`, since pino cannot combine a
+   * transport with a stream.
+   */
+  destination?: pino.DestinationStream
 }
 ```
 
@@ -74,24 +100,28 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent';
 Creates a child pino logger with additional context bindings
 (e.g. `{ requestId: '...', userId: '...' }`).
 
+The child derives from the same shared instance that backs `provider`, so
+it truly inherits the default configuration (pretty mode, level).
+
 ```typescript
 function createChildLogger(bindings: Record<string, unknown>): Logger
 ```
 
 - `bindings` — Key-value pairs to include in every log entry from this child.
 
-**Returns:** A `Logger` that inherits the parent's configuration with added context.
+**Returns:** A `Logger` that inherits the default configuration with added context.
 
 #### `createLogger(options)`
 
 Creates a pino-based logger that implements the `Logger` interface.
-Supports pretty-printing and custom transports.
+Supports pretty-printing, custom transports, and a custom destination
+stream (useful for tests and in-process sinks).
 
 ```typescript
 function createLogger(options?: PinoLoggerOptions): Logger
 ```
 
-- `options` — Pino configuration (log level, name, pretty mode, transport).
+- `options` — Pino configuration (log level, name, pretty mode, transport, destination).
 
 **Returns:** A `Logger` backed by pino.
 
@@ -108,6 +138,8 @@ function pino(optionsOrStream?: pino.LoggerOptions<CustomLevels, UseOnlyCustomLe
 #### `provider`
 
 The default pino logger, with pretty-printing enabled outside production.
+Level filtering is delegated to `@molecule/api-logger`'s gate — the
+underlying instance emits everything it is handed.
 
 ```typescript
 const provider: Logger
@@ -135,3 +167,18 @@ export function setupLoggerPino(): void {
 
 Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
+
+- Console-style variadic calls are bridged onto pino's `(object, message)`
+  shape: `logger.info('msg', contextObj)` merges `contextObj` into the
+  record, an `Error` anywhere serializes under `err` with its stack, and
+  extra primitives are formatted into the message. Raw pino would DROP
+  placeholder-less extra args and turn them into `{"0":…}` records.
+- The default `provider` instance passes every level through — minimum-level
+  filtering happens once, in `@molecule/api-logger` (`LOG_LEVEL` /
+  `setLevel()`, default `'info'`). `createLogger({ level })` adds a
+  bond-side gate below the core's; a stricter level there makes the core's
+  `setLevel('debug')` appear to do nothing. NOTE: omitting `level` in
+  `createLogger` defaults the instance to `'info'` — itself such a gate;
+  pass `level: 'trace'` when the core's gate should be the only filter.
+- The default instance is created lazily on first log call (importing the
+  package never spawns the pino-pretty worker thread).

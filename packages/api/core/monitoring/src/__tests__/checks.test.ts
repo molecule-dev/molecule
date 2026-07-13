@@ -337,6 +337,21 @@ describe('health check factories', () => {
       expect(result.message).toBe('ECONNREFUSED')
     })
 
+    it("should surface error.cause — undici's real failure shape is 'fetch failed' with the reason hidden on cause", async () => {
+      // Node's fetch wraps EVERY network failure (refused, DNS, TLS) in a
+      // generic `TypeError: fetch failed`; without the cause, all of them are
+      // indistinguishable to a caller triaging the health report.
+      mockFetch.mockRejectedValue(
+        new TypeError('fetch failed', { cause: new Error('connect ECONNREFUSED 127.0.0.1:443') }),
+      )
+
+      const check = createHttpCheck('https://example.com')
+      const result = await check.check()
+
+      expect(result.status).toBe('down')
+      expect(result.message).toBe('fetch failed: connect ECONNREFUSED 127.0.0.1:443')
+    })
+
     it('should stringify non-Error throws from fetch', async () => {
       mockFetch.mockRejectedValue('network down')
 
