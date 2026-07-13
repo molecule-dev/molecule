@@ -1446,3 +1446,79 @@ describe('exec — inspect is authoritative, not the attach stream', () => {
     expect(result.exitCode).toBe(-1)
   })
 })
+
+// ─── readDir — a missing directory THROWS; never reads as empty ───────────────
+
+describe('readDir — missing directories throw, never read as empty', () => {
+  /** One frame of Docker's multiplexed stream format (1 = stdout, 2 = stderr). */
+  function muxFrame(payload: string, stream: 1 | 2 = 1): Buffer {
+    const body = Buffer.from(payload)
+    const header = Buffer.alloc(8)
+    header[0] = stream
+    header.writeUInt32BE(body.length, 4)
+    return Buffer.concat([header, body])
+  }
+
+  interface ReadDirSandbox {
+    readDir(path: string): Promise<Array<{ name: string; type: string; size?: number }>>
+  }
+
+  async function makeSandbox(): Promise<{ sandbox: ReadDirSandbox }> {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-rd' })
+    return { sandbox: (await provider.create({ projectId: 'test-rd' })) as ReadDirSandbox }
+  }
+
+  it('sends a PIPELINE-FREE ls (a `| tail` pipe made the exit code always 0 — verified live)', async () => {
+    // The original `ls … | tail -n +2` reported TAIL's exit code: `sh -c "ls /nope/ | tail -n +2"`
+    // exits 0 in the real sandbox image, so the missing-dir check was dead code and a
+    // nonexistent directory returned entries:[] ("exists and is empty") to the executor.
+    const { sandbox } = await makeSandbox()
+    enqueueJson(200, { Id: 'exec-rd1' })
+    enqueueResponse(200, muxFrame('total 0\n'))
+    enqueueJson(200, { ExitCode: 0 })
+    await sandbox.readDir('/workspace/x')
+    const body = JSON.parse(execCreateCall().body!) as { Cmd: string[] }
+    const cmd = body.Cmd.join(' ')
+    expect(cmd).toContain('ls -la')
+    expect(cmd).not.toContain('|')
+  })
+
+  it('throws with the ls error when the directory does not exist (nonzero exit)', async () => {
+    const { sandbox } = await makeSandbox()
+    enqueueJson(200, { Id: 'exec-rd2' })
+    enqueueResponse(
+      200,
+      muxFrame("ls: cannot access '/workspace/ghost/': No such file or directory\n", 2),
+    )
+    enqueueJson(200, { ExitCode: 2 })
+    await expect(sandbox.readDir('/workspace/ghost')).rejects.toThrow(
+      /Failed to list \/workspace\/ghost.*No such file or directory/s,
+    )
+  })
+
+  it('parses entries and drops the `total` header (previously tail-stripped) plus . and ..', async () => {
+    const { sandbox } = await makeSandbox()
+    enqueueJson(200, { Id: 'exec-rd3' })
+    enqueueResponse(
+      200,
+      muxFrame(
+        [
+          'total 12',
+          'drwxrwxrwt 1 root root 4096 1783941216 .',
+          'drwxr-xr-x 1 root root 4096 1783942519 ..',
+          '-rw-r--r-- 1 root root 42 1783941216 file.ts',
+          'drwxr-xr-x 2 root root 4096 1783941216 sub',
+        ].join('\n') + '\n',
+      ),
+    )
+    enqueueJson(200, { ExitCode: 0 })
+    const entries = await sandbox.readDir('/workspace/x')
+    expect(entries).toEqual([
+      { name: 'file.ts', type: 'file', size: 42 },
+      { name: 'sub', type: 'directory', size: undefined },
+    ])
+  })
+})

@@ -655,9 +655,11 @@ class DockerSandboxProvider implements SandboxProvider {
       async readDir(path: string): Promise<DirEntry[]> {
         // Append trailing slash so ls follows symlinks (e.g. /workspace -> /sandbox/project)
         const dirPath = path.endsWith('/') ? path : `${path}/`
-        const result = await this.exec(
-          `ls -la --time-style=+%s ${shellQuote(dirPath)} | tail -n +2`,
-        )
+        // NO pipeline here: `ls … | tail -n +2` reported TAIL's exit code (always 0), which
+        // silently defeated the missing-dir check below — verified live in the sandbox image
+        // (`sh -c "ls /nonexistent/ | tail -n +2"` exits 0; without the pipe, 2). The `total`
+        // header line tail used to drop is filtered in JS instead.
+        const result = await this.exec(`ls -la --time-style=+%s ${shellQuote(dirPath)}`)
         // A nonexistent directory must THROW (like readFile), never return [] — an empty
         // list reads as "the directory exists and is empty", and an AI executor building
         // on that spent a whole turn theorizing about "virtual" files that were never there.
@@ -674,6 +676,7 @@ class DockerSandboxProvider implements SandboxProvider {
           .trim()
           .split('\n')
           .filter(Boolean)
+          .filter((line) => !/^total\s/.test(line)) // ls's summary header (was `tail -n +2`)
           .filter((line) => {
             // Skip . and .. entries
             const name = line.split(/\s+/).slice(6).join(' ')
