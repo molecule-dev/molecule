@@ -90,16 +90,20 @@
  * router.post('/setup', async (_req, res) => {
  *   const secret = generateSecret()
  *   await store.upsert(userId, { secret, enabled: false }) // pending, server-side only
- *   const { keyUrl, QRImageUrl } = getUrls({ username, service: 'MyApp', secret })
+ *   const { keyUrl, QRImageUrl } = await getUrls({ username, service: 'MyApp', secret })
  *   res.json({ keyUrl, QRImageUrl }) // the QR carries the secret — never return it raw
  * })
  *
  * router.post('/enable', async (req, res) => {
  *   const rec = await store.get(userId)
- *   const { valid, timeStep } = verify({
+ *   const { valid, timeStep, reason } = await verify({
  *     secret: rec.secret, token: req.body.token, afterTimeStep: rec.last_time_step,
  *   })
- *   if (!valid) return res.status(400).json({ error: 'Invalid code' })
+ *   if (!valid) {
+ *     // reason === 'replay' means the code was ALREADY USED — tell the user to wait for
+ *     // the next one; anything else is a wrong/expired code.
+ *     return res.status(400).json({ error: reason === 'replay' ? 'Code already used — wait for the next one' : 'Invalid code' })
+ *   }
  *   await store.upsert(userId, { enabled: true, last_time_step: timeStep })
  *   res.json({ enabled: true })
  * })
