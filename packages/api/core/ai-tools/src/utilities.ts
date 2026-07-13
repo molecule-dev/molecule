@@ -53,6 +53,39 @@ const SECRET_JSON_SQ = new RegExp(
 )
 
 /**
+ * Exact VALUES that are UI vocabulary, never credentials — kept verbatim even when they
+ * sit next to a keyword-looking name. Frontend auth code is full of these: a JSX ternary
+ * `autoComplete={mode === "signup" ? "new-password" : "current-password"}` parses to the
+ * JSON patterns as name `…password"` : value `"current-password"` and was redacted to
+ * `"[REDACTED]"` — corrupting what the model reads back from its own auth files (and any
+ * edit_file old_string built from that read can never match).
+ */
+const NON_SECRET_VALUES = new Set([
+  'current-password',
+  'new-password',
+  'one-time-code',
+  'webauthn',
+  'password',
+  'username',
+])
+
+/**
+ * Replacer for the JSON-style keyword patterns: masks the quoted value unless it is a
+ * known non-secret UI token ({@link NON_SECRET_VALUES}).
+ *
+ * @param quote - The quote character the value uses (`"` or `'`).
+ * @returns A String.replace replacer preserving allowlisted values.
+ */
+const jsonValueReplacer =
+  (quote: '"' | "'") =>
+  (match: string, prefix: string): string => {
+    const value = match.slice(prefix.length)
+    const inner = value.slice(1, -1)
+    if (NON_SECRET_VALUES.has(inner.toLowerCase())) return match
+    return `${prefix}${quote}[REDACTED]${quote}`
+  }
+
+/**
  * Redact values of common secret/credential patterns in text output.
  *
  * @param s - Log or command output that may contain `.env`-style secrets.
@@ -61,8 +94,8 @@ const SECRET_JSON_SQ = new RegExp(
 export function redactSecrets(s: string): string {
   return s
     .replace(SECRET_KEY_PATTERN, '$1=[REDACTED]')
-    .replace(SECRET_JSON_DQ, '$1"[REDACTED]"')
-    .replace(SECRET_JSON_SQ, "$1'[REDACTED]'")
+    .replace(SECRET_JSON_DQ, jsonValueReplacer('"'))
+    .replace(SECRET_JSON_SQ, jsonValueReplacer("'"))
 }
 
 // ── Command blocking ──────────────────────────────────────────────────────────

@@ -56,6 +56,22 @@ describe('redactSecrets', () => {
   it('leaves non-secret values alone', () => {
     expect(redactSecrets('NODE_ENV=production')).toBe('NODE_ENV=production')
   })
+
+  it('keeps WHATWG autocomplete tokens verbatim (frontend auth code is not a secret)', () => {
+    // The JSX ternary parses to the JSON patterns as `…password" : "current-password"` — the
+    // value was masked to "[REDACTED]", corrupting what the model reads from its own auth files.
+    const jsx = 'autoComplete={mode === "signup" ? "new-password" : "current-password"}'
+    expect(redactSecrets(jsx)).toBe(jsx)
+    const obj = "{ autocomplete: 'current-password' }"
+    expect(redactSecrets(obj)).toBe(obj)
+    // i18n-style dictionaries keep their labels too.
+    expect(redactSecrets('"password": "Password"')).toBe('"password": "Password"')
+  })
+
+  it('still redacts a REAL quoted secret next to a keyword name', () => {
+    expect(redactSecrets('"password": "hunter2-real"')).toBe('"password": "[REDACTED]"')
+    expect(redactSecrets("API_TOKEN: 'abc123xyz'")).toBe("API_TOKEN: '[REDACTED]'")
+  })
 })
 
 describe('isValidGlob', () => {
