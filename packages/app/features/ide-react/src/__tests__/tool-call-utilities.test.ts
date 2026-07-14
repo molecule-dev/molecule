@@ -155,6 +155,86 @@ describe('toolLabel', () => {
     expect(toolLabel('search_files', {})).toBe('Search')
     expect(toolLabel('exec_command', {})).toBe('Bash')
   })
+
+  it('labels sandbox_fetch with method + protocol-stripped URL', () => {
+    expect(toolLabel('sandbox_fetch', { url: 'http://localhost:4000/api/todos' })).toBe(
+      'GET `localhost:4000/api/todos`',
+    )
+    expect(
+      toolLabel('sandbox_fetch', { url: 'http://localhost:4000/api/todos', method: 'post' }),
+    ).toBe('POST `localhost:4000/api/todos`')
+    expect(toolLabel('sandbox_fetch', {})).toBe('GET')
+  })
+
+  it('labels navigate_preview with the target path', () => {
+    expect(toolLabel('navigate_preview', { path: '/dashboard' })).toBe('Go to `/dashboard`')
+    expect(toolLabel('navigate_preview', {})).toBe('Go to')
+  })
+
+  it('labels open_file with basename', () => {
+    expect(toolLabel('open_file', { path: 'app/src/pages/Dashboard.tsx' })).toBe(
+      'Open `Dashboard.tsx`',
+    )
+  })
+
+  it('labels interact_preview by action verb + target, never the value', () => {
+    expect(toolLabel('interact_preview', { action: 'click', text: 'Sign up' })).toBe(
+      'Click `Sign up`',
+    )
+    expect(
+      toolLabel('interact_preview', { action: 'fill', molId: 'password-input', value: 'hunter2' }),
+    ).toBe('Fill `password-input`')
+    expect(toolLabel('interact_preview', { action: 'select', text: 'Country' })).toBe(
+      'Select `Country`',
+    )
+    expect(toolLabel('interact_preview', { action: 'waitFor', selector: '.toast' })).toBe(
+      'Wait for `.toast`',
+    )
+    // text beats molId (the visible name reads best), molId beats selector
+    expect(
+      toolLabel('interact_preview', { action: 'click', text: 'Save', molId: 'save-btn' }),
+    ).toBe('Click `Save`')
+    // Streaming: action not yet arrived → generic verb, no empty backticks
+    expect(toolLabel('interact_preview', {})).toBe('Interact')
+  })
+
+  it('labels the preview/IDE state tools with plain verbs', () => {
+    expect(toolLabel('read_preview_ui', {})).toBe('Inspect preview')
+    expect(toolLabel('reload_preview', {})).toBe('Reload preview')
+    expect(toolLabel('restart_preview', {})).toBe('Start preview servers')
+    expect(toolLabel('restart_preview', { restart: true })).toBe('Restart preview servers')
+    expect(toolLabel('get_ide_state', {})).toBe('Check IDE status')
+    expect(toolLabel('request_repo_import', { reason: 'to add the feature' })).toBe(
+      'Import repository',
+    )
+  })
+
+  it('labels read_logs with source and optional filter', () => {
+    expect(toolLabel('read_logs', { source: 'api' })).toBe('Read api logs')
+    expect(toolLabel('read_logs', { source: 'all' })).toBe('Read logs')
+    expect(toolLabel('read_logs', { source: 'browser', filter: 'error' })).toBe(
+      'Read browser logs `error`',
+    )
+    expect(toolLabel('read_logs', {})).toBe('Read logs')
+  })
+
+  it('labels find_example, save_script and web_search with their key argument', () => {
+    expect(toolLabel('find_example', { query: 'reset password' })).toBe(
+      'Find example `reset password`',
+    )
+    expect(toolLabel('save_script', { name: 'run-tests' })).toBe('Save script `run-tests`')
+    expect(toolLabel('web_search', { query: 'vite hmr websocket error' })).toBe(
+      'Search web `vite hmr websocket error`',
+    )
+  })
+
+  it('falls back to the salient string argument for unknown tools', () => {
+    expect(toolLabel('mystery_tool', { path: 'src/thing.ts' })).toBe('Mystery tool `src/thing.ts`')
+    expect(toolLabel('mystery_tool', { query: 'how do I' })).toBe('Mystery tool `how do I`')
+    expect(toolLabel('mystery_tool', { count: 3 })).toBe('Mystery tool')
+    const long = 'x'.repeat(80)
+    expect(toolLabel('mystery_tool', { query: long })).toBe(`Mystery tool \`${'x'.repeat(40)}…\``)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -278,6 +358,26 @@ describe('toolSummary', () => {
     expect(toolSummary('find_package', { found: 3 }, 'done')).toBe('3 packages')
     expect(toolSummary('find_package', { found: 0 }, 'done')).toBe('No matches')
     expect(toolSummary('find_package', {}, 'done')).toBe('')
+  })
+
+  it('maps sandbox_fetch statuses like web_fetch', () => {
+    expect(toolSummary('sandbox_fetch', { status: 200 }, 'done')).toBe('')
+    expect(toolSummary('sandbox_fetch', { status: 404 }, 'done')).toBe('Not found')
+    expect(toolSummary('sandbox_fetch', { status: 422 }, 'done')).toBe('Failed')
+    expect(toolSummary('sandbox_fetch', { status: 500 }, 'done')).toBe('Server error')
+    expect(toolSummary('sandbox_fetch', {}, 'done')).toBe('')
+  })
+
+  it('shows where the preview actually landed for navigate/interact', () => {
+    expect(
+      toolSummary(
+        'navigate_preview',
+        { url: 'https://p-abc123.preview.molecule.dev/login?next=%2Fdashboard' },
+        'done',
+      ),
+    ).toBe('/login?next=%2Fdashboard')
+    expect(toolSummary('interact_preview', { url: '/dashboard' }, 'done')).toBe('/dashboard')
+    expect(toolSummary('navigate_preview', {}, 'done')).toBe('')
   })
 })
 
@@ -432,6 +532,10 @@ describe('extractFilePath', () => {
 
   it('extracts path for edit_file', () => {
     expect(extractFilePath('edit_file', { path: 'a/b.ts' })).toBe('a/b.ts')
+  })
+
+  it('extracts path for open_file', () => {
+    expect(extractFilePath('open_file', { path: 'app/src/App.tsx' })).toBe('app/src/App.tsx')
   })
 
   it('extracts new_path for rename_file', () => {

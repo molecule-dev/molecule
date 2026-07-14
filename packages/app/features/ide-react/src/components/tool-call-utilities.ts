@@ -39,6 +39,11 @@ export function moleculeDocPath(packageName: string | undefined): string | null 
   return `/workspace/node_modules/@molecule/${bare}/MOLECULE.md`
 }
 
+/** Truncate a string to `max` characters with a trailing ellipsis. */
+function truncate(value: string, max = 60): string {
+  return value.length > max ? `${value.slice(0, max)}…` : value
+}
+
 /**
  * Human-readable label for a tool call (e.g. "Edit `ChatPanel.tsx`").
  * @param name - The tool name (e.g. "write_file", "exec_command").
@@ -97,10 +102,55 @@ export function toolLabel(name: string, input: unknown): string {
       }
     }
     case 'exec_command': {
-      const full = cmd ?? ''
-      const short = full.slice(0, 60) + (full.length > 60 ? '…' : '')
-      return `Bash${code(short)}`
+      return `Bash${code(truncate(cmd ?? ''))}`
     }
+    case 'sandbox_fetch': {
+      // The interesting part is WHICH endpoint (usually one the model just built) —
+      // show method + protocol-stripped URL, e.g. "GET `localhost:4000/api/todos`".
+      const method = ((inp.method as string | undefined) ?? 'GET').toUpperCase()
+      const compact = (url ?? '').replace(/^https?:\/\//, '').replace(/\/$/, '')
+      return `${method}${code(truncate(compact))}`
+    }
+    case 'navigate_preview':
+      return `Go to${code((inp.path as string | undefined) ?? '')}`
+    case 'open_file':
+      return `Open${code(basename(path))}`
+    case 'reload_preview':
+      return 'Reload preview'
+    case 'restart_preview':
+      return inp.restart === true ? 'Restart preview servers' : 'Start preview servers'
+    case 'read_preview_ui':
+      return 'Inspect preview'
+    case 'interact_preview': {
+      // Target priority mirrors the tool's own: molId is canonical, text is the
+      // visible name (usually the most readable), selector is the last resort.
+      // Deliberately NEVER show `value` — fill routinely types credentials.
+      const target =
+        (inp.text as string | undefined) ??
+        (inp.molId as string | undefined) ??
+        (inp.selector as string | undefined) ??
+        ''
+      const verb = { click: 'Click', fill: 'Fill', select: 'Select', waitFor: 'Wait for' }[
+        inp.action as string
+      ]
+      return verb ? `${verb}${code(truncate(target, 40))}` : `Interact${code(truncate(target, 40))}`
+    }
+    case 'get_ide_state':
+      return 'Check IDE status'
+    case 'read_logs': {
+      const source = (inp.source as string | undefined) ?? ''
+      const filter = (inp.filter as string | undefined) ?? ''
+      const which = source && source !== 'all' ? `Read ${source} logs` : 'Read logs'
+      return `${which}${code(truncate(filter, 30))}`
+    }
+    case 'find_example':
+      return `Find example${code(truncate((inp.query as string | undefined) ?? '', 40))}`
+    case 'save_script':
+      return `Save script${code((inp.name as string | undefined) ?? '')}`
+    case 'request_repo_import':
+      return 'Import repository'
+    case 'web_search':
+      return `Search web${code(truncate((inp.query as string | undefined) ?? '', 40))}`
     case 'save_plan': {
       const planName = (inp.name as string) ?? ''
       return planName ? `Save plan \`${planName}\`` : 'Save plan'
@@ -113,7 +163,15 @@ export function toolLabel(name: string, input: unknown): string {
       return (inp.question as string) ?? 'Question'
     default: {
       const label = name.replace(/_/g, ' ')
-      return label.charAt(0).toUpperCase() + label.slice(1)
+      // Salient-argument fallback for tools without an explicit case: nearly every
+      // tool has ONE short string input that carries its intent — show the first
+      // one present so a new tool never renders as a bare name. Never dump JSON.
+      const salient = [path, url, inp.query, inp.name, pattern, cmd, inp.source, inp.text].find(
+        (v): v is string => typeof v === 'string' && v.trim() !== '',
+      )
+      return (
+        label.charAt(0).toUpperCase() + label.slice(1) + code(salient ? truncate(salient, 40) : '')
+      )
     }
   }
 }
@@ -199,7 +257,8 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
       return ''
     case 'delete_file':
       return ''
-    case 'web_fetch': {
+    case 'web_fetch':
+    case 'sandbox_fetch': {
       const status_ = (out as { status?: number })?.status
       if (status_ == null) return ''
       if (status_ >= 200 && status_ < 300) return ''
@@ -210,6 +269,20 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
       if (status_ >= 500)
         return t('ide.toolCall.statusServerError', undefined, { defaultValue: 'Server error' })
       return ''
+    }
+    case 'navigate_preview':
+    case 'interact_preview': {
+      // The snapshot's url is where the app actually landed — an auth-guard
+      // redirect is exactly what the user wants to see at a glance.
+      const landed = (out as { url?: string })?.url
+      if (typeof landed !== 'string' || !landed) return ''
+      try {
+        const u = new URL(landed)
+        return u.pathname + u.search
+      } catch (_error) {
+        // Not an absolute URL (already a path or malformed) — show it as-is.
+        return landed
+      }
     }
     case 'exec_command': {
       const exitCode = (out as { exitCode?: number })?.exitCode
@@ -314,6 +387,7 @@ export function extractFilePath(name: string, input: unknown): string | null {
     case 'read_file':
     case 'write_file':
     case 'edit_file':
+    case 'open_file':
       return (inp.path as string) || null
     case 'rename_file':
       return (inp.new_path as string) || null
