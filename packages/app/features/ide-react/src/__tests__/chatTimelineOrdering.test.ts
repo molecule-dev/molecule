@@ -5,7 +5,7 @@ import { timelineSortKey } from '../chatTimelineOrdering.js'
 /** Build a message item. */
 const msg = (
   timestamp: number,
-  opts: { isStreaming?: boolean; content?: string; blocks?: unknown[] } = {},
+  opts: { isStreaming?: boolean; content?: string; blocks?: unknown[]; queued?: boolean } = {},
 ) => ({ kind: 'message' as const, msg: { timestamp, ...opts } })
 /** Build a card item. */
 const card = (timestamp: number) => ({ kind: 'system' as const, card: { timestamp } })
@@ -19,8 +19,14 @@ describe('timelineSortKey', () => {
     expect(timelineSortKey(card(42))).toBe(42)
   })
 
-  it('sorts an empty streaming message LAST (it is the pending response)', () => {
-    expect(timelineSortKey(msg(10, { isStreaming: true }))).toBe(Number.MAX_SAFE_INTEGER)
+  it('sorts an empty streaming message after every timestamped item', () => {
+    expect(timelineSortKey(msg(10, { isStreaming: true }))).toBe(Number.MAX_SAFE_INTEGER - 1)
+  })
+
+  it('sorts a queued message dead last — below even the streaming placeholder', () => {
+    expect(timelineSortKey(msg(10, { queued: true, content: 'next task' }))).toBe(
+      Number.MAX_SAFE_INTEGER,
+    )
   })
 
   it('orders a streaming message that already has content by its timestamp', () => {
@@ -59,5 +65,28 @@ describe('timelineSortKey', () => {
     ]
     const order = [...items].sort((a, b) => timelineSortKey(a) - timelineSortKey(b))
     expect(order).toEqual(items) // already in the right order; response stays last
+  })
+
+  it('pins queued messages to the very bottom while the turn keeps streaming (the reported bug)', () => {
+    const queued = msg(50, { queued: true, content: 'also add dark mode' })
+    const items = [
+      msg(34), // user prompt
+      msg(40, { isStreaming: true, content: 'building…' }), // in-flight response
+      queued, // queued at t=50 mid-stream
+      msg(60, { content: 'verify round output' }), // later assistant message (auto-continue)
+      card(65), // later card
+      msg(70, { isStreaming: true }), // fresh empty placeholder for the next round
+    ]
+    const order = [...items].sort((a, b) => timelineSortKey(a) - timelineSortKey(b))
+    // Everything the turn streams AFTER queueing still renders above the queued message.
+    expect(order[order.length - 1]).toBe(queued)
+  })
+
+  it('keeps multiple queued messages in queue order (stable sort)', () => {
+    const q1 = msg(50, { queued: true, content: 'first' })
+    const q2 = msg(51, { queued: true, content: 'second' })
+    const items = [msg(34), q1, q2, msg(60, { content: 'streamed later' })]
+    const order = [...items].sort((a, b) => timelineSortKey(a) - timelineSortKey(b))
+    expect(order.slice(-2)).toEqual([q1, q2])
   })
 })

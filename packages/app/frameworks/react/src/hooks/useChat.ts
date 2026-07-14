@@ -1152,10 +1152,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
       while (current) {
         if (!mountedRef.current) break
 
-        // Clear queued indicator now that this message is being sent
+        // Clear queued indicator now that this message is being sent. Re-stamp it to
+        // the actual send time: while queued it pinned to the transcript bottom (see
+        // timelineSortKey), and its queue-time timestamp predates everything that
+        // streamed in since — keeping it would jump the message back UP on send.
         if (current.userMsgId) {
           const uid = current.userMsgId
-          setMessages((prev) => prev.map((m) => (m.id === uid ? { ...m, queued: false } : m)))
+          setMessages((prev) =>
+            prev.map((m) => (m.id === uid ? { ...m, queued: false, timestamp: Date.now() } : m)),
+          )
         }
 
         const { message: currentMsg, attachments: currentAttachments } = current
