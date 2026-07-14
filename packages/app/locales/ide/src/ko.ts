@@ -487,4 +487,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': '기본적으로 모두 불러오기',
   'ide.search.excludedDirs': '제외된 폴더 (에이전트를 포함한 모든 검색에 적용됨)',
   'ide.chat.costStreamingNote': '누적 합계 — 현재 스트리밍 중인 응답을 포함합니다.',
+  'ide.toolCall.packageCount': '{{count}} 패키지',
+  'ide.toolCall.openPackageDoc': '패키지 문서 열기',
 }

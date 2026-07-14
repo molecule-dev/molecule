@@ -495,4 +495,6 @@ export const id: Partial<IdeTranslations> = {
     'Folder yang dikecualikan (berlaku untuk semua pencarian, termasuk agen)',
   'ide.chat.costStreamingNote':
     'Jumlah kumulatif — termasuk respons yang sedang ditayangkan saat ini.',
+  'ide.toolCall.packageCount': '{{count}} paket',
+  'ide.toolCall.openPackageDoc': 'Buka dokumen paket',
 }

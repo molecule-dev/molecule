@@ -15,6 +15,7 @@ import {
   diffLineCount,
   extractFilePath,
   fileDiffStats,
+  moleculeDocPath,
   toolLabel,
   toolSummary,
 } from '../components/tool-call-utilities.js'
@@ -127,6 +128,22 @@ describe('toolLabel', () => {
 
   it('falls back to formatted name for unknown tools', () => {
     expect(toolLabel('custom_tool', {})).toBe('Custom tool')
+  })
+
+  it('labels find_package with the query, falling back to category', () => {
+    expect(toolLabel('find_package', { query: 'send email' })).toBe('Find package `send email`')
+    expect(toolLabel('find_package', { category: 'payments' })).toBe('Find package `payments`')
+    expect(toolLabel('find_package', {})).toBe('Find package')
+  })
+
+  it('labels read_molecule_doc with the normalized package name', () => {
+    expect(toolLabel('read_molecule_doc', { name: '@molecule/api-payments-stripe' })).toBe(
+      'Read docs `@molecule/api-payments-stripe`',
+    )
+    expect(toolLabel('read_molecule_doc', { name: 'api-payments-stripe' })).toBe(
+      'Read docs `@molecule/api-payments-stripe`',
+    )
+    expect(toolLabel('read_molecule_doc', {})).toBe('Read docs')
   })
 
   it('handles null/empty input without flashing empty backticks', () => {
@@ -255,6 +272,12 @@ describe('toolSummary', () => {
 
   it('returns empty for unknown tools', () => {
     expect(toolSummary('unknown_tool', {}, 'done')).toBe('')
+  })
+
+  it('returns package count for find_package', () => {
+    expect(toolSummary('find_package', { found: 3 }, 'done')).toBe('3 packages')
+    expect(toolSummary('find_package', { found: 0 }, 'done')).toBe('No matches')
+    expect(toolSummary('find_package', {}, 'done')).toBe('')
   })
 })
 
@@ -426,5 +449,37 @@ describe('extractFilePath', () => {
 
   it('returns null for null input', () => {
     expect(extractFilePath('read_file', null)).toBeNull()
+  })
+
+  it('maps read_molecule_doc to the sandbox MOLECULE.md path', () => {
+    expect(extractFilePath('read_molecule_doc', { name: '@molecule/api-payments-stripe' })).toBe(
+      '/workspace/node_modules/@molecule/api-payments-stripe/MOLECULE.md',
+    )
+    expect(extractFilePath('read_molecule_doc', { name: 'app-ui' })).toBe(
+      '/workspace/node_modules/@molecule/app-ui/MOLECULE.md',
+    )
+    expect(extractFilePath('read_molecule_doc', {})).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// moleculeDocPath
+// ---------------------------------------------------------------------------
+
+describe('moleculeDocPath', () => {
+  it('builds the sandbox MOLECULE.md path with or without the @molecule/ prefix', () => {
+    expect(moleculeDocPath('@molecule/api-cache-redis')).toBe(
+      '/workspace/node_modules/@molecule/api-cache-redis/MOLECULE.md',
+    )
+    expect(moleculeDocPath('api-cache-redis')).toBe(
+      '/workspace/node_modules/@molecule/api-cache-redis/MOLECULE.md',
+    )
+  })
+
+  it('rejects names that are not plain package slugs', () => {
+    expect(moleculeDocPath('../../etc/passwd')).toBeNull()
+    expect(moleculeDocPath('@molecule/api cache')).toBeNull()
+    expect(moleculeDocPath('')).toBeNull()
+    expect(moleculeDocPath(undefined)).toBeNull()
   })
 })

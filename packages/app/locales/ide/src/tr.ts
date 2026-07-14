@@ -493,4 +493,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.search.excludedDirs':
     'Hariç tutulan klasörler (ajanı da dahil olmak üzere tüm aramalar için geçerlidir)',
   'ide.chat.costStreamingNote': 'Toplam sayı — şu anda akış halinde olan yanıtı da içerir.',
+  'ide.toolCall.packageCount': '{{count}} paketler',
+  'ide.toolCall.openPackageDoc': 'Paket belgelerini aç',
 }

@@ -493,4 +493,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.search.excludedDirs':
     'Kizárt mappák (minden keresésre vonatkozik, beleértve az ügynököt is)',
   'ide.chat.costStreamingNote': 'Futó összeg — tartalmazza a jelenleg streamelt választ is.',
+  'ide.toolCall.packageCount': '{{count}} csomagok',
+  'ide.toolCall.openPackageDoc': 'A csomag dokumentációjának megnyitása',
 }

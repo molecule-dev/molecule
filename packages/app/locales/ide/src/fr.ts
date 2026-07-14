@@ -502,4 +502,6 @@ export const fr: Partial<IdeTranslations> = {
   'ide.search.excludedDirs':
     "Dossiers exclus (s'applique à toutes les recherches, y compris celles effectuées par l'agent)",
   'ide.chat.costStreamingNote': 'Total cumulé — inclut la réponse en cours de transmission.',
+  'ide.toolCall.packageCount': '{{count}} paquets',
+  'ide.toolCall.openPackageDoc': 'Ouvrir la documentation du paquet',
 }

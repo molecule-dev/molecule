@@ -502,4 +502,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Carica tutto per impostazione predefinita',
   'ide.search.excludedDirs': "Cartelle escluse (vale per tutte le ricerche, compreso l'agente)",
   'ide.chat.costStreamingNote': 'Totale parziale — include la risposta attualmente in streaming.',
+  'ide.toolCall.packageCount': '{{count}} pacchetti',
+  'ide.toolCall.openPackageDoc': 'Apri la documentazione del pacchetto',
 }

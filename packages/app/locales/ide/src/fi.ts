@@ -494,4 +494,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.search.excludedDirs': 'Poissuljetut kansiot (koskee kaikkia hakuja, myös agenttia)',
   'ide.chat.costStreamingNote':
     'Kertynyt kokonaismäärä — sisältää parhaillaan lähetettävän vastauksen.',
+  'ide.toolCall.packageCount': '{{count}} paketit',
+  'ide.toolCall.openPackageDoc': 'Avaa paketin dokumentaatio',
 }

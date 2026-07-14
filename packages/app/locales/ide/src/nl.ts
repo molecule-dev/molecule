@@ -499,4 +499,6 @@ export const nl: Partial<IdeTranslations> = {
     'Uitgesloten mappen (geldt voor alle zoekopdrachten, inclusief die van de agent)',
   'ide.chat.costStreamingNote':
     'Lopend totaal — inclusief het antwoord dat momenteel wordt gestreamd.',
+  'ide.toolCall.packageCount': '{{count}} pakketten',
+  'ide.toolCall.openPackageDoc': 'Documentatie van het pakket openen',
 }

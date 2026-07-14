@@ -494,4 +494,6 @@ export const pt: Partial<IdeTranslations> = {
     'Pastas excluídas (aplica-se a todas as pesquisas, incluindo o agente)',
   'ide.chat.costStreamingNote':
     'Total acumulado — inclui a resposta que está sendo transmitida no momento.',
+  'ide.toolCall.packageCount': '{{count}} pacotes',
+  'ide.toolCall.openPackageDoc': 'Abrir a documentação do pacote',
 }

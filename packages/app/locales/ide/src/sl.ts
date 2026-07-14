@@ -493,4 +493,6 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Prikaži vse po privzetku',
   'ide.search.excludedDirs': 'Izključene mape (velja za vsa iskanja, vključno z agentom)',
   'ide.chat.costStreamingNote': 'Tekoči seštevek — vključuje odgovor, ki se trenutno prenaša.',
+  'ide.toolCall.packageCount': '{{count}} paketi',
+  'ide.toolCall.openPackageDoc': 'Odpri dokumentacijo paketa',
 }

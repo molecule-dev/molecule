@@ -498,4 +498,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.search.excludedDirs':
     'Изключени папки (валидно за всички търсения, включително и за агента)',
   'ide.chat.costStreamingNote': 'Текуща обща сума — включва отговора, който се предава в момента.',
+  'ide.toolCall.packageCount': '{{count}} пакети',
+  'ide.toolCall.openPackageDoc': 'Отвори документацията на пакета',
 }

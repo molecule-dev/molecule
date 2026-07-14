@@ -501,4 +501,6 @@ export const el: Partial<IdeTranslations> = {
     'Φάκελοι που εξαιρούνται (ισχύει για όλες τις αναζητήσεις, συμπεριλαμβανομένου του πράκτορα)',
   'ide.chat.costStreamingNote':
     'Συνολικό άθροισμα — περιλαμβάνει την απάντηση που μεταδίδεται αυτή τη στιγμή.',
+  'ide.toolCall.packageCount': '{{count}} πακέτα',
+  'ide.toolCall.openPackageDoc': 'Άνοιγμα εγγράφων πακέτου',
 }

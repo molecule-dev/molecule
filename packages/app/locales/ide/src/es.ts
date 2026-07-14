@@ -501,4 +501,6 @@ export const es: Partial<IdeTranslations> = {
     'Carpetas excluidas (se aplica a todas las búsquedas, incluido el agente)',
   'ide.chat.costStreamingNote':
     'Total acumulado: incluye la respuesta que se está transmitiendo en este momento.',
+  'ide.toolCall.packageCount': '{{count}} paquetes',
+  'ide.toolCall.openPackageDoc': 'Abrir la documentación del paquete',
 }

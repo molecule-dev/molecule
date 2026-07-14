@@ -118,6 +118,8 @@ export type IdeTranslationKey =
   | 'ide.toolCall.entryCount'
   | 'ide.toolCall.matchCount'
   | 'ide.toolCall.fileCount'
+  | 'ide.toolCall.packageCount'
+  | 'ide.toolCall.openPackageDoc'
   | 'ide.toolCall.written'
   | 'ide.toolCall.newFileLines'
   | 'ide.toolCall.linesAdded'

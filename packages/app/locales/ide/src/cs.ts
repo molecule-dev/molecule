@@ -489,4 +489,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Ve výchozím nastavení načíst vše',
   'ide.search.excludedDirs': 'Vyloučené složky (platí pro všechna vyhledávání, včetně agenta)',
   'ide.chat.costStreamingNote': 'Průběžný součet — zahrnuje odpověď, která se právě přenáší.',
+  'ide.toolCall.packageCount': '{{count}} balíčky',
+  'ide.toolCall.openPackageDoc': 'Otevřít dokumentaci k balíčku',
 }

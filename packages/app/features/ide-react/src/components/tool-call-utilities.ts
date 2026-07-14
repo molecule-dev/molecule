@@ -25,6 +25,21 @@ export function basename(path: string | undefined): string {
 }
 
 /**
+ * Path of a @molecule/* package's MOLECULE.md inside the sandbox, where every
+ * package is pre-installed. Used by the find_package / read_molecule_doc cards
+ * so clicking a package opens its docs in the editor.
+ * @param packageName - The package name, with or without the `@molecule/` prefix.
+ * @returns The absolute sandbox path to the package's MOLECULE.md, or null for
+ * a name that isn't a plain molecule package slug.
+ */
+export function moleculeDocPath(packageName: string | undefined): string | null {
+  if (!packageName) return null
+  const bare = packageName.trim().replace(/^@molecule\//, '')
+  if (!/^[a-z0-9-]+$/.test(bare)) return null
+  return `/workspace/node_modules/@molecule/${bare}/MOLECULE.md`
+}
+
+/**
  * Human-readable label for a tool call (e.g. "Edit `ChatPanel.tsx`").
  * @param name - The tool name (e.g. "write_file", "exec_command").
  * @param input - The raw tool input payload.
@@ -65,6 +80,14 @@ export function toolLabel(name: string, input: unknown): string {
       return `Find${code(pattern ?? '')}`
     case 'load_skill':
       return `Load skill${code((inp.name as string | undefined) ?? '')}`
+    case 'find_package': {
+      const query = (inp.query as string | undefined) ?? (inp.category as string | undefined)
+      return `Find package${code(query ?? '')}`
+    }
+    case 'read_molecule_doc': {
+      const pkg = (inp.name as string | undefined)?.trim().replace(/^@molecule\//, '')
+      return `Read docs${code(pkg ? `@molecule/${pkg}` : '')}`
+    }
     case 'web_fetch': {
       try {
         return `Fetch ${new URL(url ?? '').hostname}`
@@ -194,6 +217,16 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
         ? t('ide.toolCall.statusFailed', undefined, { defaultValue: 'Failed' })
         : ''
     }
+    case 'find_package': {
+      const found = (out as { found?: number })?.found
+      if (found == null) return ''
+      if (found === 0) return t('ide.toolCall.noMatches', undefined, { defaultValue: 'No matches' })
+      return t(
+        'ide.toolCall.packageCount',
+        { count: found },
+        { defaultValue: '{{count}} packages' },
+      )
+    }
     case 'ask_user': {
       if (typeof out === 'string') return out
       const askOut = out as { status?: string } | undefined
@@ -284,6 +317,9 @@ export function extractFilePath(name: string, input: unknown): string | null {
       return (inp.path as string) || null
     case 'rename_file':
       return (inp.new_path as string) || null
+    case 'read_molecule_doc':
+      // Clicking the card opens the package's MOLECULE.md (pre-installed in the sandbox).
+      return moleculeDocPath(inp.name as string | undefined)
     default:
       return null
   }

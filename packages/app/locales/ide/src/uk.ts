@@ -498,4 +498,6 @@ export const uk: Partial<IdeTranslations> = {
     'Виключені папки (стосується всіх пошуків, включаючи пошук за допомогою агента)',
   'ide.chat.costStreamingNote':
     'Поточний підсумок — включає відповідь, яка зараз передається у режимі потокової передачі.',
+  'ide.toolCall.packageCount': '{{count}} пакети',
+  'ide.toolCall.openPackageDoc': 'Відкрити документацію до пакета',
 }

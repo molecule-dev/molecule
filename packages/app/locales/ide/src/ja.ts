@@ -494,4 +494,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'デフォルトですべてを読み込む',
   'ide.search.excludedDirs': '除外フォルダ（エージェントを含むすべての検索に適用されます）',
   'ide.chat.costStreamingNote': '累計 — 現在ストリーミング中のレスポンスを含みます。',
+  'ide.toolCall.packageCount': '{{count}} パッケージ',
+  'ide.toolCall.openPackageDoc': 'パッケージのドキュメントを開く',
 }

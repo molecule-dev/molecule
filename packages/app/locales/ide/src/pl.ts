@@ -497,4 +497,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.search.excludedDirs': 'Foldery wykluczone (dotyczy wszystkich wyszukiwań, w tym agenta)',
   'ide.chat.costStreamingNote':
     'Suma bieżąca — obejmuje odpowiedź przesyłaną obecnie w trybie strumieniowym.',
+  'ide.toolCall.packageCount': '{{count}} pakiety',
+  'ide.toolCall.openPackageDoc': 'Otwórz dokumentację pakietu',
 }

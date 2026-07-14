@@ -491,4 +491,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.search.excludedDirs':
     'Välja jäetud kaustad (kehtib kõigi otsingute puhul, sealhulgas agendi puhul)',
   'ide.chat.costStreamingNote': 'Kogusumma — sisaldab hetkel edastatavat vastust.',
+  'ide.toolCall.packageCount': '{{count}} paketid',
+  'ide.toolCall.openPackageDoc': 'Ava paketi dokumentatsioon',
 }

@@ -497,4 +497,6 @@ export const ru: Partial<IdeTranslations> = {
     'Исключенные папки (применяется ко всем поискам, включая поиск с помощью агента)',
   'ide.chat.costStreamingNote':
     'Накопленное значение — включает ответ, передаваемый в данный момент.',
+  'ide.toolCall.packageCount': '{{count}} пакеты',
+  'ide.toolCall.openPackageDoc': 'Открыть документацию по пакету',
 }

@@ -22,6 +22,7 @@ import {
   basename,
   extractFilePath,
   fileDiffStats,
+  moleculeDocPath,
   toolLabel,
   toolSummary,
 } from './tool-call-utilities.js'
@@ -134,6 +135,135 @@ function renderLabel(
         ),
       )}
     </>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// find_package results
+// ---------------------------------------------------------------------------
+
+interface PackageResult {
+  name: string
+  label?: string
+  category?: string
+}
+
+/**
+ * Extract the package matches from a find_package output. Prefers the
+ * structured `results` array; falls back to parsing package names out of the
+ * model-facing `packages` markdown (conversations recorded before `results`
+ * existed).
+ * @param output - The raw find_package output payload.
+ * @returns The package results, possibly empty.
+ */
+function packageResults(output: unknown): PackageResult[] {
+  const out = (output ?? {}) as {
+    results?: PackageResult[]
+    packages?: string
+  }
+  if (Array.isArray(out.results)) {
+    return out.results.filter((r): r is PackageResult => typeof r?.name === 'string')
+  }
+  if (typeof out.packages === 'string') {
+    return [...out.packages.matchAll(/^### `([^`]+)`(?: — (.+))?$/gm)].map((m) => ({
+      name: m[1],
+      label: m[2],
+    }))
+  }
+  return []
+}
+
+/**
+ * Clickable rows for find_package matches — each opens the package's
+ * MOLECULE.md in the editor.
+ * @param root0 - Component props.
+ * @param root0.results - The package matches to render.
+ * @param root0.onFileOpen - Callback to preview a file in the editor.
+ * @returns The rendered result rows.
+ */
+function PackageResultRows({
+  results,
+  onFileOpen,
+}: {
+  results: PackageResult[]
+  onFileOpen?: (path: string) => void
+}): JSX.Element {
+  if (results.length === 0) {
+    return (
+      <span style={{ opacity: 0.5 }}>
+        {t('ide.toolCall.noMatches', undefined, { defaultValue: 'No matches' })}
+      </span>
+    )
+  }
+  return (
+    <div style={{ fontFamily: PRE.fontFamily, fontSize: '11px', lineHeight: 1.7 }}>
+      {results.map((r, i) => {
+        const docPath = moleculeDocPath(r.name)
+        const clickable = docPath != null && onFileOpen != null
+        return (
+          <div
+            key={i}
+            role={clickable ? 'button' : undefined}
+            tabIndex={clickable ? 0 : undefined}
+            data-mol-id={`find-package-result-${i}`}
+            title={
+              clickable
+                ? t('ide.toolCall.openPackageDoc', undefined, {
+                    defaultValue: 'Open package docs',
+                  })
+                : undefined
+            }
+            onClick={
+              clickable
+                ? (e) => {
+                    e.stopPropagation()
+                    onFileOpen(docPath)
+                  }
+                : undefined
+            }
+            onKeyDown={
+              clickable
+                ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      onFileOpen(docPath)
+                    }
+                  }
+                : undefined
+            }
+            onMouseEnter={(e) => {
+              if (clickable) e.currentTarget.style.opacity = '1'
+            }}
+            onMouseLeave={(e) => {
+              if (clickable) e.currentTarget.style.opacity = '0.8'
+            }}
+            style={{
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'baseline',
+              cursor: clickable ? 'pointer' : 'default',
+              opacity: clickable ? 0.8 : 1,
+              transition: 'opacity 100ms',
+            }}
+          >
+            <span style={{ whiteSpace: 'nowrap' }}>{r.name}</span>
+            {r.label && (
+              <span
+                style={{
+                  opacity: 0.55,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {r.label}
+              </span>
+            )}
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
@@ -521,7 +651,9 @@ export const ToolCallCard = memo(function ToolCallCard({
 }: ToolCallCardProps): JSX.Element | null {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
-  const [expanded, setExpanded] = useState(false)
+  // find_package starts expanded: the found packages ARE the result the user
+  // wants to see (and click) — the other expandable tools stay collapsed.
+  const [expanded, setExpanded] = useState(name === 'find_package')
   const [isHovered, setIsHovered] = useState(false)
   const [isUndoneLocal, setIsUndoneLocal] = useState(false)
   const isUndone = isUndoneProp ?? isUndoneLocal
@@ -609,8 +741,13 @@ export const ToolCallCard = memo(function ToolCallCard({
     'list_files',
     'find_files',
     'search_files',
+    'find_package',
   ])
   const hasDetails = EXPANDABLE.has(name) && (input !== undefined || output !== undefined)
+
+  // read_molecule_doc: clicking the row opens the package's MOLECULE.md in the
+  // editor (filePath is derived from the input's package name).
+  const isDocOpen = name === 'read_molecule_doc' && filePath != null && onFileOpen != null
 
   // Only exec_command and web_fetch get the labeled IN / OUT pane treatment.
   const showInOut = name === 'exec_command' || name === 'web_fetch'
@@ -618,7 +755,7 @@ export const ToolCallCard = memo(function ToolCallCard({
   const outContent = showInOut && output !== undefined ? renderOut(name, output) : null
 
   const handleClick =
-    isNewFile && filePath && onFileOpen
+    (isNewFile || isDocOpen) && filePath && onFileOpen
       ? () => {
           onFileOpen(filePath)
         }
@@ -1143,7 +1280,7 @@ export const ToolCallCard = memo(function ToolCallCard({
         )}
 
         {/* Expand / open chevron */}
-        {(hasDetails || isFileDiff || (isNewFile && filePath && onFileOpen)) && (
+        {(hasDetails || isFileDiff || isDocOpen || (isNewFile && filePath && onFileOpen)) && (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 16 16"
@@ -1239,6 +1376,11 @@ export const ToolCallCard = memo(function ToolCallCard({
               {(name === 'list_files' || name === 'find_files' || name === 'search_files') &&
                 output !== undefined &&
                 renderOut(name, output)}
+
+              {/* find_package: clickable package matches — each opens its MOLECULE.md */}
+              {name === 'find_package' && output !== undefined && (
+                <PackageResultRows results={packageResults(output)} onFileOpen={onFileOpen} />
+              )}
             </div>
           )}
         </div>

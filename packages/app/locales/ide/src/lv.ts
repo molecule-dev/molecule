@@ -492,4 +492,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.search.excludedDirs': 'Izslēgtās mapes (attiecas uz visām meklēšanām, ieskaitot aģentu)',
   'ide.chat.costStreamingNote':
     'Kopējais skaits — ietver arī atbildi, kas pašlaik tiek pārraidīta.',
+  'ide.toolCall.packageCount': '{{count}} iepakojumi',
+  'ide.toolCall.openPackageDoc': 'Atvērt dokumentāciju par pakotni',
 }

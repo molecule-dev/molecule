@@ -506,4 +506,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.search.excludedDirs':
     'Ausgeschlossene Ordner (gilt für alle Suchvorgänge, einschließlich des Agenten)',
   'ide.chat.costStreamingNote': 'Laufende Summe – beinhaltet die derzeit gestreamte Antwort.',
+  'ide.toolCall.packageCount': '{{count}} Pakete',
+  'ide.toolCall.openPackageDoc': 'Paketdokumentation öffnen',
 }

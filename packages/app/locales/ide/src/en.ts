@@ -169,6 +169,8 @@ export const en: IdeTranslations = {
   'ide.toolCall.entryCount': '{{count}} entries',
   'ide.toolCall.matchCount': '{{count}} matches',
   'ide.toolCall.fileCount': '{{count}} files',
+  'ide.toolCall.packageCount': '{{count}} packages',
+  'ide.toolCall.openPackageDoc': 'Open package docs',
   'ide.toolCall.statusServerError': 'Server error',
   'ide.chat.title': 'Chat',
   'ide.chat.placeholder': 'Send a message...',

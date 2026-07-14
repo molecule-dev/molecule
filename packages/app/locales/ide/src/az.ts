@@ -483,4 +483,6 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Load all by default',
   'ide.search.excludedDirs': 'Excluded folders (applies to all searches, including the agent)',
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
+  'ide.toolCall.packageCount': '{{count}} packages',
+  'ide.toolCall.openPackageDoc': 'Open package docs',
 }

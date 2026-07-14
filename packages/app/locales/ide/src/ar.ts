@@ -487,4 +487,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'تحميل الكل بشكل افتراضي',
   'ide.search.excludedDirs': 'المجلدات المستبعدة (ينطبق على جميع عمليات البحث، بما في ذلك الوكيل)',
   'ide.chat.costStreamingNote': 'المجموع التراكمي — يشمل الرد الذي يتم بثه حالياً.',
+  'ide.toolCall.packageCount': '{{count}} الحزم',
+  'ide.toolCall.openPackageDoc': 'فتح مستندات الحزمة',
 }

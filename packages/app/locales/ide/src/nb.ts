@@ -487,4 +487,6 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Last inn alt som standard',
   'ide.search.excludedDirs': 'Ekskluderte mapper (gjelder alle søk, inkludert agenten)',
   'ide.chat.costStreamingNote': 'Løpende total — inkluderer svaret som strømmes akkurat nå.',
+  'ide.toolCall.packageCount': '{{count}} pakker',
+  'ide.toolCall.openPackageDoc': 'Åpne dokumentasjonen til pakken',
 }

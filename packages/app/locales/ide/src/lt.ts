@@ -496,4 +496,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.search.excludedDirs':
     'Išskirtos aplankos (taikoma visoms paieškoms, įskaitant agento paiešką)',
   'ide.chat.costStreamingNote': 'Bendras skaičius — įskaitant šiuo metu transliuojamą atsakymą.',
+  'ide.toolCall.packageCount': '{{count}} pakuotės',
+  'ide.toolCall.openPackageDoc': 'Atidaryti paketo dokumentaciją',
 }

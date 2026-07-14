@@ -492,4 +492,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Ladda alla som standard',
   'ide.search.excludedDirs': 'Uteslutna mappar (gäller alla sökningar, inklusive agenten)',
   'ide.chat.costStreamingNote': 'Löpande summa — inkluderar det svar som just nu strömmas.',
+  'ide.toolCall.packageCount': '{{count}} paket',
+  'ide.toolCall.openPackageDoc': 'Öppna dokumentationen för paketet',
 }

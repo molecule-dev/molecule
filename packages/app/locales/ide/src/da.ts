@@ -490,4 +490,6 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.skills.resetDefaults': 'Indlæs alt som standard',
   'ide.search.excludedDirs': 'Ekskluderede mapper (gælder for alle søgninger, herunder agenten)',
   'ide.chat.costStreamingNote': 'Løbende total — inkluderer det svar, der lige nu streames.',
+  'ide.toolCall.packageCount': '{{count}} pakker',
+  'ide.toolCall.openPackageDoc': 'Åbn dokumentationen til pakken',
 }
