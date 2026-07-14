@@ -8,12 +8,14 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS,
   AUTO_COMMIT_DISABLED,
   autoCommitReducer,
   type AutoCommitState,
   DEFAULT_AUTO_COMMIT_SECONDS,
   formatAutoCommitBadge,
   isAutoCommitArmed,
+  isAutoCommitCountdownVisible,
   isAutoCommitDue,
   isAutoCommitEnabled,
   parseAutoCommitCommand,
@@ -65,6 +67,45 @@ describe('resolveAutoCommitSeconds — auto-commit is ON by default', () => {
     expect(resolveAutoCommitSeconds('30')).toBe(DEFAULT_AUTO_COMMIT_SECONDS)
     expect(resolveAutoCommitSeconds(Number.NaN)).toBe(DEFAULT_AUTO_COMMIT_SECONDS)
     expect(resolveAutoCommitSeconds(Number.POSITIVE_INFINITY)).toBe(DEFAULT_AUTO_COMMIT_SECONDS)
+  })
+})
+
+describe('isAutoCommitCountdownVisible — the late countdown window', () => {
+  it('keeps the default cadence a two-phase debounce (a real quiet phase exists)', () => {
+    // The default must be LONGER than the visible window: a short quiet phase
+    // ("Commit" button), then the final visible countdown.
+    expect(DEFAULT_AUTO_COMMIT_SECONDS).toBeGreaterThan(AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS)
+  })
+
+  it('is hidden while disabled, paused, or still in the quiet phase', () => {
+    expect(isAutoCommitCountdownVisible(AUTO_COMMIT_DISABLED)).toBe(false)
+    expect(isAutoCommitCountdownVisible({ intervalSeconds: 5, remaining: null })).toBe(false)
+    expect(
+      isAutoCommitCountdownVisible({
+        intervalSeconds: 30,
+        remaining: AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS + 1,
+      }),
+    ).toBe(false)
+  })
+
+  it('is visible for the final window seconds, down to the due instant', () => {
+    expect(
+      isAutoCommitCountdownVisible({
+        intervalSeconds: 30,
+        remaining: AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS,
+      }),
+    ).toBe(true)
+    expect(isAutoCommitCountdownVisible({ intervalSeconds: 5, remaining: 1 })).toBe(true)
+    expect(isAutoCommitCountdownVisible({ intervalSeconds: 5, remaining: 0 })).toBe(true)
+  })
+
+  it('covers the whole countdown when the cadence fits inside the window', () => {
+    expect(
+      isAutoCommitCountdownVisible({
+        intervalSeconds: AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS,
+        remaining: AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS,
+      }),
+    ).toBe(true)
   })
 })
 

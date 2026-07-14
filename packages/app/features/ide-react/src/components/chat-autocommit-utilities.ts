@@ -75,8 +75,34 @@ export const AUTO_COMMIT_DISABLED: AutoCommitState = { intervalSeconds: 0, remai
  * Projects that have never persisted `autoCommitSeconds` hydrate to this
  * cadence (paused, arming on the first file change); only an explicit `0`
  * (the user cancelled) keeps auto-commit off.
+ *
+ * The value is the TOTAL debounce after the last file change (once the agent's
+ * turn has finished): a short quiet period, then the final
+ * {@link AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS} seconds render as a live
+ * countdown on the commit button. 5s = 2s quiet + 3s visible countdown.
  */
-export const DEFAULT_AUTO_COMMIT_SECONDS = 30
+export const DEFAULT_AUTO_COMMIT_SECONDS = 5
+
+/**
+ * How many final seconds of the countdown are DISPLAYED as a live countdown.
+ * Until the countdown drops to this threshold, the commit-bar button stays a
+ * plain green "Commit" (a bare "12s" pill told users nothing); the countdown
+ * label only takes over for these last seconds, right before the auto-commit
+ * fires. Cadences at or below the threshold show the countdown the whole time.
+ */
+export const AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS = 3
+
+/**
+ * Whether the countdown is in its visible window — armed and within the final
+ * {@link AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS} seconds — i.e. the commit
+ * button should render the live "Auto-commit in Ns" label instead of "Commit".
+ *
+ * @param state - The countdown state.
+ * @returns `true` when armed with at most the visible-window seconds left.
+ */
+export function isAutoCommitCountdownVisible(state: AutoCommitState): boolean {
+  return state.remaining !== null && state.remaining <= AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS
+}
 
 /**
  * Resolves the persisted `project.settings.autoCommitSeconds` value to the

@@ -215,15 +215,16 @@ function submitCommand(container: HTMLElement, text: string): void {
 }
 
 describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
-  it('hydrates the saved cadence on load — shown in /settings; no static pill (P4-11)', async () => {
+  it('hydrates the saved cadence on load — shown in /settings; nothing on a clean tree', async () => {
     const patchSpy = vi.fn(async () => ({}))
     const { container } = render(
       renderChatPanel(buildHttpClient({ autoCommitSeconds: 30 }, patchSpy)),
     )
 
-    // P4-11 removed the paused "Auto-commit on" pill, so the paused state shows
-    // nothing. Open /settings (re-renders with live state) and confirm the cadence
-    // WAS hydrated — pre-fix the panel ignored the field and this stays "Off".
+    // The auto-commit button lives in the commit bar, which only renders with
+    // pending files — on a clean tree nothing shows. Open /settings (re-renders
+    // with live state) and confirm the cadence WAS hydrated — pre-fix the panel
+    // ignored the field and this stays "Off".
     const settingsBtn = await waitFor(() => {
       const el = container.querySelector('[data-mol-id="chat-settings-button"]')
       expect(el, 'the settings button must render').not.toBeNull()
@@ -236,7 +237,7 @@ describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
       expect(row, 'the /settings auto-commit row must render').not.toBeNull()
       expect(row?.textContent).toContain('Every 30s')
     })
-    // No static auto-commit pill in the paused state (P4-11).
+    // No pending files (the git-status GET rejects) → no commit bar, no button.
     expect(container.querySelector('[data-mol-id="chat-autocommit-badge"]')).toBeNull()
     // The hydrated cadence is NOT echoed back as a spurious PATCH (persistedRef set).
     expect(patchSpy).not.toHaveBeenCalled()
@@ -246,8 +247,9 @@ describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
     const patchSpy = vi.fn(async () => ({}))
     const { container } = render(renderChatPanel(buildHttpClient({}, patchSpy)))
 
-    // The default hydrates like a saved cadence: paused (no badge — it arms on
-    // the first file change), visible in /settings as the default "Every Ns".
+    // The default hydrates like a saved cadence: paused, visible in /settings as
+    // the default "Every Ns". (The commit-bar button needs pending files, and the
+    // git-status GET rejects here, so no button renders.)
     const settingsBtn = await waitFor(() => {
       const el = container.querySelector('[data-mol-id="chat-settings-button"]')
       expect(el, 'the settings button must render').not.toBeNull()
@@ -301,7 +303,7 @@ describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
     expect(container.querySelector('[data-mol-id="chat-autocommit-badge"]')).toBeNull()
 
     // Set a cadence via the REAL /autocommit command — this debounce-PATCHes the
-    // new cadence back to the server. (The armed green countdown badge itself —
+    // new cadence back to the server. (The green auto-commit button itself —
     // which lives in the commit bar's slot, visible only with pending files — is
     // covered directly in AutoCommitBadge.test.tsx; here we prove persistence.)
     submitCommand(container, '/autocommit 30')
@@ -423,6 +425,17 @@ describe('ChatPanel auto-commit hold — commits only once the turn is finished'
       })
       // …then signal a file mutation: the countdown arms at 1s but is HELD.
       view.rerender(wrap(1))
+
+      // The uncommitted-files bar updates LIVE mid-turn: with git-status already
+      // reporting a dirty tree, the bar (and the green auto-commit button in its
+      // slot) is visible WHILE the turn is still streaming — it must never wait
+      // for the turn to end.
+      await waitFor(() => {
+        expect(
+          view.container.querySelector('[data-mol-id="chat-autocommit-badge"]'),
+          'the commit bar + auto-commit button must render mid-turn',
+        ).not.toBeNull()
+      })
 
       // Well past the 1s cadence, nothing may commit while the turn streams.
       await new Promise((resolve) => setTimeout(resolve, 2500))

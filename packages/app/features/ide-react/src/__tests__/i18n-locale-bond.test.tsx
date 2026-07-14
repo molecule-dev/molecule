@@ -218,7 +218,7 @@ describe('Synthase chat surface i18n resolves through the locale bond (cross-cut
     for (const key of [
       'ide.chat.activity.thinking',
       'ide.chat.autoCommit.badge',
-      'ide.chat.autoCommit.cancel',
+      'ide.chat.commit',
       'ide.chat.effort.header',
       'ide.chat.models.colName',
       'ide.chat.modelRemoved',
@@ -234,27 +234,35 @@ describe('Synthase chat surface i18n resolves through the locale bond (cross-cut
     }
   })
 
-  it('renders the auto-commit badge from the bond, interpolated, not the English default', () => {
-    const state: AutoCommitState = { intervalSeconds: 30, remaining: 12 }
-    const { container } = render(<AutoCommitBadge state={state} onCancel={() => {}} />)
+  it('renders the auto-commit button from the bond, interpolated, not the English default', () => {
+    // In its final visible window the button shows the live countdown label.
+    const state: AutoCommitState = { intervalSeconds: 5, remaining: 2 }
+    const { container } = render(<AutoCommitBadge state={state} onCommitNow={() => {}} />)
     const badge = container.querySelector('[data-mol-id="chat-autocommit-badge"]')
-    expect(badge, 'auto-commit badge did not render').not.toBeNull()
+    expect(badge, 'auto-commit button did not render').not.toBeNull()
 
-    // The title is the cancel label, resolved from the bond (not the English default).
-    expect(badge?.getAttribute('title')).toBe(fr['ide.chat.autoCommit.cancel'])
-    expect(badge?.getAttribute('title')).not.toBe('Cancel auto-commit')
+    // The title is the commit label (click = commit now), resolved from the bond.
+    expect(badge?.getAttribute('title')).toBe(fr['ide.chat.commit'])
+    expect(badge?.getAttribute('title')).not.toBe('Commit')
 
-    // The aria-label interpolates the live countdown into the BONDED template —
-    // this only works because the inline default was refactored from a JS
-    // `${countdown}` template literal to an i18n `{{countdown}}` placeholder, so
-    // the bond override interpolates the same value the inline default would.
-    const expectedBadge = fr['ide.chat.autoCommit.badge'].replace('{{countdown}}', '12s')
-    expect(badge?.getAttribute('aria-label')).toBe(
-      `${expectedBadge} — ${fr['ide.chat.autoCommit.cancel']}`,
-    )
-    // The pre-fix bug: with the key absent, the English `Auto-commit in 12s` rendered.
+    // The visible text + aria-label interpolate the live countdown into the
+    // BONDED template — this only works because the inline default was
+    // refactored from a JS `${countdown}` template literal to an i18n
+    // `{{countdown}}` placeholder, so the bond override interpolates the same
+    // value the inline default would.
+    const expectedBadge = fr['ide.chat.autoCommit.badge'].replace('{{countdown}}', '2s')
+    expect(badge?.textContent).toBe(expectedBadge)
+    expect(badge?.getAttribute('aria-label')).toBe(`${expectedBadge} — ${fr['ide.chat.commit']}`)
+    // The pre-fix bug: with the key absent, the English `Auto-commit in 2s` rendered.
     expect(badge?.getAttribute('aria-label')).not.toContain('Auto-commit in')
-    expect(badge?.textContent).toContain('12s')
+
+    // Outside the visible window (quiet phase) the button is the bonded commit label.
+    const { container: quiet } = render(
+      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCommitNow={() => {}} />,
+    )
+    expect(quiet.querySelector('[data-mol-id="chat-autocommit-badge"]')?.textContent).toBe(
+      fr['ide.chat.commit'],
+    )
   })
 
   it('parks the four DeepL-unsafe command-usage keys as the English fallback (not machine-translated)', () => {

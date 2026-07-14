@@ -1,18 +1,21 @@
 // @vitest-environment jsdom
 
 /**
- * Auto-commit countdown badge — render-only-when-armed + green-commit-button look.
+ * Auto-commit button — labeled green commit action + late countdown morph.
  *
- * P4-10 + P4-11 reshaped the badge:
- *   - P4-11: the static "Auto-commit on" pill is GONE — the badge renders ONLY
- *     while armed (actively counting down); disabled or paused → nothing.
- *   - P4-10: the armed countdown is styled EXACTLY like the blue `/commit` button
- *     but green — same fontSize / padding / 6px radius / translucent bordered look
- *     / transition, recolored from the theme success token — and the pulse
- *     animation (keyframes + `data-mol-pulse` + injected `<style>`) is removed.
+ * The bare countdown pill ("12s") told users nothing, so the badge became the
+ * commit bar's green commit button:
+ *   - Renders whenever auto-commit is ENABLED (paused or counting) — a green
+ *     "Commit" button, click = commit now. Disabled → nothing, and the old
+ *     static "Auto-commit on" pill stays gone (P4-11).
+ *   - It morphs into the live "Auto-commit in Ns" label only for the countdown's
+ *     final `AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS` seconds — right before the
+ *     auto-commit fires — and clicking still commits now.
+ *   - P4-10 styling holds: the button is the blue `/commit` button recolored
+ *     from the theme success token — same box model, no pulse.
  *
- * This is a real jsdom render of the actual {@link AutoCommitBadge} asserting all
- * of that.
+ * This is a real jsdom render of the actual {@link AutoCommitBadge} asserting
+ * all of that.
  *
  * @module
  */
@@ -26,6 +29,7 @@ import { classMap } from '@molecule/app-ui-tailwind'
 
 import { AutoCommitBadge } from '../components/AutoCommitBadge.js'
 import type { AutoCommitState } from '../components/chat-autocommit-utilities.js'
+import { AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS } from '../components/chat-autocommit-utilities.js'
 
 beforeEach(() => {
   setClassMap(classMap)
@@ -39,35 +43,63 @@ afterEach(() => {
 const badgeOf = (container: HTMLElement): HTMLElement | null =>
   container.querySelector('[data-mol-id="chat-autocommit-badge"]')
 
-describe('AutoCommitBadge — armed-only green commit button (P4-10/P4-11)', () => {
+describe('AutoCommitBadge — green commit button while enabled', () => {
   it('renders nothing when auto-commit is disabled', () => {
     const { container } = render(
-      <AutoCommitBadge state={{ intervalSeconds: 0, remaining: null }} onCancel={() => {}} />,
+      <AutoCommitBadge state={{ intervalSeconds: 0, remaining: null }} onCommitNow={() => {}} />,
     )
     expect(badgeOf(container)).toBeNull()
   })
 
-  it('renders nothing when enabled but paused — the static "Auto-commit on" pill is gone (P4-11)', () => {
-    // enabled-but-paused: intervalSeconds > 0, remaining === null. The pre-P4-11
-    // badge showed a muted "Auto-commit on" pill here; the user removed it.
-    const state: AutoCommitState = { intervalSeconds: 30, remaining: null }
-    const { container } = render(<AutoCommitBadge state={state} onCancel={() => {}} />)
-    expect(badgeOf(container), 'the paused "Auto-commit on" pill must NOT render').toBeNull()
-    // The label that backed that pill must be gone entirely.
+  it('renders the green "Commit" button when enabled but paused — never the old "on" pill', () => {
+    // enabled-but-paused: intervalSeconds > 0, remaining === null (hydrated on
+    // load, or between commits). Users get a recognizable commit action, not a
+    // status pill (P4-11 keeps "Auto-commit on" gone).
+    const state: AutoCommitState = { intervalSeconds: 5, remaining: null }
+    const { container } = render(<AutoCommitBadge state={state} onCommitNow={() => {}} />)
+    const badge = badgeOf(container)
+    expect(badge, 'the enabled-paused commit button must render').not.toBeNull()
+    expect(badge?.textContent).toBe('Commit')
     expect(container.textContent).not.toContain('Auto-commit on')
   })
 
-  it('renders the live countdown when armed (counting down)', () => {
-    const state: AutoCommitState = { intervalSeconds: 30, remaining: 12 }
-    const { container } = render(<AutoCommitBadge state={state} onCancel={() => {}} />)
+  it('stays a plain "Commit" during the quiet phase (armed, above the visible window)', () => {
+    const state: AutoCommitState = {
+      intervalSeconds: 30,
+      remaining: AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS + 9,
+    }
+    const { container } = render(<AutoCommitBadge state={state} onCommitNow={() => {}} />)
     const badge = badgeOf(container)
-    expect(badge, 'the armed countdown must render').not.toBeNull()
-    expect(badge?.textContent).toContain('12s')
+    expect(badge?.textContent).toBe('Commit')
+    expect(badge?.textContent).not.toContain('s')
+  })
+
+  it('morphs into the labeled live countdown for the final seconds', () => {
+    const state: AutoCommitState = { intervalSeconds: 5, remaining: 2 }
+    const { container } = render(<AutoCommitBadge state={state} onCommitNow={() => {}} />)
+    const badge = badgeOf(container)
+    // A labeled countdown — never the old bare "2s" pill.
+    expect(badge?.textContent).toBe('Auto-commit in 2s')
+  })
+
+  it('shows the countdown for the whole run when the cadence fits inside the visible window', () => {
+    const state: AutoCommitState = {
+      intervalSeconds: AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS,
+      remaining: AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS,
+    }
+    const { container } = render(<AutoCommitBadge state={state} onCommitNow={() => {}} />)
+    expect(badgeOf(container)?.textContent).toBe(
+      `Auto-commit in ${AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS}s`,
+    )
   })
 
   it('looks exactly like the blue commit button, but green (P4-10)', () => {
     const { container } = render(
-      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCancel={() => {}} inline />,
+      <AutoCommitBadge
+        state={{ intervalSeconds: 30, remaining: 12 }}
+        onCommitNow={() => {}}
+        inline
+      />,
     )
     const badge = badgeOf(container) as HTMLElement
     // Same box model as the blue /commit button.
@@ -96,7 +128,7 @@ describe('AutoCommitBadge — armed-only green commit button (P4-10/P4-11)', () 
 
   it('has no pulse — no animation, no data-mol-pulse, no injected keyframes (P4-10)', () => {
     const { container } = render(
-      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCancel={() => {}} />,
+      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCommitNow={() => {}} />,
     )
     const badge = badgeOf(container) as HTMLElement
     // The pulse animation is gone entirely.
@@ -107,32 +139,42 @@ describe('AutoCommitBadge — armed-only green commit button (P4-10/P4-11)', () 
     expect(container.innerHTML).not.toContain('molAutoCommitPulse')
   })
 
-  it('cancels auto-commit when the armed countdown button is clicked', () => {
-    const onCancel = vi.fn()
-    const { container } = render(
-      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCancel={onCancel} />,
+  it('commits now when clicked — in the quiet phase AND during the countdown', () => {
+    const quietCommit = vi.fn()
+    const { container: quiet } = render(
+      <AutoCommitBadge state={{ intervalSeconds: 30, remaining: 12 }} onCommitNow={quietCommit} />,
     )
-    fireEvent.click(badgeOf(container) as HTMLElement)
-    expect(onCancel).toHaveBeenCalledTimes(1)
+    fireEvent.click(badgeOf(quiet) as HTMLElement)
+    expect(quietCommit).toHaveBeenCalledTimes(1)
+
+    const countdownCommit = vi.fn()
+    const { container: counting } = render(
+      <AutoCommitBadge
+        state={{ intervalSeconds: 5, remaining: 1 }}
+        onCommitNow={countdownCommit}
+      />,
+    )
+    fireEvent.click(badgeOf(counting) as HTMLElement)
+    expect(countdownCommit).toHaveBeenCalledTimes(1)
   })
 
   it('stops the click from bubbling to the commit-bar toggle (P5-06)', () => {
-    // The badge lives inside the commit-bar header, whose onClick toggles the
-    // uncommitted-files bar. Clicking the countdown must cancel auto-commit
-    // WITHOUT toggling that bar — so the click must not propagate to the parent.
-    const onCancel = vi.fn()
+    // The button lives inside the commit-bar header, whose onClick toggles the
+    // uncommitted-files bar. Clicking it must commit WITHOUT toggling that
+    // bar — so the click must not propagate to the parent.
+    const onCommitNow = vi.fn()
     const parentClick = vi.fn()
     const { container } = render(
       <div onClick={parentClick}>
         <AutoCommitBadge
-          state={{ intervalSeconds: 30, remaining: 12 }}
-          onCancel={onCancel}
+          state={{ intervalSeconds: 5, remaining: 2 }}
+          onCommitNow={onCommitNow}
           inline
         />
       </div>,
     )
     fireEvent.click(badgeOf(container) as HTMLElement)
-    expect(onCancel).toHaveBeenCalledTimes(1)
+    expect(onCommitNow).toHaveBeenCalledTimes(1)
     expect(parentClick, 'click must not bubble to the bar-header toggle').not.toHaveBeenCalled()
   })
 })

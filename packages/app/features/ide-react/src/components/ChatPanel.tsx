@@ -2757,10 +2757,18 @@ function ChatInner({
   const autoCommitPersistedRef = useRef<number>(0)
   const autoCommitPatchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Set after debouncedFetchPendingFiles is defined below (it depends on state
+  // declared later); lets the file-change callback refresh the uncommitted-files
+  // bar LIVE while a turn is still streaming.
+  const debouncedFetchPendingFilesRef = useRef<(() => void) | null>(null)
+
   const onFileChangeWrapped = useCallback(
     (path: string, content: string) => {
       // A file changed (AI write) — restart the auto-commit countdown if armed.
       dispatchAutoCommit({ type: 'reset' })
+      // Keep the uncommitted-files bar live DURING the turn — it must track
+      // files as they stream in, not appear only once the turn ends.
+      debouncedFetchPendingFilesRef.current?.()
       if (autoFixCountdown) {
         const norm = path.replace(/^\/workspace\//, '')
         const isRelevant = autoFixCountdown.changedPaths.some(
@@ -3727,8 +3735,8 @@ function ChatInner({
       .catch(() => setPendingFiles(null))
   }, [http, projectId])
 
-  // Debounced version — coalesces rapid ticks (e.g. save → format) into a
-  // single fetch after the last write settles.
+  // Debounced version — coalesces rapid ticks (e.g. save → format, or an AI
+  // write burst mid-turn) into a single fetch after the last write settles.
   const gitFetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const debouncedFetchPendingFiles = useCallback(() => {
     if (gitFetchTimerRef.current) clearTimeout(gitFetchTimerRef.current)
@@ -3737,10 +3745,14 @@ function ChatInner({
       fetchPendingFiles()
     }, 400)
   }, [fetchPendingFiles])
+  // Expose to onFileChangeWrapped (declared earlier): AI writes streaming in
+  // mid-turn refresh the bar live instead of waiting for the turn to end.
+  debouncedFetchPendingFilesRef.current = debouncedFetchPendingFiles
 
-  // Fetch after AI finishes or internal refreshGitStatus() calls
+  // Fetch on turn boundaries and internal refreshGitStatus() calls. Deliberately
+  // NOT gated on isLoading: mid-turn updates must go through (the live per-write
+  // refresh is the debounced path above; this one settles the final state).
   useEffect(() => {
-    if (isLoading) return
     fetchPendingFiles()
   }, [isLoading, gitStatusTick, fetchPendingFiles])
   // Fetch when the parent signals a file mutation (edit, rename, delete) —
@@ -6472,17 +6484,6 @@ function ChatInner({
 
       {/* ── Input area ── */}
       <div className={cm.shrink0} style={{ position: 'relative' }}>
-        {/* Auto-commit indicator. When ARMED (counting down) the countdown lives in
-            the commit bar's button slot (P3-15); here we only show the muted
-            "Auto-commit on" pill for the paused state, so the countdown is never
-            shown in two places at once. */}
-        {!isAutoCommitArmed(autoCommit) && (
-          <AutoCommitBadge
-            state={autoCommit}
-            onCancel={() => dispatchAutoCommit({ type: 'set', seconds: 0 })}
-          />
-        )}
-
         {/* Proactive "Relevant skill" suggestion (SYN4) — one-click Load, just
             above the composer; appears only when the relevance pass matches. */}
         {relevantSkill && (
@@ -7607,13 +7608,23 @@ function ChatInner({
                           )}
                   </span>
                 </div>
-                {/* When auto-commit is armed, the green countdown occupies the Commit
-                  button's slot (P3-15); cancelling it (click) falls back to the
-                  manual Commit button. */}
-                {isAutoCommitArmed(autoCommit) ? (
+                {/* When auto-commit is enabled, the GREEN commit button occupies this
+                  slot (P3-15): a labeled "Commit" (click = commit now) that morphs
+                  into the live "Auto-commit in Ns" countdown for the debounce's
+                  final seconds. The blue button remains for auto-commit-off and for
+                  the committing/committed status states. */}
+                {isAutoCommitEnabled(autoCommit) &&
+                commitState?.status !== 'committing' &&
+                commitState?.status !== 'committed' ? (
                   <AutoCommitBadge
                     state={autoCommit}
-                    onCancel={() => dispatchAutoCommit({ type: 'set', seconds: 0 })}
+                    onCommitNow={() => {
+                      // Pause the countdown before committing so a due auto-fire
+                      // doesn't race the manual commit onto a freshly clean tree
+                      // (which would drop a noisy "No changes to commit" card).
+                      dispatchAutoCommit({ type: 'fired' })
+                      void handleCommit()
+                    }}
                     inline
                   />
                 ) : (
