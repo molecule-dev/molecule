@@ -16,7 +16,10 @@
  *  - a document that never even ran its inline bridge (NO heartbeat at all ⇒ broken/error page),
  *    an app that RENDERED-then-reloaded-blank, or an explicit `molecule:blank` → the ACTIONABLE
  *    notice, after a short settle;
- *  - a confirmed render (`molecule:ready`) clears everything.
+ *  - a confirmed render (`molecule:ready`) clears everything;
+ *  - right after the host reports a sandbox wake (`wakeAt`), the fast accusations stand down
+ *    (a post-wake reload legitimately renders nothing while the dev server restarts) — but the
+ *    patience is a bounded window, not a permanent pass.
  *
  * This is a real jsdom render of {@link PreviewPanel} driving a real iframe preview provider.
  * `fetch` is stubbed so the server-up poll succeeds and the iframe mounts; inbound bridge
@@ -256,6 +259,110 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
       timeout: 12000,
     })
   }, 18000)
+
+  it('wake patience: a previously-rendered app that reloads right after a sandbox wake is NOT accused of being blank', async () => {
+    // The hibernation-wake bug: the sandbox sleeps and is silently woken (e.g. a chat turn),
+    // the restarting Vite server makes the still-mounted document full-reload, and the reloaded
+    // document legitimately renders nothing while the cold dev server recompiles. Without wake
+    // awareness the "already rendered → reload must re-confirm within BLANK_CONFIRM_MS" regime
+    // false-fired the "preview is blank" notice a couple seconds in, only for the app to render
+    // fine moments later. With a fresh `wakeAt` the panel must keep the honest loading status
+    // (no accusation), then reveal on the ready that follows.
+    const provider = providerAtUrl()
+    const { container, rerender } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} />
+      </Wrap>,
+    )
+    const iframe = await waitFor(
+      () => {
+        const el = container.querySelector('iframe')
+        expect(el).not.toBeNull()
+        return el as HTMLIFrameElement
+      },
+      { timeout: 4000 },
+    )
+    // The app loads and CONFIRMS it rendered (the pre-hibernation session).
+    fireEvent.load(iframe)
+    postFromPreview({ type: 'molecule:ready' })
+    postFromPreview({ type: 'molecule:heartbeat' })
+    // Wait past READY_FRESH_MS so the next load counts as a fresh document.
+    await new Promise((r) => setTimeout(r, 2500))
+
+    // The sandbox is woken — the host reports it — and the restarting server reloads the
+    // document, which stays unconfirmed (alive but cold-recompiling; no fresh ready).
+    rerender(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} wakeAt={Date.now()} />
+      </Wrap>,
+    )
+    fireEvent.load(iframe)
+    const beat = setInterval(() => postFromPreview({ type: 'molecule:heartbeat' }), 800)
+    try {
+      // Well past BLANK_CONFIRM_MS (2.5s): the notice must NOT appear; the honest overlay must.
+      await new Promise((r) => setTimeout(r, 5000))
+      expect(q(container, 'preview-blank-notice')).toBeNull()
+      expect(q(container, 'preview-load-failed')).toBeNull()
+      expect(q(container, 'preview-overlay')).not.toBeNull()
+      // The cold recompile finishes → ready → the overlay reveals the app as usual.
+      postFromPreview({ type: 'molecule:ready' })
+      await waitFor(() => expect(q(container, 'preview-overlay')).toBeNull(), { timeout: 4000 })
+    } finally {
+      clearInterval(beat)
+    }
+  }, 20000)
+
+  it('wake patience: a bridge-less (dead) document right after a wake is NOT accused within the dead-doc window', async () => {
+    // Behind a preview proxy, a wake can transiently serve an error page that never runs the
+    // inline bridge — the exact signature BLANK_DEAD_MS treats as a genuine failure (4s). Right
+    // after a wake that inference is wrong: the dev server is still coming up and the stale-
+    // document auto-reloads recover it. The notice must stay away well past BLANK_DEAD_MS.
+    const provider = providerAtUrl()
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} wakeAt={Date.now()} />
+      </Wrap>,
+    )
+    const iframe = await waitFor(
+      () => {
+        const el = container.querySelector('iframe')
+        expect(el).not.toBeNull()
+        return el as HTMLIFrameElement
+      },
+      { timeout: 4000 },
+    )
+    fireEvent.load(iframe)
+    // Deliberately post NOTHING — no ready, no heartbeat (the error page has no bridge).
+    await new Promise((r) => setTimeout(r, 8000))
+    expect(q(container, 'preview-blank-notice')).toBeNull()
+    expect(q(container, 'preview-load-failed')).toBeNull()
+    // …while the honest overlay keeps covering it (never a bare error page).
+    expect(q(container, 'preview-overlay')).not.toBeNull()
+  }, 14000)
+
+  it('a STALE wakeAt (older than the patience window) changes nothing — the dead-doc accusation still fires', async () => {
+    // Wake patience must be a bounded window, not a permanent free pass: with a wake long past,
+    // a loaded document that never ran its bridge is a genuine failure and the actionable
+    // notice must appear exactly as before.
+    const provider = providerAtUrl()
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} wakeAt={Date.now() - 120_000} />
+      </Wrap>,
+    )
+    const iframe = await waitFor(
+      () => {
+        const el = container.querySelector('iframe')
+        expect(el).not.toBeNull()
+        return el as HTMLIFrameElement
+      },
+      { timeout: 4000 },
+    )
+    fireEvent.load(iframe)
+    await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
+      timeout: 10000,
+    })
+  }, 14000)
 
   it('the overlay carries NO backdrop-filter (sampling the cross-origin OOPIF backdrop deadlocks the host renderer under software compositing — the whole-tab freeze)', async () => {
     // Reproduce the exact state the freeze needed: the status overlay shown over a once-loaded

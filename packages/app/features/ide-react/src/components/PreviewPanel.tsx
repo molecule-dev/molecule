@@ -40,6 +40,9 @@
  *   beats stop, so we surface a reload banner (the IDE stays responsive because the
  *   preview origin is isolated via Origin-Agent-Cluster)
  * - Blank page detection: catches pages that render but show nothing
+ * - Wake patience: while the host reports the backing sandbox was just woken/restarted
+ *   (`wakeAt`), the fast blank accusations stand down and the patient cold-boot regime
+ *   governs — a post-wake reload that renders nothing for a while is expected, not blank
  * - Trust boundary: inbound `molecule:*` postMessages are accepted only from the
  *   preview iframe's own window (`event.source === iframe.contentWindow`) — a window-
  *   identity check, robust to origin-string divergence (Origin-Agent-Cluster, IP host,
@@ -210,6 +213,24 @@ const BLANK_DEAD_MS = 4_000
 const COLD_BOOT_PATIENCE_MS = 60_000
 
 /**
+ * How long after a `wakeAt` (the host reported the preview's backing server/sandbox was
+ * just woken from sleep or restarted) the panel stays in WAKE PATIENCE (ms). A wake means
+ * the dev server behind the preview is restarting and cold-recompiling: the still-mounted
+ * document reloads itself (Vite's client reconnects and full-reloads) into a document that
+ * legitimately shows nothing for a while — and behind a preview proxy the reload can even
+ * land on a transient error page that never runs the inline bridge. Both signatures are
+ * EXACTLY what the fast accusation windows (BLANK_CONFIRM_MS for an already-rendered app,
+ * BLANK_DEAD_MS for a bridge-less document) treat as a genuine failure — so right after a
+ * wake they false-fired a "preview is blank" notice over an app that rendered fine seconds
+ * later. During this window the panel re-enters the patient cold-boot regime (reveal on
+ * ready, honest starting status) and only the generous never-rendered ceiling may accuse.
+ * Sized to cover a fallback wake end-to-end: dev-server relaunch (~seconds) + the reload +
+ * a cold Vite recompile (up to tens of seconds). A real `molecule:ready` clears everything
+ * long before this on any healthy wake.
+ */
+const WAKE_PATIENCE_MS = 45_000
+
+/**
  * Duration of the overlay fade-out (ms) — kept in sync with the overlay's `transition:
  * opacity` below. `fadingOut` is cleared on `onTransitionEnd`, but a timer matched to this
  * is the robust fallback for when that event never fires (the overlay unmounts mid-fade,
@@ -270,6 +291,7 @@ async function isServerUp(url: string, externalSignal?: AbortSignal): Promise<bo
  * @param root0.onPreviewStuck - Called when the preview fails to load after multiple recovery attempts.
  * @param root0.className - Optional CSS class name for the container.
  * @param root0.fileChangeTick - Incremented when the user edits a file, used to cancel queued autofix messages.
+ * @param root0.wakeAt - When the preview's backing server/sandbox was last woken/restarted (ms epoch).
  * @returns The rendered preview panel element.
  */
 export function PreviewPanel({
@@ -284,6 +306,7 @@ export function PreviewPanel({
   fileChangeTick,
   buildingHint,
   isBuilding,
+  wakeAt,
 }: PreviewPanelProps): JSX.Element {
   const cm = getClassMap()
   const { state, setUrl, refresh, setDevice, openExternal, recordNavigation, back, forward } =
@@ -486,6 +509,37 @@ export function PreviewPanel({
   // document loads (the reveal no longer flips `iframeReady` on the grace during a cold boot, so
   // that flag can't be the trigger anymore).
   const [docLoadedTick, setDocLoadedTick] = useState(0)
+
+  // --- Wake patience (see WAKE_PATIENCE_MS) ---
+  // Mirror the wakeAt prop into a ref so interval/timeout callbacks (the blank evaluator,
+  // the absolute ceiling) read the live value without re-subscribing.
+  const wakeAtRef = useRef(wakeAt ?? 0)
+  wakeAtRef.current = wakeAt ?? 0
+  /** Whether the backing server was woken/restarted recently enough to owe patience. */
+  const inWakeWindow = useCallback(
+    (): boolean => wakeAtRef.current > 0 && Date.now() - wakeAtRef.current < WAKE_PATIENCE_MS,
+    [],
+  )
+  // A fresh wake re-enters the patient cold-boot regime for the CURRENT load target: the
+  // restarting dev server is about to reload the document (or already did) into a state
+  // that legitimately renders nothing for a while, so the "already rendered → any reload
+  // that doesn't re-confirm fast is a regression" contract no longer holds. Dropping
+  // hasEverRendered routes everything through the proven patient paths (reveal only on
+  // `molecule:ready`, no grace-unmasking of an unconfirmed reload, no BLANK_CONFIRM_MS
+  // fast accusation); the first ready after the wake restores the normal regime. Also
+  // withdraw any already-showing accusation (it described the pre-wake world) and grant a
+  // fresh stale-document recovery budget — those auto-reloads are the recovery engine for
+  // a wake that landed on a transient bridge-less error page. Runs on mount too, so a
+  // panel that remounts right after a wake (the sleeping-screen → running flow) inherits
+  // the same patience.
+  useEffect(() => {
+    if (!wakeAt || Date.now() - wakeAt >= WAKE_PATIENCE_MS) return
+    hasEverRenderedRef.current = false
+    loadRecoverCountRef.current = 0
+    setBlankPostBuild(false)
+    setPreviewGaveUp(false)
+    setStuckRetryCount(0)
+  }, [wakeAt])
 
   // --- Heartbeat tracking ---
   const lastHeartbeatRef = useRef<number>(0)
@@ -775,7 +829,10 @@ export function PreviewPanel({
         // The app is ALIVE (heartbeating) — a cold boot in progress, not a stuck load. Never show
         // "Preview can't load here" over an app that's still starting; the cold-boot evaluator
         // surfaces an honest notice only if it stays alive-but-unmounted past COLD_BOOT_PATIENCE_MS.
-        Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS
+        Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS ||
+        // A just-woken server is expected to serve a dead/transient document for a while —
+        // stand down; the cold-boot evaluator's ceiling still guarantees an eventual way out.
+        inWakeWindow()
       )
         return
       onPreviewStuck?.({ reason: 'load-timeout', url: currentLocationRef.current })
@@ -784,7 +841,7 @@ export function PreviewPanel({
     return () => clearTimeout(timer)
     // Re-armed per load (url change or refresh/back-forward via loadNonce); a successful
     // render before the ceiling is honored by the live-ref check in the callback.
-  }, [state.url, state.loadNonce, onPreviewStuck])
+  }, [state.url, state.loadNonce, onPreviewStuck, inWakeWindow])
 
   // --- Stale-document auto-recovery (loaded but never rendered → reload once) ---
   // The post-ready health check (below) only recovers a server drop AFTER a render; a Vite
@@ -1250,7 +1307,13 @@ export function PreviewPanel({
       const aliveRecently = now - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS
       const introuble = hasEverRenderedRef.current
         ? sinceLoad >= BLANK_CONFIRM_MS
-        : (!aliveRecently && sinceLoad >= BLANK_DEAD_MS) || sinceLoad >= COLD_BOOT_PATIENCE_MS
+        : // The dead-document inference ("loaded but never ran its bridge ⇒ broken/error
+          // page") does NOT hold right after a wake: the restarting server's proxy can
+          // transiently serve exactly such a page while the dev server comes back up, and
+          // the stale-document auto-reloads recover it. Within the wake window only the
+          // generous never-rendered ceiling may accuse.
+          (!aliveRecently && sinceLoad >= BLANK_DEAD_MS && !inWakeWindow()) ||
+          sinceLoad >= COLD_BOOT_PATIENCE_MS
       setBlankPostBuild(introuble)
       return introuble
     }
@@ -1262,7 +1325,7 @@ export function PreviewPanel({
     // docLoadedTick re-arms this when a fresh document loads (iframeReady no longer flips on the
     // cold-boot grace, so it can't be the trigger). iframeReady is still a dep so a real reveal
     // re-evaluates (and clears) immediately.
-  }, [state.url, docLoadedTick, iframeReady, confirmedContent, isBuilding, fadingOut])
+  }, [state.url, docLoadedTick, iframeReady, confirmedContent, isBuilding, fadingOut, inWakeWindow])
 
   // --- Auto-reload when AI edits files — ONLY while the preview is broken ---
   // A healthy preview needs nothing from us: Vite HMR applies every edit live,

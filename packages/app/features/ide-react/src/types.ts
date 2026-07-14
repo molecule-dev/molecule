@@ -433,6 +433,18 @@ export interface PreviewPanelProps {
    */
   isBuilding?: boolean
   /**
+   * Timestamp (ms since epoch) of when the preview's backing server/sandbox was last
+   * woken from sleep or restarted, or 0/undefined when it never was. While this is
+   * recent, the panel treats the preview like a fresh cold boot: the dev server behind
+   * it is restarting and recompiling, so a document that reloads to blank (or a
+   * transient error page that never runs the bridge) is EXPECTED for a while and must
+   * NOT trip the fast "preview is blank" accusation — the honest starting/loading
+   * status stays up, and only the generous never-rendered ceiling can accuse. A real
+   * render (`molecule:ready`) clears the patience immediately, so a healthy wake
+   * reveals as fast as ever.
+   */
+  wakeAt?: number
+  /**
    * Called when the preview gives up showing the running app — after exhausting reload
    * recovery, at the absolute readiness ceiling, OR when the heartbeat watchdog detects a
    * frozen (locked-thread) app. Receives a {@link PreviewStuckReport} (failure class +
