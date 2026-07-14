@@ -76,9 +76,7 @@ import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
 import type { EffortLevel, EffortMode } from './chat-effort-utilities.js'
 import {
-  DEFAULT_EFFORT_LEVEL,
   effortOptionsForModel,
-  isEffortLevel,
   nativeEffortName,
   parseEffortCommand,
   resolveEffortArg,
@@ -3486,7 +3484,8 @@ function ChatInner({
   // is PER-MODE (settings.effortByMode): plan and execute run different models
   // with different native effort scales. The single `effortLevel` is the legacy
   // fallback used when a mode has no explicit entry.
-  const [effortLevel, setEffortLevel] = useState<EffortLevel>(DEFAULT_EFFORT_LEVEL)
+  // Empty = unset; the active model's own default applies (resolved per-model).
+  const [effortLevel, setEffortLevel] = useState<EffortLevel>('')
   const [effortByMode, setEffortByMode] = useState<Partial<Record<EffortMode, EffortLevel>>>({})
   const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(100)
   const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(true)
@@ -3509,10 +3508,12 @@ function ChatInner({
         if (typeof s?.chatModel === 'string') setCurrentModel(s.chatModel)
         if (typeof s?.planModel === 'string') setPlanModel(s.planModel)
         if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
-        if (typeof s?.effortLevel === 'string' && isEffortLevel(s.effortLevel)) {
+        // The persisted value is the model's own native level — accept any
+        // non-empty string; it's resolved against the active model at use time.
+        if (typeof s?.effortLevel === 'string' && s.effortLevel) {
           setEffortLevel(s.effortLevel)
         }
-        // Per-mode effort map — validate each entry (untrusted JSON bag).
+        // Per-mode effort map — accept each string entry (untrusted JSON bag).
         if (
           s?.effortByMode &&
           typeof s.effortByMode === 'object' &&
@@ -3521,7 +3522,7 @@ function ChatInner({
           const next: Partial<Record<EffortMode, EffortLevel>> = {}
           for (const m of ['plan', 'execute'] as const) {
             const raw = (s.effortByMode as Record<string, unknown>)[m]
-            if (typeof raw === 'string' && isEffortLevel(raw)) next[m] = raw
+            if (typeof raw === 'string' && raw) next[m] = raw
           }
           setEffortByMode(next)
         }
@@ -5137,7 +5138,8 @@ function ChatInner({
           resolveModeModel({ planModel, executeModel, chatModel: currentModel }, m) ?? currentModel
         return AVAILABLE_MODELS.find((model) => model.id === id)
       }
-      const effectiveEffort = (m: EffortMode): EffortLevel => effortByMode[m] ?? effortLevel
+      const effectiveEffort = (m: EffortMode): EffortLevel | undefined =>
+        effortByMode[m] ?? (effortLevel || undefined)
       const modeStatusLine = (m: EffortMode): string => {
         const model = modelForMode(m)
         const options = effortOptionsForModel(model)
@@ -5154,7 +5156,7 @@ function ChatInner({
                 mode: m,
                 model: model?.label ?? '?',
                 current,
-                levels: options.map((o) => o.native).join(', '),
+                levels: options.map((o) => o.value).join(', '),
               },
               { defaultValue: '  {{mode}} ({{model}}): {{current}} — available: {{levels}}' },
             )
@@ -5196,16 +5198,16 @@ function ChatInner({
           return
         }
         const level = resolveEffortArg(effortCmd.arg, targetOptions)
-        if (level === null || !targetOptions.some((o) => o.level === level)) {
-          // Unknown value, or a legacy letter naming a level this model doesn't
-          // support — reject and name what IS available (P2-10).
+        if (level === null) {
+          // Unknown value — the model doesn't offer it. Reject and name what IS
+          // available (P2-10).
           addSystemCard(
             t(
               'ide.chat.effort.notSupportedForModel',
               {
                 level: effortCmd.arg,
                 model: targetModelLabel,
-                levels: targetOptions.map((o) => o.native).join(', '),
+                levels: targetOptions.map((o) => o.value).join(', '),
               },
               { defaultValue: "{{level}} isn't available for {{model}}. Available: {{levels}}" },
             ),

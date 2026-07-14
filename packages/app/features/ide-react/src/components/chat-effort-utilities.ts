@@ -2,12 +2,12 @@
  * Pure helpers backing the `/effort` command and its status view.
  *
  * Effort is persisted PER MODE (`settings.effortByMode`, with the legacy single
- * `settings.effortLevel` as fallback) using the abstract `S | M | L | XL`
- * encoding — but that scale is internal only. Users see and type the ACTIVE
- * MODEL's own effort values (`xhigh` on Claude Opus 4.8, `medium` on Grok 4.3,
- * `16K` thinking tokens on budget-scaled models …), which vary per model and
- * therefore per mode: plan and execute run different models, so each mode
- * carries its own effort level chosen from its own model's native scale.
+ * `settings.effortLevel` as fallback) as the model's OWN native value — there is
+ * no abstract scale. Users see and type the ACTIVE MODEL's own effort values
+ * (`xhigh` on Claude Opus 4.8, `medium` on Grok 4.3, `16K` thinking tokens on
+ * budget-configurable models …), which vary per model and therefore per mode:
+ * plan and execute run different models, so each mode carries its own value
+ * chosen from its own model's levels.
  *
  * Command shapes:
  * - `/effort` or `/effort ?` — status for every mode.
@@ -22,12 +22,10 @@
  */
 
 import type { AppModelDefinition, EffortLevel, EffortOption } from '@molecule/app-ai-models'
-import { EFFORT_LEVELS as ABSTRACT_EFFORT_LEVELS } from '@molecule/app-ai-models'
 
 export type { EffortLevel, EffortOption }
 export {
-  DEFAULT_EFFORT_LEVEL,
-  EFFORT_LEVELS,
+  defaultEffortForModel,
   effortOptionsForModel,
   nativeEffortName,
 } from '@molecule/app-ai-models'
@@ -54,18 +52,6 @@ export type EffortCommand =
   | { kind: 'set'; arg: string; mode?: EffortMode }
   | { kind: 'query'; mode?: EffortMode }
   | { kind: 'invalid'; arg: string }
-
-/**
- * Type guard for a valid abstract {@link EffortLevel} (case-sensitive — callers
- * upper-case first). The letters are accepted as LEGACY input aliases only;
- * they are never displayed.
- *
- * @param value - The candidate value.
- * @returns `true` when `value` is one of `S`, `M`, `L`, `XL`.
- */
-export function isEffortLevel(value: string): value is EffortLevel {
-  return (ABSTRACT_EFFORT_LEVELS as readonly string[]).includes(value)
-}
 
 /**
  * Parses an `/effort [--plan|--execute] [arg]` command. Purely syntactic — the
@@ -97,25 +83,20 @@ export function parseEffortCommand(input: string): EffortCommand | null {
 /**
  * Resolve a user-typed effort value against a model's selectable options.
  *
- * Matches the model's NATIVE values case-insensitively (`xhigh`, `16K`, …);
- * the abstract letters (`s/m/l/xl`) are still accepted as legacy aliases so
- * old muscle memory and docs keep working. The caller still validates the
- * resolved level against the model's supported set (a legacy letter can name
- * a level the model doesn't offer).
+ * Matches the model's own native values case-insensitively (`xhigh`, `16K`, …)
+ * and returns the canonical value to persist. Returns `null` when the input
+ * doesn't name one of the model's levels.
  *
  * @param arg - The raw value the user typed.
  * @param options - The target model's options (see `effortOptionsForModel`).
- * @returns The abstract level to persist, or `null` when nothing matches.
+ * @returns The native value to persist, or `null` when nothing matches.
  */
 export function resolveEffortArg(
   arg: string,
   options: readonly EffortOption[],
 ): EffortLevel | null {
   const lower = arg.toLowerCase()
-  const native = options.find((o) => o.native.toLowerCase() === lower)
-  if (native) return native.level
-  const upper = arg.toUpperCase()
-  return isEffortLevel(upper) ? upper : null
+  return options.find((o) => o.value.toLowerCase() === lower)?.value ?? null
 }
 
 /**
@@ -134,24 +115,15 @@ export function modelsSupportingEffort(
 }
 
 /**
- * The effort levels the `/effort` command should offer and accept for a *specific*
- * model. Different models support different reasoning levels (e.g. a fully
- * configurable model exposes the whole `S | M | L | XL` scale, while a
- * fixed-reasoning model like `grok-code-fast-1` exposes only the default `M`), so
- * the command must surface and validate only what the active model actually
- * supports.
+ * The effort levels the `/effort` command offers and accepts for a *specific*
+ * model — the model's own native values, ascending (e.g.
+ * `['low', 'high', 'xhigh', 'max']`). Empty for a fixed-reasoning model
+ * (`grok-code-fast-1`, the DeepSeek executors) or an unknown model, which
+ * expose no effort choice.
  *
- * Reads the model's catalog-declared {@link AppModelDefinition.supportedEffortLevels}.
- * Falls back to the full {@link EFFORT_LEVELS} scale when the field is absent
- * (back-compat) or empty, or when the model is unknown (`undefined`) — so a
- * missing/unpriced model never silently forbids every level.
- *
- * @param model - The active model to read supported levels from, or `undefined`.
- * @returns The supported effort levels in ascending order (the full scale when none are declared).
+ * @param model - The active model to read levels from, or `undefined`.
+ * @returns The model's effort levels in ascending order (empty when it has none).
  */
-export function effortLevelsForModel(
-  model: AppModelDefinition | undefined,
-): readonly EffortLevel[] {
-  const levels = model?.supportedEffortLevels
-  return levels && levels.length > 0 ? levels : ABSTRACT_EFFORT_LEVELS
+export function effortLevelsForModel(model: AppModelDefinition | undefined): readonly string[] {
+  return model?.supportedEffortLevels ?? []
 }

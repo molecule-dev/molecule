@@ -44,22 +44,23 @@ interface AppModelDefinition {
   /** Whether the thinking budget can be controlled via API params. */
   thinkingConfigurable: boolean
   /**
-   * Which abstract effort levels (`'S' | 'M' | 'L' | 'XL'`) the `/effort`
-   * command should offer/accept for THIS model. Absent → all levels are
-   * supported (back-compat). Present → only the listed levels are valid;
-   * consumers clamp a persisted out-of-set level to the nearest supported one.
-   * Populated server-side per each model's real reasoning capability; see the
-   * server-side `ModelDefinition` for the exact population rule.
+   * The model's OWN effort levels, ordered ascending — the exact values the
+   * `/effort` command offers and that get persisted. Native-effort models list
+   * their provider values (`['low', 'high', 'xhigh', 'max']`); budget models
+   * list scaled-budget labels (`['4K', '8K', '16K', '32K']`); fixed-reasoning
+   * models omit it. A persisted value outside the set degrades to the nearest.
+   * Mirrors the server-side `ModelDefinition` field.
    */
   supportedEffortLevels?: EffortLevel[]
+  /** The model's default effort value (a member of `supportedEffortLevels`). */
+  defaultEffortLevel?: EffortLevel
   /**
-   * Provider-native reasoning-effort value per supported abstract level (e.g.
-   * `{ S: 'low', M: 'high', L: 'xhigh', XL: 'max' }` on current Anthropic
-   * models). Present only on models driven by a native effort/level param;
-   * useful for showing the provider's own level names next to the abstract
-   * `S/M/L/XL` labels. Mirrors the server-side `ModelDefinition` field.
+   * Budget-configurable models only: maps each `supportedEffortLevels` label to
+   * the thinking-token budget it sends. Its presence marks a model as
+   * budget-driven (sends `budget_tokens`) rather than native-effort (sends the
+   * level as the provider's effort param). Mirrors the server-side field.
    */
-  effortNativeByLevel?: Partial<Record<EffortLevel, string>>
+  effortBudgetTokens?: Record<string, number>
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */
@@ -106,19 +107,12 @@ interface AppModelDefinition {
 
 #### `EffortOption`
 
-One selectable effort option for a specific model.
+One selectable effort option for a model — its own native value.
 
 ```typescript
 interface EffortOption {
-  /** Internal persisted encoding (`project.settings.effortByMode` / legacy `effortLevel`). */
-  level: EffortLevel
-  /**
-   * What the user sees and types — the model's OWN effort value (e.g.
-   * `'xhigh'`), or a scaled thinking-budget size (e.g. `'16K'`) on
-   * budget-scaled models, or the bare abstract level as a last resort for
-   * unknown models.
-   */
-  native: string
+  /** The native value the user sees, types, and that gets persisted. */
+  value: string
 }
 ```
 
@@ -156,28 +150,35 @@ type AIProviderID =
 
 #### `EffortLevel`
 
-Abstract effort scale, smallest to largest. Mirrors the server-side
-`EffortLevel` in `@molecule/api-resource-ai-models`; keep the two in sync.
-Kept provider-agnostic — provider-native level names (`'high'` / `'xhigh'` /
-`'max'`) are surfaced only as display labels, never baked into this type.
+A reasoning-effort value — a model's OWN native effort level (e.g. `'high'`,
+`'xhigh'`, `'max'`, or a budget label like `'16K'`). There is no abstract
+cross-model scale; the stored value is the model's real level. Mirrors the
+server-side `EffortLevel` in `@molecule/api-resource-ai-models`; keep in sync.
 
 ```typescript
-type EffortLevel = 'S' | 'M' | 'L' | 'XL'
+type EffortLevel = string
 ```
 
 ### Functions
 
+#### `defaultEffortForModel(model)`
+
+The model's default effort value (used when the user hasn't chosen), or `null`
+when the model has no effort levels.
+
+```typescript
+function defaultEffortForModel(model: AppModelDefinition | undefined): string | null
+```
+
+- `model` — The model (or `undefined`).
+
+**Returns:** The default native value, or `null`.
+
 #### `effortOptionsForModel(model)`
 
-The effort options a user can pick for a specific model, in ascending order.
-
-- Native-level models → the catalog's `effortNativeByLevel` values.
-- Budget-scaled models → the scaled thinking budgets (`'8K'`, `'16K'`, …),
-  clamped exactly like the server clamps the real request budget.
-- Fixed-reasoning models → `[]` (nothing to tune; effort still scales the
-  agent-loop budget server-side, but there is no per-model value to choose).
-- Unknown models (`undefined`) → the abstract levels themselves, so a
-  custom/unlisted model never loses the setting entirely.
+The effort options a user can pick for a model, in ascending order — the
+model's own `supportedEffortLevels`. Empty for fixed-reasoning models (and
+unknown models), which expose no effort choice.
 
 ```typescript
 function effortOptionsForModel(model: AppModelDefinition | undefined): EffortOption[]
@@ -185,7 +186,7 @@ function effortOptionsForModel(model: AppModelDefinition | undefined): EffortOpt
 
 - `model` — The model to build options for, or `undefined` when unknown.
 
-**Returns:** The selectable options in `S → XL` order.
+**Returns:** The selectable options (empty when the model has no effort levels).
 
 #### `formatTokenCount(tokens)`
 
@@ -228,25 +229,23 @@ function loadAIModels(http: HttpClient, path?: string): Promise<AppModelDefiniti
 
 **Returns:** The list of models available to the current session.
 
-#### `nativeEffortName(model, level)`
+#### `nativeEffortName(model, value)`
 
-The user-facing name of a persisted effort level under a specific model —
-the native value the level resolves to on that model.
-
-A persisted level outside the model's supported set degrades to the nearest
-supported option (ties resolve toward less effort), mirroring the
-server-side clamp, so the display always matches what the backend will
-actually send.
+Resolve a persisted effort value to the one the model will actually use — its
+exact value, a legacy `S|M|L|XL` mapped by position, the nearest native level
+by rank, or the model's default. `null` when the model has no effort levels
+(fixed reasoning — callers show their own "fixed" copy). Mirrors the
+server-side `resolveEffortForModel` so the display always matches what the
+backend sends.
 
 ```typescript
-function nativeEffortName(model: AppModelDefinition | undefined, level: EffortLevel): string | null
+function nativeEffortName(model: AppModelDefinition | undefined, value: string | undefined): string | null
 ```
 
-- `model` — The active model (or `undefined` when unknown).
-- `level` — The persisted abstract level.
+- `model` — The active model (or `undefined`).
+- `value` — The persisted effort value (or `undefined`).
 
-**Returns:** The native display name, or `null` when the model's reasoning is
- *   fixed (nothing to display — callers show their own "fixed" copy).
+**Returns:** The resolved native value, or `null` when reasoning is fixed.
 
 #### `partitionByDeprecation(models, now)`
 
@@ -280,22 +279,6 @@ function pickFreeTierModel(models: readonly AppModelDefinition[]): AppModelDefin
 **Returns:** The single non-disabled model with `freeTier: true`, or `undefined`.
 
 ### Constants
-
-#### `DEFAULT_EFFORT_LEVEL`
-
-Default abstract effort level when none is persisted.
-
-```typescript
-const DEFAULT_EFFORT_LEVEL: EffortLevel
-```
-
-#### `EFFORT_LEVELS`
-
-All abstract effort levels in ascending order (internal encoding).
-
-```typescript
-const EFFORT_LEVELS: readonly EffortLevel[]
-```
 
 #### `PROVIDER_BRAND_COLORS`
 

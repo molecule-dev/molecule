@@ -1,18 +1,13 @@
 /**
- * Tests for the native effort-option helpers: per-model options (native levels,
- * scaled budgets, fixed), and native display names with clamping.
+ * Tests for the per-model effort helpers: options, defaults, and resolving a
+ * persisted value to the model's own native level.
  *
  * @module
  */
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  DEFAULT_EFFORT_LEVEL,
-  EFFORT_LEVELS,
-  effortOptionsForModel,
-  nativeEffortName,
-} from '../effort.js'
+import { defaultEffortForModel, effortOptionsForModel, nativeEffortName } from '../effort.js'
 import type { AppModelDefinition } from '../types.js'
 
 /**
@@ -43,95 +38,85 @@ function model(overrides: Partial<AppModelDefinition>): AppModelDefinition {
   }
 }
 
+// A native-effort model (Claude-family shape).
+const claude = model({
+  supportsThinking: true,
+  thinkingBudgetTokens: 16_000,
+  thinkingConfigurable: true,
+  supportedEffortLevels: ['low', 'high', 'xhigh', 'max'],
+  defaultEffortLevel: 'high',
+})
+// A budget-configurable model (Haiku-family shape).
+const haiku = model({
+  supportsThinking: true,
+  thinkingBudgetTokens: 8_000,
+  thinkingConfigurable: true,
+  supportedEffortLevels: ['4K', '8K', '16K', '32K'],
+  defaultEffortLevel: '8K',
+  effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
+})
+
 describe('effortOptionsForModel', () => {
-  it('surfaces the catalog-declared native values for native-level models', () => {
-    const claude = model({
-      supportsThinking: true,
-      thinkingBudgetTokens: 16_000,
-      thinkingConfigurable: true,
-      supportedEffortLevels: ['S', 'M', 'L', 'XL'],
-      effortNativeByLevel: { S: 'low', M: 'high', L: 'xhigh', XL: 'max' },
-    })
+  it("surfaces the model's own native values", () => {
     expect(effortOptionsForModel(claude)).toEqual([
-      { level: 'S', native: 'low' },
-      { level: 'M', native: 'high' },
-      { level: 'L', native: 'xhigh' },
-      { level: 'XL', native: 'max' },
+      { value: 'low' },
+      { value: 'high' },
+      { value: 'xhigh' },
+      { value: 'max' },
     ])
   })
 
-  it('respects a subset scale (e.g. Gemini has no fourth tier)', () => {
-    const gemini = model({
-      supportsThinking: true,
-      thinkingBudgetTokens: 10_000,
-      thinkingConfigurable: true,
-      supportedEffortLevels: ['S', 'M', 'L'],
-      effortNativeByLevel: { S: 'low', M: 'medium', L: 'high' },
-    })
-    expect(effortOptionsForModel(gemini).map((o) => o.native)).toEqual(['low', 'medium', 'high'])
+  it('surfaces budget labels for budget-configurable models', () => {
+    expect(effortOptionsForModel(haiku).map((o) => o.value)).toEqual(['4K', '8K', '16K', '32K'])
   })
 
-  it('surfaces scaled thinking budgets on budget-scaled models (mirrors the server math)', () => {
-    const haiku = model({
-      supportsThinking: true,
-      thinkingBudgetTokens: 8_000,
-      thinkingConfigurable: true,
-      supportedEffortLevels: ['S', 'M', 'L', 'XL'],
-    })
-    expect(effortOptionsForModel(haiku).map((o) => o.native)).toEqual(['4K', '8K', '16K', '32K'])
+  it('returns nothing for fixed-reasoning models or an unknown model', () => {
+    expect(effortOptionsForModel(model({}))).toEqual([])
+    expect(effortOptionsForModel(undefined)).toEqual([])
+  })
+})
+
+describe('defaultEffortForModel', () => {
+  it("returns the model's declared default", () => {
+    expect(defaultEffortForModel(claude)).toBe('high')
+    expect(defaultEffortForModel(haiku)).toBe('8K')
   })
 
-  it('clamps scaled budgets below maxOutputTokens and at/above the provider minimum', () => {
-    const tiny = model({
-      maxOutputTokens: 2_000,
-      supportsThinking: true,
-      thinkingBudgetTokens: 1_500,
-      thinkingConfigurable: true,
-      supportedEffortLevels: ['S', 'M', 'L', 'XL'],
-    })
-    // S: 750 → clamped up to 1024 (→ '1K'); L/XL: 3000/6000 → clamped to 1999 (→ '2K').
-    expect(effortOptionsForModel(tiny).map((o) => o.native)).toEqual(['1K', '2K', '2K', '2K'])
-  })
-
-  it('returns nothing for fixed-reasoning models', () => {
-    expect(effortOptionsForModel(model({ supportedEffortLevels: ['M'] }))).toEqual([])
-    expect(
-      effortOptionsForModel(model({ supportsThinking: true, thinkingConfigurable: false })),
-    ).toEqual([])
-  })
-
-  it('falls back to the abstract levels for an unknown model', () => {
-    expect(effortOptionsForModel(undefined).map((o) => o.native)).toEqual([...EFFORT_LEVELS])
+  it('returns null for a fixed / unknown model', () => {
+    expect(defaultEffortForModel(model({}))).toBeNull()
+    expect(defaultEffortForModel(undefined)).toBeNull()
   })
 })
 
 describe('nativeEffortName', () => {
-  const claude = model({
-    supportsThinking: true,
-    thinkingBudgetTokens: 16_000,
-    thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
-    effortNativeByLevel: { S: 'low', M: 'high', L: 'xhigh', XL: 'max' },
+  it('returns an exact member as-is', () => {
+    expect(nativeEffortName(claude, 'xhigh')).toBe('xhigh')
+    expect(nativeEffortName(haiku, '16K')).toBe('16K')
   })
 
-  it('resolves the persisted level to the model-native name', () => {
-    expect(nativeEffortName(claude, 'M')).toBe('high')
+  it("defaults to the model's default when unset", () => {
+    expect(nativeEffortName(claude, undefined)).toBe('high')
+    expect(nativeEffortName(claude, '')).toBe('high')
+  })
+
+  it('migrates a legacy S/M/L/XL by position', () => {
+    expect(nativeEffortName(claude, 'S')).toBe('low')
     expect(nativeEffortName(claude, 'XL')).toBe('max')
+    expect(nativeEffortName(haiku, 'M')).toBe('8K')
   })
 
-  it('clamps an out-of-set level to the nearest supported option', () => {
-    const subset = model({
+  it('degrades an unsupported native value to the nearest by rank', () => {
+    const gemini = model({
       supportsThinking: true,
-      thinkingBudgetTokens: 8_000,
       thinkingConfigurable: true,
-      supportedEffortLevels: ['S', 'M'],
-      effortNativeByLevel: { S: 'minimal', M: 'high' },
+      supportedEffortLevels: ['low', 'medium', 'high'],
+      defaultEffortLevel: 'medium',
     })
-    expect(nativeEffortName(subset, 'XL')).toBe('high')
-    expect(nativeEffortName(subset, DEFAULT_EFFORT_LEVEL)).toBe('high')
+    // 'xhigh' (rank 5) → nearest of low/medium/high is 'high' (rank 4).
+    expect(nativeEffortName(gemini, 'xhigh')).toBe('high')
   })
 
   it('returns null for fixed-reasoning models', () => {
-    expect(nativeEffortName(model({ supportedEffortLevels: ['M'] }), 'M')).toBeNull()
+    expect(nativeEffortName(model({}), 'high')).toBeNull()
   })
 })

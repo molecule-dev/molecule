@@ -27,12 +27,12 @@ export type AIProviderID =
   | 'zhipu'
 
 /**
- * Abstract effort scale, smallest to largest. Mirrors the server-side
- * `EffortLevel` in `@molecule/api-resource-ai-models`; keep the two in sync.
- * Kept provider-agnostic — provider-native level names (`'high'` / `'xhigh'` /
- * `'max'`) are surfaced only as display labels, never baked into this type.
+ * A reasoning-effort value — a model's OWN native effort level (e.g. `'high'`,
+ * `'xhigh'`, `'max'`, or a budget label like `'16K'`). There is no abstract
+ * cross-model scale; the stored value is the model's real level. Mirrors the
+ * server-side `EffortLevel` in `@molecule/api-resource-ai-models`; keep in sync.
  */
-export type EffortLevel = 'S' | 'M' | 'L' | 'XL'
+export type EffortLevel = string
 
 /**
  * Client-visible model metadata. Mirrors every field of the server-side
@@ -58,22 +58,23 @@ export interface AppModelDefinition {
   /** Whether the thinking budget can be controlled via API params. */
   thinkingConfigurable: boolean
   /**
-   * Which abstract effort levels (`'S' | 'M' | 'L' | 'XL'`) the `/effort`
-   * command should offer/accept for THIS model. Absent → all levels are
-   * supported (back-compat). Present → only the listed levels are valid;
-   * consumers clamp a persisted out-of-set level to the nearest supported one.
-   * Populated server-side per each model's real reasoning capability; see the
-   * server-side `ModelDefinition` for the exact population rule.
+   * The model's OWN effort levels, ordered ascending — the exact values the
+   * `/effort` command offers and that get persisted. Native-effort models list
+   * their provider values (`['low', 'high', 'xhigh', 'max']`); budget models
+   * list scaled-budget labels (`['4K', '8K', '16K', '32K']`); fixed-reasoning
+   * models omit it. A persisted value outside the set degrades to the nearest.
+   * Mirrors the server-side `ModelDefinition` field.
    */
   supportedEffortLevels?: EffortLevel[]
+  /** The model's default effort value (a member of `supportedEffortLevels`). */
+  defaultEffortLevel?: EffortLevel
   /**
-   * Provider-native reasoning-effort value per supported abstract level (e.g.
-   * `{ S: 'low', M: 'high', L: 'xhigh', XL: 'max' }` on current Anthropic
-   * models). Present only on models driven by a native effort/level param;
-   * useful for showing the provider's own level names next to the abstract
-   * `S/M/L/XL` labels. Mirrors the server-side `ModelDefinition` field.
+   * Budget-configurable models only: maps each `supportedEffortLevels` label to
+   * the thinking-token budget it sends. Its presence marks a model as
+   * budget-driven (sends `budget_tokens`) rather than native-effort (sends the
+   * level as the provider's effort param). Mirrors the server-side field.
    */
-  effortNativeByLevel?: Partial<Record<EffortLevel, string>>
+  effortBudgetTokens?: Record<string, number>
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */

@@ -29,17 +29,20 @@ export type AIProviderID =
   | 'zhipu'
 
 /**
- * Abstract effort scale shared across the stack, smallest to largest.
+ * A reasoning-effort value — a model's OWN native effort level.
  *
- * The `/effort` command, the per-turn reasoning/thinking budget, and the
- * agent-loop budget are all keyed off these four levels. Kept deliberately
- * provider-agnostic — provider-native names (`'high'` / `'xhigh'` / `'max'`)
- * are surfaced only as display labels, never baked into this type. Mirrored by
- * the client-side `EffortLevel` in `@molecule/app-ai-models`; keep the two in
- * sync. Re-declared (rather than imported) by the ide-react and molecule-dev
- * consumers per the cross-stack rule, but this catalog is the canonical home.
+ * There is no abstract cross-model scale: the value stored on a project and
+ * sent to the provider IS the model's real level (e.g. `'high'` / `'xhigh'` /
+ * `'max'` on current Claude models, `'medium'` on Grok, or a scaled
+ * thinking-budget label like `'16K'` on budget-configurable models). Each model
+ * declares its own ordered {@link ModelDefinition.supportedEffortLevels}; a
+ * value that isn't in the active model's set degrades to the nearest one (see
+ * `model-selection.ts`). Mirrored by the client-side `EffortLevel` in
+ * `@molecule/app-ai-models`; keep the two in sync. Re-declared (rather than
+ * imported) by the ide-react and molecule-dev consumers per the cross-stack
+ * rule, but this catalog is the canonical home.
  */
-export type EffortLevel = 'S' | 'M' | 'L' | 'XL'
+export type EffortLevel = string
 
 /**
  * Full server-side metadata for an AI model. Consumed directly by the chat
@@ -68,56 +71,45 @@ export interface ModelDefinition {
    */
   thinkingConfigurable: boolean
   /**
-   * Which abstract effort levels (`'S' | 'M' | 'L' | 'XL'`) are meaningful for
-   * THIS model — the subset the `/effort` command should offer and accept.
+   * The model's OWN reasoning-effort levels, ordered ascending (least → most
+   * effort) — the exact values a user picks, that get persisted, and that the
+   * `/effort` command offers. There is NO abstract scale: these are the model's
+   * real levels.
    *
-   * Molecule keeps a single abstract effort scale (see {@link EffortLevel});
-   * this field declares which points on that scale actually change the model's
-   * behavior, because models differ in real reasoning capability — some expose
-   * a fully configurable thinking budget, others reason at a fixed budget or
-   * not at all.
+   * - **Native-effort models** (Anthropic `output_config.effort`, OpenAI
+   *   `reasoning_effort`, Gemini `thinking_level`, …) list their provider values
+   *   verbatim, e.g. `['low', 'high', 'xhigh', 'max']` — each value is sent as
+   *   the provider's effort param as-is.
+   * - **Budget-configurable models** (a raw thinking-token budget, no native
+   *   level names — e.g. Claude Haiku 4.5, Qwen3.7) list scaled-budget LABELS,
+   *   e.g. `['4K', '8K', '16K', '32K']`, with {@link effortBudgetTokens} mapping
+   *   each label to the actual token budget sent.
+   * - **Fixed-reasoning models** (DeepSeek executors, Kimi, …) omit this field
+   *   entirely — reasoning depth can't be tuned, so there is nothing to pick.
    *
-   * Semantics:
-   * - **Absent** → ALL levels are supported (back-compat default; a model that
-   *   predates this field, or any future/external entry that omits it, keeps
-   *   offering the full scale and nothing breaks).
-   * - **Present** → only the listed levels are offered/accepted; a persisted
-   *   level outside the set should degrade gracefully to the nearest supported
-   *   one (the consumer clamps — see `model-selection.ts`).
-   *
-   * Population rule applied in `models.ts`: a model whose reasoning budget is
-   * fully controllable (`thinkingConfigurable: true`) gets the full set
-   * `['S', 'M', 'L', 'XL']`; a model whose reasoning is fixed
-   * (`thinkingConfigurable: false`, whether it still thinks at a fixed budget
-   * like `grok-code-fast-1` or does not think at all like the DeepSeek
-   * executors) gets just the default level `['M']`. Every set includes the
-   * default level (`'M'`) so the global `DEFAULT_EFFORT_LEVEL` is never outside
-   * a model's supported set. This is curated data the team can tune later.
+   * A persisted value outside the active model's set degrades to the nearest one
+   * (`model-selection.ts` `resolveEffortForModel`). Absent → no effort choice.
    */
   supportedEffortLevels?: EffortLevel[]
   /**
-   * Provider-NATIVE reasoning-effort value sent for each supported abstract
-   * level — the wire value the provider bond puts in its effort param (Anthropic
-   * `output_config.effort`, OpenAI-compatible `reasoning_effort`, Gemini
-   * `thinking_level`, …).
-   *
-   * Semantics:
-   * - **Present** → this model is driven by a native effort/level param, NOT a
-   *   token budget. The chat handler resolves the (clamped) abstract level to
-   *   this map's value and passes it as `thinking.effort`; bonds prefer it over
-   *   `budgetTokens`. Keys MUST match `supportedEffortLevels` and be monotone on
-   *   the provider's own scale (S < M < L < XL). Convention: **`M` maps to the
-   *   provider's default/recommended level for agentic coding** on this model —
-   *   the level a user gets without touching `/effort`.
-   * - **Absent** → the legacy token-budget path: effort scales
-   *   `thinkingBudgetTokens` (e.g. Claude Haiku 4.5's `budget_tokens`), or does
-   *   nothing beyond the loop budget when `thinkingConfigurable` is false.
+   * The model's default effort value — the one used when the user hasn't chosen.
+   * MUST be a member of {@link supportedEffortLevels}. Absent only when the model
+   * has no effort levels (fixed reasoning).
+   */
+  defaultEffortLevel?: EffortLevel
+  /**
+   * For budget-configurable models ONLY: maps each label in
+   * {@link supportedEffortLevels} to the thinking-token budget it sends
+   * (e.g. `{ '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 }`). Its
+   * presence is what marks a model as budget-driven rather than native-effort:
+   * a model WITH this map sends `budget_tokens`; a model WITHOUT it sends its
+   * chosen level as the provider's native effort param.
    *
    * CRITICAL for Anthropic 4.6+ models (Fable 5, Opus 4.8/4.6, Sonnet 5 / 4.6):
-   * these MUST carry this map — sending `budget_tokens` returns a 400 on
-   * Fable 5 / Opus 4.8 / Sonnet 5 and is deprecated on the 4.6 family.
+   * these must NOT carry this map — they are native-effort models, and sending
+   * `budget_tokens` returns a 400 on Fable 5 / Opus 4.8 / Sonnet 5.
    */
-  effortNativeByLevel?: Partial<Record<EffortLevel, string>>
+  effortBudgetTokens?: Record<string, number>
   /** Whether the model supports vision (images, documents, etc.). */
   supportsVision: boolean
   /** Whether the model supports prompt caching. */

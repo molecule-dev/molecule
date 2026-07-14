@@ -16,21 +16,19 @@ import type { ModelDefinition } from './types.js'
  * To add or remove a model, edit this array. Both the server-side validation
  * and the public discovery endpoint will update automatically.
  *
- * `supportedEffortLevels` + `effortNativeByLevel` rules (see
- * {@link ModelDefinition.effortNativeByLevel}):
- * - A model driven by a provider-native effort/level param carries an
- *   `effortNativeByLevel` map (monotone on the provider's scale) and
- *   `supportedEffortLevels` = exactly the map's keys. Convention: `M` maps to
- *   the provider's default/recommended level for agentic coding on that model.
- * - A model with a controllable token budget but no native levels (e.g. Claude
- *   Haiku 4.5's `budget_tokens`, Qwen's `thinking_budget`) carries the full
- *   `['S', 'M', 'L', 'XL']` scale and NO map — effort scales
- *   `thinkingBudgetTokens`.
+ * Effort is each model's OWN native value — there is no abstract scale (see
+ * {@link ModelDefinition.supportedEffortLevels}):
+ * - A model driven by a provider-native effort/level param lists its provider
+ *   values verbatim in `supportedEffortLevels` (ascending), with
+ *   `defaultEffortLevel` = the provider's default/recommended level for agentic
+ *   coding. NO `effortBudgetTokens`.
+ * - A model with a controllable token budget but no native level names (e.g.
+ *   Claude Haiku 4.5's `budget_tokens`, Qwen's `thinking_budget`) lists
+ *   scaled-budget labels (`['4K', '8K', '16K', '32K']`) with `effortBudgetTokens`
+ *   mapping each label to the token budget it sends.
  * - A model whose reasoning is fixed (always-on or on/off only, no depth
- *   control) carries `thinkingConfigurable: false` + `['M']` — effort then only
- *   scales the agent-loop budget.
- * Every set includes the default `'M'` so `DEFAULT_EFFORT_LEVEL` is always in
- * range.
+ *   control) carries `thinkingConfigurable: false` and OMITS both fields —
+ *   there is nothing to tune.
  *
  * Sources (verified 2026-07-07):
  * - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
@@ -92,11 +90,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+    supportedEffortLevels: ['low', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'high',
     // Thinking is ALWAYS ON (adaptive); effort is the only depth control.
     // Anthropic: default/recommended is high (M); xhigh for the most
     // capability-sensitive work; low still performs well on routine tasks.
-    effortNativeByLevel: { S: 'low', M: 'high', L: 'xhigh', XL: 'max' },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -120,10 +118,10 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+    supportedEffortLevels: ['low', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'high',
     // Anthropic's rec for coding/agentic on Opus 4.8 is xhigh (= L here); the
     // API default high (= M) is the balanced quality/cost sweet spot.
-    effortNativeByLevel: { S: 'low', M: 'high', L: 'xhigh', XL: 'max' },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -147,10 +145,10 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+    supportedEffortLevels: ['low', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'high',
     // Adaptive thinking on by default; effort default/rec is high (M), xhigh
     // (L) for the hardest coding/agentic tasks, medium ≈ Sonnet 4.6 at high.
-    effortNativeByLevel: { S: 'low', M: 'high', L: 'xhigh', XL: 'max' },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -176,10 +174,10 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+    supportedEffortLevels: ['low', 'medium', 'high', 'max'],
+    defaultEffortLevel: 'medium',
     // No xhigh on the 4.6 family; budget_tokens still accepted but deprecated —
     // adaptive + effort is the recommended control.
-    effortNativeByLevel: { S: 'low', M: 'medium', L: 'high', XL: 'max' },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -206,10 +204,10 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 10_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+    supportedEffortLevels: ['low', 'medium', 'high', 'max'],
+    defaultEffortLevel: 'medium',
     // No xhigh on the 4.6 family. Anthropic's recommended default for agentic
     // coding on Sonnet 4.6 is medium (= M); high is its API default (= L).
-    effortNativeByLevel: { S: 'low', M: 'medium', L: 'high', XL: 'max' },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -236,9 +234,11 @@ export const MODELS: readonly ModelDefinition[] = [
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
     // Haiku 4.5 does NOT support output_config.effort (400) or adaptive
-    // thinking — it keeps the legacy budget_tokens path, so effort scales the
-    // token budget (no effortNativeByLevel).
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+    // thinking — it stays on the budget_tokens path, so its levels are
+    // budget labels (effortBudgetTokens), not a native effort param.
+    supportedEffortLevels: ['4K', '8K', '16K', '32K'],
+    defaultEffortLevel: '8K',
+    effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -272,10 +272,10 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'medium',
     // OpenAI default + agentic-coding rec is medium (= M); 'none' is not
     // offered (it disables reasoning outright).
-    effortNativeByLevel: { S: 'low', M: 'medium', L: 'high', XL: 'xhigh' },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -298,8 +298,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
-    effortNativeByLevel: { S: 'low', M: 'medium', L: 'high', XL: 'xhigh' },
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'medium',
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -324,8 +324,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
-    effortNativeByLevel: { S: 'low', M: 'medium', L: 'high', XL: 'xhigh' },
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'medium',
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -361,11 +361,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 10_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L'],
+    supportedEffortLevels: ['low', 'medium', 'high'],
+    defaultEffortLevel: 'medium',
     // thinking_level: default medium (= M); Google recommends high (= L) for
     // advanced coding/multi-step planning. 'minimal' exists below low; no
     // fourth upward tier, so XL is not offered.
-    effortNativeByLevel: { S: 'low', M: 'medium', L: 'high' },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -390,10 +390,10 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 10_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L'],
+    supportedEffortLevels: ['low', 'medium', 'high'],
+    defaultEffortLevel: 'medium',
     // thinking_level: low|medium|high only (no minimal). Google's API default
     // for this model is high (= L); M offers the cost step-down.
-    effortNativeByLevel: { S: 'low', M: 'medium', L: 'high' },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -428,11 +428,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+    supportedEffortLevels: ['none', 'low', 'medium', 'high'],
+    defaultEffortLevel: 'low',
     // xAI's default (and its own retirement-routing choice for agentic
     // workloads) is low (= M); none (= S) disables reasoning for a true fast
     // mode; step up for hard debugging/architecture turns.
-    effortNativeByLevel: { S: 'none', M: 'low', L: 'medium', XL: 'high' },
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -457,7 +457,6 @@ export const MODELS: readonly ModelDefinition[] = [
     // honored on grok-build) — successor to grok-code-fast-1 (that slug now
     // auto-routes here).
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -484,7 +483,6 @@ export const MODELS: readonly ModelDefinition[] = [
     // On the multi-agent model reasoning_effort controls AGENT COUNT, not
     // reasoning depth — do not drive it from the effort setting.
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -508,7 +506,6 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -552,7 +549,6 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: false,
     thinkingBudgetTokens: 0,
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -588,7 +584,6 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: false,
     thinkingBudgetTokens: 0,
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -638,7 +633,6 @@ export const MODELS: readonly ModelDefinition[] = [
     // Thinking is on/off only (default on upstream; the bond disables it by
     // default for the executor loop — tune via KIMI_REASONING_EFFORT).
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -661,7 +655,6 @@ export const MODELS: readonly ModelDefinition[] = [
     thinkingBudgetTokens: 8_000,
     // Thinking on/off only; no preserved-thinking support upstream.
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -699,7 +692,6 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: false,
     thinkingBudgetTokens: 0,
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -723,7 +715,6 @@ export const MODELS: readonly ModelDefinition[] = [
     thinkingBudgetTokens: 8_000,
     // Thinking is ALWAYS ON for M2.x (cannot be disabled) — no depth control.
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -745,7 +736,6 @@ export const MODELS: readonly ModelDefinition[] = [
     thinkingBudgetTokens: 8_000,
     // Thinking always on for M2.x — no depth control.
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -784,7 +774,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // enable_thinking + thinking_budget: a controllable token budget → effort
     // scales the budget (no native level names).
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+    supportedEffortLevels: ['4K', '8K', '16K', '32K'],
+    defaultEffortLevel: '8K',
+    effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -808,7 +800,6 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: false,
     thinkingBudgetTokens: 0,
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -842,10 +833,10 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['S', 'M', 'L'],
+    supportedEffortLevels: ['minimal', 'high', 'max'],
+    defaultEffortLevel: 'high',
     // Z.ai's default is max (= L, positioned for long-horizon coding); M =
     // high is the balanced tier; minimal (= S) skips thinking for fast turns.
-    effortNativeByLevel: { S: 'minimal', M: 'high', L: 'max' },
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -870,7 +861,6 @@ export const MODELS: readonly ModelDefinition[] = [
     // Thinking on/off only (reasoning_effort is glm-5.2-only) — no depth
     // control; defaults to enabled upstream.
     thinkingConfigurable: false,
-    supportedEffortLevels: ['M'],
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,

@@ -12,11 +12,8 @@ import type { AppModelDefinition } from '@molecule/app-ai-models'
 
 import { COMMANDS } from '../components/chat-commands.js'
 import {
-  DEFAULT_EFFORT_LEVEL,
-  EFFORT_LEVELS,
   effortLevelsForModel,
   effortOptionsForModel,
-  isEffortLevel,
   modelsSupportingEffort,
   nativeEffortName,
   parseEffortCommand,
@@ -57,22 +54,24 @@ const claudeLike = model({
   supportsThinking: true,
   thinkingBudgetTokens: 16_000,
   thinkingConfigurable: true,
-  supportedEffortLevels: ['S', 'M', 'L', 'XL'],
-  effortNativeByLevel: { S: 'low', M: 'high', L: 'xhigh', XL: 'max' },
+  supportedEffortLevels: ['low', 'high', 'xhigh', 'max'],
+  defaultEffortLevel: 'high',
 })
 
-/** A budget-scaled model shaped like Claude Haiku 4.5 (no native level names). */
+/** A budget-configurable model shaped like Claude Haiku 4.5 (no native level names). */
 const budgetLike = model({
   id: 'budget-like',
   maxOutputTokens: 64_000,
   supportsThinking: true,
   thinkingBudgetTokens: 8_000,
   thinkingConfigurable: true,
-  supportedEffortLevels: ['S', 'M', 'L', 'XL'],
+  supportedEffortLevels: ['4K', '8K', '16K', '32K'],
+  defaultEffortLevel: '8K',
+  effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
 })
 
 /** A fixed-reasoning model shaped like the DeepSeek executors. */
-const fixedLike = model({ id: 'fixed-like', supportedEffortLevels: ['M'] })
+const fixedLike = model({ id: 'fixed-like' })
 
 describe('parseEffortCommand — syntax', () => {
   it('parses a set with the raw arg (resolution happens against the model later)', () => {
@@ -122,32 +121,28 @@ describe('parseEffortCommand — syntax', () => {
 describe('resolveEffortArg — native values per model', () => {
   const options = effortOptionsForModel(claudeLike)
 
-  it('resolves the model-native names case-insensitively', () => {
-    expect(resolveEffortArg('xhigh', options)).toBe('L')
-    expect(resolveEffortArg('HIGH', options)).toBe('M')
-    expect(resolveEffortArg('max', options)).toBe('XL')
+  it("resolves the model's native names case-insensitively to the canonical value", () => {
+    expect(resolveEffortArg('xhigh', options)).toBe('xhigh')
+    expect(resolveEffortArg('HIGH', options)).toBe('high')
+    expect(resolveEffortArg('max', options)).toBe('max')
   })
 
-  it('still accepts the legacy abstract letters as aliases', () => {
-    expect(resolveEffortArg('xl', options)).toBe('XL')
-    expect(resolveEffortArg('s', options)).toBe('S')
-  })
-
-  it('resolves budget sizes on budget-scaled models', () => {
+  it('resolves budget labels on budget-configurable models', () => {
     const budgetOptions = effortOptionsForModel(budgetLike)
-    expect(budgetOptions.map((o) => o.native)).toEqual(['4K', '8K', '16K', '32K'])
-    expect(resolveEffortArg('16k', budgetOptions)).toBe('L')
+    expect(budgetOptions.map((o) => o.value)).toEqual(['4K', '8K', '16K', '32K'])
+    expect(resolveEffortArg('16k', budgetOptions)).toBe('16K')
   })
 
-  it('returns null for unknown values', () => {
+  it('returns null for values the model does not offer', () => {
     expect(resolveEffortArg('turbo', options)).toBeNull()
-    expect(resolveEffortArg('XXL', options)).toBeNull()
+    // Legacy letters are no longer accepted by the command (native values only).
+    expect(resolveEffortArg('XL', options)).toBeNull()
   })
 })
 
 describe('effortOptionsForModel / nativeEffortName', () => {
-  it('returns native names for mapped models and nothing for fixed models', () => {
-    expect(effortOptionsForModel(claudeLike).map((o) => o.native)).toEqual([
+  it("returns the model's native values, and nothing for fixed models", () => {
+    expect(effortOptionsForModel(claudeLike).map((o) => o.value)).toEqual([
       'low',
       'high',
       'xhigh',
@@ -156,31 +151,19 @@ describe('effortOptionsForModel / nativeEffortName', () => {
     expect(effortOptionsForModel(fixedLike)).toEqual([])
   })
 
-  it('names the persisted level in the model’s own terms (with nearest-clamping)', () => {
-    expect(nativeEffortName(claudeLike, 'M')).toBe('high')
+  it('resolves the persisted value against the model (default + nearest degrade)', () => {
+    expect(nativeEffortName(claudeLike, 'xhigh')).toBe('xhigh')
+    // Unset → the model's own default.
+    expect(nativeEffortName(claudeLike, undefined)).toBe('high')
     const subset = model({
       ...claudeLike,
-      supportedEffortLevels: ['S', 'M'],
-      effortNativeByLevel: { S: 'low', M: 'high' },
+      supportedEffortLevels: ['low', 'high'],
+      defaultEffortLevel: 'high',
     })
-    // Persisted XL degrades to the nearest supported option (M → 'high').
-    expect(nativeEffortName(subset, 'XL')).toBe('high')
+    // Persisted 'max' degrades to the nearest offered ('high').
+    expect(nativeEffortName(subset, 'max')).toBe('high')
     // Fixed models have nothing to display.
-    expect(nativeEffortName(fixedLike, 'M')).toBeNull()
-  })
-})
-
-describe('levels metadata', () => {
-  it('exposes the four abstract levels in ascending order with a sane default', () => {
-    expect(EFFORT_LEVELS).toEqual(['S', 'M', 'L', 'XL'])
-    expect(EFFORT_LEVELS).toContain(DEFAULT_EFFORT_LEVEL)
-  })
-
-  it('isEffortLevel guards correctly', () => {
-    expect(isEffortLevel('S')).toBe(true)
-    expect(isEffortLevel('XL')).toBe(true)
-    expect(isEffortLevel('s')).toBe(false)
-    expect(isEffortLevel('XXL')).toBe(false)
+    expect(nativeEffortName(fixedLike, 'high')).toBeNull()
   })
 })
 
@@ -199,24 +182,16 @@ describe('modelsSupportingEffort', () => {
 })
 
 describe('effortLevelsForModel', () => {
-  it('returns the model-declared supported levels (full scale or a subset)', () => {
-    expect(effortLevelsForModel(model({ supportedEffortLevels: ['S', 'M', 'L', 'XL'] }))).toEqual([
-      'S',
-      'M',
-      'L',
-      'XL',
-    ])
-    // A fixed-reasoning model (e.g. grok-code-fast-1) declares only the default.
-    expect(effortLevelsForModel(model({ supportedEffortLevels: ['M'] }))).toEqual(['M'])
+  it("returns the model's own native levels", () => {
+    expect(
+      effortLevelsForModel(model({ supportedEffortLevels: ['low', 'high', 'xhigh', 'max'] })),
+    ).toEqual(['low', 'high', 'xhigh', 'max'])
   })
 
-  it('falls back to the full scale when the field is absent or empty (back-compat)', () => {
-    expect(effortLevelsForModel(model({}))).toEqual(EFFORT_LEVELS)
-    expect(effortLevelsForModel(model({ supportedEffortLevels: [] }))).toEqual(EFFORT_LEVELS)
-  })
-
-  it('falls back to the full scale for an unknown (undefined) model', () => {
-    expect(effortLevelsForModel(undefined)).toEqual(EFFORT_LEVELS)
+  it('returns an empty list for a fixed / unknown model (no effort choice)', () => {
+    expect(effortLevelsForModel(model({}))).toEqual([])
+    expect(effortLevelsForModel(model({ supportedEffortLevels: [] }))).toEqual([])
+    expect(effortLevelsForModel(undefined)).toEqual([])
   })
 })
 

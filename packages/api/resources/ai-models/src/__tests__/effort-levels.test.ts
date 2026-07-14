@@ -1,103 +1,89 @@
 import { describe, expect, it } from 'vitest'
 
 import { MODELS } from '../models.js'
-import type { EffortLevel } from '../types.js'
 
-const ALL_LEVELS: readonly EffortLevel[] = ['S', 'M', 'L', 'XL']
-/** The global default effort level (mirrors `DEFAULT_EFFORT_LEVEL` in the consumers). */
-const DEFAULT_LEVEL: EffortLevel = 'M'
-
+/**
+ * Catalog invariants for per-model effort. Effort is each model's OWN native
+ * value — no abstract scale. A model either declares an ordered
+ * `supportedEffortLevels` (native strings or budget labels) with a
+ * `defaultEffortLevel`, or omits both (fixed reasoning).
+ */
 describe('supportedEffortLevels catalog data', () => {
-  it('every populated set is a non-empty, duplicate-free subset of the abstract scale', () => {
+  it('every populated set is a non-empty, duplicate-free list of non-empty strings', () => {
     for (const model of MODELS) {
       if (model.supportedEffortLevels === undefined) continue
       const levels = model.supportedEffortLevels
       expect(levels.length, `${model.id} has an empty set`).toBeGreaterThan(0)
-      // No duplicates.
       expect(new Set(levels).size, `${model.id} has duplicate levels`).toBe(levels.length)
-      // Subset of S/M/L/XL.
       for (const level of levels) {
-        expect(ALL_LEVELS, `${model.id} has an unknown level ${level}`).toContain(level)
+        expect(typeof level, model.id).toBe('string')
+        expect(level.length, `${model.id} has an empty level`).toBeGreaterThan(0)
       }
     }
   })
 
-  it('every populated set includes the default level so DEFAULT_EFFORT_LEVEL is always in range', () => {
+  it("every model with levels declares a defaultEffortLevel that's one of them", () => {
     for (const model of MODELS) {
-      if (model.supportedEffortLevels === undefined) continue
-      expect(model.supportedEffortLevels, `${model.id} omits the default level`).toContain(
-        DEFAULT_LEVEL,
+      if (!model.supportedEffortLevels) continue
+      expect(model.defaultEffortLevel, `${model.id} omits defaultEffortLevel`).toBeDefined()
+      expect(model.supportedEffortLevels, `${model.id} default is not one of its levels`).toContain(
+        model.defaultEffortLevel,
       )
     }
   })
 
-  it('budget-scaled configurable models (no native map) expose the full S/M/L/XL set', () => {
+  it("a budget-configurable model's effortBudgetTokens keys exactly match its levels", () => {
     for (const model of MODELS) {
-      if (!model.thinkingConfigurable || model.effortNativeByLevel) continue
-      // Without a native effort map, thinkingConfigurable models scale a real
-      // token budget — every point on the abstract scale is meaningful.
-      expect([...(model.supportedEffortLevels ?? ALL_LEVELS)].sort(), model.id).toEqual(
-        [...ALL_LEVELS].sort(),
+      if (!model.effortBudgetTokens) continue
+      // A budget map implies a controllable reasoning budget.
+      expect(model.thinkingConfigurable, `${model.id} has budgets but isn't configurable`).toBe(
+        true,
       )
-    }
-  })
-
-  it('native-effort models declare a map whose keys exactly match supportedEffortLevels', () => {
-    for (const model of MODELS) {
-      if (!model.effortNativeByLevel) continue
-      // A native map implies a controllable reasoning param.
-      expect(model.thinkingConfigurable, `${model.id} has a map but is not configurable`).toBe(true)
-      const mapKeys = Object.keys(model.effortNativeByLevel).sort()
-      expect(mapKeys, `${model.id} map keys != supportedEffortLevels`).toEqual(
+      const keys = Object.keys(model.effortBudgetTokens).sort()
+      expect(keys, `${model.id} budget keys != levels`).toEqual(
         [...(model.supportedEffortLevels ?? [])].sort(),
       )
-      // The default level must resolve to a native value.
-      expect(
-        model.effortNativeByLevel[DEFAULT_LEVEL],
-        `${model.id} map omits the default level`,
-      ).toBeTruthy()
-      // Native values are non-empty distinct strings (monotonicity is curated,
-      // not machine-checkable across provider scales).
-      const values = Object.values(model.effortNativeByLevel)
-      for (const value of values) {
-        expect(typeof value, model.id).toBe('string')
-        expect((value as string).length, `${model.id} has an empty native value`).toBeGreaterThan(0)
+      // Every budget is a positive number.
+      for (const [label, tokens] of Object.entries(model.effortBudgetTokens)) {
+        expect(typeof tokens, `${model.id} ${label}`).toBe('number')
+        expect(tokens, `${model.id} ${label} budget must be > 0`).toBeGreaterThan(0)
       }
-      expect(new Set(values).size, `${model.id} maps two levels to one native value`).toBe(
-        values.length,
-      )
     }
   })
 
-  it('current Anthropic adaptive-thinking models carry a native effort map (budget_tokens would 400)', () => {
+  it('current Anthropic adaptive-thinking models are native-effort (no budget map — budget_tokens would 400)', () => {
     // Fable 5 / Opus 4.8 / Sonnet 5 reject budget_tokens outright; the 4.6
-    // family deprecates it. Only Haiku 4.5 stays on the legacy budget path.
+    // family deprecates it. Only Haiku 4.5 stays on the budget path.
     for (const model of MODELS) {
       if (model.provider !== 'anthropic') continue
       if (model.id.startsWith('claude-haiku-')) {
-        expect(model.effortNativeByLevel, model.id).toBeUndefined()
+        // Budget-configurable → carries a budget map, no native effort param.
+        expect(model.effortBudgetTokens, model.id).toBeDefined()
       } else {
-        expect(model.effortNativeByLevel, `${model.id} must use adaptive + effort`).toBeDefined()
+        // Native-effort → NO budget map; its levels ARE the provider values.
+        expect(
+          model.effortBudgetTokens,
+          `${model.id} must be native-effort (no budget map)`,
+        ).toBeUndefined()
+        expect(model.supportedEffortLevels, `${model.id} must expose native levels`).toBeDefined()
       }
     }
   })
 
-  it('models with a fixed reasoning budget expose a reduced set (default-only)', () => {
+  it('fixed-reasoning models expose no effort levels (nothing to tune)', () => {
     for (const model of MODELS) {
       if (model.thinkingConfigurable) continue
-      // A fixed (or absent) reasoning budget cannot be dialed, so the catalog
-      // restricts the model to the single default level.
-      expect(model.supportedEffortLevels, model.id).toEqual([DEFAULT_LEVEL])
+      expect(model.supportedEffortLevels, model.id).toBeUndefined()
+      expect(model.defaultEffortLevel, model.id).toBeUndefined()
     }
   })
 
-  it('the curated catalog sets the field explicitly on every entry', () => {
-    // Absent is still a valid wire/type state (means "all levels"); the catalog
-    // chooses to be explicit so each model's effort capability is self-evident.
+  it('every thinkingConfigurable model exposes effort levels', () => {
     for (const model of MODELS) {
+      if (!model.thinkingConfigurable) continue
       expect(
         model.supportedEffortLevels,
-        `${model.id} is missing supportedEffortLevels`,
+        `${model.id} is configurable but exposes no levels`,
       ).toBeDefined()
     }
   })
