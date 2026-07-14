@@ -280,6 +280,26 @@ instead of swallowing it into the same `null` a genuine bad-token verification
 returns — so a caller can tell "the operator forgot to set the secret" apart
 from "this purchase isn't valid" and surface the actionable 503.
 
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Starting an upgrade/subscribe from the pricing or billing surface creates a
+  checkout session and hands off to the provider flow (redirect or embedded
+  element) — the button does something real, not a dead click.
+- [ ] Returning from a canceled/abandoned checkout leaves the user on their
+  original plan with a sane UI (no phantom entitlement, no error page).
+- [ ] Entitlement flips ONLY after server-side verification (webhook or verify
+  call) — reloading after a client-side-only "success" must NOT show a paid
+  plan unless the server verified it.
+- [ ] The current subscription status (plan name, renewal/expiry) renders on the
+  account/billing screen, and canceling updates that status visibly.
+- [ ] With payment secrets unconfigured, the flow surfaces an actionable
+  "credentials not configured" message — not a silent no-op or generic 500.
+- [ ] The provider SECRET key never reaches the browser (page + network traffic
+  contain only the publishable key).
+
 ## Translations
 
 Translation strings are provided by `@molecule/api-locales-payments-google`.

@@ -31,6 +31,22 @@
  * })
  * ```
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] Creating a tag (name, color) through the UI adds it to the tag list and it
+ *   persists across a reload.
+ * - [ ] Assigning a tag to a resource the user owns succeeds and the tag chip
+ *   renders on that resource. If EVERY tag write 404s, the ownership resolver
+ *   was never registered (the routes are fail-closed) — that is an integration
+ *   bug to fix, not a pass.
+ * - [ ] Filtering/browsing by a tag shows exactly the resources carrying it.
+ * - [ ] Removing a tag from a resource updates the UI immediately and stays
+ *   removed after a reload.
+ * - [ ] A user cannot tag or untag another user's resource (denied, no change).
+ * - [ ] If a popular-tags surface exists, it reflects actual tag usage.
+ *
  * @module
  */
 

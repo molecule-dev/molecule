@@ -183,3 +183,22 @@ Peer dependencies:
   - Setup: SendGrid → Settings → API Keys → Create API Key with Mail Send permission.
   - Get it here: [https://app.sendgrid.com/settings/api_keys](https://app.sendgrid.com/settings/api_keys)
   - Example: `SG....`
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks; use the
+dev/capture transport to inspect sent mail), adapt each item to this app's
+actual screens/flows, and check every box off one by one. A box you can't
+check is an integration bug to fix — not a skip:
+- [ ] Each email-triggering flow (signup verification, password-reset request,
+  invites/notifications the app defines) confirms the send in the UI ("check
+  your inbox") and a message actually reaches the transport.
+- [ ] The password-reset round-trip completes: request a reset → open the
+  captured message → follow its single-use link → set a new password → log
+  in with it (and the old password no longer works).
+- [ ] The message body contains a LINK, never the raw token/secret, and renders
+  with the app's real name/content (no `undefined` placeholders).
+- [ ] Requesting a reset for an unknown email shows the same neutral UI response
+  as a known one (no account-existence oracle).
+- [ ] Account emails go only to the account's own address — no UI or endpoint
+  lets an unauthenticated caller send to an arbitrary address.

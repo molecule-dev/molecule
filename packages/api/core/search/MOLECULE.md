@@ -565,3 +565,20 @@ Peer dependencies:
   `term`/`=` matching everywhere — declare filterable string fields as
   `keyword` for Elasticsearch). Check the bond's own module `@remarks`
   before debugging a result that looks wrong only on one provider.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Searching a term that exists in seeded data returns the matching records
+  in the results UI.
+- [ ] An empty search box shows the browse-everything view (empty `text` matches
+  ALL documents by contract) — not zero results and not an error.
+- [ ] A term with no matches shows a clear "no results" state.
+- [ ] Index-on-write is wired: create a new record through the UI, then search
+  for it — it must be findable without a manual reindex.
+- [ ] If autocomplete/suggestions are surfaced, typing a prefix of a known
+  record shows relevant suggestions.
+- [ ] Search is scoped to the caller: one user's search never returns another
+  user's private records.

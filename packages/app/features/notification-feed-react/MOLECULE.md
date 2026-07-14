@@ -121,3 +121,19 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-router-dom` ^6.0.0 || ^7.0.0
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] The feed renders real notifications with icon, title, body, and a
+  relative time — no `undefined` fields or raw timestamps.
+- [ ] Unread rows are visibly distinct, and any unread badge/count matches
+  the number of unread rows.
+- [ ] Clicking a notification that carries an href navigates to its target.
+- [ ] Marking as read (however this app wires it) clears the unread state
+  and it stays cleared after a full reload.
+- [ ] Performing an action the app notifies about adds a new notification to
+  the feed (newest first).
+- [ ] An empty feed shows a readable empty state — not a blank panel.

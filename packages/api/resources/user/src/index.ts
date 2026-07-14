@@ -39,6 +39,21 @@
  * })
  * ```
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] A new user can sign up with email + password and lands authenticated (the
+ *   UI reflects the signed-in user, e.g. their name/menu appears).
+ * - [ ] Logging out and logging back in with the same credentials reaches the same
+ *   account and its data.
+ * - [ ] The session survives a full page reload (restored via the httpOnly cookie +
+ *   `GET /users/me` — never from a token persisted in localStorage).
+ * - [ ] A wrong password shows a visible error and does NOT authenticate.
+ * - [ ] Authenticated-only screens are unreachable when logged out (redirect to
+ *   login or an explicit denial — never a blank page).
+ * - [ ] A profile/account edit (e.g. display name) persists across a reload.
+ *
  * @module
  */
 

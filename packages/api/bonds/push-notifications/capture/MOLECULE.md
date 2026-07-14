@@ -86,3 +86,20 @@ and set `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY`. `getPublicKey()` is
 unaffected — it honestly falls back to the `VAPID_PUBLIC_KEY` env var so
 the enable-push UI keeps working in capture mode even though sends stay
 captured.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] The UI offers an enable-notifications control; activating it triggers
+  the browser permission prompt and, once granted, the subscription is
+  stored (the UI still shows "enabled" after a full reload).
+- [ ] An event this app notifies about actually delivers a push to the
+  subscribed session, with a readable title/body (not raw JSON).
+- [ ] Clicking the delivered notification opens/focuses the relevant screen
+  (when the app claims deep-linking).
+- [ ] Denying the permission leaves the app fully usable and truthful about
+  the state (no crash, no false "enabled").
+- [ ] Disabling/unsubscribing stops deliveries, and the disabled state
+  persists across a reload.

@@ -53,6 +53,23 @@
  * })
  * ```
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] Uploading a valid file through the UI shows progress/confirmation and the
+ *   file appears in the user's file list.
+ * - [ ] The uploaded content is retrievable: opening/downloading it returns the
+ *   same content (an uploaded image actually renders).
+ * - [ ] A disallowed file type is rejected with a visible error and does NOT
+ *   appear in the list.
+ * - [ ] An over-the-cap file is rejected cleanly (visible error, no partial
+ *   phantom entry).
+ * - [ ] Ownership is enforced: a second signed-in user cannot retrieve the first
+ *   user's file by its id/URL (404 — not the file).
+ * - [ ] Deleting a file removes it from the list, and it stays gone (and
+ *   unretrievable) after a full reload.
+ *
  * @module
  */
 

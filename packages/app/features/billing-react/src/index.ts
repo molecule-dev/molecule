@@ -38,6 +38,22 @@
  * )
  * ```
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] The pricing route renders every tier from `/api/billing/tiers` with name,
+ *   price, and per-tier limits — no empty table, no `undefined` cells.
+ * - [ ] The signed-in user's CURRENT tier is visibly marked (highlighted / "current
+ *   plan") and its Upgrade button is disabled or absent.
+ * - [ ] Clicking Upgrade on another tier posts to `/api/billing/checkout` and the
+ *   page follows the returned checkout handoff (button is not a dead click).
+ * - [ ] `<BillingStatusBadge />` on the account screen shows the live tier, and its
+ *   cancel action updates the shown status after confirmation.
+ * - [ ] A signed-out visitor can still view the public pricing table.
+ * - [ ] If the tiers endpoint fails, the page shows a visible error state — not a
+ *   blank page or spinner forever.
+ *
  * @module
  */
 

@@ -67,6 +67,22 @@
  *   has no client-initiated join path (e.g. the yjs bond with its injected
  *   transport) leave it undefined, and guards registered against them are
  *   logged as unenforceable rather than silently dropped.
+ *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] With the app open in TWO sessions (separate browser contexts/users), an
+ *   action in one (send a message, update a shared record) appears in the
+ *   other WITHOUT a manual reload.
+ * - [ ] Updates reach only the sessions in the same room/scope — a session
+ *   viewing a different room/record receives nothing.
+ * - [ ] Private rooms enforce the join guard: an unauthorized session's join is
+ *   denied and no data leaks to it. If ANY client can join any private room,
+ *   `onJoinRequest` was never registered — an integration bug.
+ * - [ ] Presence (if surfaced) updates when a participant joins and leaves.
+ * - [ ] After a dropped connection (offline/online toggle or server restart),
+ *   the client reconnects and live events flow again.
  */
 
 export * from './provider.js'
