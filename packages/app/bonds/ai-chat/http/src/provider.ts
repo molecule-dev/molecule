@@ -99,6 +99,7 @@ export class HttpChatProvider implements ChatProvider {
             // reappear on refresh.
             ...(config.suppressUserMessage ? { suppressUserMessage: true } : {}),
             ...(config.automatic ? { automatic: true } : {}),
+            ...(config.userInitiated ? { userInitiated: true } : {}),
           }),
           signal,
         })
@@ -245,14 +246,25 @@ export class HttpChatProvider implements ChatProvider {
    * falls back to a fire-and-forget fetch POST.
    * @param config - Chat configuration with the endpoint URL.
    * @param conversationId - Optional conversation ID to target.
+   * @param opts - Abort options. `userInitiated: true` marks an explicit user
+   *   Stop (the Stop button): the server then records a durable stop marker that
+   *   suppresses automatic follow-up turns until the user sends a new message.
+   *   Leave unset for the page-unload beacon — a refresh is not a stop.
    */
-  abortOnServer(config: ChatConfig, conversationId?: string): void {
+  abortOnServer(
+    config: ChatConfig,
+    conversationId?: string,
+    opts?: { userInitiated?: boolean },
+  ): void {
     // Append -abort to the pathname only, preserving any query string.
     // e.g. "/chat?conversationId=x" → "/chat-abort?conversationId=x"
     const base = `${this.config.baseUrl ?? ''}${config.endpoint}`
     const qIdx = base.indexOf('?')
     const url = qIdx === -1 ? `${base}-abort` : `${base.slice(0, qIdx)}-abort${base.slice(qIdx)}`
-    const body = JSON.stringify(conversationId ? { conversationId } : {})
+    const body = JSON.stringify({
+      ...(conversationId ? { conversationId } : {}),
+      ...(opts?.userInitiated ? { userInitiated: true } : {}),
+    })
     if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
       navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }))
     } else {

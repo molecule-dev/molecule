@@ -2367,6 +2367,8 @@ interface ChatInnerProps {
   pendingMessageKey?: number
   /** When true, the pending message is sent on the user's behalf (e.g. the post-boot build kickoff) and is NOT rendered as a user bubble — phase cards convey what's happening instead. */
   pendingMessageSuppressUser?: boolean
+  /** When true, the pending message was directly requested by the user (a "Fix with AI" button) — it bypasses (and clears) a prior user Stop. See {@link ChatPanelProps.pendingMessageUserInitiated}. */
+  pendingMessageUserInitiated?: boolean
   /** File path edited by the user in the editor — triggers auto-deletion of queued autofix messages referencing this file. */
   userEditedFile?: string
   userEditedFileKey?: number
@@ -2418,6 +2420,7 @@ interface ChatInnerProps {
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @param root0.pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
+ * @param root0.pendingMessageUserInitiated - When true, the pending message was directly requested by the user (a "Fix with AI" button) — it bypasses (and clears) a prior user Stop.
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
  * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
  * @param root0.gitStatusTick - Counter that increments when git status changes.
@@ -2459,6 +2462,7 @@ function ChatInner({
   pendingMessage,
   pendingMessageKey,
   pendingMessageSuppressUser,
+  pendingMessageUserInitiated,
   userEditedFile,
   userEditedFileKey,
   gitStatusTick: externalGitStatusTick,
@@ -2542,6 +2546,9 @@ function ChatInner({
   // Tracks whether a deferred pending message should suppress its user bubble
   // (mirrors pendingMessageSuppressUser for the deferred-send path).
   const deferredPendingSuppressRef = useRef(false)
+  // Mirrors pendingMessageUserInitiated for the deferred-send path, so a user's
+  // own "Fix with AI" request keeps its stop-bypassing intent when deferred.
+  const deferredPendingUserInitiatedRef = useRef(false)
 
   // Clear countdown interval on unmount
   useEffect(
@@ -2776,6 +2783,8 @@ function ChatInner({
   const {
     messages,
     isLoading,
+    isRemoteStreaming,
+    noteRemoteStreamEvent,
     error,
     errorMeta,
     mode,
@@ -2817,6 +2826,22 @@ function ChatInner({
   // Keep the card-append ref current so handleStreamEvent (memoized) can append a teammate's
   // broadcast `card` event to the message store.
   appendCardMessageRef.current = appendCardMessage
+
+  // User Stop. A stop is a user decision the platform must not overrule — so
+  // beyond killing the stream (useChat.abort also records the stop client-side
+  // and, via chat-abort's userInitiated flag, server-side), drop every pending
+  // automatic follow-up THIS panel holds: the deferred auto-fix message and the
+  // verification auto-fix countdown. Without this, the deferred-send effect
+  // fired the moment the Stop flipped isLoading off — restarting the executor
+  // seconds after the user explicitly stopped it.
+  const handleAbort = useCallback(() => {
+    deferredPendingRef.current = null
+    deferredPendingSuppressRef.current = false
+    deferredPendingUserInitiatedRef.current = false
+    pendingVerificationRef.current = null
+    setAutoFixCountdown(null)
+    abort()
+  }, [abort])
 
   // Surface the chat's loading state to the host (the authoritative "agent is actively
   // building" signal). The host drives the preview's "Building your app…" overlay from this,
@@ -3217,8 +3242,13 @@ function ChatInner({
       } finally {
         applyingPushedRef.current = false
       }
+      // A pushed event means a backend turn is live for this conversation. When it
+      // isn't a turn this client owns (another tab, a teammate, a server-side
+      // continuation), tell useChat so it confirms against the server's streaming
+      // flag and keeps the Stop button visible + functional for the remote turn.
+      noteRemoteStreamEvent()
     },
-    [handleStreamEvent],
+    [handleStreamEvent, noteRemoteStreamEvent],
   )
 
   // Register the pushed-event handler with the parent (Workspace) so it can deliver
@@ -3789,28 +3819,47 @@ function ChatInner({
       // by Synthase on the user's behalf (distinct avatar + accent), not typed by the user.
       const sendOpts = pendingMessageSuppressUser
         ? { suppressUserMessage: true }
-        : { automatic: true }
+        : { automatic: true, ...(pendingMessageUserInitiated ? { userInitiated: true } : {}) }
       if (isLoading) {
         // AI is busy — defer until streaming ends
         deferredPendingRef.current = pendingMessage
         deferredPendingSuppressRef.current = !!pendingMessageSuppressUser
+        deferredPendingUserInitiatedRef.current = !!pendingMessageUserInitiated
       } else {
         deferredPendingRef.current = null
         sendMessage(pendingMessage, undefined, sendOpts)
       }
     }
-  }, [pendingMessage, pendingMessageKey, pendingMessageSuppressUser, sendMessage, isLoading])
+  }, [
+    pendingMessage,
+    pendingMessageKey,
+    pendingMessageSuppressUser,
+    pendingMessageUserInitiated,
+    sendMessage,
+    isLoading,
+  ])
 
-  // When streaming ends, send any deferred message
+  // When streaming ends, send any deferred message. (A user Stop also ends
+  // streaming, but handleAbort drops the deferred message first — and useChat's
+  // stop guard would drop an autonomous automatic send anyway — so a stopped
+  // turn is never auto-resumed by a fix that queued up mid-stream.)
   useEffect(() => {
     if (!isLoading && deferredPendingRef.current) {
       const msg = deferredPendingRef.current
       const suppress = deferredPendingSuppressRef.current
+      const userInitiated = deferredPendingUserInitiatedRef.current
       deferredPendingRef.current = null
       deferredPendingSuppressRef.current = false
+      deferredPendingUserInitiatedRef.current = false
       // Same rule as the immediate path: a deferred pending message is system-composed, so
       // it's either suppressed or flagged `automatic` — never a plain user bubble.
-      sendMessage(msg, undefined, suppress ? { suppressUserMessage: true } : { automatic: true })
+      sendMessage(
+        msg,
+        undefined,
+        suppress
+          ? { suppressUserMessage: true }
+          : { automatic: true, ...(userInitiated ? { userInitiated: true } : {}) },
+      )
     }
   }, [isLoading, sendMessage])
 
@@ -5545,8 +5594,10 @@ function ChatInner({
         setCommandMenu(null)
         return
       }
-      if (isLoading) {
-        abort()
+      if (isLoading || isRemoteStreaming) {
+        // Same path as the Stop button: kill the stream AND drop the pending
+        // automatic follow-ups (deferred auto-fix, verification countdown).
+        handleAbort()
         return
       }
     }
@@ -8165,10 +8216,14 @@ function ChatInner({
                 alignItems: 'center',
               }}
             >
-              {isLoading && (
+              {/* Shown whenever ANY backend turn streams for this conversation —
+                  a local send (isLoading) OR a remote one this client doesn't own
+                  (isRemoteStreaming: another tab / teammate / server continuation),
+                  so a running turn can ALWAYS be stopped. */}
+              {(isLoading || isRemoteStreaming) && (
                 <button
                   type="button"
-                  onClick={abort}
+                  onClick={handleAbort}
                   title={t('ide.chat.stop', undefined, { defaultValue: 'Stop' })}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'rgba(248,81,73,0.3)'
@@ -8329,6 +8384,7 @@ function ChatInner({
  * @param root0.pendingMessage - An externally triggered message to send.
  * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
  * @param root0.pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
+ * @param root0.pendingMessageUserInitiated - When true, the pending message was directly requested by the user (a "Fix with AI" button) — it bypasses (and clears) a prior user Stop.
  * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
  * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
  * @param root0.isPro - Whether the current user has a Pro plan.
@@ -8374,6 +8430,7 @@ export function ChatPanel({
   pendingMessage,
   pendingMessageKey,
   pendingMessageSuppressUser,
+  pendingMessageUserInitiated,
   userEditedFile,
   userEditedFileKey,
   isPro,
@@ -8799,6 +8856,7 @@ export function ChatPanel({
         pendingMessage={pendingMessage}
         pendingMessageKey={pendingMessageKey}
         pendingMessageSuppressUser={pendingMessageSuppressUser}
+        pendingMessageUserInitiated={pendingMessageUserInitiated}
         userEditedFile={userEditedFile}
         userEditedFileKey={userEditedFileKey}
         gitStatusTick={gitStatusTick}

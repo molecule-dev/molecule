@@ -191,6 +191,14 @@ export interface ChatConfig {
    * so it stays visible but renders in the distinct auto-sent style.
    */
   automatic?: boolean
+  /**
+   * When true alongside {@link automatic}, the send was directly requested by
+   * the user (e.g. a "Fix with AI" button) rather than dispatched autonomously.
+   * The server's user-stop gate refuses autonomous automatic turns after an
+   * explicit Stop; a user-initiated one is the user re-engaging, so it runs
+   * (and clears the stop). Sent to the server in the request body.
+   */
+  userInitiated?: boolean
 }
 
 /**

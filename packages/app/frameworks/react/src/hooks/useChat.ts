@@ -40,6 +40,7 @@ type QueueEntry = {
   userMsgId?: string
   suppressUserMessage?: boolean
   automatic?: boolean
+  userInitiated?: boolean
 }
 
 /** Prefix used by auto-fix messages so we can identify them in the queue. */
@@ -150,6 +151,23 @@ function consumeStreamingFlag(projectId: string): boolean {
 type MessageStore = {
   messages: ChatMessage[]
   streaming: boolean
+  /**
+   * True while a backend turn for this conversation streams WITHOUT this client
+   * owning the request (another tab, a teammate, a server-side continuation).
+   * Set only after the server's history `streaming` flag confirms it (see
+   * startRemoteStreamPoll), and cleared when the server reports the turn done —
+   * so the Stop control shows whenever ANY backend turn is live.
+   */
+  remoteStreaming: boolean
+  /**
+   * Set by a user Stop (abort). A stop is a user decision the platform must not
+   * overrule: while set, autonomous `automatic` sends (preview-health /
+   * verification auto-fixes) are dropped. Cleared by the user's next own send
+   * (any non-automatic send, or an automatic one flagged `userInitiated`).
+   */
+  stoppedByUser: boolean
+  /** Handle of the active remote-stream reconcile poll, or null when none runs. */
+  remotePollTimer: ReturnType<typeof setTimeout> | null
   listeners: Set<() => void>
   conversationId?: string
 }
@@ -167,7 +185,14 @@ const messageStores = new Map<string, MessageStore>()
 function getMessageStore(key: string): MessageStore {
   let store = messageStores.get(key)
   if (!store) {
-    store = { messages: [], streaming: false, listeners: new Set() }
+    store = {
+      messages: [],
+      streaming: false,
+      remoteStreaming: false,
+      stoppedByUser: false,
+      remotePollTimer: null,
+      listeners: new Set(),
+    }
     messageStores.set(key, store)
   }
   return store
@@ -211,11 +236,90 @@ function setStoreStreaming(key: string, streaming: boolean): void {
 }
 
 /**
+ * Set whether a REMOTE backend turn (not owned by this client) is streaming,
+ * notifying subscribers on change.
+ * @param key - The conversation/project storage key.
+ * @param remoteStreaming - Whether a remote backend turn is currently live.
+ */
+function setStoreRemoteStreaming(key: string, remoteStreaming: boolean): void {
+  const store = getMessageStore(key)
+  if (store.remoteStreaming !== remoteStreaming) {
+    store.remoteStreaming = remoteStreaming
+    emitStore(key)
+  }
+}
+
+/** Stop a store's remote-stream reconcile poll (if any) and clear the flag. */
+function stopRemoteStreamPoll(key: string): void {
+  const store = getMessageStore(key)
+  if (store.remotePollTimer !== null) {
+    clearTimeout(store.remotePollTimer)
+    store.remotePollTimer = null
+  }
+  setStoreRemoteStreaming(key, false)
+}
+
+/** Interval between remote-stream reconcile polls. */
+const REMOTE_STREAM_POLL_MS = 3000
+
+/** Upper bound on reconcile polls per remote turn (~5 min) so a poll can never leak. */
+const REMOTE_STREAM_POLL_MAX = 100
+
+/**
+ * Confirm-and-track a remote backend turn. Called when a pushed (broadcast) chat
+ * event arrives for the open conversation while this client has no send of its
+ * own in flight — evidence that a backend turn is streaming somewhere else
+ * (another tab, a teammate, a server-side continuation). Rather than trusting a
+ * single sparse event (an own-echo card can arrive just after a local turn
+ * ends), the server's history `streaming` flag is polled: the remote flag turns
+ * on only once confirmed, stays on while the server reports streaming, and
+ * clears when the turn finishes. Single-flight per store; a local send taking
+ * over (store.streaming) ends the poll immediately.
+ *
+ * @param key - The conversation/project storage key.
+ * @param isServerStreaming - Reloads history and resolves whether the server
+ *   reports an active stream for this conversation.
+ */
+function startRemoteStreamPoll(key: string, isServerStreaming: () => Promise<boolean>): void {
+  const store = getMessageStore(key)
+  if (store.streaming || store.remotePollTimer !== null) return
+  const poll = async (iteration: number): Promise<void> => {
+    const s = getMessageStore(key)
+    // A local send now owns the streaming state, nobody is subscribed anymore,
+    // or the bound is hit — stop tracking.
+    if (s.streaming || s.listeners.size === 0 || iteration >= REMOTE_STREAM_POLL_MAX) {
+      s.remotePollTimer = null
+      setStoreRemoteStreaming(key, false)
+      return
+    }
+    let active: boolean
+    try {
+      active = await isServerStreaming()
+    } catch (_error) {
+      // History fetch failed (transient network) — keep the last known state and
+      // let the next poll reconcile; the iteration bound still guarantees an end.
+      active = s.remoteStreaming
+    }
+    setStoreRemoteStreaming(key, active)
+    if (!active) {
+      s.remotePollTimer = null
+      return
+    }
+    s.remotePollTimer = setTimeout(() => void poll(iteration + 1), REMOTE_STREAM_POLL_MS)
+  }
+  // Mark the poll as started synchronously (single-flight), then confirm at once.
+  store.remotePollTimer = setTimeout(() => void poll(0), 0)
+}
+
+/**
  * Test-only: clear all conversation stores. The store is module-level (it must
  * outlive component mounts), so it persists across test cases — reset it in a
  * `beforeEach` the same way tests clear `sessionStorage`.
  */
 export function resetChatStoresForTests(): void {
+  for (const store of messageStores.values()) {
+    if (store.remotePollTimer !== null) clearTimeout(store.remotePollTimer)
+  }
   messageStores.clear()
 }
 
@@ -331,6 +435,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
     () => getMessageStore(storageKey).streaming,
     () => false,
   )
+  const isRemoteStreaming = useSyncExternalStore(
+    subscribeStore,
+    () => getMessageStore(storageKey).remoteStreaming,
+    () => false,
+  )
   const setMessages = useCallback(
     (updater: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) =>
       setStoreMessages(storageKey, updater),
@@ -357,6 +466,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
     (streaming: boolean) => setStoreStreaming(storageKey, streaming),
     [storageKey],
   )
+  // Pushed (broadcast) chat event arrived for this conversation while no local
+  // send is in flight — confirm against the server's streaming flag and track
+  // the remote turn so the Stop control stays visible (see startRemoteStreamPoll).
+  const noteRemoteStreamEvent = useCallback(() => {
+    startRemoteStreamPoll(storageKey, async () => {
+      await provider.loadHistory({ endpoint, projectId })
+      return (provider as { isServerStreaming?: boolean }).isServerStreaming === true
+    })
+  }, [provider, endpoint, projectId, storageKey])
   const [error, setError] = useState<string | null>(null)
   const [errorMeta, setErrorMeta] = useState<{
     limitType?: string
@@ -1067,6 +1185,20 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // typed user message.
       const automatic = options?.automatic === true
 
+      // A user Stop is a standing order: drop every AUTONOMOUS automatic send
+      // (preview-health / preview-error / verification auto-fix dispatches) until
+      // the user re-engages. Anything the user does themselves — typing a message,
+      // answering ask_user, or an automatic send they explicitly requested
+      // (userInitiated, e.g. the broken-preview overlay's "Fix with AI" button) —
+      // IS that re-engagement: it clears the stop and proceeds. Without this, the
+      // preview-health auto-fix restarted the executor seconds after a Stop (the
+      // server's userStoppedAt gate is the durable backstop for other tabs).
+      const store = getMessageStore(storageKey)
+      if (store.stoppedByUser) {
+        if (automatic && options?.userInitiated !== true) return
+        store.stoppedByUser = false
+      }
+
       // Resolve the pending ask_user card IN THE STORE: set the most-recent unanswered
       // ask_user tool call's output to this answer. The chosen option's checked state is
       // derived from a string `output`, so persisting it here keeps it checked across the
@@ -1122,6 +1254,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           message,
           attachments,
           ...(automatic ? { automatic: true } : {}),
+          ...(options?.userInitiated ? { userInitiated: true } : {}),
           ...(suppressUserMessage ? { suppressUserMessage } : { userMsgId: userMsg.id }),
         })
         persistQueue(storageKey, pendingRef.current)
@@ -1135,6 +1268,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
       userAbortedRef.current = false
       sendingRef.current = true
       setIsLoading(true)
+      // This client now owns the streaming state — end any remote-turn tracking.
+      stopRemoteStreamPoll(storageKey)
       setError(null)
       setErrorMeta(null)
       // A fresh user-initiated send abandons any pending 5XX auto-retry.
@@ -1147,6 +1282,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         attachments,
         ...(suppressUserMessage ? { suppressUserMessage: true } : {}),
         ...(automatic ? { automatic: true } : {}),
+        ...(options?.userInitiated ? { userInitiated: true } : {}),
       }
 
       while (current) {
@@ -1205,6 +1341,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           ...config,
           ...(current.suppressUserMessage ? { suppressUserMessage: true } : {}),
           ...(current.automatic ? { automatic: true } : {}),
+          ...(current.userInitiated ? { userInitiated: true } : {}),
         }
         try {
           await provider.sendMessage(currentMsg, sendConfig, onEvent, currentAttachments)
@@ -1291,6 +1428,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
       sendingRef.current = true
       setIsLoading(true)
+      // This client now owns the streaming state — end any remote-turn tracking.
+      stopRemoteStreamPoll(storageKey)
       setError(null)
       setErrorMeta(null)
       resetStatusQueue()
@@ -1388,6 +1527,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
     // Mark this as a user Stop so the in-flight send's reconcile path leaves the
     // locally-finalized streamed content alone (see the reconcile guard above).
     userAbortedRef.current = true
+    // A stop is a user decision the platform must not overrule: suppress every
+    // autonomous automatic send (auto-fix dispatches) until the user re-engages
+    // (see the sendMessage guard), and end any remote-turn tracking — the server
+    // stream is being killed below, so the Stop control can retire immediately.
+    getMessageStore(storageKey).stoppedByUser = true
+    stopRemoteStreamPoll(storageKey)
     // Stop means the user took over — cancel any pending 5XX auto-retry + timers.
     resetRetry()
     try {
@@ -1395,9 +1540,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
     } catch (_error) {
       // provider.abort() may throw when no stream is active — safe to ignore on user-initiated abort
     }
-    // Also kill the server-side stream so it doesn't continue running
-    const p = provider as { abortOnServer?: (config: ChatConfig, cid?: string) => void }
-    p.abortOnServer?.({ endpoint, projectId }, undefined)
+    // Also kill the server-side stream so it doesn't continue running. Flagged
+    // userInitiated so the server records the durable stop marker that refuses
+    // automatic follow-up turns from ANY client until the user sends again
+    // (the page-unload beacon deliberately does NOT set this — a refresh is not
+    // a stop, and the post-refresh auto-resume must stay possible).
+    const p = provider as {
+      abortOnServer?: (config: ChatConfig, cid?: string, opts?: { userInitiated?: boolean }) => void
+    }
+    p.abortOnServer?.({ endpoint, projectId }, undefined, { userInitiated: true })
     // Apply the last throttled delta (the up-to-50ms of text/tool progress that
     // hadn't flushed yet) BEFORE finalizing, so Stop keeps every streamed char —
     // not just whatever landed in the previous flush window.
@@ -1488,6 +1639,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
   return {
     messages,
     isLoading,
+    isRemoteStreaming,
+    noteRemoteStreamEvent,
     error,
     errorMeta,
     mode,

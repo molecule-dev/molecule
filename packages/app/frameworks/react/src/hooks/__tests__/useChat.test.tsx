@@ -1857,3 +1857,222 @@ describe('useChat', () => {
     })
   })
 })
+
+// ── User Stop is a standing order (stop suppresses autonomous continuations) ──
+// A user's Stop must not be overruled by the platform: after abort(), every
+// AUTONOMOUS automatic send (preview-health / preview-error / verification
+// auto-fix dispatches) is dropped until the user re-engages — a plain send, or
+// an automatic send they explicitly requested (userInitiated, e.g. the
+// broken-preview overlay's "Fix with AI" button). Observed live before these
+// guards: the preview-health auto-fix restarted a stopped build ~10 seconds
+// after the Stop.
+describe('useChat — user stop suppression + remote streaming', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+    resetChatStoresForTests()
+  })
+
+  afterEach(() => {
+    sessionStorage.clear()
+    resetChatStoresForTests()
+  })
+
+  it('drops an AUTONOMOUS automatic send after a user Stop', async () => {
+    const { provider, deferreds } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('build the app')
+    })
+    expect(deferreds).toHaveLength(1)
+
+    // User clicks Stop mid-stream.
+    await act(async () => {
+      result.current.abort()
+    })
+    expect(result.current.isLoading).toBe(false)
+
+    // The platform dispatches an auto-fix ("[Preview health check] …") — it must
+    // be swallowed, not restart the executor.
+    await act(async () => {
+      result.current.sendMessage('[Preview health check] preview broken', undefined, {
+        automatic: true,
+      })
+    })
+    expect(deferreds).toHaveLength(1) // no new request
+    expect(result.current.isLoading).toBe(false)
+    // And no queued/visible message was appended for the dropped send.
+    expect(result.current.messages.some((m) => m.content.includes('Preview health check'))).toBe(
+      false,
+    )
+  })
+
+  it('lets a USER-INITIATED automatic send ("Fix with AI" click) through after a Stop — and it clears the stop', async () => {
+    const { provider, deferreds, complete, startMessage, emitText } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('build the app')
+    })
+    await act(async () => {
+      result.current.abort()
+    })
+
+    // The user clicks "Fix with AI" on the broken-preview overlay — automatic
+    // styling, but a direct user request: it must send.
+    await act(async () => {
+      result.current.sendMessage('Fix the broken preview', undefined, {
+        automatic: true,
+        userInitiated: true,
+      })
+    })
+    expect(deferreds).toHaveLength(2)
+    await act(async () => {
+      startMessage(1)
+      emitText(1, 'on it')
+      complete(1)
+    })
+
+    // The stop is cleared — a later autonomous automatic send works again.
+    await act(async () => {
+      result.current.sendMessage('Fix these issues: …', undefined, { automatic: true })
+    })
+    expect(deferreds).toHaveLength(3)
+  })
+
+  it('a plain user send after a Stop clears the suppression', async () => {
+    const { provider, deferreds, complete, startMessage, emitText } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('build the app')
+    })
+    await act(async () => {
+      result.current.abort()
+    })
+
+    // The user types a new message — that IS the re-engagement.
+    await act(async () => {
+      result.current.sendMessage('actually, keep going')
+    })
+    expect(deferreds).toHaveLength(2)
+    await act(async () => {
+      startMessage(1)
+      emitText(1, 'continuing')
+      complete(1)
+    })
+
+    // Autonomous automatic sends work again after the user re-engaged.
+    await act(async () => {
+      result.current.sendMessage('Fix these issues: …', undefined, { automatic: true })
+    })
+    expect(deferreds).toHaveLength(3)
+  })
+
+  it('marks the server abort as user-initiated (the durable server-side stop marker)', async () => {
+    const { provider } = createMockProvider()
+    const abortOnServer = vi.fn()
+    ;(
+      provider as unknown as { abortOnServer: (c: unknown, id?: string, o?: unknown) => void }
+    ).abortOnServer = abortOnServer
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('build the app')
+    })
+    await act(async () => {
+      result.current.abort()
+    })
+
+    expect(abortOnServer).toHaveBeenCalledWith(
+      { endpoint: ENDPOINT, projectId: PROJECT_ID },
+      undefined,
+      { userInitiated: true },
+    )
+  })
+
+  // ── Remote streaming (the vanished Stop button) ─────────────────────────
+  // A backend turn this client doesn't own (another tab / a teammate / a
+  // server-side continuation) must still surface a working Stop control:
+  // pushed events flag it, the server's history `streaming` flag confirms and
+  // later clears it.
+
+  it('confirms a remote backend turn from a pushed event and clears it when the server reports done', async () => {
+    vi.useFakeTimers()
+    try {
+      const { provider } = createMockProvider()
+      let serverStreaming = true
+      provider.loadHistory = vi.fn(async () => {
+        ;(provider as unknown as { isServerStreaming?: boolean }).isServerStreaming =
+          serverStreaming
+        return []
+      })
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      // A pushed (broadcast) chat event arrived for this conversation.
+      act(() => {
+        result.current.noteRemoteStreamEvent()
+      })
+      // The immediate confirm poll runs → server says streaming → flag on.
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5)
+      })
+      expect(result.current.isRemoteStreaming).toBe(true)
+
+      // The remote turn finishes server-side → the next reconcile clears it.
+      serverStreaming = false
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3100)
+      })
+      expect(result.current.isRemoteStreaming).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a Stop clears remote-turn tracking immediately (the abort endpoint kills the remote turn)', async () => {
+    vi.useFakeTimers()
+    try {
+      const { provider } = createMockProvider()
+      provider.loadHistory = vi.fn(async () => {
+        ;(provider as unknown as { isServerStreaming?: boolean }).isServerStreaming = true
+        return []
+      })
+      const { result } = renderHook(
+        () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+        { wrapper: createWrapper(provider) },
+      )
+
+      act(() => {
+        result.current.noteRemoteStreamEvent()
+      })
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5)
+      })
+      expect(result.current.isRemoteStreaming).toBe(true)
+
+      // Stop: abortOnServer kills the backend turn — the control retires at once.
+      act(() => {
+        result.current.abort()
+      })
+      expect(result.current.isRemoteStreaming).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
