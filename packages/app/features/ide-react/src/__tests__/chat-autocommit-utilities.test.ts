@@ -11,11 +11,13 @@ import {
   AUTO_COMMIT_DISABLED,
   autoCommitReducer,
   type AutoCommitState,
+  DEFAULT_AUTO_COMMIT_SECONDS,
   formatAutoCommitBadge,
   isAutoCommitArmed,
   isAutoCommitDue,
   isAutoCommitEnabled,
   parseAutoCommitCommand,
+  resolveAutoCommitSeconds,
 } from '../components/chat-autocommit-utilities.js'
 import { COMMANDS } from '../components/chat-commands.js'
 
@@ -39,6 +41,30 @@ describe('parseAutoCommitCommand', () => {
     expect(parseAutoCommitCommand('/autocommit 1.5')).toBeNull()
     expect(parseAutoCommitCommand('/autocommit -5')).toBeNull()
     expect(parseAutoCommitCommand('autocommit 5')).toBeNull()
+  })
+})
+
+describe('resolveAutoCommitSeconds — auto-commit is ON by default', () => {
+  it('resolves a never-configured setting (undefined/null) to the positive default', () => {
+    expect(DEFAULT_AUTO_COMMIT_SECONDS).toBeGreaterThan(0)
+    expect(resolveAutoCommitSeconds(undefined)).toBe(DEFAULT_AUTO_COMMIT_SECONDS)
+    expect(resolveAutoCommitSeconds(null)).toBe(DEFAULT_AUTO_COMMIT_SECONDS)
+  })
+
+  it('respects an explicit off (0 or negative stays 0 — a user choice, never re-defaulted)', () => {
+    expect(resolveAutoCommitSeconds(0)).toBe(0)
+    expect(resolveAutoCommitSeconds(-5)).toBe(0)
+  })
+
+  it('floors an explicit positive cadence to whole seconds', () => {
+    expect(resolveAutoCommitSeconds(45)).toBe(45)
+    expect(resolveAutoCommitSeconds(12.9)).toBe(12)
+  })
+
+  it('falls back to the default for invalid values (non-number, NaN, Infinity)', () => {
+    expect(resolveAutoCommitSeconds('30')).toBe(DEFAULT_AUTO_COMMIT_SECONDS)
+    expect(resolveAutoCommitSeconds(Number.NaN)).toBe(DEFAULT_AUTO_COMMIT_SECONDS)
+    expect(resolveAutoCommitSeconds(Number.POSITIVE_INFINITY)).toBe(DEFAULT_AUTO_COMMIT_SECONDS)
   })
 })
 

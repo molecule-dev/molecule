@@ -8,6 +8,10 @@
  * disarms (pauses) until the next file change, so a clean tree is never
  * committed in a loop. `/autocommit 0` cancels it entirely.
  *
+ * Auto-commit is ON BY DEFAULT: a project that has never persisted
+ * `autoCommitSeconds` resolves to {@link DEFAULT_AUTO_COMMIT_SECONDS} (see
+ * {@link resolveAutoCommitSeconds}); only an explicit `0` keeps it off.
+ *
  * The cadence is a PERSISTED project setting (`project.settings.autoCommitSeconds`),
  * not a per-session toggle: the component debounce-PATCHes it whenever the user
  * changes it and, on load, dispatches `hydrate` to restore it in the paused
@@ -18,7 +22,11 @@
  * timers, or a backend. The component owns only the side effects: the GET that
  * hydrates the persisted cadence, the debounced PATCH that persists changes, a
  * 1s interval dispatching `tick`, a file-change effect dispatching `reset`, and
- * a `fire`-when-due effect that runs `/commit` then dispatches `fired`. Any
+ * a `fire`-when-due effect that runs `/commit` then dispatches `fired`. The
+ * component also owns the HOLD: while the agent is still working (a turn is
+ * streaming locally or remotely, or an auto-fix follow-up is pending) it
+ * suspends the tick interval and the fire effect, so a commit only ever happens
+ * once the agent and the user are actually finished — never mid-turn. Any
  * user-facing prose lives in the component via `t()`, never here.
  *
  * @module
@@ -61,6 +69,32 @@ export type AutoCommitAction =
 
 /** The disabled (off) countdown state — the reducer's initial value. */
 export const AUTO_COMMIT_DISABLED: AutoCommitState = { intervalSeconds: 0, remaining: null }
+
+/**
+ * The default auto-commit cadence in seconds — auto-commit is ON by default.
+ * Projects that have never persisted `autoCommitSeconds` hydrate to this
+ * cadence (paused, arming on the first file change); only an explicit `0`
+ * (the user cancelled) keeps auto-commit off.
+ */
+export const DEFAULT_AUTO_COMMIT_SECONDS = 30
+
+/**
+ * Resolves the persisted `project.settings.autoCommitSeconds` value to the
+ * effective cadence. A finite number is an explicit user choice: positive
+ * values floor to whole seconds, non-positive values mean "the user turned
+ * auto-commit off" (`0`). Anything else — missing, never configured, or
+ * invalid — falls back to {@link DEFAULT_AUTO_COMMIT_SECONDS}, because
+ * auto-commit is on by default.
+ *
+ * @param saved - The raw persisted setting value.
+ * @returns The effective cadence in whole seconds (`0` = off).
+ */
+export function resolveAutoCommitSeconds(saved: unknown): number {
+  if (typeof saved === 'number' && Number.isFinite(saved)) {
+    return Math.max(0, Math.floor(saved))
+  }
+  return DEFAULT_AUTO_COMMIT_SECONDS
+}
 
 /**
  * Pure reducer for the auto-commit countdown. Deterministic and side-effect

@@ -69,6 +69,7 @@ import {
   isAutoCommitDue,
   isAutoCommitEnabled,
   parseAutoCommitCommand,
+  resolveAutoCommitSeconds,
 } from './chat-autocommit-utilities.js'
 import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-style.js'
 import type { CommandId } from './chat-commands.js'
@@ -3577,18 +3578,20 @@ function ChatInner({
           setSoundsConfig((prev) => ({ ...prev, ...(s.sounds as Partial<SoundsConfig>) }))
         }
         // Restore the persisted auto-commit cadence in the paused state (it
-        // re-arms on the next file change). Missing/invalid → off (0).
-        const savedAutoCommit =
-          typeof s?.autoCommitSeconds === 'number' && s.autoCommitSeconds > 0
-            ? Math.floor(s.autoCommitSeconds)
-            : 0
+        // re-arms on the next file change). Auto-commit is ON by default: a
+        // project that never set `autoCommitSeconds` resolves to the default
+        // cadence; an explicit 0 (the user turned it off) stays off.
+        const savedAutoCommit = resolveAutoCommitSeconds(s?.autoCommitSeconds)
         autoCommitPersistedRef.current = savedAutoCommit
         if (savedAutoCommit > 0) dispatchAutoCommit({ type: 'hydrate', seconds: savedAutoCommit })
         setAutoCommitLoaded(true)
       })
       .catch(() => {
-        // Settings load failed: treat auto-commit as off so a later explicit
-        // /autocommit still persists (we never silently lose a user choice).
+        // Settings load failed: leave auto-commit off for this session — we
+        // can't know whether the user explicitly disabled it, and committing
+        // against an explicit off is worse than skipping the default-on. A
+        // later explicit /autocommit still persists (we never silently lose a
+        // user choice).
         autoCommitPersistedRef.current = 0
         setAutoCommitLoaded(true)
       })
@@ -3756,13 +3759,20 @@ function ChatInner({
   }, [externalGitStatusTick])
 
   // Tick the auto-commit countdown once per second while it is armed (counting
-  // down). When paused/disabled (remaining === null) no interval runs.
+  // down). When paused/disabled (remaining === null) no interval runs. The
+  // countdown is HELD (frozen, no ticks) while the agent is still working — a
+  // turn streaming from this client (isLoading), a teammate's remote turn
+  // (isRemoteStreaming), or a pending verification auto-fix follow-up
+  // (autoFixCountdown) — so a commit only ever fires once the agent and the
+  // user are actually finished: the quiet period runs after the LATER of the
+  // last file change and the turn's end, never mid-turn.
   const autoCommitArmed = isAutoCommitArmed(autoCommit)
+  const autoCommitHeld = isLoading || isRemoteStreaming || autoFixCountdown !== null
   useEffect(() => {
-    if (!autoCommitArmed) return
+    if (!autoCommitArmed || autoCommitHeld) return
     const id = setInterval(() => dispatchAutoCommit({ type: 'tick' }), 1000)
     return () => clearInterval(id)
-  }, [autoCommitArmed])
+  }, [autoCommitArmed, autoCommitHeld])
 
   // Wrap onFileRevert so undo/redo also refreshes git status
   const handleFileRevert = useCallback(
@@ -4957,12 +4967,15 @@ function ChatInner({
 
   // When the auto-commit countdown reaches zero, fire the existing /commit path
   // (no new backend) and pause until the next file change re-arms it. /commit
-  // itself no-ops on a clean tree, so a stray fire is harmless.
+  // itself no-ops on a clean tree, so a stray fire is harmless. Guarded by the
+  // same hold as the tick interval (belt for the race where a turn starts on
+  // the exact render the countdown hits zero): never commit mid-turn — the
+  // effect re-runs when the hold clears and fires then.
   useEffect(() => {
-    if (!isAutoCommitDue(autoCommit)) return
+    if (!isAutoCommitDue(autoCommit) || autoCommitHeld) return
     void executeCommand('commit')
     dispatchAutoCommit({ type: 'fired' })
-  }, [autoCommit, executeCommand])
+  }, [autoCommit, autoCommitHeld, executeCommand])
 
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {

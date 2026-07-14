@@ -21,6 +21,11 @@
  * cadence never appears in /settings (1 fails) and no PATCH is sent (2 fails) —
  * exactly the hollow close this re-verify is closing.
  *
+ * Also covers the default-on semantics (a never-configured project hydrates to
+ * `DEFAULT_AUTO_COMMIT_SECONDS`; an explicit 0 stays off; neither is echoed back
+ * as a PATCH) and the HOLD: a due countdown never commits while a turn is
+ * streaming — it fires once the turn completes.
+ *
  * @module
  */
 
@@ -43,6 +48,7 @@ import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-th
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
+import { DEFAULT_AUTO_COMMIT_SECONDS } from '../components/chat-autocommit-utilities.js'
 import { ChatPanel } from '../components/ChatPanel.js'
 
 const PROJECT_ID = 'proj-syn3'
@@ -236,19 +242,57 @@ describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
     expect(patchSpy).not.toHaveBeenCalled()
   })
 
-  it('does NOT show the badge when no cadence is saved (off by default)', async () => {
+  it('is ON by default when no cadence was ever saved — paused (no badge), no spurious PATCH', async () => {
     const patchSpy = vi.fn(async () => ({}))
     const { container } = render(renderChatPanel(buildHttpClient({}, patchSpy)))
-    // Let the settings GET resolve, then confirm the badge stays absent.
+
+    // The default hydrates like a saved cadence: paused (no badge — it arms on
+    // the first file change), visible in /settings as the default "Every Ns".
+    const settingsBtn = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-settings-button"]')
+      expect(el, 'the settings button must render').not.toBeNull()
+      return el as HTMLElement
+    })
+    fireEvent.click(settingsBtn)
+
     await waitFor(() => {
-      expect(container.querySelector('[data-mol-id="chat-report-button"]')).not.toBeNull()
+      const row = container.querySelector('[data-mol-id="setting-row-autoCommit"]')
+      expect(row, 'the /settings auto-commit row must render').not.toBeNull()
+      expect(row?.textContent).toContain(`Every ${DEFAULT_AUTO_COMMIT_SECONDS}s`)
     })
     expect(container.querySelector('[data-mol-id="chat-autocommit-badge"]')).toBeNull()
+    // The implicit default is NOT echoed back as a PATCH — the server keeps
+    // "unset" until the user makes an explicit choice.
+    expect(patchSpy).not.toHaveBeenCalled()
   })
 
-  it('debounce-PATCHes settings.autoCommitSeconds when the cadence changes (off → /autocommit 30)', async () => {
+  it('respects an explicit off (autoCommitSeconds: 0) — never re-defaulted to on', async () => {
     const patchSpy = vi.fn(async () => ({}))
-    const { container } = render(renderChatPanel(buildHttpClient({}, patchSpy)))
+    const { container } = render(
+      renderChatPanel(buildHttpClient({ autoCommitSeconds: 0 }, patchSpy)),
+    )
+
+    const settingsBtn = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-settings-button"]')
+      expect(el, 'the settings button must render').not.toBeNull()
+      return el as HTMLElement
+    })
+    fireEvent.click(settingsBtn)
+
+    await waitFor(() => {
+      const row = container.querySelector('[data-mol-id="setting-row-autoCommit"]')
+      expect(row, 'the /settings auto-commit row must render').not.toBeNull()
+      expect(row?.textContent).toContain('Off')
+    })
+    expect(container.querySelector('[data-mol-id="chat-autocommit-badge"]')).toBeNull()
+    expect(patchSpy).not.toHaveBeenCalled()
+  })
+
+  it('debounce-PATCHes settings.autoCommitSeconds when the cadence changes (explicit off → /autocommit 30)', async () => {
+    const patchSpy = vi.fn(async () => ({}))
+    const { container } = render(
+      renderChatPanel(buildHttpClient({ autoCommitSeconds: 0 }, patchSpy)),
+    )
 
     // Wait for the composer, then confirm there is no badge while off.
     await waitFor(() => {
@@ -270,7 +314,129 @@ describe('ChatPanel auto-commit cadence persistence (SYN3)', () => {
       },
       { timeout: 2000 },
     )
-    // The only PATCH is the change — the off default (0) was never echoed.
+    // The only PATCH is the change — the explicit off (0) was never echoed.
     expect(patchSpy).toHaveBeenCalledTimes(1)
   })
+})
+
+describe('ChatPanel auto-commit hold — commits only once the turn is finished', () => {
+  /**
+   * Builds an {@link HttpClient} whose GETs serve the project settings AND the
+   * git-status the /commit path checks; POSTs to the commit endpoint hit the
+   * provided spy. Everything else rejects (callers catch their own failures).
+   */
+  function buildCommitHttpClient(
+    settings: Record<string, unknown>,
+    commitSpy: (url: string, data?: unknown) => Promise<unknown>,
+  ): HttpClient {
+    const reject = (): Promise<never> => Promise.reject(new Error('http disabled in test'))
+    const respond = (url: string, data: unknown): Promise<unknown> =>
+      Promise.resolve({
+        data,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: { url, method: 'GET' },
+      })
+    const get = (url: string): Promise<unknown> => {
+      if (url === `/projects/${PROJECT_ID}`) return respond(url, { settings })
+      if (url === `/projects/${PROJECT_ID}/git-status`)
+        return respond(url, { files: [{ path: 'src/x.ts' }] })
+      return reject()
+    }
+    const post = (url: string, data?: unknown): Promise<unknown> => {
+      if (url === `/projects/${PROJECT_ID}/commit`) return commitSpy(url, data)
+      return reject()
+    }
+    return {
+      baseURL: '',
+      defaultHeaders: {},
+      request: reject,
+      get: get as HttpClient['get'],
+      post: post as HttpClient['post'],
+      put: reject,
+      patch: vi.fn(async () => ({})) as unknown as HttpClient['patch'],
+      delete: reject,
+      addRequestInterceptor: () => () => {},
+      addResponseInterceptor: () => () => {},
+      addErrorInterceptor: () => () => {},
+      setAuthToken: () => {},
+      getAuthToken: () => null,
+      onAuthError: () => () => {},
+    }
+  }
+
+  it(
+    'holds a due 1s countdown while a turn is streaming, then fires /commit when it completes',
+    { timeout: 15_000 },
+    async () => {
+      // A provider whose sendMessage streams nothing and hangs until the test
+      // releases it — while it is pending, useChat keeps isLoading true, i.e.
+      // the agent is mid-turn.
+      let releaseTurn: () => void = () => {}
+      const turnDone = new Promise<void>((resolve) => {
+        releaseTurn = resolve
+      })
+      let turnStarted = false
+      const provider: ChatProvider = {
+        name: 'stub',
+        sendMessage: async (_message, _config, onEvent): Promise<void> => {
+          turnStarted = true
+          await turnDone
+          onEvent({ type: 'done' })
+        },
+        abort: (): void => {},
+        clearHistory: async (): Promise<void> => {},
+        loadHistory: async (): Promise<ChatMessage[]> => [],
+      }
+
+      const commitSpy = vi.fn(async (url: string) => ({
+        data: { ok: true, committed: true, message: 'auto', files: ['src/x.ts'] },
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: { url, method: 'POST' },
+      }))
+      const http = buildCommitHttpClient({ autoCommitSeconds: 1 }, commitSpy)
+
+      const wrap = (tick: number): ReactElement => (
+        <I18nProvider provider={createSimpleI18nProvider('en')}>
+          <ThemeProvider provider={buildThemeProvider()}>
+            <HttpProvider client={http}>
+              <ChatContextProvider provider={provider}>
+                <ChatPanel projectId={PROJECT_ID} gitStatusTick={tick} />
+              </ChatContextProvider>
+            </HttpProvider>
+          </ThemeProvider>
+        </I18nProvider>
+      )
+
+      const view = render(wrap(0))
+      await waitFor(() => {
+        expect(view.container.querySelector('[data-mol-chat-input]')).not.toBeNull()
+      })
+
+      // Start a turn (the provider hangs → isLoading stays true)…
+      submitCommand(view.container, 'add a widget')
+      await waitFor(() => {
+        expect(turnStarted, 'the stub turn must actually start streaming').toBe(true)
+      })
+      // …then signal a file mutation: the countdown arms at 1s but is HELD.
+      view.rerender(wrap(1))
+
+      // Well past the 1s cadence, nothing may commit while the turn streams.
+      await new Promise((resolve) => setTimeout(resolve, 2500))
+      expect(commitSpy).not.toHaveBeenCalled()
+
+      // Finish the turn: the hold clears, the countdown resumes, /commit fires.
+      releaseTurn()
+      await waitFor(
+        () => {
+          expect(commitSpy).toHaveBeenCalledWith(`/projects/${PROJECT_ID}/commit`, undefined)
+        },
+        { timeout: 6000 },
+      )
+      expect(commitSpy).toHaveBeenCalledTimes(1)
+    },
+  )
 })

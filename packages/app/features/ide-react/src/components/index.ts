@@ -7,6 +7,7 @@
 export * from './activity-utilities.js'
 export type { ActivityCardProps } from './ActivityCard.js'
 export { ActivityCard } from './ActivityCard.js'
+export * from './chat-autocommit-utilities.js'
 export { ChatPanel } from './ChatPanel.js'
 export { CommandPalette } from './CommandPalette.js'
 export * from './device-cycle.js'

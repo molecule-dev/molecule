@@ -4,8 +4,8 @@
  *
  * Mirrors {@link module:./command-metadata}: this module deliberately imports
  * **nothing** that pulls in React or i18n (only the `CommandId` *type* from the
- * sibling command registry), so it can be consumed on *either* side of the
- * api/app boundary. The IDE `/settings` card derives its rows from
+ * sibling command registry and the pure auto-commit default constant), so it
+ * can be consumed on *either* side of the api/app boundary. The IDE `/settings` card derives its rows from
  * {@link SETTINGS} here (zipping in live, display-ready values via
  * `buildSettingsList`), and the molecule.dev API system prompt can import the
  * SAME array through the package's `./settings-metadata` subpath export to
@@ -36,6 +36,7 @@
  */
 
 import type { CommandId } from './command-metadata.js'
+import { DEFAULT_AUTO_COMMIT_SECONDS } from './components/chat-autocommit-utilities.js'
 
 /** Stable ids for each user-controllable setting (also the i18n key suffix). */
 export type SettingKey =
@@ -141,8 +142,7 @@ export const SETTINGS: readonly SettingMeta[] = [
   {
     id: 'autoCommit',
     label: 'Auto-commit',
-    description:
-      'Automatically commit your work a set number of seconds after the last file change (0 = off). Each change restarts the countdown, then it pauses after committing so a clean tree is never re-committed.',
+    description: `Automatically commit your work a set number of seconds after the last file change — on by default (${DEFAULT_AUTO_COMMIT_SECONDS}s; 0 = off), and it waits until {{agentName}} finishes its turn before committing. Each change restarts the countdown, then it pauses after committing so a clean tree is never re-committed.`,
     editCommand: 'autocommit',
   },
   {
