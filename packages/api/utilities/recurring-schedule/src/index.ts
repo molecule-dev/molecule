@@ -45,5 +45,6 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './engine.js'
 export * from './types.js'

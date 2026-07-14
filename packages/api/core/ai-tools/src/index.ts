@@ -16,6 +16,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './backends/local.js'
 export * from './backends/sandbox.js'
 export * from './schemas.js'

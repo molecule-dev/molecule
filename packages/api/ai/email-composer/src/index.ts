@@ -13,6 +13,7 @@
 import { requireProvider as requireAI } from '@molecule/api-ai'
 
 /** Tone preset controlling the voice and register of the generated email. */
+export * from './browser-guard.js'
 export type EmailTone =
   | 'professional'
   | 'friendly'

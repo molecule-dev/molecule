@@ -59,6 +59,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './keys.js'
 export * from './provider.js'
 export * from './types.js'

@@ -20,6 +20,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './response.js'
 export * from './schemas.js'
 export * from './types.js'

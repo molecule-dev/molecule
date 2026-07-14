@@ -27,6 +27,7 @@
  * ```
  */
 
+export * from './browser-guard.js'
 export * from './notification-center.js'
 export * from './provider.js'
 export * from './types.js'

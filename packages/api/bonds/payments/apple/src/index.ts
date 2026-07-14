@@ -45,6 +45,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './appleRootCertificate.js'
 export * from './bondAdapter.js'
 export * from './jws.js'

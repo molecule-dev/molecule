@@ -35,6 +35,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './mixpanel.js'
 export * from './provider.js'
 export * from './secrets.js'

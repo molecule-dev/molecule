@@ -46,6 +46,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './parseFeed.js'
 export * from './sanitize.js'
 export * from './types.js'

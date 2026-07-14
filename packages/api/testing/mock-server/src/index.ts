@@ -70,6 +70,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './fixtures/index.js'
 export * from './scanner/index.js'
 export * from './server/index.js'

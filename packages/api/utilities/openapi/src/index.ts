@@ -89,6 +89,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './defineOpenApi.js'
 export * from './handler.js'
 export * from './routeToOperation.js'

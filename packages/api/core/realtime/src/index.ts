@@ -85,6 +85,7 @@
  *   the client reconnects and live events flow again.
  */
 
+export * from './browser-guard.js'
 export * from './provider.js'
 export * from './realtime.js'
 export * from './types.js'

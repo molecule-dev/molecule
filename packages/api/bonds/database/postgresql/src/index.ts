@@ -29,6 +29,7 @@ import pg from 'pg'
 import { getLogger } from '@molecule/api-bond'
 import type { DatabaseConfig, DatabaseConnection, DatabasePool } from '@molecule/api-database'
 
+export * from './browser-guard.js'
 export * from './migrator.js'
 export * from './secrets.js'
 export * as setup from './setup/index.js'

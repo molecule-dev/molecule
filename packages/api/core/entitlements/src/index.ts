@@ -50,6 +50,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './cache.js'
 export * from './error.js'
 export * from './middleware.js'

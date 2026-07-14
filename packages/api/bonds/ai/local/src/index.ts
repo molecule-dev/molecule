@@ -13,6 +13,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export { createProvider, LocalAIProvider } from './provider.js'
 export * from './secrets.js'
 export * from './types.js'

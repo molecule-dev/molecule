@@ -36,6 +36,7 @@
 import { hasProvider as hasAI, requireProvider as requireAI } from '@molecule/api-ai'
 
 /** Union of all supported step type discriminants. */
+export * from './browser-guard.js'
 export type WorkflowStepType = 'condition' | 'action' | 'delay' | 'http' | 'ai_prompt'
 
 /** A step that evaluates a JS expression and short-circuits the run on false. */

@@ -62,5 +62,6 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './generator.js'
 export * from './workflows/index.js'

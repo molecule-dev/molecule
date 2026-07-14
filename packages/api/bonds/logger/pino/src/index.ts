@@ -38,6 +38,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './pino.js'
 export * from './provider.js'
 export * from './types.js'

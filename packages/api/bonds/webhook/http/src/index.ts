@@ -22,6 +22,7 @@
  * ```
  */
 
+export * from './browser-guard.js'
 export * from './provider.js'
 export * from './safe-fetch.js'
 export * from './types.js'

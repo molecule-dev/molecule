@@ -26,4 +26,5 @@
  *   scope; `flush()` trivially resolves `true` (nothing is buffered).
  */
 
+export * from './browser-guard.js'
 export * from './provider.js'

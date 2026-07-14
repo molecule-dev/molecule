@@ -28,6 +28,7 @@ import { bond, get as bondGet, isBonded } from '@molecule/api-bond'
  * @param res - The response object.
  * @param next - The next middleware function.
  */
+export * from './browser-guard.js'
 export type Middleware = (req: unknown, res: unknown, next: (err?: unknown) => void) => void
 
 /** Options for cookie parsing. */

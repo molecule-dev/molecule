@@ -50,6 +50,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './engine.js'
 export * from './graders.js'
 export * from './normalize.js'

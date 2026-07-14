@@ -38,6 +38,7 @@ import {
 } from '@molecule/api-ai-image-generation'
 
 /** Union of terminal + intermediate image-generation states. */
+export * from './browser-guard.js'
 export type GenerationStatus = 'succeeded' | 'failed' | 'queued'
 
 /** Normalized outcome returned by {@link runImageGeneration} for all terminal states. */

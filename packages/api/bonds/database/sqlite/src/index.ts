@@ -36,6 +36,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './migrator.js'
 export * from './pool.js'
 export * from './secrets.js'

@@ -83,6 +83,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './errors.js'
 export * from './provider.js'
 export * from './types.js'

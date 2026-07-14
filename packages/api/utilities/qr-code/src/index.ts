@@ -64,6 +64,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './buildMatrix.js'
 export * from './generateQrCode.js'
 export * from './handler.js'

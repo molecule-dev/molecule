@@ -49,6 +49,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './escape.js'
 export * from './handler.js'
 export * from './serializeAtom1.js'

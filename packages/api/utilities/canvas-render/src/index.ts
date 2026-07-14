@@ -64,6 +64,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './handler.js'
 export * from './renderCanvasDocument.js'
 export * from './renderPdf.js'

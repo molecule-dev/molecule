@@ -7,6 +7,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './esign.js'
 export * from './provider.js'
 export * from './types.js'

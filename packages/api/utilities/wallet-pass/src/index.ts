@@ -35,6 +35,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './createApplePass.js'
 export * from './createGoogleWalletJwt.js'
 export * from './handlers.js'

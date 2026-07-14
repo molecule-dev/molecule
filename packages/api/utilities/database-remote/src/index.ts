@@ -62,6 +62,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './connect.js'
 export * from './driverTypes.js'
 export * from './keywords.js'

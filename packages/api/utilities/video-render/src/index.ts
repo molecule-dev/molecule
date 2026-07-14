@@ -115,6 +115,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './buildFfmpegArgs.js'
 export * from './ffmpeg.js'
 export * from './handler.js'

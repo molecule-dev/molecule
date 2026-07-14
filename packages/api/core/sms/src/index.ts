@@ -32,6 +32,7 @@
  *   updates on that endpoint instead of polling.
  */
 
+export * from './browser-guard.js'
 export * from './provider.js'
 export * from './sms.js'
 export * from './types.js'

@@ -46,6 +46,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './bodyStructure.js'
 export * from './client.js'
 export * from './driverTypes.js'

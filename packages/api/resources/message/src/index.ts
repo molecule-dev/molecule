@@ -29,6 +29,7 @@
  * {@link MESSAGE_REALTIME_EVENTS} payloads.
  */
 
+export * from './browser-guard.js'
 export * from './authorizers/index.js'
 export * from './handlers/index.js'
 export * from './requestHandlerMap.js'

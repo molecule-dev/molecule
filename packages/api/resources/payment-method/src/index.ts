@@ -20,6 +20,7 @@
  * ```
  */
 
+export * from './browser-guard.js'
 export * from './i18n.js'
 export * from './requestHandlerMap.js'
 export * from './routes.js'

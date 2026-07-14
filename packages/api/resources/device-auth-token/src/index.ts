@@ -31,6 +31,7 @@
  * @module `@molecule/api-resource-device-auth-token`
  */
 
+export * from './browser-guard.js'
 export * from './resource.js'
 export * from './service.js'
 export * from './types.js'

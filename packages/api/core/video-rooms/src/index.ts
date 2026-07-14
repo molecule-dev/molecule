@@ -38,6 +38,7 @@
  * ```
  */
 
+export * from './browser-guard.js'
 export * from './provider.js'
 export * from './types.js'
 export * from './video-rooms.js'

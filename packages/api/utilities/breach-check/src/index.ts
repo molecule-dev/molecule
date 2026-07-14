@@ -26,6 +26,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './checkPassword.js'
 export * from './sha1Prefix.js'
 export * from './types.js'

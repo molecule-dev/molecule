@@ -39,6 +39,7 @@
  */
 
 // Type exports
+export * from './browser-guard.js'
 export * from './types.js'
 
 // Provider exports

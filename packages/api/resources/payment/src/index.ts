@@ -27,6 +27,7 @@
  * @module `@molecule/api-resource-payment`
  */
 
+export * from './browser-guard.js'
 export * from './i18n.js'
 export * from './plans.js'
 export * from './planService.js'

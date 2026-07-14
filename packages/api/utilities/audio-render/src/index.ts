@@ -64,6 +64,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './ffmpegCommand.js'
 export * from './handlers.js'
 export * from './jobStore.js'

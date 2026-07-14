@@ -50,6 +50,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './fetcher.js'
 export * from './parse.js'
 export * from './preview.js'

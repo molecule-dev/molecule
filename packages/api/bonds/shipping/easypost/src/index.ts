@@ -26,6 +26,7 @@
  * `EASYPOST_API_URL` to override the base URL (sandbox / proxy).
  */
 
+export * from './browser-guard.js'
 export * from './provider.js'
 export * from './secrets.js'
 export * from './types.js'

@@ -60,6 +60,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './discover.js'
 export * from './fetcher.js'
 export * from './oembed.js'

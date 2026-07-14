@@ -27,4 +27,5 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './parser.js'

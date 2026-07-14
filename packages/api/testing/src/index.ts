@@ -16,6 +16,7 @@
  * (or the empty `{ rows: [], rowCount: 0 }` default).
  */
 
+export * from './browser-guard.js'
 export * from './fixtures/index.js'
 export * from './helpers/index.js'
 export * from './mocks/index.js'

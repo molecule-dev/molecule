@@ -49,5 +49,6 @@
  *   encodings, and special characters come back unchanged.
  */
 
+export * from './browser-guard.js'
 export * from './provider.js'
 export * from './types.js'

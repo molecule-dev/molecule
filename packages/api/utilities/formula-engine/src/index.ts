@@ -55,6 +55,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './dependencies.js'
 export * from './evaluator.js'
 export * from './functions.js'

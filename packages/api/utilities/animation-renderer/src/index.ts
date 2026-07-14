@@ -82,6 +82,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './handler.js'
 export * from './interpolate.js'
 export * from './lottie.js'

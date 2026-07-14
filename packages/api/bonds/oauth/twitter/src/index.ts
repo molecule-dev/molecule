@@ -58,6 +58,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './authorize.js'
 export * from './secrets.js'
 export * from './types.js'

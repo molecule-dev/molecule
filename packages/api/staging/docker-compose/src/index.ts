@@ -51,6 +51,7 @@
  */
 
 // Compose generator
+export * from './browser-guard.js'
 export * from './compose-generator.js'
 
 // Provider exports

@@ -57,6 +57,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * as authorization from './authorization.js'
 export * as authorizers from './authorizers/index.js'
 export * as handlers from './handlers/index.js'

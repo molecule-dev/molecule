@@ -22,6 +22,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './m3u8.js'
 export * from './provider.js'
 export * from './types.js'

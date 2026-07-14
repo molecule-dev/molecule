@@ -51,6 +51,7 @@
  *   provider-specific (e.g. Sentry) scope objects through this interface.
  */
 
+export * from './browser-guard.js'
 export * from './error-tracking.js'
 export * from './provider.js'
 export * from './types.js'

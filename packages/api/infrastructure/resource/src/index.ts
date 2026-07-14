@@ -69,6 +69,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './create.js'
 export * from './createRequestHandler.js'
 export * from './del.js'

@@ -32,6 +32,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './defaults.js'
 export * from './registry.js'
 export * from './render.js'

@@ -51,6 +51,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './calculate.js'
 export * from './federal.js'
 export * from './fica.js'

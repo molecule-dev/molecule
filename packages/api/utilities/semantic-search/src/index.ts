@@ -30,5 +30,6 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './search.js'
 export * from './types.js'

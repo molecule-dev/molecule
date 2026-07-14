@@ -12,6 +12,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './handlers/index.js'
 export * from './lookup.js'
 export * from './models.js'

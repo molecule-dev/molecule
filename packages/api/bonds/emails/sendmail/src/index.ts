@@ -35,6 +35,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './provider.js'
 export * from './sendMail.js'
 export * from './transport.js'

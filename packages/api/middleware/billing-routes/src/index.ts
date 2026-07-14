@@ -32,6 +32,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './routes.js'
 export * from './secrets.js'
 export * from './tiers.js'

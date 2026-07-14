@@ -22,6 +22,7 @@
  * ```
  */
 
+export * from './browser-guard.js'
 export * from './aggregate.js'
 export * from './authorizers/index.js'
 export * from './handlers/index.js'

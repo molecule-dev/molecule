@@ -27,6 +27,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './logger.js'
 export * from './provider.js'
 export * from './types.js'

@@ -106,6 +106,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './errors.js'
 export * from './subscription.js'
 export * from './types.js'

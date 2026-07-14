@@ -31,6 +31,7 @@
  * row records only the BUYER (`userId`), so it cannot know who the seller is.
  */
 
+export * from './browser-guard.js'
 export * from './authorizers/index.js'
 export * from './handlers/index.js'
 export * from './i18n.js'

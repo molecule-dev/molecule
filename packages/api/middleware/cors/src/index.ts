@@ -29,5 +29,6 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './cors.js'
 export * from './types.js'

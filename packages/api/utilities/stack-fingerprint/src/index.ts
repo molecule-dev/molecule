@@ -27,6 +27,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './fingerprintError.js'
 export * from './groupErrors.js'
 export * from './normalizeFrame.js'

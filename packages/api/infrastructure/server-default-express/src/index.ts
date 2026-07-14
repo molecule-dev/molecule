@@ -32,4 +32,5 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './server.js'

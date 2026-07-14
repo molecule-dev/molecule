@@ -27,6 +27,7 @@
  * @module `@molecule/api-resource-api-key`
  */
 
+export * from './browser-guard.js'
 export * from './i18n.js'
 export * from './resource.js'
 export * from './service.js'

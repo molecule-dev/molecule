@@ -60,6 +60,7 @@
  * ```
  */
 
+export * from './browser-guard.js'
 export * from './authorizers/index.js'
 export * from './diff.js'
 export * from './handlers/index.js'

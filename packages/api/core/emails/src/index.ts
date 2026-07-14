@@ -50,6 +50,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './email.js'
 export * from './provider.js'
 export * from './types.js'

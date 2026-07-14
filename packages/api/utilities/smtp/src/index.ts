@@ -44,5 +44,6 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './connect.js'
 export * from './types.js'

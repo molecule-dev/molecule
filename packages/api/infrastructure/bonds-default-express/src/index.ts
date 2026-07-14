@@ -27,6 +27,7 @@
  *   realtime bonds by mirroring this pattern exactly.
  */
 
+export * from './browser-guard.js'
 export * from './billing.js'
 export * from './handlers.js'
 export * from './middleware.js'

@@ -26,5 +26,6 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './pipeline.js'
 export * from './types.js'

@@ -29,6 +29,7 @@
 import { requireProvider as requireAI } from '@molecule/api-ai'
 
 /** Union of supported quiz question formats. */
+export * from './browser-guard.js'
 export type QuestionType = 'multiple_choice' | 'true_false' | 'short_answer' | 'fill_in_the_blank'
 /** Relative difficulty level for a question or generated quiz. */
 export type Difficulty = 'easy' | 'medium' | 'hard'

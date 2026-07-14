@@ -66,6 +66,7 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './handler.js'
 export * from './serialize.js'
 export * from './types.js'
