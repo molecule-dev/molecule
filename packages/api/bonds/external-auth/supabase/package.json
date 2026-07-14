@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/api-external-auth-supabase",
+  "version": "1.0.0",
+  "description": "External authentication provider using Supabase for molecule.dev — verifies Supabase user JWTs server-side with the public anon key",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "external-auth",
+    "supabase",
+    "auth",
+    "provider"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "2.110.5"
+  },
+  "peerDependencies": {
+    "@molecule/api-external-auth": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-external-auth": "1.0.0",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/external-auth/supabase"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/external-auth/supabase",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
