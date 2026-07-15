@@ -7,7 +7,7 @@ Analytics middleware for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-middleware-analytics
+npm install @molecule/api-middleware-analytics @molecule/api-bond
 ```
 
 ## API
@@ -48,3 +48,7 @@ function createAnalyticsMiddleware(options?: AnalyticsMiddlewareOptions): (req: 
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`

@@ -36,7 +36,7 @@ const series = await timeSeries({
 
 ## Installation
 ```bash
-npm install @molecule/api-reporting
+npm install @molecule/api-reporting @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -423,6 +423,11 @@ function timeSeries(query: TimeSeriesQuery): Promise<TimeSeriesResult>
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 ## E2E Tests
 

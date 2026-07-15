@@ -55,7 +55,7 @@ Twitter OAuth provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-oauth-twitter
+npm install @molecule/api-oauth-twitter @molecule/api-bond @molecule/api-http @molecule/api-oauth @molecule/api-secrets
 ```
 
 ## API
@@ -282,6 +282,13 @@ Peer dependencies:
 - `OAUTH_TWITTER_CLIENT_SECRET` *(required)* — X (Twitter) OAuth client secret
   - Setup: Shown when enabling OAuth 2.0 for your app in the X developer portal.
   - Get it here: [https://developer.x.com/en/portal/dashboard](https://developer.x.com/en/portal/dashboard)
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-http`
+- `@molecule/api-oauth`
+- `@molecule/api-secrets`
 
 The token exchange (`verify`'s call to X's token endpoint) is
 `application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 and X's own docs —

@@ -29,7 +29,7 @@ if (result.success && result.product) {
 
 ## Installation
 ```bash
-npm install @molecule/app-iap
+npm install @molecule/app-iap @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -669,6 +669,11 @@ const errorMessages: Record<string, string>
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

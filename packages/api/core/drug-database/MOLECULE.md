@@ -25,7 +25,7 @@ const interactions = await checkInteractions(['860975', '1191'])
 
 ## Installation
 ```bash
-npm install @molecule/api-drug-database
+npm install @molecule/api-drug-database @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -397,3 +397,8 @@ function setProvider(provider: DrugDatabaseProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

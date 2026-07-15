@@ -11,7 +11,7 @@ Supports accelerometer, gyroscope, and device orientation.
 
 ## Installation
 ```bash
-npm install @molecule/app-motion
+npm install @molecule/app-motion @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -504,6 +504,11 @@ function startOrientation(callback: (data: OrientationData) => void, options?: S
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

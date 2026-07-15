@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-workflow-database
+npm install @molecule/api-workflow-database @molecule/api-database @molecule/api-i18n @molecule/api-workflow
 ```
 
 ## API
@@ -128,3 +128,9 @@ Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-workflow` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-workflow`

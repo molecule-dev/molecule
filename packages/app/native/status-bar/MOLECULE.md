@@ -7,7 +7,7 @@ Status bar customization interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-status-bar
+npm install @molecule/app-status-bar @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -365,6 +365,11 @@ const presets: { readonly light: { readonly backgroundColor: "#ffffff"; readonly
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

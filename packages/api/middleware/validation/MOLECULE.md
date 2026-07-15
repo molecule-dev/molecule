@@ -24,7 +24,7 @@ router.get('/posts', validate({ query: paginationSchema }), listPosts)
 
 ## Installation
 ```bash
-npm install @molecule/api-middleware-validation zod
+npm install @molecule/api-middleware-validation @molecule/api-bond @molecule/api-i18n zod
 ```
 
 ## API
@@ -251,4 +251,6 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 - `zod`

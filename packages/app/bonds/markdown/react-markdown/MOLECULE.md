@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-markdown-react-markdown
+npm install @molecule/app-markdown-react-markdown @molecule/app-markdown
 ```
 
 ## API
@@ -86,3 +86,7 @@ export function setupMarkdownReactMarkdown(): void {
 
 Peer dependencies:
 - `@molecule/app-markdown` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-markdown`

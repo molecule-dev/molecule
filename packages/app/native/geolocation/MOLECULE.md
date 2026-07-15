@@ -10,7 +10,7 @@ different platforms (web, Capacitor, React Native, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-geolocation
+npm install @molecule/app-geolocation @molecule/app-bond
 ```
 
 ## API
@@ -376,6 +376,10 @@ function watchPosition(onSuccess: PositionCallback, onError?: ErrorCallback, opt
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 Location is sensitive, permissioned data — treat it carefully:
 

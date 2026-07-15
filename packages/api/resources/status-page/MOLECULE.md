@@ -7,7 +7,7 @@ Status page resource for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-status-page
+npm install @molecule/api-resource-status-page @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-status-page @molecule/api-monitoring @molecule/api-notifications @molecule/api-permissions @molecule/api-resource @molecule/api-scheduler zod
 ```
 
 ## API
@@ -295,3 +295,16 @@ Peer dependencies:
 - `@molecule/api-resource` ^1.0.0
 - `@molecule/api-scheduler` ^1.0.0
 - `@molecule/api-locales-status-page` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-status-page`
+- `@molecule/api-monitoring`
+- `@molecule/api-notifications`
+- `@molecule/api-permissions`
+- `@molecule/api-resource`
+- `@molecule/api-scheduler`
+- `zod`

@@ -40,7 +40,7 @@ await client.disconnect()
 
 ## Installation
 ```bash
-npm install @molecule/api-imap
+npm install @molecule/api-imap imapflow
 ```
 
 ## API
@@ -657,6 +657,10 @@ function parseHeaders(raw: string | Uint8Array<ArrayBufferLike> | undefined): Re
 **Returns:** Header map keyed by lower-cased name.
 
 ## Injection Notes
+
+### Runtime Dependencies
+
+- `imapflow`
 
 Locale bonds are intentionally not used — error messages on the thrown
 {@link ImapError} are developer-facing English (handler-error pattern).

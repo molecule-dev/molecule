@@ -33,7 +33,7 @@ if (score.score >= 1000) {
 
 ## Installation
 ```bash
-npm install @molecule/api-reputation
+npm install @molecule/api-reputation @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
 
 ## API
@@ -298,3 +298,10 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-resource`

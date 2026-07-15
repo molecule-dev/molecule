@@ -55,7 +55,7 @@ const { answer, sources, usage } = await requireProvider().query({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-rag-llm
+npm install @molecule/api-ai-rag-llm @molecule/api-ai @molecule/api-ai-rag @molecule/api-i18n @molecule/api-semantic-search
 ```
 
 ## API
@@ -100,6 +100,13 @@ Peer dependencies:
 - `@molecule/api-ai-rag` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-semantic-search` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-ai-rag`
+- `@molecule/api-i18n`
+- `@molecule/api-semantic-search`
 
 This provider needs THREE bonds present at runtime: a `ai` chat provider
 (generation) plus the `ai-embeddings` and `ai-vector-store` providers

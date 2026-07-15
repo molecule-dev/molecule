@@ -54,7 +54,8 @@ function UserDashboard() {
 
 ## Installation
 ```bash
-npm install @molecule/app-react
+npm install @molecule/app-react @molecule/app-ai-chat @molecule/app-ai-models @molecule/app-auth @molecule/app-code-editor @molecule/app-device @molecule/app-forms @molecule/app-http @molecule/app-i18n @molecule/app-ide @molecule/app-live-preview @molecule/app-logger @molecule/app-platform @molecule/app-push @molecule/app-routing @molecule/app-state @molecule/app-storage @molecule/app-theme @molecule/app-ui @molecule/app-utilities @molecule/app-version react
+npm install -D @types/react
 ```
 
 ## API
@@ -664,6 +665,14 @@ interface SendMessageOptions {
    * sets) so resolving never misfires on a non-ask_user suppressed send.
    */
   askUserAnswer?: boolean
+  /**
+   * Mark an {@link automatic} send as directly requested by the user (e.g. the
+   * editor's "Fix with AI" action, the broken-preview overlay's "Fix with AI"
+   * button) rather than dispatched autonomously by the platform. A user Stop
+   * suppresses autonomous automatic sends until the user re-engages; a
+   * user-initiated one IS that re-engagement — it clears the stop and sends.
+   */
+  userInitiated?: boolean
 }
 ```
 
@@ -865,6 +874,22 @@ Hook result for useChat.
 interface UseChatResult {
   messages: ChatMessage[]
   isLoading: boolean
+  /**
+   * True while a backend turn for this conversation streams WITHOUT this client
+   * owning the request — a turn started in another tab, by a teammate, or any
+   * server-side continuation. Detected from pushed (broadcast) chat events and
+   * confirmed/cleared against the server's `streaming` history flag, so the Stop
+   * control can stay visible and functional whenever ANY backend turn is live —
+   * not only for sends this hook instance made.
+   */
+  isRemoteStreaming: boolean
+  /**
+   * Tell the hook a pushed (broadcast) chat event arrived for this conversation.
+   * The host (ChatPanel) calls this from its push-channel handler; the hook then
+   * confirms against the server's `streaming` flag and, while a remote turn is
+   * live, keeps `isRemoteStreaming` true until the server reports it finished.
+   */
+  noteRemoteStreamEvent: () => void
   error: string | null
   /** Metadata about a limit-related error (for contextual upgrade CTAs). */
   errorMeta: { limitType?: string; requiresSignup?: boolean } | null
@@ -2492,6 +2517,30 @@ Peer dependencies:
 - `@molecule/app-code-editor` ^1.0.0
 - `@molecule/app-live-preview` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-ai-chat`
+- `@molecule/app-ai-models`
+- `@molecule/app-auth`
+- `@molecule/app-code-editor`
+- `@molecule/app-device`
+- `@molecule/app-forms`
+- `@molecule/app-http`
+- `@molecule/app-i18n`
+- `@molecule/app-ide`
+- `@molecule/app-live-preview`
+- `@molecule/app-logger`
+- `@molecule/app-platform`
+- `@molecule/app-push`
+- `@molecule/app-routing`
+- `@molecule/app-state`
+- `@molecule/app-storage`
+- `@molecule/app-theme`
+- `@molecule/app-ui`
+- `@molecule/app-utilities`
+- `@molecule/app-version`
+- `react`
 
 ## Translations
 

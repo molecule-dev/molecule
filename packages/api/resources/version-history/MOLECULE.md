@@ -51,7 +51,7 @@ await createVersion({
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-version-history
+npm install @molecule/api-resource-version-history @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
 
 ## API
@@ -668,6 +668,14 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-resource`
+- `zod`
 
 **Security — the raw routes are NOT open.** Snapshots can contain any
 tenant's data, so every route requires an authenticated session AND each

@@ -26,7 +26,7 @@ const config = defineConfig(createDefaultViteConfig({ APP_NAME, APP_DESCRIPTION,
 
 ## Installation
 ```bash
-npm install @molecule/app-vite-config-default
+npm install @molecule/app-vite-config-default @tailwindcss/vite @vitejs/plugin-react vite vite-plugin-pwa
 ```
 
 ## API
@@ -114,3 +114,10 @@ Peer dependencies:
 - `@vitejs/plugin-react` ^4.0.0 || ^5.0.0
 - `vite` ^5.0.0 || ^6.0.0 || ^7.0.0
 - `vite-plugin-pwa` ^0.20.0 || ^1.0.0
+
+### Runtime Dependencies
+
+- `@tailwindcss/vite`
+- `@vitejs/plugin-react`
+- `vite`
+- `vite-plugin-pwa`

@@ -22,7 +22,8 @@ import { ReputationBadge, BadgeShelf } from '@molecule/app-reputation-badge-reac
 
 ## Installation
 ```bash
-npm install @molecule/app-reputation-badge-react
+npm install @molecule/app-reputation-badge-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
+npm install -D @types/react
 ```
 
 ## API
@@ -199,6 +200,13 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `@molecule/app-ui-react`
+- `react`
 
 Pairs with the (deferred) `@molecule/api-reputation` core package for
 server-side score/badge issuance.

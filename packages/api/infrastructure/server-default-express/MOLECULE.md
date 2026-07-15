@@ -36,7 +36,8 @@ await create()
 
 ## Installation
 ```bash
-npm install @molecule/api-server-default-express
+npm install @molecule/api-server-default-express @molecule/api-error-tracking @molecule/api-logger @molecule/api-middleware-body-parser @molecule/api-middleware-cookie-parser @molecule/api-middleware-cors @molecule/api-secrets express
+npm install -D @types/express
 ```
 
 ## API
@@ -232,3 +233,13 @@ Peer dependencies:
 - `@molecule/api-middleware-cors` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 - `express` ^4.0.0 || ^5.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-error-tracking`
+- `@molecule/api-logger`
+- `@molecule/api-middleware-body-parser`
+- `@molecule/api-middleware-cookie-parser`
+- `@molecule/api-middleware-cors`
+- `@molecule/api-secrets`
+- `express`

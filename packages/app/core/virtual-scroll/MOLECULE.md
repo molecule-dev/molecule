@@ -27,7 +27,7 @@ const totalSize = virtualizer.getTotalSize()
 
 ## Installation
 ```bash
-npm install @molecule/app-virtual-scroll
+npm install @molecule/app-virtual-scroll @molecule/app-bond
 ```
 
 ## API
@@ -329,6 +329,10 @@ function setProvider(provider: VirtualScrollProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 ## E2E Tests
 

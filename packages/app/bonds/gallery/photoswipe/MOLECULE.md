@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-gallery-photoswipe
+npm install @molecule/app-gallery-photoswipe @molecule/app-gallery
 ```
 
 ## API
@@ -86,3 +86,7 @@ export function setupGalleryPhotoswipe(): void {
 
 Peer dependencies:
 - `@molecule/app-gallery` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-gallery`

@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-pdf-puppeteer
+npm install @molecule/api-pdf-puppeteer @molecule/api-pdf pdf-lib puppeteer
 ```
 
 ## API
@@ -123,3 +123,9 @@ export function setupPdfPuppeteer(): void {
 
 Peer dependencies:
 - `@molecule/api-pdf` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-pdf`
+- `pdf-lib`
+- `puppeteer`

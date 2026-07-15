@@ -7,7 +7,7 @@ Axios HTTP client provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-http-axios
+npm install @molecule/api-http-axios @molecule/api-http axios
 ```
 
 ## API
@@ -327,3 +327,8 @@ export function setupHttpAxios(): void {
 
 Peer dependencies:
 - `@molecule/api-http` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-http`
+- `axios`

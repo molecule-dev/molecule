@@ -30,7 +30,8 @@ if (missing.length) console.warn('Could not extract:', missing)
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-document-extraction
+npm install @molecule/api-ai-document-extraction @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -102,3 +103,13 @@ Peer dependencies:
 - `express` ^5.0.0
 - `zod` ^4.0.0
 - `@molecule/api-ai` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-validation`
+- `express`
+- `zod`

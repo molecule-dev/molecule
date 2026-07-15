@@ -30,7 +30,8 @@ await recordPayment(inv.id, userId, 2710.00) // marks paid
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-invoice
+npm install @molecule/api-resource-invoice @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -230,6 +231,15 @@ Peer dependencies:
 - `@molecule/api-middleware-validation` ^1.0.0
 - `express` ^5.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-validation`
+- `express`
+- `zod`
 
 Run `src/__setup__/invoices.sql` once. The bundled `computeTotals(items, taxRate)`
 helper is exported for client-side total previews.

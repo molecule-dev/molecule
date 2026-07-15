@@ -10,7 +10,7 @@ routing libraries (React Router, Next.js, Vue Router, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-routing
+npm install @molecule/app-routing @molecule/app-bond @molecule/app-i18n @molecule/app-logger
 ```
 
 ## API
@@ -513,6 +513,12 @@ Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
 
 Navigate and read the location through this abstraction ({@link navigate}, {@link getParams},
 {@link getQuery}, or the framework hook) — do NOT `import` react-router / vue-router directly

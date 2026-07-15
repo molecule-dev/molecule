@@ -38,7 +38,7 @@ const offers = await getHotelOffers(hits[0].hotelId, {
 
 ## Installation
 ```bash
-npm install @molecule/api-hotels
+npm install @molecule/api-hotels @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -588,3 +588,8 @@ function setProvider(provider: HotelsProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

@@ -38,7 +38,7 @@ setProvider(registry)
 
 ## Installation
 ```bash
-npm install @molecule/api-entitlements
+npm install @molecule/api-entitlements @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-rate-limit
 ```
 
 ## API
@@ -577,6 +577,13 @@ Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-rate-limit` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-rate-limit`
 
 ## E2E Tests
 

@@ -17,7 +17,8 @@ setJsonParserFactory(jsonParserFactory)
 
 ## Installation
 ```bash
-npm install @molecule/api-middleware-body-parser-express
+npm install @molecule/api-middleware-body-parser-express @molecule/api-bond @molecule/api-i18n @molecule/api-middleware-body-parser connect-busboy express
+npm install -D @types/connect-busboy @types/express
 ```
 
 ## API
@@ -79,3 +80,11 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-middleware-body-parser` ^1.0.0
 - `express` ^5.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-body-parser`
+- `connect-busboy`
+- `express`

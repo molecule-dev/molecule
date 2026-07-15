@@ -23,7 +23,7 @@ const xml = await generate()
 
 ## Installation
 ```bash
-npm install @molecule/api-sitemap-xml
+npm install @molecule/api-sitemap-xml @molecule/api-sitemap
 ```
 
 ## API
@@ -167,3 +167,7 @@ export function setupSitemapXml(): void {
 
 Peer dependencies:
 - `@molecule/api-sitemap` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-sitemap`

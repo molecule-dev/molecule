@@ -30,7 +30,7 @@ if (result.status === 'succeeded') console.log(result.imageUrl)
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-image-generation-pipeline
+npm install @molecule/api-ai-image-generation-pipeline @molecule/api-ai @molecule/api-ai-image-generation
 ```
 
 ## API
@@ -99,8 +99,6 @@ interface RunImageGenerationOptions {
 
 #### `GenerationStatus`
 
-Union of terminal + intermediate image-generation states.
-
 ```typescript
 type GenerationStatus = 'succeeded' | 'failed' | 'queued'
 ```
@@ -155,3 +153,8 @@ function runImageGeneration(opts: RunImageGenerationOptions): Promise<ImageGener
 Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-ai-image-generation` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-ai-image-generation`

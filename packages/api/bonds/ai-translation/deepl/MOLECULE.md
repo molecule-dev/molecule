@@ -7,7 +7,7 @@ DeepL translation provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-translation-deepl
+npm install @molecule/api-ai-translation-deepl @molecule/api-ai-translation @molecule/api-secrets
 ```
 
 ## API
@@ -76,3 +76,8 @@ Peer dependencies:
   - Setup: Copy the authentication key from your DeepL account (free keys end with ":fx").
   - Get it here: [https://www.deepl.com/en/your-account/keys](https://www.deepl.com/en/your-account/keys)
   - Example: `279a2e9d-...:fx`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai-translation`
+- `@molecule/api-secrets`

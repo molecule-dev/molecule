@@ -30,7 +30,7 @@ export function RevenueChart() {
 
 ## Installation
 ```bash
-npm install @molecule/app-charts
+npm install @molecule/app-charts @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -842,6 +842,11 @@ const provider: ChartProvider
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` 1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## E2E Tests
 

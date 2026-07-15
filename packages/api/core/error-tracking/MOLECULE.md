@@ -41,7 +41,7 @@ captureMessage('Payment retry queue is backing up', 'warning')
 
 ## Installation
 ```bash
-npm install @molecule/api-error-tracking
+npm install @molecule/api-error-tracking @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -292,6 +292,11 @@ function setUser(user: ErrorTrackingUser | null): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 - **The convenience functions NEVER throw and no-op when unbonded.** Error
   tracking is a diagnostic side-channel: an app without a bonded tracker

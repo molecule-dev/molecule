@@ -7,7 +7,7 @@ Docker code-sandbox provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-code-sandbox-docker
+npm install @molecule/api-code-sandbox-docker @molecule/api-bond @molecule/api-code-sandbox @molecule/api-i18n
 ```
 
 ## API
@@ -147,6 +147,12 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-code-sandbox` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-code-sandbox`
+- `@molecule/api-i18n`
 
 **Tenant network isolation (secure default).** Each sandbox is placed on a dedicated
 user-defined Docker network created with inter-container communication DISABLED

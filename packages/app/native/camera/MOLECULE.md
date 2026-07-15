@@ -10,7 +10,7 @@ different platforms (web, Capacitor, React Native, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-camera
+npm install @molecule/app-camera @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -460,6 +460,11 @@ function stopPreview(): Promise<void>
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 Camera access needs an OS/browser permission — get this right or the feature silently fails:
 

@@ -24,7 +24,7 @@ await notifyAll({
 
 ## Installation
 ```bash
-npm install @molecule/api-notifications
+npm install @molecule/api-notifications @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -166,6 +166,11 @@ function setProvider(name: string, provider: NotificationsProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 `notifyAll()` fans out to every bonded channel CONCURRENTLY
 (`Promise.allSettled`), not serially — a slow or hanging channel does not

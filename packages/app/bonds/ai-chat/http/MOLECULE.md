@@ -7,7 +7,7 @@ HTTP/SSE AI chat provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-chat-http
+npm install @molecule/app-ai-chat-http @molecule/app-ai-chat @molecule/app-i18n
 ```
 
 ## API
@@ -81,6 +81,11 @@ export function setupAiChatHttp(): void {
 Peer dependencies:
 - `@molecule/app-ai-chat` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-ai-chat`
+- `@molecule/app-i18n`
 
 POSTs each message to YOUR backend chat endpoint (`config.endpoint`, a RELATIVE path like
 `/api/ai/chat` on the app's `baseUrl`) and reads the reply as an SSE stream — it does NOT talk

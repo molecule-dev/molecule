@@ -24,7 +24,7 @@ if (apiKey) {
 
 ## Installation
 ```bash
-npm install @molecule/app-analytics-posthog
+npm install @molecule/app-analytics-posthog @molecule/app-analytics posthog-js
 ```
 
 ## API
@@ -238,6 +238,11 @@ Peer dependencies:
 - `VITE_POSTHOG_HOST` *(optional)* — PostHog host — default: `https://app.posthog.com`
   - Setup: Origin of your PostHog instance (US cloud, EU cloud, or self-hosted). Browser-side (VITE_ prefix required).
   - Example: `https://us.i.posthog.com`
+
+### Runtime Dependencies
+
+- `@molecule/app-analytics`
+- `posthog-js`
 
 The provider does NOT read env itself — configuration flows in through
 `createProvider(options)`. The canonical env names are `VITE_POSTHOG_KEY`

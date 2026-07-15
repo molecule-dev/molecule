@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-image-crop-cropperjs
+npm install @molecule/app-image-crop-cropperjs @molecule/app-image-crop
 ```
 
 ## API
@@ -86,3 +86,7 @@ export function setupImageCropCropperjs(): void {
 
 Peer dependencies:
 - `@molecule/app-image-crop` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-image-crop`

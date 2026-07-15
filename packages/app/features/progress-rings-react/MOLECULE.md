@@ -29,7 +29,8 @@ import { ProgressRings } from '@molecule/app-progress-rings-react'
 
 ## Installation
 ```bash
-npm install @molecule/app-progress-rings-react
+npm install @molecule/app-progress-rings-react @molecule/app-react @molecule/app-ui react
+npm install -D @types/react
 ```
 
 ## API
@@ -125,6 +126,12 @@ Peer dependencies:
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `react`
 
 ## Translations
 

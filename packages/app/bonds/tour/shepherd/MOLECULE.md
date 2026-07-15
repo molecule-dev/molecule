@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-tour-shepherd
+npm install @molecule/app-tour-shepherd @molecule/app-tour
 ```
 
 ## API
@@ -86,3 +86,7 @@ export function setupTourShepherd(): void {
 
 Peer dependencies:
 - `@molecule/app-tour` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-tour`

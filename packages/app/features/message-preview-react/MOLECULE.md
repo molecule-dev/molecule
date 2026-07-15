@@ -31,7 +31,8 @@ import { MessagePreview } from '@molecule/app-message-preview-react'
 
 ## Installation
 ```bash
-npm install @molecule/app-message-preview-react
+npm install @molecule/app-message-preview-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router-dom
+npm install -D @types/react
 ```
 
 ## API
@@ -92,3 +93,11 @@ Peer dependencies:
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-router-dom` ^6.0.0 || ^7.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `@molecule/app-ui-react`
+- `react`
+- `react-router-dom`

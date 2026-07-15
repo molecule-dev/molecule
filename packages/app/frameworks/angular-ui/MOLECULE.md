@@ -10,7 +10,7 @@ interfaces using the UIClassMap abstraction from `@molecule/app-ui`.
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-angular
+npm install @molecule/app-ui-angular @angular/core @angular/platform-browser @molecule/app-i18n @molecule/app-icons @molecule/app-ui
 ```
 
 ## API
@@ -1434,7 +1434,7 @@ function cn(inputs?: (string | false | null | undefined)[]): string
 Generates SVG markup string from an icon name.
 
 ```typescript
-function getIconSvg(name: string, className: string): string
+function getIconSvg(name: IconName, className: string): string
 ```
 
 - `name` — Icon name from the icon set
@@ -1494,6 +1494,14 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
+
+### Runtime Dependencies
+
+- `@angular/core`
+- `@angular/platform-browser`
+- `@molecule/app-i18n`
+- `@molecule/app-icons`
+- `@molecule/app-ui`
 
 ## Translations
 

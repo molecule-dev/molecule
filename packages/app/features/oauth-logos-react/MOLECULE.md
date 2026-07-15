@@ -34,7 +34,8 @@ import { OAuthProviderLogo } from '@molecule/app-oauth-logos-react'
 
 ## Installation
 ```bash
-npm install @molecule/app-oauth-logos-react
+npm install @molecule/app-oauth-logos-react react
+npm install -D @types/react
 ```
 
 ## API
@@ -330,3 +331,7 @@ const XLogo: typeof TwitterLogo
 
 Peer dependencies:
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `react`

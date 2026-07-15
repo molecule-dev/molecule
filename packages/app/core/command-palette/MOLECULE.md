@@ -35,7 +35,7 @@ const palette = createPalette({
 
 ## Installation
 ```bash
-npm install @molecule/app-command-palette
+npm install @molecule/app-command-palette @molecule/app-bond
 ```
 
 ## API
@@ -314,6 +314,10 @@ function setProvider(provider: CommandPaletteProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 ## E2E Tests
 

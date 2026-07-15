@@ -7,7 +7,7 @@ Anthropic ai-anthropic provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-anthropic
+npm install @molecule/api-ai-anthropic @molecule/api-ai @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -94,6 +94,13 @@ Peer dependencies:
   - Setup: Create a key in the Anthropic Console under Settings → API keys.
   - Get it here: [https://console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
   - Example: `sk-ant-api03-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
 
 Bond this as an AI provider (see `@molecule/api-ai` for the `chat()` streaming loop and the
 key-server-side / never-blindly-trust-model-output rules). Config: `ANTHROPIC_API_KEY`

@@ -33,7 +33,7 @@ console.log(trip.flights.length, trip.hotels.length)
 
 ## Installation
 ```bash
-npm install @molecule/api-travel
+npm install @molecule/api-travel @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -735,3 +735,8 @@ function setProvider(provider: TravelProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

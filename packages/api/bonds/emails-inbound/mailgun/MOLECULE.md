@@ -26,7 +26,7 @@ setProvider(mailgunRoutes)
 
 ## Installation
 ```bash
-npm install @molecule/api-emails-inbound-mailgun
+npm install @molecule/api-emails-inbound-mailgun @molecule/api-emails @molecule/api-emails-inbound @molecule/api-secrets
 ```
 
 ## API
@@ -441,6 +441,12 @@ Peer dependencies:
 - `MAILGUN_INBOUND_REPLAY_WINDOW_SECONDS` *(optional)* — Mailgun inbound replay window
   - Setup: Max age (seconds) of accepted inbound webhook signatures — replay protection; the default is fine.
   - Example: `300`
+
+### Runtime Dependencies
+
+- `@molecule/api-emails`
+- `@molecule/api-emails-inbound`
+- `@molecule/api-secrets`
 
 `verifySignature` THROWS the tagged `config.notConfigured` error (→ 503
 via the API error middleware) when `MAILGUN_API_KEY` is unset, instead of

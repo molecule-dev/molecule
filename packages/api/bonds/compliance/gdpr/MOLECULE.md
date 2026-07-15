@@ -30,7 +30,7 @@ setProvider(customProvider)
 
 ## Installation
 ```bash
-npm install @molecule/api-compliance-gdpr
+npm install @molecule/api-compliance-gdpr @molecule/api-compliance
 ```
 
 ## API
@@ -156,3 +156,7 @@ export function setupComplianceGdpr(): void {
 
 Peer dependencies:
 - `@molecule/api-compliance` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-compliance`

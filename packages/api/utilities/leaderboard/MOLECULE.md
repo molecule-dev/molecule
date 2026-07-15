@@ -46,7 +46,7 @@ await rollupLeaderboard({ metric: 'xp', window: 'weekly' })
 
 ## Installation
 ```bash
-npm install @molecule/api-leaderboard
+npm install @molecule/api-leaderboard @molecule/api-database
 ```
 
 ## API
@@ -359,3 +359,7 @@ function rollupLeaderboard(options: LeaderboardOptions, aggregation?: Aggregatio
 
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`

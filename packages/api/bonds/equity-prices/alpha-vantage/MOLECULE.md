@@ -27,7 +27,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-equity-prices-alpha-vantage
+npm install @molecule/api-equity-prices-alpha-vantage @molecule/api-equity-prices @molecule/api-secrets
 ```
 
 ## API
@@ -173,3 +173,8 @@ Peer dependencies:
 - `ALPHA_VANTAGE_API_KEY` *(required)* — Alpha Vantage API key
   - Setup: Request a free API key on the Alpha Vantage site.
   - Get it here: [https://www.alphavantage.co/support/#api-key](https://www.alphavantage.co/support/#api-key)
+
+### Runtime Dependencies
+
+- `@molecule/api-equity-prices`
+- `@molecule/api-secrets`

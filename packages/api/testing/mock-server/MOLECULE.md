@@ -36,7 +36,8 @@ await server.close()
 
 ## Installation
 ```bash
-npm install @molecule/api-mock-server
+npm install @molecule/api-mock-server express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -765,6 +766,11 @@ const MAX_MOCK_DELAY_MS: 60000
 
 Peer dependencies:
 - `zod` >=4.0.0
+
+### Runtime Dependencies
+
+- `express`
+- `zod`
 
 )
 server.clearState('GET /accounts')

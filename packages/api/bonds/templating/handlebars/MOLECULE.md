@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-templating-handlebars
+npm install @molecule/api-templating-handlebars @molecule/api-templating handlebars
 ```
 
 ## API
@@ -96,3 +96,8 @@ export function setupTemplatingHandlebars(): void {
 
 Peer dependencies:
 - `@molecule/api-templating` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-templating`
+- `handlebars`

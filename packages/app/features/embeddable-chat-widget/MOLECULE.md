@@ -32,7 +32,8 @@ import { EmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
 
 ## Installation
 ```bash
-npm install @molecule/app-embeddable-chat-widget
+npm install @molecule/app-embeddable-chat-widget @molecule/app-i18n @molecule/app-message-bubble-react @molecule/app-react @molecule/app-typing-indicator-react @molecule/app-ui @molecule/app-ui-react react
+npm install -D @types/react
 ```
 
 ## API
@@ -232,6 +233,16 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-message-bubble-react`
+- `@molecule/app-react`
+- `@molecule/app-typing-indicator-react`
+- `@molecule/app-ui`
+- `@molecule/app-ui-react`
+- `react`
 
 The widget is designed to be embedded on third-party sites that don't
 ship molecule's CSS. All geometry, colors, and shadows are inlined so

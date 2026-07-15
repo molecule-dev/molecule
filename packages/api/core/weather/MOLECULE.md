@@ -29,7 +29,7 @@ const week = await getForecast({ lat: 40.7128, lon: -74.006 }, 7)
 
 ## Installation
 ```bash
-npm install @molecule/api-weather
+npm install @molecule/api-weather @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -354,3 +354,8 @@ function setProvider(provider: WeatherProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

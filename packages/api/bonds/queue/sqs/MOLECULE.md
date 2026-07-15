@@ -31,7 +31,7 @@ await send('emails', { body: { userId: 'u1' } })
 
 ## Installation
 ```bash
-npm install @molecule/api-queue-sqs
+npm install @molecule/api-queue-sqs @aws-sdk/client-sqs @molecule/api-bond @molecule/api-queue @molecule/api-secrets
 ```
 
 ## API
@@ -344,6 +344,13 @@ Peer dependencies:
   - Setup: Create a queue in the SQS console and copy its URL.
   - Get it here: [https://console.aws.amazon.com/sqs/](https://console.aws.amazon.com/sqs/)
   - Example: `https://sqs.us-east-1.amazonaws.com/123456789012/my-queue`
+
+### Runtime Dependencies
+
+- `@aws-sdk/client-sqs`
+- `@molecule/api-bond`
+- `@molecule/api-queue`
+- `@molecule/api-secrets`
 
 Delivery semantics (at-least-once — handlers must be idempotent):
 

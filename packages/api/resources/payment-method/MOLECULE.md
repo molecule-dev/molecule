@@ -25,7 +25,7 @@ import {
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-payment-method
+npm install @molecule/api-resource-payment-method @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-payments @molecule/api-resource @molecule/api-secrets
 ```
 
 ## API
@@ -300,3 +300,13 @@ Peer dependencies:
   - Setup: Stripe Dashboard → Developers → API keys; use the sk_test_ key in test mode, sk_live_ in production.
   - Get it here: [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
   - Example: `sk_test_...`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-payments`
+- `@molecule/api-resource`
+- `@molecule/api-secrets`

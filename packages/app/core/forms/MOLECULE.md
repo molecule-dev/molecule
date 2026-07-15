@@ -10,7 +10,7 @@ form libraries (native, React Hook Form, Formik, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-forms
+npm install @molecule/app-forms @molecule/app-bond
 ```
 
 ## API
@@ -499,6 +499,10 @@ const nativeProvider: FormProvider
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 Build forms with {@link createForm} (or the framework hook), not a direct react-hook-form /
 formik import — that couples you to one library and breaks the swap.

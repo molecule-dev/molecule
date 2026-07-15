@@ -28,7 +28,7 @@ setupDefaultServiceWorker(sw, sw.__WB_MANIFEST)
 
 ## Installation
 ```bash
-npm install @molecule/app-service-worker-default
+npm install @molecule/app-service-worker-default workbox-core workbox-expiration workbox-precaching workbox-routing workbox-strategies
 ```
 
 ## API
@@ -70,3 +70,11 @@ Peer dependencies:
 - `workbox-precaching` ^7.0.0
 - `workbox-routing` ^7.0.0
 - `workbox-strategies` ^7.0.0
+
+### Runtime Dependencies
+
+- `workbox-core`
+- `workbox-expiration`
+- `workbox-precaching`
+- `workbox-routing`
+- `workbox-strategies`

@@ -23,7 +23,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-nutrition-database-open-food-facts
+npm install @molecule/api-nutrition-database-open-food-facts @molecule/api-nutrition-database
 ```
 
 ## API
@@ -146,3 +146,7 @@ export function setupNutritionDatabaseOpenFoodFacts(): void {
 
 Peer dependencies:
 - `@molecule/api-nutrition-database` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-nutrition-database`

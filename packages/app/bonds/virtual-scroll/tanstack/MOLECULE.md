@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-virtual-scroll-tanstack
+npm install @molecule/app-virtual-scroll-tanstack @molecule/app-virtual-scroll @tanstack/virtual-core
 ```
 
 ## API
@@ -99,6 +99,11 @@ export function setupVirtualScrollTanstack(): void {
 
 Peer dependencies:
 - `@molecule/app-virtual-scroll` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-virtual-scroll`
+- `@tanstack/virtual-core`
 
 ## E2E Tests
 

@@ -7,7 +7,7 @@ JetBrains Mono font for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-fonts-jetbrains-mono
+npm install @molecule/app-fonts-jetbrains-mono @molecule/app-fonts
 ```
 
 ## API
@@ -31,3 +31,7 @@ Implements `@molecule/app-fonts` interface.
 
 Peer dependencies:
 - `@molecule/app-fonts` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-fonts`

@@ -26,7 +26,8 @@ setProvider(sesInbound)
 
 ## Installation
 ```bash
-npm install @molecule/api-emails-inbound-ses
+npm install @molecule/api-emails-inbound-ses @molecule/api-emails @molecule/api-emails-inbound @molecule/api-secrets mailparser
+npm install -D @types/mailparser
 ```
 
 ## API
@@ -710,6 +711,13 @@ Peer dependencies:
 - `AWS_SNS_SIGNING_CERT_HOSTNAME_SUFFIXES` *(optional)* — SNS signing-cert hostname allowlist — default: `.amazonaws.com`
   - Setup: Comma-separated hostname suffixes allowed for SNS signature certificates; the default (.amazonaws.com) is fine.
   - Example: `.amazonaws.com`
+
+### Runtime Dependencies
+
+- `@molecule/api-emails`
+- `@molecule/api-emails-inbound`
+- `@molecule/api-secrets`
+- `mailparser`
 
 The (uncached) signing-certificate fetch is bounded to a 5 second
 timeout — a hanging/slow `SigningCertURL` endpoint fails fast into a

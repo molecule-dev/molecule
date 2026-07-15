@@ -23,7 +23,7 @@ bond('secrets', provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-secrets-molecule
+npm install @molecule/api-secrets-molecule @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -137,3 +137,9 @@ Peer dependencies:
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
 - `MOLECULE_VAULT_URL` *(optional)* — molecule.dev vault URL — default: `https://api.molecule.dev/v1/vault`
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`

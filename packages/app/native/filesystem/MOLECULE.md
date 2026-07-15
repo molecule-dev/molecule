@@ -11,7 +11,7 @@ Supports reading, writing, and managing files and directories.
 
 ## Installation
 ```bash
-npm install @molecule/app-filesystem
+npm install @molecule/app-filesystem @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -621,6 +621,11 @@ function writeFileFromBlob(path: string, data: Blob, options?: Omit<WriteOptions
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

@@ -26,7 +26,7 @@ console.log(manifest.manifestUri) // '/hls-…/index.m3u8'
 
 ## Installation
 ```bash
-npm install @molecule/api-media-streaming-hls
+npm install @molecule/api-media-streaming-hls @molecule/api-media-streaming
 ```
 
 ## API
@@ -193,3 +193,7 @@ export function setupMediaStreamingHls(): void {
 
 Peer dependencies:
 - `@molecule/api-media-streaming` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-media-streaming`

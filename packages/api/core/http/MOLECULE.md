@@ -9,7 +9,7 @@ Defines the standard interface for HTTP client providers.
 
 ## Installation
 ```bash
-npm install @molecule/api-http
+npm install @molecule/api-http @molecule/api-bond
 ```
 
 ## API
@@ -378,3 +378,7 @@ function setClient(client: HttpClient): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`

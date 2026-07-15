@@ -16,7 +16,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-config-env
+npm install @molecule/api-config-env @molecule/api-config @molecule/api-i18n
 ```
 
 ## API
@@ -62,3 +62,8 @@ export function setupConfigEnv(): void {
 Peer dependencies:
 - `@molecule/api-config` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-config`
+- `@molecule/api-i18n`

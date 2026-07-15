@@ -9,7 +9,7 @@ Provides mock implementations and test helpers for all core interfaces.
 
 ## Installation
 ```bash
-npm install @molecule/api-testing
+npm install @molecule/api-testing @molecule/api-cache @molecule/api-database @molecule/api-emails @molecule/api-logger @molecule/api-queue
 ```
 
 ## API
@@ -419,6 +419,14 @@ Peer dependencies:
 - `@molecule/api-queue` ^1.0.0
 - `@molecule/api-emails` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-cache`
+- `@molecule/api-database`
+- `@molecule/api-emails`
+- `@molecule/api-logger`
+- `@molecule/api-queue`
 
 `createMockDatabase().setQueryResult(result)` is **persistent** — every
 subsequent `query()` call (pool, connection, or transaction) returns that

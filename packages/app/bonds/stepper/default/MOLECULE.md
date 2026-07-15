@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-stepper-default
+npm install @molecule/app-stepper-default @molecule/app-stepper
 ```
 
 ## API
@@ -83,3 +83,7 @@ export function setupStepperDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-stepper` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-stepper`

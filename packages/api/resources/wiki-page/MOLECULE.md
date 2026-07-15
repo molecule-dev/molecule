@@ -29,7 +29,8 @@ const crumbs = await getBreadcrumbs(page.id)
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-wiki-page
+npm install @molecule/api-resource-wiki-page @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation @molecule/api-search express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -216,6 +217,16 @@ Peer dependencies:
 - `@molecule/api-search` ^1.0.0
 - `express` ^5.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-validation`
+- `@molecule/api-search`
+- `express`
+- `zod`
 
 Run `src/__setup__/wiki_pages.sql` once (creates both `wiki_spaces`
 and `wiki_pages` tables). If a search provider is bonded via

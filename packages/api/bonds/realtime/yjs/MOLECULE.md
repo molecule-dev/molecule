@@ -55,7 +55,7 @@ doc.getMap('shapes').set('shape-1', { type: 'rect', x: 10, y: 20 })
 
 ## Installation
 ```bash
-npm install @molecule/api-realtime-yjs
+npm install @molecule/api-realtime-yjs @molecule/api-realtime y-protocols yjs
 ```
 
 ## API
@@ -295,6 +295,12 @@ Implements `@molecule/api-realtime` interface.
 
 Peer dependencies:
 - `@molecule/api-realtime` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-realtime`
+- `y-protocols`
+- `yjs`
 
 - `'yjs:update'` / `'yjs:awareness'` payloads MUST be `Uint8Array`s — any
   other type throws (`Event "yjs:update" requires Uint8Array data`); the

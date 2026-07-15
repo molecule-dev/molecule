@@ -7,7 +7,7 @@ Screen orientation interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-screen-orientation
+npm install @molecule/app-screen-orientation @molecule/app-i18n
 ```
 
 ## API
@@ -399,6 +399,10 @@ function withOrientation(orientation: OrientationLock, callback: () => T | Promi
 
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
 
 ## Translations
 

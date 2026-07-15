@@ -24,7 +24,7 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-comment'
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-comment
+npm install @molecule/api-resource-comment @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
 
 ## API
@@ -330,6 +330,14 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-resource`
+- `zod`
 
 ## E2E Tests
 

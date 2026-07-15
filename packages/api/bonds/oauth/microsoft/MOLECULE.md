@@ -62,7 +62,7 @@ bond('oauth', microsoft.serverName, microsoft)
 
 ## Installation
 ```bash
-npm install @molecule/api-oauth-microsoft
+npm install @molecule/api-oauth-microsoft @molecule/api-bond @molecule/api-http @molecule/api-oauth @molecule/api-secrets
 ```
 
 ## API
@@ -688,6 +688,13 @@ Peer dependencies:
   - Setup: Copy the Directory (tenant) ID from the app registration overview, or use "common" for multi-tenant.
   - Get it here: [https://entra.microsoft.com/](https://entra.microsoft.com/)
   - Example: `common`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-http`
+- `@molecule/api-oauth`
+- `@molecule/api-secrets`
 
 **ID-token issuer / tenant validation contract.** `verifyMicrosoftIdToken`
 (and `provider.verifyIdToken`) validate `iss` against the issuer(s) implied

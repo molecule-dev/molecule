@@ -30,7 +30,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-travel-amadeus
+npm install @molecule/api-travel-amadeus @molecule/api-secrets @molecule/api-travel
 ```
 
 ## API
@@ -215,3 +215,8 @@ Peer dependencies:
 - `AMADEUS_CLIENT_SECRET` *(required)* — Amadeus API secret
   - Setup: Copy the API Secret from your Amadeus app page.
   - Get it here: [https://developers.amadeus.com/my-apps](https://developers.amadeus.com/my-apps)
+
+### Runtime Dependencies
+
+- `@molecule/api-secrets`
+- `@molecule/api-travel`

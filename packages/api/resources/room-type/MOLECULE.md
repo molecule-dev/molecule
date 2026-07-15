@@ -17,7 +17,7 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-room-type'
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-room-type
+npm install @molecule/api-resource-room-type @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-permissions @molecule/api-resource @molecule/api-resource-property
 ```
 
 ## API
@@ -450,3 +450,12 @@ Peer dependencies:
 - `@molecule/api-permissions` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `@molecule/api-resource-property` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-permissions`
+- `@molecule/api-resource`
+- `@molecule/api-resource-property`

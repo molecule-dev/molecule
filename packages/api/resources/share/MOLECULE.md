@@ -38,7 +38,7 @@ await requireRole('document', docId, 'editor', userId, teamIds)
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-share
+npm install @molecule/api-resource-share @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
 
 ## API
@@ -704,6 +704,14 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-resource`
+- `zod`
 
 SECURITY — the raw grant/update/revoke routes are secure by default and MUST
 be wrapped with a resource-ownership gate; never mount them directly. The

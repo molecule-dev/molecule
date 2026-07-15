@@ -31,7 +31,7 @@ start()
 
 ## Installation
 ```bash
-npm install @molecule/api-scheduler-default
+npm install @molecule/api-scheduler-default @molecule/api-bond @molecule/api-scheduler
 ```
 
 ## API
@@ -107,3 +107,8 @@ export function setupSchedulerDefault(): void {
 Peer dependencies:
 - `@molecule/api-scheduler` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-scheduler`

@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-geolocation-google
+npm install @molecule/api-geolocation-google @molecule/api-geolocation @molecule/api-secrets
 ```
 
 ## API
@@ -115,3 +115,8 @@ Peer dependencies:
   - Setup: Enable the Maps/Geocoding APIs in Google Cloud Console and create an API key (restrict it to those APIs).
   - Get it here: [https://console.cloud.google.com/google/maps-apis/credentials](https://console.cloud.google.com/google/maps-apis/credentials)
   - Example: `AIza...`
+
+### Runtime Dependencies
+
+- `@molecule/api-geolocation`
+- `@molecule/api-secrets`

@@ -92,7 +92,7 @@ test('2FA lifecycle: setup → enable → verify → wrong code rejects', async 
 
 ## Installation
 ```bash
-npm install @molecule/api-two-factor
+npm install @molecule/api-two-factor @molecule/api-bond
 ```
 
 ## API
@@ -318,6 +318,10 @@ function verify(params: TwoFactorVerifyParams): Promise<TwoFactorVerifyResult>
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 **The TOTP secret is a SERVER-SIDE secret — it must NEVER reach the browser.**
 `generateSecret()`, `getUrls()`, and `verify()` all run in YOUR API. The secret

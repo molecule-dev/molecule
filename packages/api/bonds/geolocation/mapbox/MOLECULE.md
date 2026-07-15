@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-geolocation-mapbox
+npm install @molecule/api-geolocation-mapbox @molecule/api-geolocation @molecule/api-secrets
 ```
 
 ## API
@@ -114,3 +114,8 @@ Peer dependencies:
   - Setup: Copy the default public token (or create a scoped one) from your Mapbox account.
   - Get it here: [https://account.mapbox.com/access-tokens/](https://account.mapbox.com/access-tokens/)
   - Example: `pk.ey...`
+
+### Runtime Dependencies
+
+- `@molecule/api-geolocation`
+- `@molecule/api-secrets`

@@ -26,7 +26,8 @@ function GradesPage() {
 
 ## Installation
 ```bash
-npm install @molecule/app-gradebook-react
+npm install @molecule/app-gradebook-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
+npm install -D @types/react
 ```
 
 ## API
@@ -213,6 +214,13 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `@molecule/app-ui-react`
+- `react`
 
 All visible text routes through `t()` via the companion
 `@molecule/app-locales-gradebook` locale bond. All styling routes

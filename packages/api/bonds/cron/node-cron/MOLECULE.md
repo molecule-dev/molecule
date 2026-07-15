@@ -25,7 +25,7 @@ await schedule('cleanup', '0 3 * * *', async () => {
 
 ## Installation
 ```bash
-npm install @molecule/api-cron-node-cron
+npm install @molecule/api-cron-node-cron @molecule/api-cron @molecule/api-logger node-cron
 ```
 
 ## API
@@ -90,6 +90,12 @@ export function setupCronNodeCron(): void {
 Peer dependencies:
 - `@molecule/api-cron` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-cron`
+- `@molecule/api-logger`
+- `node-cron`
 
 - A handler that throws does NOT cancel the job: the error is logged (with
   the job id and name) and the job stays `active` for its next tick — the

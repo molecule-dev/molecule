@@ -21,7 +21,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-import-export-csv
+npm install @molecule/api-import-export-csv @molecule/api-database @molecule/api-import-export
 ```
 
 ## API
@@ -137,6 +137,11 @@ export function setupImportExportCsv(): void {
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-import-export` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-import-export`
 
 ## E2E Tests
 

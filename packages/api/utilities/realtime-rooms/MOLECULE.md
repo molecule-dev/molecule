@@ -43,7 +43,7 @@ await broadcast(room.id, { kind: 'question-asked', payload: { qid: 1 } })
 
 ## Installation
 ```bash
-npm install @molecule/api-realtime-rooms
+npm install @molecule/api-realtime-rooms @molecule/api-database @molecule/api-realtime
 ```
 
 ## API
@@ -366,3 +366,8 @@ function subscribe(roomId: string, handler: RoomEventHandler): Unsubscribe
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-realtime`

@@ -27,7 +27,8 @@ import { ChatPanel, EditorPanel, PreviewPanel, WorkspaceLayout } from '@molecule
 
 ## Installation
 ```bash
-npm install @molecule/app-ide-react
+npm install @molecule/app-ide-react @molecule/app-ai-chat @molecule/app-ai-models @molecule/app-code-editor @molecule/app-i18n @molecule/app-icons @molecule/app-ide @molecule/app-live-preview @molecule/app-logger @molecule/app-react @molecule/app-storage @molecule/app-ui @molecule/app-ui-react material-file-icons react react-dom
+npm install -D @types/react
 ```
 
 ## API
@@ -66,6 +67,24 @@ interface ActivityCardProps {
   activity: Activity
   /** Called when the card is clicked — should open the Activity panel filtered to this activity. */
   onActivityClick?: (activity: Activity) => void
+}
+```
+
+#### `AutoCommitState`
+
+The countdown's state.
+
+`intervalSeconds` is the configured cadence (`0` = disabled). `remaining` is
+the live count: a positive number while counting down, `0` at the instant a
+commit is due, and `null` while disabled or paused (after a commit, awaiting
+the next file change to re-arm).
+
+```typescript
+interface AutoCommitState {
+  /** Configured countdown length in seconds; `0` when auto-commit is off. */
+  intervalSeconds: number
+  /** Seconds left until the next auto-commit; `null` when disabled or paused. */
+  remaining: number | null
 }
 ```
 
@@ -296,6 +315,14 @@ interface ChatPanelProps {
   pendingMessageKey?: number
   /** When true, the pending message is sent on the user's behalf (e.g. the post-boot build kickoff) and is NOT shown as a user bubble — phase markers convey what's happening instead. */
   pendingMessageSuppressUser?: boolean
+  /**
+   * When true, the pending message was directly requested by the user (e.g. the
+   * editor's or broken-preview overlay's "Fix with AI" button) rather than
+   * dispatched autonomously (preview-health / preview-error auto-fix). A user
+   * Stop suppresses autonomous automatic sends until the user re-engages; a
+   * user-initiated pending message IS that re-engagement, so it always sends.
+   */
+  pendingMessageUserInitiated?: boolean
   /** File path the user just edited in the editor — triggers auto-deletion of queued autofix messages. */
   userEditedFile?: string
   /** Incremented to trigger the user-edit check (same path may be edited multiple times). */
@@ -721,6 +748,18 @@ interface PreviewPanelProps {
    */
   isBuilding?: boolean
   /**
+   * Timestamp (ms since epoch) of when the preview's backing server/sandbox was last
+   * woken from sleep or restarted, or 0/undefined when it never was. While this is
+   * recent, the panel treats the preview like a fresh cold boot: the dev server behind
+   * it is restarting and recompiling, so a document that reloads to blank (or a
+   * transient error page that never runs the bridge) is EXPECTED for a while and must
+   * NOT trip the fast "preview is blank" accusation — the honest starting/loading
+   * status stays up, and only the generous never-rendered ceiling can accuse. A real
+   * render (`molecule:ready`) clears the patience immediately, so a healthy wake
+   * reveals as fast as ever.
+   */
+  wakeAt?: number
+  /**
    * Called when the preview gives up showing the running app — after exhausting reload
    * recovery, at the absolute readiness ceiling, OR when the heartbeat watchdog detects a
    * frozen (locked-thread) app. Receives a {@link PreviewStuckReport} (failure class +
@@ -1085,6 +1124,29 @@ Channel categories a captured activity can belong to.
 type ActivityType = 'email' | 'sms' | 'push' | 'webhook' | 'channel'
 ```
 
+#### `AutoCommitAction`
+
+Actions the countdown reducer accepts.
+
+- `set` — apply a `/autocommit <seconds>` command (`seconds <= 0` disables);
+  arms AND starts a fresh countdown (an explicit, just-now user choice).
+- `hydrate` — restore a cadence persisted on the project (e.g. on reload),
+  enabled but PAUSED (`seconds <= 0` disables). Unlike `set`, it does NOT
+  start counting down — the countdown only re-arms on the next file change —
+  so reopening a project never auto-commits a tree the user hasn't touched.
+- `reset` — a file changed; restart the full countdown (no-op when disabled).
+- `tick` — one second elapsed; decrement toward zero (no-op when paused).
+- `fired` — a commit was just dispatched; pause until the next file change.
+
+```typescript
+type AutoCommitAction =
+  | { type: 'set'; seconds: number }
+  | { type: 'hydrate'; seconds: number }
+  | { type: 'reset' }
+  | { type: 'tick' }
+  | { type: 'fired' }
+```
+
 #### `ChatEventCardFactory`
 
 Turns a custom event's `data` payload into a chat card, or returns null to render
@@ -1299,7 +1361,22 @@ function activityTypeLabel(type: ActivityType): string
 
 **Returns:** The translated channel label.
 
-#### `ChatPanel(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `autoCommitReducer(state, action)`
+
+Pure reducer for the auto-commit countdown. Deterministic and side-effect
+free: the component performs the actual commit when {@link isAutoCommitDue}
+becomes true, then dispatches `fired`.
+
+```typescript
+function autoCommitReducer(state: AutoCommitState, action: AutoCommitAction): AutoCommitState
+```
+
+- `state` — The current countdown state.
+- `action` — The action to apply.
+
+**Returns:** The next countdown state.
+
+#### `ChatPanel(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
 
 AI chat panel with conversation history dropdown and Claude Code-style tool display.
 
@@ -1341,6 +1418,7 @@ function ChatPanel({
   pendingMessage,
   pendingMessageKey,
   pendingMessageSuppressUser,
+  pendingMessageUserInitiated,
   userEditedFile,
   userEditedFileKey,
   isPro,
@@ -1381,6 +1459,7 @@ function ChatPanel({
 - `root0` — .pendingMessage - An externally triggered message to send.
 - `root0` — .pendingMessageKey - Key to distinguish repeated pending messages.
 - `root0` — .pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
+- `root0` — .pendingMessageUserInitiated - When true, the pending message was directly requested by the user (a "Fix with AI" button) — it bypasses (and clears) a prior user Stop.
 - `root0` — .userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
 - `root0` — .userEditedFileKey - Key to distinguish repeated edits to the same file.
 - `root0` — .isPro - Whether the current user has a Pro plan.
@@ -1552,6 +1631,19 @@ function filterActivitiesByType(activities: Activity[], type: ActivityType | nul
 
 **Returns:** The filtered list (a new array unless `type` is null).
 
+#### `formatAutoCommitBadge(state)`
+
+Formats the countdown's remaining seconds for the compact badge (e.g. `"12s"`).
+Returns `''` when there is nothing to show (disabled or paused).
+
+```typescript
+function formatAutoCommitBadge(state: AutoCommitState): string
+```
+
+- `state` — The countdown state.
+
+**Returns:** The badge label, or `''`.
+
 #### `getCustomEventCardFactory(name)`
 
 Resolve the registered card factory for a custom event name, if any.
@@ -1603,6 +1695,59 @@ function Icon({ name, size = 16, className, ...rest }: IconProps): JSX.Element
 - `props` — {@link IconProps}.
 
 **Returns:** An `<svg>` element rendering the named glyph.
+
+#### `isAutoCommitArmed(state)`
+
+Whether the countdown is actively armed (counting down), i.e. a 1s tick
+interval should be running. False when disabled or paused after a commit.
+
+```typescript
+function isAutoCommitArmed(state: AutoCommitState): boolean
+```
+
+- `state` — The countdown state.
+
+**Returns:** `true` when `remaining` is a number.
+
+#### `isAutoCommitCountdownVisible(state)`
+
+Whether the countdown is in its visible window — armed and within the final
+{@link AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS} seconds — i.e. the commit
+button should render the live "Auto-commit in Ns" label instead of "Commit".
+
+```typescript
+function isAutoCommitCountdownVisible(state: AutoCommitState): boolean
+```
+
+- `state` — The countdown state.
+
+**Returns:** `true` when armed with at most the visible-window seconds left.
+
+#### `isAutoCommitDue(state)`
+
+Whether a commit is due this instant (the countdown has reached zero). The
+component reacts to this by running `/commit` and dispatching `fired`.
+
+```typescript
+function isAutoCommitDue(state: AutoCommitState): boolean
+```
+
+- `state` — The countdown state.
+
+**Returns:** `true` when `remaining === 0`.
+
+#### `isAutoCommitEnabled(state)`
+
+Whether auto-commit is enabled (a positive cadence is configured), regardless
+of whether it is currently counting down or paused.
+
+```typescript
+function isAutoCommitEnabled(state: AutoCommitState): boolean
+```
+
+- `state` — The countdown state.
+
+**Returns:** `true` when `intervalSeconds > 0`.
 
 #### `isDeviceRotatable(device)`
 
@@ -1689,7 +1834,23 @@ function normalizeKeys(keys: string): string
 
 **Returns:** Normalized lowercase combo string.
 
-#### `PreviewPanel(root0, root0, root0, root0, root0, root0, root0)`
+#### `parseAutoCommitCommand(input)`
+
+Parses an `/autocommit [seconds]` command.
+
+Returns `{ seconds: null }` when `/autocommit` is typed with no argument (the
+caller shows usage/current state), `{ seconds: n }` for a non-negative integer
+argument (`0` cancels), or `null` when the input is not the command.
+
+```typescript
+function parseAutoCommitCommand(input: string): { seconds: number | null; } | null
+```
+
+- `input` — The raw chat input.
+
+**Returns:** The parsed command, or `null` when it is not `/autocommit`.
+
+#### `PreviewPanel(root0, root0, root0, root0, root0, root0, root0, root0)`
 
 Live preview panel with iframe, device frame selector, and URL bar.
 
@@ -1706,6 +1867,7 @@ function PreviewPanel({
   fileChangeTick,
   buildingHint,
   isBuilding,
+  wakeAt,
 }: PreviewPanelProps): JSX.Element
 ```
 
@@ -1716,6 +1878,7 @@ function PreviewPanel({
 - `root0` — .onPreviewStuck - Called when the preview fails to load after multiple recovery attempts.
 - `root0` — .className - Optional CSS class name for the container.
 - `root0` — .fileChangeTick - Incremented when the user edits a file, used to cancel queued autofix messages.
+- `root0` — .wakeAt - When the preview's backing server/sandbox was last woken/restarted (ms epoch).
 
 **Returns:** The rendered preview panel element.
 
@@ -1797,6 +1960,23 @@ function ResizeHandle({
 - `root0` — .className - Optional CSS class name for the handle.
 
 **Returns:** The rendered resize handle element.
+
+#### `resolveAutoCommitSeconds(saved)`
+
+Resolves the persisted `project.settings.autoCommitSeconds` value to the
+effective cadence. A finite number is an explicit user choice: positive
+values floor to whole seconds, non-positive values mean "the user turned
+auto-commit off" (`0`). Anything else — missing, never configured, or
+invalid — falls back to {@link DEFAULT_AUTO_COMMIT_SECONDS}, because
+auto-commit is on by default.
+
+```typescript
+function resolveAutoCommitSeconds(saved: unknown): number
+```
+
+- `saved` — The raw persisted setting value.
+
+**Returns:** The effective cadence in whole seconds (`0` = off).
 
 #### `resolveDeviceSize(device, orientation)`
 
@@ -1962,6 +2142,26 @@ All channel types, in the order their filter tabs should appear.
 const ACTIVITY_TYPES: ActivityType[]
 ```
 
+#### `AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS`
+
+How many final seconds of the countdown are DISPLAYED as a live countdown.
+Until the countdown drops to this threshold, the commit-bar button stays a
+plain green "Commit" (a bare "12s" pill told users nothing); the countdown
+label only takes over for these last seconds, right before the auto-commit
+fires. Cadences at or below the threshold show the countdown the whole time.
+
+```typescript
+const AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS: 3
+```
+
+#### `AUTO_COMMIT_DISABLED`
+
+The disabled (off) countdown state — the reducer's initial value.
+
+```typescript
+const AUTO_COMMIT_DISABLED: AutoCommitState
+```
+
 #### `COMMAND_CATEGORIES`
 
 Ordered list of command categories used as section headings.
@@ -1978,6 +2178,22 @@ authoritative list — the menu, key handling, `/help`, AND the system prompt's
 
 ```typescript
 const COMMANDS: readonly CommandDef[]
+```
+
+#### `DEFAULT_AUTO_COMMIT_SECONDS`
+
+The default auto-commit cadence in seconds — auto-commit is ON by default.
+Projects that have never persisted `autoCommitSeconds` hydrate to this
+cadence (paused, arming on the first file change); only an explicit `0`
+(the user cancelled) keeps auto-commit off.
+
+The value is the TOTAL debounce after the last file change (once the agent's
+turn has finished): a short quiet period, then the final
+{@link AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS} seconds render as a live
+countdown on the commit button. 5s = 2s quiet + 3s visible countdown.
+
+```typescript
+const DEFAULT_AUTO_COMMIT_SECONDS: 5
 ```
 
 #### `DEFAULT_SEARCH_EXCLUDED_DIRS`
@@ -2095,6 +2311,24 @@ Peer dependencies:
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-dom` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-ai-chat`
+- `@molecule/app-ai-models`
+- `@molecule/app-code-editor`
+- `@molecule/app-i18n`
+- `@molecule/app-icons`
+- `@molecule/app-ide`
+- `@molecule/app-live-preview`
+- `@molecule/app-logger`
+- `@molecule/app-react`
+- `@molecule/app-storage`
+- `@molecule/app-ui`
+- `@molecule/app-ui-react`
+- `material-file-icons`
+- `react`
+- `react-dom`
 
 ## Translations
 

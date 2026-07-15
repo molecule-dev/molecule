@@ -8,7 +8,7 @@ swappable `ai` chat bond to score candidate labels.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-classification-llm
+npm install @molecule/api-ai-classification-llm @molecule/api-ai @molecule/api-ai-classification @molecule/api-i18n
 ```
 
 ## API
@@ -52,3 +52,9 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-ai-classification` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-ai-classification`
+- `@molecule/api-i18n`

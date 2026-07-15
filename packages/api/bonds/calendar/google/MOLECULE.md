@@ -34,7 +34,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-calendar-google
+npm install @molecule/api-calendar-google @molecule/api-bond @molecule/api-calendar @molecule/api-http @molecule/api-secrets
 ```
 
 ## API
@@ -406,3 +406,10 @@ Peer dependencies:
   - Setup: Shown when creating the OAuth 2.0 Client ID in Google Cloud Console.
   - Get it here: [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
   - Example: `GOCSPX-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-calendar`
+- `@molecule/api-http`
+- `@molecule/api-secrets`

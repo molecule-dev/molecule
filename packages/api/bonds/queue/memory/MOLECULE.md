@@ -34,7 +34,7 @@ await emails.send({ body: { to: 'later@b.c' }, delaySeconds: 60 })
 
 ## Installation
 ```bash
-npm install @molecule/api-queue-memory
+npm install @molecule/api-queue-memory @molecule/api-bond @molecule/api-queue
 ```
 
 ## API
@@ -421,6 +421,11 @@ export function setupQueueMemory(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-queue` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-queue`
 
 Single-process and DEV-ONLY. Messages live in this process's memory: there
 is NO persistence (everything is lost on restart) and NO cross-instance

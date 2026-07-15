@@ -31,7 +31,8 @@ import { QrCode } from '@molecule/app-qr-code-react'
 
 ## Installation
 ```bash
-npm install @molecule/app-qr-code-react
+npm install @molecule/app-qr-code-react @molecule/app-react @molecule/app-ui qrcode-generator react
+npm install -D @types/react
 ```
 
 ## API
@@ -164,6 +165,13 @@ Peer dependencies:
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `qrcode-generator`
+- `react`
 
 Center-logo overlay reduces scannability — always pair it with
 `errorCorrection='H'` and keep the logo at or below ~20% of the QR size.

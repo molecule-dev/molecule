@@ -25,7 +25,7 @@ setProvider(casbinPerms)
 
 ## Installation
 ```bash
-npm install @molecule/api-permissions-casbin
+npm install @molecule/api-permissions-casbin @molecule/api-permissions casbin
 ```
 
 ## API
@@ -243,6 +243,11 @@ export function setupPermissionsCasbin(): void {
 
 Peer dependencies:
 - `@molecule/api-permissions` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-permissions`
+- `casbin`
 
 RBAC-only. This bond does NOT evaluate the `Permission.conditions` (ABAC)
 the shared permissions contract carries — the `custom` bond does. To prevent

@@ -11,7 +11,7 @@ to provide cookie parsing.
 
 ## Installation
 ```bash
-npm install @molecule/api-middleware-cookie-parser
+npm install @molecule/api-middleware-cookie-parser @molecule/api-bond
 ```
 
 ## API
@@ -42,8 +42,6 @@ type CookieParserFactory = (
 ```
 
 #### `Middleware`
-
-Generic middleware type — framework-agnostic.
 
 ```typescript
 type Middleware = (req: unknown, res: unknown, next: (err?: unknown) => void) => void
@@ -134,6 +132,10 @@ function setCookieParserFactory(factory: CookieParserFactory): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 This parses INCOMING cookies onto `req.cookies`. When your app SETS an auth/session cookie,
 the flags are what matter:

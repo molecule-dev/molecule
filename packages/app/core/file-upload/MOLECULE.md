@@ -28,7 +28,7 @@ const uploader = createUploader({
 
 ## Installation
 ```bash
-npm install @molecule/app-file-upload
+npm install @molecule/app-file-upload @molecule/app-bond
 ```
 
 ## API
@@ -337,6 +337,10 @@ function setProvider(provider: FileUploadProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 ## E2E Tests
 

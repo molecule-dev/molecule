@@ -33,7 +33,8 @@ export function App() {
 
 ## Installation
 ```bash
-npm install @molecule/app-analytics-react
+npm install @molecule/app-analytics-react @molecule/app-analytics react react-router-dom
+npm install -D @types/react
 ```
 
 ## API
@@ -62,3 +63,9 @@ Peer dependencies:
 - `@molecule/app-analytics` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-router-dom` ^6.0.0 || ^7.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-analytics`
+- `react`
+- `react-router-dom`

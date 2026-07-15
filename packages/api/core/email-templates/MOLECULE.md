@@ -36,7 +36,7 @@ await sendTemplate(TEMPLATE_KEYS.subscriptionStarted, {
 
 ## Installation
 ```bash
-npm install @molecule/api-email-templates
+npm install @molecule/api-email-templates @molecule/api-emails @molecule/api-i18n
 ```
 
 ## API
@@ -266,3 +266,8 @@ const TEMPLATE_KEYS: { readonly subscriptionStarted: "subscription.started"; rea
 Peer dependencies:
 - `@molecule/api-emails` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-emails`
+- `@molecule/api-i18n`

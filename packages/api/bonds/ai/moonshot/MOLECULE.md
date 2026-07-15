@@ -7,7 +7,7 @@ Moonshot (Kimi) AI provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-moonshot
+npm install @molecule/api-ai-moonshot @molecule/api-ai @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -94,6 +94,13 @@ Peer dependencies:
   - Setup: Create an API key in the Moonshot AI console.
   - Get it here: [https://platform.moonshot.ai/console/api-keys](https://platform.moonshot.ai/console/api-keys)
   - Example: `sk-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
 
 Config: `MOONSHOT_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
 

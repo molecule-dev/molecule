@@ -24,7 +24,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-geolocation-nominatim
+npm install @molecule/api-geolocation-nominatim @molecule/api-geolocation
 ```
 
 ## API
@@ -117,3 +117,7 @@ export function setupGeolocationNominatim(): void {
 
 Peer dependencies:
 - `@molecule/api-geolocation` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-geolocation`

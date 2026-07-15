@@ -27,7 +27,7 @@ setProvider(PROVIDER_NAME, fitbit)
 
 ## Installation
 ```bash
-npm install @molecule/api-wearable-fitbit
+npm install @molecule/api-wearable-fitbit @molecule/api-bond @molecule/api-http @molecule/api-secrets @molecule/api-wearable
 ```
 
 ## API
@@ -671,3 +671,10 @@ Peer dependencies:
 - `OAUTH_FITBIT_CLIENT_SECRET` *(optional)* — Fitbit client secret
   - Setup: Shown on your registered Fitbit application page.
   - Get it here: [https://dev.fitbit.com/apps](https://dev.fitbit.com/apps)
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-http`
+- `@molecule/api-secrets`
+- `@molecule/api-wearable`

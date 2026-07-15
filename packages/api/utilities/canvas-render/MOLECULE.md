@@ -56,7 +56,7 @@ router.post('/canvas/render', async (req, res, next) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-canvas-render
+npm install @molecule/api-canvas-render @napi-rs/canvas
 ```
 
 ## API
@@ -533,6 +533,10 @@ const SVG_CONTENT_TYPE: "image/svg+xml"
 ```
 
 ## Injection Notes
+
+### Runtime Dependencies
+
+- `@napi-rs/canvas`
 
 The renderer is a pure function of its inputs — no fetch, no global state,
 no implicit locale handling. Locale text is the caller's responsibility:

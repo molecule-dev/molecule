@@ -21,7 +21,7 @@ setStore(store)
 
 ## Installation
 ```bash
-npm install @molecule/api-database-sqlite better-sqlite3
+npm install @molecule/api-database-sqlite @molecule/api-bond @molecule/api-database @molecule/api-secrets better-sqlite3
 npm install -D @types/better-sqlite3
 ```
 
@@ -251,6 +251,9 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-secrets`
 - `better-sqlite3`
 
 Configure via the SQLITE_PATH environment variable (default: ./data/app.db).

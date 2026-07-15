@@ -26,7 +26,8 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-i18n-react-i18next
+npm install @molecule/app-i18n-react-i18next @molecule/app-i18n @molecule/app-i18n-i18next i18next react react-i18next
+npm install -D @types/react
 ```
 
 ## API
@@ -439,6 +440,14 @@ export function setupI18nReactI18next(): void {
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-i18n-i18next`
+- `i18next`
+- `react`
+- `react-i18next`
 
 **Startup locale vs. `detection`:** with `detection: true` (the default),
 `defaultLocale` is only the FALLBACK — the actual startup locale is

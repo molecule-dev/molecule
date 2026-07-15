@@ -7,7 +7,7 @@ NFC capabilities interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-nfc
+npm install @molecule/app-nfc @molecule/app-i18n
 ```
 
 ## API
@@ -531,6 +531,10 @@ function writeUrl(url: string): Promise<void>
 
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
 
 ## Translations
 

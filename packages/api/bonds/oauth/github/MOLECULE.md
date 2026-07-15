@@ -7,7 +7,7 @@ GitHub OAuth provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-oauth-github
+npm install @molecule/api-oauth-github @molecule/api-bond @molecule/api-http @molecule/api-oauth @molecule/api-secrets
 ```
 
 ## API
@@ -227,6 +227,13 @@ Peer dependencies:
 - `OAUTH_GITHUB_CLIENT_SECRET` *(required)* — GitHub OAuth client secret
   - Setup: Generate a client secret on your GitHub OAuth App page.
   - Get it here: [https://github.com/settings/developers](https://github.com/settings/developers)
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-http`
+- `@molecule/api-oauth`
+- `@molecule/api-secrets`
 
 - The token exchange (`verify`'s call to GitHub's token endpoint) is
   `application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 — matching

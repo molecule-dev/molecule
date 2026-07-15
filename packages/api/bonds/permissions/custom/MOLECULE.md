@@ -28,7 +28,7 @@ setProvider(perms)
 
 ## Installation
 ```bash
-npm install @molecule/api-permissions-custom
+npm install @molecule/api-permissions-custom @molecule/api-permissions
 ```
 
 ## API
@@ -231,6 +231,10 @@ export function setupPermissionsCustom(): void {
 
 Peer dependencies:
 - `@molecule/api-permissions` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-permissions`
 
 ## E2E Tests
 

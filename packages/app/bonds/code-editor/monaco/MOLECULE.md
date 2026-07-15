@@ -7,7 +7,7 @@ Monaco code editor provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-code-editor-monaco
+npm install @molecule/app-code-editor-monaco @molecule/app-code-editor @molecule/app-i18n @molecule/app-logger monaco-editor
 ```
 
 ## API
@@ -118,3 +118,10 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `monaco-editor` >=0.40.0
+
+### Runtime Dependencies
+
+- `@molecule/app-code-editor`
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `monaco-editor`

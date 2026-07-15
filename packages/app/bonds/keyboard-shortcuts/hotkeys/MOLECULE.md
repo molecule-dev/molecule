@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-keyboard-shortcuts-hotkeys
+npm install @molecule/app-keyboard-shortcuts-hotkeys @molecule/app-keyboard-shortcuts
 ```
 
 ## API
@@ -86,6 +86,10 @@ export function setupKeyboardShortcutsHotkeys(): void {
 
 Peer dependencies:
 - `@molecule/app-keyboard-shortcuts` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-keyboard-shortcuts`
 
 ## E2E Tests
 

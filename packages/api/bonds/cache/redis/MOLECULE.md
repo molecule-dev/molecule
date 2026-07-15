@@ -7,7 +7,7 @@ Redis cache provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-cache-redis
+npm install @molecule/api-cache-redis @molecule/api-bond @molecule/api-cache @molecule/api-secrets ioredis
 ```
 
 ## API
@@ -225,6 +225,13 @@ Peer dependencies:
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: Redis connection string (redis:// or rediss:// for TLS). molecule.dev runs a Redis inside your app's container automatically (dev and production) — set this only to use an external/managed Redis; locally, the Docker Compose default works.
   - Example: `redis://localhost:6379`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-cache`
+- `@molecule/api-secrets`
+- `ioredis`
 
 - **Explicit config beats ambient env.** `createProvider({ host, port, ... })` connects
   to exactly that server even when `REDIS_URL` is set in the environment — env vars

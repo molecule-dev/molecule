@@ -20,7 +20,7 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-tag'
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-tag
+npm install @molecule/api-resource-tag @molecule/api-database @molecule/api-i18n @molecule/api-locales-tag @molecule/api-logger @molecule/api-permissions @molecule/api-resource
 ```
 
 ## API
@@ -418,6 +418,15 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-permissions` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-tag`
+- `@molecule/api-logger`
+- `@molecule/api-permissions`
+- `@molecule/api-resource`
 
 The cross-resource tag routes (`POST /:resourceType/:resourceId/tags`,
 `DELETE /:resourceType/:resourceId/tags/:tagId`) are **fail-closed**: they

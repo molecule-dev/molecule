@@ -34,7 +34,7 @@ center.onUpdate((state) => {
 
 ## Installation
 ```bash
-npm install @molecule/app-notification-center
+npm install @molecule/app-notification-center @molecule/app-bond
 ```
 
 ## API
@@ -408,6 +408,10 @@ function setProvider(provider: NotificationCenterProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 `NotificationCenterState.lastError` is the error surface for a failed
 `refresh()` / `loadMore()` / `poll()` attempt. Without it, a provider that

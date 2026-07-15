@@ -23,7 +23,8 @@ export function NotificationsRoute() {
 
 ## Installation
 ```bash
-npm install @molecule/app-notifications-page-react
+npm install @molecule/app-notifications-page-react @molecule/app-i18n @molecule/app-notification-feed-react @molecule/app-react @molecule/app-ui react
+npm install -D @types/react
 ```
 
 ## API
@@ -211,6 +212,14 @@ Peer dependencies:
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-notification-feed-react`
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `react`
 
 All UI text resolves through `t()` and ships in the companion locale
 bond `@molecule/app-locales-notifications-page`. All styling

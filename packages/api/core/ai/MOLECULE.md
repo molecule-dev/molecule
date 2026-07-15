@@ -28,7 +28,7 @@ console.log(reply)
 
 ## Installation
 ```bash
-npm install @molecule/api-ai
+npm install @molecule/api-ai @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -117,10 +117,10 @@ interface ChatParams {
    * `budgetTokens` is the abstract reasoning budget; bonds without a native
    * token-budget param translate it (e.g. via thresholds) into their provider's
    * control. `effort` — when present — is the PROVIDER-NATIVE effort value for
-   * the active model, resolved by the caller from the model catalog
-   * (`@molecule/api-resource-ai-models` `effortNativeByLevel`), e.g. Anthropic
-   * `output_config.effort` (`'low' | 'medium' | 'high' | 'xhigh' | 'max'`) or an
-   * OpenAI-compatible `reasoning_effort`. Bonds MUST prefer `effort` over
+   * the active model, resolved by the caller from the model catalog (the model's
+   * own `supportedEffortLevels`), e.g. Anthropic `output_config.effort`
+   * (`'low' | 'medium' | 'high' | 'xhigh' | 'max'`) or an OpenAI-compatible
+   * `reasoning_effort`. Bonds MUST prefer `effort` over
    * `budgetTokens` when set: on current Anthropic models (Fable 5 / Opus 4.8 /
    * Sonnet 5) a raw `budget_tokens` request is rejected with a 400 — adaptive
    * thinking + effort is the only control.
@@ -382,6 +382,11 @@ function setProvider(provider: AIProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 The AI provider is a SERVER-side integration — a weak integration leaks the key, trusts
 the model, or gets billed:

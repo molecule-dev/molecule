@@ -7,7 +7,7 @@ Conversation resource for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-ai-conversation
+npm install @molecule/api-resource-ai-conversation @molecule/api-ai @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-ai-conversation @molecule/api-logger @molecule/api-resource
 ```
 
 ## API
@@ -242,3 +242,13 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `@molecule/api-locales-ai-conversation` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-ai-conversation`
+- `@molecule/api-logger`
+- `@molecule/api-resource`

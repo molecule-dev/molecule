@@ -7,7 +7,7 @@ Payment resource with subscription plan management.
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-payment
+npm install @molecule/api-resource-payment @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-payment @molecule/api-logger @molecule/api-payments @molecule/api-resource zod
 ```
 
 ## API
@@ -234,6 +234,17 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-payment`
+- `@molecule/api-logger`
+- `@molecule/api-payments`
+- `@molecule/api-resource`
+- `zod`
 
 A plan/entitlement is granted ONLY after a SERVER-VERIFIED payment — never from anything
 the client reports. The flow (implemented by the user resource's `verifyPayment` handler):

@@ -11,7 +11,7 @@ rendering library (React, Vue, Svelte, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-tailwind
+npm install @molecule/app-ui-tailwind @molecule/app-styling @molecule/app-ui
 ```
 
 ## API
@@ -1906,6 +1906,11 @@ Implements `@molecule/app-ui` interface.
 Peer dependencies:
 - `@molecule/app-styling` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-styling`
+- `@molecule/app-ui`
 
 Theming / where colors come from: the class strings here use semantic tokens
 (`bg-primary`, `text-primary`, `bg-surface`, …), NOT literal palette classes

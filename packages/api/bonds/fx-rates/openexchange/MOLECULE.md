@@ -28,7 +28,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-fx-rates-openexchange
+npm install @molecule/api-fx-rates-openexchange @molecule/api-bond @molecule/api-fx-rates @molecule/api-secrets
 ```
 
 ## API
@@ -200,3 +200,9 @@ Peer dependencies:
 - `OPENEXCHANGE_APP_ID` *(required)* — Open Exchange Rates app ID
   - Setup: Sign up (free tier available) and copy your App ID.
   - Get it here: [https://openexchangerates.org/account/app-ids](https://openexchangerates.org/account/app-ids)
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-fx-rates`
+- `@molecule/api-secrets`

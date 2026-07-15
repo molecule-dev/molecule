@@ -10,7 +10,7 @@ similarity search, metadata filtering, and batch upsert operations.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-vector-store-pinecone
+npm install @molecule/api-ai-vector-store-pinecone @molecule/api-ai-vector-store @pinecone-database/pinecone
 ```
 
 ## API
@@ -61,3 +61,8 @@ Implements `@molecule/api-ai-vector-store` interface.
 
 Peer dependencies:
 - `@molecule/api-ai-vector-store` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai-vector-store`
+- `@pinecone-database/pinecone`

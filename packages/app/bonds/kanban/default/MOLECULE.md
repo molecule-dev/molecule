@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-kanban-default
+npm install @molecule/app-kanban-default @molecule/app-kanban
 ```
 
 ## API
@@ -91,3 +91,7 @@ export function setupKanbanDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-kanban` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-kanban`

@@ -57,7 +57,7 @@ onMessage((roomId, clientId, event, data) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-realtime
+npm install @molecule/api-realtime @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -559,6 +559,11 @@ function setProvider(provider: RealtimeProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 - **Without a registered join guard ANY connected client may join ANY room
   by name** — apps with private rooms MUST register `onJoinRequest` and

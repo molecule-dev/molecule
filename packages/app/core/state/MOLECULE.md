@@ -24,7 +24,7 @@ function Sidebar() {
 
 ## Installation
 ```bash
-npm install @molecule/app-state
+npm install @molecule/app-state @molecule/app-bond @molecule/app-logger
 ```
 
 ## API
@@ -384,6 +384,11 @@ const simpleProvider: StateProvider
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-logger`
 
 Define stores with {@link createStore} and read them through the framework hook
 (`useStore(store)` in React / the Vue composable) — do NOT `import` zustand / redux /

@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-search-typesense
+npm install @molecule/api-search-typesense @molecule/api-search @molecule/api-secrets typesense
 ```
 
 ## API
@@ -460,6 +460,12 @@ Peer dependencies:
   - Example: `localhost`
 - `TYPESENSE_API_KEY` *(required)* — Typesense API key
   - Setup: The API key you configured when launching Typesense (or from Typesense Cloud).
+
+### Runtime Dependencies
+
+- `@molecule/api-search`
+- `@molecule/api-secrets`
+- `typesense`
 
 Provider-specific behavior to know before debugging (verified against
 Typesense 29.0):

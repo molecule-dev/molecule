@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-audit-file
+npm install @molecule/api-audit-file @molecule/api-audit
 ```
 
 ## API
@@ -91,3 +91,7 @@ export function setupAuditFile(): void {
 
 Peer dependencies:
 - `@molecule/api-audit` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-audit`

@@ -10,7 +10,7 @@ management, context awareness, and session persistence.
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-assistant-default
+npm install @molecule/app-ai-assistant-default @molecule/app-ai-assistant
 ```
 
 ## API
@@ -86,3 +86,7 @@ export function setupAiAssistantDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-ai-assistant` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-ai-assistant`

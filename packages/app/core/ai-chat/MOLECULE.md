@@ -7,7 +7,7 @@ AI chat core interface for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-chat
+npm install @molecule/app-ai-chat @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -77,6 +77,14 @@ interface ChatConfig {
    * so it stays visible but renders in the distinct auto-sent style.
    */
   automatic?: boolean
+  /**
+   * When true alongside {@link automatic}, the send was directly requested by
+   * the user (e.g. a "Fix with AI" button) rather than dispatched autonomously.
+   * The server's user-stop gate refuses autonomous automatic turns after an
+   * explicit Stop; a user-initiated one is the user re-engaging, so it runs
+   * (and clears the stop). Sent to the server in the request body.
+   */
+  userInitiated?: boolean
 }
 ```
 
@@ -478,6 +486,11 @@ function setProvider(provider: ChatProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 Chat runs through YOUR backend, not the AI provider directly. Bond a chat provider (e.g.
 `@molecule/app-ai-chat-http`) pointed at your API's chat endpoint; the frontend sends

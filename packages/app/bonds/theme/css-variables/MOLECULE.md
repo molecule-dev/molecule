@@ -41,7 +41,7 @@ Then use CSS variables in your stylesheets:
 
 ## Installation
 ```bash
-npm install @molecule/app-theme-css-variables
+npm install @molecule/app-theme-css-variables @molecule/app-theme
 ```
 
 ## API
@@ -149,6 +149,10 @@ export function setupThemeCssVariables(): void {
 
 Peer dependencies:
 - `@molecule/app-theme` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-theme`
 
 Recoloring a scaffolded app — where the palette actually lives:
 

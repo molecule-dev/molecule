@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-image-jimp
+npm install @molecule/api-image-jimp @molecule/api-image jimp
 ```
 
 ## API
@@ -87,6 +87,11 @@ export function setupImageJimp(): void {
 
 Peer dependencies:
 - `@molecule/api-image` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-image`
+- `jimp`
 
 ## E2E Tests
 

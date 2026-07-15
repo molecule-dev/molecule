@@ -31,7 +31,7 @@ setProvider(createProvider({
 
 ## Installation
 ```bash
-npm install @molecule/api-video-rooms-livekit
+npm install @molecule/api-video-rooms-livekit @molecule/api-secrets @molecule/api-video-rooms livekit-server-sdk
 ```
 
 ## API
@@ -264,3 +264,9 @@ Peer dependencies:
 - `LIVEKIT_API_SECRET` *(required)* — LiveKit API secret
   - Setup: Shown when creating the key in LiveKit Cloud.
   - Get it here: [https://cloud.livekit.io/](https://cloud.livekit.io/)
+
+### Runtime Dependencies
+
+- `@molecule/api-secrets`
+- `@molecule/api-video-rooms`
+- `livekit-server-sdk`

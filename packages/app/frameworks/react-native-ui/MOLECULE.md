@@ -9,7 +9,7 @@ Re-exports all components and UI prop types from `@molecule/app-ui`.
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-react-native
+npm install @molecule/app-ui-react-native @molecule/app-i18n @molecule/app-icons @molecule/app-ui react react-native
 ```
 
 ## API
@@ -1872,6 +1872,14 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-native` >=0.72.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-icons`
+- `@molecule/app-ui`
+- `react`
+- `react-native`
 
 ## Translations
 

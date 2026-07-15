@@ -7,7 +7,7 @@ Default HTTP image generator provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-image-generator-default
+npm install @molecule/app-ai-image-generator-default @molecule/app-ai-image-generator @molecule/app-i18n
 ```
 
 ## API
@@ -83,3 +83,8 @@ export function setupAiImageGeneratorDefault(): void {
 Peer dependencies:
 - `@molecule/app-ai-image-generator` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-ai-image-generator`
+- `@molecule/app-i18n`

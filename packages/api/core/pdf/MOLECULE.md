@@ -25,7 +25,7 @@ const merged = await merge([pdf, anotherPdf])
 
 ## Installation
 ```bash
-npm install @molecule/api-pdf
+npm install @molecule/api-pdf @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -386,3 +386,8 @@ function toImages(pdf: Buffer<ArrayBufferLike>, options?: RenderOptions): Promis
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

@@ -29,7 +29,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-equity-prices-polygon
+npm install @molecule/api-equity-prices-polygon @molecule/api-equity-prices @molecule/api-secrets
 ```
 
 ## API
@@ -180,3 +180,8 @@ Peer dependencies:
 - `POLYGON_API_KEY` *(required)* — Polygon.io API key
   - Setup: Copy your API key from the Polygon.io dashboard.
   - Get it here: [https://polygon.io/dashboard/api-keys](https://polygon.io/dashboard/api-keys)
+
+### Runtime Dependencies
+
+- `@molecule/api-equity-prices`
+- `@molecule/api-secrets`

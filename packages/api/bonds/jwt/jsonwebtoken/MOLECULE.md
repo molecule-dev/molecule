@@ -7,7 +7,8 @@ JSON Web Token provider using jsonwebtoken for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-jwt-jsonwebtoken
+npm install @molecule/api-jwt-jsonwebtoken @molecule/api-jwt @molecule/api-secrets jsonwebtoken
+npm install -D @types/jsonwebtoken
 ```
 
 ## API
@@ -60,3 +61,9 @@ Peer dependencies:
   - **Auto-generated at scaffold — no manual setup.**
 - `JWT_PUBLIC_KEY` *(required)* — JWT verification key (RSA public)
   - **Auto-generated at scaffold — no manual setup.**
+
+### Runtime Dependencies
+
+- `@molecule/api-jwt`
+- `@molecule/api-secrets`
+- `jsonwebtoken`

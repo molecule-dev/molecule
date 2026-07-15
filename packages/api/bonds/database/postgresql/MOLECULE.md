@@ -7,7 +7,7 @@ The PostgreSQL client.
 
 ## Installation
 ```bash
-npm install @molecule/api-database-postgresql pg
+npm install @molecule/api-database-postgresql @molecule/api-bond @molecule/api-database @molecule/api-secrets glob pg
 npm install -D @types/pg
 ```
 
@@ -179,6 +179,10 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-secrets`
+- `glob`
 - `pg`
 
 Bond this as the DataStore (`setStore(store)`); app code then uses the abstract

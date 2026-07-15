@@ -47,7 +47,8 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
 
 ## Installation
 ```bash
-npm install @molecule/app-settings-panel-react
+npm install @molecule/app-settings-panel-react @molecule/app-auth @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router-dom
+npm install -D @types/react
 ```
 
 ## API
@@ -424,3 +425,12 @@ Peer dependencies:
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-router-dom` ^6.0.0 || ^7.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-auth`
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `@molecule/app-ui-react`
+- `react`
+- `react-router-dom`

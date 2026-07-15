@@ -30,7 +30,7 @@ await remove('user')
 
 ## Installation
 ```bash
-npm install @molecule/app-storage-async-storage
+npm install @molecule/app-storage-async-storage @molecule/app-i18n @molecule/app-logger @molecule/app-storage @react-native-async-storage/async-storage
 ```
 
 ## API
@@ -158,3 +158,10 @@ Peer dependencies:
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-storage` ^1.0.0
 - `@react-native-async-storage/async-storage` ^2.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@molecule/app-storage`
+- `@react-native-async-storage/async-storage`

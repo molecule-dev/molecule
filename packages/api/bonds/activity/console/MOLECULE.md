@@ -19,7 +19,7 @@ setSink(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-activity-console
+npm install @molecule/api-activity-console @molecule/api-activity @molecule/api-logger
 ```
 
 ## API
@@ -69,3 +69,8 @@ export function setupActivityConsole(): void {
 Peer dependencies:
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-activity`
+- `@molecule/api-logger`

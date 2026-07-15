@@ -45,7 +45,7 @@ interfaces with Svelte's idioms (stores, context, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-svelte
+npm install @molecule/app-svelte @molecule/app-auth @molecule/app-device @molecule/app-forms @molecule/app-http @molecule/app-i18n @molecule/app-logger @molecule/app-platform @molecule/app-push @molecule/app-routing @molecule/app-state @molecule/app-storage @molecule/app-theme @molecule/app-ui @molecule/app-utilities @molecule/app-version svelte
 ```
 
 ## API
@@ -1890,6 +1890,25 @@ Peer dependencies:
 - `@molecule/app-utilities` ^1.0.0
 - `@molecule/app-version` ^1.0.0
 - `svelte` ^4.0.0 || ^5.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-auth`
+- `@molecule/app-device`
+- `@molecule/app-forms`
+- `@molecule/app-http`
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@molecule/app-platform`
+- `@molecule/app-push`
+- `@molecule/app-routing`
+- `@molecule/app-state`
+- `@molecule/app-storage`
+- `@molecule/app-theme`
+- `@molecule/app-ui`
+- `@molecule/app-utilities`
+- `@molecule/app-version`
+- `svelte`
 
 ## Translations
 

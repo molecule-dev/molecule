@@ -73,7 +73,7 @@ const handler = createOpenApiHandler(doc)
 
 ## Installation
 ```bash
-npm install @molecule/api-openapi
+npm install @molecule/api-openapi zod
 ```
 
 ## API
@@ -730,6 +730,10 @@ function zodToJsonSchema(schema: ZodLikeSchema | JsonSchema): JsonSchema
 **Returns:** JSON Schema with the OpenAPI-incompatible `$schema` field removed.
 
 ## Injection Notes
+
+### Runtime Dependencies
+
+- `zod`
 
 for passing zod schemas.
 const route: RouteDefinition = {

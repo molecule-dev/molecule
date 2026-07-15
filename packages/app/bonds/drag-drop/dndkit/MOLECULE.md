@@ -21,7 +21,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-drag-drop-dndkit
+npm install @molecule/app-drag-drop-dndkit @molecule/app-drag-drop
 ```
 
 ## API
@@ -199,3 +199,7 @@ export function setupDragDropDndkit(): void {
 
 Peer dependencies:
 - `@molecule/app-drag-drop` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-drag-drop`

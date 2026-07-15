@@ -37,7 +37,7 @@ app.use(authMiddleware, getTenantMiddleware())
 
 ## Installation
 ```bash
-npm install @molecule/api-multi-tenancy
+npm install @molecule/api-multi-tenancy @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -324,6 +324,11 @@ function setTenant(tenantId: string): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 **Tenant resolution is security-critical — the tenant header is attacker-controlled.**
 Any caller can send `x-tenant-id: <victim-tenant>`. A provider wired with NO membership

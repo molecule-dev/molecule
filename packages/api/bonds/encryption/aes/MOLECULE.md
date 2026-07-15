@@ -26,7 +26,7 @@ setProvider(customProvider)
 
 ## Installation
 ```bash
-npm install @molecule/api-encryption-aes
+npm install @molecule/api-encryption-aes @molecule/api-encryption @molecule/api-secrets
 ```
 
 ## API
@@ -115,3 +115,8 @@ Peer dependencies:
 
 - `ENCRYPTION_KEY` *(required)* — AES-256 encryption key
   - **Auto-generated at scaffold — no manual setup.**
+
+### Runtime Dependencies
+
+- `@molecule/api-encryption`
+- `@molecule/api-secrets`

@@ -23,7 +23,7 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-follow'
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-follow
+npm install @molecule/api-resource-follow @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
 
 ## API
@@ -257,3 +257,10 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-resource`

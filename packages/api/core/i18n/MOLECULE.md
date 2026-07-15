@@ -10,7 +10,7 @@ for translations and localization with per-request locale support.
 
 ## Installation
 ```bash
-npm install @molecule/api-i18n
+npm install @molecule/api-i18n @molecule/api-bond
 ```
 
 ## API
@@ -508,3 +508,7 @@ const simpleProvider: I18nProvider
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`

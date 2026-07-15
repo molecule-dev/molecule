@@ -34,7 +34,7 @@ const { summary, usage } = await requireProvider().summarize({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-summarization
+npm install @molecule/api-ai-summarization @molecule/api-ai @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -197,6 +197,12 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 This core imports `@molecule/api-ai` only as a *type* (the shared `TokenUsage`
 interface on `SummarizeResult`) — never for runtime use. A provider must be

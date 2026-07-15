@@ -25,7 +25,7 @@ const suggestions = await suggest('products', 'wid', { limit: 5 })
 
 ## Installation
 ```bash
-npm install @molecule/api-search
+npm install @molecule/api-search @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -551,6 +551,11 @@ function suggest(indexName: string, query: string, options?: SuggestOptions): Pr
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 - **Empty/whitespace-only `SearchQuery.text` is "browse" mode** — every
   bundled bond matches ALL documents (filters/sort/pagination still

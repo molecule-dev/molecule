@@ -22,7 +22,7 @@ for (const route of routes) {
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-notification
+npm install @molecule/api-resource-notification @molecule/api-notification-center
 ```
 
 ## API
@@ -267,3 +267,7 @@ const routes: readonly [{ readonly method: "get"; readonly path: "/notifications
 
 Peer dependencies:
 - `@molecule/api-notification-center` 1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-notification-center`

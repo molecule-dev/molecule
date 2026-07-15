@@ -30,7 +30,8 @@ import { BarcodeScanner } from '@molecule/app-feature-barcode-scanner-react'
 
 ## Installation
 ```bash
-npm install @molecule/app-feature-barcode-scanner-react @zxing/library
+npm install @molecule/app-feature-barcode-scanner-react @molecule/app-react @molecule/app-ui @zxing/library react
+npm install -D @types/react
 ```
 
 ## API
@@ -245,7 +246,10 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/app-react`
+- `@molecule/app-ui`
 - `@zxing/library`
+- `react`
 
 All user-visible text routes through the companion locale bond
 `@molecule/app-locales-feature-barcode-scanner`. Styling

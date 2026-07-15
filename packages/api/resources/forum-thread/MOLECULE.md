@@ -22,7 +22,8 @@ app.use('/threads', createForumThreadRouter({
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-forum-thread
+npm install @molecule/api-resource-forum-thread @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -248,3 +249,12 @@ Peer dependencies:
 - `@molecule/api-middleware-validation` ^1.0.0
 - `express` ^5.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-validation`
+- `express`
+- `zod`

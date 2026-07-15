@@ -10,7 +10,7 @@ Not suitable for production multi-instance deployments.
 
 ## Installation
 ```bash
-npm install @molecule/api-cache-memory
+npm install @molecule/api-cache-memory @molecule/api-cache
 ```
 
 ## API
@@ -196,3 +196,7 @@ export function setupCacheMemory(): void {
 
 Peer dependencies:
 - `@molecule/api-cache` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-cache`

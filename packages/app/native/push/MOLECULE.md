@@ -10,7 +10,7 @@ different platforms (web, Capacitor, React Native, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-push
+npm install @molecule/app-push @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -542,6 +542,11 @@ function setProvider(provider: PushProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

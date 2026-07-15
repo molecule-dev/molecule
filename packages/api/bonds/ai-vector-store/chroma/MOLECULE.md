@@ -7,7 +7,7 @@ ChromaDB vector store provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-vector-store-chroma
+npm install @molecule/api-ai-vector-store-chroma @molecule/api-ai-vector-store chromadb
 ```
 
 ## API
@@ -62,3 +62,8 @@ Implements `@molecule/api-ai-vector-store` interface.
 
 Peer dependencies:
 - `@molecule/api-ai-vector-store` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai-vector-store`
+- `chromadb`

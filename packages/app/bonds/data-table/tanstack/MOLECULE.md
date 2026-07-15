@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-data-table-tanstack
+npm install @molecule/app-data-table-tanstack @molecule/app-data-table @tanstack/table-core
 ```
 
 ## API
@@ -87,6 +87,11 @@ export function setupDataTableTanstack(): void {
 
 Peer dependencies:
 - `@molecule/app-data-table` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-data-table`
+- `@tanstack/table-core`
 
 ## E2E Tests
 

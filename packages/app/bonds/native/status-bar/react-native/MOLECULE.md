@@ -10,7 +10,7 @@ from `@molecule/app-status-bar`.
 
 ## Installation
 ```bash
-npm install @molecule/app-status-bar-react-native
+npm install @molecule/app-status-bar-react-native @molecule/app-i18n @molecule/app-status-bar react-native
 ```
 
 ## API
@@ -90,6 +90,12 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-status-bar` ^1.0.0
 - `react-native` >=0.72.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-status-bar`
+- `react-native`
 
 ## Translations
 

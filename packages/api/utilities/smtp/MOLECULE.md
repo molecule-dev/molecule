@@ -41,7 +41,8 @@ await client.disconnect()
 
 ## Installation
 ```bash
-npm install @molecule/api-smtp
+npm install @molecule/api-smtp nodemailer
+npm install -D @types/nodemailer
 ```
 
 ## API
@@ -337,6 +338,10 @@ function connectSmtp(config: SmtpConfig, internals?: ConnectSmtpInternals): Prom
 **Returns:** Connected {@link SmtpClient}.
 
 ## Injection Notes
+
+### Runtime Dependencies
+
+- `nodemailer`
 
 Throws {@link SmtpError} (`error.code` is one of `invalid-config`,
 `connection-failed`, `auth-failed`, `tls-required`, `send-failed`,

@@ -18,7 +18,7 @@ setProvider(createQuillProvider())
 
 ## Installation
 ```bash
-npm install @molecule/app-rich-text-quill
+npm install @molecule/app-rich-text-quill @molecule/app-rich-text dompurify quill
 ```
 
 ## API
@@ -465,3 +465,9 @@ export function setupRichTextQuill(): void {
 
 Peer dependencies:
 - `@molecule/app-rich-text` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-rich-text`
+- `dompurify`
+- `quill`

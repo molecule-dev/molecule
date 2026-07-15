@@ -7,7 +7,7 @@ DeepSeek AI provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-deepseek
+npm install @molecule/api-ai-deepseek @molecule/api-ai @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -102,6 +102,13 @@ Peer dependencies:
   - Setup: Create an API key on the DeepSeek open platform.
   - Get it here: [https://platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys)
   - Example: `sk-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
 
 Config: `DEEPSEEK_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
 

@@ -7,7 +7,8 @@ Top-level React error boundary that logs render errors via the bonded app logger
 
 ## Installation
 ```bash
-npm install @molecule/app-root-error-boundary-react
+npm install @molecule/app-root-error-boundary-react @molecule/app-i18n @molecule/app-logger @molecule/app-ui react
+npm install -D @types/react
 ```
 
 ## API
@@ -31,3 +32,10 @@ Peer dependencies:
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@molecule/app-ui`
+- `react`

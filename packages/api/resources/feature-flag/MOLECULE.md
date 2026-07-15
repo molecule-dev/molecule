@@ -32,7 +32,8 @@ const flag = await createFlagForUser(userId, {
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-feature-flag
+npm install @molecule/api-resource-feature-flag @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -234,6 +235,15 @@ Peer dependencies:
 - `@molecule/api-middleware-validation` ^1.0.0
 - `express` ^5.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-validation`
+- `express`
+- `zod`
 
 Run `src/__setup__/feature_flags.sql` once to create the
 `feature_flags` + `feature_flag_targeting_rules` tables.

@@ -24,7 +24,7 @@ captureException(new Error('boom'), { tags: { source: 'worker' } })
 
 ## Installation
 ```bash
-npm install @molecule/api-error-tracking-sentry @sentry/node
+npm install @molecule/api-error-tracking-sentry @molecule/api-bond @molecule/api-error-tracking @molecule/api-secrets @sentry/node
 ```
 
 ## API
@@ -88,6 +88,9 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/api-bond`
+- `@molecule/api-error-tracking`
+- `@molecule/api-secrets`
 - `@sentry/node`
 
 - **Without `SENTRY_DSN` the provider is a documented no-op.** It never

@@ -15,7 +15,7 @@ caller even if the route's `'authenticate'` middleware is stripped by codegen.
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-ai-models
+npm install @molecule/api-resource-ai-models @molecule/api-bond @molecule/api-i18n @molecule/api-resource
 ```
 
 ## API
@@ -427,3 +427,9 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-resource`

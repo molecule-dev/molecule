@@ -7,7 +7,7 @@ Live preview core interface for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-live-preview
+npm install @molecule/app-live-preview @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -252,6 +252,11 @@ const PREVIEW_CACHE_BUSTER_PARAM: "_r"
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

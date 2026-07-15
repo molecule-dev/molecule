@@ -7,7 +7,7 @@ IDE workspace core interface for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-ide
+npm install @molecule/app-ide @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -179,6 +179,11 @@ function setProvider(provider: WorkspaceProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

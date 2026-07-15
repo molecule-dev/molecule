@@ -43,7 +43,8 @@ function Demo() {
 
 ## Installation
 ```bash
-npm install @molecule/app-mind-map-canvas-react @molecule/app-feature-canvas-react @molecule/app-locales-mind-map-canvas-react
+npm install @molecule/app-mind-map-canvas-react @molecule/app-feature-canvas-react @molecule/app-react @molecule/app-ui react
+npm install -D @types/react
 ```
 
 ## API
@@ -390,7 +391,9 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-feature-canvas-react`
-- `@molecule/app-locales-mind-map-canvas-react`
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `react`
 
 ## Translations
 

@@ -31,7 +31,7 @@ router.get('/files/:id', async (req, res) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-uploads
+npm install @molecule/api-uploads @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -250,6 +250,11 @@ function setProvider(provider: UploadProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 A weak upload integration leaks files or trusts the client. Enforce these in your
 handler around {@link UploadProvider.upload} / {@link UploadProvider.getFile} /

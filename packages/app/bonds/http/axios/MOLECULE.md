@@ -29,7 +29,7 @@ const newUser = await post('/users', { name: 'John' })
 
 ## Installation
 ```bash
-npm install @molecule/app-http-axios
+npm install @molecule/app-http-axios @molecule/app-http axios
 ```
 
 ## API
@@ -353,3 +353,8 @@ export function setupHttpAxios(): void {
 Peer dependencies:
 - `@molecule/app-http` ^1.0.0
 - `axios` ^1.6.0
+
+### Runtime Dependencies
+
+- `@molecule/app-http`
+- `axios`

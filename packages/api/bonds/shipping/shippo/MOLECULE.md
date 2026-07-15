@@ -26,7 +26,7 @@ const rates = await getRates({ from, to, parcels: [{ length, width, height, weig
 
 ## Installation
 ```bash
-npm install @molecule/api-shipping-shippo
+npm install @molecule/api-shipping-shippo @molecule/api-bond @molecule/api-secrets @molecule/api-shipping
 ```
 
 ## API
@@ -390,6 +390,12 @@ Peer dependencies:
   - Setup: Copy the test or live token from Shippo → Settings → API.
   - Get it here: [https://apps.goshippo.com/settings/api](https://apps.goshippo.com/settings/api)
   - Example: `shippo_test_...`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-secrets`
+- `@molecule/api-shipping`
 
 Requires `SHIPPO_API_KEY` in the environment (test or live token).
 Optionally `SHIPPO_API_URL` to override the base URL (sandbox / proxy).

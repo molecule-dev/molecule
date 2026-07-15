@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-staging-docker-compose
+npm install @molecule/api-staging-docker-compose @molecule/api-staging
 ```
 
 ## API
@@ -215,6 +215,10 @@ export function setupStagingDockerCompose(): void {
 
 Peer dependencies:
 - `@molecule/api-staging` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-staging`
 
 - Requires Docker Compose v2.24+ and BuildKit: the generated compose file
   uses long-syntax `env_file` (`required: false` — a project without `.env`

@@ -25,7 +25,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-fx-rates-ecb
+npm install @molecule/api-fx-rates-ecb @molecule/api-bond @molecule/api-fx-rates fast-xml-parser
 ```
 
 ## API
@@ -176,3 +176,9 @@ export function setupFxRatesEcb(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-fx-rates` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-fx-rates`
+- `fast-xml-parser`

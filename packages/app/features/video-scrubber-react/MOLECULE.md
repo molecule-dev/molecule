@@ -37,7 +37,8 @@ import { VideoScrubber } from '@molecule/app-feature-video-scrubber-react'
 
 ## Installation
 ```bash
-npm install @molecule/app-feature-video-scrubber-react
+npm install @molecule/app-feature-video-scrubber-react @molecule/app-react @molecule/app-ui react
+npm install -D @types/react
 ```
 
 ## API
@@ -237,6 +238,12 @@ Peer dependencies:
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `react`
 
 `onSeek` is always called with frame-snapped times. Click anywhere on
 the filmstrip to seek; press the strip with keyboard focus and use

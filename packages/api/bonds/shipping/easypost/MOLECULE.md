@@ -25,7 +25,7 @@ const rates = await getRates({ from, to, parcels: [{ length, width, height, weig
 
 ## Installation
 ```bash
-npm install @molecule/api-shipping-easypost
+npm install @molecule/api-shipping-easypost @molecule/api-bond @molecule/api-secrets @molecule/api-shipping
 ```
 
 ## API
@@ -393,6 +393,12 @@ Peer dependencies:
   - Setup: Copy the test or production API key from EasyPost → Account → API Keys.
   - Get it here: [https://app.easypost.com/account/api-keys](https://app.easypost.com/account/api-keys)
   - Example: `EZAK...`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-secrets`
+- `@molecule/api-shipping`
 
 Requires `EASYPOST_API_KEY` in the environment. Optionally
 `EASYPOST_API_URL` to override the base URL (sandbox / proxy).

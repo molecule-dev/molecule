@@ -36,7 +36,7 @@ board.onUpdate((state) => {
 
 ## Installation
 ```bash
-npm install @molecule/app-kanban
+npm install @molecule/app-kanban @molecule/app-bond
 ```
 
 ## API
@@ -382,3 +382,7 @@ function setProvider(provider: KanbanProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`

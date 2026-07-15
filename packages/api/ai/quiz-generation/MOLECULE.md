@@ -30,7 +30,8 @@ const result = await gradeResponses({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-quiz-generation
+npm install @molecule/api-ai-quiz-generation @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -106,8 +107,6 @@ type Difficulty = 'easy' | 'medium' | 'hard'
 
 #### `QuestionType`
 
-Union of supported quiz question formats.
-
 ```typescript
 type QuestionType = 'multiple_choice' | 'true_false' | 'short_answer' | 'fill_in_the_blank'
 ```
@@ -142,3 +141,13 @@ Peer dependencies:
 - `express` ^5.0.0
 - `zod` ^4.0.0
 - `@molecule/api-ai` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-validation`
+- `express`
+- `zod`

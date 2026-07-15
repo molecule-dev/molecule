@@ -12,7 +12,7 @@ startup. Application code retrieves icons via {@link getIcon} /
 
 ## Installation
 ```bash
-npm install @molecule/app-icons
+npm install @molecule/app-icons @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -277,6 +277,11 @@ function setIconSet(iconSet: IconSet): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 `getIconSet()` (and therefore `getIcon()` / `getIconDataUrl()`) throws a
 package-specific error naming the actual fix — "call `setIconSet()` with

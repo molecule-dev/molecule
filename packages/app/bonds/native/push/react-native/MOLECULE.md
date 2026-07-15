@@ -10,7 +10,7 @@ from `@molecule/app-push`.
 
 ## Installation
 ```bash
-npm install @molecule/app-push-react-native
+npm install @molecule/app-push-react-native @molecule/app-i18n @molecule/app-logger @molecule/app-push expo-notifications
 ```
 
 ## API
@@ -90,6 +90,13 @@ Peer dependencies:
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-push` ^1.0.0
 - `expo-notifications` >=0.20.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@molecule/app-push`
+- `expo-notifications`
 
 ## Translations
 

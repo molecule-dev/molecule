@@ -10,7 +10,7 @@ theme mapping, and dynamic class generation.
 
 ## Installation
 ```bash
-npm install @molecule/app-styling-tailwind
+npm install @molecule/app-styling-tailwind @molecule/app-styling @molecule/app-theme tailwind-merge
 ```
 
 ## API
@@ -300,3 +300,9 @@ Implements `@molecule/app-styling` interface.
 Peer dependencies:
 - `@molecule/app-styling` ^1.0.0
 - `@molecule/app-theme` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-styling`
+- `@molecule/app-theme`
+- `tailwind-merge`

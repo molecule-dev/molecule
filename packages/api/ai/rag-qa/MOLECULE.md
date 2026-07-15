@@ -33,7 +33,8 @@ const { answer, sources } = await answerQuestion({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-rag-qa
+npm install @molecule/api-ai-rag-qa @molecule/api-ai @molecule/api-ai-embeddings @molecule/api-ai-vector-store @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -154,3 +155,15 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-ai-embeddings` ^1.0.0
 - `@molecule/api-ai-vector-store` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-ai-embeddings`
+- `@molecule/api-ai-vector-store`
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-validation`
+- `express`
+- `zod`

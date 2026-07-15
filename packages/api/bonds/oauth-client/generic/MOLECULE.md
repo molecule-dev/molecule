@@ -34,7 +34,7 @@ const tokens = await getToken(config, code)
 
 ## Installation
 ```bash
-npm install @molecule/api-oauth-client-generic
+npm install @molecule/api-oauth-client-generic @molecule/api-oauth-client
 ```
 
 ## API
@@ -108,3 +108,7 @@ export function setupOauthClientGeneric(): void {
 
 Peer dependencies:
 - `@molecule/api-oauth-client` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-oauth-client`

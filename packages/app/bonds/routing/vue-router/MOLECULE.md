@@ -32,7 +32,7 @@ function navigateToProfile() {
 
 ## Installation
 ```bash
-npm install @molecule/app-routing-vue-router
+npm install @molecule/app-routing-vue-router @molecule/app-i18n @molecule/app-routing vue vue-router
 ```
 
 ## API
@@ -584,3 +584,10 @@ Peer dependencies:
 - `@molecule/app-routing` ^1.0.0
 - `vue` ^3.4.0
 - `vue-router` ^4.3.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-routing`
+- `vue`
+- `vue-router`

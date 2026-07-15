@@ -20,7 +20,7 @@ await remove('theme')
 
 ## Installation
 ```bash
-npm install @molecule/app-storage
+npm install @molecule/app-storage @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -193,6 +193,11 @@ function setProvider(provider: StorageProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 Use this abstraction — {@link get}/{@link set}/{@link remove}/{@link clear}/{@link keys}
 (all async) — for client persistence. Do NOT touch `localStorage` / `sessionStorage` /

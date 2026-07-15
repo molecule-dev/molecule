@@ -10,7 +10,7 @@ for analytics, feature detection, and platform-specific behavior.
 
 ## Installation
 ```bash
-npm install @molecule/app-device
+npm install @molecule/app-device @molecule/app-bond
 ```
 
 ## API
@@ -557,3 +557,7 @@ function supports(feature: keyof FeatureSupport): boolean
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`

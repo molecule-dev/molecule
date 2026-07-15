@@ -22,7 +22,7 @@ setClassMap(classMap)
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-tailwind-glass
+npm install @molecule/app-ui-tailwind-glass @molecule/app-styling @molecule/app-ui @molecule/app-ui-tailwind
 ```
 
 ## API
@@ -72,6 +72,12 @@ Peer dependencies:
 - `@molecule/app-styling` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-tailwind` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-styling`
+- `@molecule/app-ui`
+- `@molecule/app-ui-tailwind`
 
 This package extends (not replaces) the base Tailwind ClassMap.
 All component classes remain identical — only surface components

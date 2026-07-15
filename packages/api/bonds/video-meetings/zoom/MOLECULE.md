@@ -26,7 +26,7 @@ setProvider(createProvider({
 
 ## Installation
 ```bash
-npm install @molecule/api-video-meetings-zoom
+npm install @molecule/api-video-meetings-zoom @molecule/api-secrets @molecule/api-video-meetings
 ```
 
 ## API
@@ -150,3 +150,8 @@ Peer dependencies:
 - `ZOOM_CLIENT_SECRET` *(required)* — Zoom client secret
   - Setup: From your Server-to-Server OAuth app credentials.
   - Get it here: [https://marketplace.zoom.us/](https://marketplace.zoom.us/)
+
+### Runtime Dependencies
+
+- `@molecule/api-secrets`
+- `@molecule/api-video-meetings`

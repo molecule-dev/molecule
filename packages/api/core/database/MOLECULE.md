@@ -35,7 +35,7 @@ await deleteById('users', id)
 
 ## Installation
 ```bash
-npm install @molecule/api-database
+npm install @molecule/api-database @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -628,6 +628,11 @@ function updateMany(table: string, where: WhereCondition[], data: Record<string,
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 Data-access contract — the rules code generators most often get wrong:
 

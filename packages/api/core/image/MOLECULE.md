@@ -25,7 +25,7 @@ const meta = await getMetadata(imageBuffer)
 
 ## Installation
 ```bash
-npm install @molecule/api-image
+npm install @molecule/api-image @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -411,6 +411,11 @@ function thumbnail(input: Buffer<ArrayBufferLike>, size: number): Promise<Buffer
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 ## E2E Tests
 

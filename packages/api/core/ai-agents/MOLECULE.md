@@ -48,7 +48,7 @@ console.log(result.usage)  // token usage summed across all model calls
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-agents
+npm install @molecule/api-ai-agents @molecule/api-ai @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -283,6 +283,12 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 **Requires a bonded `ai` provider** (`bond('ai', provider)` or a named
 provider selected via `run({ provider: 'anthropic' })`) whose model supports

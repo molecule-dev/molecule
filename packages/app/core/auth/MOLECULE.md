@@ -10,7 +10,7 @@ auth strategies (JWT, session, OAuth, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-auth
+npm install @molecule/app-auth @molecule/app-bond @molecule/app-i18n @molecule/app-logger
 ```
 
 ## API
@@ -645,6 +645,12 @@ Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
 
 ## Translations
 

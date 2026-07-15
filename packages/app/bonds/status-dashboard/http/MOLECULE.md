@@ -7,7 +7,7 @@ HTTP status dashboard provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-status-dashboard-http
+npm install @molecule/app-status-dashboard-http @molecule/app-i18n @molecule/app-status-dashboard
 ```
 
 ## API
@@ -81,3 +81,8 @@ export function setupStatusDashboardHttp(): void {
 Peer dependencies:
 - `@molecule/app-status-dashboard` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-status-dashboard`

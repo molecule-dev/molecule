@@ -11,7 +11,7 @@ Supports reading/writing health data from HealthKit (iOS) and Google Fit (Androi
 
 ## Installation
 ```bash
-npm install @molecule/app-health
+npm install @molecule/app-health @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -598,6 +598,11 @@ const DataTypeGroups: { readonly activity: HealthDataType[]; readonly body: Heal
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

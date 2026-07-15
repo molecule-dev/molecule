@@ -13,7 +13,8 @@ Extracted from ai-email-composer flagship.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-email-composer
+npm install @molecule/api-ai-email-composer @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -67,8 +68,6 @@ type EmailLength = 'short' | 'medium' | 'long'
 
 #### `EmailTone`
 
-Tone preset controlling the voice and register of the generated email.
-
 ```typescript
 type EmailTone =
   | 'professional'
@@ -101,3 +100,13 @@ Peer dependencies:
 - `express` ^5.0.0
 - `zod` ^4.0.0
 - `@molecule/api-ai` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-validation`
+- `express`
+- `zod`

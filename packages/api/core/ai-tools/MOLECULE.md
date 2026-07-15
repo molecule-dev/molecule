@@ -20,7 +20,7 @@ const systemPrompt = buildAgentPrompt({ agentName: 'My Agent', projectRoot: '/pa
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-tools
+npm install @molecule/api-ai-tools @molecule/api-ai
 ```
 
 ## API
@@ -503,3 +503,7 @@ const TOOL_SCHEMAS: Record<string, ToolSchema>
 
 Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`

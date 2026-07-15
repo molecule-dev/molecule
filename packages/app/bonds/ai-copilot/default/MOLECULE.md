@@ -9,7 +9,7 @@ HTTP/SSE-based inline AI suggestion provider.
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-copilot-default
+npm install @molecule/app-ai-copilot-default @molecule/app-ai-copilot @molecule/app-i18n
 ```
 
 ## API
@@ -60,3 +60,8 @@ Implements `@molecule/app-ai-copilot` interface.
 Peer dependencies:
 - `@molecule/app-ai-copilot` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-ai-copilot`
+- `@molecule/app-i18n`

@@ -7,7 +7,7 @@ Network status interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-network
+npm install @molecule/app-network @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -362,6 +362,11 @@ function whenOnline(callback: () => T | Promise<T>, timeout?: number): Promise<T
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

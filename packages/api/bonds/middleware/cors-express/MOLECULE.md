@@ -17,7 +17,8 @@ setCorsFactory(corsFactory)
 
 ## Installation
 ```bash
-npm install @molecule/api-middleware-cors-express
+npm install @molecule/api-middleware-cors-express @molecule/api-middleware-cors cors
+npm install -D @types/cors
 ```
 
 ## API
@@ -73,3 +74,8 @@ export function setupMiddlewareCorsExpress(): void {
 
 Peer dependencies:
 - `@molecule/api-middleware-cors` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-middleware-cors`
+- `cors`

@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-search-meilisearch
+npm install @molecule/api-search-meilisearch @molecule/api-search @molecule/api-secrets meilisearch
 ```
 
 ## API
@@ -457,6 +457,12 @@ Peer dependencies:
 - `MEILISEARCH_API_KEY` *(optional)* — Meilisearch API key
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: The master key (or a scoped API key) you configured when launching Meilisearch (--master-key / MEILI_MASTER_KEY). Optional for keyless local or in-container instances.
+
+### Runtime Dependencies
+
+- `@molecule/api-search`
+- `@molecule/api-secrets`
+- `meilisearch`
 
 Provider-specific behavior to know before debugging:
 

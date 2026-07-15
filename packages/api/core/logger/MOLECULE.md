@@ -33,7 +33,7 @@ resetLogger()
 
 ## Installation
 ```bash
-npm install @molecule/api-logger
+npm install @molecule/api-logger @molecule/api-bond
 ```
 
 ## API
@@ -150,6 +150,10 @@ const logger: Logger
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 - **`logger.debug(...)`/`logger.trace(...)` print nothing by default.** The
   minimum level is `'info'` (from the `LOG_LEVEL` env var, falling back to

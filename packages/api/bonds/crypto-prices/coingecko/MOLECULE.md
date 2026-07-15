@@ -23,7 +23,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-crypto-prices-coingecko
+npm install @molecule/api-crypto-prices-coingecko @molecule/api-crypto-prices
 ```
 
 ## API
@@ -137,3 +137,7 @@ export function setupCryptoPricesCoingecko(): void {
 
 Peer dependencies:
 - `@molecule/api-crypto-prices` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-crypto-prices`

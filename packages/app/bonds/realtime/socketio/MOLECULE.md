@@ -58,7 +58,7 @@ setProvider(createSocketioProvider({
 
 ## Installation
 ```bash
-npm install @molecule/app-realtime-socketio
+npm install @molecule/app-realtime-socketio @molecule/app-realtime socket.io-client
 ```
 
 ## API
@@ -312,6 +312,11 @@ export function setupRealtimeSocketio(): void {
 
 Peer dependencies:
 - `@molecule/app-realtime` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-realtime`
+- `socket.io-client`
 
 - `joinRoom()` promises are deferred while disconnected: the join is
   emitted on (re)connect and the promise stays pending until the server

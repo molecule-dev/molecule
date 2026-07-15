@@ -26,7 +26,7 @@ const vectors = await requireProvider().embedDocuments(['a', 'b']) // number[][]
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-embeddings-local
+npm install @molecule/api-ai-embeddings-local @huggingface/transformers @molecule/api-ai-embeddings
 ```
 
 ## API
@@ -127,6 +127,11 @@ export function setupAiEmbeddingsLocal(): void {
 
 Peer dependencies:
 - `@molecule/api-ai-embeddings` >=1.0.0
+
+### Runtime Dependencies
+
+- `@huggingface/transformers`
+- `@molecule/api-ai-embeddings`
 
 - **The model loads lazily on the first embed call** (~a few seconds) and then
   stays resident (~200–300 MB RAM). Nothing loads if you never embed.

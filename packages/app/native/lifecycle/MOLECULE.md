@@ -10,7 +10,7 @@ that works across different platforms (web, Capacitor, React Native, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-lifecycle
+npm install @molecule/app-lifecycle @molecule/app-bond
 ```
 
 ## API
@@ -403,3 +403,7 @@ const webProvider: LifecycleProvider | null
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`

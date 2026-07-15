@@ -15,7 +15,7 @@ to generate their class strings.
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-svelte
+npm install @molecule/app-ui-svelte @molecule/app-i18n @molecule/app-icons @molecule/app-ui svelte
 ```
 
 ## API
@@ -4500,6 +4500,13 @@ Peer dependencies:
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `svelte` ^4.0.0 || ^5.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-icons`
+- `@molecule/app-ui`
+- `svelte`
 
 ## Translations
 

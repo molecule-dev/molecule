@@ -16,7 +16,7 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-cart'
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-cart
+npm install @molecule/api-resource-cart @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
 
 ## API
@@ -398,6 +398,13 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-resource`
 
 **SECURITY — cart item prices are CLIENT-SUPPLIED and unverified.** This
 resource is GENERIC (no product/catalog table), so `addItem()` stores the

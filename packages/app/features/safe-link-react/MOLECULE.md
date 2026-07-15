@@ -19,7 +19,8 @@ import { SafeLink } from '@molecule/app-safe-link-react'
 
 ## Installation
 ```bash
-npm install @molecule/app-safe-link-react
+npm install @molecule/app-safe-link-react react react-router-dom
+npm install -D @types/react
 ```
 
 ## API
@@ -55,3 +56,8 @@ function SafeLink({
 Peer dependencies:
 - `react` ^18.0.0 || ^19.0.0
 - `react-router-dom` ^6.0.0 || ^7.0.0
+
+### Runtime Dependencies
+
+- `react`
+- `react-router-dom`

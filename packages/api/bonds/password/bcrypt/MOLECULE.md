@@ -7,7 +7,7 @@ Password hashing provider using bcryptjs for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-password-bcrypt
+npm install @molecule/api-password-bcrypt @molecule/api-password bcryptjs
 ```
 
 ## API
@@ -44,6 +44,11 @@ export function setupPasswordBcrypt(): void {
 
 Peer dependencies:
 - `@molecule/api-password` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-password`
+- `bcryptjs`
 
 bcrypt semantics a consumer must know (verified against the real bcryptjs):
 

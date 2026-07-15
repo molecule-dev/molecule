@@ -26,7 +26,7 @@ setProvider(createProvider({
 
 ## Installation
 ```bash
-npm install @molecule/api-notification-center-database
+npm install @molecule/api-notification-center-database @molecule/api-database @molecule/api-notification-center
 ```
 
 ## API
@@ -73,3 +73,8 @@ Implements `@molecule/api-notification-center` interface.
 Peer dependencies:
 - `@molecule/api-database` 1.0.0
 - `@molecule/api-notification-center` 1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-notification-center`

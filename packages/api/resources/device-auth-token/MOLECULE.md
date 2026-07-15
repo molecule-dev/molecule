@@ -31,7 +31,7 @@ if (verified) await recordTokenUse(verified.id, request.ip)
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-device-auth-token
+npm install @molecule/api-resource-device-auth-token @molecule/api-database @molecule/api-resource
 ```
 
 ## API
@@ -324,6 +324,11 @@ const resource: types.Resource
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-resource`
 
 The `src/__setup__/device_auth_tokens.sql` migration file ships with
 this package and must be applied to the target database before use.

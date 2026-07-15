@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-tree-view-default
+npm install @molecule/app-tree-view-default @molecule/app-tree-view
 ```
 
 ## API
@@ -83,3 +83,7 @@ export function setupTreeViewDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-tree-view` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-tree-view`

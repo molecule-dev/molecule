@@ -18,7 +18,7 @@ setProvider('slack', provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-notifications-slack
+npm install @molecule/api-notifications-slack @molecule/api-notifications @molecule/api-secrets
 ```
 
 ## API
@@ -97,3 +97,8 @@ Peer dependencies:
   - Setup: Create a Slack app → Incoming Webhooks → Add New Webhook to Workspace, then copy the URL.
   - Get it here: [https://api.slack.com/apps](https://api.slack.com/apps)
   - Example: `https://hooks.slack.com/services/T00000000/B00000000/XXXX`
+
+### Runtime Dependencies
+
+- `@molecule/api-notifications`
+- `@molecule/api-secrets`

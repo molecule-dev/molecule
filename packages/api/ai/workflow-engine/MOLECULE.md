@@ -37,7 +37,8 @@ const run = await engine.execute({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-workflow-engine
+npm install @molecule/api-ai-workflow-engine @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -160,8 +161,6 @@ type WorkflowStep = ConditionStep | ActionStep | DelayStep | AIPromptStep
 
 #### `WorkflowStepType`
 
-Union of all supported step type discriminants.
-
 ```typescript
 type WorkflowStepType = 'condition' | 'action' | 'delay' | 'http' | 'ai_prompt'
 ```
@@ -188,3 +187,13 @@ Peer dependencies:
 - `express` ^5.0.0
 - `zod` ^4.0.0
 - `@molecule/api-ai` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-middleware-validation`
+- `express`
+- `zod`

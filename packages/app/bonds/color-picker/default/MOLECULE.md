@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-color-picker-default
+npm install @molecule/app-color-picker-default @molecule/app-color-picker
 ```
 
 ## API
@@ -83,3 +83,7 @@ export function setupColorPickerDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-color-picker` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-color-picker`

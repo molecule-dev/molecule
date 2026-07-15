@@ -37,7 +37,7 @@ await assertCourseStaff(req.userId, course.id)
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-course
+npm install @molecule/api-resource-course @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource-course @molecule/api-resource
 ```
 
 ## API
@@ -629,6 +629,13 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-resource-course` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-resource-course`
+- `@molecule/api-resource`
 
 The package depends on `@molecule/api-database` (DataStore) — no raw SQL
 is used in handler code. Wire any DataStore bond (PostgreSQL, MongoDB, etc.)

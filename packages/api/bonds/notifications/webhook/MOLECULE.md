@@ -18,7 +18,7 @@ setProvider('webhook', provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-notifications-webhook
+npm install @molecule/api-notifications-webhook @molecule/api-notifications @molecule/api-secrets
 ```
 
 ## API
@@ -101,6 +101,11 @@ Peer dependencies:
   - Example: `https://example.com/hooks/notify`
 - `NOTIFICATIONS_WEBHOOK_SECRET` *(optional)* — Notification webhook signing secret
   - **Auto-generated at scaffold — no manual setup.**
+
+### Runtime Dependencies
+
+- `@molecule/api-notifications`
+- `@molecule/api-secrets`
 
 Wire format: the POST body is
 `{ subject, body, timestamp, metadata }` — `metadata` is nested under its

@@ -11,7 +11,7 @@ Supports scanning, connecting, reading/writing characteristics.
 
 ## Installation
 ```bash
-npm install @molecule/app-bluetooth
+npm install @molecule/app-bluetooth @molecule/app-i18n
 ```
 
 ## API
@@ -671,6 +671,10 @@ const StandardServices: { readonly GENERIC_ACCESS: "00001800-0000-1000-8000-0080
 
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
 
 ## Translations
 

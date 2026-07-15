@@ -33,7 +33,8 @@ const html = await render(`
 
 ## Installation
 ```bash
-npm install @molecule/api-templating-mjml
+npm install @molecule/api-templating-mjml @molecule/api-templating handlebars mjml
+npm install -D @types/mjml
 ```
 
 ## API
@@ -133,3 +134,9 @@ export function setupTemplatingMjml(): void {
 
 Peer dependencies:
 - `@molecule/api-templating` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-templating`
+- `handlebars`
+- `mjml`

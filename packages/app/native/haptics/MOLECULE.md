@@ -7,7 +7,7 @@ Haptic feedback interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-haptics
+npm install @molecule/app-haptics @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -242,6 +242,11 @@ const patterns: { readonly doubleTap: HapticPatternElement[]; readonly tripleTap
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

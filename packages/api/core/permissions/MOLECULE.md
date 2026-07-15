@@ -25,7 +25,7 @@ const allowed = await can('user:123', 'write', 'project')
 
 ## Installation
 ```bash
-npm install @molecule/api-permissions
+npm install @molecule/api-permissions @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -348,6 +348,11 @@ function setProvider(provider: PermissionsProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 ## E2E Tests
 

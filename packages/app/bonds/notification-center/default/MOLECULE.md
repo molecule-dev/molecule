@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-notification-center-default
+npm install @molecule/app-notification-center-default @molecule/app-notification-center
 ```
 
 ## API
@@ -93,6 +93,10 @@ export function setupNotificationCenterDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-notification-center` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-notification-center`
 
 `poll()`, `loadMore()`, and `refresh()` all catch their own fetch
 failures — the in-memory list is never wiped and the loop/promise chain

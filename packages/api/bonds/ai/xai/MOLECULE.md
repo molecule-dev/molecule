@@ -7,7 +7,7 @@ xAI Grok AI provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-xai
+npm install @molecule/api-ai-xai @molecule/api-ai @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -78,6 +78,12 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 Config: `XAI_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
 

@@ -24,7 +24,7 @@ subscribe<{ userId: string; kind: string }>('emails', async (msg) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-queue
+npm install @molecule/api-queue @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -367,6 +367,11 @@ function subscribe(queueName: string, handler: MessageHandler<T>, options?: Rece
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 Delivery is AT-LEAST-ONCE — a message can arrive more than once (retry after a crash, a
 redelivery), so:

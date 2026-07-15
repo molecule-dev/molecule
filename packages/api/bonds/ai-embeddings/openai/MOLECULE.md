@@ -7,7 +7,7 @@ OpenAI ai-embeddings provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-embeddings-openai
+npm install @molecule/api-ai-embeddings-openai @molecule/api-ai-embeddings @molecule/api-secrets
 ```
 
 ## API
@@ -95,3 +95,8 @@ Peer dependencies:
   - Setup: Create a secret key on the OpenAI platform (API keys page).
   - Get it here: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
   - Example: `sk-proj-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai-embeddings`
+- `@molecule/api-secrets`

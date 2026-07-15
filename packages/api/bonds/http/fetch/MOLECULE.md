@@ -16,7 +16,7 @@ setClient(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-http-fetch
+npm install @molecule/api-http-fetch @molecule/api-http
 ```
 
 ## API
@@ -61,3 +61,7 @@ export function setupHttpFetch(): void {
 
 Peer dependencies:
 - `@molecule/api-http` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-http`

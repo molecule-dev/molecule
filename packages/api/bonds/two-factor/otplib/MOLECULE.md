@@ -7,7 +7,8 @@ Two-factor authentication provider using otplib for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-two-factor-otplib
+npm install @molecule/api-two-factor-otplib @molecule/api-two-factor otplib qrcode
+npm install -D @types/qrcode
 ```
 
 ## API
@@ -44,6 +45,12 @@ export function setupTwoFactorOtplib(): void {
 
 Peer dependencies:
 - `@molecule/api-two-factor` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-two-factor`
+- `otplib`
+- `qrcode`
 
 **Testing the flow end-to-end without an authenticator app.** A TOTP feature
 is only verified when a real code passes the challenge — and no phone is

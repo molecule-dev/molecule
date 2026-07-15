@@ -28,7 +28,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-i18n-i18next
+npm install @molecule/app-i18n-i18next @molecule/app-i18n @molecule/app-logger i18next i18next-browser-languagedetector
 ```
 
 ## API
@@ -419,6 +419,13 @@ export function setupI18nI18next(): void {
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `i18next`
+- `i18next-browser-languagedetector`
 
 **Startup locale vs. `detection`:** with `detection: true` (the default),
 `defaultLocale` is only the FALLBACK — the actual startup locale is

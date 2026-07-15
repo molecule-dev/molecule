@@ -52,7 +52,7 @@ const stop = startAudioRenderWorker({
 
 ## Installation
 ```bash
-npm install @molecule/api-audio-render
+npm install @molecule/api-audio-render @molecule/api-queue
 ```
 
 ## API
@@ -574,6 +574,10 @@ const DEFAULT_AUDIO_RENDER_QUEUE: "audio-render"
 
 Peer dependencies:
 - `@molecule/api-queue` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-queue`
 
 **Security:** Every caller-controlled string (clip `audioUrl`, output
 path) is checked against {@link sanitizeAudioPath} before it reaches

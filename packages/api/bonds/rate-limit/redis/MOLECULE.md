@@ -26,7 +26,7 @@ setProvider(redisRateLimit)
 
 ## Installation
 ```bash
-npm install @molecule/api-rate-limit-redis
+npm install @molecule/api-rate-limit-redis @molecule/api-rate-limit ioredis
 ```
 
 ## API
@@ -187,3 +187,8 @@ export function setupRateLimitRedis(): void {
 
 Peer dependencies:
 - `@molecule/api-rate-limit` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-rate-limit`
+- `ioredis`

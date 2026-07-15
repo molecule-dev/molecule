@@ -7,7 +7,8 @@ Pgvector ai-vector-store-pgvector provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-vector-store-pgvector
+npm install @molecule/api-ai-vector-store-pgvector @molecule/api-ai-vector-store pg pgvector
+npm install -D @types/pg
 ```
 
 ## API
@@ -71,3 +72,9 @@ Implements `@molecule/api-ai-vector-store` interface.
 
 Peer dependencies:
 - `@molecule/api-ai-vector-store` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai-vector-store`
+- `pg`
+- `pgvector`

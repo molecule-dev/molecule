@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-command-palette-cmdk
+npm install @molecule/app-command-palette-cmdk @molecule/app-command-palette
 ```
 
 ## API
@@ -139,6 +139,10 @@ export function setupCommandPaletteCmdk(): void {
 
 Peer dependencies:
 - `@molecule/app-command-palette` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-command-palette`
 
 ## E2E Tests
 

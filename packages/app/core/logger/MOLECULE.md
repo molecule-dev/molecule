@@ -10,7 +10,7 @@ implementations (console, loglevel, remote logging, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-logger
+npm install @molecule/app-logger @molecule/app-bond
 ```
 
 ## API
@@ -436,3 +436,7 @@ const LOG_LEVEL_PRIORITY: Record<LogLevel, number>
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`

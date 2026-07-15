@@ -33,7 +33,7 @@ const result = await transcode('/path/to/video.mp4', [
 
 ## Installation
 ```bash
-npm install @molecule/api-media-streaming
+npm install @molecule/api-media-streaming @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -343,3 +343,8 @@ function transcode(input: string | Buffer<ArrayBufferLike>, profiles: TranscodeP
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

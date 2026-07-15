@@ -7,7 +7,7 @@ Openai ai-image-generation-openai provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-image-generation-openai
+npm install @molecule/api-ai-image-generation-openai @molecule/api-ai-image-generation @molecule/api-secrets
 ```
 
 ## API
@@ -74,3 +74,8 @@ Peer dependencies:
   - Setup: Create a secret key on the OpenAI platform (API keys page).
   - Get it here: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
   - Example: `sk-proj-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai-image-generation`
+- `@molecule/api-secrets`

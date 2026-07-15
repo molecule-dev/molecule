@@ -33,7 +33,7 @@ const { summary, usage } = await requireProvider().summarize({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-summarization-llm
+npm install @molecule/api-ai-summarization-llm @molecule/api-ai @molecule/api-ai-summarization @molecule/api-i18n
 ```
 
 ## API
@@ -77,6 +77,12 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-ai-summarization` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-ai-summarization`
+- `@molecule/api-i18n`
 
 Composes the swappable `ai` bond: an `ai` provider MUST be bonded first
 (`bond('ai', <provider>)`) or `summarize()` throws (a missing AI provider

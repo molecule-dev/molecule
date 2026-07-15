@@ -28,7 +28,7 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-message'
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-message
+npm install @molecule/api-resource-message @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-realtime @molecule/api-resource zod
 ```
 
 ## API
@@ -471,6 +471,15 @@ Peer dependencies:
 - `@molecule/api-realtime` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-realtime`
+- `@molecule/api-resource`
+- `zod`
 
 Realtime delivery is best-effort — messages are persisted before any
 broadcast attempt and a missing realtime bond is silently a no-op.

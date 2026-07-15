@@ -7,7 +7,7 @@ Status dashboard core interface for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-status-dashboard
+npm install @molecule/app-status-dashboard @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -230,6 +230,11 @@ function setProvider(provider: StatusDashboardProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

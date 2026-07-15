@@ -11,7 +11,7 @@ keyless by default.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-local
+npm install @molecule/api-ai-local @molecule/api-ai @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -97,6 +97,13 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
 
 **Error message disambiguation**: a plain 400 that ISN'T a context-length error (bad param,
 malformed tool schema) gets its own non-retryable message distinct from the generic

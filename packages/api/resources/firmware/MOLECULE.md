@@ -49,7 +49,8 @@ app.use('/api/firmware', createFirmwareRouter({ requireDeviceToken }))
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-firmware
+npm install @molecule/api-resource-firmware @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-middleware-validation @molecule/api-realtime express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -333,6 +334,17 @@ Peer dependencies:
 - `@molecule/api-realtime` ^1.0.0
 - `express` ^5.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-middleware-validation`
+- `@molecule/api-realtime`
+- `express`
+- `zod`
 
 The schema in `__setup__/firmware.sql` creates `firmware_versions`,
 `firmware_rollouts`, and `firmware_update_tasks`. The resource also

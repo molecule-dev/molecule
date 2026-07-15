@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-search-postgres
+npm install @molecule/api-search-postgres @molecule/api-database @molecule/api-search
 ```
 
 ## API
@@ -436,6 +436,11 @@ export function setupSearchPostgres(): void {
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-search` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-search`
 
 Provider-specific behavior to know before debugging:
 

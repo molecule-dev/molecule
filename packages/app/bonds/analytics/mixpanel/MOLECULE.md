@@ -23,7 +23,7 @@ if (token) {
 
 ## Installation
 ```bash
-npm install @molecule/app-analytics-mixpanel
+npm install @molecule/app-analytics-mixpanel @molecule/app-analytics mixpanel-browser
 ```
 
 ## API
@@ -223,6 +223,11 @@ Peer dependencies:
 - `VITE_MIXPANEL_TOKEN` *(required)* — Mixpanel project token
   - Setup: Copy the Project Token from Mixpanel → Project Settings → Access Keys. This is a public browser-side token — Vite embeds it into the client bundle (VITE_ prefix required).
   - Get it here: [https://mixpanel.com/settings/project](https://mixpanel.com/settings/project)
+
+### Runtime Dependencies
+
+- `@molecule/app-analytics`
+- `mixpanel-browser`
 
 The provider does NOT read env itself — configuration flows in through
 `createProvider(options)`. The canonical env name is `VITE_MIXPANEL_TOKEN`

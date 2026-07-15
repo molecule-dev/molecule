@@ -30,7 +30,7 @@ setLogger(
 
 ## Installation
 ```bash
-npm install @molecule/api-logger-winston
+npm install @molecule/api-logger-winston @molecule/api-logger winston
 ```
 
 ## API
@@ -171,6 +171,11 @@ export function setupLoggerWinston(): void {
 
 Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-logger`
+- `winston`
 
 - Console-style variadic calls are bridged onto winston's
   `(message, meta)` shape: `logger.info('msg', contextObj)` merges

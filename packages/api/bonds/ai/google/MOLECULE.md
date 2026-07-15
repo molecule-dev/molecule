@@ -7,7 +7,7 @@ Google Gemini AI provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-google
+npm install @molecule/api-ai-google @molecule/api-ai @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -102,6 +102,13 @@ Peer dependencies:
   - Setup: Create a Gemini API key in Google AI Studio.
   - Get it here: [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
   - Example: `AIza...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
 
 Config: `GOOGLE_AI_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
 Missing `GOOGLE_AI_API_KEY` fails fast (throws naming the exact env var on first use — the

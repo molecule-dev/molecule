@@ -9,7 +9,7 @@ Provides isolated container environments for running user projects.
 
 ## Installation
 ```bash
-npm install @molecule/api-code-sandbox
+npm install @molecule/api-code-sandbox @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -224,6 +224,11 @@ function setProvider(provider: SandboxProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 ## Translations
 

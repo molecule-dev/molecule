@@ -27,7 +27,7 @@ const sortable = createSortable({
 
 ## Installation
 ```bash
-npm install @molecule/app-drag-drop
+npm install @molecule/app-drag-drop @molecule/app-bond
 ```
 
 ## API
@@ -393,3 +393,7 @@ function setProvider(provider: DragDropProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`

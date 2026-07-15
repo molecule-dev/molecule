@@ -9,7 +9,7 @@ Provides a Redux Toolkit-based implementation of the molecule state interface.
 
 ## Installation
 ```bash
-npm install @molecule/app-state-redux
+npm install @molecule/app-state-redux @molecule/app-state @reduxjs/toolkit
 ```
 
 ## API
@@ -379,3 +379,8 @@ export function setupStateRedux(): void {
 
 Peer dependencies:
 - `@molecule/app-state` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-state`
+- `@reduxjs/toolkit`

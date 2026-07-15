@@ -38,7 +38,7 @@ await createTicketFromEmail(email)
 
 ## Installation
 ```bash
-npm install @molecule/api-emails-inbound
+npm install @molecule/api-emails-inbound @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -440,3 +440,8 @@ function verifySignature(headers: Record<string, string | string[] | undefined>,
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

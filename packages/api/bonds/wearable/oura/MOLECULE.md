@@ -30,7 +30,7 @@ setProvider(PROVIDER_NAME, oura)
 
 ## Installation
 ```bash
-npm install @molecule/api-wearable-oura
+npm install @molecule/api-wearable-oura @molecule/api-bond @molecule/api-http @molecule/api-secrets @molecule/api-wearable
 ```
 
 ## API
@@ -623,3 +623,10 @@ Peer dependencies:
 - `OAUTH_OURA_CLIENT_SECRET` *(required)* — Oura client secret
   - Setup: Shown when creating the OAuth application in Oura Cloud.
   - Get it here: [https://cloud.ouraring.com/oauth/applications](https://cloud.ouraring.com/oauth/applications)
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-http`
+- `@molecule/api-secrets`
+- `@molecule/api-wearable`

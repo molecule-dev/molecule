@@ -10,7 +10,7 @@ implementations (PostHog, Mixpanel, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-analytics
+npm install @molecule/app-analytics @molecule/app-bond
 ```
 
 ## API
@@ -290,6 +290,10 @@ function track(event: AnalyticsEvent): Promise<void>
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - Every convenience function (`track`, `identify`, `page`, …) swallows
   provider errors and no-ops when nothing is bonded — analytics can never

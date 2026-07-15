@@ -36,7 +36,7 @@ const status = await getJobStatus(result.jobId)
 
 ## Installation
 ```bash
-npm install @molecule/api-import-export
+npm install @molecule/api-import-export @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -421,6 +421,11 @@ function setProvider(provider: ImportExportProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 ## E2E Tests
 

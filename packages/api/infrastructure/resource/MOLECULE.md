@@ -50,7 +50,7 @@ const requestHandlerMap = {
 
 ## Installation
 ```bash
-npm install @molecule/api-resource
+npm install @molecule/api-resource @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource @molecule/api-utilities-validation uuid zod
 ```
 
 ## API
@@ -472,6 +472,16 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-resource` ^1.0.0
 - `@molecule/api-utilities-validation` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-resource`
+- `@molecule/api-utilities-validation`
+- `uuid`
+- `zod`
 
 Working WITH installed `@molecule/api-resource-*` packages (auth `getUserId`,
 table ownership, migrations) — what generated code most often breaks:

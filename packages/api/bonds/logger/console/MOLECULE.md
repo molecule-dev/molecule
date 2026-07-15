@@ -17,7 +17,7 @@ logger.info('Server started on port', 3000)
 
 ## Installation
 ```bash
-npm install @molecule/api-logger-console
+npm install @molecule/api-logger-console @molecule/api-logger
 ```
 
 ## API
@@ -62,6 +62,10 @@ export function setupLoggerConsole(): void {
 
 Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-logger`
 
 - The provider passes every level straight to the matching `console`
   method — minimum-level filtering happens once, in `@molecule/api-logger`

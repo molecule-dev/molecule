@@ -7,7 +7,7 @@ Calendar access interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-device-calendar
+npm install @molecule/app-device-calendar @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -503,3 +503,8 @@ function updateEvent(eventId: string, event: Partial<EventInput>): Promise<Calen
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`

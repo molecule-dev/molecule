@@ -7,7 +7,7 @@ Molecule default icon set for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-icons-molecule
+npm install @molecule/app-icons-molecule @molecule/app-icons
 ```
 
 ## API
@@ -639,3 +639,7 @@ Implements `@molecule/app-icons` interface.
 
 Peer dependencies:
 - `@molecule/app-icons` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-icons`

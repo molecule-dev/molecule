@@ -26,7 +26,7 @@ await send('emails', { body: { userId: 'u1' } })
 
 ## Installation
 ```bash
-npm install @molecule/api-queue-redis
+npm install @molecule/api-queue-redis @molecule/api-bond @molecule/api-queue @molecule/api-secrets bullmq
 ```
 
 ## API
@@ -324,6 +324,13 @@ Peer dependencies:
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: Redis connection string (redis:// or rediss:// for TLS). molecule.dev runs a Redis inside your app's container automatically (dev and production) — set this only to use an external/managed Redis; locally, the Docker Compose default works.
   - Example: `redis://localhost:6379`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-queue`
+- `@molecule/api-secrets`
+- `bullmq`
 
 Delivery semantics (at-least-once — handlers must be idempotent):
 

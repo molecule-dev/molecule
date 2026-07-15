@@ -24,7 +24,7 @@ setProvider(customProvider)
 
 ## Installation
 ```bash
-npm install @molecule/api-monitoring-default
+npm install @molecule/api-monitoring-default @molecule/api-bond @molecule/api-i18n @molecule/api-monitoring
 ```
 
 ## API
@@ -93,6 +93,12 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-monitoring` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-monitoring`
 
 - **`runAll()` never rejects.** A check that THROWS (easy with
   `createCustomCheck`) becomes a `'down'` entry carrying the thrown message;

@@ -7,7 +7,7 @@ Battery status interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-battery
+npm install @molecule/app-battery @molecule/app-i18n
 ```
 
 ## API
@@ -411,6 +411,10 @@ function waitForLevel(targetLevel: number, options?: { timeout?: number; checkIn
 
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
 
 ## Translations
 

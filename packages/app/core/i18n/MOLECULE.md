@@ -18,7 +18,7 @@ import { t } from '@molecule/app-i18n'
 
 ## Installation
 ```bash
-npm install @molecule/app-i18n
+npm install @molecule/app-i18n @molecule/app-bond @molecule/app-logger
 ```
 
 ## API
@@ -648,6 +648,11 @@ const simpleProvider: I18nProvider
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-logger`
 
 Every user-visible string must go through `t()` — never hardcode UI text. And
 ALWAYS supply `{ defaultValue: 'English text' }`: a bare `t('settings.save')`

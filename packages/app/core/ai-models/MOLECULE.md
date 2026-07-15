@@ -11,7 +11,7 @@ bindings (e.g. `useAIModels` in `@molecule/app-react`) wrap this loader.
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-models
+npm install @molecule/app-ai-models @molecule/app-http
 ```
 
 ## API
@@ -294,3 +294,7 @@ const PROVIDER_BRAND_COLORS: Readonly<Record<AIProviderID, string>>
 
 Peer dependencies:
 - `@molecule/app-http` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-http`

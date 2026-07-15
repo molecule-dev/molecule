@@ -26,7 +26,8 @@ await send('emails', { body: { userId: 'u1' } })
 
 ## Installation
 ```bash
-npm install @molecule/api-queue-rabbitmq
+npm install @molecule/api-queue-rabbitmq @molecule/api-bond @molecule/api-i18n @molecule/api-queue @molecule/api-secrets amqplib
+npm install -D @types/amqplib
 ```
 
 ## API
@@ -336,6 +337,14 @@ Peer dependencies:
 - `RABBITMQ_URL` *(required)* — RabbitMQ connection URL — default: `amqp://localhost`
   - Setup: AMQP connection URL of your RabbitMQ instance.
   - Example: `amqp://guest:guest@localhost:5672`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-queue`
+- `@molecule/api-secrets`
+- `amqplib`
 
 Delivery semantics (at-least-once — handlers must be idempotent):
 

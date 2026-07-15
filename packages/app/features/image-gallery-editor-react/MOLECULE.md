@@ -32,7 +32,8 @@ const [slots, setSlots] = useState<(string | null)[]>(Array(4).fill(null))
 
 ## Installation
 ```bash
-npm install @molecule/app-image-gallery-editor-react
+npm install @molecule/app-image-gallery-editor-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
+npm install -D @types/react
 ```
 
 ## API
@@ -80,3 +81,10 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `@molecule/app-ui-react`
+- `react`

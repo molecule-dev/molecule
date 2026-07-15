@@ -18,7 +18,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-secrets-env
+npm install @molecule/api-secrets-env @molecule/api-secrets
 ```
 
 ## API
@@ -111,3 +111,7 @@ export function setupSecretsEnv(): void {
 
 Peer dependencies:
 - `@molecule/api-secrets` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-secrets`

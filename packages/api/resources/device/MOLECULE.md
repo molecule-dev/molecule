@@ -7,7 +7,7 @@ The `device` resource types, schema, and definition.
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-device
+npm install @molecule/api-resource-device @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-device @molecule/api-resource zod
 ```
 
 ## API
@@ -247,3 +247,12 @@ Peer dependencies:
 - `@molecule/api-locales-device` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `@molecule/api-database` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-device`
+- `@molecule/api-resource`
+- `zod`

@@ -20,7 +20,7 @@ provider.configure({ windowMs: 60_000, max: 100 })
 
 ## Installation
 ```bash
-npm install @molecule/api-rate-limit-memory
+npm install @molecule/api-rate-limit-memory @molecule/api-rate-limit
 ```
 
 ## API
@@ -76,3 +76,7 @@ export function setupRateLimitMemory(): void {
 
 Peer dependencies:
 - `@molecule/api-rate-limit` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-rate-limit`

@@ -7,7 +7,7 @@ MySQL database provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-database-mysql mysql2
+npm install @molecule/api-database-mysql @molecule/api-bond @molecule/api-database @molecule/api-secrets mysql2
 ```
 
 ## API
@@ -374,6 +374,9 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-secrets`
 - `mysql2`
 
 - **Connection config is required, one way or another.** Set `MYSQL_URL`, OR the

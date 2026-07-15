@@ -31,7 +31,7 @@ await schedule('cleanup', '0 3 * * *', async () => {
 
 ## Installation
 ```bash
-npm install @molecule/api-cron-bullmq
+npm install @molecule/api-cron-bullmq @molecule/api-bond @molecule/api-cron bullmq
 ```
 
 ## API
@@ -110,6 +110,12 @@ Implements `@molecule/api-cron` interface.
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-cron` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-cron`
+- `bullmq`
 
 - **`schedule()` must be called for every job on every process boot** —
   including after a restart. The repeatable job scheduler lives in Redis

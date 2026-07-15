@@ -47,7 +47,7 @@ function UserProfile() {
 
 ## Installation
 ```bash
-npm install @molecule/app-solid
+npm install @molecule/app-solid @molecule/app-auth @molecule/app-device @molecule/app-forms @molecule/app-http @molecule/app-i18n @molecule/app-logger @molecule/app-platform @molecule/app-push @molecule/app-routing @molecule/app-state @molecule/app-storage @molecule/app-theme @molecule/app-ui @molecule/app-utilities @molecule/app-version solid-js
 ```
 
 ## API
@@ -2298,6 +2298,25 @@ Peer dependencies:
 - `@molecule/app-utilities` ^1.0.0
 - `@molecule/app-version` ^1.0.0
 - `solid-js` ^1.8.0
+
+### Runtime Dependencies
+
+- `@molecule/app-auth`
+- `@molecule/app-device`
+- `@molecule/app-forms`
+- `@molecule/app-http`
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@molecule/app-platform`
+- `@molecule/app-push`
+- `@molecule/app-routing`
+- `@molecule/app-state`
+- `@molecule/app-storage`
+- `@molecule/app-theme`
+- `@molecule/app-ui`
+- `@molecule/app-utilities`
+- `@molecule/app-version`
+- `solid-js`
 
 ## Translations
 

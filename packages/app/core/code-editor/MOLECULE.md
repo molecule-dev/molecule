@@ -7,7 +7,7 @@ Code editor core interface for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-code-editor
+npm install @molecule/app-code-editor @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -265,6 +265,11 @@ function setProvider(provider: EditorProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

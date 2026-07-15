@@ -18,7 +18,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-secrets-doppler
+npm install @molecule/api-secrets-doppler @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -121,6 +121,12 @@ Peer dependencies:
   - Setup: Create a service token for your project config (Project → Access → Service Tokens).
   - Get it here: [https://dashboard.doppler.com/](https://dashboard.doppler.com/)
   - Example: `dp.st....`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
 
 ## Translations
 

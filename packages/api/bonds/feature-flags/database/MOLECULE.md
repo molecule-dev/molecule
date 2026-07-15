@@ -26,7 +26,7 @@ setProvider(customProvider)
 
 ## Installation
 ```bash
-npm install @molecule/api-feature-flags-database
+npm install @molecule/api-feature-flags-database @molecule/api-database @molecule/api-feature-flags
 ```
 
 ## API
@@ -96,3 +96,8 @@ export function setupFeatureFlagsDatabase(): void {
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-feature-flags` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-feature-flags`

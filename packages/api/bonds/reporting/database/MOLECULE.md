@@ -21,7 +21,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-reporting-database
+npm install @molecule/api-reporting-database @molecule/api-database @molecule/api-reporting
 ```
 
 ## API
@@ -337,6 +337,11 @@ export function setupReportingDatabase(): void {
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-reporting` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-reporting`
 
 ## E2E Tests
 

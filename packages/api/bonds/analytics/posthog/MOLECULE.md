@@ -22,7 +22,7 @@ await shutdown()
 
 ## Installation
 ```bash
-npm install @molecule/api-analytics-posthog
+npm install @molecule/api-analytics-posthog @molecule/api-analytics @molecule/api-secrets posthog-node
 ```
 
 ## API
@@ -280,6 +280,12 @@ Peer dependencies:
 - `POSTHOG_HOST` *(optional)* — PostHog host — default: `https://app.posthog.com`
   - Setup: Origin of your PostHog instance (US cloud, EU cloud, or self-hosted).
   - Example: `https://us.i.posthog.com`
+
+### Runtime Dependencies
+
+- `@molecule/api-analytics`
+- `@molecule/api-secrets`
+- `posthog-node`
 
 - Events are QUEUED, not sent per call: `track()` resolves immediately and
   the SDK delivers in batches (`flushAt`, default 20 events / `flushInterval`,

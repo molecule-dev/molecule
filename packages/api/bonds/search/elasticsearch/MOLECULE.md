@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-search-elasticsearch
+npm install @molecule/api-search-elasticsearch @elastic/elasticsearch @molecule/api-search
 ```
 
 ## API
@@ -461,6 +461,11 @@ export function setupSearchElasticsearch(): void {
 
 Peer dependencies:
 - `@molecule/api-search` ^1.0.0
+
+### Runtime Dependencies
+
+- `@elastic/elasticsearch`
+- `@molecule/api-search`
 
 Provider-specific behavior to know before debugging:
 

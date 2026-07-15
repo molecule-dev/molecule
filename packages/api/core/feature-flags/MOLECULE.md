@@ -31,7 +31,7 @@ const flags = await evaluateForUser('user-123')
 
 ## Installation
 ```bash
-npm install @molecule/api-feature-flags
+npm install @molecule/api-feature-flags @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -314,3 +314,8 @@ function setProvider(provider: FeatureFlagProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

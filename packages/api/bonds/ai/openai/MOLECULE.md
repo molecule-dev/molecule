@@ -7,7 +7,7 @@ Openai ai-openai provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-openai
+npm install @molecule/api-ai-openai @molecule/api-ai @molecule/api-bond @molecule/api-secrets
 ```
 
 ## API
@@ -87,6 +87,12 @@ Peer dependencies:
   - Setup: Create a secret key on the OpenAI platform (API keys page).
   - Get it here: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
   - Example: `sk-proj-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-secrets`
 
 Config: `OPENAI_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
 

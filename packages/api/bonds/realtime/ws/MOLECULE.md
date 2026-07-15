@@ -24,7 +24,8 @@ server.listen(3000)
 
 ## Installation
 ```bash
-npm install @molecule/api-realtime-ws
+npm install @molecule/api-realtime-ws @molecule/api-bond @molecule/api-realtime ws
+npm install -D @types/ws
 ```
 
 ## API
@@ -117,6 +118,12 @@ Implements `@molecule/api-realtime` interface.
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-realtime`
+- `ws`
 
 - **`createProvider()` with NO `port`, NO `httpServer`, and NO
   `deferAttach` does NOT bind anything** — creating a provider must never

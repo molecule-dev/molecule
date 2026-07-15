@@ -7,7 +7,7 @@ MiniMax AI provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-minimax
+npm install @molecule/api-ai-minimax @molecule/api-ai @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -93,6 +93,13 @@ Peer dependencies:
 - `MINIMAX_API_KEY` *(required)* — MiniMax API key
   - Setup: Create an interface key in the MiniMax platform user center.
   - Get it here: [https://platform.minimax.io/](https://platform.minimax.io/)
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
 
 Config: `MINIMAX_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
 

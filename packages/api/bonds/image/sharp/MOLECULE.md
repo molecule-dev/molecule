@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-image-sharp
+npm install @molecule/api-image-sharp @molecule/api-image sharp
 ```
 
 ## API
@@ -102,6 +102,11 @@ export function setupImageSharp(): void {
 
 Peer dependencies:
 - `@molecule/api-image` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-image`
+- `sharp`
 
 ## E2E Tests
 

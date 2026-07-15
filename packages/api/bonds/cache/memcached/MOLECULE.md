@@ -7,7 +7,8 @@ Memcached cache provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-cache-memcached
+npm install @molecule/api-cache-memcached @molecule/api-bond @molecule/api-cache @molecule/api-secrets memcached
+npm install -D @types/memcached
 ```
 
 ## API
@@ -194,6 +195,13 @@ Peer dependencies:
 - `MEMCACHED_SERVERS` *(optional)* — Memcached servers — default: `localhost:11211`
   - Setup: Comma-separated host:port list of memcached servers.
   - Example: `localhost:11211`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-cache`
+- `@molecule/api-secrets`
+- `memcached`
 
 - **Explicit config beats ambient env.** `createProvider({ host, port })` connects to
   exactly that server even when `MEMCACHED_SERVERS` is set in the environment — env

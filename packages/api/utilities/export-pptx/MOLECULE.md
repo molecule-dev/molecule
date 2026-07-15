@@ -56,7 +56,7 @@ router.post('/export/pptx', async (req, res, next) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-export-pptx
+npm install @molecule/api-export-pptx pptxgenjs
 ```
 
 ## API
@@ -419,6 +419,10 @@ const PPTX_CONTENT_TYPE: "application/vnd.openxmlformats-officedocument.presenta
 ```
 
 ## Injection Notes
+
+### Runtime Dependencies
+
+- `pptxgenjs`
 
 The serializer is a pure function — no fetch, no state, no global
 config. Locale text is the caller's responsibility (run user-visible

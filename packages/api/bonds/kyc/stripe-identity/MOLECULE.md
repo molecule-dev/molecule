@@ -34,7 +34,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-kyc-stripe-identity
+npm install @molecule/api-kyc-stripe-identity @molecule/api-bond @molecule/api-kyc @molecule/api-secrets
 ```
 
 ## API
@@ -379,3 +379,9 @@ Peer dependencies:
   - Setup: Add a webhook endpoint for Identity events in the Stripe Dashboard and copy its signing secret.
   - Get it here: [https://dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks)
   - Example: `whsec_...`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-kyc`
+- `@molecule/api-secrets`

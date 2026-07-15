@@ -22,7 +22,7 @@ app.use(createJsonParser({ limit: '1mb' }))
 
 ## Installation
 ```bash
-npm install @molecule/api-middleware-body-parser
+npm install @molecule/api-middleware-body-parser @molecule/api-bond
 ```
 
 ## API
@@ -143,6 +143,10 @@ function setJsonParserFactory(factory: JsonParserFactory): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 - **Always set a `limit`** ({@link JsonParserOptions}`.limit`, e.g. `'1mb'`). An unbounded
   body lets a client exhaust memory (DoS) — pick a cap that fits your largest legit payload.

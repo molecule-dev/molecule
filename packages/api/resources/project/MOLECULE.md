@@ -7,7 +7,7 @@ project resource for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-project
+npm install @molecule/api-resource-project @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-project @molecule/api-logger @molecule/api-resource
 ```
 
 ## API
@@ -239,6 +239,15 @@ Peer dependencies:
 - `@molecule/api-locales-project` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-project`
+- `@molecule/api-logger`
+- `@molecule/api-resource`
 
 The shipped routes are owner-scoped and **fail closed** — they do not expose
 other tenants' projects by default. `GET /projects` (`list`) returns only the

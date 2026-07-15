@@ -7,7 +7,7 @@ ElevenLabs ai-speech provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-speech-elevenlabs
+npm install @molecule/api-ai-speech-elevenlabs @molecule/api-ai-speech @molecule/api-secrets
 ```
 
 ## API
@@ -138,3 +138,8 @@ Peer dependencies:
   - Setup: Create an API key in ElevenLabs under Settings → API keys.
   - Get it here: [https://elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys)
   - Example: `sk_...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai-speech`
+- `@molecule/api-secrets`

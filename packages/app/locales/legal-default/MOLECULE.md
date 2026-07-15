@@ -19,7 +19,7 @@ import * as legal from '@molecule/app-locales-legal-default'
 
 ## Installation
 ```bash
-npm install @molecule/app-locales-legal-default
+npm install @molecule/app-locales-legal-default @molecule/app-i18n
 ```
 
 ## API
@@ -657,3 +657,7 @@ const zu: LegalContent
 
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`

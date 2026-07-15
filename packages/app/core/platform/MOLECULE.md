@@ -10,7 +10,7 @@ platform-specific functionality.
 
 ## Installation
 ```bash
-npm install @molecule/app-platform
+npm install @molecule/app-platform @molecule/app-lifecycle @molecule/app-logger @molecule/app-push
 ```
 
 ## API
@@ -275,3 +275,9 @@ Peer dependencies:
 - `@molecule/app-lifecycle` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-push` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-lifecycle`
+- `@molecule/app-logger`
+- `@molecule/app-push`

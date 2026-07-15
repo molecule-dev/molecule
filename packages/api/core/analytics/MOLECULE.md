@@ -23,7 +23,7 @@ await track({ name: 'purchase.completed', properties: { amount: 49.99 } })
 
 ## Installation
 ```bash
-npm install @molecule/api-analytics
+npm install @molecule/api-analytics @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -304,6 +304,11 @@ function track(event: AnalyticsEvent): Promise<void>
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 Unlike the app-side `@molecule/app-analytics` (which swallows every error so
 analytics can never break the UI), these server-side convenience functions

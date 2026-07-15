@@ -27,7 +27,7 @@ import {
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-grade
+npm install @molecule/api-resource-grade @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource-grade @molecule/api-logger @molecule/api-permissions @molecule/api-resource
 ```
 
 ## API
@@ -636,6 +636,15 @@ Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-permissions` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-resource-grade`
+- `@molecule/api-logger`
+- `@molecule/api-permissions`
+- `@molecule/api-resource`
 
 ## Translations
 

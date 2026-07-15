@@ -10,7 +10,8 @@ interfaces using the UIClassMap abstraction from `@molecule/app-ui`.
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-react
+npm install @molecule/app-ui-react @molecule/app-i18n @molecule/app-icons @molecule/app-react @molecule/app-ui react react-dom react-router-dom
+npm install -D @types/react @types/react-dom
 ```
 
 ## API
@@ -2561,6 +2562,16 @@ Peer dependencies:
 - `react` ^18.0.0 || ^19.0.0
 - `react-dom` ^18.0.0 || ^19.0.0
 - `react-router-dom` ^6.0.0 || ^7.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-icons`
+- `@molecule/app-react`
+- `@molecule/app-ui`
+- `react`
+- `react-dom`
+- `react-router-dom`
 
 A11y contracts worth knowing before you debug "it doesn't look like it's
 doing anything" on these components:

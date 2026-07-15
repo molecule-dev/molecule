@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-file-upload-filepond
+npm install @molecule/app-file-upload-filepond @molecule/app-file-upload
 ```
 
 ## API
@@ -87,6 +87,10 @@ export function setupFileUploadFilepond(): void {
 
 Peer dependencies:
 - `@molecule/app-file-upload` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-file-upload`
 
 ## E2E Tests
 

@@ -24,7 +24,7 @@ server.listen(3000)
 
 ## Installation
 ```bash
-npm install @molecule/api-realtime-socketio
+npm install @molecule/api-realtime-socketio @molecule/api-bond @molecule/api-realtime engine.io socket.io socket.io-adapter
 ```
 
 ## API
@@ -103,6 +103,14 @@ Implements `@molecule/api-realtime` interface.
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-realtime`
+- `engine.io`
+- `socket.io`
+- `socket.io-adapter`
 
 ## E2E Tests
 

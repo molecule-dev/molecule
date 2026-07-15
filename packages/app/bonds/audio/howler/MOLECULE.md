@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-audio-howler
+npm install @molecule/app-audio-howler @molecule/app-audio
 ```
 
 ## API
@@ -86,3 +86,7 @@ export function setupAudioHowler(): void {
 
 Peer dependencies:
 - `@molecule/app-audio` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-audio`

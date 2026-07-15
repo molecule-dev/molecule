@@ -30,7 +30,8 @@ app.use('/billing', createBillingRoutes({ tiers }))
 
 ## Installation
 ```bash
-npm install @molecule/api-billing-routes @molecule/api-bond @molecule/api-payments
+npm install @molecule/api-billing-routes @molecule/api-bond @molecule/api-payments @molecule/api-secrets express
+npm install -D @types/express
 ```
 
 ## API
@@ -248,6 +249,8 @@ Peer dependencies:
 
 - `@molecule/api-bond`
 - `@molecule/api-payments`
+- `@molecule/api-secrets`
+- `express`
 
 - The package looks up `bond('payments', 'stripe')` by default; pass
   `provider` or `providerName` to override.

@@ -23,7 +23,7 @@ if (!ok) return res.status(401).json({ error: 'Invalid credentials.' }) // don't
 
 ## Installation
 ```bash
-npm install @molecule/api-password
+npm install @molecule/api-password @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -130,6 +130,11 @@ function setProvider(provider: PasswordProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 Use {@link hash} and {@link compare} from the bonded provider — NEVER roll your own
 password hashing.

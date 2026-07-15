@@ -39,7 +39,8 @@ const saveUrl = `https://pay.google.com/gp/v/save/${jwt}`
 
 ## Installation
 ```bash
-npm install @molecule/api-wallet-pass
+npm install @molecule/api-wallet-pass node-forge
+npm install -D @types/node-forge
 ```
 
 ## API
@@ -544,3 +545,9 @@ Apple `.pkpass` MIME type.
 ```typescript
 const PKPASS_CONTENT_TYPE: "application/vnd.apple.pkpass"
 ```
+
+## Injection Notes
+
+### Runtime Dependencies
+
+- `node-forge`

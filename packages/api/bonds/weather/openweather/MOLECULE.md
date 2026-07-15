@@ -25,7 +25,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-weather-openweather
+npm install @molecule/api-weather-openweather @molecule/api-secrets @molecule/api-weather
 ```
 
 ## API
@@ -172,3 +172,8 @@ Peer dependencies:
 - `OPENWEATHER_API_KEY` *(required)* — OpenWeather API key
   - Setup: Sign up at OpenWeatherMap (free tier available) and copy your API key.
   - Get it here: [https://home.openweathermap.org/api_keys](https://home.openweathermap.org/api_keys)
+
+### Runtime Dependencies
+
+- `@molecule/api-secrets`
+- `@molecule/api-weather`

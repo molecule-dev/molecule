@@ -19,7 +19,7 @@ logger.info('Server started on port', 3000)
 
 ## Installation
 ```bash
-npm install @molecule/api-logger-loglevel
+npm install @molecule/api-logger-loglevel @molecule/api-logger loglevel
 ```
 
 ## API
@@ -151,6 +151,11 @@ export function setupLoggerLoglevel(): void {
 
 Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-logger`
+- `loglevel`
 
 - The provider passes every level through to loglevel — minimum-level
   filtering happens once, in `@molecule/api-logger` (`LOG_LEVEL` env var /

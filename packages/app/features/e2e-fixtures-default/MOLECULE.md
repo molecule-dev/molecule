@@ -54,7 +54,7 @@ test('login lands on dashboard', async ({ page }) => {
 
 ## Installation
 ```bash
-npm install @molecule/app-e2e-fixtures-default
+npm install @molecule/app-e2e-fixtures-default @playwright/test
 ```
 
 ## API
@@ -94,3 +94,7 @@ const test: TestType<PlaywrightTestArgs & PlaywrightTestOptions & { consoleGuard
 
 Peer dependencies:
 - `@playwright/test` ^1.50.0
+
+### Runtime Dependencies
+
+- `@playwright/test`

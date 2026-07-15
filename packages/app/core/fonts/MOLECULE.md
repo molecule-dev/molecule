@@ -7,7 +7,7 @@ Font interfaces and provider system for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-fonts
+npm install @molecule/app-fonts @molecule/app-bond
 ```
 
 ## API
@@ -217,3 +217,7 @@ const systemSerif: FontDefinition
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`

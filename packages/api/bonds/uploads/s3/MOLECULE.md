@@ -9,7 +9,7 @@ Handles file uploads to AWS S3.
 
 ## Installation
 ```bash
-npm install @molecule/api-uploads-s3
+npm install @molecule/api-uploads-s3 @aws-sdk/client-s3 @aws-sdk/lib-storage @molecule/api-bond @molecule/api-i18n @molecule/api-secrets @molecule/api-uploads uuid
 ```
 
 ## API
@@ -230,6 +230,16 @@ Peer dependencies:
 - `AWS_S3_FORCE_PATH_STYLE` *(optional)* — S3 path-style addressing
   - Setup: Set to 'true' for MinIO-style path addressing (http://host/bucket instead of virtual-hosted buckets); set automatically by molecule's managed storage. Leave unset for real AWS S3.
   - Example: `true`
+
+### Runtime Dependencies
+
+- `@aws-sdk/client-s3`
+- `@aws-sdk/lib-storage`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
+- `@molecule/api-uploads`
+- `uuid`
 
 Bond this as the uploads provider (see `@molecule/api-uploads` for the handler pattern and
 the own-every-file / validate rules). Config is all ENV, server-side: `AWS_ACCESS_KEY_ID`,

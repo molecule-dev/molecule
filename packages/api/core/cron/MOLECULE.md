@@ -31,7 +31,7 @@ await close()
 
 ## Installation
 ```bash
-npm install @molecule/api-cron
+npm install @molecule/api-cron @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -327,6 +327,11 @@ function setProvider(provider: CronProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 `close()` releases the bonded provider's resources (timers, queue/worker
 connections) and is a no-op if the provider doesn't implement it — call

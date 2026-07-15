@@ -57,7 +57,7 @@ Google OAuth provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-oauth-google
+npm install @molecule/api-oauth-google @molecule/api-bond @molecule/api-http @molecule/api-oauth @molecule/api-secrets
 ```
 
 ## API
@@ -289,6 +289,13 @@ Peer dependencies:
   - Setup: Shown when creating the OAuth 2.0 Client ID in Google Cloud Console.
   - Get it here: [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
   - Example: `GOCSPX-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-http`
+- `@molecule/api-oauth`
+- `@molecule/api-secrets`
 
 The token exchange (`verify`'s call to Google's token endpoint) is
 `application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 and Google's own

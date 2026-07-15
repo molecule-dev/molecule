@@ -10,7 +10,7 @@ interfaces using ClassMap-generated classes.
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-vue
+npm install @molecule/app-ui-vue @molecule/app-i18n @molecule/app-icons @molecule/app-ui vue
 ```
 
 ## API
@@ -1728,6 +1728,13 @@ Peer dependencies:
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `vue` ^3.4.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-icons`
+- `@molecule/app-ui`
+- `vue`
 
 ## Translations
 

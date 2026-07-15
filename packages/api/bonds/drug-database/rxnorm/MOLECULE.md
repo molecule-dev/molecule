@@ -26,7 +26,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-drug-database-rxnorm
+npm install @molecule/api-drug-database-rxnorm @molecule/api-drug-database
 ```
 
 ## API
@@ -109,3 +109,7 @@ export function setupDrugDatabaseRxnorm(): void {
 
 Peer dependencies:
 - `@molecule/api-drug-database` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-drug-database`

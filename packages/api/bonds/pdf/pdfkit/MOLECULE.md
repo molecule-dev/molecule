@@ -26,7 +26,8 @@ setProvider(customProvider)
 
 ## Installation
 ```bash
-npm install @molecule/api-pdf-pdfkit
+npm install @molecule/api-pdf-pdfkit @molecule/api-pdf pdf-lib pdfkit
+npm install -D @types/pdfkit
 ```
 
 ## API
@@ -118,3 +119,9 @@ export function setupPdfPdfkit(): void {
 
 Peer dependencies:
 - `@molecule/api-pdf` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-pdf`
+- `pdf-lib`
+- `pdfkit`

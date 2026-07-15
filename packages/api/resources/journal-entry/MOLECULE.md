@@ -24,7 +24,8 @@ app.use('/api/journal', createJournalEntryRouter())
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-journal-entry
+npm install @molecule/api-resource-journal-entry @molecule/api-bonds-default-express @molecule/api-database @molecule/api-encryption @molecule/api-i18n @molecule/api-logger @molecule/api-middleware-validation express zod
+npm install -D @types/express
 ```
 
 ## API
@@ -304,6 +305,17 @@ Peer dependencies:
 - `@molecule/api-middleware-validation` ^1.0.0
 - `express` ^5.0.0
 - `zod` ^4.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bonds-default-express`
+- `@molecule/api-database`
+- `@molecule/api-encryption`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-middleware-validation`
+- `express`
+- `zod`
 
 Schema lives in `__setup__/journal_entries.sql` — two tables:
 `journal_entries` + `mood_entries`. Mood rows are upserted per

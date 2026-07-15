@@ -10,7 +10,7 @@ from `@molecule/app-splash-screen`.
 
 ## Installation
 ```bash
-npm install @molecule/app-splash-screen-react-native
+npm install @molecule/app-splash-screen-react-native @molecule/app-i18n @molecule/app-logger @molecule/app-splash-screen expo-splash-screen
 ```
 
 ## API
@@ -81,6 +81,13 @@ Peer dependencies:
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-splash-screen` ^1.0.0
 - `expo-splash-screen` >=0.20.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@molecule/app-splash-screen`
+- `expo-splash-screen`
 
 ## Translations
 

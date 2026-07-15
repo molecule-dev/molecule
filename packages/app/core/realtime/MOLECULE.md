@@ -30,7 +30,7 @@ connection.sendTo('chat-room-1', 'message', { text: 'Hello!' })
 
 ## Installation
 ```bash
-npm install @molecule/app-realtime
+npm install @molecule/app-realtime @molecule/app-bond
 ```
 
 ## API
@@ -294,6 +294,10 @@ function setProvider(provider: RealtimeClientProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 ## E2E Tests
 

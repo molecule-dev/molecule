@@ -23,7 +23,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-weather-open-meteo
+npm install @molecule/api-weather-open-meteo @molecule/api-weather
 ```
 
 ## API
@@ -133,3 +133,7 @@ export function setupWeatherOpenMeteo(): void {
 
 Peer dependencies:
 - `@molecule/api-weather` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-weather`

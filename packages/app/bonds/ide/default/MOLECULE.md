@@ -7,7 +7,7 @@ Default IDE workspace provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-ide-default
+npm install @molecule/app-ide-default @molecule/app-ide
 ```
 
 ## API
@@ -112,3 +112,7 @@ export function setupIdeDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-ide` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-ide`

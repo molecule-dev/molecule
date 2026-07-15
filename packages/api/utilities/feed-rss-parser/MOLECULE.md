@@ -28,7 +28,7 @@ for (const item of items) {
 
 ## Installation
 ```bash
-npm install @molecule/api-feed-rss-parser
+npm install @molecule/api-feed-rss-parser fast-xml-parser
 ```
 
 ## API
@@ -274,6 +274,10 @@ function sanitizeHtml(html: string | null | undefined): string | undefined
 **Returns:** Sanitized HTML string, or `undefined` when the input was nullish.
 
 ## Injection Notes
+
+### Runtime Dependencies
+
+- `fast-xml-parser`
 
 The parser is a pure function — it accepts the response body string plus
 optional `contentType` / `format` hints and returns a normalized result.

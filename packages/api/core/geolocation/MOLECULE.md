@@ -25,7 +25,7 @@ const km = distance({ lat: 40.7128, lng: -74.006 }, { lat: 34.0522, lng: -118.24
 
 ## Installation
 ```bash
-npm install @molecule/api-geolocation
+npm install @molecule/api-geolocation @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -394,3 +394,8 @@ function setProvider(provider: GeolocationProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

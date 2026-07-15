@@ -25,7 +25,7 @@ captureException(new Error('boom'), { tags: { source: 'worker' } })
 
 ## Installation
 ```bash
-npm install @molecule/api-error-tracking-console
+npm install @molecule/api-error-tracking-console @molecule/api-bond @molecule/api-error-tracking
 ```
 
 ## API
@@ -65,6 +65,11 @@ export function setupErrorTrackingConsole(): void {
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-error-tracking` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-error-tracking`
 
 - Requires no configuration or credentials — safe in every environment.
 - Each capture gets a generated event id (returned and logged), mirroring

@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-date-range-picker-default
+npm install @molecule/app-date-range-picker-default @molecule/app-date-range-picker
 ```
 
 ## API
@@ -83,3 +83,7 @@ export function setupDateRangePickerDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-date-range-picker` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-date-range-picker`

@@ -27,7 +27,7 @@ const table = createTable({
 
 ## Installation
 ```bash
-npm install @molecule/app-data-table
+npm install @molecule/app-data-table @molecule/app-bond
 ```
 
 ## API
@@ -386,6 +386,10 @@ function setProvider(provider: DataTableProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 ## E2E Tests
 

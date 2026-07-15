@@ -37,7 +37,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-calendar-microsoft
+npm install @molecule/api-calendar-microsoft @molecule/api-bond @molecule/api-calendar @molecule/api-http @molecule/api-secrets
 ```
 
 ## API
@@ -415,3 +415,10 @@ Peer dependencies:
 - `OAUTH_MICROSOFT_CLIENT_SECRET` *(required)* — Microsoft client secret
   - Setup: App registration → Certificates & secrets → New client secret; copy the Value.
   - Get it here: [https://entra.microsoft.com/](https://entra.microsoft.com/)
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-calendar`
+- `@molecule/api-http`
+- `@molecule/api-secrets`

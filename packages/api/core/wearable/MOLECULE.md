@@ -26,7 +26,7 @@ const today = await fitbit.getDailyActivity('user-1', '2026-05-01')
 
 ## Installation
 ```bash
-npm install @molecule/api-wearable
+npm install @molecule/api-wearable @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -457,3 +457,8 @@ function setProvider(name: string, provider: WearableProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

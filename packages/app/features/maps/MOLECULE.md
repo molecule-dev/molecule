@@ -30,7 +30,7 @@ map.on('click', (e) => console.log('clicked', e))
 
 ## Installation
 ```bash
-npm install @molecule/app-maps
+npm install @molecule/app-maps @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -863,6 +863,11 @@ const provider: MapProvider
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` 1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

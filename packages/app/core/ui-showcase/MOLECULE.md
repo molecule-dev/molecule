@@ -11,7 +11,7 @@ to generate minimal apps per framework, then screenshotted by Playwright.
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-showcase
+npm install @molecule/app-ui-showcase @molecule/app-ui
 ```
 
 ## API
@@ -106,3 +106,7 @@ const showcaseComponents: ComponentShowcase[]
 
 Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-ui`

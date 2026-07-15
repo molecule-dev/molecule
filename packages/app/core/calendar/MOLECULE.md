@@ -34,7 +34,7 @@ const calendar = createCalendar({
 
 ## Installation
 ```bash
-npm install @molecule/app-calendar
+npm install @molecule/app-calendar @molecule/app-bond
 ```
 
 ## API
@@ -281,6 +281,10 @@ function setProvider(provider: CalendarProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 ## E2E Tests
 

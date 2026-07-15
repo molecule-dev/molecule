@@ -9,7 +9,7 @@ Provides a Jotai-based implementation of the molecule state interface.
 
 ## Installation
 ```bash
-npm install @molecule/app-state-jotai
+npm install @molecule/app-state-jotai @molecule/app-state jotai
 ```
 
 ## API
@@ -351,3 +351,8 @@ export function setupStateJotai(): void {
 
 Peer dependencies:
 - `@molecule/app-state` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-state`
+- `jotai`

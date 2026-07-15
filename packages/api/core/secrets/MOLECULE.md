@@ -31,7 +31,7 @@ const results = await validate([
 
 ## Installation
 ```bash
-npm install @molecule/api-secrets
+npm install @molecule/api-secrets @molecule/api-bond
 ```
 
 ## API
@@ -576,6 +576,10 @@ const COMMON_SECRETS: Record<string, SecretDefinition>
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 Secrets are SERVER-SIDE only. NEVER send a secret value to the browser, embed it in
 client code, or expose it through a `VITE_`/`NEXT_PUBLIC_` build var — those ship to

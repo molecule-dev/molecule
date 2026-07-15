@@ -10,7 +10,7 @@ interfaces using the UIClassMap abstraction from `@molecule/app-ui`.
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-solid
+npm install @molecule/app-ui-solid @molecule/app-i18n @molecule/app-icons @molecule/app-ui solid-js
 ```
 
 ## API
@@ -2028,6 +2028,13 @@ Peer dependencies:
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `solid-js` ^1.8.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-icons`
+- `@molecule/app-ui`
+- `solid-js`
 
 ## Translations
 

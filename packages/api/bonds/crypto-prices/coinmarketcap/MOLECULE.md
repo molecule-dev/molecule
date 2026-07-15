@@ -22,7 +22,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-crypto-prices-coinmarketcap
+npm install @molecule/api-crypto-prices-coinmarketcap @molecule/api-crypto-prices @molecule/api-secrets
 ```
 
 ## API
@@ -149,3 +149,8 @@ Peer dependencies:
 - `COINMARKETCAP_API_KEY` *(required)* — CoinMarketCap API key
   - Setup: Sign up for the CoinMarketCap API (free tier available) and copy your key.
   - Get it here: [https://pro.coinmarketcap.com/account](https://pro.coinmarketcap.com/account)
+
+### Runtime Dependencies
+
+- `@molecule/api-crypto-prices`
+- `@molecule/api-secrets`

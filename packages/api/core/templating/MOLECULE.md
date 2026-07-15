@@ -27,7 +27,7 @@ const fast = await renderCompiled(compiled, { name: 'Fast' })
 
 ## Installation
 ```bash
-npm install @molecule/api-templating
+npm install @molecule/api-templating @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -264,3 +264,8 @@ function setProvider(provider: TemplateProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

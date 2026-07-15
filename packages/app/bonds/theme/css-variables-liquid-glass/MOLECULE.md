@@ -26,7 +26,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-theme-css-variables-liquid-glass
+npm install @molecule/app-theme-css-variables-liquid-glass @molecule/app-theme @molecule/app-theme-css-variables
 ```
 
 ## API
@@ -114,3 +114,8 @@ Implements `@molecule/app-theme` interface.
 Peer dependencies:
 - `@molecule/app-theme` ^1.0.0
 - `@molecule/app-theme-css-variables` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-theme`
+- `@molecule/app-theme-css-variables`

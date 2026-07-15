@@ -16,7 +16,7 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-order'
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-order
+npm install @molecule/api-resource-order @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
 
 ## API
@@ -644,6 +644,13 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-logger`
+- `@molecule/api-resource`
 
 **SECURITY — `create()` TRUSTS client-supplied prices; do NOT wire it to a
 payment-charging path.** This resource is GENERIC: it owns no product/catalog

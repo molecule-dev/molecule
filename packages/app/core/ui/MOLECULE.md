@@ -23,7 +23,7 @@ const cm = getClassMap()
 
 ## Installation
 ```bash
-npm install @molecule/app-ui
+npm install @molecule/app-ui @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -3006,6 +3006,11 @@ const MOL_ID_ATTR: "data-mol-id"
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 **Style through {@link getClassMap} — NEVER write raw CSS/Tailwind class names in a
 component.** `const cm = getClassMap()` returns the resolver; use its helpers (`cm.flex`,

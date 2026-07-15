@@ -38,7 +38,8 @@ Sign in with Apple OAuth provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-oauth-apple
+npm install @molecule/api-oauth-apple @molecule/api-bond @molecule/api-http @molecule/api-oauth @molecule/api-secrets jsonwebtoken
+npm install -D @types/jsonwebtoken
 ```
 
 ## API
@@ -596,3 +597,11 @@ Peer dependencies:
   - Setup: Download the .p8 file when creating the key (one-time download) and paste its PEM contents.
   - Get it here: [https://developer.apple.com/account/resources/authkeys/list](https://developer.apple.com/account/resources/authkeys/list)
   - Example: `contents of AuthKey_ABC123DEF4.p8`
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-http`
+- `@molecule/api-oauth`
+- `@molecule/api-secrets`
+- `jsonwebtoken`

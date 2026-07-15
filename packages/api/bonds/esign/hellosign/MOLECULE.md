@@ -7,7 +7,7 @@ HelloSign (Dropbox Sign) e-signature provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-esign-hellosign
+npm install @molecule/api-esign-hellosign @molecule/api-bond @molecule/api-esign @molecule/api-secrets
 ```
 
 ## API
@@ -323,3 +323,9 @@ Peer dependencies:
 - `HELLOSIGN_API_KEY` *(required)* — Dropbox Sign (HelloSign) API key
   - Setup: Generate an API key in Dropbox Sign → Account settings → API.
   - Get it here: [https://app.hellosign.com/home/myAccount#api](https://app.hellosign.com/home/myAccount#api)
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-esign`
+- `@molecule/api-secrets`

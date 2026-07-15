@@ -12,7 +12,7 @@ Many "serverless" deployments have transient file systems, meaning that files wr
 
 ## Installation
 ```bash
-npm install @molecule/api-uploads-filesystem
+npm install @molecule/api-uploads-filesystem @molecule/api-bond @molecule/api-i18n @molecule/api-uploads uuid
 ```
 
 ## API
@@ -212,6 +212,13 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-uploads` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-uploads`
+- `uuid`
 
 `abortUpload()` rejects the file's `uploadPromise` with `UploadAbortedError` (from
 `@molecule/api-uploads`) — it never resolves as success and never calls the

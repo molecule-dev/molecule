@@ -27,7 +27,7 @@ if (verified) await recordApiKeyUse(verified.id)
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-api-key
+npm install @molecule/api-resource-api-key @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource-api-key @molecule/api-resource
 ```
 
 ## API
@@ -319,6 +319,14 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-resource-api-key` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-database`
+- `@molecule/api-i18n`
+- `@molecule/api-locales-resource-api-key`
+- `@molecule/api-resource`
 
 The `setup/api_keys.sql` migration file ships with this package and
 must be applied to the target database before use.

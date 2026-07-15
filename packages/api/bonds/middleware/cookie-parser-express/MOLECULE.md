@@ -17,7 +17,8 @@ setCookieParserFactory(cookieParserFactory)
 
 ## Installation
 ```bash
-npm install @molecule/api-middleware-cookie-parser-express
+npm install @molecule/api-middleware-cookie-parser-express @molecule/api-middleware-cookie-parser cookie-parser
+npm install -D @types/cookie-parser
 ```
 
 ## API
@@ -72,3 +73,8 @@ export function setupMiddlewareCookieParserExpress(): void {
 
 Peer dependencies:
 - `@molecule/api-middleware-cookie-parser` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-middleware-cookie-parser`
+- `cookie-parser`

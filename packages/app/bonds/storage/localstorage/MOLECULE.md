@@ -30,7 +30,7 @@ await remove('user')
 
 ## Installation
 ```bash
-npm install @molecule/app-storage-localstorage
+npm install @molecule/app-storage-localstorage @molecule/app-i18n @molecule/app-logger @molecule/app-storage
 ```
 
 ## API
@@ -181,3 +181,9 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-storage` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@molecule/app-storage`

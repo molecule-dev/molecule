@@ -29,7 +29,7 @@ const priced = await priceOffer(offers[0].id)
 
 ## Installation
 ```bash
-npm install @molecule/api-flights
+npm install @molecule/api-flights @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -498,3 +498,8 @@ function setProvider(provider: FlightsProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

@@ -7,7 +7,7 @@ Contacts access interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-contacts
+npm install @molecule/app-contacts @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -511,6 +511,11 @@ function update(id: string, contact: Partial<ContactInput>): Promise<Contact>
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-i18n`
 
 ## Translations
 

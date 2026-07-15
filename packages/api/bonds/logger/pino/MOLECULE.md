@@ -25,7 +25,7 @@ setLogger(createLogger({ name: 'api' }))
 
 ## Installation
 ```bash
-npm install @molecule/api-logger-pino
+npm install @molecule/api-logger-pino @molecule/api-logger pino pino-pretty
 ```
 
 ## API
@@ -174,6 +174,12 @@ export function setupLoggerPino(): void {
 
 Peer dependencies:
 - `@molecule/api-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-logger`
+- `pino`
+- `pino-pretty`
 
 - Console-style variadic calls are bridged onto pino's `(object, message)`
   shape: `logger.info('msg', contextObj)` merges `contextObj` into the

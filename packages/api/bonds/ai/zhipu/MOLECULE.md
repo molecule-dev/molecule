@@ -7,7 +7,7 @@ Zhipu GLM AI provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-zhipu
+npm install @molecule/api-ai-zhipu @molecule/api-ai @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -93,6 +93,13 @@ Peer dependencies:
 - `ZHIPU_API_KEY` *(required)* — Zhipu AI API key
   - Setup: Create an API key in the Zhipu AI (BigModel) user center.
   - Get it here: [https://open.bigmodel.cn/usercenter/apikeys](https://open.bigmodel.cn/usercenter/apikeys)
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
 
 Config: `ZHIPU_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
 

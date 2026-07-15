@@ -55,7 +55,7 @@ router.get('/qr/:value', async (req, res, next) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-qr-code
+npm install @molecule/api-qr-code qrcode-generator
 ```
 
 ## API
@@ -348,6 +348,10 @@ const SVG_CONTENT_TYPE: "image/svg+xml"
 ```
 
 ## Injection Notes
+
+### Runtime Dependencies
+
+- `qrcode-generator`
 
 The PNG encoder is hand-rolled (PNG signature → IHDR → deflated IDAT →
 IEND) so the package has zero native dependencies. SVG output is preferred

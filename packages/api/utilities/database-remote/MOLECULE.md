@@ -66,7 +66,8 @@ await db.disconnect()
 
 ## Installation
 ```bash
-npm install @molecule/api-database-remote
+npm install @molecule/api-database-remote better-sqlite3 mysql2 pg
+npm install -D @types/better-sqlite3 @types/pg
 ```
 
 ## API
@@ -730,3 +731,9 @@ Peer dependencies:
 - `better-sqlite3` ^12.0.0
 - `mysql2` ^3.0.0
 - `pg` ^8.0.0
+
+### Runtime Dependencies
+
+- `better-sqlite3`
+- `mysql2`
+- `pg`

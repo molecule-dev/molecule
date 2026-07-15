@@ -30,7 +30,7 @@ setupI18nDefault({ enUi: en, lazyLoadUi })
 
 ## Installation
 ```bash
-npm install @molecule/app-i18n-default-react
+npm install @molecule/app-i18n-default-react @molecule/app-i18n @molecule/app-locales-common @molecule/app-storage
 ```
 
 ## API
@@ -196,3 +196,9 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-locales-common` ^1.0.0
 - `@molecule/app-storage` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-locales-common`
+- `@molecule/app-storage`

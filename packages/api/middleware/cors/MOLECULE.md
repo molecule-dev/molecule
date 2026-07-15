@@ -18,7 +18,7 @@ app.use(createCorsMiddleware({
 
 ## Installation
 ```bash
-npm install @molecule/api-middleware-cors
+npm install @molecule/api-middleware-cors @molecule/api-bond @molecule/api-secrets
 ```
 
 ## API
@@ -151,6 +151,11 @@ function setCorsFactory(factory: CorsFactory): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-secrets`
 
 CORS decides which browser ORIGINS may call your API (with credentials). Configure an
 explicit allowlist from env (`APP_ORIGIN` / `SITE_ORIGIN`) via {@link CorsOptions}`.origin`

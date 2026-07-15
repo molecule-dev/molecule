@@ -11,7 +11,7 @@ leveraging Next.js navigation features.
 
 ## Installation
 ```bash
-npm install @molecule/app-routing-next
+npm install @molecule/app-routing-next @molecule/app-i18n @molecule/app-logger @molecule/app-routing
 ```
 
 ## API
@@ -515,3 +515,9 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-routing` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@molecule/app-routing`

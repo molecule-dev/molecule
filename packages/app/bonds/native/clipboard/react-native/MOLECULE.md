@@ -10,7 +10,7 @@ from `@molecule/app-clipboard`.
 
 ## Installation
 ```bash
-npm install @molecule/app-clipboard-react-native
+npm install @molecule/app-clipboard-react-native @molecule/app-clipboard @molecule/app-i18n @molecule/app-logger @react-native-clipboard/clipboard
 ```
 
 ## API
@@ -86,6 +86,13 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@react-native-clipboard/clipboard` >=1.13.0
+
+### Runtime Dependencies
+
+- `@molecule/app-clipboard`
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@react-native-clipboard/clipboard`
 
 ## Translations
 

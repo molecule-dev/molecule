@@ -27,7 +27,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-equity-prices-iex
+npm install @molecule/api-equity-prices-iex @molecule/api-equity-prices @molecule/api-secrets
 ```
 
 ## API
@@ -175,3 +175,8 @@ Peer dependencies:
   - Setup: Copy an API token from the IEX Cloud console (service availability may vary).
   - Get it here: [https://iexcloud.io/](https://iexcloud.io/)
   - Example: `pk_...`
+
+### Runtime Dependencies
+
+- `@molecule/api-equity-prices`
+- `@molecule/api-secrets`

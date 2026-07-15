@@ -4,7 +4,7 @@ Translations for @molecule/app-icons in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-icons` package which has 2 translation keys.
+Provides translations for the `@molecule/app-icons` package which has 3 translation keys.
 
 ## Languages
 
@@ -22,6 +22,7 @@ import type { IconsTranslationKey, IconsTranslations } from '@molecule/app-local
 | Key | English |
 |-----|---------|
 | `icons.error.noIconSet` | No IconSet has been set. Call setIconSet() at app startup with an icon library (e.g., @molecule/app-icons-molecule). |
+| `icons.error.noProvider` | @molecule/app-icons: No icon set bonded. Call setIconSet() with an IconSet (e.g. the export from @molecule/app-icons-molecule). |
 | `icons.error.notFound` | Icon  |
 
 ## Metadata

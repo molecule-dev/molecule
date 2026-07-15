@@ -24,7 +24,7 @@ const fresh = await getOrSet('user:456', () => fetchUser('456'), { ttl: 600 })
 
 ## Installation
 ```bash
-npm install @molecule/api-cache
+npm install @molecule/api-cache @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -252,6 +252,11 @@ function setProvider(provider: CacheProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 The cache is BEST-EFFORT and often SHARED across users — treat it accordingly:
 - **A per-user value MUST include the user id in its KEY** (`user:123:profile`, not

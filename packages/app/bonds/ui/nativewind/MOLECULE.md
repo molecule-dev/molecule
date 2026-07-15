@@ -10,7 +10,7 @@ unsupported or behave differently in NativeWind / React Native.
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-nativewind
+npm install @molecule/app-ui-nativewind @molecule/app-styling @molecule/app-ui @molecule/app-ui-tailwind
 ```
 
 ## API
@@ -43,3 +43,9 @@ Peer dependencies:
 - `@molecule/app-styling` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-tailwind` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-styling`
+- `@molecule/app-ui`
+- `@molecule/app-ui-tailwind`

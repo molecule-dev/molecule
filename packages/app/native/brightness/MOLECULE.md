@@ -7,7 +7,7 @@ Screen brightness control interface for molecule.dev
 
 ## Installation
 ```bash
-npm install @molecule/app-brightness
+npm install @molecule/app-brightness @molecule/app-i18n
 ```
 
 ## API
@@ -373,6 +373,10 @@ function withBrightness(brightness: number, callback: () => T | Promise<T>): Pro
 
 Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
 
 ## Translations
 

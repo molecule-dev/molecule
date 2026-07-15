@@ -7,7 +7,7 @@ Validation utilities for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-utilities-validation
+npm install @molecule/api-utilities-validation zod
 ```
 
 ## API
@@ -190,3 +190,9 @@ function validate(schema: ZodSchema<T, unknown, $ZodTypeInternals<T, unknown>>, 
 - `data` — The raw data to validate.
 
 **Returns:** The validated and typed data.
+
+## Injection Notes
+
+### Runtime Dependencies
+
+- `zod`

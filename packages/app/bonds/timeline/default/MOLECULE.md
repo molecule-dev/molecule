@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-timeline-default
+npm install @molecule/app-timeline-default @molecule/app-timeline
 ```
 
 ## API
@@ -86,3 +86,7 @@ export function setupTimelineDefault(): void {
 
 Peer dependencies:
 - `@molecule/app-timeline` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-timeline`

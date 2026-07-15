@@ -28,7 +28,7 @@ decode(token) // NOT verified — never use its output for an auth decision
 
 ## Installation
 ```bash
-npm install @molecule/api-jwt
+npm install @molecule/api-jwt @molecule/api-bond
 ```
 
 ## API
@@ -342,6 +342,10 @@ const JWT_REFRESH_TIME: number
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 **{@link verify} is the ONLY way to trust a token — {@link decode} does NOT check the
 signature.** Never make an auth decision from `decode()`: an attacker can forge any

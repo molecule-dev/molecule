@@ -35,7 +35,7 @@ setProvider(secureProvider)
 
 ## Installation
 ```bash
-npm install @molecule/api-multi-tenancy-schema
+npm install @molecule/api-multi-tenancy-schema @molecule/api-multi-tenancy
 ```
 
 ## API
@@ -178,6 +178,10 @@ export function setupMultiTenancySchema(): void {
 
 Peer dependencies:
 - `@molecule/api-multi-tenancy` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-multi-tenancy`
 
 **Security model — read before mounting the middleware.**
 

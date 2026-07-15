@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-calendar-fullcalendar
+npm install @molecule/app-calendar-fullcalendar @molecule/app-calendar
 ```
 
 ## API
@@ -160,3 +160,7 @@ const provider: CalendarProvider
 
 Peer dependencies:
 - `@molecule/app-calendar` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-calendar`

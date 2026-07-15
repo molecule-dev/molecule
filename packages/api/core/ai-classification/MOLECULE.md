@@ -34,7 +34,7 @@ console.log(result.labels) // [{ label: 'spam', score: 0.98 }, { label: 'ham', s
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-classification
+npm install @molecule/api-ai-classification @molecule/api-ai @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -209,6 +209,12 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
 
 - **Interface + accessor only.** This core ships zero implementation. The
   batteries-included classifier lives in `@molecule/api-ai-classification-llm`.

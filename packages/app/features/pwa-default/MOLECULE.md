@@ -21,7 +21,7 @@ registerPWA()
 
 ## Installation
 ```bash
-npm install @molecule/app-pwa-default
+npm install @molecule/app-pwa-default @molecule/app-i18n @molecule/app-logger vite-plugin-pwa
 ```
 
 ## API
@@ -49,3 +49,9 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `vite-plugin-pwa` ^0.20.0 || ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `vite-plugin-pwa`

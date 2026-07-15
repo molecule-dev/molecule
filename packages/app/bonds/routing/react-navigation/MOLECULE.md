@@ -7,7 +7,7 @@ React Navigation routing provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-routing-react-navigation
+npm install @molecule/app-routing-react-navigation @molecule/app-i18n @molecule/app-routing @react-navigation/native react react-native
 ```
 
 ## API
@@ -463,3 +463,11 @@ Peer dependencies:
 - `@react-navigation/native` ^7.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-native` >=0.72.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-routing`
+- `@react-navigation/native`
+- `react`
+- `react-native`

@@ -41,7 +41,7 @@ const result = validate([
 
 ## Installation
 ```bash
-npm install @molecule/api-config
+npm install @molecule/api-config @molecule/api-bond
 ```
 
 ## API
@@ -343,6 +343,10 @@ function validate(schema: ConfigSchema[]): ConfigValidationResult
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 Config values are SERVER-SIDE. A secret read here (`API_KEY`, `DATABASE_URL`) must never be
 sent to the browser or exposed through a `VITE_`/`NEXT_PUBLIC_` var — only a publishable /

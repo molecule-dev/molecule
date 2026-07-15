@@ -10,7 +10,7 @@ from `@molecule/app-network`.
 
 ## Installation
 ```bash
-npm install @molecule/app-network-react-native
+npm install @molecule/app-network-react-native @molecule/app-i18n @molecule/app-logger @molecule/app-network @react-native-community/netinfo
 ```
 
 ## API
@@ -86,6 +86,13 @@ Peer dependencies:
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-network` ^1.0.0
 - `@react-native-community/netinfo` >=9.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-logger`
+- `@molecule/app-network`
+- `@react-native-community/netinfo`
 
 ## Translations
 

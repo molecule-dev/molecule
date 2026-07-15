@@ -16,7 +16,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-i18n-simple
+npm install @molecule/api-i18n-simple @molecule/api-i18n
 ```
 
 ## API
@@ -69,6 +69,10 @@ export function setupI18nSimple(): void {
 
 Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-i18n`
 
 This bond implements the same `I18nProvider` fleet contract as
 `@molecule/app-i18n`'s core simple provider and the `@molecule/app-i18n-i18next`

@@ -17,7 +17,8 @@ await track({ name: 'purchase.completed', userId: 'u_123' })
 
 ## Installation
 ```bash
-npm install @molecule/api-analytics-mixpanel
+npm install @molecule/api-analytics-mixpanel @molecule/api-analytics @molecule/api-secrets mixpanel
+npm install -D @types/mixpanel
 ```
 
 ## API
@@ -257,6 +258,12 @@ Peer dependencies:
 - `MIXPANEL_TOKEN` *(required)* — Mixpanel project token
   - Setup: Copy the Project Token from Mixpanel → Project Settings → Access Keys.
   - Get it here: [https://mixpanel.com/settings/project](https://mixpanel.com/settings/project)
+
+### Runtime Dependencies
+
+- `@molecule/api-analytics`
+- `@molecule/api-secrets`
+- `mixpanel`
 
 - Configuration is lazy and failure-safe: importing this package or bonding
   `provider` never throws. When MIXPANEL_TOKEN is unset, the bond logs ONE

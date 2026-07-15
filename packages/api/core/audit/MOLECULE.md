@@ -27,7 +27,7 @@ const results = await query({ actor: 'user:1', page: 1, perPage: 20 })
 
 ## Installation
 ```bash
-npm install @molecule/api-audit
+npm install @molecule/api-audit @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -261,3 +261,8 @@ function setProvider(provider: AuditProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

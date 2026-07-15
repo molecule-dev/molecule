@@ -35,7 +35,7 @@ await transition(instance.id, 'confirm')
 
 ## Installation
 ```bash
-npm install @molecule/api-workflow
+npm install @molecule/api-workflow @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -415,3 +415,8 @@ function transition(instanceId: string, action: string, data?: Record<string, un
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`

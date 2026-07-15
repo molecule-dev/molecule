@@ -7,7 +7,7 @@ Alibaba Qwen AI provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-alibaba
+npm install @molecule/api-ai-alibaba @molecule/api-ai @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
 
 ## API
@@ -92,6 +92,13 @@ Peer dependencies:
   - Setup: Create an API key in Alibaba Cloud Model Studio (DashScope).
   - Get it here: [https://www.alibabacloud.com/help/en/model-studio/get-api-key](https://www.alibabacloud.com/help/en/model-studio/get-api-key)
   - Example: `sk-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai`
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-secrets`
 
 Config: `DASHSCOPE_API_KEY` (or `ALIBABA_API_KEY`, SERVER-side only) plus an optional default
 model id/base URL.

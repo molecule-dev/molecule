@@ -8,7 +8,7 @@ for speech-to-text (SpeechRecognition) and text-to-speech (SpeechSynthesis).
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-voice-default
+npm install @molecule/app-ai-voice-default @molecule/app-ai-voice
 ```
 
 ## API
@@ -63,3 +63,7 @@ Implements `@molecule/app-ai-voice` interface.
 
 Peer dependencies:
 - `@molecule/app-ai-voice` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-ai-voice`

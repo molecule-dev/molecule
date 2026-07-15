@@ -7,7 +7,7 @@ Iframe-based live preview provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/app-live-preview-iframe
+npm install @molecule/app-live-preview-iframe @molecule/app-live-preview
 ```
 
 ## API
@@ -84,3 +84,7 @@ export function setupLivePreviewIframe(): void {
 
 Peer dependencies:
 - `@molecule/app-live-preview` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-live-preview`

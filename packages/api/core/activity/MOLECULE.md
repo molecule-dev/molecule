@@ -33,7 +33,7 @@ await record({
 
 ## Installation
 ```bash
-npm install @molecule/api-activity
+npm install @molecule/api-activity @molecule/api-bond
 ```
 
 ## API
@@ -187,6 +187,10 @@ function setSink(sink: ActivitySink): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 **`record()` is best-effort by contract.** Activity recording is a
 side-channel for dev visibility (the IDE Activity panel, inline Synthase

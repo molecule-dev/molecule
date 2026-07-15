@@ -60,7 +60,7 @@ router.post('/image/composite', async (req, res, next) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-image-compositor
+npm install @molecule/api-image-compositor @molecule/api-bond @molecule/api-i18n @molecule/api-image @molecule/api-image-sharp
 ```
 
 ## API
@@ -577,6 +577,13 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-image` ^1.0.0
 - `@molecule/api-image-sharp` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+- `@molecule/api-image`
+- `@molecule/api-image-sharp`
 
 Resource intensity: a high-resolution layered document with many
 blended layers will allocate sizeable RGBA buffers (4 bytes per pixel,

@@ -26,7 +26,7 @@ if (driver) {
 
 ## Installation
 ```bash
-npm install @molecule/api-staging
+npm install @molecule/api-staging @molecule/api-bond
 ```
 
 ## API
@@ -263,3 +263,7 @@ function setProvider(driver: StagingDriver): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`

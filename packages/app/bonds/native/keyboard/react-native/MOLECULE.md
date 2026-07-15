@@ -10,7 +10,7 @@ from `@molecule/app-keyboard`.
 
 ## Installation
 ```bash
-npm install @molecule/app-keyboard-react-native
+npm install @molecule/app-keyboard-react-native @molecule/app-i18n @molecule/app-keyboard @molecule/app-logger react-native
 ```
 
 ## API
@@ -80,6 +80,13 @@ Peer dependencies:
 - `@molecule/app-keyboard` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `react-native` >=0.72.0
+
+### Runtime Dependencies
+
+- `@molecule/app-i18n`
+- `@molecule/app-keyboard`
+- `@molecule/app-logger`
+- `react-native`
 
 ## Translations
 

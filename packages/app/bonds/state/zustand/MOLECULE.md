@@ -9,7 +9,7 @@ Provides a Zustand-based implementation of the molecule state interface.
 
 ## Installation
 ```bash
-npm install @molecule/app-state-zustand
+npm install @molecule/app-state-zustand @molecule/app-state zustand
 ```
 
 ## API
@@ -296,3 +296,8 @@ export function setupStateZustand(): void {
 
 Peer dependencies:
 - `@molecule/app-state` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-state`
+- `zustand`

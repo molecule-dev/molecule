@@ -29,7 +29,7 @@ const hits = await store.query({ collection: 'docs', embedding: queryVec, topK: 
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-vector-store-memory
+npm install @molecule/api-ai-vector-store-memory @molecule/api-ai-vector-store
 ```
 
 ## API
@@ -69,6 +69,10 @@ export function setupAiVectorStoreMemory(): void {
 
 Peer dependencies:
 - `@molecule/api-ai-vector-store` >=1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-ai-vector-store`
 
 - **Not persistent** — the index lives in process memory and is gone on restart.
   Rebuild it at startup, or use a persistent provider (pgvector/Pinecone) for

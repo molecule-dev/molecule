@@ -7,7 +7,7 @@ Stability AI image generation provider for molecule.dev.
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-image-generation-stability
+npm install @molecule/api-ai-image-generation-stability @molecule/api-ai-image-generation @molecule/api-secrets
 ```
 
 ## API
@@ -102,3 +102,8 @@ Peer dependencies:
   - Setup: Create an API key under Account → API keys on the Stability platform.
   - Get it here: [https://platform.stability.ai/account/keys](https://platform.stability.ai/account/keys)
   - Example: `sk-...`
+
+### Runtime Dependencies
+
+- `@molecule/api-ai-image-generation`
+- `@molecule/api-secrets`

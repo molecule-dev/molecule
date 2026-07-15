@@ -10,7 +10,7 @@ by various styling solutions (styled-components, Tailwind, etc.).
 
 ## Installation
 ```bash
-npm install @molecule/app-theme
+npm install @molecule/app-theme @molecule/app-bond
 ```
 
 ## API
@@ -415,3 +415,7 @@ const lightTheme: Theme
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`

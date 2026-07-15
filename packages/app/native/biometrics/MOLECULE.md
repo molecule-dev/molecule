@@ -10,7 +10,7 @@ Fingerprint) that works across different platforms.
 
 ## Installation
 ```bash
-npm install @molecule/app-biometrics
+npm install @molecule/app-biometrics @molecule/app-bond @molecule/app-logger
 ```
 
 ## API
@@ -279,6 +279,11 @@ function setProvider(provider: BiometricsProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+- `@molecule/app-logger`
 
 **A successful {@link authenticate} is a CLIENT-side gate, NOT server authentication.**
 FaceID / TouchID / fingerprint unlocking the device proves nothing to your API — the server
