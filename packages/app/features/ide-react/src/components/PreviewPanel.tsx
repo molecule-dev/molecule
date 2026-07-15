@@ -1169,12 +1169,18 @@ export function PreviewPanel({
       // the fresh-project "won't load until I open a new tab" bug. The grace reveal is purely a
       // flash-avoidance shortcut for RELOADS of an app that already rendered once; a genuinely
       // never-mounting app is surfaced honestly by the cold-boot evaluator (dead / 60s ceiling).
-      if (!hasEverRenderedRef.current) return
+      //
+      // A fresh wake is the SAME cold-boot regime even when the app already rendered pre-wake
+      // (hasEverRendered stays true): the woken Vite mounts once then full-reloads mid-optimize,
+      // and revealing that blank reload on the grace would flash a bare white iframe instead of
+      // the honest "Starting…" spinner. Keep the overlay up until a REAL molecule:ready (which a
+      // healthy wake posts within seconds); only that reveals during the wake window.
+      if (!hasEverRenderedRef.current || inWakeWindow()) return
       setEverLoaded(true)
       setIframeReady(true)
       setStuckRetryCount(0)
     }, ONLOAD_GRACE_MS)
-  }, [])
+  }, [inWakeWindow])
 
   // --- Health check: periodically verify server is still up ---
   useEffect(() => {
@@ -1305,15 +1311,21 @@ export function PreviewPanel({
       const now = Date.now()
       const sinceLoad = now - (lastLoadAtRef.current || now)
       const aliveRecently = now - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS
-      const introuble = hasEverRenderedRef.current
-        ? sinceLoad >= BLANK_CONFIRM_MS
-        : // The dead-document inference ("loaded but never ran its bridge ⇒ broken/error
-          // page") does NOT hold right after a wake: the restarting server's proxy can
-          // transiently serve exactly such a page while the dev server comes back up, and
-          // the stale-document auto-reloads recover it. Within the wake window only the
-          // generous never-rendered ceiling may accuse.
-          (!aliveRecently && sinceLoad >= BLANK_DEAD_MS && !inWakeWindow()) ||
-          sinceLoad >= COLD_BOOT_PATIENCE_MS
+      // Right after a wake, NEITHER fast accusation window may fire — only the generous
+      // never-rendered ceiling. A wake relaunches the dev server, and cold Vite routinely
+      // mounts the app once (→ molecule:ready, so hasEverRendered flips true) and THEN does a
+      // full HMR reload while it finishes pre-bundling deps; that reload renders nothing for a
+      // beat and would trip the already-rendered BLANK_CONFIRM_MS path. It can equally land on
+      // a transient bridge-less error page the restarting proxy serves (the never-rendered
+      // BLANK_DEAD_MS path). Both are EXPECTED during a restart, so the wake window overrides
+      // both — matching the intent: accuse only when we're certain nothing ever rendered
+      // (COLD_BOOT_PATIENCE_MS elapsed while alive-but-unmounted). The stale-document
+      // auto-reloads still recover a genuinely dead doc in the meantime.
+      const introuble = inWakeWindow()
+        ? sinceLoad >= COLD_BOOT_PATIENCE_MS
+        : hasEverRenderedRef.current
+          ? sinceLoad >= BLANK_CONFIRM_MS
+          : (!aliveRecently && sinceLoad >= BLANK_DEAD_MS) || sinceLoad >= COLD_BOOT_PATIENCE_MS
       setBlankPostBuild(introuble)
       return introuble
     }

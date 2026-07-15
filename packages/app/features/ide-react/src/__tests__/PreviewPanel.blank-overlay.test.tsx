@@ -312,6 +312,51 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     }
   }, 20000)
 
+  it('wake patience: an app that renders once DURING the wake window then reloads blank is still NOT accused (the hasEverRendered branch)', async () => {
+    // The gap the first wake fix missed — and the exact live symptom. A cold wake relaunches
+    // Vite, which routinely mounts the app once (→ molecule:ready, flipping hasEverRendered
+    // true) and THEN does a full HMR reload while it finishes pre-bundling deps. That reload
+    // renders nothing for a beat and lands on the ALREADY-rendered BLANK_CONFIRM_MS (2.5s)
+    // path — which the wake window must also override, not just the never-rendered path. The
+    // ready here arrives AFTER wakeAt (unlike the pre-hibernation case), so the reset-on-wake
+    // effect can't be what saves it; the evaluator's own wake gate must.
+    const wakeAt = Date.now()
+    const provider = providerAtUrl()
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} wakeAt={wakeAt} />
+      </Wrap>,
+    )
+    const iframe = await waitFor(
+      () => {
+        const el = container.querySelector('iframe')
+        expect(el).not.toBeNull()
+        return el as HTMLIFrameElement
+      },
+      { timeout: 4000 },
+    )
+    const beat = setInterval(() => postFromPreview({ type: 'molecule:heartbeat' }), 800)
+    try {
+      // The woken Vite mounts the app once — DURING the wake window — so hasEverRendered flips true.
+      fireEvent.load(iframe)
+      postFromPreview({ type: 'molecule:ready' })
+      // Past READY_FRESH_MS so the next load is treated as a fresh document (drops confirmed).
+      await new Promise((r) => setTimeout(r, 1800))
+      // Vite full-reloads mid-optimize: fresh onLoad, NO new ready (blank for a beat).
+      fireEvent.load(iframe)
+      // Well past BLANK_CONFIRM_MS (2.5s) yet inside the wake window: no accusation.
+      await new Promise((r) => setTimeout(r, 4000))
+      expect(q(container, 'preview-blank-notice')).toBeNull()
+      expect(q(container, 'preview-load-failed')).toBeNull()
+      expect(q(container, 'preview-overlay')).not.toBeNull()
+      // Cold optimize finishes → ready → reveal.
+      postFromPreview({ type: 'molecule:ready' })
+      await waitFor(() => expect(q(container, 'preview-overlay')).toBeNull(), { timeout: 4000 })
+    } finally {
+      clearInterval(beat)
+    }
+  }, 20000)
+
   it('wake patience: a bridge-less (dead) document right after a wake is NOT accused within the dead-doc window', async () => {
     // Behind a preview proxy, a wake can transiently serve an error page that never runs the
     // inline bridge — the exact signature BLANK_DEAD_MS treats as a genuine failure (4s). Right
