@@ -23,7 +23,7 @@ await sendMail({
 
 ## Installation
 ```bash
-npm install @molecule/api-emails
+npm install @molecule/api-emails @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -230,6 +230,11 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+
 Send through {@link sendMail} (the bonded transport) — never hardcode SMTP creds or an API
 key; they come from config/secrets and stay SERVER-SIDE.
 
@@ -244,10 +249,13 @@ key; they come from config/secrets and stay SERVER-SIDE.
 
 ## E2E Tests
 
-Integration checklist — drive the real UI (live preview, no mocks; use the
-dev/capture transport to inspect sent mail), adapt each item to this app's
-actual screens/flows, and check every box off one by one. A box you can't
-check is an integration bug to fix — not a skip:
+Integration checklist — drive the real UI (live preview, no mocks). The
+sandbox CAPTURES outbound email instead of sending — read each message with
+the `read_activity` tool (filter type 'email'); the verification/reset link
+is in its payload. Never mock the send or modify production code to expose
+it. Adapt each item to this app's actual screens/flows, and check every box
+off one by one. A box you can't check is an integration bug to fix — not a
+skip:
 - [ ] Each email-triggering flow (signup verification, password-reset request,
   invites/notifications the app defines) confirms the send in the UI ("check
   your inbox") and a message actually reaches the transport.

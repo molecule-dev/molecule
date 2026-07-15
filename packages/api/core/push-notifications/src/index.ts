@@ -50,7 +50,10 @@
  *   the browser permission prompt and, once granted, the subscription is
  *   stored (the UI still shows "enabled" after a full reload).
  * - [ ] An event this app notifies about actually delivers a push to the
- *   subscribed session, with a readable title/body (not raw JSON).
+ *   subscribed session, with a readable title/body (not raw JSON). The sandbox
+ *   CAPTURES outbound pushes instead of delivering — read the captured message
+ *   with the `read_activity` tool (filter type 'push'); never mock the flow or
+ *   modify production code to expose it.
  * - [ ] Clicking the delivered notification opens/focuses the relevant screen
  *   (when the app claims deep-linking).
  * - [ ] Denying the permission leaves the app fully usable and truthful about

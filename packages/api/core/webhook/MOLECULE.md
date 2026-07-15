@@ -26,7 +26,7 @@ console.log(results[0].success) // true
 
 ## Installation
 ```bash
-npm install @molecule/api-webhook
+npm install @molecule/api-webhook @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -329,6 +329,11 @@ Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+
 This is OUTBOUND webhook DISPATCH — your app POSTing events to endpoints your users
 register. (Verifying an INBOUND provider webhook, e.g. Stripe's, is the opposite
 direction — you verify ITS signature; see `@molecule/api-payments`.) A weak dispatch
@@ -347,3 +352,18 @@ integration is an SSRF hole and a spoofable firehose:
   an IDOR.
 - **Send only what the event needs.** Never put secrets, tokens, or unrelated PII in the
   payload — it leaves your system.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Registering a webhook endpoint through the app's UI/API succeeds, and
+  an event the app dispatches actually produces a delivery. The sandbox
+  CAPTURES outbound deliveries instead of POSTing — read them with the
+  `read_activity` tool (filter type 'webhook'); never mock the dispatch or
+  modify production code to expose the payload.
+- [ ] The captured delivery carries the signature header (derived from the
+  registration's secret) and an event payload free of secrets/unrelated PII.
+- [ ] A registration targeting a private/link-local/metadata destination
+  (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.

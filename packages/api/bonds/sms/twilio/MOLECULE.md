@@ -26,7 +26,7 @@ setProvider(createProvider({
 
 ## Installation
 ```bash
-npm install @molecule/api-sms-twilio
+npm install @molecule/api-sms-twilio @molecule/api-logger @molecule/api-secrets @molecule/api-sms twilio
 ```
 
 ## API
@@ -107,6 +107,13 @@ Peer dependencies:
   - Get it here: [https://console.twilio.com/us1/develop/phone-numbers/manage/incoming](https://console.twilio.com/us1/develop/phone-numbers/manage/incoming)
   - Example: `+15551234567`
 
+### Runtime Dependencies
+
+- `@molecule/api-logger`
+- `@molecule/api-secrets`
+- `@molecule/api-sms`
+- `twilio`
+
 `createProvider()` does NOT validate credentials eagerly — missing
 `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN` will not throw at bond time.
 `setProvider(createProvider())` always succeeds; the actionable
@@ -115,3 +122,19 @@ Peer dependencies:
 selected Twilio before filling in secrets still boots (SMS just degrades
 until the secret is set), matching the slack/web-push bonds in this
 category.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Each SMS-triggering flow (phone verification, OTP login, alerts the
+  app defines) confirms the send in the UI and a message actually reaches
+  the transport. The sandbox CAPTURES outbound SMS instead of sending — read
+  it with the `read_activity` tool (filter type 'sms'); the code/link is in
+  its payload. Never mock the flow or modify production code to expose it.
+- [ ] The OTP round-trip completes: request a code → read the captured
+  message's code → enter it in the UI → the flow advances; a wrong or
+  expired code is rejected with a visible error.
+- [ ] Messages go only to the authenticated user's own verified number — no
+  UI or endpoint lets a caller text an arbitrary number (spam/abuse vector).

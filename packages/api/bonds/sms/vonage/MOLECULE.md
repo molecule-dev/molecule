@@ -26,7 +26,7 @@ setProvider(createProvider({
 
 ## Installation
 ```bash
-npm install @molecule/api-sms-vonage
+npm install @molecule/api-sms-vonage @molecule/api-secrets @molecule/api-sms @vonage/server-sdk
 ```
 
 ## API
@@ -105,6 +105,12 @@ Peer dependencies:
   - Get it here: [https://dashboard.nexmo.com/your-numbers](https://dashboard.nexmo.com/your-numbers)
   - Example: `+15551234567`
 
+### Runtime Dependencies
+
+- `@molecule/api-secrets`
+- `@molecule/api-sms`
+- `@vonage/server-sdk`
+
 Importing this package registers `VONAGE_API_KEY` / `VONAGE_API_SECRET` /
 `VONAGE_FROM_NUMBER` with `@molecule/api-secrets` (mirroring the Twilio
 bond), so a scaffolded app selecting Vonage gets env-var scaffolding and a
@@ -117,3 +123,19 @@ boot-time secrets report naming the missing keys.
 `send()`/`sendBulk()` call instead, so a scaffolded app that selected
 Vonage before filling in secrets still boots (SMS just degrades until the
 secret is set), matching the slack/web-push bonds in this category.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Each SMS-triggering flow (phone verification, OTP login, alerts the
+  app defines) confirms the send in the UI and a message actually reaches
+  the transport. The sandbox CAPTURES outbound SMS instead of sending — read
+  it with the `read_activity` tool (filter type 'sms'); the code/link is in
+  its payload. Never mock the flow or modify production code to expose it.
+- [ ] The OTP round-trip completes: request a code → read the captured
+  message's code → enter it in the UI → the flow advances; a wrong or
+  expired code is rejected with a visible error.
+- [ ] Messages go only to the authenticated user's own verified number — no
+  UI or endpoint lets a caller text an arbitrary number (spam/abuse vector).

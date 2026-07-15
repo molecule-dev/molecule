@@ -34,7 +34,7 @@ await ch.sendMessage('C123', { kind: 'text', text: 'hello' })
 
 ## Installation
 ```bash
-npm install @molecule/api-channel
+npm install @molecule/api-channel @molecule/api-bond @molecule/api-i18n
 ```
 
 ## API
@@ -440,3 +440,24 @@ function setProvider(provider: ChannelProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-i18n`
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Each channel-notifying flow the app defines (a Slack/Discord alert on
+  a new order, a status-change message) actually produces a message. The
+  sandbox CAPTURES channel messages instead of sending — read them with the
+  `read_activity` tool (filter type 'channel'); never mock the flow or
+  modify production code to expose the message.
+- [ ] The captured message targets the configured channel/provider name and
+  carries the app's real content (readable text, no `undefined`
+  placeholders, no secrets).
+- [ ] A failed send (unbonded or misconfigured provider) is visible in
+  logs/UI — never silently swallowed.

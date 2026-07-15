@@ -62,6 +62,10 @@
  * - [ ] Log in through the app's existing auth UI, then hit a protected API
  *   route: `verifyUserToken()` accepts the live session token and the route
  *   returns that user's data.
+ * - [ ] The counterparty is the auth platform itself: obtain a REAL user token
+ *   by signing up / logging in through the app's own UI (`interact_preview`)
+ *   and exercise `verifyUserToken()` with the token the frontend sends —
+ *   never fabricate, hand-mint, or replay a made-up token as a "valid" case.
  * - [ ] A garbage or expired Bearer token gets a clean 401 from protected
  *   routes (`verifyUserToken()` → `null`) — never a 500 or a crash.
  * - [ ] A request with no Authorization header is rejected as

@@ -39,6 +39,20 @@
  * console.log(results[0].success) // true
  * ```
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] Registering a webhook endpoint through the app's UI/API succeeds, and
+ *   an event the app dispatches actually produces a delivery. The sandbox
+ *   CAPTURES outbound deliveries instead of POSTing — read them with the
+ *   `read_activity` tool (filter type 'webhook'); never mock the dispatch or
+ *   modify production code to expose the payload.
+ * - [ ] The captured delivery carries the signature header (derived from the
+ *   registration's secret) and an event payload free of secrets/unrelated PII.
+ * - [ ] A registration targeting a private/link-local/metadata destination
+ *   (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.
+ *
  * @module
  */
 

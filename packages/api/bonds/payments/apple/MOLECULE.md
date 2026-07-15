@@ -9,7 +9,7 @@ Handles verification of Apple App Store receipts for in-app purchases and subscr
 
 ## Installation
 ```bash
-npm install @molecule/api-payments-apple
+npm install @molecule/api-payments-apple @molecule/api-bond @molecule/api-config @molecule/api-http @molecule/api-payments @molecule/api-secrets
 ```
 
 ## API
@@ -385,6 +385,14 @@ Peer dependencies:
   - Setup: App Store Connect → your app → App Information → App-Specific Shared Secret (for receipt validation).
   - Get it here: [https://appstoreconnect.apple.com/](https://appstoreconnect.apple.com/)
 
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-config`
+- `@molecule/api-http`
+- `@molecule/api-payments`
+- `@molecule/api-secrets`
+
 Scope limits to know BEFORE wiring this bond:
 
 - **Subscriptions only.** Verification looks for the latest entry with an
@@ -423,9 +431,10 @@ Scope limits to know BEFORE wiring this bond:
 
 ## E2E Tests
 
-Integration checklist — drive the real UI (live preview, no mocks), adapt
-each item to this app's actual screens/flows, and check every box off one
-by one. A box you can't check is an integration bug to fix — not a skip:
+Integration checklist — drive the real UI (live preview, no mocks; use the
+provider's TEST mode — test cards/sandbox accounts, never a live charge),
+adapt each item to this app's actual screens/flows, and check every box off
+one by one. A box you can't check is an integration bug to fix — not a skip:
 - [ ] Starting an upgrade/subscribe from the pricing or billing surface creates a
   checkout session and hands off to the provider flow (redirect or embedded
   element) — the button does something real, not a dead click.
@@ -433,7 +442,9 @@ by one. A box you can't check is an integration bug to fix — not a skip:
   original plan with a sane UI (no phantom entitlement, no error page).
 - [ ] Entitlement flips ONLY after server-side verification (webhook or verify
   call) — reloading after a client-side-only "success" must NOT show a paid
-  plan unless the server verified it.
+  plan unless the server verified it. The sandbox CAPTURES webhook deliveries
+  — read them with the `read_activity` tool (filter type 'webhook'); never
+  mock the event or modify production code to fake an entitlement.
 - [ ] The current subscription status (plan name, renewal/expiry) renders on the
   account/billing screen, and canceling updates that status visibly.
 - [ ] With payment secrets unconfigured, the flow surfaces an actionable

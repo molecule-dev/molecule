@@ -44,7 +44,7 @@ app.get('/api/me', async (req, res) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-external-auth
+npm install @molecule/api-external-auth @molecule/api-bond
 ```
 
 ## API
@@ -154,6 +154,10 @@ function verifyUserToken(token: string): Promise<ExternalAuthUser | null>
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+
 **This is how you authenticate an IMPORTED app's existing users
 server-side.** Do not hand-roll JWT verification against the vendor's API
 or rebuild the app's auth from scratch — the provider bond matching the
@@ -178,6 +182,10 @@ by one. A box you can't check is an integration bug to fix — not a skip:
 - [ ] Log in through the app's existing auth UI, then hit a protected API
   route: `verifyUserToken()` accepts the live session token and the route
   returns that user's data.
+- [ ] The counterparty is the auth platform itself: obtain a REAL user token
+  by signing up / logging in through the app's own UI (`interact_preview`)
+  and exercise `verifyUserToken()` with the token the frontend sends —
+  never fabricate, hand-mint, or replay a made-up token as a "valid" case.
 - [ ] A garbage or expired Bearer token gets a clean 401 from protected
   routes (`verifyUserToken()` → `null`) — never a 500 or a crash.
 - [ ] A request with no Authorization header is rejected as

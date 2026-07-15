@@ -45,6 +45,10 @@
  * by one. A box you can't check is an integration bug to fix — not a skip:
  * - [ ] A new user can sign up with email + password and lands authenticated (the
  *   UI reflects the signed-in user, e.g. their name/menu appears).
+ * - [ ] Any flow that emails a link/code (signup verification, password reset)
+ *   round-trips: the sandbox CAPTURES the message instead of sending — read it
+ *   with the `read_activity` tool (filter type 'email') and follow the link/code
+ *   in its payload; never mock the flow or modify production code to expose it.
  * - [ ] Logging out and logging back in with the same credentials reaches the same
  *   account and its data.
  * - [ ] The session survives a full page reload (restored via the httpOnly cookie +

@@ -34,7 +34,7 @@ results.forEach((r, i) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-push-notifications
+npm install @molecule/api-push-notifications @molecule/api-bond
 ```
 
 ## API
@@ -286,6 +286,10 @@ function setProvider(provider: PushNotificationProvider): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+
 - The VAPID **private** key is a server secret — it stays in the API (config/secrets).
   Only the **public** key ({@link getPublicKey}) goes to the browser for `subscribe()`.
   Generate the pair ONCE with {@link generateVapidKeys} and persist it in env; do NOT
@@ -309,7 +313,10 @@ by one. A box you can't check is an integration bug to fix — not a skip:
   the browser permission prompt and, once granted, the subscription is
   stored (the UI still shows "enabled" after a full reload).
 - [ ] An event this app notifies about actually delivers a push to the
-  subscribed session, with a readable title/body (not raw JSON).
+  subscribed session, with a readable title/body (not raw JSON). The sandbox
+  CAPTURES outbound pushes instead of delivering — read the captured message
+  with the `read_activity` tool (filter type 'push'); never mock the flow or
+  modify production code to expose it.
 - [ ] Clicking the delivered notification opens/focuses the relevant screen
   (when the app claims deep-linking).
 - [ ] Denying the permission leaves the app fully usable and truthful about

@@ -19,7 +19,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-push-capture
+npm install @molecule/api-push-capture @molecule/api-activity @molecule/api-push-notifications
 ```
 
 ## API
@@ -77,6 +77,11 @@ Peer dependencies:
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-push-notifications` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/api-activity`
+- `@molecule/api-push-notifications`
+
 In intercept-only mode (no `realProvider`), `generateVapidKeys()` THROWS —
 there is no real push transport behind it to generate real keys with.
 Wrap a real provider (`createPushCaptureProvider(realProvider)`) to
@@ -96,7 +101,10 @@ by one. A box you can't check is an integration bug to fix — not a skip:
   the browser permission prompt and, once granted, the subscription is
   stored (the UI still shows "enabled" after a full reload).
 - [ ] An event this app notifies about actually delivers a push to the
-  subscribed session, with a readable title/body (not raw JSON).
+  subscribed session, with a readable title/body (not raw JSON). The sandbox
+  CAPTURES outbound pushes instead of delivering — read the captured message
+  with the `read_activity` tool (filter type 'push'); never mock the flow or
+  modify production code to expose it.
 - [ ] Clicking the delivered notification opens/focuses the relevant screen
   (when the app claims deep-linking).
 - [ ] Denying the permission leaves the app fully usable and truthful about

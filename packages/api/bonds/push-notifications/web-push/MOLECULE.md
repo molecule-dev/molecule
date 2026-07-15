@@ -9,7 +9,8 @@ Provides push notification delivery using the Web Push protocol.
 
 ## Installation
 ```bash
-npm install @molecule/api-push-notifications-web-push
+npm install @molecule/api-push-notifications-web-push @molecule/api-bond @molecule/api-push-notifications @molecule/api-secrets web-push
+npm install -D @types/web-push
 ```
 
 ## API
@@ -86,6 +87,13 @@ Peer dependencies:
   - Setup: Contact address sent to push services with each request (mailto: form).
   - Example: `mailto:you@example.com`
 
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-push-notifications`
+- `@molecule/api-secrets`
+- `web-push`
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt
@@ -95,7 +103,10 @@ by one. A box you can't check is an integration bug to fix — not a skip:
   the browser permission prompt and, once granted, the subscription is
   stored (the UI still shows "enabled" after a full reload).
 - [ ] An event this app notifies about actually delivers a push to the
-  subscribed session, with a readable title/body (not raw JSON).
+  subscribed session, with a readable title/body (not raw JSON). The sandbox
+  CAPTURES outbound pushes instead of delivering — read the captured message
+  with the `read_activity` tool (filter type 'push'); never mock the flow or
+  modify production code to expose it.
 - [ ] Clicking the delivered notification opens/focuses the relevant screen
   (when the app claims deep-linking).
 - [ ] Denying the permission leaves the app fully usable and truthful about

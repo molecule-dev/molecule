@@ -23,7 +23,7 @@ router.get('/me/timezone', async (req, res) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-user
+npm install @molecule/api-resource-user @molecule/api-bond @molecule/api-config @molecule/api-database @molecule/api-entitlements @molecule/api-i18n @molecule/api-jwt @molecule/api-locales-user @molecule/api-locales-user-payments @molecule/api-password @molecule/api-payments @molecule/api-push-notifications @molecule/api-rate-limit @molecule/api-resource @molecule/api-resource-device @molecule/api-secrets @molecule/api-two-factor zod
 ```
 
 ## API
@@ -388,6 +388,26 @@ Peer dependencies:
 - `JWT_PUBLIC_KEY` *(required)* — JWT verification key (RSA public)
   - **Auto-generated at scaffold — no manual setup.**
 
+### Runtime Dependencies
+
+- `@molecule/api-bond`
+- `@molecule/api-config`
+- `@molecule/api-database`
+- `@molecule/api-entitlements`
+- `@molecule/api-i18n`
+- `@molecule/api-jwt`
+- `@molecule/api-locales-user`
+- `@molecule/api-locales-user-payments`
+- `@molecule/api-password`
+- `@molecule/api-payments`
+- `@molecule/api-push-notifications`
+- `@molecule/api-rate-limit`
+- `@molecule/api-resource`
+- `@molecule/api-resource-device`
+- `@molecule/api-secrets`
+- `@molecule/api-two-factor`
+- `zod`
+
 The user record is split across TWO schemas — pick the right one or you leak credentials:
 - **{@link Props} (`propsSchema`)** — SAFE, client-facing fields (username, name, email,
   `emailVerified`, `twoFactorEnabled`, plan). This is what handlers return and what lives
@@ -417,6 +437,10 @@ each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
 - [ ] A new user can sign up with email + password and lands authenticated (the
   UI reflects the signed-in user, e.g. their name/menu appears).
+- [ ] Any flow that emails a link/code (signup verification, password reset)
+  round-trips: the sandbox CAPTURES the message instead of sending — read it
+  with the `read_activity` tool (filter type 'email') and follow the link/code
+  in its payload; never mock the flow or modify production code to expose it.
 - [ ] Logging out and logging back in with the same credentials reaches the same
   account and its data.
 - [ ] The session survives a full page reload (restored via the httpOnly cookie +

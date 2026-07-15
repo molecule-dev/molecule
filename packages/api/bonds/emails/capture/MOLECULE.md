@@ -19,7 +19,7 @@ setTransport(provider)
 
 ## Installation
 ```bash
-npm install @molecule/api-emails-capture
+npm install @molecule/api-emails-capture @molecule/api-activity @molecule/api-emails
 ```
 
 ## API
@@ -77,6 +77,11 @@ Peer dependencies:
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-emails` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/api-activity`
+- `@molecule/api-emails`
+
 Recording is best-effort: a bonded `ActivitySink` that throws NEVER
 changes the outcome of `sendMail()` — a successful real send always
 resolves successfully and a failed real send always rejects with the
@@ -87,10 +92,13 @@ and recipients to get duplicates.
 
 ## E2E Tests
 
-Integration checklist — drive the real UI (live preview, no mocks; use the
-dev/capture transport to inspect sent mail), adapt each item to this app's
-actual screens/flows, and check every box off one by one. A box you can't
-check is an integration bug to fix — not a skip:
+Integration checklist — drive the real UI (live preview, no mocks). The
+sandbox CAPTURES outbound email instead of sending — read each message with
+the `read_activity` tool (filter type 'email'); the verification/reset link
+is in its payload. Never mock the send or modify production code to expose
+it. Adapt each item to this app's actual screens/flows, and check every box
+off one by one. A box you can't check is an integration bug to fix — not a
+skip:
 - [ ] Each email-triggering flow (signup verification, password-reset request,
   invites/notifications the app defines) confirms the send in the UI ("check
   your inbox") and a message actually reaches the transport.

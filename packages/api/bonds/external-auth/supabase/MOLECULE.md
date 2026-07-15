@@ -64,7 +64,7 @@ if (hasServiceRole()) {
 
 ## Installation
 ```bash
-npm install @molecule/api-external-auth-supabase
+npm install @molecule/api-external-auth-supabase @molecule/api-external-auth @supabase/supabase-js
 ```
 
 ## API
@@ -205,6 +205,11 @@ export function setupExternalAuthSupabase(): void {
 Peer dependencies:
 - `@molecule/api-external-auth` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/api-external-auth`
+- `@supabase/supabase-js`
+
 - The anon key is PUBLIC (it ships in the browser bundle of every Supabase
   app) — `provider.verifyUserToken()` and `getAnonClient()` need NO secret.
   Do not treat a missing service-role key as "Supabase is unusable".
@@ -231,6 +236,10 @@ by one. A box you can't check is an integration bug to fix — not a skip:
 - [ ] Log in through the app's existing auth UI, then hit a protected API
   route: `verifyUserToken()` accepts the live session token and the route
   returns that user's data.
+- [ ] The counterparty is the auth platform itself: obtain a REAL user token
+  by signing up / logging in through the app's own UI (`interact_preview`)
+  and exercise `verifyUserToken()` with the token the frontend sends —
+  never fabricate, hand-mint, or replay a made-up token as a "valid" case.
 - [ ] A garbage or expired Bearer token gets a clean 401 from protected
   routes (`verifyUserToken()` → `null`) — never a 500 or a crash.
 - [ ] A request with no Authorization header is rejected as
