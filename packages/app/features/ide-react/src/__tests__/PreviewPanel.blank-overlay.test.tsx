@@ -357,6 +357,53 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     }
   }, 20000)
 
+  it('wake patience: a preview-URL change (new sandbox port) is itself a wake signal — a bridge-less reload is NOT accused', async () => {
+    // The reliable, self-contained wake signal: a wake ALWAYS reassigns the sandbox's docker port
+    // (empty HostPort → a fresh ephemeral port each start), so the woken preview arrives on a new
+    // URL. That URL change alone must trigger wake patience — no host `wakeAt` prop needed (the
+    // status broadcasts that feed it are easily missed). Here the app renders on the first URL,
+    // then the sandbox is woken onto a NEW port whose cold Vite briefly serves a bridge-less
+    // document; the URL change must grant patience so the notice does not fire.
+    const provider = createProvider({ defaultUrl: 'http://127.0.0.1:40001/' })
+    provider.setUrl('http://127.0.0.1:40001/')
+    const { container } = render(
+      <Wrap provider={provider}>
+        <PreviewPanel isBuilding={false} />
+      </Wrap>,
+    )
+    const iframe = await waitFor(
+      () => {
+        const el = container.querySelector('iframe')
+        expect(el).not.toBeNull()
+        return el as HTMLIFrameElement
+      },
+      { timeout: 4000 },
+    )
+    // First URL renders fine.
+    fireEvent.load(iframe)
+    postFromPreview({ type: 'molecule:ready' })
+    // Wait past READY_FRESH_MS so the post-wake reload is treated as a fresh document (a real
+    // wake happens long after the last render — the app was hibernated).
+    await new Promise((r) => setTimeout(r, 2500))
+    // Wake: the sandbox comes back on a NEW port → the host repoints the preview at a new URL.
+    provider.setUrl('http://127.0.0.1:40002/')
+    await new Promise((r) => setTimeout(r, 500))
+    const iframe2 = await waitFor(
+      () => {
+        const el = container.querySelector('iframe')
+        expect(el).not.toBeNull()
+        return el as HTMLIFrameElement
+      },
+      { timeout: 4000 },
+    )
+    // The new port's cold Vite serves a bridge-less document (no ready, no heartbeat).
+    fireEvent.load(iframe2)
+    // Well past BLANK_DEAD_MS (4s): the URL-change wake window must keep the notice away.
+    await new Promise((r) => setTimeout(r, 8000))
+    expect(q(container, 'preview-blank-notice')).toBeNull()
+    expect(q(container, 'preview-overlay')).not.toBeNull()
+  }, 16000)
+
   it('wake patience: a bridge-less (dead) document right after a wake is NOT accused within the dead-doc window', async () => {
     // Behind a preview proxy, a wake can transiently serve an error page that never runs the
     // inline bridge — the exact signature BLANK_DEAD_MS treats as a genuine failure (4s). Right

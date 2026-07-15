@@ -40,9 +40,11 @@
  *   beats stop, so we surface a reload banner (the IDE stays responsive because the
  *   preview origin is isolated via Origin-Agent-Cluster)
  * - Blank page detection: catches pages that render but show nothing
- * - Wake patience: while the host reports the backing sandbox was just woken/restarted
- *   (`wakeAt`), the fast blank accusations stand down and the patient cold-boot regime
- *   governs — a post-wake reload that renders nothing for a while is expected, not blank
+ * - Wake patience: when the preview server restarts (detected by the load-target URL
+ *   changing — a wake always reassigns the sandbox's docker port — or the host's `wakeAt`
+ *   hint), the fast blank accusations stand down and the patient cold-boot regime governs
+ *   for WAKE_PATIENCE_MS: a post-wake reload that renders nothing for a while is expected,
+ *   not blank; only the generous never-rendered ceiling may accuse
  * - Trust boundary: inbound `molecule:*` postMessages are accepted only from the
  *   preview iframe's own window (`event.source === iframe.contentWindow`) — a window-
  *   identity check, robust to origin-string divergence (Origin-Agent-Cluster, IP host,
@@ -213,11 +215,12 @@ const BLANK_DEAD_MS = 4_000
 const COLD_BOOT_PATIENCE_MS = 60_000
 
 /**
- * How long after a `wakeAt` (the host reported the preview's backing server/sandbox was
- * just woken from sleep or restarted) the panel stays in WAKE PATIENCE (ms). A wake means
- * the dev server behind the preview is restarting and cold-recompiling: the still-mounted
- * document reloads itself (Vite's client reconnects and full-reloads) into a document that
- * legitimately shows nothing for a while — and behind a preview proxy the reload can even
+ * How long after a detected wake (the preview's backing server/sandbox was just restarted) the
+ * panel stays in WAKE PATIENCE (ms). A wake is detected when the load target changes to a new
+ * preview URL — a wake always reassigns the sandbox's docker port, so a woken preview arrives on
+ * a fresh URL (the reliable signal) — or from the host's explicit `wakeAt` prop (a hint). A wake
+ * means the dev server behind the preview is restarting and cold-recompiling: the (re)loaded
+ * document legitimately shows nothing for a while — and behind a preview proxy the reload can even
  * land on a transient error page that never runs the inline bridge. Both signatures are
  * EXACTLY what the fast accusation windows (BLANK_CONFIRM_MS for an already-rendered app,
  * BLANK_DEAD_MS for a bridge-less document) treat as a genuine failure — so right after a
@@ -515,11 +518,30 @@ export function PreviewPanel({
   // the absolute ceiling) read the live value without re-subscribing.
   const wakeAtRef = useRef(wakeAt ?? 0)
   wakeAtRef.current = wakeAt ?? 0
-  /** Whether the backing server was woken/restarted recently enough to owe patience. */
-  const inWakeWindow = useCallback(
-    (): boolean => wakeAtRef.current > 0 && Date.now() - wakeAtRef.current < WAKE_PATIENCE_MS,
-    [],
-  )
+  // THE reliable, self-contained wake signal: the load target (`state.url`) changed to a
+  // DIFFERENT non-empty preview URL. The only thing that repoints the preview at a new URL is the
+  // sandbox's dev server being (re)started — a wake reassigns the container's docker port EVERY
+  // time (the port binding uses an empty HostPort, so Docker hands out a fresh ephemeral port on
+  // each start), so a woken preview always arrives on a new `http://127.0.0.1:<newport>` URL.
+  // In-app navigation never changes `state.url` (it moves `currentUrl` via recordNavigation), so
+  // a change here is unambiguously "the preview server just restarted." This is far more reliable
+  // than the host's sandbox-status signal (stop/hibernate broadcasts are easily missed and the
+  // status can desync), so it — not the `wakeAt` prop — is the primary trigger for wake patience.
+  const prevUrlRef = useRef('')
+  const urlWakeAtRef = useRef(0)
+  if (state.url && prevUrlRef.current && state.url !== prevUrlRef.current) {
+    urlWakeAtRef.current = Date.now()
+  }
+  if (state.url) prevUrlRef.current = state.url
+  /**
+   * Whether the backing preview server was woken/restarted recently enough to owe patience —
+   * true within WAKE_PATIENCE_MS of EITHER a load-target change (the reliable signal) OR the
+   * host's explicit `wakeAt` prop (a secondary hint).
+   */
+  const inWakeWindow = useCallback((): boolean => {
+    const wokeAt = Math.max(wakeAtRef.current, urlWakeAtRef.current)
+    return wokeAt > 0 && Date.now() - wokeAt < WAKE_PATIENCE_MS
+  }, [])
   // A fresh wake re-enters the patient cold-boot regime for the CURRENT load target: the
   // restarting dev server is about to reload the document (or already did) into a state
   // that legitimately renders nothing for a while, so the "already rendered → any reload
