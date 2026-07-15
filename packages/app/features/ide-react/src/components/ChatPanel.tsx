@@ -7612,12 +7612,17 @@ function ChatInner({
                   slot (P3-15): a labeled "Commit" (click = commit now) that morphs
                   into the live "Auto-commit in Ns" countdown for the debounce's
                   final seconds. The blue button remains for auto-commit-off and for
-                  the committing/committed status states. */}
+                  the committing/committed status states. BOTH are disabled while the
+                  agent is working (`autoCommitHeld`): the files bar updates live, but
+                  committing mid-turn would stage a half-written tree and race the
+                  chat stream's own conversation writes — so the commit waits until
+                  the turn finishes. */}
                 {isAutoCommitEnabled(autoCommit) &&
                 commitState?.status !== 'committing' &&
                 commitState?.status !== 'committed' ? (
                   <AutoCommitBadge
                     state={autoCommit}
+                    disabled={autoCommitHeld}
                     onCommitNow={() => {
                       // Pause the countdown before committing so a due auto-fire
                       // doesn't race the manual commit onto a freshly clean tree
@@ -7628,54 +7633,50 @@ function ChatInner({
                     inline
                   />
                 ) : (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleCommit()
-                    }}
-                    disabled={
-                      commitState?.status === 'committing' || commitState?.status === 'committed'
-                    }
-                    onMouseEnter={(e) => {
-                      if (
-                        !(
-                          commitState?.status === 'committing' ||
-                          commitState?.status === 'committed'
-                        )
-                      ) {
-                        e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
-                        e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
-                        e.currentTarget.style.color = '#6090f0'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(64,112,224,0.2)'
-                      e.currentTarget.style.borderColor = 'rgba(64,112,224,0.4)'
-                      e.currentTarget.style.color = '#4070e0'
-                    }}
-                    style={{
-                      fontSize: 12,
-                      padding: '4px 10px',
-                      borderRadius: 6,
-                      border: '1px solid rgba(64,112,224,0.4)',
-                      background: 'rgba(64,112,224,0.2)',
-                      color: '#4070e0',
-                      cursor:
-                        commitState?.status === 'committing' || commitState?.status === 'committed'
-                          ? 'not-allowed'
-                          : 'pointer',
-                      opacity:
-                        commitState?.status === 'committing' || commitState?.status === 'committed'
-                          ? 0.5
-                          : 1,
-                      transition: 'background 100ms, border-color 100ms, color 100ms',
-                    }}
-                  >
-                    {commitState?.status === 'committing'
-                      ? t('ide.chat.committing')
-                      : t('ide.chat.commit')}
-                  </button>
+                  (() => {
+                    const commitBusy =
+                      commitState?.status === 'committing' ||
+                      commitState?.status === 'committed' ||
+                      autoCommitHeld
+                    return (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (commitBusy) return
+                          handleCommit()
+                        }}
+                        disabled={commitBusy}
+                        onMouseEnter={(e) => {
+                          if (!commitBusy) {
+                            e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
+                            e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
+                            e.currentTarget.style.color = '#6090f0'
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(64,112,224,0.2)'
+                          e.currentTarget.style.borderColor = 'rgba(64,112,224,0.4)'
+                          e.currentTarget.style.color = '#4070e0'
+                        }}
+                        style={{
+                          fontSize: 12,
+                          padding: '4px 10px',
+                          borderRadius: 6,
+                          border: '1px solid rgba(64,112,224,0.4)',
+                          background: 'rgba(64,112,224,0.2)',
+                          color: '#4070e0',
+                          cursor: commitBusy ? 'not-allowed' : 'pointer',
+                          opacity: commitBusy ? 0.5 : 1,
+                          transition: 'background 100ms, border-color 100ms, color 100ms',
+                        }}
+                      >
+                        {commitState?.status === 'committing'
+                          ? t('ide.chat.committing')
+                          : t('ide.chat.commit')}
+                      </button>
+                    )
+                  })()
                 )}
               </div>
               {commitBarExpanded && (

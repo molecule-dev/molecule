@@ -430,14 +430,19 @@ describe('ChatPanel auto-commit hold — commits only once the turn is finished'
       // reporting a dirty tree, the bar (and the green auto-commit button in its
       // slot) is visible WHILE the turn is still streaming — it must never wait
       // for the turn to end.
-      await waitFor(() => {
-        expect(
-          view.container.querySelector('[data-mol-id="chat-autocommit-badge"]'),
-          'the commit bar + auto-commit button must render mid-turn',
-        ).not.toBeNull()
-      })
+      const midTurnBadge = (await waitFor(() => {
+        const el = view.container.querySelector('[data-mol-id="chat-autocommit-badge"]')
+        expect(el, 'the commit bar + auto-commit button must render mid-turn').not.toBeNull()
+        return el as HTMLButtonElement
+      })) as HTMLButtonElement
 
-      // Well past the 1s cadence, nothing may commit while the turn streams.
+      // …but the button is DISABLED while the turn streams, and clicking it must
+      // NOT fire a commit — committing mid-turn stages a half-written tree and
+      // races the chat stream's conversation writes (the reported breakage).
+      expect(midTurnBadge.disabled, 'the commit button must be disabled mid-turn').toBe(true)
+      fireEvent.click(midTurnBadge)
+      // Well past the 1s cadence, and after an explicit mid-turn click, nothing
+      // may commit while the turn streams.
       await new Promise((resolve) => setTimeout(resolve, 2500))
       expect(commitSpy).not.toHaveBeenCalled()
 

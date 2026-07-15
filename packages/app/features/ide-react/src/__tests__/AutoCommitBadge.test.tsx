@@ -177,4 +177,40 @@ describe('AutoCommitBadge — green commit button while enabled', () => {
     expect(onCommitNow).toHaveBeenCalledTimes(1)
     expect(parentClick, 'click must not bubble to the bar-header toggle').not.toHaveBeenCalled()
   })
+
+  describe('disabled while the agent is working — no mid-turn commit', () => {
+    it('renders muted + inert and does NOT commit when clicked', () => {
+      // Committing mid-turn stages a half-written tree and races the chat
+      // stream's conversation writes — so the held button must be a no-op.
+      const onCommitNow = vi.fn()
+      const { container } = render(
+        <AutoCommitBadge
+          state={{ intervalSeconds: 5, remaining: 2 }}
+          onCommitNow={onCommitNow}
+          disabled
+        />,
+      )
+      const badge = badgeOf(container) as HTMLButtonElement
+      expect(badge.disabled).toBe(true)
+      expect(badge.style.opacity).toBe('0.5')
+      expect(badge.style.cursor).toBe('not-allowed')
+      fireEvent.click(badge)
+      expect(onCommitNow, 'a held click must not commit').not.toHaveBeenCalled()
+    })
+
+    it('shows the plain "Commit" label even inside the visible countdown window', () => {
+      // A held countdown is paused, not imminent — it must not read "Auto-commit
+      // in Ns" (which would imply a commit is about to fire while the agent works).
+      const { container } = render(
+        <AutoCommitBadge
+          state={{ intervalSeconds: 5, remaining: 1 }}
+          onCommitNow={() => {}}
+          disabled
+        />,
+      )
+      const badge = badgeOf(container) as HTMLElement
+      expect(badge.textContent).toBe('Commit')
+      expect(badge.textContent).not.toContain('Auto-commit in')
+    })
+  })
 })
