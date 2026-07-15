@@ -337,15 +337,18 @@ export function PreviewPanel({
       text: uiCommand.text,
       value: uiCommand.value,
     }
-    // Post repeatedly until the bridge replies (or ~12s, under the tool's 15s wait). A single post
-    // races iframe/bridge readiness: the preview may be mid-mount (the view just switched to it) or
-    // mid-reload (navigate_preview reloads the iframe), so the first postMessage is silently
-    // dropped. The bridge dedups by command id, so re-sending a click/fill still executes it once.
+    // Post repeatedly until the bridge replies (or ~40s, under the navigate tool's 45s wait). A
+    // single post races iframe/bridge readiness: the preview may be mid-mount (the view just
+    // switched to it) or mid-reload (navigate_preview reloads the iframe), so the first postMessage
+    // is silently dropped. The bridge dedups by command id, so re-sending a click/fill still
+    // executes it once. The window must outlast a slow dev server's COLD ROUTE COMPILE — a first
+    // hit to a Next.js/Nuxt/SvelteKit route commonly takes 10-30s (and an auth redirect compiles a
+    // SECOND route), so a 12s window timed out navigate_preview on every imported meta-framework app.
     const post = (): void => {
       iframeRef.current?.contentWindow?.postMessage(payload, '*')
     }
     post()
-    const deadline = Date.now() + 12_000
+    const deadline = Date.now() + 40_000
     const interval = window.setInterval(() => {
       if (uiResolvedRef.current.has(cmdId) || Date.now() > deadline) {
         window.clearInterval(interval)
