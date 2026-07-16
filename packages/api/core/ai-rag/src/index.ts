@@ -13,16 +13,21 @@
  *
  * @example
  * ```ts
- * import { bond } from '@molecule/api-bond'
+ * import { setProvider as setEmbeddings } from '@molecule/api-ai-embeddings'
  * import { provider as embeddings } from '@molecule/api-ai-embeddings-openai'
+ * import { setProvider as setVectorStore } from '@molecule/api-ai-vector-store'
  * import { provider as vectorStore } from '@molecule/api-ai-vector-store-memory'
+ * import { bond } from '@molecule/api-bond'
  * import { provider as ai } from '@molecule/api-ai-anthropic'
  * import { provider as rag } from '@molecule/api-ai-rag-llm'
  * import { requireProvider } from '@molecule/api-ai-rag'
  *
- * // Bond the retrieval + generation dependencies first, then RAG itself.
- * bond('ai-embeddings', embeddings)
- * bond('ai-vector-store', vectorStore)
+ * // Wire the retrieval + generation dependencies first, then RAG itself.
+ * // ai-embeddings and ai-vector-store keep their OWN singletons — wire them with
+ * // their packages' setProvider(); a generic bond('ai-embeddings', …) does NOT
+ * // reach them and query()/ingest() would throw "not configured" at runtime.
+ * setEmbeddings(embeddings)
+ * setVectorStore(vectorStore)
  * bond('ai', ai)
  * bond('ai-rag', rag)
  *
@@ -46,9 +51,13 @@
  *
  * @remarks
  * A RAG provider is not built in — bond one (e.g. `@molecule/api-ai-rag-llm`).
- * The `llm` provider needs THREE bonds present at runtime: a `ai` chat provider
- * (generation) plus the `ai-embeddings` and `ai-vector-store` providers
- * (retrieval, via `@molecule/api-semantic-search`). Bond those before calling
+ * The `llm` provider needs THREE dependencies present at runtime: an `ai` chat
+ * provider (generation) plus the `ai-embeddings` and `ai-vector-store` providers
+ * (retrieval, via `@molecule/api-semantic-search`). **Wire each through its own
+ * core's registration API:** `bond('ai', …)` works for the chat provider, but
+ * `ai-embeddings` and `ai-vector-store` are local-singleton cores — they are wired
+ * ONLY via their packages' `setProvider()` (a generic `bond('ai-embeddings', …)`
+ * is silently ignored by their accessors). Wire all three before calling
  * `query`/`ingest`, or the underlying accessors throw. The whole capability is
  * swappable: `bond('ai-rag', myProvider)` replaces the default with your own
  * `AIRagProvider`.

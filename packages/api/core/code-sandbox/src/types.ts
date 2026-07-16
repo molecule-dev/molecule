@@ -2,7 +2,7 @@
  * Sandbox provider interface.
  *
  * Provides isolated container environments for running user projects.
- * Implement this in a bond package (e.g., `@molecule/api-sandbox-docker`).
+ * Implement this in a bond package (e.g., `@molecule/api-code-sandbox-docker`).
  *
  * @module
  */

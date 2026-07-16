@@ -1,7 +1,7 @@
 /**
  * Code sandbox bond accessor.
  *
- * Bond packages (e.g. `@molecule/api-sandbox-docker`) call `setProvider()`
+ * Bond packages (e.g. `@molecule/api-code-sandbox-docker`) call `setProvider()`
  * during setup. Application code uses `requireProvider()` to access the
  * sandbox lifecycle API (create, get, list, destroy).
  *

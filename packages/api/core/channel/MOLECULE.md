@@ -446,6 +446,20 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 
+- **In a multi-channel app, always address channels BY NAME**
+  (`requireProviderByName('slack')`). The first `setProvider(name, provider)`
+  call also becomes the singleton fallback — and STAYS the singleton — so a bare
+  `requireProvider()` in an app with several channels silently sends via
+  whichever channel happened to register first.
+- **Gate rich content on `listSupportedFeatures()`.** Providers differ on
+  buttons/media/threads and MAY silently drop unsupported attachment kinds —
+  check the features (or fall back to `{ kind: 'text' }`) rather than assuming.
+- **Recipient ids are channel-native** (a Slack channel id, a Discord channel id,
+  a WhatsApp phone number) — store them per channel; they are not
+  interchangeable across providers.
+- **Tokens stay server-side.** Each bond documents its own secret env vars; never
+  send from the browser.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

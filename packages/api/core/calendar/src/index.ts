@@ -23,6 +23,22 @@
  * }
  * ```
  *
+ * @remarks
+ * - **Always persist rotated credentials.** Every operation returns
+ *   `CalendarOperationResult<T>` — `{ data, credentials? }`. When `credentials` is
+ *   present the provider refreshed the user's OAuth tokens: SAVE them over the
+ *   stored ones immediately, or the user's next call fails with an expired/revoked
+ *   token.
+ * - **Credentials are PER-USER OAuth tokens** (`accessToken`/`refreshToken`
+ *   obtained by the app's OAuth flow with calendar scopes) — load the CALLING
+ *   user's stored tokens for every call. Never share one user's credentials across
+ *   users, and never send them to the client.
+ * - **Calendar ids are provider-specific** (many providers accept a default id such
+ *   as `'primary'`) — discover them via `listCalendars(credentials)` instead of
+ *   hardcoding.
+ * - All wrappers throw when no provider is bonded (`setProvider` at startup);
+ *   times are ISO 8601 strings.
+ *
  * @module
  */
 
