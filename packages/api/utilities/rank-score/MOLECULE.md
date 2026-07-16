@@ -254,5 +254,11 @@ function toEpochMs(value: string | number | Date): number
 
 ## Injection Notes
 
-For high-cardinality feeds, score precomputation in a cron worker is
-recommended — see the package proposal note on resource intensity.
+Scoring is O(1) per item but sorting a large feed by a time-decay score is
+O(n log n) per request and the scores change continuously. For
+high-cardinality feeds, precompute scores on a schedule (cron/queue worker
+writing a `score` column, then ORDER BY it) instead of ranking every row at
+request time. `hnScore`, `redditHotScore`, and `recencyScore` read
+`ctx.now` — pass the same `now` for every item in one ranking pass so
+concurrent requests produce a stable order. `redditBestScore` and
+`redditControversialScore` ignore time entirely.

@@ -771,9 +771,28 @@ cannot be reinterpreted by a shell.
 
 **Resource intensity.** Rendering even a short timeline can take
 minutes and saturate a CPU core; the package is queue-driven by design.
-Bond a real queue provider (e.g. `@molecule/api-queue-redis` /
-`@molecule/api-queue-bullmq`) before calling `renderVideo` — without one,
-the call throws because no queue provider is bonded.
+Bond a real queue provider (e.g. `@molecule/api-queue-redis` or
+`@molecule/api-queue-rabbitmq`; `@molecule/api-queue-memory` keeps
+everything in one process for dev/tests) before calling `renderVideo` —
+without one, the call throws because no queue provider is bonded.
+
+**Runtime prerequisite: the `ffmpeg` binary.** The worker spawns the
+literal command `ffmpeg` — it must be installed and on `PATH` in the
+process that runs {@link processRenderJob} (there is no config option for
+a custom binary path; to point at a bundled binary, wrap
+{@link setFfmpegRunner} with your own spawn call). It is NOT bundled with
+this package and NOT present in minimal containers — without it every job
+fails at processing time with `spawn ffmpeg ENOENT` (surfaced as job
+status `failed`).
+
+**Job status is process-local by default.** The default {@link JobStore}
+is an in-memory Map. If the queue worker runs in a separate process from
+the API (the normal topology for redis/rabbitmq/sqs queues), the API's
+`getRenderStatus` polls ITS OWN store and reports `queued` forever while
+the worker renders happily elsewhere. Either run the worker in-process
+(with `@molecule/api-queue-memory`), or wire a shared store via
+{@link setJobStore} (Redis/database-backed) in BOTH the API and worker
+processes before enqueueing.
 
 **Locale.** This package is purely programmatic. There is no companion
 locale bond; all error messages are English-only by design.

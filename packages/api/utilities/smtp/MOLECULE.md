@@ -348,3 +348,11 @@ Throws {@link SmtpError} (`error.code` is one of `invalid-config`,
 `timeout`, `disconnected`). Map `error.code` to translated
 user-facing text in the calling handler — this utility intentionally
 has no locale bond (handler-error pattern).
+
+Network reality: this opens a raw TCP connection to the user's SMTP host
+(typically port 587 with STARTTLS, 465 for implicit TLS). Raw sockets do
+NOT traverse `HTTP_PROXY`-style egress proxies, so proxy-only / default-deny
+environments (including molecule.dev sandboxes, whose firewall permits only
+the HTTP(S) egress proxy) fail every connect with `connection-failed` or
+`timeout` even when the config is correct. Production deployments need
+direct outbound TCP to the target ports; note many clouds block port 25.

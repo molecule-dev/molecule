@@ -551,3 +551,17 @@ const PKPASS_CONTENT_TYPE: "application/vnd.apple.pkpass"
 ### Runtime Dependencies
 
 - `node-forge`
+
+Pass-style coverage is asymmetric: the Apple generator accepts all five
+PassKit styles (`eventTicket`, `boardingPass`, `coupon`, `generic`,
+`storeCard`) via {@link ApplePassData}, but {@link createGoogleWalletJwt}
+currently emits ONLY `eventTicketClasses`/`eventTicketObjects` in the JWT
+payload — Google offers/coupons/loyalty passes are not yet supported.
+
+Signing material is caller-supplied PEM strings — this package reads no
+environment variables and makes NO network calls (signing is fully local).
+Store the PEMs as your app's own secrets and load them in your resolver.
+Apple: the developer-portal "Pass Type ID" certificate + its private key
+({@link ApplePassCertificates}`.password` decrypts an encrypted key) and
+Apple's WWDR intermediate certificate. Google: a service account
+(clientEmail + RSA private key) attached to your Wallet issuer account.

@@ -6,6 +6,24 @@ Core interface — the actual implementation is provided via bonds.
 Install a cookie parser bond (e.g., `@molecule/api-middleware-cookie-parser-express`)
 to provide cookie parsing.
 
+## Quick Start
+
+```ts
+import express from 'express'
+import { cookieParser, createCookieParserMiddleware } from '@molecule/api-middleware-cookie-parser'
+
+const app = express()
+
+// Default parser (unsigned cookies) — requires the bond to be wired,
+// e.g. @molecule/api-middleware-cookie-parser-express.
+app.use(cookieParser)
+
+// Signed cookies: pass the server-side secret; verified values land on
+// req.signedCookies with the Express bond.
+const sessionSecret = process.env.SESSION_SECRET ?? ''
+app.use(createCookieParserMiddleware(sessionSecret))
+```
+
 ## Type
 `middleware`
 
@@ -42,6 +60,8 @@ type CookieParserFactory = (
 ```
 
 #### `Middleware`
+
+Generic middleware type — framework-agnostic.
 
 ```typescript
 type Middleware = (req: unknown, res: unknown, next: (err?: unknown) => void) => void

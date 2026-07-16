@@ -50,7 +50,7 @@ const noopAnalytics: MinimalAnalytics = {
  *
  * @example
  * ```typescript
- * import { getAnalytics } from '`@molecule/api-bond`'
+ * import { getAnalytics } from '@molecule/api-bond'
  *
  * const analytics = getAnalytics()
  * await analytics.track({ name: 'user.login', userId: '123' })

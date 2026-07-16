@@ -1,6 +1,13 @@
 /**
  * CORS middleware for molecule.dev.
  *
+ * Core interface — the implementation is provided via a bond. Install and
+ * wire a CORS bond (e.g. `@molecule/api-middleware-cors-express`, which
+ * registers `corsFactory` via `setCorsFactory()`) or `cors` /
+ * `createCorsMiddleware()` throw "No CORS ... bonded" on first use.
+ * `APP_ORIGIN` / `SITE_ORIGIN` are the conventional env vars for the
+ * allowlist (registered as optional secrets by this package).
+ *
  * @remarks
  * CORS decides which browser ORIGINS may call your API (with credentials). Configure an
  * explicit allowlist from env (`APP_ORIGIN` / `SITE_ORIGIN`) via {@link CorsOptions}`.origin`

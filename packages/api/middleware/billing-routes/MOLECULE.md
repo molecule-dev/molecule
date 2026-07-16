@@ -22,7 +22,8 @@ const tiers = defineTiers([
   },
 ])
 
-app.use('/billing', createBillingRoutes({ tiers }))
+// mount under /api so the app-side fetches to /api/billing/* line up
+app.use('/api/billing', createBillingRoutes({ tiers }))
 ```
 
 ## Type
@@ -254,5 +255,17 @@ Peer dependencies:
 
 - The package looks up `bond('payments', 'stripe')` by default; pass
   `provider` or `providerName` to override.
+- Routes served: `POST /checkout`, `POST /cancel`, `POST /portal` — and
+  nothing else. The React pricing/billing components
+  (`@molecule/app-billing-react`) also expect `GET /api/billing/tiers` and
+  `GET /api/billing/status`; either add those two reads yourself (serve
+  `tiers.getPricingTiers()` and your subscription lookup), or use the
+  entitlements-integrated `createBillingRouter` from
+  `@molecule/api-bonds-default-express`, which serves all four paths.
+- Mount so the resulting app-facing paths are `/api/billing/...` — the
+  scaffolded Vite dev proxy forwards `/api` WITHOUT rewriting.
+- Naming: `@molecule/api-entitlements` exports a DIFFERENT `defineTiers`
+  (registry-object signature). Do not mix the two in one file without
+  aliasing.
 - Error responses use the `BillingErrorBody` shape (`{ code, message }`) —
   apps may layer i18n on top via response interceptors.

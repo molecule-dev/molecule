@@ -338,9 +338,10 @@ export const broadcast = async (roomId: string, event: BroadcastOptions): Promis
  * Subscribes to all events for a room via the bonded `realtime`
  * provider. Returns an {@link Unsubscribe} function.
  *
- * The bonded provider's `onMessage` is global per-process, so this
- * helper installs a single message listener and filters down to the
- * requested room. Callers who need fine-grained transport-level
+ * The bonded provider's `onMessage` is global per-process; each call
+ * installs its own transport-level message listener (never removed —
+ * the unsubscribe only deactivates the handler) and filters down to
+ * the requested room. Callers who need fine-grained transport-level
  * unsubscription should use the bond directly.
  *
  * @param roomId - Room to subscribe to.

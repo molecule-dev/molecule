@@ -185,3 +185,17 @@ function statePath(projectPath: string): string
 - `projectPath` — Absolute path to the project root.
 
 **Returns:** Absolute path to `.molecule/staging.json`.
+
+## Injection Notes
+
+Used by the `mlcl stage` staging drivers; the state file is per-project
+bookkeeping, not a database. Two sharp edges:
+
+- No locking, and mutations are read-modify-overwrite. `loadState()` treats
+  ANY read failure (missing, unreadable, corrupt JSON) as an empty state, so
+  a concurrent mutator or a transient read error followed by a save can drop
+  previously-tracked environments. Serialize access (one driver process at a
+  time per project).
+- `allocatePort()` only avoids ports recorded in this state file — it never
+  probes the OS. A port held by an unrelated process is still handed out;
+  callers should tolerate bind failures and retry with the next range.

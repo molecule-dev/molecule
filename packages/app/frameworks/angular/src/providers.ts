@@ -118,8 +118,8 @@ export function provideLogger(provider: LoggerProvider): EnvironmentProviders {
  * @example
  * ```typescript
  * import { bootstrapApplication } from '@angular/platform-browser'
- * import { provideMolecule } from '`@molecule/app-angular`'
- * import { provider as stateProvider } from '`@molecule/app-state-ngrx`'
+ * import { provideMolecule } from '@molecule/app-angular'
+ * import { provider as stateProvider } from '@molecule/app-state-zustand'
  *
  * bootstrapApplication(AppComponent, {
  *   providers: [

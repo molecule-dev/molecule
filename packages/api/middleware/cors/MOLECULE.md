@@ -2,6 +2,13 @@
 
 CORS middleware for molecule.dev.
 
+Core interface — the implementation is provided via a bond. Install and
+wire a CORS bond (e.g. `@molecule/api-middleware-cors-express`, which
+registers `corsFactory` via `setCorsFactory()`) or `cors` /
+`createCorsMiddleware()` throw "No CORS ... bonded" on first use.
+`APP_ORIGIN` / `SITE_ORIGIN` are the conventional env vars for the
+allowlist (registered as optional secrets by this package).
+
 ## Quick Start
 
 ```ts
@@ -151,6 +158,12 @@ function setCorsFactory(factory: CorsFactory): void
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
+
+### Environment Variables
+
+- `APP_ORIGIN` *(optional)*
+- `SITE_ORIGIN` *(optional)*
+- `APP_URL_SCHEME` *(optional)*
 
 ### Runtime Dependencies
 

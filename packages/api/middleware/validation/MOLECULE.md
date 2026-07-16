@@ -254,3 +254,14 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 - `zod`
+
+Express/Connect middleware (Express 4 and 5 — including the Express 5
+getter-only `req.query`, which is handled internally). For other
+frameworks, call the schemas directly and shape your own 400 response.
+On success the parsed values REPLACE `req.body` / `req.params` /
+`req.query`, so Zod coercions and defaults are what handlers see. On
+failure the response is `400 { error, errors: [{ field, message, code }] }`.
+
+Sibling: `@molecule/api-utilities-validation` is the PROGRAMMATIC helper
+set (`getValidProps`, `safeParse`) for use inside handlers/services — both
+packages export a `validate`, so alias if you import both.

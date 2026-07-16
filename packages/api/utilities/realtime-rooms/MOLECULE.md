@@ -345,9 +345,10 @@ function listMembers(roomId: string): Promise<RoomMember[]>
 Subscribes to all events for a room via the bonded `realtime`
 provider. Returns an {@link Unsubscribe} function.
 
-The bonded provider's `onMessage` is global per-process, so this
-helper installs a single message listener and filters down to the
-requested room. Callers who need fine-grained transport-level
+The bonded provider's `onMessage` is global per-process; each call
+installs its own transport-level message listener (never removed —
+the unsubscribe only deactivates the handler) and filters down to
+the requested room. Callers who need fine-grained transport-level
 unsubscription should use the bond directly.
 
 ```typescript
@@ -371,3 +372,22 @@ Peer dependencies:
 
 - `@molecule/api-database`
 - `@molecule/api-realtime`
+
+Tables: the .sql file under `src/__setup__` creates `realtime_rooms` +
+`realtime_room_members`. An mlcl-scaffolded API replays .sql files under
+`__setup__` automatically on migrate; anywhere else run it once — nothing
+at runtime creates them. The shipped DDL is PostgreSQL-flavoured
+(`gen_random_uuid()`, `TIMESTAMPTZ`); adapt the column types for
+SQLite/MySQL — the service itself is dialect-agnostic (abstract DataStore).
+
+Wiring prereqs: a database bond must be wired (any `@molecule/api-database-*`
+provider) AND a realtime transport must be set via `@molecule/api-realtime`'s
+`setProvider()` (e.g. the `@molecule/api-realtime-socketio` provider) before
+`broadcast`/`subscribe` deliver anything. `subscribe()` registrations made
+before the transport is set are buffered by api-realtime and flushed when
+it is; `broadcast()` before then throws "Realtime provider not configured".
+
+`subscribe()` registers a transport-level listener that is NOT removed by
+the returned unsubscribe function (it only stops your handler from firing —
+the underlying `onMessage` handler lives for the process lifetime). Create
+long-lived subscriptions at startup; do not subscribe per request.

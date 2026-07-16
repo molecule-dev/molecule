@@ -5,6 +5,23 @@
  * Install a cookie parser bond (e.g., `@molecule/api-middleware-cookie-parser-express`)
  * to provide cookie parsing.
  *
+ * @example
+ * ```ts
+ * import express from 'express'
+ * import { cookieParser, createCookieParserMiddleware } from '@molecule/api-middleware-cookie-parser'
+ *
+ * const app = express()
+ *
+ * // Default parser (unsigned cookies) — requires the bond to be wired,
+ * // e.g. @molecule/api-middleware-cookie-parser-express.
+ * app.use(cookieParser)
+ *
+ * // Signed cookies: pass the server-side secret; verified values land on
+ * // req.signedCookies with the Express bond.
+ * const sessionSecret = process.env.SESSION_SECRET ?? ''
+ * app.use(createCookieParserMiddleware(sessionSecret))
+ * ```
+ *
  * @remarks
  * This parses INCOMING cookies onto `req.cookies`. When your app SETS an auth/session cookie,
  * the flags are what matter:
@@ -22,13 +39,14 @@
 
 import { bond, get as bondGet, isBonded } from '@molecule/api-bond'
 
+export * from './browser-guard.js'
+
 /**
  * Generic middleware type — framework-agnostic.
  * @param req - The request object.
  * @param res - The response object.
  * @param next - The next middleware function.
  */
-export * from './browser-guard.js'
 export type Middleware = (req: unknown, res: unknown, next: (err?: unknown) => void) => void
 
 /** Options for cookie parsing. */

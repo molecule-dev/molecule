@@ -33,7 +33,7 @@ interface Res {
  * @example
  * ```typescript
  * import express from 'express'
- * import { createAnalyticsMiddleware } from '`@molecule/api-middleware-analytics`'
+ * import { createAnalyticsMiddleware } from '@molecule/api-middleware-analytics'
  *
  * const app = express()
  * app.use(createAnalyticsMiddleware())
