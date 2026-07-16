@@ -639,17 +639,36 @@ class DockerSandboxProvider implements SandboxProvider {
 
       async writeFile(path: string, content: string): Promise<void> {
         const b64 = Buffer.from(content).toString('base64')
-        const result = await this.exec(
-          `mkdir -p "$(dirname ${shellQuote(path)})" && echo ${shellQuote(b64)} | base64 -d > ${shellQuote(path)}`,
+        const qp = shellQuote(path)
+        const failIfError = (result: ExecResult): void => {
+          if (result.exitCode !== 0)
+            throw new Error(
+              t(
+                'codeSandbox.docker.error.writeFailed',
+                { path, error: result.stderr },
+                { defaultValue: `Failed to write ${path}: ${result.stderr}` },
+              ),
+            )
+        }
+        // A single `echo '<b64>' | base64 -d` command is passed as ONE argument to
+        // `sh -c`, which Linux caps at MAX_ARG_STRLEN (128KB). Any file whose base64
+        // exceeds that — i.e. content over ~96KB (a large component, data file, or
+        // migration) — would E2BIG and the write would FAIL. Split the base64 into
+        // sub-limit chunks: the first (with mkdir) truncates, the rest append. Each
+        // chunk is a multiple of 4 base64 chars (= 3 decoded bytes) so it decodes
+        // cleanly on its own and the bytes concatenate exactly. Small files (base64
+        // ≤ one chunk, ~45KB raw) stay a single exec — no extra round-trips.
+        const CHUNK = 60_000
+        failIfError(
+          await this.exec(
+            `mkdir -p "$(dirname ${qp})" && echo ${shellQuote(b64.slice(0, CHUNK))} | base64 -d > ${qp}`,
+          ),
         )
-        if (result.exitCode !== 0)
-          throw new Error(
-            t(
-              'codeSandbox.docker.error.writeFailed',
-              { path, error: result.stderr },
-              { defaultValue: `Failed to write ${path}: ${result.stderr}` },
-            ),
+        for (let i = CHUNK; i < b64.length; i += CHUNK) {
+          failIfError(
+            await this.exec(`echo ${shellQuote(b64.slice(i, i + CHUNK))} | base64 -d >> ${qp}`),
           )
+        }
       },
 
       async readDir(path: string): Promise<DirEntry[]> {

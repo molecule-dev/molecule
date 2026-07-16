@@ -289,6 +289,40 @@ describe('DockerSandboxProvider', () => {
       expect(cmd).toContain("'file'\\''name.txt'")
     })
 
+    it('writeFile splits a LARGE file into sub-limit exec commands (no E2BIG)', async () => {
+      // A single `echo '<b64>' | base64 -d` command for a big file base64s over
+      // MAX_ARG_STRLEN (128KB) and E2BIGs — the executor could not write a large
+      // component / data file / migration. writeFile must split it.
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+
+      enqueueNetworkCreate()
+      enqueueJson(201, { Id: 'container-big' })
+      const sandbox = await provider.create({ projectId: 'test-big' })
+
+      const big = 'X'.repeat(200 * 1024) // base64 ~267KB → several 60KB chunks
+      const expectedChunks = Math.ceil(Buffer.from(big).toString('base64').length / 60_000)
+      expect(expectedChunks).toBeGreaterThan(1)
+      // 3 responses per exec: create-id, start-output, inspect-exitcode.
+      for (let i = 0; i < expectedChunks; i++) {
+        enqueueJson(200, { Id: `exec-big-${i}` })
+        enqueueResponse(200, Buffer.alloc(0))
+        enqueueJson(200, { ExitCode: 0 })
+      }
+
+      await sandbox.writeFile('/workspace/big.ts', big)
+
+      const execCalls = httpRequestCalls.filter((c) => String(c.opts.path).endsWith('/exec'))
+      // It split into multiple exec commands...
+      expect(execCalls.length).toBe(expectedChunks)
+      const cmds = execCalls.map((c) => (JSON.parse(c.body!).Cmd as string[])[2])
+      // ...each staying under the 128KB single-argument cap...
+      for (const cmd of cmds) expect(cmd.length).toBeLessThan(131072)
+      // ...the first TRUNCATES, the rest APPEND (so the file reconstructs in order).
+      expect(cmds[0]).toContain('base64 -d > ')
+      for (let i = 1; i < cmds.length; i++) expect(cmds[i]).toContain('base64 -d >> ')
+    })
+
     it('should use shellQuote in deleteFile', async () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
