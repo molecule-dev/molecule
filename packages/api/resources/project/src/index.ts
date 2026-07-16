@@ -1,5 +1,15 @@
 /**
- * project resource for molecule.dev.
+ * Owner-scoped project resource for molecule.dev — CRUD handlers, routes, and
+ * an `authUser` object-level authorizer, wired via `routes` +
+ * `requestHandlerMap`.
+ *
+ * @example
+ * ```ts
+ * import { routes, requestHandlerMap } from '@molecule/api-resource-project'
+ * // POST|GET /projects · GET|PATCH|DELETE /projects/:id — registered by
+ * // mlcl inject, or manually:
+ * // for (const r of routes) app[r.method](r.path, requestHandlerMap[r.handler])
+ * ```
  *
  * @remarks
  * The shipped routes are owner-scoped and **fail closed** — they do not expose
@@ -12,6 +22,11 @@
  * a richer access model (e.g. owner-or-team) can gate the route with its own
  * middleware and set `res.locals.project` to the pre-authorized row — `read`,
  * `update`, and `del` reuse it instead of re-deriving ownership.
+ *
+ * Table: `src/__setup__/projects.sql` creates `projects`. An mlcl-scaffolded
+ * API replays `__setup__/*.sql` automatically on migrate; anywhere else run
+ * it once. User-facing strings use `t(key, …, { defaultValue })`; translations
+ * ship in the companion `@molecule/api-locales-project` bond.
  *
  * @module
  */

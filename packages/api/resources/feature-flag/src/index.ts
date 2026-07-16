@@ -27,8 +27,22 @@
  * ```
  *
  * @remarks
- * Run `src/__setup__/feature_flags.sql` once to create the
- * `feature_flags` + `feature_flag_targeting_rules` tables.
+ * Tables: `src/__setup__/feature_flags.sql` creates `feature_flags` +
+ * `feature_flag_targeting_rules`. An mlcl-scaffolded API replays
+ * `__setup__/*.sql` automatically on migrate; anywhere else run it once —
+ * nothing at runtime creates the tables.
+ *
+ * Flags are OWNER-SCOPED rows, not app-global config: every service function
+ * is `…ForUser(userId, …)` and the router reads the caller from
+ * `res.locals.session` (mount it behind your global auth middleware — without
+ * a session every request 401s). One user's flags are invisible to another;
+ * for team-/app-wide flags, evaluate against a shared owning account or wrap
+ * the service with your own scoping.
+ *
+ * This package STORES flags + targeting rules; it does NOT evaluate them.
+ * There is no `/evaluate` endpoint or client SDK — resolve a flag for an end
+ * user in your app code: fetch the flag + rules, apply rules in `priority`
+ * order, and honor `is_enabled`, `state`, and `rollout_percentage`.
  *
  * @module
  */

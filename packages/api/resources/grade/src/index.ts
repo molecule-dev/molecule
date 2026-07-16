@@ -20,6 +20,28 @@
  *   defaultGradeScale,
  * } from '@molecule/api-resource-grade'
  * ```
+ *
+ * @remarks
+ * Table: `src/__setup__/grades.sql` creates `grades`. An mlcl-scaffolded API
+ * replays `__setup__/*.sql` automatically on migrate; anywhere else run it
+ * once — nothing at runtime creates it.
+ *
+ * **A grade row's `userId` is the STUDENT being graded, NOT the actor allowed
+ * to edit it** — letting the row's owner mutate it would let students change
+ * their own grades. Mutations (`POST/PATCH/DELETE /grades…`) are therefore
+ * role-gated and DENY BY DEFAULT: the caller needs an admin session claim
+ * (`isAdmin`, `role: 'admin'`, or a `grade:manage`/`admin` permissions claim)
+ * or an `@molecule/api-permissions` grant (`manage grade`). Out of the box NO
+ * ONE can write grades — grant your instructor/registrar role first; a 403
+ * here means "grant the permission", never "remove the gate". The gate is
+ * enforced both as the `requireAdmin` route middleware and inside every
+ * mutation handler (fail-closed), so it holds even when routes are wired
+ * without middlewares.
+ *
+ * Reads are self-or-admin: `GET /users/:userId/gpa` and `…/transcript` reject
+ * callers whose session userId ≠ `:userId` unless they are a grade admin —
+ * handlers read the authenticated user from `res.locals.session` (mount
+ * behind your global auth middleware).
  */
 
 export * from './browser-guard.js'

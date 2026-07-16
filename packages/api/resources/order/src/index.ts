@@ -29,6 +29,11 @@
  * already-progressed order) are MERCHANT-ONLY and DENY by default until an app
  * registers a merchant authorizer via `setOrderMerchantAuthorizer` — the order
  * row records only the BUYER (`userId`), so it cannot know who the seller is.
+ *
+ * Tables: `src/__setup__/orders.sql` creates `orders`, `order_items`, and
+ * `order_events`. An mlcl-scaffolded API replays `__setup__/*.sql`
+ * automatically on migrate; anywhere else run it once — nothing at runtime
+ * creates them.
  */
 
 export * from './browser-guard.js'

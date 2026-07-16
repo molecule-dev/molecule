@@ -24,6 +24,11 @@
  * - Re-verify entitlement server-side wherever it gates access; never cache "is subscribed"
  *   somewhere the client can set.
  *
+ * The `payments` table ships in `setup/payments.sql` — an mlcl-scaffolded API
+ * copies and replays it automatically on migrate; anywhere else run it once.
+ * Missing it surfaces as `relation "payments" does not exist` on the first
+ * billing call — nothing at runtime creates the table.
+ *
  * @module `@molecule/api-resource-payment`
  */
 

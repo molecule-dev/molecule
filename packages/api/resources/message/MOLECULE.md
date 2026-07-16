@@ -481,10 +481,24 @@ Peer dependencies:
 - `@molecule/api-resource`
 - `zod`
 
+Tables: `src/__setup__/messages.sql` creates `message_threads` + `messages`.
+An mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
+anywhere else run it once — nothing at runtime creates them.
+
+Threads are strictly 1:1 — a canonicalised participant pair (creating a
+thread with yourself throws) — and PARTICIPANT-SCOPED: every handler reads
+the authenticated user from `res.locals.session` (401 without a session;
+mount behind your global auth middleware) and rejects non-participants with
+403/404. The sender is always the session user — never accept a sender id
+from the request body.
+
 Realtime delivery is best-effort — messages are persisted before any
 broadcast attempt and a missing realtime bond is silently a no-op.
 Subscribers should listen on `threadRoomId(threadId)` for
 {@link MESSAGE_REALTIME_EVENTS} payloads.
+
+User-facing strings go through `t(key, …, { defaultValue })`; translations
+ship in the companion `@molecule/api-locales-resource-message` bond.
 
 ## Translations
 
