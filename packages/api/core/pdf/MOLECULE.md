@@ -376,8 +376,8 @@ function toImages(pdf: Buffer<ArrayBufferLike>, options?: RenderOptions): Promis
 
 | Provider | Package |
 |----------|---------|
-| Pdf | `@molecule/api-pdf-pdfkit` |
-| Pdf | `@molecule/api-pdf-puppeteer` |
+| PDFKit (programmatic) | `@molecule/api-pdf-pdfkit` |
+| Puppeteer (HTML to PDF) | `@molecule/api-pdf-puppeteer` |
 
 ## Injection Notes
 

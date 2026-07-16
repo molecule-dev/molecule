@@ -425,7 +425,7 @@ Implements `@molecule/app-i18n` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, setLocale, registerLocaleModule, registerContent } from '@molecule/app-i18n'
+import { setProvider } from '@molecule/app-i18n'
 import { provider } from '@molecule/app-i18n-react-i18next'
 
 export function setupI18nReactI18next(): void {
@@ -461,3 +461,10 @@ its `setLocale()` THROWS for an unregistered locale — see that package's
 remarks for the fleet-wide contract. The separate `useI18n()` hook below,
 however, calls `react-i18next`'s raw `i18n.changeLanguage()` directly and
 is NOT an `I18nProvider` — it does not throw for an unregistered locale.
+
+
+**React Suspense:** the provider sets `react.useSuspense: true` by default,
+so components using `useTranslation()`/`Trans` may SUSPEND while i18next
+initializes — wrap the app (or the i18n-using subtree) in a
+`<Suspense fallback={…}>` boundary, or opt out with
+`i18nextOptions: { react: { useSuspense: false } }`.

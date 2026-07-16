@@ -55,7 +55,7 @@ Implements `@molecule/api-i18n` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, setLocale, registerLocaleModule } from '@molecule/api-i18n'
+import { setProvider } from '@molecule/api-i18n'
 import { provider } from '@molecule/api-i18n-simple'
 
 export function setupI18nSimple(): void {

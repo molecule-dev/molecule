@@ -33,6 +33,13 @@
  * however, calls `react-i18next`'s raw `i18n.changeLanguage()` directly and
  * is NOT an `I18nProvider` — it does not throw for an unregistered locale.
  *
+ *
+ * **React Suspense:** the provider sets `react.useSuspense: true` by default,
+ * so components using `useTranslation()`/`Trans` may SUSPEND while i18next
+ * initializes — wrap the app (or the i18n-using subtree) in a
+ * `<Suspense fallback={…}>` boundary, or opt out with
+ * `i18nextOptions: { react: { useSuspense: false } }`.
+ *
  * @module
  */
 

@@ -97,7 +97,7 @@ Implements `@molecule/api-secrets` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, registerProvisioner, registerSecret, registerSecrets } from '@molecule/api-secrets'
+import { setProvider } from '@molecule/api-secrets'
 import { provider } from '@molecule/api-secrets-env'
 
 export function setupSecretsEnv(): void {

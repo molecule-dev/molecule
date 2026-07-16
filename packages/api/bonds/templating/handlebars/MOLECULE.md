@@ -82,7 +82,7 @@ Implements `@molecule/api-templating` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, registerHelper, registerPartial } from '@molecule/api-templating'
+import { setProvider } from '@molecule/api-templating'
 import { provider } from '@molecule/api-templating-handlebars'
 
 export function setupTemplatingHandlebars(): void {

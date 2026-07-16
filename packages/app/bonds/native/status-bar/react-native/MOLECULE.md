@@ -74,7 +74,7 @@ Implements `@molecule/app-status-bar` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, setBackgroundColor, setStyle, setOverlaysWebView, setLightTheme, setDarkTheme } from '@molecule/app-status-bar'
+import { setProvider } from '@molecule/app-status-bar'
 import { provider } from '@molecule/app-status-bar-react-native'
 
 export function setupNativeStatusBarReactNative(): void {

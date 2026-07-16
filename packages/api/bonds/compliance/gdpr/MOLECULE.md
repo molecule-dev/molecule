@@ -141,7 +141,7 @@ Implements `@molecule/api-compliance` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, setConsent } from '@molecule/api-compliance'
+import { setProvider } from '@molecule/api-compliance'
 import { provider } from '@molecule/api-compliance-gdpr'
 
 export function setupComplianceGdpr(): void {

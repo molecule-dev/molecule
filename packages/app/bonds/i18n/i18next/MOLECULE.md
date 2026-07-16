@@ -404,7 +404,7 @@ Implements `@molecule/app-i18n` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, setLocale, registerLocaleModule, registerContent } from '@molecule/app-i18n'
+import { setProvider } from '@molecule/app-i18n'
 import { provider } from '@molecule/app-i18n-i18next'
 
 export function setupI18nI18next(): void {

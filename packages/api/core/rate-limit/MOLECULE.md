@@ -259,7 +259,7 @@ function setProvider(provider: RateLimitProvider): void
 
 | Provider | Package |
 |----------|---------|
-| Rate Limit | `@molecule/api-rate-limit-memory` |
+| In-memory rate limit | `@molecule/api-rate-limit-memory` |
 | Rate Limit | `@molecule/api-rate-limit-redis` |
 
 ## Injection Notes

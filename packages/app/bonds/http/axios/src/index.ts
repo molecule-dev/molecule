@@ -23,6 +23,20 @@
  * const users = await get('/users')
  * const newUser = await post('/users', { name: 'John' })
  * ```
+ *
+ * @remarks
+ * - **Call `setClient(...)` at startup, BEFORE any `get`/`post` from
+ *   `@molecule/app-http` runs.** The core's `getClient()` lazily bonds its own
+ *   fetch-based fallback on first use — requests issued before `setClient()`
+ *   silently bypass the Axios client (no interceptors, no auth token).
+ * - `get()`/`post()`/… resolve to `HttpResponse<T>` — read `.data` for the
+ *   body (`const { data: users } = await get('/users')`).
+ * - The exported `provider` constant is a pre-built default client (no baseURL,
+ *   30 s timeout); prefer `createAxiosClient({...})` so baseURL/credentials are
+ *   explicit.
+ * - `instance`/`axiosConfig` accept raw Axios options — anything the app sets
+ *   there couples it to Axios; keep app code on the `@molecule/app-http`
+ *   interface so the bond stays swappable.
  */
 
 export * from './provider.js'

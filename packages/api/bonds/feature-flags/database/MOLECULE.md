@@ -81,7 +81,7 @@ Implements `@molecule/api-feature-flags` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, setFlag } from '@molecule/api-feature-flags'
+import { setProvider } from '@molecule/api-feature-flags'
 import { provider } from '@molecule/api-feature-flags-database'
 
 export function setupFeatureFlagsDatabase(): void {

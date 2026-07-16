@@ -338,8 +338,8 @@ function setProvider(provider: PermissionsProvider): void
 
 | Provider | Package |
 |----------|---------|
-| Permissions | `@molecule/api-permissions-casbin` |
-| Permissions | `@molecule/api-permissions-custom` |
+| Casbin (RBAC) | `@molecule/api-permissions-casbin` |
+| Custom (in-memory RBAC/ABAC) | `@molecule/api-permissions-custom` |
 
 ## Injection Notes
 

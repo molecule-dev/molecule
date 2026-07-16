@@ -50,7 +50,7 @@ Implements `@molecule/api-error-tracking` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setUser, setProvider } from '@molecule/api-error-tracking'
+import { setProvider } from '@molecule/api-error-tracking'
 import { provider } from '@molecule/api-error-tracking-console'
 
 export function setupErrorTrackingConsole(): void {

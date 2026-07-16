@@ -73,7 +73,7 @@ Implements `@molecule/app-push` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, setBadge } from '@molecule/app-push'
+import { setProvider } from '@molecule/app-push'
 import { provider } from '@molecule/app-push-react-native'
 
 export function setupNativePushReactNative(): void {
