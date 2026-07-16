@@ -39,11 +39,11 @@ export const queueSqsSecretDefinitions: SecretDefinition[] = [
     required: true,
   },
   {
-    key: 'SQS_QUEUE_URL',
-    description: 'SQS queue URL — Create a queue in the SQS console and copy its URL.',
-    helpUrl: 'https://console.aws.amazon.com/sqs/',
-    required: true,
-    example: 'https://sqs.us-east-1.amazonaws.com/123456789012/my-queue',
+    key: 'SQS_ENDPOINT',
+    description:
+      'SQS endpoint override — Only for LocalStack or a custom SQS-compatible endpoint. Leave unset for real AWS — queues are addressed by NAME (the queue must exist, or pass { autoCreateQueues: true } to createProvider()).',
+    required: false,
+    example: 'http://localhost:4566',
   },
 ]
 
