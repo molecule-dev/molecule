@@ -565,6 +565,18 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 
+- **Pick the provider by your host's server model (read this FIRST).** SSE
+  (`@molecule/api-realtime-sse`) is HTTP-native: it streams from an ordinary
+  route/endpoint and needs NO long-lived socket server, so it is the ONLY
+  realtime that fits a serverless / no-persistent-server host — e.g. **Next.js
+  App Router** or edge. There, mount its endpoint in a route handler and
+  publish from server code (Next's `instrumentation.ts` runs at server start).
+  Reach for WS (`-ws`) or Socket.io (`-socketio`) ONLY where you own a
+  persistent Node server (a standalone process, or a separate API on its own
+  port). Do NOT bolt a WS/Socket.io server onto Next.js App Router with a
+  custom `server.ts` — you give up Next's managed server and fight its
+  lifecycle. The interface below is identical for every provider; only the
+  bond and where you attach its transport change.
 - **Without a registered join guard ANY connected client may join ANY room
   by name** — apps with private rooms MUST register `onJoinRequest` and
   validate the request's `auth` payload (e.g. verify a token grants access
