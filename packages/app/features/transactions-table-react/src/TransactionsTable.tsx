@@ -15,7 +15,8 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { CategoryStyle, TransactionRowData } from './types.js'
 
-interface TransactionsTableProps {
+/** Props for the {@link TransactionsTable} component. */
+export interface TransactionsTableProps {
   transactions: TransactionRowData[]
   loading?: boolean
   error?: ReactNode

@@ -4,7 +4,8 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface VideoCallControlsProps {
+/** Props for the {@link VideoCallControls} component. */
+export interface VideoCallControlsProps {
   audioEnabled: boolean
   onToggleAudio: () => void
   videoEnabled: boolean
@@ -21,16 +22,7 @@ interface VideoCallControlsProps {
 /**
  * Bottom controls bar for a video meeting — mute, camera, screen-share,
  * leave. Pure UI — apps own the WebRTC plumbing.
- * @param root0
- * @param root0.audioEnabled
- * @param root0.onToggleAudio
- * @param root0.videoEnabled
- * @param root0.onToggleVideo
- * @param root0.screenSharing
- * @param root0.onToggleScreenShare
- * @param root0.onLeave
- * @param root0.extraControls
- * @param root0.className
+ * @param props - Component props (see {@link VideoCallControlsProps}).
  */
 export function VideoCallControls({
   audioEnabled,

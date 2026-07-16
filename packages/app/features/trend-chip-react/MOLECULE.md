@@ -27,9 +27,34 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `TrendChipProps`
+
+Props for the {@link TrendChip} component.
+
+```typescript
+interface TrendChipProps {
+  /** Numeric delta to display. Sign drives direction unless `direction` is set. */
+  delta: number
+  /** Explicit direction override. */
+  direction?: 'up' | 'down' | 'flat'
+  /** Suffix appended to the delta. Defaults to '%'. */
+  suffix?: string
+  /** Optional prefix for the value. */
+  prefix?: ReactNode
+  /** Style preset. `'subtle'` = inline plain, `'pill'` = colored pill. Defaults to `'subtle'`. */
+  variant?: 'subtle' | 'pill'
+  /** Optional accessible label override. */
+  ariaLabel?: string
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `TrendChip(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `TrendChip(props)`
 
 Standalone trend delta chip — `▲ 12%` style display for inline
 placement in row/header/cell contexts. Different from
@@ -47,14 +72,7 @@ function TrendChip({
 }: TrendChipProps): React.JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .delta
-- `root0` — .direction
-- `root0` — .suffix
-- `root0` — .prefix
-- `root0` — .variant
-- `root0` — .ariaLabel
-- `root0` — .className
+- `props` — Component props (see {@link TrendChipProps}).
 
 ## Injection Notes
 
@@ -72,3 +90,13 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Colors are hardcoded hex applied inline (`#22c55e` up, `#ef4444` down,
+`#94a3b8` flat) — they ignore the app theme and ClassMap; `pill` renders
+white text on that background. Up is always green / down always red:
+there is no inversion knob for metrics where a drop is good (costs,
+churn). The number renders as `Math.abs(delta)` + `suffix` ('%' by
+default) — the sign only picks the arrow; `direction` overrides
+sign-detection. Props (documented on the exported `TrendChipProps`
+interface): delta, direction ('up' | 'down' | 'flat'), suffix, prefix,
+variant ('subtle' | 'pill'), ariaLabel, className. No data-mol-id prop.

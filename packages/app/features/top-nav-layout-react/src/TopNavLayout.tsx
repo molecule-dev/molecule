@@ -36,14 +36,7 @@ export interface TopNavLayoutProps {
 /**
  * Sticky top-nav shell with brand + horizontal nav + user-menu slot.
  *
- * @param root0
- * @param root0.appName
- * @param root0.logoTo
- * @param root0.navItems
- * @param root0.userMenu
- * @param root0.navAriaLabel
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link TopNavLayoutProps}).
  */
 export function TopNavLayout({
   appName,

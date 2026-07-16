@@ -4,7 +4,8 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface VideoPlayerProps {
+/** Props for the {@link VideoPlayer} component. */
+export interface VideoPlayerProps {
   /** Video URL. */
   src: string
   /** Optional poster image URL. */
@@ -40,17 +41,7 @@ function fmtTime(s: number): string {
  * HTML5 video player with custom chrome — play/pause, scrub bar,
  * elapsed/total time, mute, fullscreen. Native controls are hidden so
  * the bar styles match the rest of the app (via ClassMap).
- * @param root0
- * @param root0.src
- * @param root0.poster
- * @param root0.captionsSrc
- * @param root0.captionsLang
- * @param root0.autoPlay
- * @param root0.defaultMuted
- * @param root0.onPlay
- * @param root0.onPause
- * @param root0.onEnded
- * @param root0.className
+ * @param props - Component props (see {@link VideoPlayerProps}).
  */
 export function VideoPlayer({
   src,

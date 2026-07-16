@@ -107,26 +107,6 @@ export interface WhiteboardCanvasProps {
  *
  * @param props - Component props.
  * @returns The whiteboard canvas element.
- * @example
- * ```tsx
- * const [tool, setTool] = useState<WhiteboardTool>('pen')
- * const [strokes, setStrokes] = useState<WhiteboardStroke[]>([])
- * const [shapes, setShapes] = useState<WhiteboardShape[]>([])
- * const [stickyNotes, setStickyNotes] = useState<WhiteboardStickyNote[]>([])
- * <WhiteboardCanvas
- *   tool={tool}
- *   strokes={strokes}
- *   shapes={shapes}
- *   stickyNotes={stickyNotes}
- *   onChange={(c) => {
- *     setStrokes(c.strokes)
- *     setShapes(c.shapes)
- *     setStickyNotes(c.stickyNotes)
- *   }}
- *   width={800}
- *   height={600}
- * />
- * ```
  */
 export function WhiteboardCanvas(props: WhiteboardCanvasProps): JSX.Element {
   const cm = getClassMap()

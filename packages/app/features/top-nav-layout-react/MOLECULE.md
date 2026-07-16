@@ -4,19 +4,21 @@ Top-navigation app shell layout for routed React apps.
 
 Exports `<TopNavLayout>` — sticky header with brand link + horizontal
 NavLinks + a user-menu slot, plus `<main>` rendering React Router's
-`<Outlet />`. ClassMap-styled.
+`<Outlet />` — and the `TopNavItem` / `TopNavLayoutProps` types.
 
 ## Quick Start
 
 ```tsx
-import { TopNavLayout } from '@molecule/app-top-nav-layout-react'
+import { TopNavLayout, type TopNavItem } from '@molecule/app-top-nav-layout-react'
 
-const NAV = [
+const NAV: TopNavItem[] = [
   { key: 'dashboard', to: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
-  { key: 'reports',   to: '/reports',   icon: 'bar_chart', label: 'Reports' },
+  { key: 'reports', to: '/reports', icon: 'bar_chart', label: 'Reports' },
 ]
 
-<TopNavLayout appName="Acme" navItems={NAV} userMenu={<UserMenu />} />
+const userMenu = <button type="button">Account</button>
+
+<TopNavLayout appName="Acme" navItems={NAV} userMenu={userMenu} />
 ```
 
 ## Type
@@ -74,7 +76,7 @@ interface TopNavLayoutProps {
 
 ### Functions
 
-#### `TopNavLayout(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `TopNavLayout(props)`
 
 Sticky top-nav shell with brand + horizontal nav + user-menu slot.
 
@@ -90,14 +92,7 @@ function TopNavLayout({
 }: TopNavLayoutProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .appName
-- `root0` — .logoTo
-- `root0` — .navItems
-- `root0` — .userMenu
-- `root0` — .navAriaLabel
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link TopNavLayoutProps}).
 
 ## Injection Notes
 
@@ -115,3 +110,15 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `react`
 - `react-router-dom`
+
+Requires React Router: render it as a LAYOUT ROUTE element
+(`<Route element={<TopNavLayout ... />}>` with child routes) — the page
+body comes from the router `<Outlet />`, never from children. Nav labels
+are hidden below the `md` breakpoint (icon-only mobile nav), so always
+provide `icon` names; they render as Material Symbols ligatures and need
+the Material Symbols font loaded by the host app. Styling mixes ClassMap
+calls with raw Tailwind + Material-3 tokens (`bg-surface`,
+`bg-primary-container`, `hidden md:inline`), so a Tailwind build that
+source-scans this package's dist and a theme defining those tokens are
+prerequisites — under a non-Tailwind ClassMap bond the header renders
+unstyled. `label` is rendered as-is: pass an already-translated string.

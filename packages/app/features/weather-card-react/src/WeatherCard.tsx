@@ -23,12 +23,16 @@ export interface WeatherTracePoint {
   temperature: number
 }
 
-interface WeatherCardProps {
+/** Props for the {@link WeatherCard} component. */
+export interface WeatherCardProps {
   locationName: string
   region?: string | null
   temperature: number
+  /** Currently INERT — nothing renders it; pass `feelsLikeLabel` instead. */
   feelsLike?: number | null
+  /** Currently INERT — nothing renders it; pass `highLowLabel` instead. */
   high?: number | null
+  /** Currently INERT — nothing renders it; pass `highLowLabel` instead. */
   low?: number | null
   condition?: string | null
   /** material-symbols icon name. */

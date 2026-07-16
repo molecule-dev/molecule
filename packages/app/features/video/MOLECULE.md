@@ -2,12 +2,14 @@
 
 Video player interface for molecule.dev.
 
-Provides a unified API for video playback that works with
-different video player libraries (Video.js, Plyr, Vidstack, etc.).
+A unified imperative API for video playback: `createPlayer()` builds a
+`VideoPlayer` (play/pause/seek/volume/quality/fullscreen/PiP/captions/
+events) from whatever `VideoProvider` is bonded, with a built-in native
+HTML5 `<video>` provider as the default.
 
 ## Quick Start
 
-```tsx
+```ts
 import { createPlayer, setProvider, createNativeVideoProvider } from '@molecule/app-video'
 
 // Wire the provider once at startup (defaults to native HTML5 if skipped)
@@ -20,7 +22,6 @@ const player = await createPlayer({
   poster: 'https://example.com/poster.jpg',
   autoplay: false,
   controls: true,
-  fluid: true,
 })
 
 player.on('ended', () => console.log('Playback finished'))
@@ -801,6 +802,29 @@ Peer dependencies:
 
 - `@molecule/app-bond`
 - `@molecule/app-i18n`
+
+The ONLY shipped provider is the built-in native HTML5 one — no
+Video.js / Plyr / Vidstack bond packages exist. To use another library,
+implement the `VideoProvider` interface yourself and wire it with
+`setProvider()` (registered on the app bond registry under 'video').
+
+Native-provider limits a weak integrator must know: MP4/WebM/Ogg only
+(`supportsHls()` / `supportsDash()` return false — no HLS outside
+Safari's native support, no DASH); `controls` is effectively boolean —
+passing a `ControlsConfig` object just enables the browser's native
+controls and every granular toggle, `seekTime` and `playbackRates` are
+ignored; `fluid`, `fill`, `aspectRatio`, `language`, `keyboard`,
+`clickToPlay`, `doubleClickFullscreen`, `hideControlsDelay` and the
+initial `playbackRate` are also ignored (the `<video>` is styled
+100%x100% of its container — size the container). `setQuality` accepts a
+source index or label string; passing a `QualityLevel` object is
+currently a no-op. Quality "levels" are just the `sources` array —
+switching swaps `video.src` and restores the current time.
+
+Source-label strings route through `t('video.source.label')` — the
+companion `@molecule/app-locales-video` bond translates them. For
+ready-made React chrome see `@molecule/app-video-player-react` (a
+standalone `<video>` wrapper; it does NOT consume this package).
 
 ## Translations
 

@@ -21,6 +21,17 @@
  * />
  * ```
  *
+ * @remarks
+ * Duration labels assume time values are MILLISECONDS: `formatDurationLabel`
+ * renders values below 1 as microseconds and 1000+ as seconds, so
+ * seconds-unit spans get wrong axis/row labels even though bar layout itself
+ * is unit-agnostic — feed ms (or divide labels yourself). Bar status colors
+ * and the 12-hue service palette are hardcoded hex (theme-independent,
+ * legible in light + dark). The label column is fixed at 240px; long names
+ * ellipsize. Rows are keyboard-activatable when `onSpanClick` is set.
+ * Aria/empty-state strings come from the companion
+ * `@molecule/app-locales-trace-waterfall` bond.
+ *
  * @module
  */
 

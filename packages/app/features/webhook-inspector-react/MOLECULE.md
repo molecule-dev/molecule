@@ -62,9 +62,28 @@ interface WebhookDelivery {
 }
 ```
 
+#### `WebhookInspectorProps`
+
+Props for the {@link WebhookInspector} component.
+
+```typescript
+interface WebhookInspectorProps {
+  /** Deliveries to render. */
+  deliveries: WebhookDelivery[]
+  /** Called when a delivery is retried. */
+  onRetry?: (delivery: WebhookDelivery) => void
+  /** Called when a row is selected (for external detail panel). */
+  onSelect?: (delivery: WebhookDelivery) => void
+  /** Currently selected id. */
+  selectedId?: string
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `WebhookInspector(root0, root0, root0, root0, root0, root0)`
+#### `WebhookInspector(props)`
 
 Webhook delivery log — one row per event with expandable
 request/response JSON panels. Pass `onRetry` to show a retry button
@@ -80,12 +99,7 @@ function WebhookInspector({
 }: WebhookInspectorProps): ReactNode
 ```
 
-- `root0` — *
-- `root0` — .deliveries
-- `root0` — .onRetry
-- `root0` — .onSelect
-- `root0` — .selectedId
-- `root0` — .className
+- `props` — Component props (see {@link WebhookInspectorProps}).
 
 ## Injection Notes
 
@@ -103,3 +117,15 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Presentation-only: fetch and store deliveries yourself and pass them in —
+there is no server contract beyond the `WebhookDelivery` shape, and
+`onRetry` only invokes your callback (the button renders per-row when
+`status === 'failure'`). The 'Retry', 'Request' and 'Response' labels are
+hardcoded English with no locale bond. Status pills use hardcoded hex
+(#22c55e success / #ef4444 failure / #eab308 pending) with white text,
+independent of theme. Rows are native `<details>` elements and `onSelect`
+fires on EVERY toggle — opening and closing alike. Non-string
+request/response bodies render via JSON.stringify(v, null, 2). Props
+(documented on the exported `WebhookInspectorProps` interface):
+deliveries, onRetry, onSelect, selectedId, className.

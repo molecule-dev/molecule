@@ -3,7 +3,8 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar, Card } from '@molecule/app-ui-react'
 
-interface VendorCardProps {
+/** Props for the {@link VendorCard} component. */
+export interface VendorCardProps {
   /** Vendor / seller display name. */
   name: ReactNode
   /** Optional logo URL — falls back to Avatar text initials. */
@@ -29,17 +30,7 @@ interface VendorCardProps {
 /**
  * Vendor / seller / agent profile card. Used in marketplaces, agent
  * directories, multi-tenant catalogs.
- * @param root0
- * @param root0.name
- * @param root0.logoSrc
- * @param root0.description
- * @param root0.rating
- * @param root0.reviewCount
- * @param root0.memberSince
- * @param root0.badges
- * @param root0.actions
- * @param root0.onClick
- * @param root0.className
+ * @param props - Component props (see {@link VendorCardProps}).
  */
 export function VendorCard({
   name,

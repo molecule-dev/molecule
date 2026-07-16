@@ -5,7 +5,8 @@ import { getClassMap } from '@molecule/app-ui'
 import { TimelineEvent } from './TimelineEvent.js'
 import type { TimelineEventData } from './types.js'
 
-interface TimelineProps {
+/** Props for the {@link Timeline} component. */
+export interface TimelineProps {
   events: TimelineEventData[]
   /** Optional renderer for date separators between consecutive events. */
   renderDateSeparator?: (event: TimelineEventData, prev?: TimelineEventData) => ReactNode
@@ -19,11 +20,7 @@ interface TimelineProps {
  * Vertical chronological list of events. Each event renders with a
  * marker + connector on the left (`<TimelineEvent>`). Optional date
  * separators can be inserted by returning a node from `renderDateSeparator`.
- * @param root0
- * @param root0.events
- * @param root0.renderDateSeparator
- * @param root0.emptyState
- * @param root0.className
+ * @param props - Component props (see {@link TimelineProps}).
  */
 export function Timeline({
   events,

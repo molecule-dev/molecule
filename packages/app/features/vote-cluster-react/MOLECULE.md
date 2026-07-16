@@ -11,11 +11,13 @@ text flows through `t()` with translations supplied by the companion
 ## Quick Start
 
 ```tsx
-import { VoteCluster } from '@molecule/app-vote-cluster-react'
+import { useState } from 'react'
 
-function PostRow({ post }) {
+import { VoteCluster, type VoteValue } from '@molecule/app-vote-cluster-react'
+
+function PostRow({ post }: { post: { id: string; score: number; myVote?: VoteValue } }) {
   const [score, setScore] = useState(post.score)
-  const [myVote, setMyVote] = useState<1 | -1 | 0>(post.myVote ?? 0)
+  const [myVote, setMyVote] = useState<VoteValue>(post.myVote ?? 0)
   return (
     <VoteCluster
       score={score}
@@ -23,7 +25,11 @@ function PostRow({ post }) {
       onVote={(next) => {
         setScore(score - myVote + next)
         setMyVote(next)
-        api.vote(post.id, next)
+        void fetch(`/api/posts/${post.id}/vote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vote: next }),
+        })
       }}
     />
   )

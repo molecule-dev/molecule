@@ -41,7 +41,7 @@ export interface SnapshotDocument {
  * `layer.tracks`, the keyframed value at time `t` overrides the static
  * value. Transform tracks (keys starting with `"transform."`) write to
  * the resulting layer's top-level transform fields (`x`, `y`,
- * `rotation`, etc.) which the canvas-render bond consumes directly.
+ * `rotation`, etc.) which the canvas-render adapter consumes directly.
  *
  * @param doc - The animation document.
  * @param t - Time in seconds.

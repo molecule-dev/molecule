@@ -2,12 +2,13 @@
 
 Server-side animation rendering for molecule.dev. Consumes an
 {@link AnimationDocument} (the keyframe representation produced by
-`@molecule/app-feature-animation-canvas`) and produces either:
+`@molecule/app-feature-animation-canvas-react`) and produces either:
 
 - a Lottie 5.x JSON document (lossless; the canvas at every frame
   reconstructs in any Lottie player), or
-- an MP4 / animated GIF (frame-by-frame raster via the `canvas-render`
-  bond, then concatenated with an injected ffmpeg adapter).
+- an MP4 / animated GIF (frame-by-frame raster via an injected
+  canvas-render adapter, then concatenated with an injected ffmpeg
+  adapter).
 
 The package is queue-driven — `renderAnimation()` enqueues a job and
 returns a {@link RenderJob} handle whose `done` promise resolves to a
@@ -21,10 +22,18 @@ returns a {@link RenderJob} handle whose `done` promise resolves to a
 import { configureAnimationRenderer, type FfmpegAdapter } from '@molecule/api-animation-renderer'
 import { type CanvasDocument, renderCanvasDocument } from '@molecule/api-canvas-render'
 
-// Thin ffmpeg wrapper — e.g. shell out to `ffmpeg` and resolve the encoded buffer.
+// Your thin ffmpeg wrapper — shell out to ffmpeg, resolve the encoded buffer.
+const spawnFfmpeg = async (
+  format: 'mp4' | 'gif',
+  frames: Buffer[],
+  opts: { fps: number; width: number; height: number },
+): Promise<Buffer> => {
+  throw new Error(`wire ffmpeg here: ${format}, ${frames.length} frames @ ${opts.fps}fps`)
+}
+
 const ffmpeg: FfmpegAdapter = {
-  encodeMp4: async (frames, { fps, width, height }) => { ... },
-  encodeGif: async (frames, { fps, width, height }) => { ... },
+  encodeMp4: (frames, opts) => spawnFfmpeg('mp4', frames, opts),
+  encodeGif: (frames, opts) => spawnFfmpeg('gif', frames, opts),
 }
 
 configureAnimationRenderer({
@@ -37,33 +46,66 @@ configureAnimationRenderer({
 
 ```ts
 // Submit a render and poll for completion.
-import { renderAnimation, getRenderStatus } from '@molecule/api-animation-renderer'
+import {
+  type AnimationDocument,
+  getRenderStatus,
+  renderAnimation,
+} from '@molecule/api-animation-renderer'
+
+const doc: AnimationDocument = {
+  width: 1080,
+  height: 1920,
+  duration: 2,
+  fps: 30,
+  layers: [
+    {
+      id: 'bg',
+      kind: 'rect',
+      shape: { x: 0, y: 0, width: 1080, height: 1920, fill: '#0ea5e9' },
+      tracks: { 'transform.opacity': [{ time: 0, value: 0 }, { time: 1, value: 1 }] },
+    },
+  ],
+}
 
 const job = renderAnimation(doc, { format: 'mp4', resolution: { width: 1080, height: 1920 } })
 const result = await job.done
+console.log(result.contentType, result.frameCount)
 
 // Or, in an HTTP-driven flow:
 const snapshot = getRenderStatus(job.id) // → { status: 'rendering', framesRendered: 17, ... }
 ```
 
 ```ts
-// Express adapter wiring all three handlers.
+// Framework-neutral HTTP handlers (Express/Fastify/Koa need only a thin shim).
 import {
+  type AnimationRenderResponse,
+  createAnimationCancelHandler,
   createAnimationRenderHandler,
   createAnimationStatusHandler,
-  createAnimationCancelHandler,
 } from '@molecule/api-animation-renderer'
 
 const submit = createAnimationRenderHandler()
 const status = createAnimationStatusHandler()
 const cancel = createAnimationCancelHandler()
 
-router.post('/animation/render', (req, res, next) =>
-  submit({ body: req.body }, expressShim(res)).catch(next))
-router.get('/animation/render/:id', (req, res, next) =>
-  status({ params: req.params }, expressShim(res)).catch(next))
-router.delete('/animation/render/:id', (req, res, next) =>
-  cancel({ params: req.params }, expressShim(res)).catch(next))
+// Adapt your framework's response object to the minimal contract:
+const shim = (res: {
+  setHeader: (n: string, v: string) => void
+  status: (s: number) => unknown
+  send: (b: unknown) => unknown
+  json: (b: unknown) => unknown
+}): AnimationRenderResponse => ({
+  setHeader: (n, v) => res.setHeader(n, v),
+  setStatus: (s) => void res.status(s),
+  sendBuffer: (b) => void res.send(b),
+  sendJson: (b) => void res.json(b),
+})
+
+// Mount (Express shown as comments):
+//   router.post('/animation/render', (req, res, next) => submit({ body: req.body }, shim(res)).catch(next))
+//   router.get('/animation/render/:id', (req, res, next) => status({ params: req.params, query: req.query }, shim(res)).catch(next))
+//   router.delete('/animation/render/:id', (req, res, next) => cancel({ params: req.params }, shim(res)).catch(next))
+console.log(typeof shim, typeof submit, typeof status, typeof cancel)
 ```
 
 ## Type
@@ -108,10 +150,10 @@ keyframe tracks.
 The renderer never owns a {@link CanvasDocument} — instead, at every
 output frame it builds one from the layer's static fields plus the
 interpolated keyframe values, and hands that {@link CanvasDocument} to
-the canvas-render bond. This keeps animation-renderer fully decoupled
-from any specific renderer implementation: substitute the bond and the
-same animation document can target a server-side raster, a PDF, or a
-test fixture.
+the injected canvas-render adapter. This keeps animation-renderer fully
+decoupled from any specific renderer implementation: substitute the
+adapter and the same animation document can target a server-side raster,
+a PDF, or a test fixture.
 
 ```typescript
 interface AnimationLayer {
@@ -207,12 +249,13 @@ interface AnimationTransform {
 
 Adapter that rasterizes a single canvas snapshot to a PNG buffer.
 
-In production this is satisfied by `bond('canvas-render')` — i.e.
-`renderCanvasDocument` from `@molecule/api-canvas-render`. The package
-accepts it as an injectable dependency rather than `import`ing the
-canvas-render module directly so the bond can be swapped at runtime
-(PNG via `@napi-rs/canvas`, alternative WASM raster, headless browser,
-etc.) without rewriting the animation pipeline.
+In production this typically wraps `renderCanvasDocument` from
+`@molecule/api-canvas-render` (a direct-import utility — there is no
+'canvas-render' bond category). The package accepts it as an injectable
+dependency rather than `import`ing the canvas-render module directly so
+the adapter can be swapped at runtime (PNG via `@napi-rs/canvas`,
+alternative WASM raster, headless browser, etc.) without rewriting the
+animation pipeline.
 
 ```typescript
 interface CanvasRenderAdapter {
@@ -367,10 +410,10 @@ Adapter set passed to {@link configureAnimationRenderer} /
 ```typescript
 interface RendererConfig {
   /**
-   * Adapter for rasterising one frame to PNG. In production this wraps
-   * `bond('canvas-render')` (i.e. `renderCanvasDocument` from
-   * `@molecule/api-canvas-render`). Optional — only the lottie path can
-   * complete without it.
+   * Adapter for rasterising one frame to PNG. In production this typically
+   * wraps `renderCanvasDocument` from `@molecule/api-canvas-render` (a
+   * direct-import utility — there is no 'canvas-render' bond category).
+   * Optional — only the lottie path can complete without it.
    */
   canvas?: CanvasRenderAdapter
   /**
@@ -568,8 +611,9 @@ function cancelRender(jobId: string): boolean
 #### `configureAnimationRenderer(config)`
 
 Configure the singleton renderer. Call once at process startup with
-the host's adapters wired (typically `bond('canvas-render')` plus a
-thin ffmpeg wrapper). Subsequent calls replace the singleton and
+the host's adapters wired (typically a wrapper around
+`renderCanvasDocument` from `@molecule/api-canvas-render` plus a thin
+ffmpeg wrapper). Subsequent calls replace the singleton and
 detach the previous queue (in-flight jobs continue to completion but
 status lookups against the old queue must use the returned instance).
 
@@ -721,7 +765,7 @@ Each layer's `shape` is shallow-copied; for every key that appears in
 `layer.tracks`, the keyframed value at time `t` overrides the static
 value. Transform tracks (keys starting with `"transform."`) write to
 the resulting layer's top-level transform fields (`x`, `y`,
-`rotation`, etc.) which the canvas-render bond consumes directly.
+`rotation`, etc.) which the canvas-render adapter consumes directly.
 
 ```typescript
 function snapshotAtTime(doc: AnimationDocument, t: number): SnapshotDocument
@@ -766,9 +810,20 @@ function valueAtTime(track: Keyframe<T>[], t: number): T | undefined
 
 The renderer is decoupled from any concrete canvas / ffmpeg
 implementation — adapters are passed via
-{@link configureAnimationRenderer} so the same animation pipeline can
-target `@napi-rs/canvas`, a WASM raster, or a headless browser without
-touching this package. Lottie output requires no adapters at all.
+{@link configureAnimationRenderer}. There is NO 'canvas-render' bond
+category: `@molecule/api-canvas-render` is a direct-import utility, so
+wrap its `renderCanvasDocument` as the canvas adapter exactly as shown.
+The same pipeline can target `@napi-rs/canvas`, a WASM raster, or a
+headless browser by substituting the adapter. Lottie output requires no
+adapters at all — MP4/GIF require BOTH (jobs fail with a clear error
+otherwise).
+
+Job state lives in process memory only — no database table, no
+environment variables. Jobs do not survive restarts, and in
+multi-process deployments `getRenderStatus` must run in the process that
+accepted the submit (or supply your own `jobId` and persist results
+yourself). SERVER-ONLY: a browser-guard throws if bundled into client
+code.
 
 Resource intensity: a frame-rasterised export of a long, complex
 animation will produce many megabytes of intermediate PNG buffers.

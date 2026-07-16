@@ -196,7 +196,7 @@ function scaleFontSize(value: number, minValue: number, maxValue: number, minFon
 
 **Returns:** A font size in `[minFontSize, maxFontSize]`.
 
-#### `WordCloud(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `WordCloud(props)`
 
 Word cloud visualization — renders each word at a font size proportional
 to its `value`, packed with a hand-rolled spiral algorithm so larger
@@ -227,17 +227,7 @@ function WordCloud({
 }: WordCloudProps): JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .words - Word list.
-- `root0` — .width - SVG width in px.
-- `root0` — .height - SVG height in px.
-- `root0` — .minFontSize - Smallest font size.
-- `root0` — .maxFontSize - Largest font size.
-- `root0` — .colorScale - Palette cycled through for un-colored words.
-- `root0` — .orientation - `'horizontal'` or `'mixed'`.
-- `root0` — .onWordClick - Click handler called with the source `Word`.
-- `root0` — .ariaLabel - Accessible label for the SVG root.
-- `root0` — .className - Extra classes merged onto the SVG root.
+- `props` — Component props (see {@link WordCloudProps}).
 
 **Returns:** The word cloud SVG element.
 

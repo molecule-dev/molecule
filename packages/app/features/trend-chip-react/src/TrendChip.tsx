@@ -3,7 +3,8 @@ import type { ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface TrendChipProps {
+/** Props for the {@link TrendChip} component. */
+export interface TrendChipProps {
   /** Numeric delta to display. Sign drives direction unless `direction` is set. */
   delta: number
   /** Explicit direction override. */
@@ -27,14 +28,7 @@ const COLOR = { up: '#22c55e', down: '#ef4444', flat: '#94a3b8' } as const
  * Standalone trend delta chip — `▲ 12%` style display for inline
  * placement in row/header/cell contexts. Different from
  * `<KpiCardTrend>` in being usable outside of a KPI card.
- * @param root0
- * @param root0.delta
- * @param root0.direction
- * @param root0.suffix
- * @param root0.prefix
- * @param root0.variant
- * @param root0.ariaLabel
- * @param root0.className
+ * @param props - Component props (see {@link TrendChipProps}).
  */
 export function TrendChip({
   delta,

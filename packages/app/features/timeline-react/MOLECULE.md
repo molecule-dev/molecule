@@ -18,9 +18,9 @@ import { Timeline, TimelineDate } from '@molecule/app-timeline-react'
 
 <Timeline
   events={[
-    { id: '1', timestamp: '2 hours ago', title: 'Order placed', accent: 'success' },
+    { id: '1', timestamp: '2 hours ago', title: 'Order placed' },
     { id: '2', timestamp: 'Yesterday', title: 'Payment confirmed', body: 'Visa ending 4242' },
-    { id: '3', timestamp: 'Mar 12', title: 'Item shipped', accent: 'info' },
+    { id: '3', timestamp: 'Mar 12', title: 'Item shipped' },
   ]}
   renderDateSeparator={(event, prev) =>
     !prev ? <TimelineDate>{event.timestamp}</TimelineDate> : null
@@ -42,6 +42,19 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `TimelineDateProps`
+
+Props for the {@link TimelineDate} component.
+
+```typescript
+interface TimelineDateProps {
+  /** Date label ("Today", "Yesterday", "March 12, 2025"). */
+  children: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 #### `TimelineEventData`
 
 Timeline event types.
@@ -57,14 +70,62 @@ interface TimelineEventData {
   title: ReactNode
   /** Optional body content. */
   body?: ReactNode
-  /** Optional accent color. */
+  /**
+   * Optional accent color hint. Currently INERT — no component consumes it,
+   * so setting it changes nothing; pass a custom `marker` node to color a row.
+   */
   accent?: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'neutral'
+}
+```
+
+#### `TimelineEventProps`
+
+Props for the {@link TimelineEvent} component.
+
+```typescript
+interface TimelineEventProps {
+  event: TimelineEventData
+  /** Whether this is the last event in the list (suppresses the connector). */
+  isLast?: boolean
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `TimelineProps`
+
+Props for the {@link Timeline} component.
+
+```typescript
+interface TimelineProps {
+  events: TimelineEventData[]
+  /** Optional renderer for date separators between consecutive events. */
+  renderDateSeparator?: (event: TimelineEventData, prev?: TimelineEventData) => ReactNode
+  /** Rendered when there are no events. */
+  emptyState?: ReactNode
+  /** Extra classes on the outer wrapper. */
+  className?: string
+}
+```
+
+#### `TimelineRailProps`
+
+Props for the {@link TimelineRail} component.
+
+```typescript
+interface TimelineRailProps {
+  /** Marker for this row — typically a dot or icon. */
+  marker?: ReactNode
+  /** Whether to render the vertical connector below the marker. */
+  connector?: boolean
+  /** Extra classes on the outer wrapper. */
+  className?: string
 }
 ```
 
 ### Functions
 
-#### `Timeline(root0, root0, root0, root0, root0)`
+#### `Timeline(props)`
 
 Vertical chronological list of events. Each event renders with a
 marker + connector on the left (`<TimelineEvent>`). Optional date
@@ -79,13 +140,9 @@ function Timeline({
 }: TimelineProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .events
-- `root0` — .renderDateSeparator
-- `root0` — .emptyState
-- `root0` — .className
+- `props` — Component props (see {@link TimelineProps}).
 
-#### `TimelineDate(root0, root0, root0)`
+#### `TimelineDate(props)`
 
 Date separator rendered between timeline groups.
 
@@ -93,11 +150,9 @@ Date separator rendered between timeline groups.
 function TimelineDate({ children, className }: TimelineDateProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .className
+- `props` — Component props (see {@link TimelineDateProps}).
 
-#### `TimelineEvent(root0, root0, root0, root0)`
+#### `TimelineEvent(props)`
 
 One row of a `<Timeline>`: [rail (marker + connector)] [timestamp / title / body].
 
@@ -105,12 +160,9 @@ One row of a `<Timeline>`: [rail (marker + connector)] [timestamp / title / body
 function TimelineEvent({ event, isLast, className }: TimelineEventProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .event
-- `root0` — .isLast
-- `root0` — .className
+- `props` — Component props (see {@link TimelineEventProps}).
 
-#### `TimelineRail(root0, root0, root0, root0)`
+#### `TimelineRail(props)`
 
 Left-hand rail of a timeline row — renders the marker and an optional
 vertical connector extending downward.
@@ -123,10 +175,7 @@ function TimelineRail({
 }: TimelineRailProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .marker
-- `root0` — .connector
-- `root0` — .className
+- `props` — Component props (see {@link TimelineRailProps}).
 
 ## Injection Notes
 
@@ -144,3 +193,17 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+This is NOT the React binding for `@molecule/app-timeline` (the headless
+provider core wired via `setProvider`) — it is standalone presentational
+markup with no provider. For domain-specific rows see the sibling
+`@molecule/app-{activity,order,status,stage,day}-timeline-react` packages.
+
+`TimelineEventData.accent` is currently INERT — no component reads it, so
+setting it changes nothing; color a row by passing a custom `marker` node
+instead. `timestamp` is a display node — format/translate it before
+passing. The prop surface (documented on the exported `TimelineProps`,
+`TimelineEventProps`, `TimelineRailProps` and `TimelineDateProps`
+interfaces): Timeline(events, renderDateSeparator, emptyState, className),
+TimelineEvent(event, isLast, className), TimelineRail(marker, connector,
+className), TimelineDate(children, className).

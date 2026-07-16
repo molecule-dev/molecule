@@ -23,6 +23,8 @@
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
  * import {
  *   WhiteboardCanvas,
  *   type WhiteboardShape,
@@ -53,6 +55,16 @@
  *   )
  * }
  * ```
+ *
+ * @remarks
+ * `width` / `height` are REQUIRED CSS-pixel numbers — the surface does not
+ * auto-size to its container; measure the container (e.g. a ResizeObserver)
+ * for fill layouts. Requires the `@molecule/app-feature-canvas-react` peer
+ * (pan/zoom base). Eraser gestures round-trip through `onChange` as
+ * strokes; run `applyEraserStrokes` before persisting if you want erasures
+ * baked in. UI strings come from the companion
+ * `@molecule/app-locales-whiteboard-canvas` bond. `readOnly` disables all
+ * drawing tools but keeps background pan.
  *
  * @module
  */

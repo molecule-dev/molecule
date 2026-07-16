@@ -2,7 +2,8 @@ import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface TypingIndicatorProps {
+/** Props for the {@link TypingIndicator} component. */
+export interface TypingIndicatorProps {
   /** Whether to render. Defaults to true. */
   visible?: boolean
   /** Dot diameter in pixels. Defaults to 6. */
@@ -19,12 +20,7 @@ interface TypingIndicatorProps {
  * Three-dot "typing…" animation. CSS-only (no library dependency) —
  * uses `@keyframes` defined via inline style tag. Renders three dots
  * that pulse in sequence.
- * @param root0
- * @param root0.visible
- * @param root0.dotSize
- * @param root0.durationMs
- * @param root0.ariaLabel
- * @param root0.className
+ * @param props - Component props (see {@link TypingIndicatorProps}).
  */
 export function TypingIndicator({
   visible = true,

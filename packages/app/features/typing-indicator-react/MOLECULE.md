@@ -9,7 +9,8 @@ Exports `<TypingIndicator>` — CSS-only three-dot pulse animation.
 ```tsx
 import { TypingIndicator } from '@molecule/app-typing-indicator-react'
 
-// Show while the remote participant is composing
+const isTyping = true
+
 <TypingIndicator visible={isTyping} ariaLabel="Alice is typing…" />
 ```
 
@@ -24,9 +25,30 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `TypingIndicatorProps`
+
+Props for the {@link TypingIndicator} component.
+
+```typescript
+interface TypingIndicatorProps {
+  /** Whether to render. Defaults to true. */
+  visible?: boolean
+  /** Dot diameter in pixels. Defaults to 6. */
+  dotSize?: number
+  /** Animation duration in ms. Defaults to 1200. */
+  durationMs?: number
+  /** Accessible label. */
+  ariaLabel?: string
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `TypingIndicator(root0, root0, root0, root0, root0, root0)`
+#### `TypingIndicator(props)`
 
 Three-dot "typing…" animation. CSS-only (no library dependency) —
 uses `@keyframes` defined via inline style tag. Renders three dots
@@ -42,12 +64,7 @@ function TypingIndicator({
 }: TypingIndicatorProps): JSX.Element | null
 ```
 
-- `root0` — *
-- `root0` — .visible
-- `root0` — .dotSize
-- `root0` — .durationMs
-- `root0` — .ariaLabel
-- `root0` — .className
+- `props` — Component props (see {@link TypingIndicatorProps}).
 
 ## Injection Notes
 
@@ -65,3 +82,12 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Dots use `currentColor`, so the indicator inherits the surrounding text
+color — wrap it in a muted-text container to dim it. The default
+`ariaLabel` is hardcoded English 'Typing…' and there is no companion
+locale bond: pass a translated `ariaLabel` in non-English apps. Each
+instance injects its own `<style>` tag for the keyframes (fine for a chat
+view; avoid hundreds at once). Props (documented on the exported
+`TypingIndicatorProps` interface): visible (default true), dotSize (px,
+default 6), durationMs (default 1200), ariaLabel, className.

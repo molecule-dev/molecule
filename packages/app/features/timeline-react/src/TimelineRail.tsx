@@ -2,7 +2,8 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface TimelineRailProps {
+/** Props for the {@link TimelineRail} component. */
+export interface TimelineRailProps {
   /** Marker for this row — typically a dot or icon. */
   marker?: ReactNode
   /** Whether to render the vertical connector below the marker. */
@@ -14,10 +15,7 @@ interface TimelineRailProps {
 /**
  * Left-hand rail of a timeline row — renders the marker and an optional
  * vertical connector extending downward.
- * @param root0
- * @param root0.marker
- * @param root0.connector
- * @param root0.className
+ * @param props - Component props (see {@link TimelineRailProps}).
  */
 export function TimelineRail({
   marker,

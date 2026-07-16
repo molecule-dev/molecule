@@ -252,17 +252,7 @@ export function packWords(
  * inline styling is the SVG `fill` attribute (a real SVG attribute, not
  * a Tailwind class) and the `cursor: pointer` style on clickable words.
  *
- * @param root0 - Component props.
- * @param root0.words - Word list.
- * @param root0.width - SVG width in px.
- * @param root0.height - SVG height in px.
- * @param root0.minFontSize - Smallest font size.
- * @param root0.maxFontSize - Largest font size.
- * @param root0.colorScale - Palette cycled through for un-colored words.
- * @param root0.orientation - `'horizontal'` or `'mixed'`.
- * @param root0.onWordClick - Click handler called with the source `Word`.
- * @param root0.ariaLabel - Accessible label for the SVG root.
- * @param root0.className - Extra classes merged onto the SVG root.
+ * @param props - Component props (see {@link WordCloudProps}).
  * @returns The word cloud SVG element.
  */
 export function WordCloud({

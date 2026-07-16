@@ -5,7 +5,8 @@ import { getClassMap } from '@molecule/app-ui'
 import { TimelineRail } from './TimelineRail.js'
 import type { TimelineEventData } from './types.js'
 
-interface TimelineEventProps {
+/** Props for the {@link TimelineEvent} component. */
+export interface TimelineEventProps {
   event: TimelineEventData
   /** Whether this is the last event in the list (suppresses the connector). */
   isLast?: boolean
@@ -15,10 +16,7 @@ interface TimelineEventProps {
 
 /**
  * One row of a `<Timeline>`: [rail (marker + connector)] [timestamp / title / body].
- * @param root0
- * @param root0.event
- * @param root0.isLast
- * @param root0.className
+ * @param props - Component props (see {@link TimelineEventProps}).
  */
 export function TimelineEvent({ event, isLast, className }: TimelineEventProps): JSX.Element {
   const cm = getClassMap()

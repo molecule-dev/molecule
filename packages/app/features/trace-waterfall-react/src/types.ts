@@ -2,10 +2,11 @@
 export type SpanStatus = 'ok' | 'error' | 'pending'
 
 /**
- * A single distributed-trace span. Times are numeric (ms or any consistent
- * unit — `startTime` and `duration` must share a unit). The tree is formed
- * by `parentId` references; spans without a `parentId` (or whose `parentId`
- * isn't present in the input array) are roots.
+ * A single distributed-trace span. Times are numeric milliseconds (labels
+ * assume ms; layout is unit-agnostic) — `startTime` and `duration` must
+ * share a unit. The tree is formed by `parentId` references; spans without
+ * a `parentId` (or whose `parentId` isn't present in the input array) are
+ * roots.
  */
 export interface Span {
   /** Stable id for this span. */

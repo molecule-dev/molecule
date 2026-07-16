@@ -83,10 +83,10 @@ export interface Keyframe<TValue = number> {
  * The renderer never owns a {@link CanvasDocument} — instead, at every
  * output frame it builds one from the layer's static fields plus the
  * interpolated keyframe values, and hands that {@link CanvasDocument} to
- * the canvas-render bond. This keeps animation-renderer fully decoupled
- * from any specific renderer implementation: substitute the bond and the
- * same animation document can target a server-side raster, a PDF, or a
- * test fixture.
+ * the injected canvas-render adapter. This keeps animation-renderer fully
+ * decoupled from any specific renderer implementation: substitute the
+ * adapter and the same animation document can target a server-side raster,
+ * a PDF, or a test fixture.
  */
 export interface AnimationLayer {
   /**
@@ -237,12 +237,13 @@ export interface FfmpegAdapter {
 /**
  * Adapter that rasterizes a single canvas snapshot to a PNG buffer.
  *
- * In production this is satisfied by `bond('canvas-render')` — i.e.
- * `renderCanvasDocument` from `@molecule/api-canvas-render`. The package
- * accepts it as an injectable dependency rather than `import`ing the
- * canvas-render module directly so the bond can be swapped at runtime
- * (PNG via `@napi-rs/canvas`, alternative WASM raster, headless browser,
- * etc.) without rewriting the animation pipeline.
+ * In production this typically wraps `renderCanvasDocument` from
+ * `@molecule/api-canvas-render` (a direct-import utility — there is no
+ * 'canvas-render' bond category). The package accepts it as an injectable
+ * dependency rather than `import`ing the canvas-render module directly so
+ * the adapter can be swapped at runtime (PNG via `@napi-rs/canvas`,
+ * alternative WASM raster, headless browser, etc.) without rewriting the
+ * animation pipeline.
  */
 export interface CanvasRenderAdapter {
   /**

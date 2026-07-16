@@ -4,7 +4,8 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface WikiPageHeaderProps {
+/** Props for the {@link WikiPageHeader} component. */
+export interface WikiPageHeaderProps {
   /** Page title. */
   title: ReactNode
   /** Optional breadcrumb trail above the title. */
@@ -31,17 +32,7 @@ interface WikiPageHeaderProps {
  * Wiki / docs / knowledge-base page header — breadcrumb +
  * title + meta row (version, updated time/by, tags) + Edit/History
  * action buttons.
- * @param root0
- * @param root0.title
- * @param root0.breadcrumb
- * @param root0.version
- * @param root0.updatedAt
- * @param root0.updatedBy
- * @param root0.tags
- * @param root0.onEdit
- * @param root0.onHistory
- * @param root0.extraActions
- * @param root0.className
+ * @param props - Component props (see {@link WikiPageHeaderProps}).
  */
 export function WikiPageHeader({
   title,

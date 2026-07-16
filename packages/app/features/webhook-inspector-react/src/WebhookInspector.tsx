@@ -23,7 +23,8 @@ export interface WebhookDelivery {
   attempt?: number
 }
 
-interface WebhookInspectorProps {
+/** Props for the {@link WebhookInspector} component. */
+export interface WebhookInspectorProps {
   /** Deliveries to render. */
   deliveries: WebhookDelivery[]
   /** Called when a delivery is retried. */
@@ -50,12 +51,7 @@ function statusColor(s: WebhookDelivery['status']): string {
  * Webhook delivery log — one row per event with expandable
  * request/response JSON panels. Pass `onRetry` to show a retry button
  * per failed delivery.
- * @param root0
- * @param root0.deliveries
- * @param root0.onRetry
- * @param root0.onSelect
- * @param root0.selectedId
- * @param root0.className
+ * @param props - Component props (see {@link WebhookInspectorProps}).
  */
 export function WebhookInspector({
   deliveries,

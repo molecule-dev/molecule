@@ -32,10 +32,10 @@ const DEFAULT_FPS = 30 as const
  */
 export interface RendererConfig {
   /**
-   * Adapter for rasterising one frame to PNG. In production this wraps
-   * `bond('canvas-render')` (i.e. `renderCanvasDocument` from
-   * `@molecule/api-canvas-render`). Optional — only the lottie path can
-   * complete without it.
+   * Adapter for rasterising one frame to PNG. In production this typically
+   * wraps `renderCanvasDocument` from `@molecule/api-canvas-render` (a
+   * direct-import utility — there is no 'canvas-render' bond category).
+   * Optional — only the lottie path can complete without it.
    */
   canvas?: CanvasRenderAdapter
   /**
@@ -99,8 +99,9 @@ let defaultRenderer: AnimationRenderer | undefined
 
 /**
  * Configure the singleton renderer. Call once at process startup with
- * the host's adapters wired (typically `bond('canvas-render')` plus a
- * thin ffmpeg wrapper). Subsequent calls replace the singleton and
+ * the host's adapters wired (typically a wrapper around
+ * `renderCanvasDocument` from `@molecule/api-canvas-render` plus a thin
+ * ffmpeg wrapper). Subsequent calls replace the singleton and
  * detach the previous queue (in-flight jobs continue to completion but
  * status lookups against the old queue must use the returned instance).
  *

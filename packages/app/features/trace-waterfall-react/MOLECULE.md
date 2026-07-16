@@ -38,10 +38,11 @@ npm install -D @types/react
 
 #### `Span`
 
-A single distributed-trace span. Times are numeric (ms or any consistent
-unit — `startTime` and `duration` must share a unit). The tree is formed
-by `parentId` references; spans without a `parentId` (or whose `parentId`
-isn't present in the input array) are roots.
+A single distributed-trace span. Times are numeric milliseconds (labels
+assume ms; layout is unit-agnostic) — `startTime` and `duration` must
+share a unit. The tree is formed by `parentId` references; spans without
+a `parentId` (or whose `parentId` isn't present in the input array) are
+roots.
 
 ```typescript
 interface Span {
@@ -237,6 +238,16 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Duration labels assume time values are MILLISECONDS: `formatDurationLabel`
+renders values below 1 as microseconds and 1000+ as seconds, so
+seconds-unit spans get wrong axis/row labels even though bar layout itself
+is unit-agnostic — feed ms (or divide labels yourself). Bar status colors
+and the 12-hue service palette are hardcoded hex (theme-independent,
+legible in light + dark). The label column is fixed at 240px; long names
+ellipsize. Rows are keyboard-activatable when `onSpanClick` is set.
+Aria/empty-state strings come from the companion
+`@molecule/app-locales-trace-waterfall` bond.
 
 ## Translations
 

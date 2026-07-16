@@ -2,7 +2,8 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ParticipantTileProps {
+/** Props for the {@link ParticipantTile} component. */
+export interface ParticipantTileProps {
   /** Participant display name. */
   name: ReactNode
   /** Optional video stream slot — `<video>` element supplied by the app. */
@@ -25,15 +26,7 @@ interface ParticipantTileProps {
  * Single participant tile for a video grid. Apps supply the video
  * element via `videoSlot`; this component renders the surrounding
  * chrome (name badge, mute indicator, hand-raised, speaking ring).
- * @param root0
- * @param root0.name
- * @param root0.videoSlot
- * @param root0.avatarSlot
- * @param root0.audioEnabled
- * @param root0.handRaised
- * @param root0.speaking
- * @param root0.isLocal
- * @param root0.className
+ * @param props - Component props (see {@link ParticipantTileProps}).
  */
 export function ParticipantTile({
   name,

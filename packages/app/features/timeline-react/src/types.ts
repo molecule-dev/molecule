@@ -15,6 +15,9 @@ export interface TimelineEventData {
   title: ReactNode
   /** Optional body content. */
   body?: ReactNode
-  /** Optional accent color. */
+  /**
+   * Optional accent color hint. Currently INERT — no component consumes it,
+   * so setting it changes nothing; pass a custom `marker` node to color a row.
+   */
   accent?: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'neutral'
 }
