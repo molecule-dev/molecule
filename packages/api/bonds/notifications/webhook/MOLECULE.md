@@ -126,3 +126,25 @@ signature, when a secret is configured) depends on.
 - URL/secret/timeout are captured on first use (lazy) and frozen — env
   changes after the first send require a restart or a fresh
   `createProvider()` instance.
+
+## E2E Tests
+
+Integration checklist — drive the real flow (no mocks), adapt each item
+to this app's actual events/triggers, and check every box off one by
+one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Each ops/event trigger the app defines (service down, new signup,
+  a threshold crossed) actually calls `notifyAll()` and the message
+  reaches every bonded channel. The sandbox CAPTURES outbound
+  notifications instead of sending — read them with the `read_activity`
+  tool and confirm the subject+body match the event that fired. Never
+  mock the flow or modify production code to expose it.
+- [ ] MULTI-CHANNEL: with >1 channel bonded, `notifyAll()` returns one
+  `NotificationResult` per channel and a single channel failing
+  (`success: false`) does not swallow the others — every other channel
+  still captured, its own result still `success: true`.
+- [ ] The body carries the real event data (no `undefined` placeholders)
+  and nothing that must not leave the system — no secrets, tokens, or
+  PII that an external channel (Slack/webhook) should never receive.
+- [ ] Triggers are not end-user SPAMMABLE — no public endpoint lets a
+  caller fire unbounded notifications; the trigger is internal (an
+  ops/system event) or rate-limited.

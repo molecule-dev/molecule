@@ -368,3 +368,35 @@ Delivery semantics (at-least-once — handlers must be idempotent):
   exponential backoff (1s → 30s) instead of logging once and leaving the
   subscription permanently dead — it self-heals once the queue/credentials
   become valid.
+
+## E2E Tests
+
+Integration checklist — exercise the REAL behavior end-to-end (drive the app
+action that enqueues/consumes work in the live preview, no mocks), adapt each
+item to this app's actual screens/flows, and check every box off one by one. A
+box you can't check is an integration bug to fix — not a skip:
+- [ ] The action that enqueues work responds fast — `send()` returns a message
+  id immediately and the request/response does NOT block on the job. The #1
+  trap: the executor awaits the heavy work inline (defeating the queue);
+  confirm the triggering UI action returns quickly and the work happens in the
+  background.
+- [ ] The enqueued job actually RUNS — a `subscribe()` consumer (a
+  `MessageHandler`) is wired and running, so the message's real side effect
+  (email sent, file processed, notification delivered — whatever the app does)
+  actually appears in the UI/data. A message enqueued with no worker wired is
+  the silent failure.
+- [ ] Payload round-trips intact — the `ReceivedMessage.body` the handler sees
+  equals the `QueueMessage.body` that was sent, with no dropped or renamed
+  fields.
+- [ ] Failure is handled — a handler that throws is redelivered (up to
+  `QueueCreateOptions.deadLetterQueue.maxReceiveCount`, tracked via
+  `receiveCount`) or dead-lettered, never silently lost. Delivery is
+  at-least-once, so the handler is idempotent (dedupe on the job/record id) — a
+  redelivery must not double-charge or double-send.
+- [ ] Ordering/concurrency is not assumed — the app does not rely on strict
+  FIFO (`QueueMessage.groupId`/`fifo`) or exactly-once delivery unless the
+  bonded provider actually guarantees it.
+- [ ] Least-authority payloads — the `body` carries only the ids/refs the job
+  needs (never a secret or stale authority); the consumer re-loads and
+  re-scopes on the CURRENT data (owner id from `body`, re-checked server-side)
+  so one user's job cannot act on another user's resource.

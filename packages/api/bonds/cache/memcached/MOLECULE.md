@@ -231,3 +231,33 @@ Peer dependencies:
   removals from the SAME tag can still race and leave a stale entry (harmless:
   `invalidateTag()` deleting an already-gone key is a no-op). If exact tag membership
   matters, use the Redis bond instead (native `SADD`/`SREM`).
+
+## E2E Tests
+
+Integration checklist — exercise the REAL behavior end-to-end (drive the app
+action that reads/writes this cache in the live preview, no mocks), adapt each
+item to this app's actual screens/flows, and check every box off one by one. A
+box you can't check is an integration bug to fix — not a skip:
+- [ ] `getOrSet(key, factory, options)` computes ONCE on a miss and serves the
+  cached copy afterward: drive the same screen/endpoint twice within
+  `CacheOptions.ttl` and confirm the expensive factory (DB/upstream call) runs
+  only on the FIRST load — the second read returns the cached value without
+  re-running it.
+- [ ] `set(key, value)` then `get<T>(key)` round-trips the same value back into
+  the app (the cached data renders identically to the source data).
+- [ ] Deletion reflects a miss: after `del(key)`, `has(key)` is `false` and
+  `get(key)` returns `undefined`, so the app recomputes fresh from source
+  instead of serving the removed entry.
+- [ ] TTL expiry refetches: once `CacheOptions.ttl` seconds elapse, the next
+  read recomputes fresh data — a stale value is NEVER served past its TTL.
+- [ ] A write that changes the underlying record invalidates its key (via
+  `del()` or a re-`set()`) so the very next read reflects the change — the app
+  never serves a stale cached copy after an update.
+- [ ] AUTHORIZATION: a per-user or per-tenant value is cached under a key that
+  INCLUDES the user/tenant id (`user:123:profile`, never a global `profile`).
+  Load user A's data, then user B's — B must receive B's own data, never A's
+  cached copy. A shared key for per-user data is a cross-user data leak, not an
+  optimization.
+- [ ] A cache backend failure or miss DEGRADES to computing from source: the
+  request still succeeds (getProvider()/get() unavailable falls back to the
+  real query) rather than erroring the whole request.

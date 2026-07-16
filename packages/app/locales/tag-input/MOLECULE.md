@@ -1,10 +1,10 @@
 # @molecule/app-locales-tag-input
 
-Translations for the `@molecule/app-tag-input` package in 79 languages.
+Translations for @molecule/app-tag-input-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-tag-input-react` package, which has 2 translation keys.
+Provides translations for the `@molecule/app-tag-input-react` package which has 2 translation keys.
 
 ## Languages
 
@@ -13,20 +13,24 @@ Provides translations for the `@molecule/app-tag-input-react` package, which has
 ## Quick Start
 
 ```typescript
-import * as tag_input_react from '@molecule/app-locales-tag-input'
+import { af, am, ar } from '@molecule/app-locales-tag-input'
 import type { TagInputTranslationKey, TagInputTranslations } from '@molecule/app-locales-tag-input'
 ```
 
-Pass to `setupI18nDefault` via the `packageLocales` option to register
-all langs at app startup:
+## Registration
+
+In an mlcl-scaffolded app, installed locale bonds are registered automatically by the app's i18n setup at startup — installing this package is normally all you need. To register manually (or in a custom app), pass the whole module to `registerLocaleModule` from `@molecule/app-i18n` at startup:
 
 ```typescript
-setupI18nDefault({
-  enUi: en,
-  lazyLoadUi,
-  packageLocales: [tag_input_react, /* ...other bonds */],
-})
+import { registerLocaleModule } from '@molecule/app-i18n'
+import * as locales from '@molecule/app-locales-tag-input'
+
+registerLocaleModule(locales)
 ```
+
+## Editing translations
+
+`en.ts` is the canonical key set — every other language file mirrors its keys. To change or add strings, edit the locale files in this package (add new keys to `en.ts` first) or merge overrides at runtime with `addTranslations(locale, map)`. Never hand-write translations inline in feature code: features call `t(key, values, { defaultValue })` and THIS bond supplies the translations — inline strings bypass every other language.
 
 ## Translation Keys
 
@@ -34,3 +38,10 @@ setupI18nDefault({
 |-----|---------|
 | `tagChip.remove` | Remove |
 | `tagInput.placeholder` | Add a tag… |
+
+## Metadata
+
+- **Type:** locales
+- **Category:** i18n
+- **Stack:** app
+- **Translates:** `@molecule/app-tag-input-react`

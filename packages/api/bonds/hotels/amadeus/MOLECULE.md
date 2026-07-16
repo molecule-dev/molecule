@@ -236,3 +236,35 @@ Peer dependencies:
   host.
 - `bookHotel()` ALWAYS throws (see the core's remarks) — implement checkout
   on the vendor's hosted flow; search and priced offers are fully supported.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] A search for a real location + check-in/check-out dates + guest count
+  (`searchHotels` with a `cityCode` or `location`) returns REAL
+  `HotelSearchResult`s rendered in the UI — each with a name, its city /
+  `address`, and a `fromPrice` for the stay — never an empty list, a stuck
+  spinner, or placeholder cards. Results match the query: the right city, and
+  the dates / occupancy you entered are reflected in the prices shown.
+- [ ] Any exposed filter or sort (price, star `rating`, amenities) actually
+  narrows / reorders the rendered list — e.g. a price sort puts the lowest
+  `HotelPrice.total` first; a 4–5 star filter drops lower-rated properties.
+- [ ] Availability is respected: a sold-out or invalid-date search (e.g.
+  `checkOutDate` not strictly after `checkInDate`) shows a visible "no
+  availability" empty state — never a crash, a blank screen, or fabricated
+  results.
+- [ ] Prices total correctly and every amount shows its currency: a shown
+  `HotelOffer.price.total` equals nights × nightly rate + any fees, in its
+  ISO 4217 `HotelPrice.currency` (no bare "123" with no symbol or code).
+- [ ] If hotel detail / booking is exposed, opening a hotel calls
+  `getHotelOffers` and shows its real rooms / rates (`roomDescription` +
+  `price`); selecting one records the chosen `offerId` in the app. Booking
+  itself goes out-of-band to the vendor (or `bookHotel` throws
+  `BOOKING_NOT_SUPPORTED` → a redirect) — verify the app's RECORDED
+  selection, not a fake in-app confirmation.
+- [ ] A provider error (upstream down / rate-limited) surfaces as a graceful,
+  visible message — not a blank page or an unhandled rejection — and the
+  provider API key stays server-side: search / offers / booking all run on
+  the server, and no key appears in network responses or page source.

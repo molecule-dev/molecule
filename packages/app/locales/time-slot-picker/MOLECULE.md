@@ -1,10 +1,10 @@
 # @molecule/app-locales-time-slot-picker
 
-Translations for the `@molecule/app-time-slot-picker` package in 79 languages.
+Translations for @molecule/app-time-slot-picker-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-time-slot-picker-react` package, which has 1 translation keys.
+Provides translations for the `@molecule/app-time-slot-picker-react` package which has 1 translation key.
 
 ## Languages
 
@@ -13,23 +13,34 @@ Provides translations for the `@molecule/app-time-slot-picker-react` package, wh
 ## Quick Start
 
 ```typescript
-import * as time_slot_picker_react from '@molecule/app-locales-time-slot-picker'
+import { af, am, ar } from '@molecule/app-locales-time-slot-picker'
 import type { TimeSlotPickerTranslationKey, TimeSlotPickerTranslations } from '@molecule/app-locales-time-slot-picker'
 ```
 
-Pass to `setupI18nDefault` via the `packageLocales` option to register
-all langs at app startup:
+## Registration
+
+In an mlcl-scaffolded app, installed locale bonds are registered automatically by the app's i18n setup at startup — installing this package is normally all you need. To register manually (or in a custom app), pass the whole module to `registerLocaleModule` from `@molecule/app-i18n` at startup:
 
 ```typescript
-setupI18nDefault({
-  enUi: en,
-  lazyLoadUi,
-  packageLocales: [time_slot_picker_react, /* ...other bonds */],
-})
+import { registerLocaleModule } from '@molecule/app-i18n'
+import * as locales from '@molecule/app-locales-time-slot-picker'
+
+registerLocaleModule(locales)
 ```
+
+## Editing translations
+
+`en.ts` is the canonical key set — every other language file mirrors its keys. To change or add strings, edit the locale files in this package (add new keys to `en.ts` first) or merge overrides at runtime with `addTranslations(locale, map)`. Never hand-write translations inline in feature code: features call `t(key, values, { defaultValue })` and THIS bond supplies the translations — inline strings bypass every other language.
 
 ## Translation Keys
 
 | Key | English |
 |-----|---------|
 | `timeSlot.aria` | Time slots |
+
+## Metadata
+
+- **Type:** locales
+- **Category:** i18n
+- **Stack:** app
+- **Translates:** `@molecule/app-time-slot-picker-react`

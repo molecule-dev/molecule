@@ -308,3 +308,42 @@ Peer dependencies:
   `POSTHOG_HOST=https://eu.i.posthog.com` — an EU project key sent to the
   US endpoint is accepted and dropped silently (events never appear, no
   error is returned).
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Each user action the app cares about (signup/login, a page or screen
+  view, a purchase/conversion or other domain event) EMITS a `track()` /
+  `page()` with the RIGHT event name + properties when performed in the UI —
+  and the event is actually RECORDED, proven by reading it back, not by
+  finding a `track(...)` call in source. Analytics is fire-and-forget to a
+  third-party (Mixpanel/PostHog/Segment) that is NOT reachable in the sandbox
+  and NOT captured by `read_activity` (that captures email/sms/push/webhook/
+  channel, never analytics). So prove the wiring locally: read the event back
+  from the app's own events store/dashboard/funnel if it has one, or bond a
+  local recording/console provider for dev and confirm the call fired via
+  `read_logs`.
+- [ ] Events are ATTRIBUTED to the right identity: `identify({ userId, ... })`
+  runs at signup/login so events carry that `userId`. Server-side has no
+  ambient session — a `track()` / `page()` with neither `userId` nor
+  `anonymousId` collapses every user into one shared "anonymous" identity.
+  If the app tracks activity before login, confirm those `anonymousId` events
+  associate/merge to the user on identify.
+- [ ] Tracking is NON-BLOCKING. Unlike the app-side bond, these SERVER
+  functions PROPAGATE provider failures (they reject when the provider does,
+  and throw when none is bonded), so fire-and-forget is the CALLER's job:
+  every call site wraps the call in `.catch()` / log-and-continue. Verify by
+  forcing a failure (unbonded or erroring provider) — the user action
+  (signup, checkout) still completes with no visible error and no added
+  latency; the analytics await never blocks the response.
+- [ ] PRIVACY — no secret or sensitive PII in event `properties` or identify
+  `traits`: never a password, full card/PAN, CVV, auth token, or session
+  cookie. Read the recorded event back and confirm only non-sensitive
+  attributes (plan name, amount, item id) are present.
+- [ ] If the app exposes analytics reports/dashboards/funnels, the numbers
+  reflect REAL recorded events (perform an action, the matching count/funnel
+  step increments) and are SCOPED — a user/org reads only its OWN analytics;
+  no endpoint lets one org read another org's numbers (`group()` associates a
+  user under the normalized 'company' type).

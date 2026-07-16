@@ -95,3 +95,35 @@ checkbox state is managed. Fully supported: node CRUD, expansion
 `multiSelect`, and `onExpand` (which fires on BOTH expand and collapse —
 read `node.expanded` to tell which). `getData()`/`getSelectedNodes()` return
 deep clones — mutate via the instance methods, not the returned arrays.
+
+## E2E Tests
+
+End-to-end checklist — drive the RENDERED tree in the live preview (real
+nodes, no mocks), adapt each item to this app's actual tree screen, and check
+every box off one by one. A box you can't check is an integration bug to fix
+— not a skip:
+- [ ] The root-level nodes from `data` render on screen with their labels; a
+  node with `children` shows an expand/collapse affordance and a leaf does
+  not. A node with `disabled: true` renders non-interactive — clicking it
+  neither selects it nor fires `onSelect`.
+- [ ] Expanding a parent reveals its child rows and collapsing hides them
+  again, and the expanded STATE is reflected: the re-rendered node shows its
+  expanded affordance and the node's `expanded` flag in `getData()` matches
+  what's on screen. `expandAll()`/`collapseAll()` open/close the whole tree;
+  each toggle fires `onExpand` with the affected node.
+- [ ] Clicking a node selects it: `onSelect` fires with THAT node (verify its
+  `id`/`label`), the row is visibly highlighted, and the node appears in
+  `getSelectedNodes()`.
+- [ ] Single vs multi matches config: with `multiSelect` off (default),
+  selecting a second node REPLACES the first (`getSelectedNodes()` holds one);
+  with `multiSelect: true`, selections ACCUMULATE (the set grows).
+- [ ] A deeply nested node renders indented under its full parent chain — the
+  on-screen depth/indent matches the data nesting, not a flat list.
+- [ ] If `showCheckboxes` is enabled, a checkbox renders per node and toggling
+  one updates that node's selected state and `getSelectedNodes()`. Where the
+  app wires parent/child cascade, checking a parent also checks its rendered
+  children (the core exposes selection state, not a built-in cascade).
+- [ ] If `draggable` is enabled, dragging a node onto another fires `onDrop`
+  with the source, target, and position (`before`/`after`/`inside`) and the
+  tree re-renders in the new order; `onDrop` never fires when `draggable` is
+  off.

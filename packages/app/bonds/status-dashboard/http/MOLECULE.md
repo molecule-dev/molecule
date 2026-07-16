@@ -117,3 +117,35 @@ Peer dependencies:
   `startPolling()` and call it on unmount; `stopPolling()` cancels everything.
 - Per-call `config.apiBaseUrl`/`headers` override/merge over the constructor's
   `baseUrl`/`headers`.
+
+## E2E Tests
+
+Integration checklist — drive the real status page in the live preview (no
+mocks), adapt each item to this app's actual screens, and check every box
+off one by one. A box you can't check is an integration bug to fix — not a
+skip:
+- [ ] Every monitored service returned by `fetchStatus` renders as its own
+  tile/row showing the service name and a status indicator, grouped by
+  `groupName` when present — no service silently missing from the page.
+- [ ] Each status indicator reflects that service's real `ServiceStatus`: an
+  `operational` service shows the up/green treatment, `down` shows the
+  down/red treatment, and `degraded`/`unknown` each show their own distinct
+  state — never one uniform color regardless of status.
+- [ ] The overall system-status banner is DERIVED from the tiles, not
+  hardcoded: with all services operational it reads operational; flip one
+  service to `down` in the data and the banner flips to down/degraded on the
+  next fetch — it never stays green while a tile is red.
+- [ ] Metric values render as real numbers with units — service latency as
+  e.g. `142 ms` and each `UptimeWindow` as a percentage (e.g. `99.98%`) for
+  the selected window (1h/24h/7d/30d/90d) — not `0`, `NaN`, or a placeholder.
+- [ ] Active incidents render with title, severity, and status; when there
+  are none the page shows an all-clear/empty state, not a blank or broken
+  incidents area.
+- [ ] Polling updates the tiles without a manual reload: with `startPolling`
+  running, change the underlying status and confirm the affected tile AND the
+  overall banner update on the next poll; navigating away calls the returned
+  stop function so polls don't pile up.
+- [ ] Loading and failure are observable: a loading indicator shows while
+  `fetchStatus` is in flight, and a fetch error surfaces a visible message
+  (from `state.error`) — never a blank page or a stale dashboard shown as
+  fresh.

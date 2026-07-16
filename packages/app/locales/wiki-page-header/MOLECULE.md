@@ -1,10 +1,10 @@
 # @molecule/app-locales-wiki-page-header
 
-Translations for the `@molecule/app-wiki-page-header` package in 79 languages.
+Translations for @molecule/app-wiki-page-header-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-wiki-page-header-react` package, which has 3 translation keys.
+Provides translations for the `@molecule/app-wiki-page-header-react` package which has 3 translation keys.
 
 ## Languages
 
@@ -13,20 +13,24 @@ Provides translations for the `@molecule/app-wiki-page-header-react` package, wh
 ## Quick Start
 
 ```typescript
-import * as wiki_page_header_react from '@molecule/app-locales-wiki-page-header'
+import { af, am, ar } from '@molecule/app-locales-wiki-page-header'
 import type { WikiPageHeaderTranslationKey, WikiPageHeaderTranslations } from '@molecule/app-locales-wiki-page-header'
 ```
 
-Pass to `setupI18nDefault` via the `packageLocales` option to register
-all langs at app startup:
+## Registration
+
+In an mlcl-scaffolded app, installed locale bonds are registered automatically by the app's i18n setup at startup — installing this package is normally all you need. To register manually (or in a custom app), pass the whole module to `registerLocaleModule` from `@molecule/app-i18n` at startup:
 
 ```typescript
-setupI18nDefault({
-  enUi: en,
-  lazyLoadUi,
-  packageLocales: [wiki_page_header_react, /* ...other bonds */],
-})
+import { registerLocaleModule } from '@molecule/app-i18n'
+import * as locales from '@molecule/app-locales-wiki-page-header'
+
+registerLocaleModule(locales)
 ```
+
+## Editing translations
+
+`en.ts` is the canonical key set — every other language file mirrors its keys. To change or add strings, edit the locale files in this package (add new keys to `en.ts` first) or merge overrides at runtime with `addTranslations(locale, map)`. Never hand-write translations inline in feature code: features call `t(key, values, { defaultValue })` and THIS bond supplies the translations — inline strings bypass every other language.
 
 ## Translation Keys
 
@@ -35,3 +39,10 @@ setupI18nDefault({
 | `wiki.edit` | Edit |
 | `wiki.history` | History |
 | `wiki.updatedAt` | Updated |
+
+## Metadata
+
+- **Type:** locales
+- **Category:** i18n
+- **Stack:** app
+- **Translates:** `@molecule/app-wiki-page-header-react`

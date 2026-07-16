@@ -103,3 +103,32 @@ Peer dependencies:
 - **Wire with `setProvider()` from `@molecule/app-markdown`** — the core
   keeps a module-local singleton; a generic `bond('markdown', …)` silently
   no-ops and `requireProvider()` throws.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Common markdown renders as real HTML wherever the app shows it (chat
+  reply, comment, note, README preview): `#`..`######` become `<h1>`..`<h6>`,
+  `**bold**` a `<strong>`, `*italic*` an `<em>`, `-`/`1.` lists become
+  `<ul>`/`<ol>` of `<li>`, `[text](url)` an `<a>` anchor, and a fenced code
+  block a `<pre><code>` — not the raw `*`/backticks shown as literal text.
+- [ ] GFM extras render when enabled (`gfm`, default on): a pipe table
+  `| a | b |` becomes a real `<table>` with header + rows, and `![alt](src)`
+  an `<img>`. With `syntaxHighlight` on, code tokens are colorized, not one
+  flat monochrome block.
+- [ ] The output tracks the source: editing the markdown updates the preview
+  live — change a heading's text and its `<h#>` updates; add a list item and
+  a new `<li>` appears. No stale or one-shot render.
+- [ ] SECURITY (XSS) — user- or model-supplied markdown is sanitized
+  (`sanitize`, default on, the XSS gate): markdown containing a raw
+  `<script>alert(1)</script>`, an `<img src=x onerror=alert(1)>`, or a
+  `[click](javascript:alert(1))` link must NOT execute and must NOT produce
+  active markup — the script is stripped, the `onerror` is gone, and the
+  link's `href` is neutralized. Verify in the browser: no alert fires, and
+  DevTools shows no `<script>`, `onerror`, or `javascript:` in the rendered
+  DOM. Never render untrusted content with `sanitize: false`.
+- [ ] Malformed markdown degrades gracefully — an unclosed `**`, a broken
+  `[link](`, or a half-open code fence renders as readable text and never
+  throws, blanks the view, or breaks the surrounding page.

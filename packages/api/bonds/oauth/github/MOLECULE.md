@@ -246,3 +246,34 @@ Peer dependencies:
   `redirect_uri`, but a redirect_uri-enforcing GitHub Enterprise instance
   or strict proxy would otherwise reject the exchange with an error that
   looks unrelated to the missing parameter.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Clicking the app's "Sign in with {provider}" button (Google, GitHub, …)
+  redirects to the provider's authorize URL carrying the correct client_id,
+  the app's requested scopes, AND the app's registered redirect_uri — inspect
+  the actual outbound URL (the 302 Location, or the address the popup/tab
+  navigates to) and confirm each value; a missing or wrong one is the bug.
+- [ ] The callback route exchanges the returned code SERVER-SIDE for a token,
+  fetches the profile, and creates-or-links the app user + establishes a
+  session — after the round-trip the app shows that user logged in. CAVEAT:
+  the provider's own consent screen runs on ITS domain and CANNOT be driven
+  in the sandbox, so verify the two boundaries you DO own — the authorize URL
+  going out (above) and the callback coming back — not the provider's page.
+  Complete the round-trip with a test/stub provider bond if one is wired;
+  otherwise assert the callback handler's own behavior (state check → code
+  exchange → user create-or-link → session). Never mock the flow or edit
+  production code to bypass the provider.
+- [ ] A returning OAuth user logs into the SAME account — sign in twice and
+  confirm one user row linked by provider id (oauthServer + oauthId), not a
+  fresh duplicate created each time.
+- [ ] SECURITY — the `state` parameter is generated on initiation and
+  verified on callback (CSRF protection): a mismatched or absent `state` is
+  rejected (403); the `redirect_uri` is validated against an allowlist so an
+  attacker cannot redirect the code elsewhere; and the client secret + tokens
+  stay server-side — grep the browser bundle and network tab to confirm the
+  secret never reaches the client (only the authorize URL and returned code
+  cross the boundary).

@@ -275,6 +275,12 @@ function setProvider(provider: CalendarProvider): void
 
 - `provider` — The calendar provider implementation to bond.
 
+## Available Providers
+
+| Provider | Package |
+|----------|---------|
+| Calendar | `@molecule/app-calendar-fullcalendar` |
+
 ## Injection Notes
 
 ### Requirements

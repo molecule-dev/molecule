@@ -1,10 +1,10 @@
 # @molecule/app-locales-settings-panel
 
-Translations for the `@molecule/app-settings-panel` package in 79 languages.
+Translations for @molecule/app-settings-panel-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-settings-panel-react` package, which has 15 translation keys.
+Provides translations for the `@molecule/app-settings-panel-react` package which has 15 translation keys.
 
 ## Languages
 
@@ -13,20 +13,24 @@ Provides translations for the `@molecule/app-settings-panel-react` package, whic
 ## Quick Start
 
 ```typescript
-import * as settings_panel_react from '@molecule/app-locales-settings-panel'
+import { af, am, ar } from '@molecule/app-locales-settings-panel'
 import type { SettingsPanelTranslationKey, SettingsPanelTranslations } from '@molecule/app-locales-settings-panel'
 ```
 
-Pass to `setupI18nDefault` via the `packageLocales` option to register
-all langs at app startup:
+## Registration
+
+In an mlcl-scaffolded app, installed locale bonds are registered automatically by the app's i18n setup at startup — installing this package is normally all you need. To register manually (or in a custom app), pass the whole module to `registerLocaleModule` from `@molecule/app-i18n` at startup:
 
 ```typescript
-setupI18nDefault({
-  enUi: en,
-  lazyLoadUi,
-  packageLocales: [settings_panel_react, /* ...other bonds */],
-})
+import { registerLocaleModule } from '@molecule/app-i18n'
+import * as locales from '@molecule/app-locales-settings-panel'
+
+registerLocaleModule(locales)
 ```
+
+## Editing translations
+
+`en.ts` is the canonical key set — every other language file mirrors its keys. To change or add strings, edit the locale files in this package (add new keys to `en.ts` first) or merge overrides at runtime with `addTranslations(locale, map)`. Never hand-write translations inline in feature code: features call `t(key, values, { defaultValue })` and THIS bond supplies the translations — inline strings bypass every other language.
 
 ## Translation Keys
 
@@ -41,9 +45,16 @@ setupI18nDefault({
 | `settings.billing.cancelConfirm` | Cancel your subscription? |
 | `settings.billing.cancelFailed` | Could not cancel. |
 | `settings.billing` | Billing |
-| `settings.plan` | Plan |
+| `settings.plan` | Plan:  |
 | `settings.upgrade` | Upgrade |
 | `settings.billing.cancel` | Cancel |
 | `settings.billing.upgradeTitle` | Upgrade your plan |
 | `settings.billing.noTiers` | No paid plans configured. |
 | `settings.billing.subscribe` | Subscribe |
+
+## Metadata
+
+- **Type:** locales
+- **Category:** i18n
+- **Stack:** app
+- **Translates:** `@molecule/app-settings-panel-react`

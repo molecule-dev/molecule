@@ -116,3 +116,37 @@ model when retrieval returns zero chunks, but instructs it to say it has no
 information rather than hallucinate. The whole capability is swappable:
 `bond('ai-rag', myProvider)` replaces this composed default with your own
 `AIRagProvider`.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] After ingesting a known document set, ask a question whose answer is
+  IN the corpus: the returned answer USES the retrieved content — it states
+  the specific fact from the source doc (with the [n] citation `query()`
+  returns), NOT the base model's generic prior. If it's right only because
+  the model already knew the fact, retrieval isn't actually wired.
+- [ ] Retrieval genuinely runs — the answer tracks the corpus. Remove the
+  source doc (`remove({ collection, ids })`) or ingest a corrected version,
+  then re-ask: the answer changes or disappears; it must NOT keep reciting a
+  fact whose document is gone.
+- [ ] An out-of-corpus question is DECLINED ("I don't have information on
+  that" / "not in the documents"), not answered from the model's own prior.
+  This is the key RAG failure to catch — a confident, well-formed answer to a
+  question no ingested document supports is a hallucination and fails the box.
+- [ ] A newly ingested document is answerable immediately: `ingest()` one more
+  doc, then ask about its content in the same session — it's retrieved with no
+  rebuild or redeploy.
+- [ ] Every source `query()` returns points to a really-ingested document
+  (its `id`/text matches a `RagDocument` you actually ingested), and each [n]
+  citation in the answer maps to one of those returned sources — no fabricated
+  ids and no dangling [n] with no matching source.
+- [ ] Retrieval is SCOPED to the caller's own data: a query resolves only the
+  authenticated user's/tenant's `collection` (or metadata `filter`) and can
+  NOT surface another tenant's private documents in `answer` or `sources`.
+  Confirm by ingesting two tenants' docs and querying as one — the other's
+  content never appears.
+- [ ] The RAG call is server-side only — ingest/query run in an API route,
+  and the embeddings/AI provider key is never shipped to or readable in the
+  browser.

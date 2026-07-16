@@ -460,3 +460,48 @@ When an inbound message has no `Message-Id`, `id` is a deterministic
 hash of the sender/original-Date-header/subject (NOT the per-request
 Mailgun signing token, which changes on every retry) — so retries of an
 id-less message still dedupe to the same id.
+
+## E2E Tests
+
+Integration checklist — drive the real inbound endpoint (live preview, no
+mocks), adapt each item to this app's actual inbox/ticket/thread flows, and
+check every box off one by one. A box you can't check is an integration bug
+to fix — not a skip. COUNTERPARTY: the app can't receive a real email in the
+sandbox, so YOU play the mail provider — POST a realistic inbound-email
+webhook to the app's inbound endpoint with `sandbox_fetch` (curl runs inside
+the container). Model the payload on the BONDED provider's real format
+(Mailgun: form fields `sender`/`recipient`/`subject`/`body-plain`/`body-html`/
+`attachment-N` plus the `timestamp`/`token`/`signature` triple; SES/Postmark:
+their JSON), and the happy-path POST must carry a VALID signature — compute it
+the way the provider does (Mailgun signs HMAC-SHA256 of `timestamp+token` with
+`MAILGUN_API_KEY` inside the replay window; read the key from the Environment
+panel / `.env.molecule`). Never disable `verifySignature()` or mock
+`parseWebhookPayload()` to go green — that proves nothing.
+- [ ] A signed sample webhook to the inbound endpoint parses into the
+  normalized fields (from / to / subject / textBody / htmlBody) AND the app
+  ACTS on it — it files the mail into the right place (creates a ticket, a
+  comment on a thread, or a reply-thread) keyed off the recipient (`support@`)
+  or a plus-address / thread token (`reply+<id>@`). Verify the CREATED record
+  (a DB row, and it shows up in the UI) — not just a 200.
+- [ ] Routing is correct: an email to `support@` opens a NEW ticket, while
+  `reply+<id>@` (or an `In-Reply-To` / `References` match) threads onto the
+  EXISTING one — each lands in the right user's / conversation's place, never
+  a stranger's.
+- [ ] Attachments survive: an inbound message with an attachment has it
+  decoded from `attachments[].contentBase64` and stored on the app's OWN
+  storage (the uploads bond), not left as a provider link — the stored file
+  opens from the ticket.
+- [ ] Retries don't duplicate: re-POST the SAME webhook (providers retry slow
+  / 5xx deliveries) and confirm handling is idempotent — one ticket, not two
+  (dedupe on `id` / `messageId`).
+- [ ] Malformed / empty payloads (missing `body-plain`, no attachments, absent
+  headers) are handled without a crash — a clean response, not a 500 stack
+  trace.
+- [ ] SECURITY — the endpoint is AUTHENTICATED: a forged POST with a bad or
+  missing signature (or a `timestamp` outside the replay window) is REJECTED
+  (401) and creates NO record, so an attacker can't inject mail into another
+  user's thread. A missing signing key is a DISTINCT 503, not a 401 — a
+  server misconfig must not masquerade as an accepted or forged webhook.
+- [ ] SECURITY — the parsed `htmlBody` is sanitized before it is rendered
+  anywhere: a `<script>` / `onerror=` in an inbound body must NOT execute when
+  the ticket is viewed (no stored XSS from an inbound email body).

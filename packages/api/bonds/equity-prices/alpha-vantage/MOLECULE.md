@@ -178,3 +178,32 @@ Peer dependencies:
 
 - `@molecule/api-equity-prices`
 - `@molecule/api-secrets`
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] A known ticker (e.g. `getQuote('AAPL')`) renders a PLAUSIBLE quote in
+  the UI — a real `price` in a sane range, formatted with the quote's own
+  `currency` (never a hardcoded `$`), never `0` / `null` / `NaN` or a
+  spinner that never resolves.
+- [ ] Several distinct tickers (e.g. `AAPL` and `MSFT`) each render their
+  OWN price — not one shared placeholder or the same number repeated (a
+  stale-cache or wrong-symbol wiring bug).
+- [ ] If the app charts history, `getHistorical(symbol, range)` returns an
+  ascending series of `{ ts, close }` that actually draws a line that moves
+  — not an empty array, a flat line, or points in reversed order.
+- [ ] An invalid / unknown ticker resolves to a clear "not found" in the UI
+  (empty `searchSymbol()` results, or a caught `getQuote` error) — never a
+  crash, a blank card, or a `NaN` price.
+- [ ] Staleness is honest: the quote's `ts` is surfaced (a timestamp or a
+  "delayed / last close" label) so an out-of-hours last-close price is NOT
+  presented as a live trade — the UI never dresses stale data up as real-time.
+- [ ] A provider rate-limit / outage (free tiers cap at a few calls) degrades
+  gracefully to last-known-cached data or an empty state with a message —
+  never a crashed page or a `NaN`; quotes are cached server-side, not
+  refetched per render.
+- [ ] The provider API key stays server-side: quotes are served only through
+  the app's own authenticated endpoint, scoped to specific symbols — not an
+  open, unbounded proxy any caller can pass arbitrary tickers/params to.

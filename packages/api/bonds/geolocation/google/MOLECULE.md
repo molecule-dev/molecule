@@ -120,3 +120,31 @@ Peer dependencies:
 
 - `@molecule/api-geolocation`
 - `@molecule/api-secrets`
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] A known input resolves to plausibly-correct results: a real address
+  passed to `geocode()` returns coordinates in roughly the right place (a
+  famous landmark lands inside its own city, not the middle of the ocean),
+  and a known lat/lng passed to `reverseGeocode()` names the right city —
+  never an empty array, `null`, `0,0`, or a hardcoded placeholder.
+- [ ] The app actually CONSUMES the result downstream, verified on screen:
+  the map recenters on the geocoded point, a "near me" list is sorted or
+  filtered by `distance()` (closest first), or the address form marks a real
+  address valid and a bogus one invalid — a coordinate that comes back but
+  changes nothing in the UI is a broken integration, not a pass.
+- [ ] If the app relies on the BROWSER geolocation permission, denying it
+  (or letting it time out) falls back gracefully to manual entry — type or
+  autocomplete an address — never a blank map, a spinner that never
+  resolves, or a crash.
+- [ ] An unresolvable input (gibberish address, empty `geocode()`/
+  `reverseGeocode()` result) surfaces a clear "location not found" message,
+  not a crash, a silent blank screen, or a default location shown as if real.
+- [ ] PRIVACY: a user's precise coordinates are not exposed to other users
+  or written to logs beyond what the feature needs (persist/show only the
+  granularity required — e.g. city, not raw lat/lng), and the geocoding
+  provider key stays SERVER-SIDE (app screens call YOUR API, never the
+  geocoding service directly).
