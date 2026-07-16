@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface EmptyStateProps {
+export interface EmptyStateProps {
   /** Visual — typically an `<Icon>` or `<img>`. Rendered in a circular badge above the heading. */
   icon?: ReactNode
   /** Primary heading text (usually `t('...')`). */
@@ -27,14 +27,7 @@ interface EmptyStateProps {
  * borders, tinted backgrounds, gradient CTAs) is passed via `className`
  * on the outer element.
  *
- * @param root0
- * @param root0.icon
- * @param root0.title
- * @param root0.description
- * @param root0.action
- * @param root0.dataMolId
- * @param root0.className
- * @param root0.iconWrapperClassName
+ * @param props - Component props (see {@link EmptyStateProps}).
  * @example
  * ```tsx
  * <EmptyState

@@ -17,7 +17,7 @@ export interface ToolbarAction {
   color?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info'
 }
 
-interface EditorToolbarProps {
+export interface EditorToolbarProps {
   /** Document title. */
   title: ReactNode
   /** Optional version / status badge next to the title. */
@@ -69,15 +69,7 @@ function renderAction(a: ToolbarAction, key: string): JSX.Element {
  *
  * Pair with `<EditorLayout>` from `@molecule/app-editor-layout-react` as
  * the `topBar` slot.
- * @param root0
- * @param root0.title
- * @param root0.badge
- * @param root0.primaryActions
- * @param root0.secondaryActions
- * @param root0.leading
- * @param root0.sticky
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link EditorToolbarProps}).
  */
 export function EditorToolbar({
   title,

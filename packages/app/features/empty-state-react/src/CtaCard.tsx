@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface CtaCardProps {
+export interface CtaCardProps {
   /** Optional small eyebrow line above the title. */
   eyebrow?: ReactNode
   /** Primary heading. */
@@ -28,15 +28,7 @@ interface CtaCardProps {
  * Differs from `<EmptyState>` in being positioned in a list of cards
  * rather than filling the void. Supports a horizontal layout with the
  * media slot beside the text.
- * @param root0
- * @param root0.eyebrow
- * @param root0.title
- * @param root0.description
- * @param root0.action
- * @param root0.media
- * @param root0.layout
- * @param root0.dataMolId
- * @param root0.className
+ * @param props - Component props (see {@link CtaCardProps}).
  */
 export function CtaCard({
   eyebrow,

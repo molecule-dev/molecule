@@ -12,7 +12,7 @@ export interface EmojiReaction {
   reactedByMe?: boolean
 }
 
-interface EmojiReactionsProps {
+export interface EmojiReactionsProps {
   reactions: EmojiReaction[]
   /** Called when a reaction chip is toggled by the current user. */
   onToggle?: (emoji: string) => void
@@ -33,13 +33,7 @@ const DEFAULT_PICKS = ['👍', '❤️', '🎉', '😄', '😢', '🙏']
  * button that opens a quick-pick row. Different from
  * `MessageReactions` in `app-message-bubble-react` in being
  * standalone (not coupled to the message bubble layout).
- * @param root0
- * @param root0.reactions
- * @param root0.onToggle
- * @param root0.quickPicks
- * @param root0.onAdd
- * @param root0.className
- * @param root0.renderTooltip
+ * @param props - Component props (see {@link EmojiReactionsProps}).
  */
 export function EmojiReactions({
   reactions,

@@ -16,12 +16,13 @@ top of the structural layout.
 
 ```tsx
 import { EmptyState, CtaCard } from '@molecule/app-empty-state-react'
+import { Button, Icon } from '@molecule/app-ui-react'
 
 // Centred empty-state for a list with no items
 <EmptyState
   icon={<Icon name="mail" size={40} />}
-  title="No messages yet"
-  description="When you receive messages they will appear here."
+  title={t('messages.empty.title', {}, { defaultValue: 'No messages yet' })}
+  description={t('messages.empty.description', {}, { defaultValue: 'When you receive messages they will appear here.' })}
   action={<Button onClick={() => openCompose()}>Send one</Button>}
 />
 
@@ -44,9 +45,55 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `CtaCardProps`
+
+```typescript
+interface CtaCardProps {
+  /** Optional small eyebrow line above the title. */
+  eyebrow?: ReactNode
+  /** Primary heading. */
+  title: ReactNode
+  /** Supporting copy. */
+  description?: ReactNode
+  /** Primary call-to-action. */
+  action?: ReactNode
+  /** Optional visual / illustration rendered at the top or side. */
+  media?: ReactNode
+  /** `'horizontal'` renders media beside text; `'vertical'` stacks them. Defaults to `'vertical'`. */
+  layout?: 'vertical' | 'horizontal'
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+  /** Override outer wrapper classes. */
+  className?: string
+}
+```
+
+#### `EmptyStateProps`
+
+```typescript
+interface EmptyStateProps {
+  /** Visual — typically an `<Icon>` or `<img>`. Rendered in a circular badge above the heading. */
+  icon?: ReactNode
+  /** Primary heading text (usually `t('...')`). */
+  title: ReactNode
+  /** Supporting description shown below the heading. */
+  description?: ReactNode
+  /** Action area — typically a `<Button>` or `<Link>`. */
+  action?: ReactNode
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+  /** Override outer wrapper classes (for per-app dashed-border, background, padding, etc.). */
+  className?: string
+  /** Override the icon-badge wrapper classes. */
+  iconWrapperClassName?: string
+}
+```
+
 ### Functions
 
-#### `CtaCard(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `CtaCard(props)`
 
 A "soft sell" card used to promote a next-step action inside a page
 body (e.g., "Connect your bank", "Invite teammates").
@@ -68,17 +115,9 @@ function CtaCard({
 }: CtaCardProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .eyebrow
-- `root0` — .title
-- `root0` — .description
-- `root0` — .action
-- `root0` — .media
-- `root0` — .layout
-- `root0` — .dataMolId
-- `root0` — .className
+- `props` — Component props (see {@link CtaCardProps}).
 
-#### `EmptyState(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `EmptyState(props)`
 
 Generic centred empty-state panel for lists, feeds, boards, and tables.
 
@@ -99,14 +138,7 @@ function EmptyState({
 }: EmptyStateProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .icon
-- `root0` — .title
-- `root0` — .description
-- `root0` — .action
-- `root0` — .dataMolId
-- `root0` — .className
-- `root0` — .iconWrapperClassName
+- `props` — Component props (see {@link EmptyStateProps}).
 
 ## Injection Notes
 
@@ -124,3 +156,15 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- **Name collision:** `@molecule/app-ui-react` also exports an
+  `EmptyState` (the ClassMap-token variant driven by `cm.emptyState*`).
+  Use THAT one for plain framework-styled empty states; use THIS
+  package when you want the circular icon badge
+  (`iconWrapperClassName`), per-brand chrome via `className`, a
+  `dataMolId`, or the companion `<CtaCard>`. If you import both
+  packages, alias one import to avoid the clash.
+- All text arrives via props — translate with your `t()` calls; this
+  package has no locale bond of its own.
+- Styling resolves through `getClassMap()` — requires a wired ClassMap
+  bond (standard molecule app setup).

@@ -40,6 +40,21 @@
  * }
  * ```
  *
+ * @remarks
+ * - The canvas draws every shape as a fixed 24px square filled with
+ *   `currentColor` (transformed by x/y/rotation/scale/opacity). There is
+ *   no shape-type, size, color, or custom-renderer prop yet — for real
+ *   artwork, use the exported interpolation/easing helpers
+ *   (`interpolateState`, `sampleEasing`, …) to drive your own SVG.
+ * - Keyframes MUST be sorted ascending by `time`; the interpolators do
+ *   not sort for you.
+ * - `onChange` is reserved for future built-in interactions — the canvas
+ *   itself never mutates keyframes today. Clicking maps linearly across
+ *   the width to a time and fires `onSeek`.
+ * - Aria labels resolve through `t()` with English fallbacks; companion
+ *   locale bond: `@molecule/app-locales-feature-animation-canvas`.
+ *   Requires a wired ClassMap bond and the app I18nProvider.
+ *
  * @module
  */
 

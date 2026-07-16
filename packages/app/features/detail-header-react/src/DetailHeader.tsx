@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface DetailHeaderProps {
+export interface DetailHeaderProps {
   /** Primary heading. */
   title: ReactNode
   /** Optional subtitle shown below the title. */
@@ -31,17 +31,7 @@ interface DetailHeaderProps {
  *
  * Different from `<PageHeader>` (used at the top of list/index pages)
  * in prioritising status + search + stickiness.
- * @param root0
- * @param root0.title
- * @param root0.subtitle
- * @param root0.leading
- * @param root0.status
- * @param root0.actions
- * @param root0.meta
- * @param root0.search
- * @param root0.sticky
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link DetailHeaderProps}).
  */
 export function DetailHeader({
   title,

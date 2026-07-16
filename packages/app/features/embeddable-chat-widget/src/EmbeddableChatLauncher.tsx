@@ -5,7 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { EmbeddableChatWidgetPosition, EmbeddableChatWidgetTheme } from './types.js'
 
-interface EmbeddableChatLauncherProps {
+export interface EmbeddableChatLauncherProps {
   /** Whether the launcher should render. Hidden while the panel is expanded. */
   visible: boolean
   /** Click handler — flips the widget into expanded state. */
@@ -27,12 +27,7 @@ interface EmbeddableChatLauncherProps {
  * self-sufficient for color and geometry. ClassMap is still used for
  * layout primitives that don't conflict with host CSS.
  *
- * @param root0 Component props.
- * @param root0.visible Whether to render.
- * @param root0.onOpen Open-panel callback.
- * @param root0.position Floating corner.
- * @param root0.theme Optional theme.
- * @param root0.className Extra classes.
+ * @param props - Component props (see {@link EmbeddableChatLauncherProps}).
  */
 export function EmbeddableChatLauncher({
   visible,

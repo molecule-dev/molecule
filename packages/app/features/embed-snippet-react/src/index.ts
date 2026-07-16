@@ -24,6 +24,16 @@
  * with English fallbacks. Companion locale bond:
  * `@molecule/app-locales-embed-snippet`.
  *
+ * Copy-to-clipboard uses `navigator.clipboard`, which browsers only expose
+ * in secure contexts (HTTPS or localhost). On insecure origins the Copy
+ * button is a silent no-op — no error, no "Copied!" feedback. If your app
+ * must support insecure origins, wire `onCopy` and surface your own
+ * fallback (e.g. select-the-text instructions).
+ *
+ * Substitution replaces only the `{{width}}`, `{{height}}` and `{{theme}}`
+ * placeholders (numbers become `<n>px`); unknown placeholders pass through
+ * untouched, so the template can mix in your own tokens.
+ *
  * @module
  */
 

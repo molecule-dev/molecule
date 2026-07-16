@@ -2,7 +2,9 @@
 
 React editor-top toolbar.
 
-Exports `<EditorToolbar>` — title + badge + primary/secondary actions.
+Exports `<EditorToolbar>` — title + badge + primary/secondary action
+groups — and the `ToolbarAction` shape. Pair with `<EditorLayout>` from
+`@molecule/app-editor-layout-react` as its `topBar` slot.
 
 ## Quick Start
 
@@ -32,6 +34,29 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `EditorToolbarProps`
+
+```typescript
+interface EditorToolbarProps {
+  /** Document title. */
+  title: ReactNode
+  /** Optional version / status badge next to the title. */
+  badge?: ReactNode
+  /** Primary actions (e.g. Save, Publish) rendered on the right. */
+  primaryActions?: ToolbarAction[]
+  /** Secondary icon-only actions (theme, settings, help). */
+  secondaryActions?: ToolbarAction[]
+  /** Optional leading slot (back button, breadcrumb). */
+  leading?: ReactNode
+  /** Sticky top — defaults to true. */
+  sticky?: boolean
+  /** Extra classes. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
 #### `ToolbarAction`
 
 A single action item rendered as a button (or linked button) in the toolbar.
@@ -53,7 +78,7 @@ interface ToolbarAction {
 
 ### Functions
 
-#### `EditorToolbar(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `EditorToolbar(props)`
 
 Editor-page top toolbar — title + optional version/status badge +
 primary actions (Save, Publish, Test) + secondary icon actions.
@@ -74,15 +99,7 @@ function EditorToolbar({
 }: EditorToolbarProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .badge
-- `root0` — .primaryActions
-- `root0` — .secondaryActions
-- `root0` — .leading
-- `root0` — .sticky
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link EditorToolbarProps}).
 
 ## Injection Notes
 
@@ -100,3 +117,17 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- `sticky` defaults to TRUE and applies `position: sticky; top: 0` with
+  a TRANSPARENT background — pass a surface class via `className` or
+  page content will scroll visibly through the toolbar.
+- Action `label`s render verbatim (into the button and nothing else) —
+  pass already-translated strings; the component has no `t()` calls or
+  locale bond of its own.
+- Prefer `onClick` over `href`: an `href` action wraps the button in a
+  plain anchor (full page navigation, and invalid button-in-anchor
+  nesting for assistive tech).
+- A 1px divider renders between the primary and secondary groups only
+  when both are non-empty.
+- Buttons come from `@molecule/app-ui-react`; requires a wired ClassMap
+  bond (standard molecule app setup).

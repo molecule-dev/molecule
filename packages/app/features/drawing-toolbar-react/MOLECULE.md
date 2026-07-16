@@ -2,11 +2,14 @@
 
 Whiteboard / canvas / annotation tool selector.
 
-Exports `<DrawingToolbar>` and `DrawingTool` type.
+Exports `<DrawingToolbar>` (a `role="toolbar"` row/column of toggle
+buttons) and the `DrawingTool` type. Selection is controlled: pass
+`selectedId` + `onSelect`.
 
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
 import { DrawingToolbar } from '@molecule/app-drawing-toolbar-react'
 
 const [tool, setTool] = useState('select')
@@ -48,9 +51,28 @@ interface DrawingTool {
 }
 ```
 
+#### `DrawingToolbarProps`
+
+```typescript
+interface DrawingToolbarProps {
+  /** Tools to render. */
+  tools: DrawingTool[]
+  /** Currently selected tool id. */
+  selectedId: string
+  /** Called when the user picks a tool. */
+  onSelect: (id: string) => void
+  /** Optional extra controls (color picker, stroke width). */
+  extras?: ReactNode
+  /** Layout — default `'horizontal'`. Set `'vertical'` for left-rail toolbars. */
+  orientation?: 'horizontal' | 'vertical'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `DrawingToolbar(root0, root0, root0, root0, root0, root0, root0)`
+#### `DrawingToolbar(props)`
 
 Whiteboard / canvas / annotation tool selector. Defaults to a
 standard set of tools (select, rectangle, ellipse, arrow, text,
@@ -67,13 +89,7 @@ function DrawingToolbar({
 }: DrawingToolbarProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .tools
-- `root0` — .selectedId
-- `root0` — .onSelect
-- `root0` — .extras
-- `root0` — .orientation
-- `root0` — .className
+- `props` — Component props (see {@link DrawingToolbarProps}).
 
 ## Injection Notes
 
@@ -91,3 +107,19 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- `tools` is REQUIRED by the type — always pass your own list, with
+  `label` already translated via your `t()` call (labels feed each
+  button's `aria-label` and `title` verbatim).
+- The toolbar's own aria-label resolves through `t('drawingToolbar.label')`
+  with an English fallback; companion locale bond:
+  `@molecule/app-locales-drawing-toolbar`.
+- When a tool has no `icon`, the first character of `label` is shown.
+- `extras` renders after the tool buttons — drop in color pickers or
+  stroke-width controls.
+- Buttons come from `@molecule/app-ui-react`; requires a wired ClassMap
+  bond and the app I18nProvider (standard molecule app setup).
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-drawing-toolbar`.

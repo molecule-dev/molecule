@@ -2,7 +2,7 @@ import { type JSX, useMemo } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface DiffViewerProps {
+export interface DiffViewerProps {
   /** Original text. */
   before: string
   /** New text. */
@@ -79,13 +79,7 @@ const SIGN = { add: '+', remove: '-', context: ' ' } as const
  * in megabytes for simple diffs.
  *
  * For large diffs (10k+ lines), wrap with virtualization upstream.
- * @param root0
- * @param root0.before
- * @param root0.after
- * @param root0.mode
- * @param root0.showLineNumbers
- * @param root0.filename
- * @param root0.className
+ * @param props - Component props (see {@link DiffViewerProps}).
  */
 export function DiffViewer({
   before,

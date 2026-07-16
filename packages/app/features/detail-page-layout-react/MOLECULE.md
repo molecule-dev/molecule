@@ -2,16 +2,19 @@
 
 React detail-page layout scaffold.
 
-Exports `<DetailPageLayout>` — breadcrumb + top bar + [main column + optional sidebar].
+Exports `<DetailPageLayout>` — breadcrumb + top bar + [main column +
+optional sidebar]. All regions are ReactNode slots.
 
 ## Quick Start
 
 ```tsx
 import { DetailPageLayout } from '@molecule/app-detail-page-layout-react'
+import { Breadcrumb } from '@molecule/app-breadcrumb-react'
+import { DetailHeader } from '@molecule/app-detail-header-react'
 
 <DetailPageLayout
   breadcrumb={<Breadcrumb items={crumbs} />}
-  topBar={<PageTitle title={recipe.title} actions={<EditButton />} />}
+  topBar={<DetailHeader title={recipe.title} actions={editButton} sticky />}
   main={<RecipeSections recipe={recipe} />}
   sidebar={<RelatedRecipes ids={recipe.relatedIds} />}
   sidebarPosition="right"
@@ -31,9 +34,34 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `DetailPageLayoutProps`
+
+```typescript
+interface DetailPageLayoutProps {
+  /** Breadcrumb rendered above everything. */
+  breadcrumb?: ReactNode
+  /** Sticky top bar — title, status, actions. */
+  topBar?: ReactNode
+  /** Main content column (usually stacked cards / sections). */
+  main: ReactNode
+  /** Optional sidebar column (related items, metadata cards). */
+  sidebar?: ReactNode
+  /** Sidebar position — `'right'` default or `'left'`. */
+  sidebarPosition?: 'left' | 'right'
+  /** Sidebar width preset. Defaults to `'md'`. */
+  sidebarWidth?: 'sm' | 'md' | 'lg'
+  /** Extra classes on the outer wrapper. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
 ### Functions
 
-#### `DetailPageLayout(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `DetailPageLayout(props)`
 
 Two- or three-row detail-page scaffold.
 
@@ -54,15 +82,7 @@ function DetailPageLayout({
 }: DetailPageLayoutProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .breadcrumb
-- `root0` — .topBar
-- `root0` — .main
-- `root0` — .sidebar
-- `root0` — .sidebarPosition
-- `root0` — .sidebarWidth
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link DetailPageLayoutProps}).
 
 ## Injection Notes
 
@@ -80,3 +100,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- The layout itself does NOT make `topBar` sticky — it just stacks the
+  regions. Use a slot component that brings its own stickiness (e.g.
+  `<DetailHeader sticky>`), or wrap your top bar in a sticky container.
+- `sidebarWidth` presets are fixed flex-basis widths: sm = 256px,
+  md = 320px, lg = 384px. There is no built-in responsive collapse —
+  hide the sidebar yourself on narrow viewports if needed.
+- `RecipeSections` and `RelatedRecipes` above are your own app
+  components — any ReactNode works in the slots.
+- Styling resolves through `getClassMap()` — requires a wired ClassMap
+  bond (standard molecule app setup).

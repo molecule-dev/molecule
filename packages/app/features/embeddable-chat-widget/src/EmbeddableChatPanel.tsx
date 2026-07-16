@@ -11,7 +11,7 @@ import type {
   EmbeddableChatWidgetPosition,
 } from './types.js'
 
-interface EmbeddableChatPanelProps {
+export interface EmbeddableChatPanelProps {
   /** Whether the panel is expanded (visible) or collapsed (hidden). */
   visible: boolean
   /** Close handler — collapses back to launcher. */
@@ -29,11 +29,7 @@ interface EmbeddableChatPanelProps {
  * is intentionally storage-agnostic; integrations that want persistence
  * should wrap this with their own resume logic.
  *
- * @param root0 Component props.
- * @param root0.visible Render gate.
- * @param root0.onClose Close-panel callback.
- * @param root0.position Floating corner.
- * @param root0.config Widget config.
+ * @param props - Component props (see {@link EmbeddableChatPanelProps}).
  */
 export function EmbeddableChatPanel({
   visible,
@@ -294,7 +290,7 @@ export function EmbeddableChatPanel({
   )
 }
 
-interface PanelMessageProps {
+export interface PanelMessageProps {
   message: EmbeddableChatMessage
   theme: EmbeddableChatWidgetConfig['theme']
 }
@@ -303,9 +299,7 @@ interface PanelMessageProps {
  * Single message bubble inside the panel transcript. Self-contained
  * styles so the widget doesn't depend on the host page's CSS.
  *
- * @param root0 Props.
- * @param root0.message The message to render.
- * @param root0.theme Theme overrides.
+ * @param props - Component props (see {@link EmbeddableChatPanelProps}).
  */
 function PanelMessage({ message, theme }: PanelMessageProps): JSX.Element {
   const isSelf = message.role === 'user'
@@ -337,8 +331,7 @@ function PanelMessage({ message, theme }: PanelMessageProps): JSX.Element {
  * Inline three-dot typing indicator, scoped to the widget so it never
  * collides with anything on the host page.
  *
- * @param root0 Props.
- * @param root0.label Accessible label.
+ * @param props - Component props (see {@link EmbeddableChatPanelProps}).
  */
 function PanelTyping({ label }: { label: string }): JSX.Element {
   const dotStyle = (delay: number): CSSProperties => ({

@@ -15,7 +15,7 @@ interface SegmentedControlOption<T extends string> {
   dataMolId?: string
 }
 
-interface SegmentedControlProps<T extends string> {
+export interface SegmentedControlProps<T extends string> {
   options: SegmentedControlOption<T>[]
   value: T
   onChange: (next: T) => void

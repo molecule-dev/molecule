@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface EditorLayoutProps {
+export interface EditorLayoutProps {
   /** Sticky top bar — typically title + save/publish buttons + status indicator. */
   topBar: ReactNode
   /** Main editing canvas (wysiwyg, drawable area, form, code editor). */
@@ -25,14 +25,7 @@ interface EditorLayoutProps {
  *
  * Used by blog post editors, product-listing editors, chatbot flow
  * editors, design canvases, etc.
- * @param root0
- * @param root0.topBar
- * @param root0.canvas
- * @param root0.sidePanel
- * @param root0.sidePanelPosition
- * @param root0.sidePanelOpen
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link EditorLayoutProps}).
  */
 export function EditorLayout({
   topBar,

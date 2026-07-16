@@ -4,7 +4,7 @@ import { EmbeddableChatLauncher } from './EmbeddableChatLauncher.js'
 import { EmbeddableChatPanel } from './EmbeddableChatPanel.js'
 import type { EmbeddableChatWidgetConfig } from './types.js'
 
-interface EmbeddableChatWidgetProps {
+export interface EmbeddableChatWidgetProps {
   /** Widget configuration. */
   config: EmbeddableChatWidgetConfig
   /** Optional initial expanded state (default: collapsed). */
@@ -21,9 +21,7 @@ interface EmbeddableChatWidgetProps {
  * molecule stylesheet. Pair with `@molecule/app-locales-embeddable-chat-widget`
  * for translations.
  *
- * @param root0 Component props.
- * @param root0.config Widget configuration.
- * @param root0.defaultOpen Whether the panel starts expanded.
+ * @param props - Component props (see {@link EmbeddableChatWidgetProps}).
  */
 export function EmbeddableChatWidget({
   config,

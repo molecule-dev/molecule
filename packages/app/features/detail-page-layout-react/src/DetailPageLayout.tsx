@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface DetailPageLayoutProps {
+export interface DetailPageLayoutProps {
   /** Breadcrumb rendered above everything. */
   breadcrumb?: ReactNode
   /** Sticky top bar — title, status, actions. */
@@ -29,15 +29,7 @@ const SIDEBAR_WIDTH = { sm: 64, md: 80, lg: 96 } as const
  * Layout: breadcrumb (optional), top bar (optional sticky), two-column
  * body with a main region and an optional sidebar on either side.
  * Apps fill the slots with their own cards/sections.
- * @param root0
- * @param root0.breadcrumb
- * @param root0.topBar
- * @param root0.main
- * @param root0.sidebar
- * @param root0.sidebarPosition
- * @param root0.sidebarWidth
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link DetailPageLayoutProps}).
  */
 export function DetailPageLayout({
   breadcrumb,

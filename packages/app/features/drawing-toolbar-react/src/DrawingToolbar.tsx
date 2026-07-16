@@ -11,7 +11,7 @@ export interface DrawingTool {
   icon?: ReactNode
 }
 
-interface DrawingToolbarProps {
+export interface DrawingToolbarProps {
   /** Tools to render. */
   tools: DrawingTool[]
   /** Currently selected tool id. */
@@ -41,13 +41,7 @@ const DEFAULT_TOOLS: DrawingTool[] = [
  * Whiteboard / canvas / annotation tool selector. Defaults to a
  * standard set of tools (select, rectangle, ellipse, arrow, text,
  * sticky, pen, eraser) but apps can pass any list.
- * @param root0
- * @param root0.tools
- * @param root0.selectedId
- * @param root0.onSelect
- * @param root0.extras
- * @param root0.orientation
- * @param root0.className
+ * @param props - Component props (see {@link DrawingToolbarProps}).
  */
 export function DrawingToolbar({
   tools = DEFAULT_TOOLS,

@@ -14,12 +14,13 @@
  * @example
  * ```tsx
  * import { EmptyState, CtaCard } from '@molecule/app-empty-state-react'
+ * import { Button, Icon } from '@molecule/app-ui-react'
  *
  * // Centred empty-state for a list with no items
  * <EmptyState
  *   icon={<Icon name="mail" size={40} />}
- *   title="No messages yet"
- *   description="When you receive messages they will appear here."
+ *   title={t('messages.empty.title', {}, { defaultValue: 'No messages yet' })}
+ *   description={t('messages.empty.description', {}, { defaultValue: 'When you receive messages they will appear here.' })}
  *   action={<Button onClick={() => openCompose()}>Send one</Button>}
  * />
  *
@@ -30,6 +31,20 @@
  *   action={<Button variant="solid">Connect</Button>}
  * />
  * ```
+ *
+ * @remarks
+ * - **Name collision:** `@molecule/app-ui-react` also exports an
+ *   `EmptyState` (the ClassMap-token variant driven by `cm.emptyState*`).
+ *   Use THAT one for plain framework-styled empty states; use THIS
+ *   package when you want the circular icon badge
+ *   (`iconWrapperClassName`), per-brand chrome via `className`, a
+ *   `dataMolId`, or the companion `<CtaCard>`. If you import both
+ *   packages, alias one import to avoid the clash.
+ * - All text arrives via props — translate with your `t()` calls; this
+ *   package has no locale bond of its own.
+ * - Styling resolves through `getClassMap()` — requires a wired ClassMap
+ *   bond (standard molecule app setup).
+ *
  * @module
  */
 
