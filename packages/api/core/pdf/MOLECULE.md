@@ -405,3 +405,31 @@ Peer dependencies:
   and avoid holding many large PDFs in memory at once.
 - HTML assembled from user input is an injection surface — escape interpolated values
   before `fromHTML`, or a malicious string can forge/restyle document content.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual documents (invoice, report, receipt,
+contract) and check every box off one by one. A box you can't check is an
+integration bug to fix — not a skip:
+- [ ] Every document the app generates has a working Download/Export control
+  that returns a REAL PDF — not an HTML error page or a JSON-stringified
+  Buffer. Inspect the actual response: `Content-Type` is `application/pdf`
+  and the body's first bytes are the `%PDF` magic (hex `25 50 44 46`). Fetch
+  the endpoint and check both — a body that starts with `<` or `{` is a
+  failure dressed up as a download.
+- [ ] Opening the downloaded PDF shows the record's real values (names, line
+  items, dates, totals) — not placeholder/template text or a blank page.
+- [ ] Edit a record and re-export: the new PDF reflects the changed values,
+  and two different records produce two visibly different PDFs (not the same
+  cached bytes for every id).
+- [ ] If the app shows page previews or reads document info, it feature-detects
+  (`getProvider().toImages` / `.getMetadata`) or bonds a provider that supports
+  them — both are OPTIONAL and THROW on bonds that lack them (e.g. PDFKit), so a
+  preview built on an unsupporting bond errors at runtime, not compile time.
+- [ ] Styled output (CSS layout, backgrounds, web fonts) actually renders —
+  which requires a browser-engine bond (Puppeteer). On PDFKit the same HTML
+  collapses to a plain-text approximation; if the design matters, that's the wrong bond.
+- [ ] Export is authorized: a signed-in user cannot fetch another user's
+  document by guessing or incrementing an id — the endpoint scopes every PDF to
+  its owner (a guessed id returns 403/404, never someone else's invoice).

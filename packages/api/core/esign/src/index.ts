@@ -55,6 +55,33 @@
  *   server-side secrets resolved through the secrets registry — never
  *   hardcoded or client-visible.
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] The send-for-signature flow creates a real request: picking a document
+ *   and adding signer(s) in the UI calls `createSignatureRequest`, the app
+ *   persists the returned `SignatureRequest.id` on its record, and the document
+ *   shows as `awaiting_signatures` — NOT marked signed at creation.
+ * - [ ] The signer invitation actually leaves the app. The sandbox CAPTURES the
+ *   outbound vendor invitation instead of emailing — read it with the
+ *   `read_activity` tool (filter type 'email'); the signing link is in its
+ *   payload. Never mock the flow or expect a real inbox.
+ * - [ ] COUNTERPARTY (the signing itself completes out-of-band on the vendor's
+ *   hosted site, which can't be driven in-sandbox): verify completion against
+ *   the app's OWN stored envelope state — deliver a `signature_request_all_signed`
+ *   event to the webhook endpoint (or poll `getSignatureRequest`) and confirm the
+ *   document flips `awaiting_signatures` → `signed` and the signer flips
+ *   `pending` → `signed`. Observe the transition, never guess it.
+ * - [ ] The signed PDF is retrievable only after completion: `getSignedDocument`
+ *   returns the document once status is `signed`, and the UI download is gated on
+ *   that status (unavailable/denied while the request is still awaiting signatures).
+ * - [ ] `processWebhook` rejects a forged callback — a bad signature THROWS and
+ *   becomes a 4xx with no state change; a `type: 'unknown'` event is ignored (2xx).
+ * - [ ] AUTHORIZATION — only the request owner / a party to the document can view
+ *   its status or download the signed PDF; no endpoint lets a caller fetch or act
+ *   on someone else's `SignatureRequest.id` by guessing it.
+ *
  * @module
  */
 

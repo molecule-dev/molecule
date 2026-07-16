@@ -36,6 +36,28 @@
  *   and readable by anyone who can query the trail — no secrets, tokens, or raw PII.
  * - `query()` paginates with 1-based `page` + `perPage` and returns
  *   `PaginatedResult` (`data`, `total`, `page`, `perPage`).
+ *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] Every auditable action the app defines (login, permission/role change,
+ *   delete, export, settings change) performed in the UI actually WRITES an
+ *   entry — `log()` is called from the handler that does the work, not merely
+ *   defined. Confirm the entry exists via the audit view or a `query()`.
+ * - [ ] Each written entry captures the real action + resource (+ resourceId)
+ *   and a server-assigned timestamp — not a placeholder or the wrong resource.
+ * - [ ] The recorded `actor` is the authenticated user from the server session:
+ *   two different signed-in users produce two different actors, never a
+ *   hardcoded/anonymous/client-supplied id.
+ * - [ ] The audit log view (if the app exposes one) lists entries with correct
+ *   details, and filtering by actor/action/resource/date range (`query`)
+ *   narrows the results as expected.
+ * - [ ] Reading or exporting the trail (`query`/`auditExport`) is admin-only — a
+ *   normal user gets 403 / no UI and cannot read everyone else's activity.
+ * - [ ] History is append-only / tamper-evident: no endpoint edits or deletes a
+ *   past entry to cover tracks (the interface exposes only log/query/export) —
+ *   try to mutate one and confirm there is no route.
  */
 
 export * from './browser-guard.js'
