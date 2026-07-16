@@ -187,12 +187,23 @@ describe('isValidGlob', () => {
     expect(isValidGlob('my-file_name.txt')).toBe(true)
   })
 
-  it('rejects shell metacharacters', () => {
+  it('accepts bracket/paren glob chars for Next.js App Router route dirs', () => {
+    expect(isValidGlob('[id]')).toBe(true)
+    expect(isValidGlob('[...slug]')).toBe(true)
+    expect(isValidGlob('(group)')).toBe(true)
+    expect(isValidGlob('[[...optional]]')).toBe(true)
+    expect(isValidGlob('app/invoices/[id]/*.tsx')).toBe(true)
+    expect(isValidGlob('app/(marketing)/**/*.ts')).toBe(true)
+  })
+
+  it('rejects shell metacharacters (incl. the ones that make () dangerous)', () => {
     expect(isValidGlob('file; rm -rf /')).toBe(false)
     expect(isValidGlob('file && rm')).toBe(false)
     expect(isValidGlob('file | grep')).toBe(false)
     expect(isValidGlob('file > /tmp/x')).toBe(false)
-    expect(isValidGlob('$(rm)')).toBe(false)
+    expect(isValidGlob('$(rm)')).toBe(false) // $ still rejected, so no command substitution
+    expect(isValidGlob('`rm`')).toBe(false) // backtick still rejected
+    expect(isValidGlob('a{b,c}')).toBe(false) // braces not enabled (find has no brace expansion)
   })
 
   it('rejects whitespace', () => {

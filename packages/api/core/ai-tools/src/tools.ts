@@ -396,7 +396,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
       if (include && !isValidGlob(include))
         return {
-          error: 'Invalid include glob pattern. Only alphanumeric, *, ?, ., _, -, / allowed.',
+          error: 'Invalid include glob pattern. Allowed: alphanumeric and * ? . _ - / [ ] ( ).',
         }
 
       const symlinkErr = await checkSymlink(path)
@@ -438,7 +438,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             'find_files requires a non-empty "pattern" argument (a filename or glob, e.g. "*.tsx" or "index.ts").',
         }
       if (!isValidGlob(pattern))
-        return { error: 'Invalid pattern. Only alphanumeric, *, ?, ., _, -, / allowed.' }
+        return {
+          error:
+            'Invalid pattern. Allowed: alphanumeric and * ? . _ - / [ ] ( ) ' +
+            '(brackets/parens support Next.js route dirs like [id] or (group)).',
+        }
 
       const symlinkErr = await checkSymlink(path)
       if (symlinkErr) return { error: symlinkErr }

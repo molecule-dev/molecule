@@ -147,14 +147,23 @@ export function resolvePath(path: string, projectRoot: string): string {
 }
 
 /**
- * Validate that a glob/include pattern is safe (no shell metacharacters).
- * Only allows alphanumeric, *, ?, ., _, -, / characters.
+ * Validate that a glob/include pattern is safe (no shell metacharacters that could
+ * inject). Allows alphanumeric, `* ? . _ - /` and the bracket/paren glob chars `[] ()`.
+ *
+ * The brackets/parens matter for real frameworks: Next.js App Router names route
+ * directories `[id]`, `[...slug]`, `(group)`, `[[...optional]]`, so without them the
+ * executor cannot `find_files`/`search_files` its own routes on any Next.js project — a
+ * hard block observed on live imports. They are injection-safe here because every caller
+ * passes the pattern through `shellQuote` before it reaches `find -name`/`grep --include`,
+ * where inside single quotes `[]()` are literal (a subshell `(...)` only starts UNquoted);
+ * to the glob engine `[abc]` is a normal character class. The genuinely dangerous
+ * metacharacters (`; | & $ \` > < \n` space) remain disallowed.
  *
  * @param pattern - User-supplied glob fragment for search/list operations.
  * @returns `true` when the pattern contains only allowed characters.
  */
 export function isValidGlob(pattern: string): boolean {
-  return /^[a-zA-Z0-9*?._\-/]+$/.test(pattern)
+  return /^[A-Za-z0-9*?._/()[\]-]+$/.test(pattern)
 }
 
 /**
