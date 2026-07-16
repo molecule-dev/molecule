@@ -20,6 +20,21 @@
  * const fast = await renderCompiled(compiled, { name: 'Fast' })
  * ```
  *
+ * @remarks
+ * - **User input goes in the DATA argument, never into the template string.** A template is
+ *   CODE to the engine (expressions, helpers, partials) — concatenating user text into it is
+ *   template injection. `render(trustedTemplate, userData)` is the safe shape.
+ * - Interpolated values are HTML-escaped by default in the HTML bonds; raw interpolation
+ *   (e.g. Handlebars triple-stash, or a bond's `escape: false` config) re-opens XSS —
+ *   reserve it for markup you generated server-side.
+ * - Register helpers/partials BEFORE rendering templates that use them — do
+ *   `registerHelper`/`registerPartial` at startup alongside `setProvider`, not lazily in
+ *   handlers.
+ * - `compile()` returns an opaque {@link CompiledTemplate} — reuse it for hot paths (e.g.
+ *   an email loop) instead of re-parsing the same template per render.
+ * - This package renders STRINGS; pair it with the emails/pdf packages for delivery (e.g.
+ *   the MJML bond turns email markup into inline-styled HTML for `sendMail`).
+ *
  * @module
  */
 

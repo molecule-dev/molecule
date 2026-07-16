@@ -429,6 +429,17 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 
+- **`table`/`field`/`dateField` are PHYSICAL storage names** — the table/column names your
+  migrations created (typically snake_case, e.g. `created_at`), not model property names.
+  A camelCase field that "looks right" returns empty or errored results.
+- **Nothing is scoped automatically.** Every user-facing report MUST carry a `filters`
+  entry on the owning column (e.g. `{ field: 'user_id', operator: '=', value: userId }`)
+  or one user sees another's numbers.
+- The reference bond (`@molecule/api-reporting-database`) executes through the bonded
+  database — the database bond must be wired before any reporting call runs.
+- Filter VALUES are parameterized and identifiers sanitized by the reference bond, but
+  never pass user input as a `table`/`field`/`alias` name — only as filter values.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

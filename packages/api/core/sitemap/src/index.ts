@@ -25,6 +25,21 @@
  * })
  * ```
  *
+ * @remarks
+ * - **`generate()` DRAINS the accumulated URL list** — the provider resets its internal list
+ *   after each call, so a second `generate()` returns an EMPTY sitemap. Treat
+ *   addUrl→generate as one batch: rebuild the list (re-`addUrl` every current URL, e.g. from
+ *   the database) inside the handler or job that serves/regenerates the sitemap. Never
+ *   `addUrl` once at startup and `generate()` per request.
+ * - `addUrl` accumulates GLOBAL provider state — build the full list and generate in ONE
+ *   place; concurrent builders interleave into each other's output.
+ * - `loc`/`link` values must be ABSOLUTE URLs (scheme + host). Serve the generated XML with
+ *   an XML content type from a stable path (e.g. `/sitemap.xml`); past the sitemap-protocol
+ *   cap (50,000 URLs per file) split into multiple sitemaps referenced via
+ *   `generateIndex()`.
+ * - RSS/Atom feeds are UNAUTHENTICATED surfaces — include only content the anonymous public
+ *   may see.
+ *
  * @module
  */
 

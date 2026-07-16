@@ -9,14 +9,15 @@ Defines the standard interface for SMS messaging providers
 
 ```typescript
 import { setProvider, send, getStatus } from '@molecule/api-sms'
+import { createProvider } from '@molecule/api-sms-twilio' // bonds export createProvider(), not a prebuilt provider
 
-// Bond a provider at startup
-setProvider(twilioProvider)
+// Bond a provider at startup (credentials come from env — see the bond's docs)
+setProvider(createProvider())
 
 // Send a message
 const result = await send('+1234567890', 'Hello from Molecule!')
 
-// Check delivery status
+// Check delivery status (provider-dependent — see @remarks)
 const status = await getStatus(result.id)
 console.log(status.status) // 'delivered'
 ```
@@ -253,6 +254,12 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 
+)
+const status = await getStatus(result.id)
+console.log(status.status) // 'delivered'
+```
+
+@remarks
 Delivery-status polling (`getStatus()`) is PROVIDER-DEPENDENT, not a
 universal capability — the Quick Start's `getStatus()` call is not safe to
 assume for every bonded provider:
