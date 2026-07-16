@@ -454,3 +454,35 @@ middleware) and stamps `ownerId` from it — never accept an ownerId from the
 request body. `update`/`del` and sub-resource writes reject any caller
 whose session userId ≠ `ownerId`; legacy rows with `ownerId: null` are
 immutable through the API.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Creating a listing persists its real fields — `name`, `type`
+  (apartment/house/condo/townhouse/hotel/commercial/land), and full address
+  (`addressLine1`, `city`, `region`, `postalCode`, `countryCode`) — and the
+  saved listing shows them back on its detail page; a property's units carry
+  their specs (`bedrooms`, `bathrooms`, `areaSquareMetres`, `maxOccupancy`)
+  and those render as real numbers, not placeholders. (There is no price
+  field on this resource — don't invent one; if the app charges rent, model
+  it explicitly and render its own currency/amount, never a stub.)
+- [ ] A new listing defaults to `draft` and does NOT show in the public
+  listings until its `status` is set to `active`; publish it and it appears,
+  then flip it back to draft/inactive/archived and it disappears from the
+  public list AND 404s by id for a signed-out visitor (existence not leaked).
+- [ ] Search/filter narrows to the query, not everything: a `type`, `city`,
+  or `status` filter (the real `list` params) returns ONLY matching `active`
+  listings — confirm a non-matching listing is absent and a matching one is
+  present, so results reflect the filter rather than the whole catalog.
+- [ ] Photos render from the app's own uploads (`coverImageUrl` plus a
+  property's `property_photos`), served by this app's storage — not a
+  hotlinked external URL that can break; a listing with no photo shows a real
+  placeholder, not a broken-image icon.
+- [ ] Authorization: a signed-out visitor can browse and read `active`
+  listings, but create/edit/delete require a session (401 without one) and
+  only the LISTING OWNER may mutate their own row — a non-owner's edit or
+  delete is refused (403), and `ownerId` is stamped from the session, never
+  accepted from the request body. No draft/inactive/archived listing leaks to
+  a non-owner by id.

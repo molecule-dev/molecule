@@ -29,6 +29,44 @@
  * Missing it surfaces as `relation "payments" does not exist` on the first
  * billing call — nothing at runtime creates the table.
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual billing screens/flows, and check every box
+ * off one by one. A box you can't check is an integration bug to fix — not a
+ * skip. This resource RECORDS a server-verified provider result (a receipt or
+ * subscription id verified via `@molecule/api-payments`) and resolves the plan
+ * — it does NOT charge cards and has no amount/status column, so drive the
+ * provider's real verify path; never fabricate a record or a status:
+ * - [ ] A completed purchase/subscribe flow reflects in the account: the paid
+ *   tier's capabilities unlock and a payment record binds to THIS user with the
+ *   right platformKey (stripe/apple/google), productId/priceId, and
+ *   transactionId — and it appears in the user's own billing/subscription view.
+ * - [ ] The plan and price shown match what was actually purchased: the tier is
+ *   resolved from the VERIFIED product/price id against the registered plans,
+ *   and any amount/currency shown comes from that plan (its `price`) or the
+ *   provider's verified `data` — never a client-sent field. An amount renders
+ *   formatted with its currency, not as a raw smallest-unit integer.
+ * - [ ] Status follows the provider, not the client: a verified payment grants
+ *   the plan (pending is granted only once it succeeds), and a provider
+ *   cancellation/refund/expiry webhook (`handlePaymentNotification`) REVOKES it
+ *   so the user loses premium. No request field (`planKey`, `isPro`, a bare
+ *   `subscriptionId`) lets the client set or keep an active/paid status.
+ * - [ ] Replay and re-complete guard: one receipt/subscription transaction
+ *   binds to exactly ONE account (UNIQUE(platformKey, transactionId),
+ *   first-claim-wins) — replaying the same receipt into a second account is
+ *   REJECTED, re-verifying your own is idempotent (no double grant), and a
+ *   refunded/canceled entitlement can't be reclaimed without a NEW verified
+ *   payment.
+ * - [ ] Authorization — a user sees only THEIR OWN payments: guessing another
+ *   user's payment/transaction id returns nothing (records scope by userId), and
+ *   NO endpoint lets a user mark their own payment succeeded/refunded or set
+ *   their own plan/isPro to spoof having paid — only the verified provider
+ *   result grants the tier.
+ * - [ ] The provider secret (e.g. STRIPE_SECRET_KEY / APPLE_SHARED_SECRET /
+ *   GOOGLE_API_SERVICE_KEY_OBJECT) is used only server-side for verification and
+ *   never reaches the browser bundle or a client request — this resource is
+ *   SERVER-ONLY.
+ *
  * @module `@molecule/api-resource-payment`
  */
 

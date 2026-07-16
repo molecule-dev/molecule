@@ -81,6 +81,43 @@
  * `resource-share-links`. An mlcl-scaffolded API replays `__setup__/*.sql`
  * automatically on migrate; anywhere else run them once — nothing at runtime
  * creates them.
+ *
+ * @e2e
+ * ACCESS-CONTROL integration checklist — shares ARE the authorization
+ * boundary, so prove each grant admits exactly who it should and no one
+ * else; do not settle for "the CRUD compiled". Drive the real UI (live
+ * preview, no mocks) with TWO signed-in accounts (a resource owner + a
+ * collaborator) plus one signed-out/anonymous session, adapt every item to
+ * this app's actual shareable resource (document, board, project, ...), and
+ * check each box off one by one. A box you can't check is an access-control
+ * bug to fix, never a skip — never mock the check or weaken a role gate to
+ * go green:
+ * - [ ] A grant admits EXACTLY its role and downstream enforcement honors
+ *   it: share the resource with account B as 'viewer' -> B can open and read
+ *   it, but every edit/save action is REFUSED (the resource's own handler
+ *   calls requireRole(..., 'editor') and it throws forbidden); update/re-share
+ *   B to 'editor' -> B can now edit. No role ever grants above its rank
+ *   (viewer < commenter < editor < owner).
+ * - [ ] A public share LINK admits its embedded role to whoever holds the
+ *   slug: create a link, open its .../resource-share-links/resolve/:slug URL
+ *   in the signed-out session -> access is granted at that role, scoped to
+ *   that ONE resource only. The slug is the sole credential and is unguessable
+ *   (32 random hex chars) — a made-up or altered slug resolves to 404.
+ * - [ ] REVOKING cuts access off immediately: revoke B's grant -> B's next
+ *   read/edit is refused with no stale window; revoke a link -> its slug now
+ *   resolves to 404 for everyone, on the very next request.
+ * - [ ] EXPIRY is enforced server-side: once a grant or link is past its
+ *   expiresAt, effective role resolves to null / the link resolves to 404,
+ *   exactly as if revoked — never rely on the client hiding an expired share.
+ * - [ ] AUTHORIZATION is default-DENY and owner-only: a caller who does not
+ *   administer the resource gets 403 when creating/updating/revoking a share
+ *   or link on it, so no user can grant THEMSELVES access to a resource they
+ *   don't own. A plain viewer/editor sharee cannot escalate — they can't
+ *   re-share at a higher role or hand grants to others (the ownership gate
+ *   refuses them), only an owner/admin can.
+ * - [ ] The sharer is the SESSION user, server-set: a new grant's grantedBy
+ *   (and a link's createdBy) is the authenticated caller's id from
+ *   res.locals.session — never a value trusted from the request body.
  */
 
 export * from './browser-guard.js'

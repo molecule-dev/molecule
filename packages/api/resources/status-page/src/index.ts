@@ -5,6 +5,46 @@
  * updates, health-check history, and uptime windows. The read endpoints power
  * a public status page; the mutation endpoints are for operators.
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual status-page screens/flows, and check every
+ * box off one by one. A box you can't check is an integration bug to fix — not
+ * a skip. Verify BEHAVIOR and the public/admin split, not just that CRUD
+ * compiles:
+ * - [ ] The PUBLIC status page renders every monitored service (component)
+ *   with its current status and an OVERALL banner that is DERIVED, never
+ *   hardcoded: GET /status returns `operational` when no enabled service's
+ *   latest `check` is `down` or `degraded` ("All systems operational"), `down`
+ *   if ANY latest check is `down`, else `degraded` if any is `degraded` — the
+ *   banner reflects the WORST service, and a service with no check reads
+ *   `unknown` (which never turns the banner red). GET /status/services lists
+ *   each service with its latest check.
+ * - [ ] An admin creating an INCIDENT (POST /status/incidents with serviceId,
+ *   title, severity minor|major|critical, status `investigating`, startedAt)
+ *   persists it and it shows on the public GET /status/incidents. The affected
+ *   service reads down/degraded on the page because its latest `check` says so
+ *   (checks are monitor-written, never typed in), so the overall banner goes
+ *   non-green while the incident is open.
+ * - [ ] Updating the incident (PATCH /status/incidents/:id) advances its
+ *   timeline through the real lifecycle investigating -> identified ->
+ *   monitoring -> resolved (bumping updatedAt), and each stage shows on the
+ *   public page. Marking it `resolved` (with resolvedAt) moves it to history —
+ *   the public list filtered `?status=resolved` includes it while the active
+ *   incidents drop it — and once the affected service's latest check returns
+ *   to `up`, GET /status recovers to "All systems operational" (the banner
+ *   tracks live check state, so a still-down check keeps it red).
+ * - [ ] AUTHORIZATION — reads are PUBLIC: with NO session, every GET (/status,
+ *   /status/services, /status/services/:id, /status/incidents, /status/uptime)
+ *   returns 200 — the status page is meant to be seen without signing in.
+ * - [ ] AUTHORIZATION — writes are ADMIN-ONLY, deny by default: every mutation
+ *   (POST/PATCH/DELETE /status/services(/:id), POST/PATCH
+ *   /status/incidents(/:id)) is refused for an anonymous caller (401) and for
+ *   a normal signed-in user with no admin claim / `manage status` grant (403),
+ *   and nothing changes — enforced twice (the `requireAdmin` route middleware
+ *   AND the in-handler `isStatusAdmin` re-check). A non-admin has NO path to
+ *   fabricate an outage, delete a service, or post a fake incident, and no
+ *   endpoint sets a service up/down at all (that is monitor-written).
+ *
  * @module
  * @example
  * ```typescript

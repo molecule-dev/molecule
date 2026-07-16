@@ -65,6 +65,41 @@
  * Tables: `src/__setup__/trashedItems.sql` creates `trashedItems`. An
  * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
  * anywhere else run it once — nothing at runtime creates them.
+ *
+ * @e2e
+ * Soft-delete lifecycle checklist — drive the real UI (live preview, no
+ * mocks), adapt each item to this app's actual delete / Trash / restore
+ * screens, and check every box off one by one. A box you can't check is a
+ * bug to fix — not a skip:
+ * - [ ] Soft-delete tombstones, it does not vanish: deleting an item in the
+ *   UI removes it from the normal/active view (the parent's list, search, and
+ *   any counts) yet it appears in the Trash view — the underlying trash row
+ *   still exists with `trashedAt` set and `restoredAt`/`purgedAt` null.
+ *   Confirm the same item is absent from active AND present in trash.
+ * - [ ] Restore returns it verbatim: restoring from the Trash view re-creates
+ *   the parent from its snapshot exactly as it was (same fields/content) and
+ *   removes it from Trash (`restoredAt`/`restoredBy` get stamped, so the
+ *   active-only trash list and count drop it). Restoring a row already
+ *   restored or purged is refused (409), never silently duplicated.
+ * - [ ] Purge / empty-trash is distinct from soft-delete and irreversible:
+ *   permanently deleting a trashed item (or emptying trash) stamps `purgedAt`
+ *   / removes the row — it leaves BOTH the active view and the Trash view, and
+ *   a later restore is refused (409 already-resolved, or 404 once the row is
+ *   hard-removed). Soft-delete stays recoverable; purge does not.
+ * - [ ] Retention window (only if the app sets one): items trashed with a
+ *   `ttlMs` get an `expiresAt`; once past it they become eligible for
+ *   auto-purge (`purgeExpired`) and stop being restorable, matching the stated
+ *   policy (e.g. "kept 30 days"). Skip only if the app defines no window.
+ * - [ ] No deleted data leaks as active: a soft-deleted item never shows in
+ *   normal listings, search results, or counts/badges — only in Trash. Verify
+ *   the active count drops by exactly one on delete and the item is unfindable
+ *   via search until it is restored.
+ * - [ ] Authorization — each user sees and restores/purges only THEIR OWN
+ *   trash: signed in as a second user, the Trash view shows none of the first
+ *   user's items, and guessing another user's `trashId` into read / restore /
+ *   purge returns 404 (existence is not leaked — not 403). The owner is taken
+ *   from the session (any client-supplied `userId` is ignored), so a restored
+ *   item returns to its original owner, never the caller.
  */
 
 export * from './browser-guard.js'
