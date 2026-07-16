@@ -9,7 +9,8 @@ import { Button } from '@molecule/app-ui-react'
  */
 export type SocialPlatform = 'twitter' | 'x' | 'linkedin' | 'facebook' | 'reddit' | 'email' | 'copy'
 
-interface SocialShareButtonsProps {
+/** Props for the {@link SocialShareButtons} component. */
+export interface SocialShareButtonsProps {
   /** URL to share. */
   url: string
   /** Optional share text / title. */
@@ -65,12 +66,7 @@ function shareUrl(platform: SocialPlatform, url: string, title?: string): string
  * tab. `'copy'` copies the URL to the clipboard with "Copied!"
  * feedback. Keep the component itself cosmetic-only; apps override
  * icons via `className` on the wrapping element.
- * @param root0
- * @param root0.url
- * @param root0.title
- * @param root0.platforms
- * @param root0.size
- * @param root0.className
+ * @param props - Component props (see {@link SocialShareButtonsProps}).
  */
 export function SocialShareButtons({
   url,

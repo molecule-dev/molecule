@@ -1,15 +1,26 @@
 # @molecule/app-slide-thumbnail-react
 
 Slide thumbnail tile for presentation editors / slideshow navigators.
+Renders a fixed-width clickable tile with an index badge and an
+"active" outline; the app supplies the scaled-down slide preview as
+`children`.
 
-Exports `<SlideThumbnail>`.
+Props: `index` (1-based, required), `active`, `onClick`,
+`aspect` (`'16/9' | '4/3' | '1/1'`, default `'16/9'`), `width` (px,
+default 160), `className`, `children`.
 
 ## Quick Start
 
 ```tsx
 import { SlideThumbnail } from '@molecule/app-slide-thumbnail-react'
 
-export function SlideStrip({ slides, activeIndex, onSelect }) {
+interface Slide { id: string; title: string }
+
+function SlideStrip({ slides, activeIndex, onSelect }: {
+  slides: Slide[]
+  activeIndex: number
+  onSelect: (index: number) => void
+}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {slides.map((slide, i) => (
@@ -20,7 +31,7 @@ export function SlideStrip({ slides, activeIndex, onSelect }) {
           onClick={() => onSelect(i)}
           width={160}
         >
-          <SlidePreview slide={slide} />
+          <span>{slide.title}</span>
         </SlideThumbnail>
       ))}
     </div>
@@ -39,9 +50,34 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `SlideThumbnailProps`
+
+Props for the {@link SlideThumbnail} component.
+
+```typescript
+interface SlideThumbnailProps {
+  /** Slide index (1-based). */
+  index: number
+  /** Live preview content (rendered scaled-down). */
+  children?: ReactNode
+  /** Whether the thumbnail represents the active slide. */
+  active?: boolean
+  /** Click handler. */
+  onClick?: () => void
+  /** Optional aspect ratio (defaults to 16/9). */
+  aspect?: '16/9' | '4/3' | '1/1'
+  /** Width in pixels. Defaults to 160. */
+  width?: number
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `SlideThumbnail(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `SlideThumbnail(props)`
 
 Slide thumbnail tile for presentation editors / slideshow navigators.
 Apps render the live scaled-down preview as `children`; this
@@ -60,14 +96,7 @@ function SlideThumbnail({
 }: SlideThumbnailProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .index
-- `root0` — .children
-- `root0` — .active
-- `root0` — .onClick
-- `root0` — .aspect
-- `root0` — .width
-- `root0` — .className
+- `props` — Component props (see {@link SlideThumbnailProps}).
 
 ## Injection Notes
 
@@ -85,3 +114,12 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Requires a wired ClassMap bond (e.g. `@molecule/app-ui-tailwind`) —
+  `getClassMap()` throws before bonding.
+- The tile surface is hardcoded white (`background: '#fff'`) so light
+  slide content stays readable, even in dark themes — render your own
+  themed preview inside `children` if that is wrong for your app.
+- The active outline uses `currentColor`; set a text color on a parent
+  to control it.
+- The index badge aria-label is currently English-only ("Slide N").

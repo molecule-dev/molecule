@@ -4,7 +4,8 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { StatusKind } from './StatusBadge.js'
 
-interface StatusPillProps {
+/** Props for the {@link StatusPill} component. */
+export interface StatusPillProps {
   /** Semantic kind. */
   kind?: StatusKind
   /** Pill label. */
@@ -24,14 +25,12 @@ const DOT_COLOR: Record<StatusKind, string> = {
 }
 
 /**
- * Rounded status pill with an optional leading colored dot.
- * Taller and more visually distinct than `<StatusBadge>` — useful as
- * a primary row indicator in tables and cards.
- * @param root0
- * @param root0.kind
- * @param root0.children
- * @param root0.dot
- * @param root0.className
+ * Rounded status pill with an optional leading colored dot. The pill has
+ * NO background surface of its own — only the dot carries color — so add
+ * a surface via `className` if you need a filled pill. The `neutral` dot
+ * uses `bg-outline`, which is only visible in themes that define an
+ * `outline` color token.
+ * @param props - Component props (see {@link StatusPillProps}).
  */
 export function StatusPill({
   kind = 'neutral',

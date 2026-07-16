@@ -6,7 +6,8 @@ import { Badge } from '@molecule/app-ui-react'
 /** Semantic status kind used to select badge color variants. */
 export type StatusKind = 'success' | 'warning' | 'error' | 'info' | 'neutral'
 
-interface StatusBadgeProps {
+/** Props for the {@link StatusBadge} component. */
+export interface StatusBadgeProps {
   /** Semantic kind — maps to ClassMap badge color variants. */
   kind?: StatusKind
   /** Badge label (usually `t('...')`). */
@@ -17,14 +18,15 @@ interface StatusBadgeProps {
    * Visual appearance variant.
    * - `'ui'` (default) — wraps `<Badge>` from `@molecule/app-ui-react` with
    *   ClassMap-driven coloring. Honors the active ClassMap bond's badge
-   *   styling. Best for apps that customize the `cm.badge()` helper.
-   * - `'uppercase-pill'` — verbatim polished-flagship pattern:
-   *   `px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full`.
-   *   Use this for dashboards / list rows / detail headers in apps that
-   *   match the polished visual style (helpdesk-ticketing, crm,
-   *   online-store, project-management).
-   *
-   * The `kind` prop maps to the same semantic colors in both variants.
+   *   styling and works with any theme. Prefer this variant.
+   * - `'uppercase-pill'` — raw utility pattern
+   *   (`text-[10px] font-black uppercase tracking-widest rounded-full`)
+   *   colored with Material-3 container-token utilities
+   *   (`bg-success-container text-on-success-container`, …). Those tokens
+   *   exist in NO current theme (flagship or minimal scaffold), so this
+   *   variant currently renders a colorless transparent pill everywhere.
+   *   Do not use it until its styling is migrated to ClassMap/theme-backed
+   *   tokens.
    */
   appearance?: 'ui' | 'uppercase-pill'
   /** Extra classes passed through to the rendered element. */
@@ -52,17 +54,12 @@ const KIND_TO_PILL_CLASSES: Record<StatusKind, string> = {
  * Use for "Open / Closed / Pending / Archived" row labels, deal stages,
  * ticket priorities, etc.
  *
- * The `appearance` prop selects between the ClassMap-helper variant
- * (`'ui'`, default) and the polished-flagship inline pattern
- * (`'uppercase-pill'`). Pass `appearance="uppercase-pill"` in dashboard
- * tables and list rows to match crm/helpdesk-ticketing/online-store.
+ * Use the default `appearance="ui"` (ClassMap `<Badge>`-based, works with
+ * any theme). The `'uppercase-pill'` variant relies on Material-3
+ * container tokens that no current theme defines, so it renders without
+ * color everywhere — avoid it until its styling is migrated.
  *
- * @param root0
- * @param root0.kind
- * @param root0.children
- * @param root0.icon
- * @param root0.appearance
- * @param root0.className
+ * @param props - Component props (see {@link StatusBadgeProps}).
  */
 export function StatusBadge({
   kind = 'neutral',

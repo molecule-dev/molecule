@@ -63,6 +63,25 @@ interface StatusGroup {
 }
 ```
 
+#### `StatusSummaryProps`
+
+Props for the {@link StatusSummary} component.
+
+```typescript
+interface StatusSummaryProps {
+  /** Grouped components. */
+  groups: StatusGroup[]
+  /** Overall summary label (auto-derived if omitted). */
+  overallStatus?: ComponentStatus
+  /** Optional header content (last updated time, subscribe button). */
+  header?: ReactNode
+  /** Optional below-the-grid slot — typically a recent-incidents list. */
+  footer?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Types
 
 #### `ComponentStatus`
@@ -80,7 +99,7 @@ type ComponentStatus =
 
 ### Functions
 
-#### `StatusSummary(root0, root0, root0, root0, root0, root0)`
+#### `StatusSummary(props)`
 
 Status-page summary — grouped component list with colored badges and
 an overall banner derived from the worst child status.
@@ -95,12 +114,7 @@ function StatusSummary({
 }: StatusSummaryProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .groups
-- `root0` — .overallStatus
-- `root0` — .header
-- `root0` — .footer
-- `root0` — .className
+- `props` — Component props (see {@link StatusSummaryProps}).
 
 ## Injection Notes
 
@@ -118,3 +132,18 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Must render inside the app's i18n provider and with a ClassMap bond
+  wired (`useTranslation()` / `getClassMap()` throw otherwise).
+- When `overallStatus` is omitted the banner shows the WORST status
+  found across all components (major-outage > partial-outage >
+  degraded > maintenance > operational).
+- Status colors are a fixed hex palette applied via inline styles
+  (green/yellow/orange/red/blue with white text) — they ignore the
+  app theme and cannot be restyled via ClassMap; acceptable for
+  status pages, but know they will not follow a rebrand.
+- Status labels use `status.operational` … `status.maintenance` i18n
+  keys with English fallbacks; no locale bond currently ships these
+  keys, so register your own translations if the app is multilingual.
+- `header` renders inside the overall banner (last-updated stamp,
+  subscribe button); `footer` renders below the grid (incident list).

@@ -2,20 +2,27 @@
 
 React tab-style filter with inline count badges.
 
-Exports `<TabFilter>` — horizontally-scrolling pill-tabs with counts.
+Exports `<TabFilter>` — horizontally-scrolling pill-tabs with counts —
+and the `TabFilterTab` type. Different from `<Tabs>` in
+`@molecule/app-ui-react`: this one surfaces per-tab count badges and
+scrolls horizontally on overflow.
 
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
+
 import { TabFilter } from '@molecule/app-tab-filter-react'
 
-const tabs = [
-  { id: 'all', label: 'All', count: 42 },
-  { id: 'open', label: 'Open', count: 8 },
-  { id: 'closed', label: 'Closed', count: 34 },
-]
-
-<TabFilter tabs={tabs} activeId={activeTab} onChange={setActiveTab} />
+function TicketFilters() {
+  const [activeTab, setActiveTab] = useState('all')
+  const tabs = [
+    { id: 'all', label: 'All', count: 42 },
+    { id: 'open', label: 'Open', count: 8 },
+    { id: 'closed', label: 'Closed', count: 34 },
+  ]
+  return <TabFilter tabs={tabs} activeId={activeTab} onChange={setActiveTab} />
+}
 ```
 
 ## Type
@@ -30,6 +37,32 @@ npm install -D @types/react
 ## API
 
 ### Interfaces
+
+#### `TabFilterProps`
+
+Props for the {@link TabFilter} component.
+
+```typescript
+interface TabFilterProps {
+  /** Tabs to render. */
+  tabs: TabFilterTab[]
+  /** Currently active tab id. */
+  activeId: string
+  /** Called when an enabled tab is clicked. */
+  onChange: (id: string) => void
+  /** Whether to allow the row to scroll horizontally. Defaults to true. */
+  scrollable?: boolean
+  /**
+   * When `true` (default), draws filled-pill backgrounds matching the
+   * polished flagship apps: active = `bg-primary text-on-primary`,
+   * inactive = `bg-surface-container-low hover:bg-surface-container`.
+   * Pass `false` for the older bare-text-only style (no background).
+   */
+  filled?: boolean
+  /** Extra classes. */
+  className?: string
+}
+```
 
 #### `TabFilterTab`
 
@@ -52,7 +85,7 @@ interface TabFilterTab {
 
 ### Functions
 
-#### `TabFilter(root0, root0, root0, root0, root0, root0, root0)`
+#### `TabFilter(props)`
 
 Horizontal pill-style tab row used as a segmented filter. Different
 from `<Tabs>` from `@molecule/app-ui-react` in surfacing inline count
@@ -72,13 +105,7 @@ function TabFilter({
 }: TabFilterProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .tabs
-- `root0` — .activeId
-- `root0` — .onChange
-- `root0` — .scrollable
-- `root0` — .filled
-- `root0` — .className
+- `props` — Component props (see {@link TabFilterProps}).
 
 ## Injection Notes
 
@@ -96,3 +123,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Requires a wired ClassMap bond (`getClassMap()` throws before
+  bonding). Labels are ReactNode — pass translated strings.
+- The default `filled` pill backgrounds use Material-3 token utilities
+  (`bg-primary text-on-primary`, `bg-surface-container-low`, …) that
+  only produce CSS when the app theme defines those tokens (flagship
+  themes do; the minimal scaffold does not). In token-less apps pass
+  `filled={false}` (font-weight-only active state) or add the tokens.
+- Counts render via `toLocaleString()`; `disabled` tabs are
+  non-interactive. Keyboard interaction is click/tab-focus only — no
+  roving arrow-key navigation.

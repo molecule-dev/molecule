@@ -4,7 +4,8 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
-interface SubscriptionPlanCardProps {
+/** Props for the {@link SubscriptionPlanCard} component. */
+export interface SubscriptionPlanCardProps {
   /** Plan name (e.g. "Pro", "Team", "Enterprise"). */
   name: ReactNode
   /** Optional tagline / one-liner. */
@@ -32,18 +33,7 @@ interface SubscriptionPlanCardProps {
  * Pricing / subscription plan card. Renders header (badge + name +
  * description), price + interval, feature checklist, and a primary
  * CTA (button or link).
- * @param root0
- * @param root0.name
- * @param root0.description
- * @param root0.price
- * @param root0.interval
- * @param root0.features
- * @param root0.ctaLabel
- * @param root0.onCta
- * @param root0.ctaHref
- * @param root0.recommended
- * @param root0.badge
- * @param root0.className
+ * @param props - Component props (see {@link SubscriptionPlanCardProps}).
  */
 export function SubscriptionPlanCard({
   name,

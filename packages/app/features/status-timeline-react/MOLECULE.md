@@ -70,7 +70,7 @@ interface StatusTimelineStep {
 
 ### Functions
 
-#### `StatusTimeline(root0, root0, root0, root0, root0, root0)`
+#### `StatusTimeline(props)`
 
 Vertical ordered-step status timeline.
 
@@ -88,12 +88,7 @@ function StatusTimeline({
 }: StatusTimelineProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .steps
-- `root0` — .currentKey
-- `root0` — .ariaLabel
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link StatusTimelineProps}).
 
 ## Injection Notes
 
@@ -109,3 +104,16 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+- Requires a wired ClassMap bond (`getClassMap()` throws before
+  bonding). No i18n dependency — pass pre-translated `label` strings
+  and a translated `ariaLabel`.
+- If `currentKey` matches no step, EVERY step renders as unreached —
+  there is no error; double-check the key values.
+- Reached dots use `bg-primary` (works with the scaffold theme);
+  unreached dots use `bg-outline-variant` and row spacing uses
+  `space-y-2` — both are Material-3/raw utilities that the minimal
+  scaffold theme does not generate, so unreached dots can be invisible
+  and rows unspaced outside flagship-derived themes.
+- Vertical list only; for a horizontal stage rail use
+  `@molecule/app-stage-timeline-react`.

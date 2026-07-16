@@ -31,12 +31,7 @@ export interface StatusTimelineProps {
  * current one are "reached" (filled dot); the current step's label is
  * bolded; steps after the current one are dimmed via `cm.textMuted`.
  *
- * @param root0
- * @param root0.steps
- * @param root0.currentKey
- * @param root0.ariaLabel
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link StatusTimelineProps}).
  */
 export function StatusTimeline({
   steps,

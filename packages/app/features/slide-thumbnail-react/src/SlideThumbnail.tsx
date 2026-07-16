@@ -2,7 +2,8 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface SlideThumbnailProps {
+/** Props for the {@link SlideThumbnail} component. */
+export interface SlideThumbnailProps {
   /** Slide index (1-based). */
   index: number
   /** Live preview content (rendered scaled-down). */
@@ -24,14 +25,7 @@ interface SlideThumbnailProps {
  * Apps render the live scaled-down preview as `children`; this
  * component provides the surrounding chrome (active outline + index
  * label).
- * @param root0
- * @param root0.index
- * @param root0.children
- * @param root0.active
- * @param root0.onClick
- * @param root0.aspect
- * @param root0.width
- * @param root0.className
+ * @param props - Component props (see {@link SlideThumbnailProps}).
  */
 export function SlideThumbnail({
   index,

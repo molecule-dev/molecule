@@ -2,7 +2,12 @@
 
 Social share buttons row.
 
-Exports `<SocialShareButtons>` — Twitter/LinkedIn/Facebook/Reddit/email/copy button group.
+Exports `<SocialShareButtons>` — Twitter(X)/LinkedIn/Facebook/Reddit/
+email/copy button group, plus the `SocialPlatform` union. Each network
+button opens that platform's share URL in a new tab; `'copy'` writes
+the URL to the clipboard with "Copied!" feedback. `'x'` is an alias
+of `'twitter'` (same intent URL). Default platforms:
+twitter, linkedin, facebook, copy.
 
 ## Quick Start
 
@@ -12,7 +17,7 @@ import { SocialShareButtons } from '@molecule/app-social-share-buttons-react'
 <SocialShareButtons
   url="https://example.com/blog/my-post"
   title="Check out this article"
-  platforms={['twitter', 'linkedin', 'copy']}
+  platforms={['twitter', 'linkedin', 'reddit', 'email', 'copy']}
   size="sm"
 />
 ```
@@ -28,6 +33,27 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `SocialShareButtonsProps`
+
+Props for the {@link SocialShareButtons} component.
+
+```typescript
+interface SocialShareButtonsProps {
+  /** URL to share. */
+  url: string
+  /** Optional share text / title. */
+  title?: string
+  /** Platforms to include (order = display order). */
+  platforms?: SocialPlatform[]
+  /** Visual size. */
+  size?: 'sm' | 'md'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Types
 
 #### `SocialPlatform`
@@ -40,7 +66,7 @@ type SocialPlatform = 'twitter' | 'x' | 'linkedin' | 'facebook' | 'reddit' | 'em
 
 ### Functions
 
-#### `SocialShareButtons(root0, root0, root0, root0, root0, root0)`
+#### `SocialShareButtons(props)`
 
 Row of share buttons — opens each platform's share sheet in a new
 tab. `'copy'` copies the URL to the clipboard with "Copied!"
@@ -57,12 +83,7 @@ function SocialShareButtons({
 }: SocialShareButtonsProps): React.JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .url
-- `root0` — .title
-- `root0` — .platforms
-- `root0` — .size
-- `root0` — .className
+- `props` — Component props (see {@link SocialShareButtonsProps}).
 
 ## Injection Notes
 
@@ -80,3 +101,20 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Must render inside the app's i18n provider and with a ClassMap bond
+  wired (`useTranslation()` / `getClassMap()` throw otherwise).
+- `'copy'` uses `navigator.clipboard`, which exists only in secure
+  contexts (HTTPS or localhost). On plain HTTP the button silently
+  does nothing — hide it or serve over HTTPS.
+- Sharing uses fixed platform intent URLs opened in a new tab; there
+  is no Web Share API integration and no per-platform SDKs.
+- Button icons are plain text glyphs (𝕏, "in", "f", ✉, ⧉), not brand
+  SVG logos — restyle via `className` if brand marks are required.
+- Only `share.copied` ships in the companion locale bond today; the
+  per-platform `share.<platform>` aria-label keys fall back to the raw
+  platform id in every language.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-social-share-buttons`.

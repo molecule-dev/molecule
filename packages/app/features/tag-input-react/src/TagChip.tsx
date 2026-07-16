@@ -3,7 +3,8 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-interface TagChipProps {
+/** Props for the {@link TagChip} component. */
+export interface TagChipProps {
   /** Visible tag text. */
   children: ReactNode
   /** Optional remove callback — renders an `×` button when provided. */
@@ -17,11 +18,7 @@ interface TagChipProps {
 /**
  * Small labeled chip with an optional close button. Used inside
  * `<TagInput>` but also usable standalone as a label display element.
- * @param root0
- * @param root0.children
- * @param root0.onRemove
- * @param root0.onClick
- * @param root0.className
+ * @param props - Component props (see {@link TagChipProps}).
  */
 export function TagChip({ children, onRemove, onClick, className }: TagChipProps): JSX.Element {
   const cm = getClassMap()

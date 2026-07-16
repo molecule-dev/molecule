@@ -2,43 +2,52 @@
 
 `@molecule/app-storefront-chrome-react` — wrapping chrome for an
 e-commerce app: announcement bar, top nav (cart + profile dropdown),
-column-based footer.
+column-based footer. Extracted verbatim from the online-store
+flagship, including its visual identity (white/slate surfaces, green
+hover accents).
 
 Stateless about auth and cart shape. Consumers wire up the live cart
 count + auth state and pass them as props; the components stay
 compositional and reusable across storefronts with different
 backends.
 
-Extracted from the online-store flagship.
-
 ## Quick Start
 
 ```tsx
 import {
   StorefrontAnnouncementBar,
-  StorefrontTopNav,
   StorefrontFooter,
+  StorefrontTopNav,
 } from '@molecule/app-storefront-chrome-react'
 
-<>
-  <StorefrontAnnouncementBar
-    message="Free shipping on orders over $75"
-    cta={{ to: '/', label: 'Shop now' }}
-  />
-  <StorefrontTopNav
-    brand="Bazaar"
-    links={[{ to: '/', label: 'Shop', active: true }, { to: '/search?q=all', label: 'Categories' }]}
-    actions={[
-      { to: '/search', icon: 'search', ariaLabel: 'Search' },
-      { to: '/cart', icon: 'shopping_cart', ariaLabel: 'Cart', badgeCount: cartCount },
-    ]}
-    isAuthenticated={isAuthenticated}
-    profileImageUrl={user?.avatarUrl}
-    authedMenu={[{ to: '/settings', label: 'My Account' }, { to: '/orders', label: 'Orders' }]}
-    unauthedMenu={[{ to: '/login', label: 'Sign in' }, { to: '/signup', label: 'Create account' }]}
-    onSignOut={handleSignOut}
-  />
-</>
+function StorefrontShell({ cartCount, isAuthenticated, avatarUrl, onSignOut }: {
+  cartCount: number
+  isAuthenticated: boolean
+  avatarUrl?: string
+  onSignOut: () => void
+}) {
+  return (
+    <>
+      <StorefrontAnnouncementBar
+        message="Free shipping on orders over $75"
+        cta={{ to: '/', label: 'Shop now' }}
+      />
+      <StorefrontTopNav
+        brand="Bazaar"
+        links={[{ to: '/', label: 'Shop', active: true }]}
+        actions={[
+          { to: '/search', icon: 'search', ariaLabel: 'Search' },
+          { to: '/cart', icon: 'shopping_cart', ariaLabel: 'Cart', badgeCount: cartCount },
+        ]}
+        isAuthenticated={isAuthenticated}
+        profileImageUrl={avatarUrl ?? '/avatar-placeholder.svg'}
+        authedMenu={[{ to: '/settings', label: 'My Account' }, { to: '/orders', label: 'Orders' }]}
+        unauthedMenu={[{ to: '/login', label: 'Sign in' }, { to: '/signup', label: 'Create account' }]}
+        onSignOut={onSignOut}
+      />
+    </>
+  )
+}
 ```
 
 ## Type
@@ -104,6 +113,60 @@ interface ProfileMenuItem {
   to: string
   label: ReactNode
   dataMolId?: string
+}
+```
+
+#### `StorefrontAnnouncementBarProps`
+
+Props for the {@link StorefrontAnnouncementBar} component.
+
+```typescript
+interface StorefrontAnnouncementBarProps {
+  message: ReactNode
+  cta?: { to: string; label: ReactNode }
+  className?: string
+}
+```
+
+#### `StorefrontFooterProps`
+
+Props for the {@link StorefrontFooter} component.
+
+```typescript
+interface StorefrontFooterProps {
+  brand: ReactNode
+  tagline?: ReactNode
+  columns?: FooterColumn[]
+  copyright: ReactNode
+  className?: string
+}
+```
+
+#### `StorefrontTopNavProps`
+
+Props for the {@link StorefrontTopNav} component.
+
+```typescript
+interface StorefrontTopNavProps {
+  brand: ReactNode
+  brandTo?: string
+  links?: NavLinkSpec[]
+  actions?: NavActionSpec[]
+  isAuthenticated: boolean
+  /**
+   * Avatar image URL. The profile dropdown — including the signed-out
+   * `unauthedMenu` — renders ONLY when this is truthy; pass a placeholder
+   * avatar URL for signed-out users or no menu appears at all.
+   */
+  profileImageUrl?: string
+  /** Avatar alt text. Defaults to English "User profile" — pass a translated string. */
+  profileImageAlt?: string
+  authedMenu?: ProfileMenuItem[]
+  unauthedMenu?: ProfileMenuItem[]
+  onSignOut?: () => void
+  /** Sign-out button label. Defaults to English "Sign Out" — pass a translated string. */
+  signOutLabel?: ReactNode
+  className?: string
 }
 ```
 
@@ -197,3 +260,21 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 - `react-router-dom`
+
+- Hard requirement: `react-router-dom` (peer dep) — every link is a
+  router `<Link>`, so the components MUST render inside a `<Router>`
+  or they throw. In npm-workspace/symlinked setups keep
+  `react-router-dom` in Vite `resolve.dedupe`.
+- `NavActionSpec.icon` is a Material Symbols LIGATURE name
+  (`'shopping_cart'`): load the "Material Symbols Outlined" font in
+  the host app or the nav shows raw words instead of icons.
+- The profile dropdown — including the signed-out `unauthedMenu` —
+  renders ONLY when `profileImageUrl` is truthy. For signed-out users
+  pass a placeholder avatar URL, or no menu appears at all.
+- `signOutLabel` and `profileImageAlt` default to English strings;
+  pass translated values (no companion locale bond ships).
+- Styling is the flagship palette hardcoded with raw utilities
+  (`bg-white dark:bg-slate-900`, slate-900 footer, GREEN link-hover
+  accents, `max-w-[1280px]`), not ClassMap tokens: it will not follow
+  your brand automatically, and apps outside the flagship safelists
+  must ensure their Tailwind build scans these literals.

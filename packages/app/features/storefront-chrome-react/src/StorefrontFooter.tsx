@@ -11,7 +11,8 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { FooterColumn } from './types.js'
 
-interface StorefrontFooterProps {
+/** Props for the {@link StorefrontFooter} component. */
+export interface StorefrontFooterProps {
   brand: ReactNode
   tagline?: ReactNode
   columns?: FooterColumn[]

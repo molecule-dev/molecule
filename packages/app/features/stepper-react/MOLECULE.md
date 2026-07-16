@@ -36,6 +36,32 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `StepperProps`
+
+Props for the {@link Stepper} component.
+
+```typescript
+interface StepperProps {
+  /** Steps to render. */
+  steps: StepperStep[]
+  /** Index of the current step (0-based). */
+  currentStep: number
+  /** Visual variant. */
+  variant?: 'dots' | 'bar' | 'cards'
+  /** Layout orientation. */
+  orientation?: 'horizontal' | 'vertical'
+  /**
+   * Optional navigation click handler. Variant-dependent: in `cards` it
+   * fires only for completed steps (others render disabled); in `dots`
+   * it fires for ANY step — guard inside the handler if backward-only
+   * navigation is required. The `bar` variant is not clickable.
+   */
+  onStepClick?: (stepId: string, index: number) => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 #### `StepperStep`
 
 Descriptor for a single step rendered inside a Stepper.
@@ -65,7 +91,7 @@ type StepStatus = 'completed' | 'current' | 'pending' | 'error'
 
 ### Functions
 
-#### `Stepper(root0, root0, root0, root0, root0, root0, root0)`
+#### `Stepper(props)`
 
 Multi-step progress indicator — useful for checkout flows, onboarding
 wizards, course module progress, etc.
@@ -86,13 +112,7 @@ function Stepper({
 }: StepperProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .steps
-- `root0` — .currentStep
-- `root0` — .variant
-- `root0` — .orientation
-- `root0` — .onStepClick
-- `root0` — .className
+- `props` — Component props (see {@link StepperProps}).
 
 ## Injection Notes
 
@@ -110,3 +130,19 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Purely visual and unrelated to `@molecule/app-stepper` (the headless
+  step-STATE core with its own bond) — do NOT wire `bond('stepper')`
+  for this component; you own `currentStep` in app state and this
+  package only renders it.
+- Requires a wired ClassMap bond (`getClassMap()` throws before
+  bonding). Step labels are ReactNode — pass translated strings.
+- Status is derived from `currentStep` unless a step sets an explicit
+  `status`. The `'error'` member of `StepStatus` currently renders
+  IDENTICALLY to `'pending'` (no error styling is implemented).
+- `onStepClick` behavior differs by variant: in `cards` only completed
+  steps are clickable (others are disabled); in `dots` the handler
+  fires for ANY step — guard inside your handler if backward-only
+  navigation is required. The `bar` variant is not clickable.
+- Dots show state via checkmark/number and label weight only — there
+  is no color fill per status.

@@ -2,12 +2,16 @@
 
 Financial ticker row — symbol + price + change% + optional sparkline.
 
-Exports `<TickerRow>`.
+Exports `<TickerRow>`. Use for crypto trackers, stock watchlists,
+market dashboards. Pair the `sparkline` slot with
+`<Sparkline values={...} />` from `@molecule/app-sparkline-react`.
 
 ## Quick Start
 
 ```tsx
 import { TickerRow } from '@molecule/app-ticker-row-react'
+
+declare function openAsset(id: string): void
 
 <TickerRow
   symbol="BTC"
@@ -15,7 +19,7 @@ import { TickerRow } from '@molecule/app-ticker-row-react'
   price="$67,420"
   changePct={2.34}
   meta="$1.3T"
-  onClick={() => router.push('/asset/btc')}
+  onClick={() => openAsset('btc')}
 />
 ```
 
@@ -30,9 +34,40 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `TickerRowProps`
+
+Props for the {@link TickerRow} component.
+
+```typescript
+interface TickerRowProps {
+  /** Symbol / ticker display ("BTC", "AAPL"). */
+  symbol: ReactNode
+  /** Full name display ("Bitcoin", "Apple Inc."). */
+  name?: ReactNode
+  /** Optional leading icon / logo. */
+  icon?: ReactNode
+  /** Current price (formatted string). */
+  price: ReactNode
+  /** Period change percentage. Used for direction + color. */
+  changePct?: number
+  /** Period change formatted display (defaults to `changePct` formatted). */
+  changeDisplay?: ReactNode
+  /** Optional sparkline node (pass `<Sparkline values={...} />` from `app-sparkline-react`). */
+  sparkline?: ReactNode
+  /** Optional volume / market-cap display. */
+  meta?: ReactNode
+  /** Click handler. */
+  onClick?: () => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `TickerRow(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `TickerRow(props)`
 
 Financial ticker row — symbol + price + change% + optional sparkline.
 Use for crypto trackers, stock watchlists, market dashboards.
@@ -52,17 +87,7 @@ function TickerRow({
 }: TickerRowProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .symbol
-- `root0` — .name
-- `root0` — .icon
-- `root0` — .price
-- `root0` — .changePct
-- `root0` — .changeDisplay
-- `root0` — .sparkline
-- `root0` — .meta
-- `root0` — .onClick
-- `root0` — .className
+- `props` — Component props (see {@link TickerRowProps}).
 
 ## Injection Notes
 
@@ -80,3 +105,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Requires a wired ClassMap bond (`getClassMap()` throws before
+  bonding). `price`/`meta` are opaque display nodes — the app owns
+  number/currency formatting.
+- `changePct` drives direction (▲/▼/–) and a FIXED green/red hex
+  color applied inline — it does not follow theme success/error
+  tokens. Pass `changeDisplay` to control the change text; the
+  default is `changePct` to 2 decimals with a percent sign.
+- With `onClick` the row becomes a clickable div WITHOUT button
+  semantics — wrap it in your own button/link (or add key handling)
+  where keyboard access matters.

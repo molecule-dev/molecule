@@ -16,17 +16,25 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { NavActionSpec, NavLinkSpec, ProfileMenuItem } from './types.js'
 
-interface StorefrontTopNavProps {
+/** Props for the {@link StorefrontTopNav} component. */
+export interface StorefrontTopNavProps {
   brand: ReactNode
   brandTo?: string
   links?: NavLinkSpec[]
   actions?: NavActionSpec[]
   isAuthenticated: boolean
+  /**
+   * Avatar image URL. The profile dropdown — including the signed-out
+   * `unauthedMenu` — renders ONLY when this is truthy; pass a placeholder
+   * avatar URL for signed-out users or no menu appears at all.
+   */
   profileImageUrl?: string
+  /** Avatar alt text. Defaults to English "User profile" — pass a translated string. */
   profileImageAlt?: string
   authedMenu?: ProfileMenuItem[]
   unauthedMenu?: ProfileMenuItem[]
   onSignOut?: () => void
+  /** Sign-out button label. Defaults to English "Sign Out" — pass a translated string. */
   signOutLabel?: ReactNode
   className?: string
 }

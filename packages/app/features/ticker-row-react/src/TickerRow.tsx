@@ -2,7 +2,8 @@ import type { ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface TickerRowProps {
+/** Props for the {@link TickerRow} component. */
+export interface TickerRowProps {
   /** Symbol / ticker display ("BTC", "AAPL"). */
   symbol: ReactNode
   /** Full name display ("Bitcoin", "Apple Inc."). */
@@ -28,17 +29,7 @@ interface TickerRowProps {
 /**
  * Financial ticker row — symbol + price + change% + optional sparkline.
  * Use for crypto trackers, stock watchlists, market dashboards.
- * @param root0
- * @param root0.symbol
- * @param root0.name
- * @param root0.icon
- * @param root0.price
- * @param root0.changePct
- * @param root0.changeDisplay
- * @param root0.sparkline
- * @param root0.meta
- * @param root0.onClick
- * @param root0.className
+ * @param props - Component props (see {@link TickerRowProps}).
  */
 export function TickerRow({
   symbol,

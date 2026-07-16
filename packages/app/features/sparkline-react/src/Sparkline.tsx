@@ -2,7 +2,8 @@ import type { ReactElement } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface SparklineProps {
+/** Props for the {@link Sparkline} component. */
+export interface SparklineProps {
   /** Numeric series — length determines the segment count. */
   values: number[]
   /** Visual variant. */
@@ -23,14 +24,7 @@ interface SparklineProps {
  * Tiny inline trend chart — line, bar, or dot variants. Uses SVG with
  * no external library so it works inside cards, table cells, KPI tiles,
  * etc. without a chart bond.
- * @param root0
- * @param root0.values
- * @param root0.variant
- * @param root0.width
- * @param root0.height
- * @param root0.color
- * @param root0.ariaLabel
- * @param root0.className
+ * @param props - Component props (see {@link SparklineProps}).
  */
 export function Sparkline({
   values,

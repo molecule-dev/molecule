@@ -6,7 +6,8 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { TagChip } from './TagChip.js'
 
-interface TagInputProps {
+/** Props for the {@link TagInput} component. */
+export interface TagInputProps {
   /** Controlled list of tag values. */
   value: string[]
   /** Called whenever the tag list changes. */
@@ -37,16 +38,12 @@ function defaultNormalize(raw: string, current: string[]): string | null {
 }
 
 /**
- * Tokenized tag-input with chip display, Enter-to-add + Backspace-to-remove.
+ * Tokenized tag-input with chip display. Commits the draft on Enter,
+ * comma, or Tab AND on blur (clicking away with a non-empty draft adds
+ * a tag); Backspace on an empty field removes the last token.
  *
  * Controlled component — callers own the `value` array.
- * @param root0
- * @param root0.value
- * @param root0.onChange
- * @param root0.placeholder
- * @param root0.normalize
- * @param root0.maxTags
- * @param root0.className
+ * @param props - Component props (see {@link TagInputProps}).
  */
 export function TagInput({
   value,

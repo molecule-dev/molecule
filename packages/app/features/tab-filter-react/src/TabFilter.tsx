@@ -16,7 +16,8 @@ export interface TabFilterTab {
   disabled?: boolean
 }
 
-interface TabFilterProps {
+/** Props for the {@link TabFilter} component. */
+export interface TabFilterProps {
   /** Tabs to render. */
   tabs: TabFilterTab[]
   /** Currently active tab id. */
@@ -43,13 +44,7 @@ interface TabFilterProps {
  *
  * Typical uses: "All (42) | Open (8) | Closed (34)", activity-type
  * filters, comment-thread filters, status switchers.
- * @param root0
- * @param root0.tabs
- * @param root0.activeId
- * @param root0.onChange
- * @param root0.scrollable
- * @param root0.filled
- * @param root0.className
+ * @param props - Component props (see {@link TabFilterProps}).
  */
 export function TabFilter({
   tabs,

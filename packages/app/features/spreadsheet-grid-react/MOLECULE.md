@@ -18,6 +18,8 @@ formula results.
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
+
 import { SpreadsheetGrid, type CellMap } from '@molecule/app-spreadsheet-grid-react'
 
 function Sheet() {
@@ -302,6 +304,24 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+- Must render inside the app's i18n provider and with a ClassMap bond
+  wired (`useTranslation()` / `getClassMap()` throw otherwise).
+- The viewport is FIXED-PIXEL: `viewportWidth`/`viewportHeight`
+  (defaults 720×360) — the grid does not auto-size to its container.
+  Measure the container and pass px if you need it to fill.
+- Copy (Ctrl/Cmd+C) writes TSV via `navigator.clipboard` — secure
+  contexts only (HTTPS/localhost). Paste is handled through the native
+  paste event, so the grid container must have focus (click a cell
+  first). Keyboard support is Enter/F2 (edit) + copy/paste only; there
+  is NO arrow-key cell navigation.
+- Committed edits and pasted cells auto-coerce number-like strings to
+  numbers (`'42'` → `42`); empty string clears the cell (`null`).
+- Gridlines/selection/header styling uses Material-3 design-token
+  utilities (`bg-surface`, `border-outline-variant`, …). Apps whose
+  Tailwind theme does not define those tokens (the minimal scaffold
+  theme does not) get a functional but unstyled grid — flagship-derived
+  themes render it fully.
 
 ## Translations
 

@@ -9,7 +9,8 @@ import { Link } from 'react-router-dom'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface StorefrontAnnouncementBarProps {
+/** Props for the {@link StorefrontAnnouncementBar} component. */
+export interface StorefrontAnnouncementBarProps {
   message: ReactNode
   cta?: { to: string; label: ReactNode }
   className?: string

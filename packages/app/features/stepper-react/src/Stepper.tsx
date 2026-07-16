@@ -17,7 +17,8 @@ export interface StepperStep {
   status?: StepStatus
 }
 
-interface StepperProps {
+/** Props for the {@link Stepper} component. */
+export interface StepperProps {
   /** Steps to render. */
   steps: StepperStep[]
   /** Index of the current step (0-based). */
@@ -26,7 +27,12 @@ interface StepperProps {
   variant?: 'dots' | 'bar' | 'cards'
   /** Layout orientation. */
   orientation?: 'horizontal' | 'vertical'
-  /** Called when a completed step is clicked (optional navigation). */
+  /**
+   * Optional navigation click handler. Variant-dependent: in `cards` it
+   * fires only for completed steps (others render disabled); in `dots`
+   * it fires for ANY step — guard inside the handler if backward-only
+   * navigation is required. The `bar` variant is not clickable.
+   */
   onStepClick?: (stepId: string, index: number) => void
   /** Extra classes. */
   className?: string
@@ -40,13 +46,7 @@ interface StepperProps {
  * - `'dots'` — small numbered circles connected by a line.
  * - `'bar'` — horizontal filled bar with step labels above.
  * - `'cards'` — each step is a card with title + description.
- * @param root0
- * @param root0.steps
- * @param root0.currentStep
- * @param root0.variant
- * @param root0.orientation
- * @param root0.onStepClick
- * @param root0.className
+ * @param props - Component props (see {@link StepperProps}).
  */
 export function Stepper({
   steps,

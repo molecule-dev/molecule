@@ -14,7 +14,8 @@ export interface TimeSlot {
   disabled?: boolean
 }
 
-interface TimeSlotPickerProps {
+/** Props for the {@link TimeSlotPicker} component. */
+export interface TimeSlotPickerProps {
   slots: TimeSlot[]
   /** Currently selected slot id. */
   selectedId?: string
@@ -34,14 +35,7 @@ interface TimeSlotPickerProps {
  * Picker for delivery / appointment / reservation time slots. Each slot
  * shows a label + optional secondary meta (date, fee, remaining
  * capacity). Disabled slots are dimmed and not clickable.
- * @param root0
- * @param root0.slots
- * @param root0.selectedId
- * @param root0.onSelect
- * @param root0.layout
- * @param root0.columns
- * @param root0.title
- * @param root0.className
+ * @param props - Component props (see {@link TimeSlotPickerProps}).
  */
 export function TimeSlotPicker({
   slots,

@@ -27,7 +27,8 @@ export interface StatusGroup {
   components: StatusComponent[]
 }
 
-interface StatusSummaryProps {
+/** Props for the {@link StatusSummary} component. */
+export interface StatusSummaryProps {
   /** Grouped components. */
   groups: StatusGroup[]
   /** Overall summary label (auto-derived if omitted). */
@@ -76,12 +77,7 @@ function worst(statuses: ComponentStatus[]): ComponentStatus {
 /**
  * Status-page summary — grouped component list with colored badges and
  * an overall banner derived from the worst child status.
- * @param root0
- * @param root0.groups
- * @param root0.overallStatus
- * @param root0.header
- * @param root0.footer
- * @param root0.className
+ * @param props - Component props (see {@link StatusSummaryProps}).
  */
 export function StatusSummary({
   groups,

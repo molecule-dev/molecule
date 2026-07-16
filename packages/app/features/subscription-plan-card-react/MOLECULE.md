@@ -2,12 +2,16 @@
 
 Pricing / subscription plan card.
 
-Exports `<SubscriptionPlanCard>`.
+Exports `<SubscriptionPlanCard>` — header (badge + name +
+description), price + interval, feature checklist, and a primary CTA
+(button or link).
 
 ## Quick Start
 
 ```tsx
 import { SubscriptionPlanCard } from '@molecule/app-subscription-plan-card-react'
+
+declare function navigate(to: string): void
 
 <SubscriptionPlanCard
   name="Pro"
@@ -15,7 +19,7 @@ import { SubscriptionPlanCard } from '@molecule/app-subscription-plan-card-react
   interval="/month"
   features={['Unlimited projects', '10 GB storage', 'Priority support']}
   ctaLabel="Get started"
-  onCta={() => router.push('/checkout/pro')}
+  onCta={() => navigate('/checkout/pro')}
   recommended
   badge="Most popular"
 />
@@ -32,9 +36,41 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `SubscriptionPlanCardProps`
+
+Props for the {@link SubscriptionPlanCard} component.
+
+```typescript
+interface SubscriptionPlanCardProps {
+  /** Plan name (e.g. "Pro", "Team", "Enterprise"). */
+  name: ReactNode
+  /** Optional tagline / one-liner. */
+  description?: ReactNode
+  /** Price string ("$19", "Free", "Custom") — apps own currency formatting. */
+  price: ReactNode
+  /** Billing interval label ("/month", "/yr", "per seat"). */
+  interval?: ReactNode
+  /** Bullet feature list. */
+  features: ReactNode[]
+  /** Primary CTA button label. */
+  ctaLabel?: ReactNode
+  /** Click / nav handler. */
+  onCta?: () => void
+  ctaHref?: string
+  /** Visually highlight as the recommended / popular plan. */
+  recommended?: boolean
+  /** Optional badge content (e.g. "Most popular"). */
+  badge?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `SubscriptionPlanCard(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `SubscriptionPlanCard(props)`
 
 Pricing / subscription plan card. Renders header (badge + name +
 description), price + interval, feature checklist, and a primary
@@ -56,18 +92,7 @@ function SubscriptionPlanCard({
 }: SubscriptionPlanCardProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .name
-- `root0` — .description
-- `root0` — .price
-- `root0` — .interval
-- `root0` — .features
-- `root0` — .ctaLabel
-- `root0` — .onCta
-- `root0` — .ctaHref
-- `root0` — .recommended
-- `root0` — .badge
-- `root0` — .className
+- `props` — Component props (see {@link SubscriptionPlanCardProps}).
 
 ## Injection Notes
 
@@ -85,3 +110,18 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Must render inside the app's i18n provider and with a ClassMap bond
+  wired (`useTranslation()` / `getClassMap()` throw otherwise).
+- Prefer `onCta` with your router's navigate function for SPA
+  navigation; `ctaHref` renders a plain anchor and causes a full page
+  load.
+- `recommended` highlights the card (outline + primary CTA color) and,
+  when `badge` is omitted, shows a "Recommended" badge via the
+  `plan.recommended` i18n key.
+- `price`/`interval` are opaque display nodes — the app owns currency
+  formatting and localization.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-subscription-plan-card`.

@@ -7,10 +7,16 @@ import { Select } from '@molecule/app-ui-react'
 /** A single option entry for the SortPicker select list. */
 export interface SortOption<T extends string = string> {
   value: T
+  /**
+   * Option label. Typed `ReactNode` but string-coerced before being
+   * passed to the native `<Select>` — pass a plain string; JSX renders
+   * as "[object Object]".
+   */
   label: ReactNode
 }
 
-interface SortPickerProps<T extends string = string> {
+/** Props for the {@link SortPicker} component. */
+export interface SortPickerProps<T extends string = string> {
   value: T
   onChange: (value: T) => void
   options: SortOption<T>[]
@@ -27,13 +33,7 @@ interface SortPickerProps<T extends string = string> {
  * conventional "Sort by:" label and a focused single-select API.
  *
  * Different from `<FilterBar>` which manages multiple filter fields.
- * @param root0
- * @param root0.value
- * @param root0.onChange
- * @param root0.options
- * @param root0.label
- * @param root0.labelPosition
- * @param root0.className
+ * @param props - Component props (see {@link SortPickerProps}).
  */
 export function SortPicker<T extends string = string>({
   value,
