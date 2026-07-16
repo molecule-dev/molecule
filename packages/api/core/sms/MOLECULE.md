@@ -254,12 +254,6 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 
-)
-const status = await getStatus(result.id)
-console.log(status.status) // 'delivered'
-```
-
-@remarks
 Delivery-status polling (`getStatus()`) is PROVIDER-DEPENDENT, not a
 universal capability — the Quick Start's `getStatus()` call is not safe to
 assume for every bonded provider:

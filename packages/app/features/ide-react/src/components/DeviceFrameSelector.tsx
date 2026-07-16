@@ -47,7 +47,7 @@ import { Icon } from './Icon.js'
  * the device dropdown now also hosts the Rotate and Open-in-new-tab controls that
  * used to be separate toolbar buttons.
  */
-interface DeviceFrameSelectorWithActionsProps extends DeviceFrameSelectorProps {
+export interface DeviceFrameSelectorWithActionsProps extends DeviceFrameSelectorProps {
   /** Whether the current frame can be rotated — gates the Rotate item ("when/where relevant"). */
   canRotate?: boolean
   /** Whether the preview is currently rotated to landscape — renders Rotate as a CHECKED toggle. */
@@ -61,14 +61,7 @@ interface DeviceFrameSelectorWithActionsProps extends DeviceFrameSelectorProps {
 /**
  * A dropdown that selects the preview device frame and hosts the Rotate +
  * Open-in-new-tab actions.
- * @param root0 - The component props.
- * @param root0.current - The currently selected device frame.
- * @param root0.onChange - Callback invoked with the chosen frame.
- * @param root0.className - Optional CSS class name for the trigger button.
- * @param root0.canRotate - Whether the current frame is rotatable (gates the Rotate item).
- * @param root0.rotated - Whether the preview is currently landscape (renders Rotate as a checked toggle).
- * @param root0.onRotate - Rotate the current fixed-frame device; omit to hide the Rotate item.
- * @param root0.onOpenExternal - Open the preview in a new tab; omit to hide the item.
+ * @param props - Component props (see {@link DeviceFrameSelectorWithActionsProps}).
  * @returns The rendered device-frame selector element.
  */
 export function DeviceFrameSelector({

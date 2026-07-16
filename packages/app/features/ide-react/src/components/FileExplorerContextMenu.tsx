@@ -29,7 +29,7 @@ export type ContextMenuAction =
   | 'paste'
   | 'collapseAll'
 
-interface ContextMenuProps {
+export interface ContextMenuProps {
   /** Screen coordinates where the menu should appear. */
   position: { x: number; y: number }
   /** The file/directory node that was right-clicked, or null for background. */
@@ -229,13 +229,7 @@ function getMenuItems(node: FileNode | null, selectedCount: number, canPaste: bo
 
 /**
  * Portal-rendered context menu for the file explorer.
- * @param root0 - Component props.
- * @param root0.position - Screen coordinates for the menu.
- * @param root0.node - The right-clicked file node or null for background.
- * @param root0.selectedCount - Number of items in the current multi-selection.
- * @param root0.canPaste - Whether paste is available.
- * @param root0.onAction - Callback when a menu item is selected.
- * @param root0.onClose - Callback to dismiss the menu.
+ * @param props - Component props (see {@link ContextMenuProps}).
  * @returns The rendered context menu portal.
  */
 export function FileExplorerContextMenu({

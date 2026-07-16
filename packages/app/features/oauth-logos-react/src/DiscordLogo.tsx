@@ -6,12 +6,7 @@ const PATH =
 /**
  * Discord brand mark. `mode='brand'` renders the official blurple
  * logo; `mode='mono'` renders in `currentColor`.
- * @param root0
- * @param root0.size
- * @param root0.className
- * @param root0.mode
- * @param root0.ariaLabel
- * @param root0.title
+ * @param props - Component props.
  */
 export function DiscordLogo({
   size = 20,

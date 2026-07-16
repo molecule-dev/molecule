@@ -386,14 +386,22 @@ table from the BROWSER exposes the secret; a leftover client-side DB call is a b
 
 ## E2E Tests
 
-` checklist below.)
-
-**Adding 2FA to an app that already has its OWN backend/database:** persist the 2FA record
-in YOUR server-side datastore — the state (secret + `enabled`) has to live somewhere the
-server controls. Do NOT assume the imported app's own hosted-DB ADMIN credentials are
-available: an imported repo ships only its public/client config, so a server-side admin write
-to the app's external database fails at runtime with a "missing env var". Use whatever
-server-side datastore the ENVIRONMENT actually provides — in the molecule sandbox that's the
-provisioned `DATABASE_URL` (`@molecule/api-database` or a `pg` pool) — keyed by the app's user
-id. (Still route EVERY 2FA read AND write through the server — a direct read/write of the 2FA
-table from the BROWSER exposes the secret; a leftover client-side DB call is a bug.)
+Integration checklist — drive the app's REAL UI as the user would (in
+molecule.dev: navigate_preview → read_preview_ui → interact_preview, targeting
+elements by data-mol-id), adapt to this app's actual auth/settings screens, and
+check every box off one by one. A box you can't check is an integration bug to
+fix — not a skip:
+- [ ] Sign up + log in through the real auth screens still works — do this
+  FIRST; the most common 2FA-integration regression is a broken login.
+- [ ] Open security/settings → "Set up 2FA" → a QR code / secret key is
+  VISIBLE. An error here means the server-side setup route or 2FA store is broken.
+- [ ] Entering a REAL TOTP code enables 2FA; a made-up `000000` must FAIL.
+  COUNTERPARTY: the secret is shown on screen during setup — compute the current
+  6-digit code from it with the preinstalled otplib (v13: `await generate({ secret })`;
+  both otplib's `generate()` and this package's `verify()` are async). NEVER add
+  an endpoint that leaks the stored secret to the client to obtain the code.
+- [ ] Log out, log back in → the 2FA challenge appears AFTER the password → a
+  valid code completes login; a wrong code is rejected with a clear error.
+- [ ] Disable 2FA from settings → log out / log back in → no challenge.
+Keep a real-path integration test in the repo (the second `@example`) so the
+lifecycle stays covered on every later build.

@@ -8,12 +8,7 @@ const BG_PATH =
 /**
  * Facebook "f" mark. `mode='brand'` renders the blue circle with white
  * "f"; `mode='mono'` renders a monochrome "f" in `currentColor`.
- * @param root0
- * @param root0.size
- * @param root0.className
- * @param root0.mode
- * @param root0.ariaLabel
- * @param root0.title
+ * @param props - Component props.
  */
 export function FacebookLogo({
   size = 20,

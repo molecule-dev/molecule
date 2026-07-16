@@ -15,9 +15,7 @@ import { QuickPicker } from './QuickPicker.js'
 /**
  * Command Palette overlay.
  *
- * @param root0 - The component props.
- * @param root0.commands - Array of available commands.
- * @param root0.onDismiss - Called when the palette is dismissed.
+ * @param props - Component props.
  * @returns The command palette element.
  */
 export function CommandPalette({ commands, onDismiss }: CommandPaletteProps): JSX.Element {

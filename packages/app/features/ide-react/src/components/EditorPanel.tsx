@@ -36,18 +36,7 @@ function injectCountdownStyle(): void {
 
 /**
  * Code editor panel with tab bar and Monaco integration.
- * @param root0 - The component props.
- * @param root0.className - Optional CSS class name for the container.
- * @param root0.onActiveFileChange - Callback when the active file tab changes.
- * @param root0.onEditorReady - Callback when the Monaco editor finishes mounting.
- * @param root0.onTabsChange - Callback when the list of open tabs changes.
- * @param root0.fileStatuses - Git status map keyed by file path.
- * @param root0.formattingFile - Path of the file currently being formatted.
- * @param root0.countdownFile - Path of the file showing the format countdown bar.
- * @param root0.countdownKey - React key to re-trigger the countdown animation.
- * @param root0.formatEstimate - Estimated formatting duration in milliseconds.
- * @param root0.onFixWithAI - Callback to request AI-assisted diagnostic fix.
- * @param root0.onTabDoubleClick - Override double-click on a tab. Return true to skip default pin behavior.
+ * @param props - Component props.
  * @returns The rendered editor panel element.
  */
 export function EditorPanel({

@@ -28,10 +28,7 @@ import { StreamingIndicator } from './StreamingIndicator.js'
  * no concrete destination, renders as plain text rather than a broken/IDE-navigating link. A
  * `#anchor` can't address a preview page, so it stays an inert anchor.
  *
- * @param root0 - Component props.
- * @param root0.label - The link's visible text.
- * @param root0.href - The link target (an app route — slash-prefixed or bare — or an absolute URL).
- * @param root0.onNavigatePreview - Navigates the preview to a route path; enables route links.
+ * @param props - Component props (see {@link MarkdownContentProps}).
  * @returns The rendered link node.
  */
 function LinkToken({
@@ -189,9 +186,7 @@ function renderInline(text: string, onNavigatePreview?: (path: string) => void):
 
 /**
  * Renders a prose text segment as structured HTML (headers, lists, paragraphs).
- * @param root0 - Component props.
- * @param root0.content - The raw prose text to parse and render.
- * @param root0.segIdx - The segment index used for generating stable React keys.
+ * @param props - Component props (see {@link MarkdownContentProps}).
  * @returns The rendered prose block element.
  */
 function Prose({
@@ -305,9 +300,7 @@ function Prose({
 
 /**
  * Renders a fenced code block with a language label and copy-to-clipboard button.
- * @param root0 - Component props.
- * @param root0.lang - The code language identifier for the header label.
- * @param root0.content - The code content to display.
+ * @param props - Component props (see {@link MarkdownContentProps}).
  * @returns The rendered code block element.
  */
 function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.Element {
@@ -383,7 +376,7 @@ function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.El
 // Public component
 // ---------------------------------------------------------------------------
 
-interface MarkdownContentProps {
+export interface MarkdownContentProps {
   /** The raw markdown text to render. */
   text: string
   /** When true, appends a blinking cursor at the end (streaming indicator). */
@@ -420,11 +413,7 @@ interface MarkdownContentProps {
  * Renders a subset of Markdown as React elements.
  * Handles fenced code blocks (with copy button), headers, lists,
  * bold/italic, and inline code.
- * @param root0 - Component props.
- * @param root0.text - The raw markdown text to render.
- * @param root0.isStreaming - Whether to show a streaming indicator at the end.
- * @param root0.statusLabel - Current status label; shown as a labeled block while streaming.
- * @param root0.statusStartedAt - Turn start (ms) for the labeled indicator's timer.
+ * @param props - Component props (see {@link MarkdownContentProps}).
  * @returns The rendered markdown content element.
  */
 export const MarkdownContent = memo(function MarkdownContent({

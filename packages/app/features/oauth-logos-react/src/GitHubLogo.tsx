@@ -11,11 +11,7 @@ const PATH =
  * Brand guideline: monochrome only — no brand color, so `mode` is ignored
  * (always uses `currentColor`). Typical placement: against a dark or
  * neutral background.
- * @param root0
- * @param root0.size
- * @param root0.className
- * @param root0.ariaLabel
- * @param root0.title
+ * @param props - Component props.
  */
 export function GitHubLogo({
   size = 20,

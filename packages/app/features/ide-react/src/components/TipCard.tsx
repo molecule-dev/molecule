@@ -53,9 +53,7 @@ function renderTipText(text: string): ReactNode[] {
 /**
  * Renders a single dismissable onboarding tip.
  *
- * @param root0 - Component props.
- * @param root0.text - The tip text to display.
- * @param root0.onDismiss - Called when the user dismisses the tip.
+ * @param props - Component props.
  * @returns The rendered tip card.
  */
 export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => void }): JSX.Element {

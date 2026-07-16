@@ -91,16 +91,7 @@ export function buildQrPath(
  * Used by coupon-deals-platform (redemption codes), restaurant-ordering
  * (table tokens), event-ticketing (tickets), voting-polling (ballot links).
  *
- * @param root0 - Component props.
- * @param root0.value - String value to encode.
- * @param root0.size - SVG width/height in pixels.
- * @param root0.errorCorrection - QR error-correction level.
- * @param root0.fgColor - Foreground (dark module) color.
- * @param root0.bgColor - Background color.
- * @param root0.margin - Quiet-zone margin in modules.
- * @param root0.logo - Optional center-logo overlay.
- * @param root0.ariaLabel - Override accessible label.
- * @param root0.className - Extra classes merged onto the SVG root.
+ * @param props - Component props.
  * @returns The QR code SVG element.
  */
 export function QrCode({

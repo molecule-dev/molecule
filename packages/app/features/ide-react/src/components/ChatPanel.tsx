@@ -725,10 +725,7 @@ function streamingActivityLabel(msg: {
 
 /**
  * Collapsible block for displaying AI thinking/reasoning content.
- * @param root0 - Component props.
- * @param root0.content - The raw thinking text to render.
- * @param root0.durationMs - How long the thinking took in milliseconds.
- * @param root0.isStreaming - Whether the thinking is still in progress.
+ * @param props - Component props (see {@link MessageItemProps}).
  * @returns The rendered thinking block element.
  */
 function ThinkingBlock({
@@ -884,9 +881,7 @@ const AUTO_SENT_ACCENT = 'var(--mol-color-success, #16a34a)'
 /**
  * Renders user message content with a max height and a chevron-down expand button
  * when the content overflows. Similar to the compaction summary expand pattern.
- * @param root0 - Component props.
- * @param root0.content - The message text.
- * @param root0.isLight - Whether the current theme is light mode.
+ * @param props - Component props (see {@link MessageItemProps}).
  * @returns The rendered collapsible message element.
  */
 function CollapsibleUserMessage({
@@ -992,11 +987,7 @@ function CollapsibleUserMessage({
 
 /**
  * Inline badge showing lint verification status — green check for pass, expandable error card for fail.
- * @param root0 - Component props.
- * @param root0.status - Whether lint passed or found errors.
- * @param root0.output - Lint error output (only present on error).
- * @param root0.workspaces - Which workspaces were checked.
- * @param root0.categories - Which verification categories were checked (type, lint, runtime).
+ * @param props - Component props (see {@link MessageItemProps}).
  * @returns The rendered verification badge element.
  */
 function VerificationBadge({
@@ -1192,12 +1183,7 @@ const NOTICE_TONE: Record<
  * {@link ResourceLimitBanner}) — so their icon + buttons can never drift apart
  * again. The host owns the button routes/copy; it passes them in as `action`.
  *
- * @param root0 - Component props.
- * @param root0.tone - Accent + default icon (info/gold/upgrade/success/signup).
- * @param root0.text - Plain-text body (fallback when no `content`).
- * @param root0.content - Composable inline body (prose / code / inline links).
- * @param root0.action - One or more host-supplied CTAs, rendered as buttons.
- * @param root0.icon - Icon-name override (defaults to the tone's icon).
+ * @param props - Component props (see {@link MessageItemProps}).
  * @returns The rendered notice card.
  */
 function NoticeCard({
@@ -1316,9 +1302,7 @@ function NoticeCard({
  * every other upgrade notice — no bespoke icon, no single-link special case. The
  * host supplies the sign-in / upgrade buttons via `buildUpgradeCta` → `action`.
  *
- * @param root0 - Component props.
- * @param root0.message - The resource-limit message.
- * @param root0.action - Host-supplied upgrade/sign-in CTAs (from `buildUpgradeCta`).
+ * @param props - Component props (see {@link MessageItemProps}).
  * @returns The rendered upgrade banner element.
  */
 function ResourceLimitBanner({
@@ -1336,9 +1320,7 @@ function ResourceLimitBanner({
 
 /**
  * Expandable tool-call-style card displaying a commit with its files.
- * @param root0 - Component props.
- * @param root0.card - The commit card data including message, files, and status.
- * @param root0.onRevert - Callback to revert a commit by hash. Returns the new commit hash on success.
+ * @param props - Component props (see {@link MessageItemProps}).
  * @returns The rendered commit card element.
  */
 export function CommitCardItem({
@@ -1594,7 +1576,7 @@ export function CommitCardItem({
 // MessageItem — memo'd to avoid re-rendering all messages when one changes
 // ---------------------------------------------------------------------------
 
-interface MessageItemProps {
+export interface MessageItemProps {
   msg: ChatMessage
   editingQueuedId: string | null
   editingQueuedText: string
@@ -2316,7 +2298,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
 // ChatInner — owns useChat, messages, input, commit
 // ---------------------------------------------------------------------------
 
-interface ChatInnerProps {
+export interface ChatInnerProps {
   projectId: string
   endpoint: string
   initialMessage?: string
@@ -2390,42 +2372,7 @@ interface ChatInnerProps {
 
 /**
  * Inner chat component that owns useChat state, message rendering, and input handling.
- * @param root0 - Component props.
- * @param root0.projectId - The project ID for the chat session.
- * @param root0.endpoint - The chat API endpoint URL.
- * @param root0.initialMessage - Optional message to auto-send on mount.
- * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
- * @param root0.isPro - Whether the current user has a Pro plan.
- * @param root0.buildUpgradeCta - Host-supplied builder for upgrade/sign-in CTA buttons.
- * @param root0.buildHelpUpgradeSection - Host-supplied builder for the `/help` upgrade section.
- * @param root0.activeFile - Path of the currently focused file in the editor.
- * @param root0.openTabs - Paths of all open editor tabs.
- * @param root0.onFileOpen - Callback to preview a file in the editor.
- * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
- * @param root0.onFileDiff - Callback to open a side-by-side diff view.
- * @param root0.onFileRevert - Callback to revert a file to previous content.
- * @param root0.onFileChange - Callback when a file's content changes from AI edits.
- * @param root0.onFileDeleted - Callback fired when a file is deleted.
- * @param root0.onCommit - Callback fired after a successful commit.
- * @param root0.onConversationId - Callback when the conversation ID is assigned.
- * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
- * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
- * @param root0.onClientAction - Callback fired on the client_action stream event (reload/navigate preview, open file).
- * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
- * @param root0.onRegisterPushHandler - Registers the broadcast-chat-event handler with the host (the chat push channel); called with null on unmount.
- * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
- * @param root0.openSettingsSignal - Changing this opens the /settings view (header gear button).
- * @param root0.openReportSignal - Changing this opens the /report bug-report modal (header bug button).
- * @param root0.openShareSignal - Changing this opens the /share link modal (header share button).
- * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
- * @param root0.pendingMessage - An externally triggered message to send.
- * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
- * @param root0.pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
- * @param root0.pendingMessageUserInitiated - When true, the pending message was directly requested by the user (a "Fix with AI" button) — it bypasses (and clears) a prior user Stop.
- * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
- * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
- * @param root0.gitStatusTick - Counter that increments when git status changes.
- * @param root0.userAvatar - Signed-in user's avatar shown beside their own messages (SOC1).
+ * @param props - Component props (see {@link MessageItemProps}).
  * @returns The rendered chat inner component.
  */
 function ChatInner({
@@ -8383,39 +8330,7 @@ function ChatInner({
 
 /**
  * AI chat panel with conversation history dropdown and Claude Code-style tool display.
- * @param root0 - Component props.
- * @param root0.projectId - The project ID for the chat session.
- * @param root0.endpoint - Optional custom chat API endpoint URL.
- * @param root0.initialMessage - Optional initial message to auto-send on mount.
- * @param root0.onInitialMessageSent - Callback fired after the initial message is sent.
- * @param root0.activeFile - Path of the currently focused file in the editor.
- * @param root0.openTabs - Paths of all open editor tabs.
- * @param root0.onFileOpen - Callback to preview a file in the editor.
- * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
- * @param root0.onFileDiff - Callback to open a side-by-side diff view.
- * @param root0.onFileRevert - Callback to revert a file to previous content.
- * @param root0.onFileChange - Callback when a file's content changes from AI edits.
- * @param root0.onFileDeleted - Callback fired when a file is deleted.
- * @param root0.onCommit - Callback fired after a successful commit.
- * @param root0.onActivityClick - Callback to open the Activity panel filtered to a clicked activity card.
- * @param root0.onReadyToBuild - Callback fired on the ready_to_build stream event to boot the sandbox.
- * @param root0.onClientAction - Callback fired on the client_action stream event (reload/navigate preview, open file).
- * @param root0.onTurnComplete - Callback fired on each stream done/error; host uses it to keep the boot view up until the during-boot plan stream completes.
- * @param root0.onRegisterPushHandler - Registers the broadcast-chat-event handler with the host (the chat push channel); called with null on unmount.
- * @param root0.autoSubmitSignal - Changing this submits the current input draft (prompt→chat morph).
- * @param root0.initialInputValue - Seeds the input with this text on mount (prompt→chat morph).
- * @param root0.hideConversationMenu - Hide the conversation-selector header (e.g. during discovery).
- * @param root0.gitStatusTick - Counter that increments when git status changes.
- * @param root0.pendingMessage - An externally triggered message to send.
- * @param root0.pendingMessageKey - Key to distinguish repeated pending messages.
- * @param root0.pendingMessageSuppressUser - When true, send the pending message without rendering a user bubble (auto-sent build kickoff).
- * @param root0.pendingMessageUserInitiated - When true, the pending message was directly requested by the user (a "Fix with AI" button) — it bypasses (and clears) a prior user Stop.
- * @param root0.userEditedFile - File path the user just edited — auto-deletes queued autofix messages referencing it.
- * @param root0.userEditedFileKey - Key to distinguish repeated edits to the same file.
- * @param root0.isPro - Whether the current user has a Pro plan.
- * @param root0.buildUpgradeCta - Host-supplied builder for upgrade/sign-in CTA buttons.
- * @param root0.buildHelpUpgradeSection - Host-supplied builder for the `/help` upgrade section.
- * @param root0.className - Optional CSS class name for the container.
+ * @param props - Component props (see {@link MessageItemProps}).
  * @returns The rendered chat panel element.
  */
 export function ChatPanel({

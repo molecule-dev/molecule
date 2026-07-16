@@ -37,7 +37,6 @@
  * - Values round-trip through `JSON.stringify`/`JSON.parse` by default (Dates become
  *   strings; `undefined`/functions are dropped) — pass custom
  *   `serialize`/`deserialize` for anything richer.
- * ```
  */
 
 export * from './provider.js'

@@ -11,7 +11,7 @@ import { MicrosoftLogo } from './MicrosoftLogo.js'
 import { TwitterLogo } from './TwitterLogo.js'
 import type { OAuthLogoProps, OAuthProviderId } from './types.js'
 
-interface OAuthProviderLogoProps extends OAuthLogoProps {
+export interface OAuthProviderLogoProps extends OAuthLogoProps {
   provider: OAuthProviderId | string
   /** Rendered when `provider` has no registered logo (default: `null`). */
   fallback?: React.ReactNode
@@ -24,9 +24,7 @@ interface OAuthProviderLogoProps extends OAuthLogoProps {
  * width, background) stays per-app while the logo itself is identical
  * across every consumer.
  *
- * @param root0
- * @param root0.provider
- * @param root0.fallback
+ * @param props - Component props (see {@link OAuthProviderLogoProps}).
  * @example
  * ```tsx
  * <OAuthProviderLogo provider="github" size={20} mode="mono" />

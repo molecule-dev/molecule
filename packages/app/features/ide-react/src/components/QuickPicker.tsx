@@ -45,14 +45,7 @@ function fuzzyScore(query: string, label: string): number {
 /**
  * Quick picker overlay with keyboard navigation.
  *
- * @param root0 - The component props.
- * @param root0.items - Items to display.
- * @param root0.placeholder - Input placeholder.
- * @param root0.onSelect - Called when an item is selected.
- * @param root0.onDismiss - Called on Escape or backdrop click.
- * @param root0.loading - Show loading indicator.
- * @param root0.initialQuery - Pre-fill the search input.
- * @param root0.className - Optional CSS class name.
+ * @param props - Component props.
  * @returns The quick picker element.
  */
 export function QuickPicker({

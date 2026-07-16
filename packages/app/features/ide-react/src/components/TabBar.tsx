@@ -73,8 +73,7 @@ function resolveFileColor(
 
 /**
  * File type icon resolved from material-file-icons.
- * @param root0 - Component props.
- * @param root0.name - The filename to resolve an icon for.
+ * @param props - Component props (see {@link TabItemProps}).
  * @returns The rendered file type icon element.
  */
 function FileTypeIcon({ name }: { name: string }): JSX.Element {
@@ -97,7 +96,7 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
 // Tab — individual tab with hover-gated close button
 // ---------------------------------------------------------------------------
 
-interface TabItemProps {
+export interface TabItemProps {
   path: string
   isDirty?: boolean
   isActive: boolean
@@ -114,19 +113,7 @@ interface TabItemProps {
 
 /**
  * Individual tab item with hover-gated close button and status coloring.
- * @param root0 - Component props.
- * @param root0.path - The file path this tab represents.
- * @param root0.isDirty - Whether the file has unsaved changes.
- * @param root0.isActive - Whether this tab is the currently active one.
- * @param root0.isPreview - Whether this tab is a preview (italic) tab.
- * @param root0.isDiff - Whether this tab is showing a diff view.
- * @param root0.gitStatus - The git status string for color coding.
- * @param root0.diagnostics - Error and warning counts for the file.
- * @param root0.onSelect - Callback when the tab is clicked.
- * @param root0.onClose - Callback when the close button is clicked.
- * @param root0.onDoubleClick - Callback when the tab is double-clicked (pin).
- * @param root0.statusColors - Map of git status names to colors.
- * @param root0.diagnosticColors - Map of diagnostic severity to colors.
+ * @param props - Component props (see {@link TabItemProps}).
  * @returns The rendered tab item element.
  */
 function TabItem({
@@ -263,14 +250,7 @@ function TabItem({
 
 /**
  * Horizontally scrollable tab bar for open editor files.
- * @param root0 - The component props.
- * @param root0.tabs - The list of open file tabs.
- * @param root0.activeFile - The path of the currently active file.
- * @param root0.onSelect - Callback invoked when a tab is clicked.
- * @param root0.onClose - Callback invoked when a tab's close button is clicked.
- * @param root0.onDoubleClick - Callback invoked when a tab is double-clicked (pin).
- * @param root0.fileStatuses - Git status map keyed by file path.
- * @param root0.className - Optional CSS class name for the tab bar.
+ * @param props - Component props (see {@link TabItemProps}).
  * @returns The rendered tab bar element, or null if no tabs are open.
  */
 export function TabBar({

@@ -37,14 +37,7 @@ const logger = getLogger('report-modal')
  * The bug-report / feedback modal opened by `/report`, `/bug`, and the header
  * bug-report button.
  *
- * @param root0 - Component props.
- * @param root0.projectId - The project the report is filed against.
- * @param root0.conversationId - The active conversation id (attached so the backend pulls the right recent chat when "include recent chat" is on).
- * @param root0.initialTitle - Seed title from `/report <title>` (empty otherwise).
- * @param root0.onClose - Called when the modal is dismissed (Cancel, Escape, backdrop).
- * @param root0.onSubmitted - Called with the server result after a successful POST.
- * @param root0.productName - Display name of the host product, interpolated into the subheading (neutral default: "the IDE").
- * @param root0.appVersion - Running build version, attached to the report's client diagnostics.
+ * @param props - Component props.
  * @returns The rendered report modal.
  */
 export function ReportModal({

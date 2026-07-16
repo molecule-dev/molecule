@@ -39,7 +39,6 @@
  *   corrupted entries look like missing keys.
  * - Tab-scoped variant: `createSessionStorageProvider()` / the `sessionProvider`
  *   const use `sessionStorage` with identical semantics.
- * ```
  */
 
 export * from './provider.js'

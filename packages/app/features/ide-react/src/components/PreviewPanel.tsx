@@ -287,14 +287,7 @@ async function isServerUp(url: string, externalSignal?: AbortSignal): Promise<bo
 
 /**
  * Live preview panel with iframe, device frame selector, and URL bar.
- * @param root0 - The component props.
- * @param root0.loadingIndicator - Custom loading indicator for initial start.
- * @param root0.restartingIndicator - Custom loading indicator for mid-session restarts.
- * @param root0.onPreviewError - Called when the preview iframe reports runtime JS errors.
- * @param root0.onPreviewStuck - Called when the preview fails to load after multiple recovery attempts.
- * @param root0.className - Optional CSS class name for the container.
- * @param root0.fileChangeTick - Incremented when the user edits a file, used to cancel queued autofix messages.
- * @param root0.wakeAt - When the preview's backing server/sandbox was last woken/restarted (ms epoch).
+ * @param props - Component props.
  * @returns The rendered preview panel element.
  */
 export function PreviewPanel({
@@ -1909,12 +1902,7 @@ PreviewPanel.displayName = 'PreviewPanel'
  * 2.5.5 minimum tap target. `cm.touchTarget` grows the hit-area to >=44x44px on
  * coarse-pointer (touch) devices ONLY, so the toolbar stays compact on desktop
  * but is comfortably tappable on phones/tablets.
- * @param root0 - Component props.
- * @param root0.icon - Icon-set glyph name.
- * @param root0.title - Tooltip + accessible label.
- * @param root0.molId - `data-mol-id` for AI-agent / test targeting.
- * @param root0.onClick - Click handler (omitted for disabled placeholders).
- * @param root0.disabled - Whether the button is a disabled placeholder.
+ * @param props - Component props.
  * @returns The rendered button element.
  */
 function BarButton({
@@ -1949,10 +1937,7 @@ function BarButton({
 
 /**
  * Fallback loading indicator when no custom one is provided.
- * @param root0 - Component props.
- * @param root0.restarting - Whether this is a restart (server was previously up).
- * @param root0.retryCount - Number of stuck-load recovery attempts so far.
- * @param root0.onManualRetry - Callback to trigger a manual retry.
+ * @param props - Component props.
  * @returns The rendered loading indicator element.
  */
 /**
@@ -1961,9 +1946,7 @@ function BarButton({
  * (the app's `#root` stayed empty). Unlike the reassuring building spinner, this gives the
  * user a clear way forward instead of a bare white screen: reload, or open the preview in a
  * new tab — and it honestly names the likely cause (an app error the agent can fix).
- * @param root0 - Component props.
- * @param root0.onReload - Reload the preview (remount + cache-bust).
- * @param root0.onOpenExternal - Open the preview URL in a new browser tab.
+ * @param props - Component props.
  * @returns The rendered blank-preview notice card.
  */
 function PreviewBlankNotice({
@@ -2054,10 +2037,7 @@ const PREVIEW_MESSAGES: ReadonlyArray<{ key: string; defaultValue: string }> = [
  * repeated recovery cycles) a manual retry button. With a `hint` it shows
  * "Updating `<hint>`" (the file the build is currently editing); without one it
  * rotates molecule-themed phrases so the overlay never reads as frozen.
- * @param root0 - Component props.
- * @param root0.hint - Current build edit target (e.g. a basename), or null to rotate phrases.
- * @param root0.retryCount - Number of auto-recovery cycles attempted so far.
- * @param root0.onManualRetry - Invoked when the user clicks "Retry now".
+ * @param props - Component props.
  * @returns The rendered loading indicator.
  */
 function DefaultLoadingIndicator({

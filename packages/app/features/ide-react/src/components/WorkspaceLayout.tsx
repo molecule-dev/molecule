@@ -18,9 +18,7 @@ import { clampPanelSize, livePanelSize } from './workspace-layout-utilities.js'
  * Top-level workspace layout that arranges child panels in a row with draggable
  * vertical dividers between them. Each divider resizes its left panel; the new
  * size is written back through `resizePanel`, so it persists in workspace state.
- * @param root0 - The component props.
- * @param root0.children - The panel components to render in the layout.
- * @param root0.className - Optional CSS class name for the layout container.
+ * @param props - Component props.
  * @returns The rendered workspace layout element.
  */
 export function WorkspaceLayout({ children, className }: WorkspaceLayoutProps): JSX.Element {

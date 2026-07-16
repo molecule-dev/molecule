@@ -44,12 +44,7 @@ type RunState = 'running' | ScriptRunResult
 /**
  * The scripts browser shown by `/scripts`.
  *
- * @param root0 - Component props.
- * @param root0.projectId - The project whose scripts to list and run.
- * @param root0.initialQuery - Seed query from `/scripts <query>` (empty for a bare `/scripts`).
- * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
- * @param root0.agentName - Display name of the AI coding agent, interpolated into the empty-state copy (neutral default: "the assistant").
- * @param root0.embedded - When `true`, the card is mounted INSIDE the closeable panel overlay
+ * @param props - Component props.
  *   (which already provides the `cm.surface` background + border + a header bar with the title and
  *   ✕). The card then renders transparent — dropping its own `cm.surfaceSecondary` fill, outer
  *   margin, border-radius, and its redundant "Scripts" heading — so the overlay reads as ONE clean

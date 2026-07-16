@@ -15,11 +15,7 @@ import { Icon } from './Icon.js'
 /**
  * Sidebar tab strip with file explorer and search icons.
  *
- * @param root0 - The component props.
- * @param root0.activeTab - The currently selected tab.
- * @param root0.onTabChange - Callback when tab is clicked.
- * @param root0.children - Content to render below the tab strip.
- * @param root0.className - Optional CSS class name.
+ * @param props - Component props.
  * @returns The sidebar tabs element.
  */
 export function SidebarTabs({

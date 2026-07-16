@@ -18,8 +18,7 @@ import { QuickPicker } from './QuickPicker.js'
 
 /**
  * File icon component reusing material-file-icons.
- * @param root0 - Component props.
- * @param root0.name - Filename used to resolve the icon.
+ * @param props - Component props.
  * @returns The file icon element.
  */
 function FileTypeIcon({ name }: { name: string }): JSX.Element {
@@ -35,10 +34,7 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
 /**
  * Quick Open file finder overlay.
  *
- * @param root0 - The component props.
- * @param root0.projectId - The project to list files for.
- * @param root0.onFileOpen - Called when a file is selected.
- * @param root0.onDismiss - Called when the picker is dismissed.
+ * @param props - Component props.
  * @returns The quick open element.
  */
 export function QuickOpen({ projectId, onFileOpen, onDismiss }: QuickOpenProps): JSX.Element {

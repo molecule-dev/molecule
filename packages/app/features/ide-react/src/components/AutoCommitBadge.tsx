@@ -60,13 +60,9 @@ function successTint(percent: number): string {
  * Clicking it commits now. Muted and inert while `disabled` (the agent is
  * working). Renders nothing when auto-commit is off.
  *
- * @param root0 - Component props.
- * @param root0.state - The current auto-commit countdown state.
- * @param root0.onCommitNow - Called when the button is clicked to commit immediately.
- * @param root0.disabled - When true, the button is muted and non-interactive
+ * @param props - Component props.
  *   (a turn is streaming / an auto-fix is pending): committing mid-turn is
  *   unsafe, so the click is suppressed and the label stays "Commit".
- * @param root0.inline - When true, render as an inline (relative) button that sits
  *   in normal flow — e.g. occupying the commit bar's button slot — instead of a
  *   floating button absolutely positioned over the input area.
  * @returns The rendered button, or `null` when auto-commit is disabled.

@@ -20,8 +20,7 @@ const LIN = '0 0 1 1'
 
 /**
  * Animated molecule logo spinner (pure SVG, no external deps).
- * @param root0 - Component props.
- * @param root0.size - The width and height of the spinner in pixels.
+ * @param props - Component props (see {@link StreamingIndicatorProps}).
  * @returns The rendered SVG spinner element.
  */
 function MolSpinner({ size = 16 }: { size?: number }): JSX.Element {
@@ -234,7 +233,7 @@ const MIN_TOKENS_SHOWN = 20
 // StreamingIndicator
 // ---------------------------------------------------------------------------
 
-interface StreamingIndicatorProps {
+export interface StreamingIndicatorProps {
   /** When true, renders only the spinner inline (no message text). */
   inline?: boolean
   /**
@@ -261,11 +260,7 @@ interface StreamingIndicatorProps {
  * activity (when `label` is passed) plus a live elapsed timer (when `startedAt`
  * is passed); otherwise rotates generic status messages. Pass `inline` for a
  * compact cursor replacement inside flowing text.
- * @param root0 - Component props.
- * @param root0.inline - When true, renders only the spinner without status text.
- * @param root0.label - Real current-activity text; overrides the generic rotation.
- * @param root0.startedAt - Turn start timestamp (ms) for the live elapsed counter.
- * @param root0.tokens - Estimated tokens generated so far (shown beside the timer).
+ * @param props - Component props (see {@link StreamingIndicatorProps}).
  * @returns The rendered streaming indicator element.
  */
 export function StreamingIndicator({

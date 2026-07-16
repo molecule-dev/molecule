@@ -6,12 +6,7 @@ import type { OAuthLogoProps } from './types.js'
  * Google "G" mark — per Google brand guidelines the 4-color logo is
  * required when space allows. In `mode='mono'` the logo flattens to
  * `currentColor` for use inside monochrome button rows.
- * @param root0
- * @param root0.size
- * @param root0.className
- * @param root0.mode
- * @param root0.ariaLabel
- * @param root0.title
+ * @param props - Component props.
  */
 export function GoogleLogo({
   size = 20,

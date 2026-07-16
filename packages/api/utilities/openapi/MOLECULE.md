@@ -735,38 +735,6 @@ function zodToJsonSchema(schema: ZodLikeSchema | JsonSchema): JsonSchema
 
 - `zod`
 
-for passing zod schemas.
-const route: RouteDefinition = {
-  method: 'post',
-  path: '/users',
-  summary: 'Create user',
-  request: {
-    body: {
-      type: 'object',
-      required: ['email', 'name'],
-      properties: {
-        email: { type: 'string', format: 'email' },
-        name: { type: 'string', minLength: 1 },
-      },
-    },
-  },
-  response: {
-    '201': { type: 'object', properties: { id: { type: 'string', format: 'uuid' } } },
-  },
-}
-
-const operation = routeToOperation(route)
-annotateOperation(route, operation, doc)
-addRouteToDoc(doc, route, operation)
-
-const result = validateRequest(operation, { body: { email: 'a@b.co', name: 'Ada' } })
-if (result.success === false) console.error(result.errors)
-
-const handler = createOpenApiHandler(doc)
-// app.get('/openapi.json', handler)
-```
-
-@remarks
 The validator prefers zod schemas when they're attached via
 `annotateOperation()` — this gives you zod's full error messages,
 coercion rules, and refinements. Note the TypeScript caveat, though:

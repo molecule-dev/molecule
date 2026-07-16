@@ -40,15 +40,7 @@ export interface SidebarLayoutProps {
 /**
  * Vertical sidebar shell with brand + vertical nav + bottom user-menu slot.
  *
- * @param root0
- * @param root0.appName
- * @param root0.logoTo
- * @param root0.navItems
- * @param root0.userMenu
- * @param root0.navAriaLabel
- * @param root0.sidebarWidthClass
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props.
  */
 export function SidebarLayout({
   appName,

@@ -34,10 +34,7 @@ const KEYBOARD_STEP_PX = 24
  * wide invisible grab zone wraps a thin visible line that brightens to the
  * primary color on hover/drag for a clear affordance. Arrow keys nudge the split
  * for keyboard users.
- * @param root0 - The component props.
- * @param root0.onResize - Callback invoked with the pixel delta on drag.
- * @param root0.direction - The resize direction, horizontal or vertical.
- * @param root0.className - Optional CSS class name for the handle.
+ * @param props - Component props.
  * @returns The rendered resize handle element.
  */
 export function ResizeHandle({

@@ -482,5 +482,3 @@ Peer dependencies:
   import them. Call `reset()` in `beforeEach`, or prefer the
   `createMockX()` factories for per-file isolation.
 - Name collisions: `waitFor` also exists as vitest's `vi.waitFor` and in
-  @testing-library; `createSpy` overlaps `vi.fn`. Import from ONE source
-  per file so the wrong signature isn't picked up silently.

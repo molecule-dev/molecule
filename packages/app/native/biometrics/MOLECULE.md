@@ -303,12 +303,6 @@ Peer dependencies:
 - `@molecule/app-bond`
 - `@molecule/app-logger`
 
-: this is NOT server auth
-  }
-}
-```
-
-@remarks
 **A successful {@link authenticate} is a CLIENT-side gate, NOT server authentication.**
 FaceID / TouchID / fingerprint unlocking the device proves nothing to your API — the server
 still requires a valid session/token on every request. Use biometrics to locally re-confirm a

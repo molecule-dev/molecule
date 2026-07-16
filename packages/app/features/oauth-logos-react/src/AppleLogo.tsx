@@ -7,11 +7,7 @@ const PATH =
 
 /**
  * Apple logo. Monochrome only — `mode` ignored.
- * @param root0
- * @param root0.size
- * @param root0.className
- * @param root0.ariaLabel
- * @param root0.title
+ * @param props - Component props.
  */
 export function AppleLogo({
   size = 20,

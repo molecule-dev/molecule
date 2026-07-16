@@ -31,12 +31,7 @@ import { Icon } from './Icon.js'
 /**
  * The `/help` high-level guide card.
  *
- * @param root0 - Component props.
- * @param root0.isLight - Whether the current theme is light mode (drives subtle row tints).
- * @param root0.agentName - Display name of the AI coding agent, interpolated into the intro/modes/tips copy (neutral default: "the assistant").
- * @param root0.productName - Display name of the host product, interpolated into the intro copy (neutral default: "the IDE").
- * @param root0.upgradeLines - Optional host-supplied plan/upgrade blurb lines appended below the guide (the shared IDE owns no pricing copy).
- * @param root0.upgradeAction - Optional host-supplied call-to-action rendered as a button below the upgrade blurb.
+ * @param props - Component props.
  * @returns The rendered help card.
  */
 export function HelpCard({

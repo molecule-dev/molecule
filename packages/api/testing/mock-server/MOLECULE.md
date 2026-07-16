@@ -772,14 +772,6 @@ Peer dependencies:
 - `express`
 - `zod`
 
-)
-server.clearState('GET /accounts')
-
-// Teardown
-await server.close()
-```
-
-@remarks
 The server uses deterministic seeded PRNG for stable fixture data, making
 screenshot comparisons reliable. Fixture data comes from the JSON files in
 `fixturesPath` (array files become CRUD resources; `reports`/`storefront`/

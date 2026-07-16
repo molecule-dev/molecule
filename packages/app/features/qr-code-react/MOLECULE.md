@@ -116,7 +116,7 @@ function buildQrPath(qr: { getModuleCount: () => number; isDark: (row: number, c
 
 **Returns:** SVG path `d` attribute string.
 
-#### `QrCode(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `QrCode(props)`
 
 Render a QR code as a crisp, scalable SVG. Accepts any string value
 (URL, redemption code, ticket token, ballot link, etc.) and optionally
@@ -144,16 +144,7 @@ function QrCode({
 }: QrCodeProps): JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .value - String value to encode.
-- `root0` — .size - SVG width/height in pixels.
-- `root0` — .errorCorrection - QR error-correction level.
-- `root0` — .fgColor - Foreground (dark module) color.
-- `root0` — .bgColor - Background color.
-- `root0` — .margin - Quiet-zone margin in modules.
-- `root0` — .logo - Optional center-logo overlay.
-- `root0` — .ariaLabel - Override accessible label.
-- `root0` — .className - Extra classes merged onto the SVG root.
+- `props` — Component props.
 
 **Returns:** The QR code SVG element.
 

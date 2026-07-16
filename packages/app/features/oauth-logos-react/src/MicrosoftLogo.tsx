@@ -6,12 +6,7 @@ import type { OAuthLogoProps } from './types.js'
  * Microsoft 4-square brand mark. `mode='brand'` renders the four
  * official squares; `mode='mono'` renders a flat 2×2 grid in
  * `currentColor`.
- * @param root0
- * @param root0.size
- * @param root0.className
- * @param root0.mode
- * @param root0.ariaLabel
- * @param root0.title
+ * @param props - Component props.
  */
 export function MicrosoftLogo({
   size = 20,

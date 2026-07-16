@@ -184,6 +184,17 @@ interface ToolBuildConfig {
   blockCommand?: (command: string, cwd: string) => string | null | undefined
 
   /**
+   * Timeout (ms) for a single `exec_command` run. `exec_command` legitimately
+   * runs LONG — `npm install`, a production build, a test suite — so the default
+   * is generous (2 min); the old 30 s hardcap killed those spuriously. A consumer
+   * that wraps tool calls in its own outer timeout should set this to match (or
+   * slightly exceed) that budget so its own timeout is the effective bound and
+   * produces the nicer "tool timed out" message. Quick commands are unaffected —
+   * this is only the ceiling before a wedged command is killed.
+   */
+  execTimeoutMs?: number
+
+  /**
    * Directory names `search_files` and `find_files` skip (VS Code
    * `search.exclude` semantics). Defaults to `DEFAULT_SEARCH_EXCLUDED_DIRS`
    * (node_modules, VCS dirs, build output). Pass the consumer's per-project

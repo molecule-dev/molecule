@@ -75,6 +75,16 @@ interface OAuthLogoProps {
 }
 ```
 
+#### `OAuthProviderLogoProps`
+
+```typescript
+interface OAuthProviderLogoProps extends OAuthLogoProps {
+  provider: OAuthProviderId | string
+  /** Rendered when `provider` has no registered logo (default: `null`). */
+  fallback?: React.ReactNode
+}
+```
+
 ### Types
 
 #### `OAuthProviderId`
@@ -97,7 +107,7 @@ type OAuthProviderId =
 
 ### Functions
 
-#### `AppleLogo(root0, root0, root0, root0, root0)`
+#### `AppleLogo(props)`
 
 Apple logo. Monochrome only — `mode` ignored.
 
@@ -110,13 +120,9 @@ function AppleLogo({
 }: OAuthLogoProps): React.JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .size
-- `root0` — .className
-- `root0` — .ariaLabel
-- `root0` — .title
+- `props` — Component props.
 
-#### `DiscordLogo(root0, root0, root0, root0, root0, root0)`
+#### `DiscordLogo(props)`
 
 Discord brand mark. `mode='brand'` renders the official blurple
 logo; `mode='mono'` renders in `currentColor`.
@@ -131,14 +137,9 @@ function DiscordLogo({
 }: OAuthLogoProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .size
-- `root0` — .className
-- `root0` — .mode
-- `root0` — .ariaLabel
-- `root0` — .title
+- `props` — Component props.
 
-#### `FacebookLogo(root0, root0, root0, root0, root0, root0)`
+#### `FacebookLogo(props)`
 
 Facebook "f" mark. `mode='brand'` renders the blue circle with white
 "f"; `mode='mono'` renders a monochrome "f" in `currentColor`.
@@ -153,14 +154,9 @@ function FacebookLogo({
 }: OAuthLogoProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .size
-- `root0` — .className
-- `root0` — .mode
-- `root0` — .ariaLabel
-- `root0` — .title
+- `props` — Component props.
 
-#### `GitHubLogo(root0, root0, root0, root0, root0)`
+#### `GitHubLogo(props)`
 
 GitHub Octocat brand mark.
 
@@ -177,13 +173,9 @@ function GitHubLogo({
 }: OAuthLogoProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .size
-- `root0` — .className
-- `root0` — .ariaLabel
-- `root0` — .title
+- `props` — Component props.
 
-#### `GitLabLogo(root0, root0, root0, root0, root0, root0)`
+#### `GitLabLogo(props)`
 
 GitLab tanuki — official brand mark, normalized to a 24×24 viewBox.
 `mode='mono'` renders a flat tanuki silhouette in `currentColor`.
@@ -198,14 +190,9 @@ function GitLabLogo({
 }: OAuthLogoProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .size
-- `root0` — .className
-- `root0` — .mode
-- `root0` — .ariaLabel
-- `root0` — .title
+- `props` — Component props.
 
-#### `GoogleLogo(root0, root0, root0, root0, root0, root0)`
+#### `GoogleLogo(props)`
 
 Google "G" mark — per Google brand guidelines the 4-color logo is
 required when space allows. In `mode='mono'` the logo flattens to
@@ -221,14 +208,9 @@ function GoogleLogo({
 }: OAuthLogoProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .size
-- `root0` — .className
-- `root0` — .mode
-- `root0` — .ariaLabel
-- `root0` — .title
+- `props` — Component props.
 
-#### `LinkedInLogo(root0, root0, root0, root0, root0, root0)`
+#### `LinkedInLogo(props)`
 
 LinkedIn brand mark. `mode='brand'` renders the blue square with
 white "in"; `mode='mono'` renders a monochrome "in" glyph.
@@ -243,14 +225,9 @@ function LinkedInLogo({
 }: OAuthLogoProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .size
-- `root0` — .className
-- `root0` — .mode
-- `root0` — .ariaLabel
-- `root0` — .title
+- `props` — Component props.
 
-#### `MicrosoftLogo(root0, root0, root0, root0, root0, root0)`
+#### `MicrosoftLogo(props)`
 
 Microsoft 4-square brand mark. `mode='brand'` renders the four
 official squares; `mode='mono'` renders a flat 2×2 grid in
@@ -266,14 +243,9 @@ function MicrosoftLogo({
 }: OAuthLogoProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .size
-- `root0` — .className
-- `root0` — .mode
-- `root0` — .ariaLabel
-- `root0` — .title
+- `props` — Component props.
 
-#### `OAuthProviderLogo(root0, root0, root0)`
+#### `OAuthProviderLogo(props)`
 
 Dispatcher: renders the canonical logo for a given provider id.
 
@@ -289,11 +261,9 @@ function OAuthProviderLogo({
 }: OAuthProviderLogoProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .provider
-- `root0` — .fallback
+- `props` — Component props (see {@link OAuthProviderLogoProps}).
 
-#### `TwitterLogo(root0, root0, root0, root0, root0)`
+#### `TwitterLogo(props)`
 
 X (formerly Twitter) brand mark. Monochrome only per X brand
 guidelines; `mode` is ignored — always uses `currentColor`.
@@ -309,11 +279,7 @@ function TwitterLogo({
 }: OAuthLogoProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .size
-- `root0` — .className
-- `root0` — .ariaLabel
-- `root0` — .title
+- `props` — Component props.
 
 ### Constants
 

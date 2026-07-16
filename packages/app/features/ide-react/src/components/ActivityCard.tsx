@@ -36,9 +36,7 @@ export interface ActivityCardProps {
 
 /**
  * Compact, clickable inline card for a single captured activity.
- * @param root0 - Component props.
- * @param root0.activity - The captured activity to render.
- * @param root0.onActivityClick - Callback fired when the card is clicked.
+ * @param props - Component props.
  * @returns The rendered activity card element.
  */
 export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): JSX.Element {

@@ -257,8 +257,7 @@ function getParentDir(path: string): string {
 
 /**
  * Chevron icon — points right when collapsed, down when expanded.
- * @param root0 - Component props.
- * @param root0.isOpen - Whether the chevron should point downward (expanded).
+ * @param props - Component props (see {@link FileTreeItemProps}).
  * @returns The rendered SVG chevron icon.
  */
 function ChevronIcon({ isOpen }: { isOpen: boolean }): JSX.Element {
@@ -295,8 +294,7 @@ function ChevronIcon({ isOpen }: { isOpen: boolean }): JSX.Element {
  * Uses dangerouslySetInnerHTML to render SVG from the material-file-icons library.
  * This is safe because the SVG content comes from a trusted static icon library,
  * not from user input.
- * @param root0 - Component props.
- * @param root0.name - The filename to resolve an icon for.
+ * @param props - Component props (see {@link FileTreeItemProps}).
  * @returns The rendered file type icon element.
  */
 function FileTypeIcon({ name }: { name: string }): JSX.Element {
@@ -320,7 +318,7 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
  */
 const MAX_RENDERED_NODES = 10_000
 
-interface FileTreeItemProps {
+export interface FileTreeItemProps {
   node: FileNode
   depth: number
   isExpanded: boolean
@@ -586,22 +584,7 @@ const FileTreeItem = memo(function FileTreeItem({
 
 /**
  * Tree-view file explorer component with multi-select, keyboard navigation, and drag-and-drop.
- * @param root0 - The component props.
- * @param root0.files - The root file nodes to display.
- * @param root0.onFileSelect - Callback invoked when a file is selected.
- * @param root0.onFileDoubleClick - Callback invoked when a file is double-clicked (pin tab).
- * @param root0.onDirExpand - Callback invoked when a directory is expanded.
- * @param root0.onRename - Callback invoked for the "Rename" context menu action.
- * @param root0.onDelete - Callback invoked for the "Delete" context menu action.
- * @param root0.onDeleteMultiple - Callback invoked for bulk delete.
- * @param root0.onMoveFiles - Callback invoked when files are moved via drag-and-drop or cut+paste.
- * @param root0.onNewFile - Callback invoked for the "New File" context menu action.
- * @param root0.onNewFolder - Callback invoked for the "New Folder" context menu action.
- * @param root0.onCollapseAll - Callback invoked for the "Collapse All" context menu action.
- * @param root0.className - Optional CSS class name for the container.
- * @param root0.persistKey - localStorage key for persisting expand/collapse state.
- * @param root0.activeFile - The currently active file path for highlighting.
- * @param root0.fileStatuses - Git status map keyed by file path.
+ * @param props - Component props (see {@link FileTreeItemProps}).
  * @returns The rendered file explorer element.
  */
 export function FileExplorer({

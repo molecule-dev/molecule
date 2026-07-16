@@ -29,8 +29,7 @@ function basename(path: string): string {
 
 /**
  * File icon component reusing material-file-icons.
- * @param root0 - Component props.
- * @param root0.name - Filename used to resolve the icon.
+ * @param props - Component props.
  * @returns The file icon element.
  */
 function FileTypeIcon({ name }: { name: string }): JSX.Element {
@@ -45,11 +44,7 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
 
 /**
  * Toggle button for search options (case sensitive, regex, whole word).
- * @param root0
- * @param root0.active
- * @param root0.onClick
- * @param root0.title
- * @param root0.children
+ * @param props - Component props.
  */
 const ToggleButton = memo(function ToggleButton({
   active,
@@ -89,11 +84,7 @@ const ToggleButton = memo(function ToggleButton({
 
 /**
  * Small action button used for replace actions.
- * @param root0
- * @param root0.onClick
- * @param root0.title
- * @param root0.children
- * @param root0.disabled
+ * @param props - Component props.
  */
 const ActionButton = memo(function ActionButton({
   onClick,
@@ -133,12 +124,7 @@ const ActionButton = memo(function ActionButton({
 
 /**
  * Collapsible result group for a single file.
- * @param root0
- * @param root0.result
- * @param root0.onResultClick
- * @param root0.onReplaceInFile
- * @param root0.isLight
- * @param root0.showReplace
+ * @param props - Component props.
  */
 const FileResultGroup = memo(function FileResultGroup({
   result,
@@ -286,10 +272,7 @@ const FileResultGroup = memo(function FileResultGroup({
 /**
  * Search-in-files panel for the IDE sidebar with find-and-replace support.
  *
- * @param root0 - The component props.
- * @param root0.projectId - The project to search in.
- * @param root0.onResultClick - Called when a match is clicked.
- * @param root0.className - Optional CSS class name.
+ * @param props - Component props.
  * @returns The search panel element.
  */
 export function SearchPanel({

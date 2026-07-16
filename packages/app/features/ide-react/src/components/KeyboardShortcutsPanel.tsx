@@ -34,9 +34,7 @@ function groupByCategory(shortcuts: ShortcutEntry[]): Map<string, ShortcutEntry[
 
 /**
  * Renders a single key badge.
- * @param root0 - Component props.
- * @param root0.children - The key label text.
- * @param root0.isLight - Whether light theme is active.
+ * @param props - Component props.
  * @returns The key badge element.
  */
 function KeyBadge({ children, isLight }: { children: string; isLight: boolean }): JSX.Element {
@@ -64,9 +62,7 @@ function KeyBadge({ children, isLight }: { children: string; isLight: boolean })
 /**
  * Keyboard shortcuts reference panel.
  *
- * @param root0 - The component props.
- * @param root0.shortcuts - Shortcut entries to display.
- * @param root0.onDismiss - Called on Escape or backdrop click.
+ * @param props - Component props.
  * @returns The keyboard shortcuts panel element.
  */
 export function KeyboardShortcutsPanel({

@@ -36,12 +36,8 @@ import { Icon } from './Icon.js'
 /**
  * Renders the proactive relevant-skill suggestion.
  *
- * @param root0 - Component props.
- * @param root0.skill - The skill the relevance pass judged most relevant.
- * @param root0.onLoad - Called when the user clicks **Load** (open the skill in the editor).
- * @param root0.onOpen - Called when the user clicks the skill name (open it in the editor). When
+ * @param props - Component props.
  *   omitted, the name renders as plain (non-clickable) text.
- * @param root0.onDismiss - Called when the user dismisses the suggestion.
  * @returns The rendered suggestion affordance.
  */
 export function RelevantSkillSuggestion({

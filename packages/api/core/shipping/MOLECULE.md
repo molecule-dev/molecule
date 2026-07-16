@@ -437,16 +437,6 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 
-— some bonds ignore it, others
-// expose it via a bond-specific quote helper); the rate MUST be one returned by
-// getRates — bonds reject a hand-built rate without rateId.
-const label = await createLabel(shipmentId, rates[0])
-
-// 3. Track using values from the purchased label.
-const status = await trackPackage(label.carrier, label.trackingNumber)
-```
-
-@remarks
 - **`createLabel` consumes the EXACT rate object returned by `getRates`** — its `rateId`
   is the provider's purchase handle and every bond rejects a rate without it. Persist the
   chosen {@link ShippingRate} (not a reconstruction of carrier/service/amount) between the

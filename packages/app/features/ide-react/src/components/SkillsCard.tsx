@@ -98,29 +98,17 @@ function skillBadgeStyle(baseColor: string): CSSProperties {
 /**
  * The skills browser shown by `/skills`, with the skill-authoring create form.
  *
- * @param root0 - Component props.
- * @param root0.projectId - The project whose skills to list.
- * @param root0.initialQuery - Seed query from `/skills <query>` (empty for a bare `/skills`).
- * @param root0.onLoad - Called when a skill's name link OR its "Load" button is clicked (both open the skill in the editor).
- * @param root0.onCreate - Creates a new skill from a display name and resolves the created
+ * @param props - Component props.
  *   skill (or `null` on failure). When omitted, the "New skill" affordance is hidden.
- * @param root0.startCreating - When `true`, mount with the inline "New skill" form already
  *   open.
- * @param root0.loadedSkillPaths - Paths of skills opened via "Load" this session — each then
  *   hides its "Load" button and shows the blue "Loaded" pill by its name (same as a
  *   default-loaded skill). Defaults to empty.
- * @param root0.defaultSkillPaths - Paths of skills in the persisted per-project default-loaded
  *   set (`settings.defaultSkills`) — each shows a green "Default" badge and a filled star toggle.
  *   Defaults to empty.
- * @param root0.onToggleDefault - Called to add/remove a skill from the default-loaded set; when
  *   omitted the per-row default toggle is hidden.
- * @param root0.onResetDefault - Called to reset the default-loaded set back to the IMPLICIT
  *   "all skills are default" state (P3-11); when omitted the reset affordance is hidden.
- * @param root0.defaultsExplicit - Whether the default set is currently an EXPLICIT user-built
  *   set (vs the implicit unset→all). The header reset affordance shows only when this is `true`,
  *   so there's a visible way back from the otherwise one-way door of the first explicit toggle.
- * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
- * @param root0.embedded - When `true`, the card is mounted INSIDE the closeable panel overlay
  *   (which already provides the `cm.surface` background + border + a header bar with the title and
  *   ✕). The card then renders transparent — dropping its own `cm.surfaceSecondary` fill, outer
  *   margin, border-radius, and its redundant "Skills" heading — so the overlay reads as ONE clean

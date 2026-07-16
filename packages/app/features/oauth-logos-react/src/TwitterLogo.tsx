@@ -10,11 +10,7 @@ const PATH =
  * guidelines; `mode` is ignored — always uses `currentColor`.
  *
  * Use either `<TwitterLogo/>` or `<XLogo/>` — they render the same SVG.
- * @param root0
- * @param root0.size
- * @param root0.className
- * @param root0.ariaLabel
- * @param root0.title
+ * @param props - Component props.
  */
 export function TwitterLogo({
   size = 20,

@@ -39,13 +39,7 @@ import type { SettingDescriptor } from './chat-settings-utilities.js'
 /**
  * The settings + command-reference card shown by `/settings`.
  *
- * @param root0 - Component props.
- * @param root0.settings - The enumerated, display-ready user-controllable settings.
- * @param root0.onRunCommand - Runs a slash command (used by the inline "Edit" buttons whose setting has no scoped `editInput`).
- * @param root0.onPrefillInput - Prefills an exact slash-command input (e.g. `/model --plan`) for settings whose bare command is not specific enough; falls back to `onRunCommand` when omitted.
- * @param root0.isLight - Whether the current theme is light mode (drives subtle tints).
- * @param root0.agentName - Display name of the AI coding agent, interpolated into the setting/command descriptions (neutral default: "the assistant").
- * @param root0.embedded - When `true`, the card is mounted INSIDE the closeable panel overlay
+ * @param props - Component props.
  *   (which already provides the `cm.surface` background + border + a header bar with the title and
  *   ✕). The card then renders transparent — dropping its own `cm.surfaceSecondary` fill, outer
  *   margin, border-radius, and its redundant "Settings" section heading — so the overlay reads as

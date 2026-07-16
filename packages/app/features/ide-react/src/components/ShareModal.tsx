@@ -39,11 +39,7 @@ const logger = getLogger('share-modal')
  * The share-link modal opened by `/share`, `/share <role>`, and the header
  * share button.
  *
- * @param root0 - Component props.
- * @param root0.projectId - The project the share link is created for.
- * @param root0.initialRole - Seed role from `/share <role>` (defaults to `viewer`).
- * @param root0.onClose - Called when the modal is dismissed (Done, Escape, backdrop).
- * @param root0.onCreated - Called with the created link after a successful POST (e.g. to surface it in the chat timeline).
+ * @param props - Component props.
  * @returns The rendered share modal.
  */
 export function ShareModal({

@@ -54,11 +54,7 @@ const CODE_STYLE: React.CSSProperties = {
 
 /**
  * Clickable filename code — single click opens preview, double click pins tab.
- * @param root0 - Component props.
- * @param root0.filePath - The file path to open on click.
- * @param root0.onFileOpen - Callback invoked on single click to preview the file.
- * @param root0.onFileDoubleClick - Callback invoked on double click to pin the file tab.
- * @param root0.children - The inline code content to display.
+ * @param props - Component props.
  * @returns The rendered clickable code element.
  */
 function FileCodeLink({
@@ -176,9 +172,7 @@ function packageResults(output: unknown): PackageResult[] {
 /**
  * Clickable rows for find_package matches — each opens the package's
  * MOLECULE.md in the editor.
- * @param root0 - Component props.
- * @param root0.results - The package matches to render.
- * @param root0.onFileOpen - Callback to preview a file in the editor.
+ * @param props - Component props.
  * @returns The rendered result rows.
  */
 function PackageResultRows({
@@ -616,21 +610,7 @@ function renderOut(name: string, output: unknown): ReactNode {
 
 /**
  * Compact tool-call row with status dot, label, summary, and expandable detail pane.
- * @param root0 - Component props.
- * @param root0.id - Unique identifier for this tool call.
- * @param root0.name - The tool name (e.g. "write_file", "exec_command").
- * @param root0.input - The raw tool input payload.
- * @param root0.output - The raw tool output payload.
- * @param root0.status - The execution status (pending, running, done, error).
- * @param root0.fileDiff - Original and modified file content for undo/redo.
- * @param root0.isUndone - Externally controlled undo state.
- * @param root0.onUndoToggle - Called when the undo/redo button is toggled.
- * @param root0.onFileOpen - Callback to preview a file in the editor.
- * @param root0.onFileDoubleClick - Callback to pin a file tab in the editor.
- * @param root0.onFileDiff - Callback to open a side-by-side diff view.
- * @param root0.onFileRevert - Callback to revert a file to previous content.
- * @param root0.onAskUserResponse - Callback to send the user's response to an ask_user tool.
- * @param root0.className - Optional CSS class name for the container.
+ * @param props - Component props.
  * @returns The rendered tool call card element.
  */
 export const ToolCallCard = memo(function ToolCallCard({

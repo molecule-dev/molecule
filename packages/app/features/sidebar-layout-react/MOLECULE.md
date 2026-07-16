@@ -88,7 +88,7 @@ interface SidebarNavItem {
 
 ### Functions
 
-#### `SidebarLayout(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `SidebarLayout(props)`
 
 Vertical sidebar shell with brand + vertical nav + bottom user-menu slot.
 
@@ -106,15 +106,7 @@ function SidebarLayout({
 }: SidebarLayoutProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .appName
-- `root0` — .logoTo
-- `root0` — .navItems
-- `root0` — .userMenu
-- `root0` — .navAriaLabel
-- `root0` — .sidebarWidthClass
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props.
 
 ## Injection Notes
 

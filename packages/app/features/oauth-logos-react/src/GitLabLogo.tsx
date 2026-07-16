@@ -5,12 +5,7 @@ import type { OAuthLogoProps } from './types.js'
 /**
  * GitLab tanuki — official brand mark, normalized to a 24×24 viewBox.
  * `mode='mono'` renders a flat tanuki silhouette in `currentColor`.
- * @param root0
- * @param root0.size
- * @param root0.className
- * @param root0.mode
- * @param root0.ariaLabel
- * @param root0.title
+ * @param props - Component props.
  */
 export function GitLabLogo({
   size = 20,

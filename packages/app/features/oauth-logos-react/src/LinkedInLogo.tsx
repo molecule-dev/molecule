@@ -10,12 +10,7 @@ const BG_PATH =
 /**
  * LinkedIn brand mark. `mode='brand'` renders the blue square with
  * white "in"; `mode='mono'` renders a monochrome "in" glyph.
- * @param root0
- * @param root0.size
- * @param root0.className
- * @param root0.mode
- * @param root0.ariaLabel
- * @param root0.title
+ * @param props - Component props.
  */
 export function LinkedInLogo({
   size = 20,
