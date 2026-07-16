@@ -1,22 +1,27 @@
 # @molecule/app-settings-container-react
 
-React Settings-page scaffold.
+React Settings-page scaffold (layout chrome only).
 
 Exports:
-- `<SettingsLayout>` — two-column [sidebar, content] with optional header.
-- `<SettingsSidebar>` — controlled side-nav list with icons + active state.
-- `<SettingsContent>` — right-column wrapper for multiple sections.
-- `<SettingsSection>` — Card-wrapped titled section with optional footer actions.
-- `SettingsSidebarItem` type for the sidebar item shape.
+- `<SettingsLayout>` — two-column [sidebar, content] with an optional
+  `header` slot rendered above both.
+- `<SettingsSidebar>` — controlled side-nav (`items`, `activeId`,
+  `onSelect`, optional `footer`); `SettingsSidebarItem` is
+  `{ id, label, icon? }`.
+- `<SettingsContent>` — stacked wrapper for the right column.
+- `<SettingsSection>` — Card-wrapped titled section (`title`,
+  `description?`, `footer?` action row, `dataMolId?`).
 
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
+
 import {
-  SettingsLayout,
-  SettingsSidebar,
   SettingsContent,
+  SettingsLayout,
   SettingsSection,
+  SettingsSidebar,
 } from '@molecule/app-settings-container-react'
 
 const NAV = [
@@ -24,13 +29,15 @@ const NAV = [
   { id: 'notifications', label: 'Notifications' },
 ]
 
-export function SettingsPage() {
-  const [active, setActive] = React.useState('profile')
+function SettingsPage() {
+  const [active, setActive] = useState('profile')
   return (
-    <SettingsLayout sidebar={<SettingsSidebar items={NAV} activeId={active} onSelect={setActive} />}>
+    <SettingsLayout
+      sidebar={<SettingsSidebar items={NAV} activeId={active} onSelect={setActive} />}
+    >
       <SettingsContent>
         <SettingsSection title="Profile" description="Update your display name and avatar.">
-          {/* form fields *\/}
+          <p>Form fields go here.</p>
         </SettingsSection>
       </SettingsContent>
     </SettingsLayout>
@@ -51,6 +58,62 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `SettingsContentProps`
+
+Props accepted by the {@link SettingsContent} component.
+
+```typescript
+interface SettingsContentProps {
+  /** Active section content. */
+  children: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `SettingsLayoutProps`
+
+Props accepted by the {@link SettingsLayout} component.
+
+```typescript
+interface SettingsLayoutProps {
+  /** Left-side navigation (typically `<SettingsSidebar>`). */
+  sidebar: ReactNode
+  /** Main content area (usually one or more `<SettingsSection>`s). */
+  children: ReactNode
+  /**
+   * Optional header (breadcrumb, title, save button) rendered above both
+   * columns. NOT sticky — apply your own sticky positioning if needed.
+   */
+  header?: ReactNode
+  /** Extra classes on the outer wrapper. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
+#### `SettingsSectionProps`
+
+Props accepted by the {@link SettingsSection} component.
+
+```typescript
+interface SettingsSectionProps {
+  /** Section heading. */
+  title: ReactNode
+  /** Optional description under the heading. */
+  description?: ReactNode
+  /** Section body. */
+  children: ReactNode
+  /** Optional footer row (save button, last-saved indicator). */
+  footer?: ReactNode
+  /** Extra classes on the Card. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
 #### `SettingsSidebarItem`
 
 A single navigable item in the settings sidebar.
@@ -63,9 +126,25 @@ interface SettingsSidebarItem {
 }
 ```
 
+#### `SettingsSidebarProps`
+
+Props accepted by the {@link SettingsSidebar} component.
+
+```typescript
+interface SettingsSidebarProps {
+  items: SettingsSidebarItem[]
+  activeId: string
+  onSelect: (id: string) => void
+  /** Optional footer inside the sidebar (sign-out, plan indicator). */
+  footer?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `SettingsContent(root0, root0, root0)`
+#### `SettingsContent(props)`
 
 Wrapper for the right-hand column of `<SettingsLayout>`. Just a
 vertically-stacked container for one or more `<SettingsSection>`s —
@@ -75,14 +154,12 @@ useful as a semantic landmark and for consistent spacing.
 function SettingsContent({ children, className }: SettingsContentProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .className
+- `props` — Component props (see {@link SettingsContentProps}).
 
-#### `SettingsLayout(root0, root0, root0, root0, root0, root0)`
+#### `SettingsLayout(props)`
 
 Two-column Settings page scaffold: sidebar on the left, content on the
-right, optional sticky header above both.
+right, optional (non-sticky) header above both.
 
 ```typescript
 function SettingsLayout({
@@ -94,14 +171,9 @@ function SettingsLayout({
 }: SettingsLayoutProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .sidebar
-- `root0` — .children
-- `root0` — .header
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link SettingsLayoutProps}).
 
-#### `SettingsSection(root0, root0, root0, root0, root0, root0, root0)`
+#### `SettingsSection(props)`
 
 One configuration section inside a Settings page — Card-wrapped, with
 title / description header, body slot, and optional footer action row.
@@ -117,15 +189,9 @@ function SettingsSection({
 }: SettingsSectionProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .description
-- `root0` — .children
-- `root0` — .footer
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link SettingsSectionProps}).
 
-#### `SettingsSidebar(root0, root0, root0, root0, root0, root0)`
+#### `SettingsSidebar(props)`
 
 Vertical side-nav for Settings pages. Controlled — caller owns `activeId`.
 
@@ -139,12 +205,7 @@ function SettingsSidebar({
 }: SettingsSidebarProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .activeId
-- `root0` — .onSelect
-- `root0` — .footer
-- `root0` — .className
+- `props` — Component props (see {@link SettingsSidebarProps}).
 
 ## Injection Notes
 
@@ -162,3 +223,15 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- The `header` slot is rendered above the columns but is NOT sticky —
+  apply your own sticky positioning if you need it pinned.
+- The two columns do not collapse responsively — swap the sidebar for a
+  drawer on small screens yourself.
+- Requires a bonded ClassMap. Labels are your own ReactNodes (translate
+  upstream); the sidebar nav's `aria-label="Settings"` is hardcoded
+  English.
+- Don't confuse with `@molecule/app-settings-panel-react`: that package is
+  the batteries-included panel (prebuilt Account/Auth/Billing/… sections
+  wired to molecule APIs). THIS package is empty layout chrome for
+  building your own settings pages.

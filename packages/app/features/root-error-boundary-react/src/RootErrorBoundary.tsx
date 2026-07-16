@@ -18,13 +18,6 @@ interface State {
  * surface localized through `@molecule/app-i18n`.
  *
  * Use this directly under your routing root so it covers the whole route tree.
- *
- * @example
- * import { RootErrorBoundary } from '@molecule/app-root-error-boundary-react'
- *
- * <RootErrorBoundary>
- *   <RouterProvider router={router} />
- * </RootErrorBoundary>
  */
 export class RootErrorBoundary extends Component<Props, State> {
   override state: State = { hasError: false }

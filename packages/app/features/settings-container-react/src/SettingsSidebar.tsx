@@ -9,7 +9,8 @@ export interface SettingsSidebarItem {
   icon?: ReactNode
 }
 
-interface SettingsSidebarProps {
+/** Props accepted by the {@link SettingsSidebar} component. */
+export interface SettingsSidebarProps {
   items: SettingsSidebarItem[]
   activeId: string
   onSelect: (id: string) => void
@@ -21,12 +22,7 @@ interface SettingsSidebarProps {
 
 /**
  * Vertical side-nav for Settings pages. Controlled — caller owns `activeId`.
- * @param root0
- * @param root0.items
- * @param root0.activeId
- * @param root0.onSelect
- * @param root0.footer
- * @param root0.className
+ * @param props - Component props (see {@link SettingsSidebarProps}).
  */
 export function SettingsSidebar({
   items,

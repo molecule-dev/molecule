@@ -2,7 +2,8 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface SectionDividerProps {
+/** Props accepted by the {@link SectionDivider} component. */
+export interface SectionDividerProps {
   /** Centered label text. */
   children?: ReactNode
   /** Where to align the label. Defaults to `'center'`. */
@@ -15,10 +16,7 @@ interface SectionDividerProps {
  * Horizontal divider with an optional centered label, common as
  * "OR" between auth options, "Today" between feed days, "—" between
  * sections.
- * @param root0
- * @param root0.children
- * @param root0.align
- * @param root0.className
+ * @param props - Component props (see {@link SectionDividerProps}).
  */
 export function SectionDivider({
   children,

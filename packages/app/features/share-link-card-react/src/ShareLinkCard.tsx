@@ -6,7 +6,8 @@ import { Card, Switch } from '@molecule/app-ui-react'
 
 import { CopyLinkField } from './CopyLinkField.js'
 
-interface ShareLinkCardProps {
+/** Props accepted by the {@link ShareLinkCard} component. */
+export interface ShareLinkCardProps {
   /** Card title. */
   title?: ReactNode
   /** Supporting copy under the title. */
@@ -35,15 +36,7 @@ interface ShareLinkCardProps {
  *
  * QR rendering is slot-based so apps can bring their own QR library
  * (`qrcode.react`, `@molecule/app-qr-code` when it exists, etc.).
- * @param root0
- * @param root0.title
- * @param root0.description
- * @param root0.url
- * @param root0.qr
- * @param root0.showQR
- * @param root0.passwordProtect
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link ShareLinkCardProps}).
  */
 export function ShareLinkCard({
   title,

@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 
 import { formatRelativeTime } from './formatRelativeTime.js'
 
-interface RelativeTimeProps {
+/** Props accepted by the {@link RelativeTime} component. */
+export interface RelativeTimeProps {
   /** ISO string, Date, or epoch ms. */
   date: Date | string | number
   /** Locale override. */
@@ -22,12 +23,7 @@ interface RelativeTimeProps {
  *
  * Pass `refreshMs={0}` for a one-shot render (cheaper in long lists;
  * the parent can provide a single ticker).
- * @param root0
- * @param root0.date
- * @param root0.locale
- * @param root0.refreshMs
- * @param root0.titleLocale
- * @param root0.className
+ * @param props - Component props (see {@link RelativeTimeProps}).
  */
 export function RelativeTime({
   date,

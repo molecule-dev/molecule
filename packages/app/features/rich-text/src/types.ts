@@ -337,7 +337,7 @@ export interface RichTextProvider {
   getName(): string
 
   /**
-   * Get the available toolbar configuration presets (e.g., 'basic', 'full').
+   * Get the available toolbar configuration presets (e.g., 'minimal', 'standard', 'full').
    * @returns A map of preset names to their ToolbarConfig definitions.
    */
   getToolbarPresets(): Record<string, ToolbarConfig>

@@ -3,7 +3,8 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
-interface RelatedItemsCardProps<T> {
+/** Props accepted by the {@link RelatedItemsCard} component. */
+export interface RelatedItemsCardProps<T> {
   /** Card heading. */
   title: ReactNode
   /** Optional leading icon in the header. */
@@ -33,17 +34,7 @@ interface RelatedItemsCardProps<T> {
  * "Ticket → Related Articles", "Post → Related Posts". Apps supply the
  * item data and a renderer; the card provides consistent header +
  * list + empty-state + view-all chrome.
- * @param root0
- * @param root0.title
- * @param root0.icon
- * @param root0.items
- * @param root0.renderItem
- * @param root0.onItemClick
- * @param root0.emptyState
- * @param root0.viewAllHref
- * @param root0.headerActions
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link RelatedItemsCardProps}).
  */
 export function RelatedItemsCard<T>({
   title,

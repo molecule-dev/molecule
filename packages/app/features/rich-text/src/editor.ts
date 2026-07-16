@@ -47,8 +47,8 @@ const sanitizeHtml = (html: string): string => getPurifier().sanitize(html)
 
 /**
  * Create a simple contentEditable-based rich text provider. This is a basic
- * fallback — for production use, prefer dedicated providers like
- * `@molecule/app-rich-text-quill` or `@molecule/app-rich-text-tiptap`.
+ * fallback — for production use, prefer a dedicated provider like
+ * `@molecule/app-rich-text-quill`.
  * @returns A RichTextProvider using the browser's contentEditable API.
  */
 export const createSimpleRichTextProvider = (): RichTextProvider => {

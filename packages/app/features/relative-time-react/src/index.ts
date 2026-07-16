@@ -17,6 +17,18 @@
  * // → "5 minutes ago"
  * ```
  *
+ * @remarks
+ * - Zero molecule wiring required — no ClassMap, no i18n provider, no bonds;
+ *   safe in any React tree.
+ * - `<RelativeTime>` props: `date` (Date | ISO string | epoch ms), `locale?`,
+ *   `refreshMs?` (default 60000 — pass `0` to disable the per-instance timer,
+ *   cheaper in long lists), `titleLocale?` (adds an absolute-date `title`
+ *   tooltip), `className?`.
+ * - `locale` defaults to the runtime's locale, NOT your app's i18n locale —
+ *   pass the active locale explicitly for consistent localized output.
+ * - When `Intl.RelativeTimeFormat` is unavailable, fallback strings
+ *   ("just now", "5m ago") are English-only.
+ *
  * @module
  */
 

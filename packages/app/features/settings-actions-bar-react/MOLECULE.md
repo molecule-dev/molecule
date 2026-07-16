@@ -1,19 +1,44 @@
 # @molecule/app-settings-actions-bar-react
 
-Sticky Save/Cancel bar with "Saved" timestamp + loading state for settings and form pages.
+Sticky Save/Cancel bar with "Saved" timestamp + loading state for settings
+and form pages.
+
+Exports `<SettingsActionsBar>`. Props: `onSave` (required; sync or async),
+`onCancel?` (Cancel hidden when omitted), `loading?` (disables Save and
+shows "Saving…"), `disabled?`, `savedAt?` (epoch ms → "Saved 3m ago"),
+`error?` (inline ReactNode), `sticky?` (default true), `leading?`
+(slot before the status), `className?`.
 
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
+
 import { SettingsActionsBar } from '@molecule/app-settings-actions-bar-react'
 
-<SettingsActionsBar
-  onSave={async () => saveProfile(formData)}
-  onCancel={() => resetForm()}
-  loading={isSaving}
-  savedAt={lastSavedAt}
-  error={saveError}
-/>
+function ProfileActions({ save, reset }: {
+  save: () => Promise<void>
+  reset: () => void
+}) {
+  const [saving, setSaving] = useState(false)
+  const [savedAt, setSavedAt] = useState<number | null>(null)
+  return (
+    <SettingsActionsBar
+      onSave={async () => {
+        setSaving(true)
+        try {
+          await save()
+          setSavedAt(Date.now())
+        } finally {
+          setSaving(false)
+        }
+      }}
+      onCancel={reset}
+      loading={saving}
+      savedAt={savedAt}
+    />
+  )
+}
 ```
 
 ## Type
@@ -27,9 +52,38 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `SettingsActionsBarProps`
+
+Props accepted by the {@link SettingsActionsBar} component.
+
+```typescript
+interface SettingsActionsBarProps {
+  /** Called when Save is clicked. */
+  onSave: () => void | Promise<void>
+  /** Called when Cancel is clicked. Hides Cancel if omitted. */
+  onCancel?: () => void
+  /** When true, the Save button disables and shows a loading label. */
+  loading?: boolean
+  /** When true, the Save button is disabled without a loading label. */
+  disabled?: boolean
+  /** When set, shows a "Saved" badge with the relative time. Epoch ms. */
+  savedAt?: number | null
+  /** Error text rendered inline. */
+  error?: ReactNode
+  /** Sticky-to-bottom. Defaults to true. */
+  sticky?: boolean
+  /** Additional content rendered before the buttons (status indicator, last-edited info). */
+  leading?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `SettingsActionsBar(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `SettingsActionsBar(props)`
 
 Sticky bottom / inline Save-Cancel bar for settings and forms.
 
@@ -54,16 +108,7 @@ function SettingsActionsBar({
 }: SettingsActionsBarProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .onSave
-- `root0` — .onCancel
-- `root0` — .loading
-- `root0` — .disabled
-- `root0` — .savedAt
-- `root0` — .error
-- `root0` — .sticky
-- `root0` — .leading
-- `root0` — .className
+- `props` — Component props (see {@link SettingsActionsBarProps}).
 
 ## Injection Notes
 
@@ -81,3 +126,17 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- The sticky bar ships with NO background surface — page content scrolls
+  visibly beneath it. Pass a surface class via `className` (e.g.
+  `cm.surface`) whenever `sticky` is on.
+- The "Saved …" time is English-shorthand ("3m ago"), computed once per
+  render — it does not tick while mounted; re-render (or bump `savedAt`)
+  to refresh it.
+- `error` renders as plain unstyled text — style/color the node yourself.
+- Throws unless inside `<I18nProvider>` with a bonded ClassMap.
+  Translations: `@molecule/app-locales-settings-actions-bar`.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-settings-actions-bar`.

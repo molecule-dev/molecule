@@ -20,6 +20,8 @@ automations).
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
+
 import {
   RuleBuilder,
   emptyGroup,
@@ -397,6 +399,15 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- `<RuleBuilder>` throws unless rendered inside `<I18nProvider>` (from
+  `@molecule/app-react`) with a bonded ClassMap (`setClassMap()`).
+- Output is a plain JSON-serializable `Rule` tree — this package only
+  renders and edits it. Evaluation (matching rows/users against the tree)
+  is the app's job, typically server-side.
+- Fully controlled: keep the tree in state and pass it back via `rules`;
+  start with `emptyGroup('AND')`.
+- Translations: registered companion bond `@molecule/app-locales-rule-builder`.
 
 ## Translations
 

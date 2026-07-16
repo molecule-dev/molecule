@@ -17,7 +17,8 @@ export interface SuggestionItem<T = unknown> {
   data?: T
 }
 
-interface SearchAutocompleteProps<T = unknown> {
+/** Props accepted by the {@link SearchAutocomplete} component. */
+export interface SearchAutocompleteProps<T = unknown> {
   /** Current input value. */
   value: string
   /** Called whenever the input changes. */
@@ -41,16 +42,7 @@ interface SearchAutocompleteProps<T = unknown> {
 /**
  * Search input with a typeahead suggestions popover. Pass either
  * `onSearch` (async fetch with debounce) or `suggestions` (controlled).
- * @param root0
- * @param root0.value
- * @param root0.onChange
- * @param root0.onSearch
- * @param root0.suggestions
- * @param root0.onSelect
- * @param root0.placeholder
- * @param root0.debounceMs
- * @param root0.minChars
- * @param root0.className
+ * @param props - Component props (see {@link SearchAutocompleteProps}).
  */
 export function SearchAutocomplete<T = unknown>({
   value,

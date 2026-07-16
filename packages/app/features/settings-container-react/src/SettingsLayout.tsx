@@ -2,12 +2,16 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface SettingsLayoutProps {
+/** Props accepted by the {@link SettingsLayout} component. */
+export interface SettingsLayoutProps {
   /** Left-side navigation (typically `<SettingsSidebar>`). */
   sidebar: ReactNode
   /** Main content area (usually one or more `<SettingsSection>`s). */
   children: ReactNode
-  /** Optional sticky header (breadcrumb, title, save button). */
+  /**
+   * Optional header (breadcrumb, title, save button) rendered above both
+   * columns. NOT sticky — apply your own sticky positioning if needed.
+   */
   header?: ReactNode
   /** Extra classes on the outer wrapper. */
   className?: string
@@ -17,13 +21,8 @@ interface SettingsLayoutProps {
 
 /**
  * Two-column Settings page scaffold: sidebar on the left, content on the
- * right, optional sticky header above both.
- * @param root0
- * @param root0.sidebar
- * @param root0.children
- * @param root0.header
- * @param root0.className
- * @param root0.dataMolId
+ * right, optional (non-sticky) header above both.
+ * @param props - Component props (see {@link SettingsLayoutProps}).
  */
 export function SettingsLayout({
   sidebar,

@@ -25,9 +25,26 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `SectionDividerProps`
+
+Props accepted by the {@link SectionDivider} component.
+
+```typescript
+interface SectionDividerProps {
+  /** Centered label text. */
+  children?: ReactNode
+  /** Where to align the label. Defaults to `'center'`. */
+  align?: 'start' | 'center' | 'end'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `SectionDivider(root0, root0, root0, root0)`
+#### `SectionDivider(props)`
 
 Horizontal divider with an optional centered label, common as
 "OR" between auth options, "Today" between feed days, "—" between
@@ -41,10 +58,7 @@ function SectionDivider({
 }: SectionDividerProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .align
-- `root0` — .className
+- `props` — Component props (see {@link SectionDividerProps}).
 
 ## Injection Notes
 
@@ -62,3 +76,12 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Requires a bonded ClassMap (`setClassMap()` at startup) — rendering
+  throws otherwise. No i18n dependency (the label is your own ReactNode —
+  translate it upstream).
+- `align` positions the label: `'center'` (default) draws lines on both
+  sides; `'start'` / `'end'` put the label at that edge with a single
+  line filling the rest.
+- Lines use `currentColor` at 20% opacity, so they inherit the local text
+  color in both light and dark themes.

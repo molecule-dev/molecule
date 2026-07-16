@@ -3,12 +3,14 @@
 Rich text editor interface for molecule.dev.
 
 Provides a unified API for rich text editing that can be backed by
-different editor implementations (Quill, TipTap, Slate, etc.).
+different editor implementations. Wire a provider with `setProvider()`;
+`@molecule/app-rich-text-quill` is the shipped production bond.
 
 ## Quick Start
 
 ```ts
-import { setProvider, createEditor, htmlToValue } from '@molecule/app-rich-text'
+import { createEditor, htmlToValue, setProvider } from '@molecule/app-rich-text'
+import type { TextChangeData } from '@molecule/app-rich-text'
 import { provider as quillProvider } from '@molecule/app-rich-text-quill'
 
 // Wire the provider once at app startup
@@ -16,9 +18,9 @@ setProvider(quillProvider)
 
 // Create an editor instance attached to a DOM container
 const container = document.getElementById('editor')!
-const editor = createEditor({ container, placeholder: 'Start typing…', toolbar: 'basic' })
+const editor = createEditor({ container, placeholder: 'Start typing…', toolbar: 'standard' })
 
-editor.on('text-change', ({ value }) => console.log(value.text))
+editor.on<TextChangeData>('text-change', ({ value }) => console.log(value.text))
 
 // Convert existing HTML into the editor
 editor.setValue(htmlToValue('<p>Hello <strong>world</strong></p>'))
@@ -249,7 +251,7 @@ interface RichTextProvider {
   getName(): string
 
   /**
-   * Get the available toolbar configuration presets (e.g., 'basic', 'full').
+   * Get the available toolbar configuration presets (e.g., 'minimal', 'standard', 'full').
    * @returns A map of preset names to their ToolbarConfig definitions.
    */
   getToolbarPresets(): Record<string, ToolbarConfig>
@@ -460,8 +462,8 @@ function createEmptyValue(): RichTextValue
 #### `createSimpleRichTextProvider()`
 
 Create a simple contentEditable-based rich text provider. This is a basic
-fallback — for production use, prefer dedicated providers like
-`@molecule/app-rich-text-quill` or `@molecule/app-rich-text-tiptap`.
+fallback — for production use, prefer a dedicated provider like
+`@molecule/app-rich-text-quill`.
 
 ```typescript
 function createSimpleRichTextProvider(): RichTextProvider
@@ -545,3 +547,17 @@ Peer dependencies:
 
 - `@molecule/app-bond`
 - `dompurify`
+
+- Toolbar presets are `'minimal' | 'standard' | 'full'` (see
+  `defaultToolbars`). There is no `'basic'` preset — the quill bond
+  silently substitutes `standard` for unknown names.
+- If you never call `setProvider()`, the first editor call silently
+  self-bonds a minimal contentEditable fallback: NO toolbar UI, no delta
+  support, basic formatting only. Fine for plain notes; wire the quill
+  bond for real editing. `hasProvider()` reports whether a provider was
+  explicitly bonded before this fallback kicks in.
+- The fallback sanitizes all HTML through DOMPurify (bundled). Other
+  providers own their own sanitization — always treat stored HTML as
+  untrusted when rendering outside the editor.
+- Browser-only: `createEditor` touches `document`/`window` — do not call
+  during SSR.

@@ -11,7 +11,8 @@ export interface ReorderableItem<T> {
   data: T
 }
 
-interface ReorderableListProps<T> {
+/** Props accepted by the {@link ReorderableList} component. */
+export interface ReorderableListProps<T> {
   items: ReorderableItem<T>[]
   /** Called with the new order (full list). */
   onReorder: (next: ReorderableItem<T>[]) => void
@@ -29,12 +30,7 @@ interface ReorderableListProps<T> {
  *
  * Use the optional `renderHandle` slot to limit drag to a specific
  * element (e.g. a "≡" handle on the left).
- * @param root0
- * @param root0.items
- * @param root0.onReorder
- * @param root0.renderItem
- * @param root0.renderHandle
- * @param root0.className
+ * @param props - Component props (see {@link ReorderableListProps}).
  */
 export function ReorderableList<T>({
   items,

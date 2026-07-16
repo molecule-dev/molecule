@@ -3,7 +3,8 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
-interface SettingsSectionProps {
+/** Props accepted by the {@link SettingsSection} component. */
+export interface SettingsSectionProps {
   /** Section heading. */
   title: ReactNode
   /** Optional description under the heading. */
@@ -21,13 +22,7 @@ interface SettingsSectionProps {
 /**
  * One configuration section inside a Settings page — Card-wrapped, with
  * title / description header, body slot, and optional footer action row.
- * @param root0
- * @param root0.title
- * @param root0.description
- * @param root0.children
- * @param root0.footer
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link SettingsSectionProps}).
  */
 export function SettingsSection({
   title,

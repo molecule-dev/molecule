@@ -1,7 +1,11 @@
 /**
- * Re-export of `CopyLinkField` from `@molecule/app-copy-link-field-react`.
- * Kept here as a thin local alias so this package is self-contained when
- * apps only need the share card.
+ * Local `CopyLinkField` implementation — NOT a re-export. This is a trimmed,
+ * diverged copy of the component in `@molecule/app-copy-link-field-react`
+ * (the original adds `label`, `onCopy`, `feedbackMs`, `size` props). Kept
+ * here so this package is self-contained when apps only need the share
+ * card; it is internal to `<ShareLinkCard>` and not exported from the
+ * package barrel. Prefer `@molecule/app-copy-link-field-react` for a
+ * standalone copy field.
  *
  * @module
  */
@@ -12,7 +16,8 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface CopyLinkFieldProps {
+/** Props accepted by the {@link CopyLinkField} component. */
+export interface CopyLinkFieldProps {
   value: string
   className?: string
 }
@@ -20,9 +25,7 @@ interface CopyLinkFieldProps {
 /**
  * Renders a read-only text input paired with a copy button that writes the given URL to the clipboard.
  *
- * @param root0
- * @param root0.value
- * @param root0.className
+ * @param props - Component props (see {@link CopyLinkFieldProps}).
  */
 export function CopyLinkField({ value, className }: CopyLinkFieldProps): JSX.Element {
   const cm = getClassMap()

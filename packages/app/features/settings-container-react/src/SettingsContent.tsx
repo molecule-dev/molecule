@@ -2,7 +2,8 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface SettingsContentProps {
+/** Props accepted by the {@link SettingsContent} component. */
+export interface SettingsContentProps {
   /** Active section content. */
   children: ReactNode
   /** Extra classes. */
@@ -13,9 +14,7 @@ interface SettingsContentProps {
  * Wrapper for the right-hand column of `<SettingsLayout>`. Just a
  * vertically-stacked container for one or more `<SettingsSection>`s —
  * useful as a semantic landmark and for consistent spacing.
- * @param root0
- * @param root0.children
- * @param root0.className
+ * @param props - Component props (see {@link SettingsContentProps}).
  */
 export function SettingsContent({ children, className }: SettingsContentProps): JSX.Element {
   const cm = getClassMap()

@@ -1,20 +1,34 @@
 # @molecule/app-reputation-badge-react
 
-React reputation/karma surfaces — `<ReputationBadge>` and
-`<BadgeShelf>` — for forum, discussion-boards, and social-media flagships.
+React reputation/karma surfaces — `<ReputationBadge>` and `<BadgeShelf>` —
+for forum, discussion-board, and social flagships.
 
-Both components defer styling to the active ClassMap bond (`getClassMap()`
-from `@molecule/app-ui`) and route every user-visible string through
-`useTranslation()` from `@molecule/app-react`. Translations live in the
-companion `@molecule/app-locales-reputation-badge` bond.
+`<ReputationBadge score={n} />` renders a compact-formatted score ("1.5k")
+plus a tier chip; the tier derives from `score` via `levelForScore` and
+`DEFAULT_THRESHOLDS` (contributor 100, trusted 500, veteran 2000,
+legend 10000) unless you pass `level` or `thresholds`. `variant` is
+`'compact'` (default) or `'full'` (stacked with a "Reputation" caption).
+`<BadgeShelf badges limit onClick />` renders earned-badge icons with a
+trailing `+N` overflow chip (`onClick(null)` signals "expand all").
 
 ## Quick Start
 
 ```tsx
-import { ReputationBadge, BadgeShelf } from '@molecule/app-reputation-badge-react'
+import { BadgeShelf, ReputationBadge } from '@molecule/app-reputation-badge-react'
+import type { Badge } from '@molecule/app-reputation-badge-react'
 
-<ReputationBadge score={1250} variant="full" />
-<BadgeShelf badges={user.badges} limit={5} onClick={(b) => openBadgeModal(b)} />
+function ProfileHeader({ score, badges, onBadgeClick }: {
+  score: number
+  badges: Badge[]
+  onBadgeClick: (badge: Badge | null) => void
+}) {
+  return (
+    <div>
+      <ReputationBadge score={score} variant="full" />
+      <BadgeShelf badges={badges} limit={5} onClick={onBadgeClick} />
+    </div>
+  )
+}
 ```
 
 ## Type
@@ -48,6 +62,57 @@ interface Badge {
   iconSrc?: string
   /** ISO date string the badge was earned (passed back via `onClick`). */
   earnedAt?: string
+}
+```
+
+#### `BadgeShelfProps`
+
+Props accepted by the {@link BadgeShelf} component.
+
+```typescript
+interface BadgeShelfProps {
+  /** Earned badges to display, ordered most-prominent-first. */
+  badges: Badge[]
+  /**
+   * Maximum number of badge icons rendered inline. Any remaining are
+   * summarised in a trailing `+N` overflow chip.
+   *
+   * @default 5
+   */
+  limit?: number
+  /**
+   * Click handler — invoked with the clicked badge (or `null` when the
+   * trailing overflow chip is clicked, signalling "expand all").
+   */
+  onClick?: (badge: Badge | null) => void
+  /** Extra classes merged onto the outer row. */
+  className?: string
+}
+```
+
+#### `ReputationBadgeProps`
+
+Props accepted by the {@link ReputationBadge} component.
+
+```typescript
+interface ReputationBadgeProps {
+  /** Numeric reputation / karma score. */
+  score: number
+  /**
+   * Explicit reputation level. If omitted, derived from `score` via
+   * {@link levelForScore} using `thresholds` (or {@link DEFAULT_THRESHOLDS}).
+   */
+  level?: ReputationLevel
+  /** Override the default score → level thresholds. */
+  thresholds?: ReputationThresholds
+  /**
+   * Layout variant.
+   * - `'compact'` (default) — score number inline with a small level chip.
+   * - `'full'` — stacked layout with a "Reputation" caption above the row.
+   */
+  variant?: 'compact' | 'full'
+  /** Extra classes merged onto the outer wrapper. */
+  className?: string
 }
 ```
 
@@ -93,7 +158,7 @@ type ReputationLevel = 'newcomer' | 'contributor' | 'trusted' | 'veteran' | 'leg
 
 ### Functions
 
-#### `BadgeShelf(root0, root0, root0, root0, root0)`
+#### `BadgeShelf(props)`
 
 Horizontal row of small badge icons earned by a user — used alongside
 `<ReputationBadge>` to surface community achievements on profile
@@ -113,11 +178,7 @@ function BadgeShelf({
 }: BadgeShelfProps): React.JSX.Element | null
 ```
 
-- `root0` — Component props.
-- `root0` — .badges - Badges to display.
-- `root0` — .limit - Maximum visible badges (default `5`).
-- `root0` — .onClick - Optional click handler.
-- `root0` — .className - Extra wrapper classes.
+- `props` — Component props (see {@link BadgeShelfProps}).
 
 **Returns:** The rendered shelf, or `null` if no badges are supplied.
 
@@ -151,7 +212,7 @@ function levelForScore(score: number, thresholds?: ReputationThresholds): Reputa
 
 **Returns:** The derived reputation level.
 
-#### `ReputationBadge(root0, root0, root0, root0, root0, root0)`
+#### `ReputationBadge(props)`
 
 User reputation / karma display.
 
@@ -172,12 +233,7 @@ function ReputationBadge({
 }: ReputationBadgeProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .score - Numeric reputation score.
-- `root0` — .level - Optional explicit level override.
-- `root0` — .thresholds - Optional threshold overrides.
-- `root0` — .variant - Layout variant (`'compact'` default).
-- `root0` — .className - Extra wrapper classes.
+- `props` — Component props (see {@link ReputationBadgeProps}).
 
 **Returns:** The rendered reputation badge element.
 
@@ -208,8 +264,14 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 
-Pairs with the (deferred) `@molecule/api-reputation` core package for
-server-side score/badge issuance.
+- Both components throw unless rendered inside `<I18nProvider>` (from
+  `@molecule/app-react`) with a ClassMap bonded via `setClassMap()`.
+- This package exports a `Badge` TYPE (earned-badge data shape) — distinct
+  from the `Badge` COMPONENT in `@molecule/app-ui-react`; alias one when
+  importing both in a file.
+- Server-side score/badge issuance pairs with `@molecule/api-reputation`.
+- Translations live in the companion `@molecule/app-locales-reputation-badge`
+  bond (registered).
 
 ## Translations
 

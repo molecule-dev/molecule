@@ -11,25 +11,14 @@ export type PrecacheEntry = { url: string; revision: string | null }
 
 /**
  * Wires the default service worker — precache manifest, app-shell
- * navigation routing, image cache with StaleWhileRevalidate, and a
- * SKIP_WAITING message handler.
+ * navigation routing, same-origin PNG image cache with
+ * StaleWhileRevalidate, and a SKIP_WAITING message handler.
  *
- * Must be called from the app's `src/service-worker.ts` so
- * vite-plugin-pwa's manifest injection sees the `__WB_MANIFEST`
- * reference inside the SW file (the plugin scans the SW source for
- * the token at build time).
- *
- * @example
- * ```ts
- * /// <reference lib="webworker" />
- * import { setupDefaultServiceWorker } from '@molecule/app-service-worker-default'
- *
- * declare const self: ServiceWorkerGlobalScope & {
- *   __WB_MANIFEST: Array<{ url: string; revision: string | null }>
- * }
- *
- * setupDefaultServiceWorker(self, self.__WB_MANIFEST)
- * ```
+ * Must be called from the app's `src/service-worker.ts` so the
+ * build-time manifest injection (vite-plugin-pwa `injectManifest`,
+ * workbox-webpack-plugin, workbox-cli) sees the `__WB_MANIFEST`
+ * reference inside the SW file (the tool scans the SW source for
+ * the token at build time). See the package-level example.
  */
 export function setupDefaultServiceWorker(
   worker: ServiceWorkerGlobalScope,

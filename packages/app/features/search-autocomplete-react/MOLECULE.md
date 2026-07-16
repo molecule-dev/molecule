@@ -1,23 +1,38 @@
 # @molecule/app-search-autocomplete-react
 
-Search input with typeahead suggestions.
+Search input with a typeahead suggestion popover.
 
-Exports `<SearchAutocomplete>` and `SuggestionItem` type.
+Exports `<SearchAutocomplete>` and the `SuggestionItem<T>` type
+(`{ id, label, meta?, data? }`). Two data modes — pass ONE of:
+`onSearch(query)` (async fetch, debounced; default 200 ms) or
+`suggestions` (caller-controlled list). Other props: `value` / `onChange`
+(controlled input), `onSelect(item)`, `placeholder?` (defaults to the
+translated `search.placeholder`), `debounceMs?`, `minChars?` (default 1),
+`className?`.
 
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
+
 import { SearchAutocomplete } from '@molecule/app-search-autocomplete-react'
+import type { SuggestionItem } from '@molecule/app-search-autocomplete-react'
 
-const [query, setQuery] = useState('')
-
-<SearchAutocomplete
-  value={query}
-  onChange={setQuery}
-  onSearch={async (q) => fetchUsers(q)}
-  onSelect={(item) => navigate(`/users/${item.id}`)}
-  placeholder="Search users…"
-/>
+function UserSearch({ fetchUsers, onPick }: {
+  fetchUsers: (q: string) => Promise<SuggestionItem<{ id: string }>[]>
+  onPick: (id: string) => void
+}) {
+  const [query, setQuery] = useState('')
+  return (
+    <SearchAutocomplete
+      value={query}
+      onChange={setQuery}
+      onSearch={fetchUsers}
+      onSelect={(item) => (item.data ? onPick(item.data.id) : undefined)}
+      placeholder="Search users…"
+    />
+  )
+}
 ```
 
 ## Type
@@ -32,6 +47,33 @@ npm install -D @types/react
 ## API
 
 ### Interfaces
+
+#### `SearchAutocompleteProps`
+
+Props accepted by the {@link SearchAutocomplete} component.
+
+```typescript
+interface SearchAutocompleteProps<T = unknown> {
+  /** Current input value. */
+  value: string
+  /** Called whenever the input changes. */
+  onChange: (value: string) => void
+  /** Async search function — receives the query, returns suggestions. */
+  onSearch?: (query: string) => Promise<SuggestionItem<T>[]> | SuggestionItem<T>[]
+  /** Optional pre-computed suggestion list (when caller controls fetching). */
+  suggestions?: SuggestionItem<T>[]
+  /** Called when the user picks a suggestion. */
+  onSelect: (item: SuggestionItem<T>) => void
+  /** Placeholder. */
+  placeholder?: string
+  /** Debounce ms for `onSearch`. Defaults to 200. */
+  debounceMs?: number
+  /** Min chars before suggestions appear. Defaults to 1. */
+  minChars?: number
+  /** Extra classes on the wrapper. */
+  className?: string
+}
+```
 
 #### `SuggestionItem`
 
@@ -50,7 +92,7 @@ interface SuggestionItem<T = unknown> {
 
 ### Functions
 
-#### `SearchAutocomplete(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `SearchAutocomplete(props)`
 
 Search input with a typeahead suggestions popover. Pass either
 `onSearch` (async fetch with debounce) or `suggestions` (controlled).
@@ -69,16 +111,7 @@ function SearchAutocomplete({
 }: SearchAutocompleteProps<T>): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .value
-- `root0` — .onChange
-- `root0` — .onSearch
-- `root0` — .suggestions
-- `root0` — .onSelect
-- `root0` — .placeholder
-- `root0` — .debounceMs
-- `root0` — .minChars
-- `root0` — .className
+- `props` — Component props (see {@link SearchAutocompleteProps}).
 
 ## Injection Notes
 
@@ -96,3 +129,18 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Throws unless rendered inside `<I18nProvider>` (from
+  `@molecule/app-react`) with a bonded ClassMap.
+- Suggestion selection is MOUSE-ONLY: no arrow-key/Enter navigation is
+  implemented. Add your own key handling when keyboard support matters.
+- Rapid typing can apply an out-of-order `onSearch` result (no request
+  cancellation) — keep `onSearch` fast or raise `debounceMs`.
+- The popover surface uses `var(--color-surface)` with a WHITE fallback
+  and black-alpha borders — define `--color-surface` (dark themes) or the
+  dropdown stays light.
+- Default placeholder translations: `@molecule/app-locales-search-autocomplete`.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-search-autocomplete`.

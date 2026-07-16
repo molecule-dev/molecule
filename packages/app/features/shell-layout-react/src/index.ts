@@ -26,6 +26,17 @@
  * }
  * ```
  *
+ * @remarks
+ * - Requires a bonded ClassMap (frame uses `cm.page` + `cm.appLayout`) —
+ *   rendering throws otherwise. No i18n or router dependency; `<Outlet />`
+ *   is just the typical child — any content works.
+ * - The `<main>` carries no padding by default — pass `mainClassName`
+ *   (e.g. `cm.sp('py', 8)`) for vertical rhythm around routed content.
+ * - Header/footer slots render as-is with no positioning — make your header
+ *   sticky yourself if desired.
+ * - Sibling: `@molecule/app-sidebar-layout-react` is the left-sidebar shell
+ *   (router-coupled); THIS package is the top header/footer shell.
+ *
  * @module
  */
 

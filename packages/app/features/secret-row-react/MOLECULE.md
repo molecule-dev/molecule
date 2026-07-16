@@ -2,24 +2,35 @@
 
 Vault-style secret / credential row.
 
-Exports `<SecretRow>` and `SecretRowData` type.
+Exports `<SecretRow>` and the `SecretRowData` type (`{ id, key, value,
+version?, daysUntilRotation?, lastRotatedAt?, description? }`). Renders
+key + masked value with Show/Hide and Copy buttons, plus optional Rotate /
+Delete buttons (shown only when `onRotate` / `onDelete` are passed).
+`maskChar` customizes the mask glyph (default `'•'`).
 
 ## Quick Start
 
 ```tsx
 import { SecretRow } from '@molecule/app-secret-row-react'
 
-<SecretRow
-  secret={{
-    id: 'sk-1',
-    key: 'STRIPE_SECRET_KEY',
-    value: 'sk_live_abc123',
-    description: 'Stripe API key',
-    daysUntilRotation: 14,
-  }}
-  onRotate={(s) => rotateSecret(s.id)}
-  onDelete={(s) => deleteSecret(s.id)}
-/>
+function VaultRow({ rotate, remove }: {
+  rotate: (id: string) => void
+  remove: (id: string) => void
+}) {
+  return (
+    <SecretRow
+      secret={{
+        id: 'sk-1',
+        key: 'STRIPE_SECRET_KEY',
+        value: 'sk_live_abc123',
+        description: 'Stripe API key',
+        daysUntilRotation: 14,
+      }}
+      onRotate={(s) => rotate(s.id)}
+      onDelete={(s) => remove(s.id)}
+    />
+  )
+}
 ```
 
 ## Type
@@ -47,21 +58,40 @@ interface SecretRowData {
   value: string
   /** Version number / label. */
   version?: ReactNode
-  /** Days until rotation — negative = expired. */
+  /** Days until rotation — a negative value renders an "Expired" tag; positive values render nothing. */
   daysUntilRotation?: number
-  /** ISO timestamp of last rotation. */
+  /** ISO timestamp of last rotation. Accepted but not currently rendered. */
   lastRotatedAt?: ReactNode
   /** Additional description (e.g. "Stripe API key"). */
   description?: ReactNode
 }
 ```
 
+#### `SecretRowProps`
+
+Props accepted by the {@link SecretRow} component.
+
+```typescript
+interface SecretRowProps {
+  secret: SecretRowData
+  /** Called when the user clicks Rotate. */
+  onRotate?: (secret: SecretRowData) => void
+  /** Called when the user clicks Delete. */
+  onDelete?: (secret: SecretRowData) => void
+  /** Mask character for the hidden value. Defaults to `'•'`. */
+  maskChar?: string
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `SecretRow(root0, root0, root0, root0, root0, root0)`
+#### `SecretRow(props)`
 
 Secret / credential row for vault UIs. Masked by default; the user
-toggles reveal, can copy to clipboard, and sees rotation status.
+toggles reveal, can copy to clipboard, and sees an "Expired" tag when
+`daysUntilRotation` is negative (positive values render no countdown).
 
 ```typescript
 function SecretRow({
@@ -73,12 +103,7 @@ function SecretRow({
 }: SecretRowProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .secret
-- `root0` — .onRotate
-- `root0` — .onDelete
-- `root0` — .maskChar
-- `root0` — .className
+- `props` — Component props (see {@link SecretRowProps}).
 
 ## Injection Notes
 
@@ -96,3 +121,19 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Rotation display is expiry-only: `daysUntilRotation < 0` shows an
+  "Expired" tag; POSITIVE values render nothing (no countdown), and
+  `lastRotatedAt` is accepted but currently never rendered — surface those
+  in your own row chrome if needed.
+- Copy silently does nothing when `navigator.clipboard` is unavailable
+  (non-HTTPS origins, some webviews) — no error, no fallback.
+- The version chip renders as `v{version}` — pass `version="2"`, not "v2".
+- Delete fires immediately — add your own confirmation dialog before
+  calling a destructive API.
+- Throws unless inside `<I18nProvider>` with a bonded ClassMap.
+  Translations: `@molecule/app-locales-secret-row`.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-secret-row`.

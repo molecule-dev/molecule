@@ -13,15 +13,16 @@ export interface SecretRowData {
   value: string
   /** Version number / label. */
   version?: ReactNode
-  /** Days until rotation — negative = expired. */
+  /** Days until rotation — a negative value renders an "Expired" tag; positive values render nothing. */
   daysUntilRotation?: number
-  /** ISO timestamp of last rotation. */
+  /** ISO timestamp of last rotation. Accepted but not currently rendered. */
   lastRotatedAt?: ReactNode
   /** Additional description (e.g. "Stripe API key"). */
   description?: ReactNode
 }
 
-interface SecretRowProps {
+/** Props accepted by the {@link SecretRow} component. */
+export interface SecretRowProps {
   secret: SecretRowData
   /** Called when the user clicks Rotate. */
   onRotate?: (secret: SecretRowData) => void
@@ -35,13 +36,9 @@ interface SecretRowProps {
 
 /**
  * Secret / credential row for vault UIs. Masked by default; the user
- * toggles reveal, can copy to clipboard, and sees rotation status.
- * @param root0
- * @param root0.secret
- * @param root0.onRotate
- * @param root0.onDelete
- * @param root0.maskChar
- * @param root0.className
+ * toggles reveal, can copy to clipboard, and sees an "Expired" tag when
+ * `daysUntilRotation` is negative (positive values render no countdown).
+ * @param props - Component props (see {@link SecretRowProps}).
  */
 export function SecretRow({
   secret,

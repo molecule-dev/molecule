@@ -7,7 +7,8 @@ import { Badge } from '@molecule/app-ui-react'
 import { colorForLevel, DEFAULT_THRESHOLDS, levelForScore } from './levels.js'
 import type { ReputationLevel, ReputationThresholds } from './types.js'
 
-interface ReputationBadgeProps {
+/** Props accepted by the {@link ReputationBadge} component. */
+export interface ReputationBadgeProps {
   /** Numeric reputation / karma score. */
   score: number
   /**
@@ -37,12 +38,7 @@ interface ReputationBadgeProps {
  * Tier color comes from the active ClassMap bond's `cm.badge()` helper, so
  * apps swapping styling libraries restyle these chips for free.
  *
- * @param root0 - Component props.
- * @param root0.score - Numeric reputation score.
- * @param root0.level - Optional explicit level override.
- * @param root0.thresholds - Optional threshold overrides.
- * @param root0.variant - Layout variant (`'compact'` default).
- * @param root0.className - Extra wrapper classes.
+ * @param props - Component props (see {@link ReputationBadgeProps}).
  * @returns The rendered reputation badge element.
  */
 export function ReputationBadge({

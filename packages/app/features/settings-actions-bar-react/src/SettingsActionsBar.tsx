@@ -4,7 +4,8 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface SettingsActionsBarProps {
+/** Props accepted by the {@link SettingsActionsBar} component. */
+export interface SettingsActionsBarProps {
   /** Called when Save is clicked. */
   onSave: () => void | Promise<void>
   /** Called when Cancel is clicked. Hides Cancel if omitted. */
@@ -47,16 +48,7 @@ function formatRelativeShort(epochMs: number): string {
  * - "Saved Xm ago" status when `savedAt` is provided.
  * - Inline error text.
  * - Optional leading slot for custom status badges.
- * @param root0
- * @param root0.onSave
- * @param root0.onCancel
- * @param root0.loading
- * @param root0.disabled
- * @param root0.savedAt
- * @param root0.error
- * @param root0.sticky
- * @param root0.leading
- * @param root0.className
+ * @param props - Component props (see {@link SettingsActionsBarProps}).
  */
 export function SettingsActionsBar({
   onSave,

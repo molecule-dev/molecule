@@ -3,7 +3,8 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Container } from '@molecule/app-ui-react'
 
-interface AppShellLayoutProps {
+/** Props accepted by the {@link AppShellLayout} component. */
+export interface AppShellLayoutProps {
   /** Slot for the header (typically the app's `<Header />`). */
   header?: ReactNode
   /** Slot for the footer (typically the app's `<Footer />`). */
@@ -33,14 +34,7 @@ interface AppShellLayoutProps {
  * footer are slot props so consumers retain full control over branding,
  * navigation, and footer copy.
  *
- * @param root0
- * @param root0.header
- * @param root0.footer
- * @param root0.children
- * @param root0.maxWidth
- * @param root0.className
- * @param root0.mainClassName
- * @param root0.dataMolId
+ * @param props - Component props (see {@link AppShellLayoutProps}).
  */
 export function AppShellLayout({
   header,

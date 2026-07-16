@@ -5,7 +5,8 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { Badge } from './types.js'
 
-interface BadgeShelfProps {
+/** Props accepted by the {@link BadgeShelf} component. */
+export interface BadgeShelfProps {
   /** Earned badges to display, ordered most-prominent-first. */
   badges: Badge[]
   /**
@@ -34,11 +35,7 @@ interface BadgeShelfProps {
  * trailing `+N` chip invokes `onClick(null)` so the host page can expand
  * a full list.
  *
- * @param root0 - Component props.
- * @param root0.badges - Badges to display.
- * @param root0.limit - Maximum visible badges (default `5`).
- * @param root0.onClick - Optional click handler.
- * @param root0.className - Extra wrapper classes.
+ * @param props - Component props (see {@link BadgeShelfProps}).
  * @returns The rendered shelf, or `null` if no badges are supplied.
  */
 export function BadgeShelf({

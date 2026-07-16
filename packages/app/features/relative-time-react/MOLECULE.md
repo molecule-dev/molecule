@@ -30,6 +30,27 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `RelativeTimeProps`
+
+Props accepted by the {@link RelativeTime} component.
+
+```typescript
+interface RelativeTimeProps {
+  /** ISO string, Date, or epoch ms. */
+  date: Date | string | number
+  /** Locale override. */
+  locale?: string
+  /** Auto-refresh interval (ms). Defaults to 60_000 (1 min). Set 0 to disable. */
+  refreshMs?: number
+  /** When provided, renders the absolute date in a `title` attribute for hover tooltip. */
+  titleLocale?: string
+  /** Extra classes (applies to the surrounding `<time>` element). */
+  className?: string
+}
+```
+
 ### Functions
 
 #### `formatRelativeTime(input, now, locale)`
@@ -44,7 +65,7 @@ function formatRelativeTime(input: string | number | Date, now?: number | Date, 
 - `input` — *
 - `now` — *
 
-#### `RelativeTime(root0, root0, root0, root0, root0, root0)`
+#### `RelativeTime(props)`
 
 Live-updating relative time display ("5 minutes ago"). Re-computes on
 a timer so the text stays accurate as the user leaves the page open.
@@ -62,12 +83,7 @@ function RelativeTime({
 }: RelativeTimeProps): React.JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .date
-- `root0` — .locale
-- `root0` — .refreshMs
-- `root0` — .titleLocale
-- `root0` — .className
+- `props` — Component props (see {@link RelativeTimeProps}).
 
 ## Injection Notes
 
@@ -85,3 +101,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Zero molecule wiring required — no ClassMap, no i18n provider, no bonds;
+  safe in any React tree.
+- `<RelativeTime>` props: `date` (Date | ISO string | epoch ms), `locale?`,
+  `refreshMs?` (default 60000 — pass `0` to disable the per-instance timer,
+  cheaper in long lists), `titleLocale?` (adds an absolute-date `title`
+  tooltip), `className?`.
+- `locale` defaults to the runtime's locale, NOT your app's i18n locale —
+  pass the active locale explicitly for consistent localized output.
+- When `Intl.RelativeTimeFormat` is unavailable, fallback strings
+  ("just now", "5m ago") are English-only.

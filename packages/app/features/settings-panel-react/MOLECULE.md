@@ -1,42 +1,54 @@
 # @molecule/app-settings-panel-react
 
-`@molecule/app-settings-panel-react` — composable settings panel.
+`@molecule/app-settings-panel-react` — composable, batteries-included
+settings panel.
 
-`<SettingsContainer>` owns the panel layout + `onClose` context;
-each section component (`<AccountSection>`, `<AuthSection>`,
-`<NotificationsSection>`, `<BillingSection>`, `<DevicesSection>`,
-`<ThisDeviceSection>`, `<LogOutDeleteSection>`) is independent and
-reads its own state from hooks. Apps compose via JSX children —
-picking which sections to include, in what order, and interleaving
-their own custom sections.
+`<SettingsContainer onClose={…}>` owns the layout and publishes `onClose`
+via context; each section component is independent and loads its own data
+through hooks:
+- `<AccountSection>` — name/email edit (`PATCH /api/users/:id`).
+- `<AppearanceSection>` — dark-mode toggle (`useTheme()`).
+- `<AuthSection>` — password change + TOTP two-factor
+  (`POST /api/users/:id/verify-two-factor`).
+- `<NotificationsSection>` — web-push toggle (see the exported
+  `enablePushOnCurrentDevice` / `disablePushOnCurrentDevice` helpers and
+  their documented device-row contract).
+- `<BillingSection>` — read-only plan display (`GET /api/billing/status`),
+  or `<TiersUpgradeSection>` — full Stripe upgrade/cancel flow
+  (`/api/billing/tiers|checkout|cancel`). Use one or the other, not both.
+- `<DevicesSection>` / `<ThisDeviceSection>` — device list + current
+  device (`GET/DELETE /api/devices`).
+- `<LogOutDeleteSection>` — sign out + delete account
+  (`DELETE /api/users/:id`).
+Apps compose via JSX children — pick sections, order them, and interleave
+custom sections.
 
 ## Quick Start
 
 ```tsx
 import {
-  SettingsContainer,
   AccountSection,
+  AppearanceSection,
   AuthSection,
-  NotificationsSection,
   BillingSection,
   DevicesSection,
-  ThisDeviceSection,
   LogOutDeleteSection,
+  NotificationsSection,
+  SettingsContainer,
+  ThisDeviceSection,
 } from '@molecule/app-settings-panel-react'
 
-import { Footer } from './Footer.js'
-
-export function SettingsPanel({ onClose }: { onClose: () => void }) {
+function SettingsPanel({ onClose }: { onClose: () => void }) {
   return (
     <SettingsContainer onClose={onClose}>
       <AccountSection />
+      <AppearanceSection />
       <AuthSection />
       <NotificationsSection />
       <BillingSection />
       <DevicesSection />
       <ThisDeviceSection />
       <LogOutDeleteSection />
-      <Footer />
     </SettingsContainer>
   )
 }
@@ -434,3 +446,22 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 - `react-router-dom`
+
+- Wiring prereqs: sections need the standard `@molecule/app-react`
+  provider stack — `<I18nProvider>`, `<HttpProvider>` (authenticated
+  client), `<AuthProvider>`, `<ThemeProvider>` (AppearanceSection), push +
+  device providers (NotificationsSection/ThisDeviceSection) — plus a
+  bonded ClassMap. `<BillingSection>` and `<LogOutDeleteSection>` also
+  call react-router's `useNavigate()` and throw outside a `<Router>`.
+- Section components throw if rendered outside `<SettingsContainer>`
+  (they read its context for `onClose`).
+- Server contract: the molecule API surface from
+  `@molecule/api-resource-user`, `@molecule/api-resource-device`,
+  `@molecule/api-two-factor`, and the billing endpoints
+  (`/api/billing/*`) wired by the payments stack. Missing read endpoints
+  degrade gracefully (sections render empty); the mutating actions do not.
+- Translations: `@molecule/app-locales-settings-panel` companion bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-settings-panel`.
