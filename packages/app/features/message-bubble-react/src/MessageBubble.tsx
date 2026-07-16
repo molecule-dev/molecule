@@ -6,7 +6,7 @@ import { Avatar } from '@molecule/app-ui-react'
 import { MessageMeta } from './MessageMeta.js'
 import type { MessageData } from './types.js'
 
-interface MessageBubbleProps {
+export interface MessageBubbleProps {
   message: MessageData
   /** Whether the current viewer is the message author (affects alignment + accent). */
   isSelf?: boolean
@@ -21,13 +21,10 @@ interface MessageBubbleProps {
  * plus optional attachments/reactions/thread indicator passed in via
  * `message.attachments` / `message.reactions` / `message.thread`.
  *
- * `isSelf` flips the alignment and accent so the viewer's own messages
- * appear on the right with a primary-tinted bubble.
- * @param root0
- * @param root0.message
- * @param root0.isSelf
- * @param root0.showMeta
- * @param root0.className
+ * `isSelf` flips the row direction so the viewer's own messages appear on
+ * the right — no bubble background/tint is applied; style the body via
+ * `className` if you want classic chat bubbles.
+ * @param props - Component props (see {@link MessageBubbleProps}).
  */
 export function MessageBubble({
   message,

@@ -6,7 +6,7 @@ import { Button, Card } from '@molecule/app-ui-react'
 /** Connection status for an integration. */
 export type IntegrationStatus = 'connected' | 'disconnected' | 'pending' | 'error'
 
-interface IntegrationCardProps {
+export interface IntegrationCardProps {
   /** Leading icon / logo for the integration. */
   icon?: ReactNode
   /** Integration title. */
@@ -35,15 +35,7 @@ interface IntegrationCardProps {
  * Card for an integration / external connection (Slack, Stripe, Google
  * Drive, bank-link CTAs, etc.). Shows icon + title + description +
  * status + action.
- * @param root0
- * @param root0.icon
- * @param root0.title
- * @param root0.description
- * @param root0.status
- * @param root0.action
- * @param root0.variant
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link IntegrationCardProps}).
  */
 export function IntegrationCard({
   icon,
@@ -97,8 +89,7 @@ export function IntegrationCard({
 
 /**
  * Renders a small status badge for the current integration connection state.
- * @param root0
- * @param root0.status
+ * @param props - Component props.
  */
 function StatusLabel({ status }: { status: IntegrationStatus }): JSX.Element {
   const cm = getClassMap()

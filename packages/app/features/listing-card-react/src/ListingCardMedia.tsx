@@ -2,13 +2,13 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ListingCardMediaProps {
+export interface ListingCardMediaProps {
   /** Image URL or ReactNode. */
   src?: string
   alt?: string
   /** Override with a ReactNode (video, carousel, svg). */
   children?: ReactNode
-  /** Aspect-ratio class (token from ClassMap, e.g. `'square' | '4/3' | '16/9'`). */
+  /** Aspect ratio (`'1/1' | '4/3' | '16/9' | '3/2'`), applied as an inline `aspect-ratio` style. Defaults to `'4/3'`. */
   aspect?: '1/1' | '4/3' | '16/9' | '3/2'
   /** Optional overlay node (badge, favorite heart). */
   overlay?: ReactNode
@@ -19,13 +19,7 @@ interface ListingCardMediaProps {
 /**
  * Media slot at the top of a `<ListingCard>`. Locks aspect ratio via
  * inline style so apps get consistent card sizing without custom CSS.
- * @param root0
- * @param root0.src
- * @param root0.alt
- * @param root0.children
- * @param root0.aspect
- * @param root0.overlay
- * @param root0.className
+ * @param props - Component props (see {@link ListingCardMediaProps}).
  */
 export function ListingCardMedia({
   src,

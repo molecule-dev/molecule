@@ -2,7 +2,13 @@
 
 Structured log-row viewer.
 
-Exports `<LogViewer>` and `LogEntry` / `LogLevel` types.
+Exports `<LogViewer>` plus the `LogEntry` / `LogLevel` types. Renders one
+expandable `<details>` row per entry: timestamp + colored severity badge +
+service label + single-line message, expanding to a JSON-formatted
+structured-data panel. Props: `entries`, `onToggle?(id, expanded)`,
+`emptyState?`, `className?`.
+
+Use for operational tooling, admin dashboards, debug views.
 
 ## Quick Start
 
@@ -53,6 +59,20 @@ interface LogEntry {
 }
 ```
 
+#### `LogViewerProps`
+
+```typescript
+interface LogViewerProps {
+  entries: LogEntry[]
+  /** Called when an entry expands/collapses. */
+  onToggle?: (id: string, expanded: boolean) => void
+  /** Extra classes on the list wrapper. */
+  className?: string
+  /** Empty-state content. */
+  emptyState?: ReactNode
+}
+```
+
 ### Types
 
 #### `LogLevel`
@@ -65,7 +85,7 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'
 
 ### Functions
 
-#### `LogViewer(root0, root0, root0, root0, root0)`
+#### `LogViewer(props)`
 
 Structured log list — one `<details>` per entry with timestamp +
 level badge + service label + single-line message, expanding to
@@ -82,11 +102,7 @@ function LogViewer({
 }: LogViewerProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .entries
-- `root0` — .onToggle
-- `root0` — .className
-- `root0` — .emptyState
+- `props` — Component props (see {@link LogViewerProps}).
 
 ## Injection Notes
 
@@ -104,3 +120,13 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Expansion state is internal; `onToggle` is notification-only — there is no
+  controlled expanded-ids prop.
+- The timestamp column is a fixed 48px box: pass short pre-formatted times
+  (e.g. `HH:mm:ss`), not full ISO strings, or they overflow.
+- Severity badges use a fixed hex palette with white text (trace grey → fatal
+  dark red) that does not follow the app theme; the level name renders raw and
+  uppercased (not localized).
+- `data` is pretty-printed with `JSON.stringify(…, null, 2)`; strings render
+  verbatim. Large payloads scroll horizontally inside the panel.

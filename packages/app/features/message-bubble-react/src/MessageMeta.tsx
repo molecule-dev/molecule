@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface MessageMetaProps {
+export interface MessageMetaProps {
   /** Author display name. */
   author: ReactNode
   /** Timestamp display. */
@@ -14,10 +14,7 @@ interface MessageMetaProps {
 /**
  * Small `[author · timestamp]` row rendered above a message body. Broken
  * out so apps can reuse it in notification rows, quote blocks, etc.
- * @param root0
- * @param root0.author
- * @param root0.timestamp
- * @param root0.className
+ * @param props - Component props (see {@link MessageMetaProps}).
  */
 export function MessageMeta({ author, timestamp, className }: MessageMetaProps): JSX.Element {
   const cm = getClassMap()

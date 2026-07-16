@@ -16,7 +16,7 @@ export type KpiTrendDirection = 'up' | 'down' | 'flat'
  */
 export type KpiCardAccentSide = 'left' | 'top' | 'none'
 
-interface KpiCardProps {
+export interface KpiCardProps {
   /** Label describing the metric (usually `t('...')`). */
   title: ReactNode
   /** Large primary value — usually a string or formatted number. */
@@ -76,20 +76,7 @@ interface KpiCardProps {
  * - crm/project-management: `accentSide="top"` + `upperLabel` + `emphasizeValue` + `hoverLift`
  * - personal-finance/online-store: `accentSide="none"` (default)
  *
- * @param root0
- * @param root0.title
- * @param root0.value
- * @param root0.subtitle
- * @param root0.icon
- * @param root0.trend
- * @param root0.action
- * @param root0.accentSide
- * @param root0.accentColor
- * @param root0.upperLabel
- * @param root0.emphasizeValue
- * @param root0.hoverLift
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link KpiCardProps}).
  */
 export function KpiCard({
   title,

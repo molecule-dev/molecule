@@ -23,7 +23,7 @@ export interface LogEntry {
   data?: unknown
 }
 
-interface LogViewerProps {
+export interface LogViewerProps {
   entries: LogEntry[]
   /** Called when an entry expands/collapses. */
   onToggle?: (id: string, expanded: boolean) => void
@@ -48,11 +48,7 @@ const LEVEL_COLOR: Record<LogLevel, string> = {
  * show trace id + JSON-formatted structured data.
  *
  * Use for operational tooling, admin dashboards, debug views.
- * @param root0
- * @param root0.entries
- * @param root0.onToggle
- * @param root0.className
- * @param root0.emptyState
+ * @param props - Component props (see {@link LogViewerProps}).
  */
 export function LogViewer({
   entries,

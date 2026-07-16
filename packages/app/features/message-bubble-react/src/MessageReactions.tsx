@@ -12,7 +12,7 @@ export interface MessageReaction {
   reactedByMe?: boolean
 }
 
-interface MessageReactionsProps {
+export interface MessageReactionsProps {
   reactions: MessageReaction[]
   /** Called when a reaction chip is toggled. */
   onToggle?: (emoji: string) => void
@@ -24,12 +24,9 @@ interface MessageReactionsProps {
 
 /**
  * Row of reaction chips below a message body. Each chip shows emoji +
- * count and highlights when the current user reacted.
- * @param root0
- * @param root0.reactions
- * @param root0.onToggle
- * @param root0.onAdd
- * @param root0.className
+ * count; when the current user reacted the chip is marked with
+ * `aria-pressed` only — no visual highlight ships.
+ * @param props - Component props (see {@link MessageReactionsProps}).
  */
 export function MessageReactions({
   reactions,

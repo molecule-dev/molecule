@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ListItemRowProps {
+export interface ListItemRowProps {
   /** Title — first line. */
   title: ReactNode
   /** Optional second line (excerpt, description). */
@@ -15,7 +15,7 @@ interface ListItemRowProps {
   actions?: ReactNode
   /** Called when the row body is clicked. */
   onClick?: () => void
-  /** When true, renders with a "selected" visual state via `aria-selected`. */
+  /** When true, sets `aria-selected` on the row — no built-in visual highlight; style it via `className` or host CSS. */
   selected?: boolean
   /** When true, renders in a disabled visual state. */
   disabled?: boolean
@@ -32,17 +32,7 @@ interface ListItemRowProps {
  *
  * Different from `<RowWithActions>` in `@molecule/app-data-table-ui-react`
  * in NOT being a `<tr>` — use this for non-table lists.
- * @param root0
- * @param root0.title
- * @param root0.subtitle
- * @param root0.metadata
- * @param root0.leading
- * @param root0.actions
- * @param root0.onClick
- * @param root0.selected
- * @param root0.disabled
- * @param root0.density
- * @param root0.className
+ * @param props - Component props (see {@link ListItemRowProps}).
  */
 export function ListItemRow({
   title,

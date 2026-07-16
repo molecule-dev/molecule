@@ -5,7 +5,7 @@ import type { SpacingScale } from '@molecule/app-ui'
 
 import { LegalPageLayout } from './LegalPageLayout.js'
 
-interface TermsPageProps {
+export interface TermsPageProps {
   /** i18n key for the page heading. Defaults to `terms.title`. */
   titleKey?: string
   /** Default for the heading when the i18n key is missing. Defaults to `"Terms"`. */
@@ -26,13 +26,7 @@ interface TermsPageProps {
  * With no props, renders the canonical boilerplate Terms
  * (`<main><h1>{t('terms.title')}</h1><p>{t('terms.intro')}</p></main>`).
  * Pass `children` to render real content (e.g. `<LegalPageSection>`s).
- * @param root0
- * @param root0.titleKey
- * @param root0.titleDefault
- * @param root0.introKey
- * @param root0.introDefault
- * @param root0.children
- * @param root0.stackGap
+ * @param props - Component props (see {@link TermsPageProps}).
  */
 export function TermsPage({
   titleKey = 'terms.title',

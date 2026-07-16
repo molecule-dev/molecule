@@ -3,10 +3,14 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
-interface ListingCardProps {
+export interface ListingCardProps {
   /** Slots — usually `<ListingCardMedia>` + `<ListingCardBody>` + `<ListingCardActions>`. */
   children: ReactNode
-  /** Called when the card body is clicked (not its actions). */
+  /**
+   * Called on any click on the card — including clicks inside
+   * `<ListingCardActions>`, which bubble into it unless the action handler
+   * calls `e.stopPropagation()`.
+   */
   onClick?: () => void
   /** Extra classes on the outer Card. */
   className?: string
@@ -22,11 +26,7 @@ interface ListingCardProps {
  * Use for product tiles, property cards, course cards, listings,
  * and similar content-card layouts.
  *
- * @param root0
- * @param root0.children
- * @param root0.onClick
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link ListingCardProps}).
  * @example
  * ```tsx
  * <ListingCard>

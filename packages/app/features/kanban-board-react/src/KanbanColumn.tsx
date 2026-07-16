@@ -6,7 +6,7 @@ import { KanbanCard } from './KanbanCard.js'
 import { KanbanColumnHeader } from './KanbanColumnHeader.js'
 import type { KanbanCardData, KanbanColumnData } from './types.js'
 
-interface KanbanColumnProps {
+export interface KanbanColumnProps {
   column: KanbanColumnData
   /** Called when a card is clicked. */
   onCardClick?: (card: KanbanCardData, column: KanbanColumnData) => void
@@ -24,14 +24,7 @@ interface KanbanColumnProps {
 
 /**
  * One Kanban column — sticky header + scrollable card list + optional footer.
- * @param root0
- * @param root0.column
- * @param root0.onCardClick
- * @param root0.onDrop
- * @param root0.onCardDragStart
- * @param root0.headerActions
- * @param root0.footer
- * @param root0.className
+ * @param props - Component props (see {@link KanbanColumnProps}).
  */
 export function KanbanColumn({
   column,

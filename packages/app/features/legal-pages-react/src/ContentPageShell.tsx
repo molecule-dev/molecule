@@ -40,7 +40,7 @@ export interface ContentPageShellProps {
  * Renders the app's own `header`/`footer` slots around a themed hero band
  * (eyebrow + title + subtitle) and a surface-card content area. Everything
  * is driven by theme tokens (`--mol-color-*`) and the app's font utility
- * classes (`font-headline` for the title, `font-body`/`font-label` for the
+ * classes (`font-display` for the title, `font-body`/`font-label` for the
  * rest), so each app's palette and typography are applied automatically
  * without per-app overrides.
  *

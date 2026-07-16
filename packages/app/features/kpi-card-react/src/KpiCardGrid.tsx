@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface KpiCardGridProps {
+export interface KpiCardGridProps {
   /** KPI cards. */
   children: ReactNode
   /** Column count at the md+ breakpoint. 2–6. Defaults to 4. */
@@ -14,14 +14,10 @@ interface KpiCardGridProps {
 }
 
 /**
- * Responsive grid for KPI cards. Collapses to a single column on narrow
- * viewports and grows to `columns` on md+. Gap and column count are tokens
- * resolved against the wired ClassMap.
- * @param root0
- * @param root0.children
- * @param root0.columns
- * @param root0.gap
- * @param root0.className
+ * Grid for KPI cards — a fixed `columns`-column grid at every viewport
+ * width (it does not collapse on narrow viewports). Gap and column count
+ * are tokens resolved against the wired ClassMap.
+ * @param props - Component props (see {@link KpiCardGridProps}).
  */
 export function KpiCardGrid({
   children,

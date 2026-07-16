@@ -2,7 +2,11 @@
 
 Leaderboard list container.
 
-Exports `<LeaderboardList>` — wraps a stack of `<LeaderboardRow>`s with title and actions.
+Exports `<LeaderboardList>` — header row (title + actions) above a vertical
+stack of rows. Props: `children` (pre-rendered rows), `title?`, `actions?`
+(period selector, filters), `emptyState?`, `className?`. Pair with
+`<LeaderboardRow>` from `@molecule/app-leaderboard-row-react` — this container
+adds no rank/podium logic of its own.
 
 ## Quick Start
 
@@ -10,7 +14,12 @@ Exports `<LeaderboardList>` — wraps a stack of `<LeaderboardRow>`s with title 
 import { LeaderboardList } from '@molecule/app-leaderboard-list-react'
 import { LeaderboardRow } from '@molecule/app-leaderboard-row-react'
 
-<LeaderboardList title="Top Contributors" actions={<PeriodSelect />}>
+const entries = [
+  { id: 'u1', rank: 1, name: 'Alice Chen', score: 4820 },
+  { id: 'u2', rank: 2, name: 'Bo Diaz', score: 4515 },
+]
+
+<LeaderboardList title="Top Contributors">
   {entries.map((e) => (
     <LeaderboardRow key={e.id} rank={e.rank} name={e.name} score={e.score} />
   ))}
@@ -28,9 +37,28 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `LeaderboardListProps`
+
+```typescript
+interface LeaderboardListProps {
+  /** Pre-rendered leaderboard rows. */
+  children: ReactNode
+  /** Optional title above the list. */
+  title?: ReactNode
+  /** Optional period selector / actions row. */
+  actions?: ReactNode
+  /** Optional empty state. */
+  emptyState?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `LeaderboardList(root0, root0, root0, root0, root0, root0)`
+#### `LeaderboardList(props)`
 
 Container above a stack of `<LeaderboardRow>`s — header + actions +
 scrollable list. Doesn't itself render rank logic; pair with
@@ -46,12 +74,7 @@ function LeaderboardList({
 }: LeaderboardListProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .title
-- `root0` — .actions
-- `root0` — .emptyState
-- `root0` — .className
+- `props` — Component props (see {@link LeaderboardListProps}).
 
 ## Injection Notes
 
@@ -69,3 +92,8 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- `emptyState` renders only when `children` is an empty array or nullish; if you
+  pass a fragment or a single element the list always renders. Map your entries
+  directly (as in the example) so the empty case is detectable.
+- No `data-mol-id` prop; styling resolves through `getClassMap()`.

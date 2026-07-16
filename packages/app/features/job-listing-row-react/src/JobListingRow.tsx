@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface JobListingRowProps {
+export interface JobListingRowProps {
   title: ReactNode
   /** Company / employer display. */
   company?: ReactNode
@@ -29,18 +29,7 @@ interface JobListingRowProps {
 /**
  * Job-board row — title + company + location + type + salary + posted
  * date with optional tags and right-side actions.
- * @param root0
- * @param root0.title
- * @param root0.company
- * @param root0.location
- * @param root0.type
- * @param root0.salary
- * @param root0.postedAt
- * @param root0.leading
- * @param root0.actions
- * @param root0.tags
- * @param root0.onClick
- * @param root0.className
+ * @param props - Component props (see {@link JobListingRowProps}).
  */
 export function JobListingRow({
   title,

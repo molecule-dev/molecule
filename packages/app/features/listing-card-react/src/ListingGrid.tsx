@@ -2,23 +2,19 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ListingGridProps {
+export interface ListingGridProps {
   children: ReactNode
-  /** Columns at md+. Defaults to 3. */
+  /** Column count, fixed at every viewport width. Defaults to 3. */
   columns?: 1 | 2 | 3 | 4 | 5 | 6
   gap?: 'xs' | 'sm' | 'md' | 'lg'
   className?: string
 }
 
 /**
- * Responsive grid for `<ListingCard>`s. Alias for `CardGrid` tuned for
- * listing layouts — same shape, different semantic name so importers
- * can self-document.
- * @param root0
- * @param root0.children
- * @param root0.columns
- * @param root0.gap
- * @param root0.className
+ * Grid for `<ListingCard>`s — a fixed `columns`-column grid at every
+ * viewport width. Alias for `CardGrid` tuned for listing layouts — same
+ * shape, different semantic name so importers can self-document.
+ * @param props - Component props (see {@link ListingGridProps}).
  */
 export function ListingGrid({
   children,

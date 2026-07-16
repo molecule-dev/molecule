@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ListingCardActionsProps {
+export interface ListingCardActionsProps {
   /** Action content — buttons, favorite toggle, etc. */
   children: ReactNode
   /** Layout — `'horizontal'` (default) fills width, `'stacked'` is vertical. */
@@ -13,10 +13,7 @@ interface ListingCardActionsProps {
 
 /**
  * Bottom action row of a `<ListingCard>` (Add to cart, Save, etc.).
- * @param root0
- * @param root0.children
- * @param root0.layout
- * @param root0.className
+ * @param props - Component props (see {@link ListingCardActionsProps}).
  */
 export function ListingCardActions({
   children,

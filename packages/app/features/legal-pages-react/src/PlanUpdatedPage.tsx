@@ -5,7 +5,7 @@ import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Spinner } from '@molecule/app-ui-react'
 
-interface PlanUpdatedPageProps {
+export interface PlanUpdatedPageProps {
   /** i18n key for the primary message heading. */
   messageKey?: string
   /** Default message when the key is missing. */
@@ -28,14 +28,7 @@ interface PlanUpdatedPageProps {
  * Waits for auth state to initialize, then shows a two-line confirmation
  * with a single return-home action. i18n keys are configurable so apps
  * can match their existing locale shape.
- * @param root0
- * @param root0.messageKey
- * @param root0.messageDefault
- * @param root0.thankYouKey
- * @param root0.thankYouDefault
- * @param root0.actionKey
- * @param root0.actionDefault
- * @param root0.actionHref
+ * @param props - Component props (see {@link PlanUpdatedPageProps}).
  */
 export function PlanUpdatedPage({
   messageKey = 'planUpdated.message',

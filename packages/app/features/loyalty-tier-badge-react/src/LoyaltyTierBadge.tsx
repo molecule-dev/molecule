@@ -60,9 +60,10 @@ export function nextTierOf(tier: LoyaltyTier): LoyaltyTier | null {
  * "X / Y to next tier" progress bar. Used by hotel-booking, online-store,
  * and travel-booking flagship loyalty programs.
  *
- * Tier glyph colors fall back to standard metallic accents when no theme
- * tokens are wired; pass `tierLabel` / `nextTierLabel` to override the
- * translated defaults for branded programs (e.g. "Member" / "Elite").
+ * Tier glyph colors are always the standard metallic accents (fixed per-tier
+ * hex values — theme tokens are not consulted for the glyph); pass
+ * `tierLabel` / `nextTierLabel` to override the translated defaults for
+ * branded programs (e.g. "Member" / "Elite").
  *
  * @param props - Component props.
  * @returns The rendered tier badge.

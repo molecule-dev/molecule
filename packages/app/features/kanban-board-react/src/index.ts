@@ -1,16 +1,33 @@
 /**
- * React Kanban board primitives.
+ * React Kanban board primitives (pure presentational — you own the data).
  *
  * Exports:
- * - `<KanbanBoard>` — top-level board with HTML5 drag-drop between columns.
- * - `<KanbanColumn>` — one column (header + card list + optional footer).
- * - `<KanbanColumnHeader>` — title + count + actions row.
- * - `<KanbanCard>` — single draggable card.
- * - `KanbanColumnData`, `KanbanCardData` types.
+ * - `<KanbanBoard>` — columns side-by-side with HTML5 drag-drop between columns.
+ *   Props: `columns`, `onCardMove?(cardId, fromColumnId, toColumnId)`,
+ *   `onCardClick?(card, column)`, `renderHeaderActions?(column)`,
+ *   `renderFooter?(column)`, `className?`.
+ * - `<KanbanColumn>` / `<KanbanColumnHeader>` / `<KanbanCard>` — the building blocks,
+ *   usable standalone for custom board layouts.
+ * - `KanbanColumnData` (`{ id, title, accent?, cards }`), `KanbanCardData`
+ *   (`{ id, title, body?, footer? }`) types.
  *
- * Use the simple HTML5 DnD built into `<KanbanBoard>` or wire
- * `@molecule/app-drag-drop` at the column level for fancier
- * interactions (touch, keyboard, animated reorder).
+ * This package is standalone UI: it does NOT use the headless
+ * `@molecule/app-kanban` core or the `app-kanban-default` bond. Reach for those
+ * when you want board STATE management (move/add/remove logic) behind a bond;
+ * use this package when you just need the rendered board and will persist moves
+ * yourself in `onCardMove`.
+ *
+ * @remarks
+ * - Drag-drop is native HTML5 DnD: it does not fire on touch devices — provide
+ *   an alternate affordance (e.g. a move menu in `renderHeaderActions`) for mobile.
+ * - `onCardMove` fires only when a card is dropped on a DIFFERENT column, and no
+ *   insertion index is reported — same-column reordering is not supported; movers
+ *   can only append to the target column.
+ * - Consumers own the data: update your `columns` state in `onCardMove` or the
+ *   board will snap back on re-render.
+ * - `accent` on a column is currently cosmetic metadata only.
+ * - Styling resolves through `getClassMap()`; `<KanbanCard>` uses `<Card>` from
+ *   `@molecule/app-ui-react` — wire a ClassMap bond first.
  *
  * @example
  * ```tsx

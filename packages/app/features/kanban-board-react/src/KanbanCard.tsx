@@ -5,7 +5,7 @@ import { Card } from '@molecule/app-ui-react'
 
 import type { KanbanCardData } from './types.js'
 
-interface KanbanCardProps {
+export interface KanbanCardProps {
   card: KanbanCardData
   /** Called when the card is clicked (e.g. open detail modal). */
   onClick?: (card: KanbanCardData) => void
@@ -22,11 +22,7 @@ interface KanbanCardProps {
  *
  * The outer `<div>` wrapper carries the drag handlers so we don't rely
  * on `<Card>` forwarding drag events (which it doesn't).
- * @param root0
- * @param root0.card
- * @param root0.onClick
- * @param root0.onDragStart
- * @param root0.className
+ * @param props - Component props (see {@link KanbanCardProps}).
  */
 export function KanbanCard({
   card,

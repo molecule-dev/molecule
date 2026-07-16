@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import type { SpacingScale } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
-interface LegalPageLayoutProps {
+export interface LegalPageLayoutProps {
   /** `data-mol-id` for AI agent selectors. */
   dataMolId?: string
   /** Rendered heading text (usually `t('...')`). */
@@ -30,14 +30,7 @@ interface LegalPageLayoutProps {
  *
  * Use this as the content shell for legal pages. Custom chrome (landing
  * top-nav, admin sidebar, etc.) should wrap the shell at the call site.
- * @param root0
- * @param root0.dataMolId
- * @param root0.title
- * @param root0.children
- * @param root0.containerSize
- * @param root0.stackGap
- * @param root0.mainClassName
- * @param root0.bodyClassName
+ * @param props - Component props (see {@link LegalPageLayoutProps}).
  */
 export function LegalPageLayout({
   dataMolId,

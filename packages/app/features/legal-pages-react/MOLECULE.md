@@ -2,13 +2,17 @@
 
 React page scaffolds for Terms, Privacy, and PlanUpdated.
 
-Exports both high-level "drop-in" page components (`TermsPage`,
-`PrivacyPage`, `PlanUpdatedPage`) and composable primitives
-(`LegalPageLayout`, `LegalPageSection`) for apps that need custom
-chrome or structured multi-section content.
-
-All text routes through `useTranslation()` so apps stay i18n-driven
-while reusing the canonical layout and typography.
+Exports:
+- Drop-in pages: `<TermsPage>`, `<PrivacyPage>` (boilerplate bodies with
+  configurable i18n keys), `<PlanUpdatedPage>` (post-checkout confirmation).
+- Bonded-content pages: `<LegalContentPage kind="privacy" | "terms">` — renders
+  the SAME legal HTML as the footer modals (`content.privacyPolicy` /
+  `content.termsOfService` from `@molecule/app-locales-legal-default`), inside
+  the branded `<ContentPageShell>`.
+- In-place modals: `<LegalModalLinks>` + `useLegalModals()` — Privacy/Terms
+  triggers that open modals instead of navigating.
+- Primitives: `<ContentPageShell>` (hero band + surface card),
+  `<LegalPageLayout>`, `<LegalPageSection>`.
 
 ## Quick Start
 
@@ -19,7 +23,7 @@ import { ContentPageShell, LegalPageLayout, LegalPageSection, TermsPage } from '
 <TermsPage />
 
 // Custom Terms page with structured sections:
-<ContentPageShell eyebrow="Legal" title="Terms of Service" subtitle="Last updated June 2025" header={<AppNav />}>
+<ContentPageShell eyebrow="Legal" title="Terms of Service" subtitle="Last updated June 2025">
   <LegalPageLayout title="Terms of Service">
     <LegalPageSection title="Acceptance">
       <p>By using this service you agree to these terms.</p>
@@ -135,6 +139,99 @@ interface LegalModalsApi {
 }
 ```
 
+#### `LegalPageLayoutProps`
+
+```typescript
+interface LegalPageLayoutProps {
+  /** `data-mol-id` for AI agent selectors. */
+  dataMolId?: string
+  /** Rendered heading text (usually `t('...')`). */
+  title: ReactNode
+  /** Body content — paragraphs, `<LegalPageSection>`s, etc. */
+  children: ReactNode
+  /** ClassMap `container({size})` value. Defaults to `'md'`. */
+  containerSize?: 'sm' | 'md' | 'lg' | 'xl'
+  /** Stack gap between body children passed to ClassMap `stack()`. Defaults to 4. */
+  stackGap?: SpacingScale
+  /** Override the main wrapper's className (used by apps with custom chrome). */
+  mainClassName?: string
+  /** Override the body wrapper's className. */
+  bodyClassName?: string
+}
+```
+
+#### `LegalPageSectionProps`
+
+```typescript
+interface LegalPageSectionProps {
+  /** Rendered heading text. */
+  title: ReactNode
+  /** Section body — one or more paragraphs. */
+  children: ReactNode
+  /** Stack gap between heading and body (ClassMap `stack()`). Defaults to 2. */
+  stackGap?: SpacingScale
+}
+```
+
+#### `PlanUpdatedPageProps`
+
+```typescript
+interface PlanUpdatedPageProps {
+  /** i18n key for the primary message heading. */
+  messageKey?: string
+  /** Default message when the key is missing. */
+  messageDefault?: string
+  /** i18n key for the secondary heading. */
+  thankYouKey?: string
+  /** Default thank-you text when the key is missing. */
+  thankYouDefault?: string
+  /** i18n key for the action-button label. */
+  actionKey?: string
+  /** Default action label when the key is missing. */
+  actionDefault?: string
+  /** Href the action button navigates to. Defaults to `/`. */
+  actionHref?: string
+}
+```
+
+#### `PrivacyPageProps`
+
+```typescript
+interface PrivacyPageProps {
+  /** i18n key for the page heading. Defaults to `privacy.title`. */
+  titleKey?: string
+  /** Default for the heading when the key is missing. Defaults to `"Privacy"`. */
+  titleDefault?: string
+  /** i18n key for the single-paragraph intro (ignored when `children` is passed). */
+  introKey?: string
+  /** Default intro body when the key is missing. */
+  introDefault?: string
+  /** Optional override body — use when the page has real content. */
+  children?: ReactNode
+  /** Stack gap between body children. */
+  stackGap?: SpacingScale
+}
+```
+
+#### `TermsPageProps`
+
+```typescript
+interface TermsPageProps {
+  /** i18n key for the page heading. Defaults to `terms.title`. */
+  titleKey?: string
+  /** Default for the heading when the i18n key is missing. Defaults to `"Terms"`. */
+  titleDefault?: string
+  /** i18n key for the single-paragraph intro (ignored when `children` is passed). */
+  introKey?: string
+  /** Default intro body when the key is missing. */
+  introDefault?: string
+  /** Optional override body — use when the page has real content, not boilerplate. */
+  children?: ReactNode
+  /** Stack gap between body children. */
+  stackGap?: SpacingScale
+}
+```
+
 #### `UseLegalModalsOptions`
 
 Shared options for the legal-modal hook + component.
@@ -172,7 +269,7 @@ PlanUpdated, …).
 Renders the app's own `header`/`footer` slots around a themed hero band
 (eyebrow + title + subtitle) and a surface-card content area. Everything
 is driven by theme tokens (`--mol-color-*`) and the app's font utility
-classes (`font-headline` for the title, `font-body`/`font-label` for the
+classes (`font-display` for the title, `font-body`/`font-label` for the
 rest), so each app's palette and typography are applied automatically
 without per-app overrides.
 
@@ -247,7 +344,7 @@ function LegalModalLinks({
 
 **Returns:** The trigger button(s) and their modals.
 
-#### `LegalPageLayout(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `LegalPageLayout(props)`
 
 Canonical Terms / Privacy layout shell.
 
@@ -271,16 +368,9 @@ function LegalPageLayout({
 }: LegalPageLayoutProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .dataMolId
-- `root0` — .title
-- `root0` — .children
-- `root0` — .containerSize
-- `root0` — .stackGap
-- `root0` — .mainClassName
-- `root0` — .bodyClassName
+- `props` — Component props (see {@link LegalPageLayoutProps}).
 
-#### `LegalPageSection(root0, root0, root0, root0)`
+#### `LegalPageSection(props)`
 
 One sub-section of a legal page (`h2` + body) styled for use inside
 `<LegalPageLayout>`.
@@ -293,12 +383,9 @@ function LegalPageSection({
 }: LegalPageSectionProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .children
-- `root0` — .stackGap
+- `props` — Component props (see {@link LegalPageSectionProps}).
 
-#### `PlanUpdatedPage(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `PlanUpdatedPage(props)`
 
 "Plan updated" confirmation screen.
 
@@ -318,16 +405,9 @@ function PlanUpdatedPage({
 }?: PlanUpdatedPageProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .messageKey
-- `root0` — .messageDefault
-- `root0` — .thankYouKey
-- `root0` — .thankYouDefault
-- `root0` — .actionKey
-- `root0` — .actionDefault
-- `root0` — .actionHref
+- `props` — Component props (see {@link PlanUpdatedPageProps}).
 
-#### `PrivacyPage(root0, root0, root0, root0, root0, root0, root0)`
+#### `PrivacyPage(props)`
 
 Default Privacy-policy page scaffold.
 
@@ -345,15 +425,9 @@ function PrivacyPage({
 }: PrivacyPageProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .titleKey
-- `root0` — .titleDefault
-- `root0` — .introKey
-- `root0` — .introDefault
-- `root0` — .children
-- `root0` — .stackGap
+- `props` — Component props (see {@link PrivacyPageProps}).
 
-#### `TermsPage(root0, root0, root0, root0, root0, root0, root0)`
+#### `TermsPage(props)`
 
 Default Terms-of-service page scaffold.
 
@@ -372,13 +446,7 @@ function TermsPage({
 }: TermsPageProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .titleKey
-- `root0` — .titleDefault
-- `root0` — .introKey
-- `root0` — .introDefault
-- `root0` — .children
-- `root0` — .stackGap
+- `props` — Component props (see {@link TermsPageProps}).
 
 #### `useLegalModals(options)`
 
@@ -420,3 +488,21 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 - `react-router-dom`
+
+- `LegalContentPage` / `useLegalModals` render bonded HTML that defaults to an
+  EMPTY string until the locale module is registered — pass your app's
+  `loadContent` (from `src/config.ts`, re-exporting
+  `@molecule/app-locales-legal-default`) or the page/modal body will be blank.
+- `PlanUpdatedPage` requires BOTH a react-router `<Router>` ancestor (it renders
+  a `<Link>`) and wired auth state from `@molecule/app-react` — without an auth
+  provider it shows a spinner forever (`state.initialized` never flips). The
+  rest of the package is router-free.
+- `ContentPageShell`'s hero reads `var(--mol-color-primary)` and
+  `var(--mol-color-background)` with no fallback, and uses Tailwind theme
+  utilities (`font-display`, `bg-background`, `border-outline-variant`) — the
+  app theme must define the `--mol-color-` override tokens and font utilities
+  or the hero band renders unstyled.
+- `TermsPage`/`PrivacyPage` default keys (`terms.title`, `terms.intro`,
+  `privacy.title`, `privacy.intro`) and the `nav.legal` eyebrow ship in no
+  locale bond — the English `defaultValue`s render unless your app defines
+  those keys (all keys are overridable via props).

@@ -3,7 +3,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
-interface LeaderboardRowProps {
+export interface LeaderboardRowProps {
   /** 1-based rank. */
   rank: number
   /** Display name. */
@@ -29,16 +29,7 @@ const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 /**
  * Leaderboard row — rank + avatar + name + score + optional rank-delta
  * arrow. Top 3 ranks render a medal in place of the numeric rank.
- * @param root0
- * @param root0.rank
- * @param root0.name
- * @param root0.avatarSrc
- * @param root0.score
- * @param root0.rankDelta
- * @param root0.subtitle
- * @param root0.isMe
- * @param root0.onClick
- * @param root0.className
+ * @param props - Component props (see {@link LeaderboardRowProps}).
  */
 export function LeaderboardRow({
   rank,

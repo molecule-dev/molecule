@@ -12,7 +12,7 @@ export interface MessageAttachment {
   icon?: React.ReactNode
 }
 
-interface MessageAttachmentsProps {
+export interface MessageAttachmentsProps {
   attachments: MessageAttachment[]
   /** Extra classes on the outer wrapper. */
   className?: string
@@ -21,9 +21,7 @@ interface MessageAttachmentsProps {
 /**
  * Vertical list of attachment rows below a message body.
  * Each row: `[icon] [name · size] [action]`.
- * @param root0
- * @param root0.attachments
- * @param root0.className
+ * @param props - Component props (see {@link MessageAttachmentsProps}).
  */
 export function MessageAttachments({
   attachments,

@@ -5,7 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { KanbanColumn } from './KanbanColumn.js'
 import type { KanbanCardData, KanbanColumnData } from './types.js'
 
-interface KanbanBoardProps {
+export interface KanbanBoardProps {
   columns: KanbanColumnData[]
   /** Called when a card moves from one column to another. */
   onCardMove?: (cardId: string, fromColumnId: string, toColumnId: string) => void
@@ -26,13 +26,7 @@ interface KanbanBoardProps {
  * to persist reorder. For fancier drag experiences, wire
  * `@molecule/app-drag-drop` at the column level instead.
  *
- * @param root0
- * @param root0.columns
- * @param root0.onCardMove
- * @param root0.onCardClick
- * @param root0.renderHeaderActions
- * @param root0.renderFooter
- * @param root0.className
+ * @param props - Component props (see {@link KanbanBoardProps}).
  * @example
  * ```tsx
  * <KanbanBoard

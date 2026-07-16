@@ -1,17 +1,22 @@
 # @molecule/app-kanban-board-react
 
-React Kanban board primitives.
+React Kanban board primitives (pure presentational — you own the data).
 
 Exports:
-- `<KanbanBoard>` — top-level board with HTML5 drag-drop between columns.
-- `<KanbanColumn>` — one column (header + card list + optional footer).
-- `<KanbanColumnHeader>` — title + count + actions row.
-- `<KanbanCard>` — single draggable card.
-- `KanbanColumnData`, `KanbanCardData` types.
+- `<KanbanBoard>` — columns side-by-side with HTML5 drag-drop between columns.
+  Props: `columns`, `onCardMove?(cardId, fromColumnId, toColumnId)`,
+  `onCardClick?(card, column)`, `renderHeaderActions?(column)`,
+  `renderFooter?(column)`, `className?`.
+- `<KanbanColumn>` / `<KanbanColumnHeader>` / `<KanbanCard>` — the building blocks,
+  usable standalone for custom board layouts.
+- `KanbanColumnData` (`{ id, title, accent?, cards }`), `KanbanCardData`
+  (`{ id, title, body?, footer? }`) types.
 
-Use the simple HTML5 DnD built into `<KanbanBoard>` or wire
-`@molecule/app-drag-drop` at the column level for fancier
-interactions (touch, keyboard, animated reorder).
+This package is standalone UI: it does NOT use the headless
+`@molecule/app-kanban` core or the `app-kanban-default` bond. Reach for those
+when you want board STATE management (move/add/remove logic) behind a bond;
+use this package when you just need the rendered board and will persist moves
+yourself in `onCardMove`.
 
 ## Quick Start
 
@@ -42,6 +47,24 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `KanbanBoardProps`
+
+```typescript
+interface KanbanBoardProps {
+  columns: KanbanColumnData[]
+  /** Called when a card moves from one column to another. */
+  onCardMove?: (cardId: string, fromColumnId: string, toColumnId: string) => void
+  /** Called when a card is clicked. */
+  onCardClick?: (card: KanbanCardData, column: KanbanColumnData) => void
+  /** Optional per-column header action renderer. */
+  renderHeaderActions?: (column: KanbanColumnData) => ReactNode
+  /** Optional per-column footer renderer (e.g. "+ Add card"). */
+  renderFooter?: (column: KanbanColumnData) => ReactNode
+  /** Extra classes on the outer board wrapper. */
+  className?: string
+}
+```
+
 #### `KanbanCardData`
 
 Kanban board types.
@@ -56,6 +79,20 @@ interface KanbanCardData {
   body?: ReactNode
   /** Optional footer row (avatars, tags, timestamps). */
   footer?: ReactNode
+}
+```
+
+#### `KanbanCardProps`
+
+```typescript
+interface KanbanCardProps {
+  card: KanbanCardData
+  /** Called when the card is clicked (e.g. open detail modal). */
+  onClick?: (card: KanbanCardData) => void
+  /** HTML5 drag start — integrate with `@molecule/app-drag-drop` bond. */
+  onDragStart?: (card: KanbanCardData, e: DragEvent<HTMLDivElement>) => void
+  /** Extra classes. */
+  className?: string
 }
 ```
 
@@ -76,9 +113,43 @@ interface KanbanColumnData {
 }
 ```
 
+#### `KanbanColumnHeaderProps`
+
+```typescript
+interface KanbanColumnHeaderProps {
+  title: ReactNode
+  /** Card count shown in parentheses. */
+  count?: number
+  /** Optional right-side actions (add card button, menu). */
+  actions?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `KanbanColumnProps`
+
+```typescript
+interface KanbanColumnProps {
+  column: KanbanColumnData
+  /** Called when a card is clicked. */
+  onCardClick?: (card: KanbanCardData, column: KanbanColumnData) => void
+  /** Called when a card is dragged into this column. */
+  onDrop?: (column: KanbanColumnData, e: React.DragEvent) => void
+  /** Called when a card drag-start fires. */
+  onCardDragStart?: (card: KanbanCardData, column: KanbanColumnData, e: React.DragEvent) => void
+  /** Optional header actions. */
+  headerActions?: ReactNode
+  /** Optional footer (e.g. "Add card" button). */
+  footer?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `KanbanBoard(root0, root0, root0, root0, root0, root0, root0)`
+#### `KanbanBoard(props)`
 
 Kanban board with HTML5 drag-drop between columns.
 
@@ -97,15 +168,9 @@ function KanbanBoard({
 }: KanbanBoardProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .columns
-- `root0` — .onCardMove
-- `root0` — .onCardClick
-- `root0` — .renderHeaderActions
-- `root0` — .renderFooter
-- `root0` — .className
+- `props` — Component props (see {@link KanbanBoardProps}).
 
-#### `KanbanCard(root0, root0, root0, root0, root0)`
+#### `KanbanCard(props)`
 
 Single card inside a Kanban column. Drag-drop is opt-in via the
 `onDragStart` prop — wire it to the `@molecule/app-drag-drop` bond or
@@ -123,13 +188,9 @@ function KanbanCard({
 }: KanbanCardProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .card
-- `root0` — .onClick
-- `root0` — .onDragStart
-- `root0` — .className
+- `props` — Component props (see {@link KanbanCardProps}).
 
-#### `KanbanColumn(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `KanbanColumn(props)`
 
 One Kanban column — sticky header + scrollable card list + optional footer.
 
@@ -145,16 +206,9 @@ function KanbanColumn({
 }: KanbanColumnProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .column
-- `root0` — .onCardClick
-- `root0` — .onDrop
-- `root0` — .onCardDragStart
-- `root0` — .headerActions
-- `root0` — .footer
-- `root0` — .className
+- `props` — Component props (see {@link KanbanColumnProps}).
 
-#### `KanbanColumnHeader(root0, root0, root0, root0, root0)`
+#### `KanbanColumnHeader(props)`
 
 Kanban column heading row — title + count + right actions.
 
@@ -167,11 +221,7 @@ function KanbanColumnHeader({
 }: KanbanColumnHeaderProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .count
-- `root0` — .actions
-- `root0` — .className
+- `props` — Component props (see {@link KanbanColumnHeaderProps}).
 
 ## Injection Notes
 
@@ -189,3 +239,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Drag-drop is native HTML5 DnD: it does not fire on touch devices — provide
+  an alternate affordance (e.g. a move menu in `renderHeaderActions`) for mobile.
+- `onCardMove` fires only when a card is dropped on a DIFFERENT column, and no
+  insertion index is reported — same-column reordering is not supported; movers
+  can only append to the target column.
+- Consumers own the data: update your `columns` state in `onCardMove` or the
+  board will snap back on re-render.
+- `accent` on a column is currently cosmetic metadata only.
+- Styling resolves through `getClassMap()`; `<KanbanCard>` uses `<Card>` from
+  `@molecule/app-ui-react` — wire a ClassMap bond first.

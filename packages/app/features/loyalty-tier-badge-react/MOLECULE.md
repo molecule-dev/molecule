@@ -1,8 +1,18 @@
 # @molecule/app-loyalty-tier-badge-react
 
-Bronze/Silver/Gold/Platinum loyalty tier badge with optional progress
-bar to the next tier. Used by hotel-booking, online-store, and
-travel-booking flagship loyalty programs.
+Bronze/Silver/Gold/Platinum loyalty tier badge with optional progress bar
+to the next tier.
+
+Exports:
+- `<LoyaltyTierBadge>` — colored tier glyph + label; when BOTH `points` and
+  `nextTierThreshold` are set (and a next tier exists) it also renders a
+  progress bar plus an "X to next tier" readout; platinum shows "Top tier
+  reached" instead. Props: `tier`, `points?`, `nextTierThreshold?`,
+  `tierLabel?` / `nextTierLabel?` (override the translated names for branded
+  programs, e.g. "Member" / "Elite"), `size?` (`'sm' | 'md' | 'lg'`),
+  `dataMolId?`, `className?`.
+- `LoyaltyTier`, `LoyaltyTierBadgeProps` types; `computeProgress()` and
+  `nextTierOf()` helpers.
 
 ## Quick Start
 
@@ -88,9 +98,10 @@ Loyalty tier badge — renders a colored glyph + tier label + (optional)
 "X / Y to next tier" progress bar. Used by hotel-booking, online-store,
 and travel-booking flagship loyalty programs.
 
-Tier glyph colors fall back to standard metallic accents when no theme
-tokens are wired; pass `tierLabel` / `nextTierLabel` to override the
-translated defaults for branded programs (e.g. "Member" / "Elite").
+Tier glyph colors are always the standard metallic accents (fixed per-tier
+hex values — theme tokens are not consulted for the glyph); pass
+`tierLabel` / `nextTierLabel` to override the translated defaults for
+branded programs (e.g. "Member" / "Elite").
 
 ```typescript
 function LoyaltyTierBadge({
@@ -138,3 +149,18 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+- The tier glyph accent is ALWAYS a fixed metallic hex per tier (bronze /
+  silver / gold / platinum) — it does not read theme tokens; only the border
+  and secondary text use `--mol-color-` variables (with light-theme fallbacks).
+- Labels route through `t()` under the `loyaltyTierBadge.` prefix. The
+  companion `@molecule/app-locales-loyalty-tier-badge` bond currently ships
+  only `group` and `progress` — the tier names, `remaining`, and `topTier`
+  strings fall back to English everywhere until the bond gains those keys
+  (or pass `tierLabel` / `nextTierLabel` yourself).
+- `points` / `nextTierThreshold` must share a unit (points, nights, spend);
+  progress is clamped to 0–1.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-loyalty-tier-badge`.

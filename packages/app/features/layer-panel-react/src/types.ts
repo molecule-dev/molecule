@@ -42,7 +42,7 @@ export interface Layer {
   locked: boolean
   /** Optional 0–1 alpha shown as a percentage in the row metadata. */
   opacity?: number
-  /** Optional blend mode shown as a dropdown / metadata badge. */
+  /** Optional blend mode shown as text in the row's metadata badge. */
   blendMode?: LayerBlendMode
   /**
    * Optional thumbnail data URL or remote URL displayed left of the

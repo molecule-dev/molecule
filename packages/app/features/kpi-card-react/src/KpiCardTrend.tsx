@@ -4,7 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { KpiTrendDirection } from './KpiCard.js'
 
-interface KpiCardTrendProps {
+export interface KpiCardTrendProps {
   /** Numeric delta to display (e.g. 12.3 for +12.3%). Sign drives direction when `direction` omitted. */
   delta: number
   /**
@@ -20,12 +20,9 @@ interface KpiCardTrendProps {
 
 /**
  * Tiny arrow + delta% rendered inside a `<KpiCard>`'s trend slot.
- * Color maps to the `direction` — semantic colors come from the ClassMap.
- * @param root0
- * @param root0.delta
- * @param root0.direction
- * @param root0.suffix
- * @param root0.className
+ * The `direction` only picks the arrow glyph — no color is applied; pass a
+ * semantic text color via `className` for red/green deltas.
+ * @param props - Component props (see {@link KpiCardTrendProps}).
  */
 export function KpiCardTrend({
   delta,

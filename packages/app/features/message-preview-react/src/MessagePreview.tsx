@@ -1,12 +1,3 @@
-/**
- * Conversation / thread preview row with avatar + presence dot, name +
- * preview + timestamp + unread pip, and an active-selection treatment.
- *
- * Renders as a `<Link>` when `to` is provided, otherwise as a `<div>`.
- *
- * @module
- */
-
 import type { JSX, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -15,7 +6,7 @@ import { getClassMap } from '@molecule/app-ui'
 /** Presence state of the contact shown in the avatar dot. */
 export type MessagePreviewPresence = 'online' | 'away' | 'offline'
 
-interface MessagePreviewProps {
+export interface MessagePreviewProps {
   name: ReactNode
   preview: ReactNode
   timestamp: ReactNode
@@ -51,7 +42,12 @@ function deriveInitials(value: ReactNode): string {
     .toUpperCase()
 }
 
-/** Conversation / thread preview row. */
+/**
+ * Conversation / thread preview row. Renders as a `<Link>` when `to` is
+ * provided (requires a react-router `<Router>` ancestor), otherwise as a
+ * `<div>`.
+ * @param props - Component props (see {@link MessagePreviewProps}).
+ */
 export function MessagePreview({
   name,
   preview,

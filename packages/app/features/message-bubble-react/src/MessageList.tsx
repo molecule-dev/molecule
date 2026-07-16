@@ -5,7 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { MessageBubble } from './MessageBubble.js'
 import type { MessageData } from './types.js'
 
-interface MessageListProps {
+export interface MessageListProps {
   messages: MessageData[]
   /** When provided, viewer-authored messages flip alignment to the right. */
   selfAuthorId?: string
@@ -19,12 +19,7 @@ interface MessageListProps {
 
 /**
  * Vertical list of `<MessageBubble>`s with optional date separators.
- * @param root0
- * @param root0.messages
- * @param root0.selfAuthorId
- * @param root0.renderDateSeparator
- * @param root0.emptyState
- * @param root0.className
+ * @param props - Component props (see {@link MessageListProps}).
  */
 export function MessageList({
   messages,

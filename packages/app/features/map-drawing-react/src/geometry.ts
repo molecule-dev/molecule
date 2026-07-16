@@ -17,9 +17,10 @@ export function toRadians(degrees: number): number {
 
 /**
  * Great-circle distance between two `[lng, lat]` positions in meters
- * using the Haversine formula. Matches the precision of the production
- * map backends so the radius computed during drag agrees with what the
- * backend will project back to the user.
+ * using the Haversine formula (uses the WGS84 equatorial radius,
+ * 6378137 m), so the
+ * radius computed during drag agrees with what a geographic backend
+ * will project back to the user.
  *
  * @param a - First position.
  * @param b - Second position.

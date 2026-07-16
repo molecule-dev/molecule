@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ListingCardBodyProps {
+export interface ListingCardBodyProps {
   /** Primary title / name. */
   title: ReactNode
   /** Secondary line (subtitle, location, category). */
@@ -17,12 +17,7 @@ interface ListingCardBodyProps {
 
 /**
  * Body of a `<ListingCard>` — title / subtitle / price / meta rows stacked.
- * @param root0
- * @param root0.title
- * @param root0.subtitle
- * @param root0.price
- * @param root0.meta
- * @param root0.className
+ * @param props - Component props (see {@link ListingCardBodyProps}).
  */
 export function ListingCardBody({
   title,

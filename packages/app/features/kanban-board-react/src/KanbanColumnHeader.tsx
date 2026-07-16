@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface KanbanColumnHeaderProps {
+export interface KanbanColumnHeaderProps {
   title: ReactNode
   /** Card count shown in parentheses. */
   count?: number
@@ -14,11 +14,7 @@ interface KanbanColumnHeaderProps {
 
 /**
  * Kanban column heading row — title + count + right actions.
- * @param root0
- * @param root0.title
- * @param root0.count
- * @param root0.actions
- * @param root0.className
+ * @param props - Component props (see {@link KanbanColumnHeaderProps}).
  */
 export function KanbanColumnHeader({
   title,

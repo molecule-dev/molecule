@@ -5,7 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Textarea } from '@molecule/app-ui-react'
 
-interface MessageComposerProps {
+export interface MessageComposerProps {
   /** Called when the user submits. */
   onSubmit: (value: string) => void
   /** Optional placeholder. */
@@ -24,14 +24,7 @@ interface MessageComposerProps {
 
 /**
  * Message input row — text area + optional leading/trailing slots + submit button.
- * @param root0
- * @param root0.onSubmit
- * @param root0.placeholder
- * @param root0.submitOnEnter
- * @param root0.leading
- * @param root0.trailing
- * @param root0.disabled
- * @param root0.className
+ * @param props - Component props (see {@link MessageComposerProps}).
  */
 export function MessageComposer({
   onSubmit,

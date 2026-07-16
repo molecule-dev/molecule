@@ -3,11 +3,18 @@
 React product / property / listing card primitives.
 
 Exports:
-- `<ListingCard>` — outer shell (Card wrapper with click handler).
-- `<ListingCardMedia>` — top-of-card image slot with fixed aspect ratio + overlay.
-- `<ListingCardBody>` — title / subtitle / price / meta rows.
-- `<ListingCardActions>` — bottom action row (horizontal or stacked).
-- `<ListingGrid>` — responsive grid for listing cards.
+- `<ListingCard>` — outer Card shell. Props: `children`, `onClick?`,
+  `className?`, `dataMolId?`.
+- `<ListingCardMedia>` — top image slot. Props: `src?`, `alt?`, `children?`
+  (custom media node), `aspect?` (`'1/1' | '4/3' | '16/9' | '3/2'`, default
+  `'4/3'`, applied as an inline aspect-ratio style), `overlay?` (badge /
+  favorite button, absolutely positioned over the media), `className?`.
+- `<ListingCardBody>` — stacked text. Props: `title`, `subtitle?`, `price?`,
+  `meta?`, `className?`.
+- `<ListingCardActions>` — action row. Props: `children`, `layout?`
+  (`'horizontal'` default | `'stacked'`), `className?`.
+- `<ListingGrid>` — grid container. Props: `children`, `columns?` (1–6, default
+  3), `gap?`, `className?`.
 
 ## Quick Start
 
@@ -36,9 +43,90 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `ListingCardActionsProps`
+
+```typescript
+interface ListingCardActionsProps {
+  /** Action content — buttons, favorite toggle, etc. */
+  children: ReactNode
+  /** Layout — `'horizontal'` (default) fills width, `'stacked'` is vertical. */
+  layout?: 'horizontal' | 'stacked'
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `ListingCardBodyProps`
+
+```typescript
+interface ListingCardBodyProps {
+  /** Primary title / name. */
+  title: ReactNode
+  /** Secondary line (subtitle, location, category). */
+  subtitle?: ReactNode
+  /** Price / metric line. */
+  price?: ReactNode
+  /** Optional extras row (rating, availability, badges). */
+  meta?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `ListingCardMediaProps`
+
+```typescript
+interface ListingCardMediaProps {
+  /** Image URL or ReactNode. */
+  src?: string
+  alt?: string
+  /** Override with a ReactNode (video, carousel, svg). */
+  children?: ReactNode
+  /** Aspect ratio (`'1/1' | '4/3' | '16/9' | '3/2'`), applied as an inline `aspect-ratio` style. Defaults to `'4/3'`. */
+  aspect?: '1/1' | '4/3' | '16/9' | '3/2'
+  /** Optional overlay node (badge, favorite heart). */
+  overlay?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `ListingCardProps`
+
+```typescript
+interface ListingCardProps {
+  /** Slots — usually `<ListingCardMedia>` + `<ListingCardBody>` + `<ListingCardActions>`. */
+  children: ReactNode
+  /**
+   * Called on any click on the card — including clicks inside
+   * `<ListingCardActions>`, which bubble into it unless the action handler
+   * calls `e.stopPropagation()`.
+   */
+  onClick?: () => void
+  /** Extra classes on the outer Card. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
+#### `ListingGridProps`
+
+```typescript
+interface ListingGridProps {
+  children: ReactNode
+  /** Column count, fixed at every viewport width. Defaults to 3. */
+  columns?: 1 | 2 | 3 | 4 | 5 | 6
+  gap?: 'xs' | 'sm' | 'md' | 'lg'
+  className?: string
+}
+```
+
 ### Functions
 
-#### `ListingCard(root0, root0, root0, root0, root0)`
+#### `ListingCard(props)`
 
 Product / property / listing card shell. Just a `<Card>` with vertical
 stacking of its children — typically `<ListingCardMedia>` +
@@ -56,13 +144,9 @@ function ListingCard({
 }: ListingCardProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .onClick
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link ListingCardProps}).
 
-#### `ListingCardActions(root0, root0, root0, root0)`
+#### `ListingCardActions(props)`
 
 Bottom action row of a `<ListingCard>` (Add to cart, Save, etc.).
 
@@ -74,12 +158,9 @@ function ListingCardActions({
 }: ListingCardActionsProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .layout
-- `root0` — .className
+- `props` — Component props (see {@link ListingCardActionsProps}).
 
-#### `ListingCardBody(root0, root0, root0, root0, root0, root0)`
+#### `ListingCardBody(props)`
 
 Body of a `<ListingCard>` — title / subtitle / price / meta rows stacked.
 
@@ -93,14 +174,9 @@ function ListingCardBody({
 }: ListingCardBodyProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .subtitle
-- `root0` — .price
-- `root0` — .meta
-- `root0` — .className
+- `props` — Component props (see {@link ListingCardBodyProps}).
 
-#### `ListingCardMedia(root0, root0, root0, root0, root0, root0, root0)`
+#### `ListingCardMedia(props)`
 
 Media slot at the top of a `<ListingCard>`. Locks aspect ratio via
 inline style so apps get consistent card sizing without custom CSS.
@@ -116,19 +192,13 @@ function ListingCardMedia({
 }: ListingCardMediaProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .src
-- `root0` — .alt
-- `root0` — .children
-- `root0` — .aspect
-- `root0` — .overlay
-- `root0` — .className
+- `props` — Component props (see {@link ListingCardMediaProps}).
 
-#### `ListingGrid(root0, root0, root0, root0, root0)`
+#### `ListingGrid(props)`
 
-Responsive grid for `<ListingCard>`s. Alias for `CardGrid` tuned for
-listing layouts — same shape, different semantic name so importers
-can self-document.
+Grid for `<ListingCard>`s — a fixed `columns`-column grid at every
+viewport width. Alias for `CardGrid` tuned for listing layouts — same
+shape, different semantic name so importers can self-document.
 
 ```typescript
 function ListingGrid({
@@ -139,11 +209,7 @@ function ListingGrid({
 }: ListingGridProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .columns
-- `root0` — .gap
-- `root0` — .className
+- `props` — Component props (see {@link ListingGridProps}).
 
 ## Injection Notes
 
@@ -161,3 +227,13 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- `ListingCard.onClick` is attached to the WHOLE card — clicks on buttons inside
+  `<ListingCardActions>` bubble into it. Call `e.stopPropagation()` in every
+  action handler (as in the example) or the card navigation fires too.
+- `<ListingGrid columns={n}>` renders a FIXED n-column grid at every viewport
+  width — it does not collapse on mobile.
+- `overlay` children are rendered inside an absolutely-positioned inset-0 layer;
+  give interactive overlays their own pointer handling and stopPropagation.
+- Styling resolves through `getClassMap()`; the shell uses `<Card>` from
+  `@molecule/app-ui-react` — wire a ClassMap bond first.

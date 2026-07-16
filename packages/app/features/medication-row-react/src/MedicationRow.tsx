@@ -4,7 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
-interface MedicationRowProps {
+export interface MedicationRowProps {
   /** Drug name. */
   name: ReactNode
   /** Dosage display ("10mg", "1 tablet"). */
@@ -32,17 +32,7 @@ interface MedicationRowProps {
  * prescriber, supply countdown, refills remaining. Used in
  * medication-reminder, patient-facing health portals, pharmacy
  * dashboards.
- * @param root0
- * @param root0.name
- * @param root0.dosage
- * @param root0.form
- * @param root0.color
- * @param root0.instructions
- * @param root0.prescriber
- * @param root0.supplyDays
- * @param root0.refills
- * @param root0.actions
- * @param root0.className
+ * @param props - Component props (see {@link MedicationRowProps}).
  */
 export function MedicationRow({
   name,

@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface LeaderboardListProps {
+export interface LeaderboardListProps {
   /** Pre-rendered leaderboard rows. */
   children: ReactNode
   /** Optional title above the list. */
@@ -19,12 +19,7 @@ interface LeaderboardListProps {
  * Container above a stack of `<LeaderboardRow>`s — header + actions +
  * scrollable list. Doesn't itself render rank logic; pair with
  * `<LeaderboardRow>` from `@molecule/app-leaderboard-row-react`.
- * @param root0
- * @param root0.children
- * @param root0.title
- * @param root0.actions
- * @param root0.emptyState
- * @param root0.className
+ * @param props - Component props (see {@link LeaderboardListProps}).
  */
 export function LeaderboardList({
   children,

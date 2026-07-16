@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-interface ThreadIndicatorProps {
+export interface ThreadIndicatorProps {
   /** Number of replies. */
   replyCount: number
   /** Last-reply timestamp display. */
@@ -17,11 +17,7 @@ interface ThreadIndicatorProps {
 /**
  * "3 replies · last Monday" indicator rendered below a message bubble.
  * Clicking opens the thread view.
- * @param root0
- * @param root0.replyCount
- * @param root0.lastReplyAt
- * @param root0.onOpen
- * @param root0.className
+ * @param props - Component props (see {@link ThreadIndicatorProps}).
  */
 export function ThreadIndicator({
   replyCount,

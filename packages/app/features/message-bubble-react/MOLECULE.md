@@ -3,27 +3,33 @@
 React message/chat primitives.
 
 Exports:
-- `<MessageBubble>` — one message (avatar + meta + body + attachments/reactions/thread).
+- `<MessageBubble>` — one message (avatar + meta row + body + optional
+  attachments/reactions/thread slots from `message.attachments` etc.).
+  Props: `message`, `isSelf?`, `showMeta?`, `className?`.
 - `<MessageMeta>` — author · timestamp row.
-- `<MessageAttachments>` — attachment list under a bubble.
-- `<MessageReactions>` — reaction-chip row + add-reaction button.
-- `<ThreadIndicator>` — "3 replies · last Monday" footer.
-- `<MessageList>` — vertical list of bubbles with optional date separators.
-- `<MessageComposer>` — input row with submit.
+- `<MessageAttachments attachments={[...]}>` — attachment rows (icon + name ·
+  size + action slot).
+- `<MessageReactions reactions={[...]} onToggle? onAdd?>` — reaction-chip row.
+- `<ThreadIndicator replyCount lastReplyAt? onOpen?>` — "3 replies · …" footer.
+- `<MessageList messages selfAuthorId? renderDateSeparator? emptyState?>` —
+  vertical list of bubbles.
+- `<MessageComposer onSubmit placeholder? submitOnEnter? leading? trailing?
+  disabled?>` — textarea + Send button.
 - `MessageData`, `MessageAuthor`, `MessageAttachment`, `MessageReaction` types.
 
 ## Quick Start
 
 ```tsx
-import { MessageBubble, MessageList, MessageComposer } from '@molecule/app-message-bubble-react'
+import { MessageComposer, MessageList } from '@molecule/app-message-bubble-react'
+import type { MessageData } from '@molecule/app-message-bubble-react'
 
-const messages = [
-  { id: '1', author: { id: 'u1', name: 'Alice', avatarSrc: '/alice.png' }, body: 'Hey there!', timestamp: '2024-06-01T10:00:00Z' },
-  { id: '2', author: { id: 'u2', name: 'Bob' }, body: 'Hi Bob!', timestamp: '2024-06-01T10:01:00Z' },
+const messages: MessageData[] = [
+  { id: '1', author: { id: 'u1', name: 'Alice', avatarSrc: '/alice.png' }, body: 'Hey there!', timestamp: '10:00' },
+  { id: '2', author: { id: 'u2', name: 'Bob' }, body: 'Hi Alice!', timestamp: '10:01' },
 ]
 
 <MessageList messages={messages} selfAuthorId="u1" />
-<MessageComposer onSubmit={(text) => console.log('send', text)} placeholder="Write a message…" />
+<MessageComposer onSubmit={(text) => sendMessage(text)} />
 ```
 
 ## Type
@@ -56,6 +62,16 @@ interface MessageAttachment {
 }
 ```
 
+#### `MessageAttachmentsProps`
+
+```typescript
+interface MessageAttachmentsProps {
+  attachments: MessageAttachment[]
+  /** Extra classes on the outer wrapper. */
+  className?: string
+}
+```
+
 #### `MessageAuthor`
 
 Message / chat types.
@@ -68,6 +84,41 @@ interface MessageAuthor {
   name: string
   /** Optional avatar URL. */
   avatarSrc?: string
+}
+```
+
+#### `MessageBubbleProps`
+
+```typescript
+interface MessageBubbleProps {
+  message: MessageData
+  /** Whether the current viewer is the message author (affects alignment + accent). */
+  isSelf?: boolean
+  /** Render the author row (avatar + name + time). Defaults to true. */
+  showMeta?: boolean
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `MessageComposerProps`
+
+```typescript
+interface MessageComposerProps {
+  /** Called when the user submits. */
+  onSubmit: (value: string) => void
+  /** Optional placeholder. */
+  placeholder?: string
+  /** Whether Ctrl/Cmd-Enter submits. Defaults to true. */
+  submitOnEnter?: boolean
+  /** Optional leading slot (e.g. attachment button). */
+  leading?: ReactNode
+  /** Optional trailing slot rendered before the submit button. */
+  trailing?: ReactNode
+  /** Disable input + submit. */
+  disabled?: boolean
+  /** Extra classes. */
+  className?: string
 }
 ```
 
@@ -92,6 +143,35 @@ interface MessageData {
 }
 ```
 
+#### `MessageListProps`
+
+```typescript
+interface MessageListProps {
+  messages: MessageData[]
+  /** When provided, viewer-authored messages flip alignment to the right. */
+  selfAuthorId?: string
+  /** Optional date separator renderer (receives the current message). */
+  renderDateSeparator?: (message: MessageData, i: number) => ReactNode
+  /** Empty-state node when `messages` is empty. */
+  emptyState?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `MessageMetaProps`
+
+```typescript
+interface MessageMetaProps {
+  /** Author display name. */
+  author: ReactNode
+  /** Timestamp display. */
+  timestamp: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 #### `MessageReaction`
 
 A single emoji reaction with its count and current-user state.
@@ -107,9 +187,38 @@ interface MessageReaction {
 }
 ```
 
+#### `MessageReactionsProps`
+
+```typescript
+interface MessageReactionsProps {
+  reactions: MessageReaction[]
+  /** Called when a reaction chip is toggled. */
+  onToggle?: (emoji: string) => void
+  /** Called when the "+" button is clicked. */
+  onAdd?: () => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `ThreadIndicatorProps`
+
+```typescript
+interface ThreadIndicatorProps {
+  /** Number of replies. */
+  replyCount: number
+  /** Last-reply timestamp display. */
+  lastReplyAt?: ReactNode
+  /** Called when clicked. */
+  onOpen?: () => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `MessageAttachments(root0, root0, root0)`
+#### `MessageAttachments(props)`
 
 Vertical list of attachment rows below a message body.
 Each row: `[icon] [name · size] [action]`.
@@ -121,18 +230,17 @@ function MessageAttachments({
 }: MessageAttachmentsProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .attachments
-- `root0` — .className
+- `props` — Component props (see {@link MessageAttachmentsProps}).
 
-#### `MessageBubble(root0, root0, root0, root0, root0)`
+#### `MessageBubble(props)`
 
 One message in a chat thread — avatar, author/timestamp row, body,
 plus optional attachments/reactions/thread indicator passed in via
 `message.attachments` / `message.reactions` / `message.thread`.
 
-`isSelf` flips the alignment and accent so the viewer's own messages
-appear on the right with a primary-tinted bubble.
+`isSelf` flips the row direction so the viewer's own messages appear on
+the right — no bubble background/tint is applied; style the body via
+`className` if you want classic chat bubbles.
 
 ```typescript
 function MessageBubble({
@@ -143,13 +251,9 @@ function MessageBubble({
 }: MessageBubbleProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .message
-- `root0` — .isSelf
-- `root0` — .showMeta
-- `root0` — .className
+- `props` — Component props (see {@link MessageBubbleProps}).
 
-#### `MessageComposer(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `MessageComposer(props)`
 
 Message input row — text area + optional leading/trailing slots + submit button.
 
@@ -165,16 +269,9 @@ function MessageComposer({
 }: MessageComposerProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .onSubmit
-- `root0` — .placeholder
-- `root0` — .submitOnEnter
-- `root0` — .leading
-- `root0` — .trailing
-- `root0` — .disabled
-- `root0` — .className
+- `props` — Component props (see {@link MessageComposerProps}).
 
-#### `MessageList(root0, root0, root0, root0, root0, root0)`
+#### `MessageList(props)`
 
 Vertical list of `<MessageBubble>`s with optional date separators.
 
@@ -188,14 +285,9 @@ function MessageList({
 }: MessageListProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .messages
-- `root0` — .selfAuthorId
-- `root0` — .renderDateSeparator
-- `root0` — .emptyState
-- `root0` — .className
+- `props` — Component props (see {@link MessageListProps}).
 
-#### `MessageMeta(root0, root0, root0, root0)`
+#### `MessageMeta(props)`
 
 Small `[author · timestamp]` row rendered above a message body. Broken
 out so apps can reuse it in notification rows, quote blocks, etc.
@@ -204,15 +296,13 @@ out so apps can reuse it in notification rows, quote blocks, etc.
 function MessageMeta({ author, timestamp, className }: MessageMetaProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .author
-- `root0` — .timestamp
-- `root0` — .className
+- `props` — Component props (see {@link MessageMetaProps}).
 
-#### `MessageReactions(root0, root0, root0, root0, root0)`
+#### `MessageReactions(props)`
 
 Row of reaction chips below a message body. Each chip shows emoji +
-count and highlights when the current user reacted.
+count; when the current user reacted the chip is marked with
+`aria-pressed` only — no visual highlight ships.
 
 ```typescript
 function MessageReactions({
@@ -223,13 +313,9 @@ function MessageReactions({
 }: MessageReactionsProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .reactions
-- `root0` — .onToggle
-- `root0` — .onAdd
-- `root0` — .className
+- `props` — Component props (see {@link MessageReactionsProps}).
 
-#### `ThreadIndicator(root0, root0, root0, root0, root0)`
+#### `ThreadIndicator(props)`
 
 "3 replies · last Monday" indicator rendered below a message bubble.
 Clicking opens the thread view.
@@ -243,11 +329,7 @@ function ThreadIndicator({
 }: ThreadIndicatorProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .replyCount
-- `root0` — .lastReplyAt
-- `root0` — .onOpen
-- `root0` — .className
+- `props` — Component props (see {@link ThreadIndicatorProps}).
 
 ## Injection Notes
 
@@ -265,3 +347,23 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- `isSelf` (or `MessageList.selfAuthorId`) only right-aligns the row — there is
+  no built-in bubble background/tint. Style the body via `className` (or wrap
+  `message.body`) if you want classic chat bubbles.
+- `timestamp` renders exactly what you pass — no time-ago or date formatting.
+  Pre-format ("2m ago", "10:01") before passing; raw ISO strings display as-is.
+- The composer submits on the Send button or Ctrl/Cmd+Enter (`submitOnEnter`),
+  NOT plain Enter; it trims and clears on submit and blocks empty sends.
+- Composer strings route through `t()` (`composer.placeholder`,
+  `composer.send`) with the `@molecule/app-locales-message-bubble` companion
+  bond; `ThreadIndicator` uses `thread.replies`, which that bond does not yet
+  ship — it falls back to English.
+- `MessageReactions` marks the viewer's own reaction with `aria-pressed` only —
+  no visual highlight ships.
+- Requires wired i18n (`useTranslation`) and a ClassMap bond; Avatar/Button/
+  Textarea come from `@molecule/app-ui-react`.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-message-bubble`.

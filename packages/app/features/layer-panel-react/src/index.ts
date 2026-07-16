@@ -16,9 +16,19 @@
  * Layers are rendered top-down per Photoshop convention: index 0 is
  * the first row in the UI and represents the front-most layer.
  *
+ * Toggle/rename labels route through `t()` — add the companion
+ * `@molecule/app-locales-layer-panel` bond to translate them. Locked layers
+ * cannot be dragged or renamed. The eye / lock toggles render emoji glyphs.
+ *
  * @example
  * ```tsx
+ * import { useState } from 'react'
  * import { LayerPanel, type Layer } from '@molecule/app-layer-panel-react'
+ *
+ * const initial: Layer[] = [
+ *   { id: 'bg', name: 'Background', visible: true, locked: false },
+ *   { id: 'fg', name: 'Sketch', visible: true, locked: false, opacity: 0.8 },
+ * ]
  *
  * function Editor() {
  *   const [layers, setLayers] = useState<Layer[]>(initial)
