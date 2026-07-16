@@ -462,6 +462,18 @@ export function setupSearchElasticsearch(): void {
 Peer dependencies:
 - `@molecule/api-search` ^1.0.0
 
+### Environment Variables
+
+- `ELASTICSEARCH_URL` *(optional)* — Elasticsearch URL — default: `http://localhost:9200`
+  - Setup: URL of your Elasticsearch node (Elastic Cloud or self-hosted). Defaults to http://localhost:9200 for a local node.
+  - Example: `http://localhost:9200`
+- `ELASTICSEARCH_API_KEY` *(optional)* — Elasticsearch API key
+  - Setup: API key for the node (Kibana → Stack Management → API Keys). Preferred over username/password; leave all three unset for an unsecured local node.
+- `ELASTICSEARCH_USERNAME` *(optional)* — Elasticsearch username
+  - Setup: Basic-auth username — only if not using an API key.
+- `ELASTICSEARCH_PASSWORD` *(optional)* — Elasticsearch password
+  - Setup: Basic-auth password — only if not using an API key.
+
 ### Runtime Dependencies
 
 - `@elastic/elasticsearch`

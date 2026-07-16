@@ -28,8 +28,9 @@
  *   parentheses) in values is safe; a literal backtick inside a filter value is
  *   not representable in Typesense filter syntax. Filtering requires the field
  *   to be faceted — declare it in `filterableFields`.
- * - **Empty search text matches ALL documents** — unlike the postgres bond,
- *   which returns zero hits for empty text.
+ * - **Empty search text matches ALL documents** (`q: '*'`), per the core
+ *   `SearchQuery.text` browse-mode contract — consistent with every bundled
+ *   search bond.
  * - `connectionTimeoutSeconds` is in seconds (default 5).
  *
  * @module

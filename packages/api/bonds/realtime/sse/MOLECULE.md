@@ -6,6 +6,21 @@ Provides a {@link RealtimeProvider} implementation using native Node.js
 Server-Sent Events for server-to-client push, with HTTP POST for
 client-to-server messages.
 
+- **Client wire protocol** (for hand-rolled clients): subscribe with
+  `GET {path}` — the first stream event is `connected` `{ clientId }`; keep that
+  `clientId`, every `POST {path}` body must include it (400 without it). Handshake
+  auth for join guards = every subscribe query param except `room`/`rooms`, plus
+  the `Authorization` header (as `auth.authorization`); auth is captured once at
+  subscribe and reused for later POSTed joins. Join rooms at subscribe time with
+  `?room=a&room=b` or later via `POST {clientId, event: 'molecule:join',
+  data: {room}}` — the verdict (`molecule:joined`/`molecule:join-denied`) arrives
+  on the STREAM; the POST itself acks `202`. `molecule:room-send` into a room the
+  client hasn't joined is rejected `403`.
+- **`broadcast()` throws** `Room "<id>" does not exist` when the room matches no
+  managed room and no protocol room — and a protocol room ceases to exist when its
+  last member leaves/disconnects. Guard server-side pushes accordingly (the
+  `-socketio` bond silently no-ops instead).
+
 ## Quick Start
 
 ```typescript
@@ -100,7 +115,8 @@ interface SseRealtimeConfig {
    * Base path for SSE endpoints.
    *
    * - `GET  {path}` — SSE event stream
-   * - `POST {path}` — client-to-server messages (`{ event, data, room? }`)
+   * - `POST {path}` — client-to-server messages (`{ clientId, event, data, room? }`;
+   *   `clientId` is REQUIRED — it arrives in the stream's initial `connected` event)
    *
    * @defaultValue '/sse'
    */

@@ -112,7 +112,7 @@ Implements `@molecule/api-secrets` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, registerProvisioner, registerSecret, registerSecrets } from '@molecule/api-secrets'
+import { setProvider } from '@molecule/api-secrets'
 import { provider } from '@molecule/api-secrets-molecule'
 
 export function setupSecretsMolecule(): void {
@@ -143,3 +143,12 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 - `@molecule/api-secrets`
+
+- **`MOLECULE_VAULT_TOKEN` / `MOLECULE_APP_ID` must be in the environment BEFORE
+  this module is imported** — the default `provider` captures them at import time
+  (they are platform-provisioned in molecule.dev deployments, so this normally
+  holds). For late-arriving credentials, wire
+  `createMoleculeSecretsProvider({ token, appId })` instead.
+- Without a reachable vault AND no cached values, reads fall back to `process.env`
+  with a logged warning — `provider.isAvailable()` at boot tells you which path
+  you're on.

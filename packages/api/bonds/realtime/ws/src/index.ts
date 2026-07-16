@@ -4,6 +4,13 @@
  * Provides a `ws`-backed implementation of the
  * `@molecule/api-realtime` {@link RealtimeProvider} interface.
  *
+ * - **`broadcast()` throws** `Room "<id>" does not exist` when the room matches no
+ *   managed room and no protocol room — a protocol room ceases to exist when its last
+ *   member leaves/disconnects, so a push to a room nobody is viewing is an ERROR here
+ *   (the `-socketio` bond silently no-ops instead). Reserved protocol frames use the
+ *   same JSON framing: `{ event: 'molecule:join' | 'molecule:leave' |
+ *   'molecule:room-send', data: { room, … } }`.
+ *
  * @module
  * @example
  * ```typescript

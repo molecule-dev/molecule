@@ -481,8 +481,9 @@ Provider-specific behavior to know before debugging:
 - **`SearchHit.score` is Meilisearch's `_rankingScore`** (requested
   automatically). `SearchResult.total` is Meilisearch's `estimatedTotalHits` —
   an estimate, suitable for pagination but not for exact counts.
-- **Empty search text matches ALL documents** (Meilisearch placeholder
-  search) — unlike the postgres bond, which returns zero hits for empty text.
+- **Empty search text matches ALL documents** (Meilisearch placeholder search),
+  per the core `SearchQuery.text` browse-mode contract — consistent with every
+  bundled search bond.
 
 ## E2E Tests
 

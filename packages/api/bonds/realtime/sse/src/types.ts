@@ -59,7 +59,8 @@ export interface SseRealtimeConfig {
    * Base path for SSE endpoints.
    *
    * - `GET  {path}` — SSE event stream
-   * - `POST {path}` — client-to-server messages (`{ event, data, room? }`)
+   * - `POST {path}` — client-to-server messages (`{ clientId, event, data, room? }`;
+   *   `clientId` is REQUIRED — it arrives in the stream's initial `connected` event)
    *
    * @defaultValue '/sse'
    */

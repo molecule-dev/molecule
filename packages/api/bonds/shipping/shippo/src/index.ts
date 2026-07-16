@@ -30,6 +30,16 @@
  * request via `POST /refunds`. Refunds are subject to carrier-specific
  * rules and may be queued or rejected; a successful return only means the
  * refund was requested.
+ *
+ * **Only the FIRST parcel is used** — `shipment.parcels[1..n]` are silently ignored;
+ * quote multi-parcel shipments one parcel per call.
+ *
+ * Parcel units: `Parcel.distanceUnit`/`massUnit` are honored and default to
+ * `'in'`/`'lb'` when unspecified — metric parcels MUST set them or dimensions are
+ * interpreted as inches/pounds.
+ *
+ * `createLabel(shipmentId, rate)` ignores `shipmentId` (Shippo buys by `rateId`
+ * alone — pass any string); there is no separate quote-id to persist.
  */
 
 export * from './browser-guard.js'
