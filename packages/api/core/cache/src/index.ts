@@ -7,6 +7,16 @@
  * functions (`get`, `set`, `del`, `has`, `getOrSet`) which delegate to the bonded provider.
  *
  * @remarks
+ * - **Pick the provider by what is actually PROVISIONED (read this FIRST).** The bond you
+ *   `setProvider()` is the ONLY thing that decides whether a managed server is required.
+ *   `@molecule/api-cache-memory` is in-process and needs NOTHING — use it whenever no managed
+ *   cache is provisioned: a fresh sandbox, a single-process app, or when you are ADDING caching
+ *   to an app that did not already use Redis/Memcached. Use `-redis` / `-memcached` ONLY when a
+ *   managed instance actually exists — i.e. its connection URL is present in the environment
+ *   (`REDIS_URL`, etc.). Wiring `-redis` with no `REDIS_URL` compiles and can even let a
+ *   memory-backed TEST pass, but the RUNNING app's cache then fails to connect (localhost:6379
+ *   refused) — a green test hiding a broken runtime. If durable/shared caching is genuinely
+ *   needed and none is provisioned, ASK the user to connect one; do not assume it is there.
  * The cache is BEST-EFFORT and often SHARED across users — treat it accordingly:
  * - **A per-user value MUST include the user id in its KEY** (`user:123:profile`, not
  *   `profile`). A shared key for per-user data leaks one user's data to another — a real
@@ -35,9 +45,11 @@
  * @example
  * ```typescript
  * import { setProvider, get, set, getOrSet } from '@molecule/api-cache'
- * import { provider as redis } from '@molecule/api-cache-redis'
+ * // Pick the bond by what's provisioned — in-memory needs nothing (safe default); swap to
+ * // `@molecule/api-cache-redis` ONLY when a managed Redis exists (REDIS_URL is in the env).
+ * import { createProvider } from '@molecule/api-cache-memory'
  *
- * setProvider(redis)
+ * setProvider(createProvider())
  * await set('user:123', userData, { ttl: 3600 })
  * const cached = await get<UserData>('user:123')
  * const fresh = await getOrSet('user:456', () => fetchUser('456'), { ttl: 600 })
