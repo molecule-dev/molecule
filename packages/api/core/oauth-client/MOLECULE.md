@@ -397,3 +397,39 @@ login flow's security checks — don't rebuild login on this client.
 - `request(tokens, url, opts)` attaches the token for you but does NOT
   auto-refresh — it throws on a non-2xx response; refresh-and-retry on
   auth failure is the caller's loop.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual "connect account" screens/flows, and check
+every box off one by one. A box you can't check is an integration bug to
+fix — not a skip. The third-party CONSENT SCREEN cannot be driven in-sandbox,
+so verify the token lifecycle + API-call wiring you own (authorize →
+callback → `getToken` → token store → `refreshToken` → `request`), stubbing
+the provider bond or the token endpoint where the real grant would occur:
+- [ ] Connecting a third-party account from the UI runs
+  authorize→callback→`getToken` and STORES the returned `OAuthTokens`
+  (`accessToken` + `refreshToken`) server-side keyed to the authenticated
+  user; the connection then shows as "connected" in the UI.
+- [ ] An authenticated call to the third-party API via `request(tokens, url)`
+  using the STORED token succeeds and its result appears in the app (bond a
+  stub/test provider if available, else assert `request` is invoked with the
+  stored `accessToken` — never a hardcoded or browser-supplied one).
+- [ ] Token REFRESH works: an expired `accessToken` (force/simulate expiry
+  via `expiresAt`) is transparently refreshed with `refreshToken` and the
+  call is RETRIED — confirm exactly ONE refresh + a stored-token update, not
+  an auth error surfaced to the user (`request` does not auto-refresh; the
+  caller's refresh-and-retry loop must).
+- [ ] Disconnecting revokes/removes the stored tokens (`revokeToken` + delete
+  from the store) and the connection no longer works — a subsequent API call
+  fails until the account is reconnected.
+- [ ] SECURITY: `accessToken`/`refreshToken` + `clientSecret` live
+  server-side only (encrypted at rest ideally) and are NEVER sent to the
+  browser — the client only ever receives the authorization URL and returns
+  the `code`.
+- [ ] Tokens are scoped per user: user A's stored connection cannot be used
+  to act as user B (the store is keyed by user id; handlers load only the
+  caller's own tokens).
+- [ ] The callback verifies `state` (CSRF): a per-session random `state` sent
+  on `getAuthorizationUrl` must match on the callback, and a missing or
+  mismatched `state` is rejected BEFORE any token exchange.

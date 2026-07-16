@@ -50,6 +50,36 @@
  *   authenticated account, never a client-named address; no secrets in
  *   subject or body.
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual emails/flows, and check every box off one by
+ * one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] Rendering a template with a record's real data produces correct
+ *   output: EVERY variable is filled — no leftover `{{placeholder}}`,
+ *   `undefined`, or `[object Object]` survives in the subject, text, or html —
+ *   and the html and text parts carry the same copy/links (consistent).
+ * - [ ] A transactional email the app actually sends (subscription started,
+ *   payment failed, a welcome / password-reset / receipt) goes out via
+ *   `sendTemplate` with that record's real data — never a mock. The sandbox
+ *   CAPTURES outbound email instead of delivering it — read it with the
+ *   `read_activity` tool (filter type 'email') and confirm the captured
+ *   subject + body match the template rendered with that record's data. Don't
+ *   modify production code to expose the send.
+ * - [ ] Different input yields different output: rendering (or sending) the
+ *   same template twice with different data produces two different messages,
+ *   not a cached first render reused for the second recipient.
+ * - [ ] If the app exposes locale, rendering the same template in another
+ *   locale produces translated subject/body copy — not the English fallback.
+ * - [ ] Missing or extra variables are handled cleanly — a required variable
+ *   with no value errors or falls back to sensible copy; a raw `{{placeholder}}`,
+ *   `undefined`, or `[object Object]` is NEVER shipped in the delivered email.
+ * - [ ] SECURITY — a user-supplied value (a name, note, or other free-text
+ *   field) interpolated into the template is ESCAPED in the html body: entering
+ *   `<script>` / `<img onerror=...>` / `{{amount}}` as a name renders as inert
+ *   text, never live markup or a second interpolation (no HTML/template
+ *   injection). No secret (API key, transport credential, token) ever appears
+ *   in a rendered subject or body.
+ *
  * @module
  */
 

@@ -43,6 +43,35 @@
  * ])
  * ```
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual upload/player screens, and check every box
+ * off one by one. A box you can't check is an integration bug to fix — not a
+ * skip. You can't judge real transcode QUALITY or a live A/V feed in the
+ * sandbox; verify the pipeline + playback WIRING you own:
+ * - [ ] Uploading/ingesting a media asset produces a real PLAYABLE stream: the
+ *   returned `manifestUri` (`.m3u8` for HLS / `.mpd` for DASH) loads in the
+ *   app's video player and actually plays — frames advance and the player
+ *   fetches segments (watch the network panel), never a broken/blank player.
+ * - [ ] The stream is served from/through the APP'S OWN origin — an
+ *   `outputPath` under a directory the server exposes, or endpoints that return
+ *   `generateManifest(segments)` and stream `getSegment(streamId, index)` bytes.
+ *   The player must NOT hotlink a raw expiring provider URL, and no manifest or
+ *   segment request may 404.
+ * - [ ] Processing STATE is observable and playback is gated on it: an asset
+ *   moves pending → processing → ready (StreamStatus), the UI reflects that,
+ *   and the player mounts only once status is 'ready' — never a dead player on
+ *   a still-transcoding asset.
+ * - [ ] If adaptive bitrate is exposed, `transcode()` produced multiple
+ *   renditions: the master manifest (`masterManifestUri`) lists more than one
+ *   `variant` and the player can switch quality across them.
+ * - [ ] If the app exposes a poster/thumbnail for an asset, it generates and
+ *   renders before playback (no blank tile).
+ * - [ ] SECURITY — private media is AUTHORIZED on playback: the manifest and
+ *   segment endpoints check the requester (or hand out a signed/expiring URL),
+ *   so a user CANNOT fetch another user's stream by guessing its `id`/URL; and
+ *   provider keys stay server-side (never shipped to the client bundle).
+ *
  * @module
  */
 
