@@ -12,6 +12,12 @@
  * malformed tool schema) gets its own non-retryable message distinct from the generic
  * "AI service error. Please try again." used for retryable failures.
  *
+ * **Reasoning effort** (`KIMI_REASONING_EFFORT`, optional): when a call doesn't pass
+ * `params.thinking`, the provider reads this env var — `disabled` (default) fully disables
+ * thinking (fastest, least accurate); `minimal` | `low` | `medium` | `high` set the API's
+ * `reasoning_effort`. Note: on kimi-k2.6 even `minimal` produces ~1000 chars of reasoning
+ * per turn (~5x slower than `disabled`, but more reliable for complex multi-step tasks).
+ *
  * @module
  */
 

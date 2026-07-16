@@ -70,6 +70,19 @@ const provider: AIProvider
 ## Core Interface
 Implements `@molecule/api-ai` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the bond system:
+
+```typescript
+import { bond } from '@molecule/api-bond'
+import { provider } from '@molecule/api-ai-xai'
+
+export function setupAiXai(): void {
+  bond('ai', 'xai', provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements
@@ -78,6 +91,13 @@ Peer dependencies:
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+
+### Environment Variables
+
+- `XAI_API_KEY` *(required)* — xAI API key
+  - Setup: Create an API key in the xAI console (API Keys page).
+  - Get it here: [https://console.x.ai/](https://console.x.ai/)
+  - Example: `xai-...`
 
 ### Runtime Dependencies
 

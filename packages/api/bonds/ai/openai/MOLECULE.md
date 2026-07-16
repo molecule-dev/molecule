@@ -1,6 +1,6 @@
 # @molecule/api-ai-openai
 
-Openai ai-openai provider for molecule.dev.
+OpenAI (GPT) AI provider for molecule.dev.
 
 ## Type
 `provider`
@@ -28,6 +28,19 @@ interface OpenaiConfig {
   maxTokens?: number
   /** Override the API base URL (for proxies / Azure). */
   baseUrl?: string
+}
+```
+
+#### `ProcessEnv`
+
+Environment variables read by this provider.
+
+```typescript
+interface ProcessEnv {
+  /** OpenAI API key (required unless `config.apiKey` is passed). */
+  OPENAI_API_KEY: string
+  /** Base URL override (for proxies / Azure-compatible gateways). Defaults to `https://api.openai.com`. */
+  OPENAI_BASE_URL?: string
 }
 ```
 
@@ -71,6 +84,19 @@ const provider: AIProvider
 
 ## Core Interface
 Implements `@molecule/api-ai` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the bond system:
+
+```typescript
+import { bond } from '@molecule/api-bond'
+import { provider } from '@molecule/api-ai-openai'
+
+export function setupAiOpenai(): void {
+  bond('ai', 'openai', provider)
+}
+```
 
 ## Injection Notes
 

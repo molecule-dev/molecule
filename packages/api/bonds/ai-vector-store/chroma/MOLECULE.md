@@ -2,6 +2,19 @@
 
 ChromaDB vector store provider for molecule.dev.
 
+Maps molecule collections to ChromaDB collections (default name prefix `mol_`)
+with HNSW indexing for similarity search.
+
+## Quick Start
+
+```typescript
+import { setProvider, requireProvider } from '@molecule/api-ai-vector-store'
+import { createProvider } from '@molecule/api-ai-vector-store-chroma'
+
+// This bond exports NO `provider` const — wire the factory:
+setProvider(createProvider({ host: 'localhost', port: 8000 }))
+```
+
 ## Type
 `provider`
 
@@ -63,7 +76,19 @@ Implements `@molecule/api-ai-vector-store` interface.
 Peer dependencies:
 - `@molecule/api-ai-vector-store` >=1.0.0
 
+### Environment Variables
+
+- `CHROMA_API_KEY` *(optional)* — ChromaDB Cloud API key
+  - Setup: Only needed for ChromaDB Cloud (or an auth-enabled server); self-hosted local Chroma runs keyless.
+
 ### Runtime Dependencies
 
 - `@molecule/api-ai-vector-store`
 - `chromadb`
+
+- **Requires a reachable ChromaDB server** — this bond only speaks HTTP to one
+  (default `http://localhost:8000`; run `chroma run` or the official docker image),
+  or ChromaDB Cloud with `CHROMA_API_KEY` set (optional env fallback for
+  `config.apiKey`) plus `ssl`/`tenant`/`database` config. There is no embedded mode.
+- **Wiring**: no lazy `provider` export — `setProvider(createProvider(config?))`;
+  for a zero-dependency store (tests/dev) use `@molecule/api-ai-vector-store-memory`.

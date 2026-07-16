@@ -78,6 +78,19 @@ const provider: AIProvider
 ## Core Interface
 Implements `@molecule/api-ai` interface.
 
+## Bond Wiring
+
+Setup function to register this provider with the bond system:
+
+```typescript
+import { bond } from '@molecule/api-bond'
+import { provider } from '@molecule/api-ai-zhipu'
+
+export function setupAiZhipu(): void {
+  bond('ai', 'zhipu', provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements

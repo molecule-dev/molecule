@@ -2,6 +2,9 @@
 
 ElevenLabs ai-speech provider for molecule.dev.
 
+Text-to-speech via the ElevenLabs API: high-quality single-shot synthesis,
+chunked streaming synthesis, and voice listing.
+
 ## Type
 `provider`
 
@@ -143,3 +146,12 @@ Peer dependencies:
 
 - `@molecule/api-ai-speech`
 - `@molecule/api-secrets`
+
+- **TTS-only subset**: implements `synthesizeSpeech(SpeechParams)`, `synthesizeStream`,
+  and `listVoices`. It does NOT implement `synthesize` (the other TTS dialect),
+  `transcribe`, or `translate` — feature-detect per the `@molecule/api-ai-speech` core
+  and pair with an STT-capable provider (e.g. `@molecule/api-ai-speech-openai`) when
+  the app needs transcription.
+- Config: `ELEVENLABS_API_KEY` (required, SERVER-side only); `ELEVENLABS_BASE_URL`
+  (optional) overrides the API origin (proxies/gateways), default
+  `https://api.elevenlabs.io`.

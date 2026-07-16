@@ -1,5 +1,5 @@
 /**
- * Openai ai-openai provider for molecule.dev.
+ * OpenAI (GPT) AI provider for molecule.dev.
  *
  * @remarks
  * Config: `OPENAI_API_KEY` (SERVER-side only) plus an optional default model id/base URL.

@@ -91,3 +91,13 @@ Peer dependencies:
 
 - `@molecule/api-audit`
 - `@molecule/api-database`
+
+- **Wire the database bond first** — every method uses the abstract `DataStore`
+  (`create`/`findMany`/`count` from `@molecule/api-database`), which throws if no
+  database provider is bonded when the first audit call runs.
+- **The audit table is NOT auto-created.** Ship a migration for `audit_log` (or your
+  `config.tableName`) with columns: `id` TEXT PRIMARY KEY, `actor` TEXT NOT NULL,
+  `action` TEXT NOT NULL, `resource` TEXT NOT NULL, `resource_id` TEXT NULL,
+  `details` TEXT NULL (a JSON string — stringified on write, parsed on read),
+  `ip` TEXT NULL, `user_agent` TEXT NULL, `timestamp` TIMESTAMPTZ/TEXT NOT NULL
+  (ISO-8601; range-filtered and sorted descending).
