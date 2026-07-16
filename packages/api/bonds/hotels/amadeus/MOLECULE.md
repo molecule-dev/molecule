@@ -226,3 +226,13 @@ Peer dependencies:
 
 - `@molecule/api-hotels`
 - `@molecule/api-secrets`
+
+- **Defaults to the PRODUCTION host (`api.amadeus.com`)** — the opposite of
+  `@molecule/api-flights-amadeus`, which defaults to the TEST sandbox. This
+  bond has no `AMADEUS_USE_PRODUCTION` switch: with Self-Service TEST keys
+  set `AMADEUS_BASE_URL=https://test.api.amadeus.com` (or pass `baseUrl` to
+  `createProvider()`), otherwise every call fails auth (401). When wiring
+  flights + hotels together with one key pair, point both bonds at the SAME
+  host.
+- `bookHotel()` ALWAYS throws (see the core's remarks) — implement checkout
+  on the vendor's hosted flow; search and priced offers are fully supported.

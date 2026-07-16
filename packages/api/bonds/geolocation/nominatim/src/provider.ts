@@ -332,8 +332,10 @@ const buildViewbox = (center: LatLng, radiusMeters: number): string => {
 let _provider: GeolocationProvider | null = null
 
 /**
- * The provider implementation, lazily initialized with User-Agent from
- * `NOMINATIM_USER_AGENT` environment variable (defaults to `'molecule-app'`).
+ * The provider implementation, lazily initialized from env:
+ * `NOMINATIM_USER_AGENT` (identifying User-Agent — the `'molecule-app'`
+ * default is not policy-compliant for production), `NOMINATIM_EMAIL`
+ * (usage-policy contact), and `NOMINATIM_BASE_URL` (self-hosted instance).
  */
 export const provider: GeolocationProvider = new Proxy({} as GeolocationProvider, {
   get(_, prop, receiver) {

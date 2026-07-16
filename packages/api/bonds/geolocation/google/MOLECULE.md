@@ -112,7 +112,7 @@ Peer dependencies:
 ### Environment Variables
 
 - `GOOGLE_MAPS_API_KEY` *(required)* — Google Maps API key
-  - Setup: Enable the Maps/Geocoding APIs in Google Cloud Console and create an API key (restrict it to those APIs).
+  - Setup: Enable the Geocoding API, Places API, and Time Zone API in Google Cloud Console and create an API key restricted to those three APIs.
   - Get it here: [https://console.cloud.google.com/google/maps-apis/credentials](https://console.cloud.google.com/google/maps-apis/credentials)
   - Example: `AIza...`
 

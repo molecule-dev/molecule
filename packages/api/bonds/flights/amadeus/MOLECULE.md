@@ -243,3 +243,17 @@ Peer dependencies:
 
 - `@molecule/api-flights`
 - `@molecule/api-secrets`
+
+- **`getOffer()`/`priceOffer()` resolve offer ids from an in-process cache**
+  populated by `searchFlights()` (bounded, default 1000 offers,
+  `offerCacheSize` config). An id from another process/instance, from
+  before a restart, or already evicted throws `AmadeusUnknownOfferError` —
+  search and price within the same process, and re-run the search rather
+  than replaying stored ids.
+- Test keys only work against the TEST host (the default) and production
+  keys only against production — `AMADEUS_USE_PRODUCTION=true` must match
+  the key type. NOTE: `@molecule/api-hotels-amadeus` shares the same
+  `AMADEUS_CLIENT_ID`/`AMADEUS_CLIENT_SECRET` but defaults to the
+  PRODUCTION host — when wiring both, align hosts explicitly.
+- HTTP 429 throws `AmadeusRateLimitedError` carrying `retryAfter` seconds
+  when the upstream provides it — back off; don't retry immediately.

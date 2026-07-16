@@ -19,7 +19,7 @@ export const geolocationGoogleSecretDefinitions: SecretDefinition[] = [
   {
     key: 'GOOGLE_MAPS_API_KEY',
     description:
-      'Google Maps API key — Enable the Maps/Geocoding APIs in Google Cloud Console and create an API key (restrict it to those APIs).',
+      'Google Maps API key — Enable the Geocoding API, Places API, and Time Zone API in Google Cloud Console and create an API key restricted to those three APIs.',
     helpUrl: 'https://console.cloud.google.com/google/maps-apis/credentials',
     required: true,
     example: 'AIza...',
