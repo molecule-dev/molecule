@@ -34,9 +34,44 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `InboxRowProps`
+
+```typescript
+interface InboxRowProps {
+  /** Sender display. */
+  sender: ReactNode
+  /** Avatar URL fallback for sender. */
+  senderAvatarSrc?: string
+  /** Subject / headline. */
+  subject: ReactNode
+  /** Preview / first line of body. */
+  preview?: ReactNode
+  /** Display timestamp. */
+  timestamp?: ReactNode
+  /** Whether the message is unread (drives bold + dot). */
+  unread?: boolean
+  /** Whether the message is starred / flagged. */
+  starred?: boolean
+  /** Optional attachment indicator. */
+  hasAttachment?: boolean
+  /** Optional labels / tags chip row. */
+  labels?: ReactNode
+  /** Right-side selection slot (checkbox). */
+  selectionSlot?: ReactNode
+  /** Click handler — typically opens the message. */
+  onClick?: () => void
+  /** Star toggle. */
+  onToggleStar?: () => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `InboxRow(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `InboxRow(props)`
 
 Inbox / email message list row — sender + subject + preview +
 timestamp + unread/star indicators. Generalizes beyond email to any
@@ -60,20 +95,7 @@ function InboxRow({
 }: InboxRowProps): React.JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .sender
-- `root0` — .senderAvatarSrc
-- `root0` — .subject
-- `root0` — .preview
-- `root0` — .timestamp
-- `root0` — .unread
-- `root0` — .starred
-- `root0` — .hasAttachment
-- `root0` — .labels
-- `root0` — .selectionSlot
-- `root0` — .onClick
-- `root0` — .onToggleStar
-- `root0` — .className
+- `props` — Component props (see {@link InboxRowProps}).
 
 ## Injection Notes
 
@@ -91,3 +113,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Star/attachment indicators use fixed colors and emoji with hardcoded
+  English aria-labels ("Star"/"Unstar"/"Has attachment") — there is no
+  companion locale bond yet; wrap or fork for fully localized apps.
+- When `sender` is not a plain string, the avatar's accessible name falls
+  back to the literal "Sender" — pass a string `sender` (or your own
+  `selectionSlot`) when screen-reader naming matters.
+- `unread` bolds the row via an inline `fontWeight: 600` and renders a
+  fixed blue dot — the dot color does not follow the theme.
+- `getClassMap()` requires a bonded ClassMap; `<Avatar>` comes from
+  `@molecule/app-ui-react`.

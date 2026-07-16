@@ -21,6 +21,12 @@
  *   dataMolId="company-info-card"
  * />
  * ```
+ * @remarks
+ * Purely presentational: pass already-formatted / already-translated
+ * ReactNodes as labels and values. `getClassMap()` requires a bonded
+ * ClassMap (e.g. `@molecule/app-ui-tailwind`) — there is no other wiring.
+ * `columns={1}` stacks label above value; `2`/`3` arrange fields in a grid.
+ *
  * @module
  */
 

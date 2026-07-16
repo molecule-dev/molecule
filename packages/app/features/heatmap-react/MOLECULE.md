@@ -135,7 +135,7 @@ function computeQuantileThresholds(values: number[]): [number, number, number, n
 
 **Returns:** Four ascending thresholds.
 
-#### `Heatmap(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Heatmap(props)`
 
 GitHub-contributions-style activity heatmap. Renders a year-grid (or any
 date range) of square cells whose color encodes a per-day value. Used for
@@ -164,20 +164,7 @@ function Heatmap({
 }: HeatmapProps): JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .data - Day-keyed value list.
-- `root0` — .range - Inclusive date range.
-- `root0` — .cellSize - Pixel size of each cell.
-- `root0` — .gap - Pixel gap between cells.
-- `root0` — .colorScale - Palette or `'quantile'`.
-- `root0` — .weekStartsOn - First day of week (0=Sun, 1=Mon).
-- `root0` — .showWeekdayLabels - Render weekday gutter labels.
-- `root0` — .showMonthLabels - Render month header labels.
-- `root0` — .onCellClick - Cell click handler.
-- `root0` — .onCellHover - Cell hover handler.
-- `root0` — .tooltipFormatter - Build tooltip / aria-label string.
-- `root0` — .ariaLabel - Accessible label for the SVG.
-- `root0` — .className - Extra classes merged onto the SVG root.
+- `props` — Component props.
 
 **Returns:** The heatmap SVG element.
 
@@ -196,9 +183,16 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `react`
 
-All UI text routes through `t('heatmap.*')` from `@molecule/app-react`'s
-`useTranslation()`. Drop in `@molecule/app-locales-heatmap` for
-translated month / weekday / tooltip strings.
+- All UI text routes through `t('heatmap.*')` — drop in
+  `@molecule/app-locales-heatmap` for translated month / weekday / tooltip
+  strings. `useTranslation()` THROWS outside `@molecule/app-react`'s
+  `I18nProvider`, and `getClassMap()` needs a bonded ClassMap.
+- The default `'quantile'` palette's zero bucket is `rgba(0,0,0,0.06)` —
+  near-invisible on dark themes. Dark/theme-aware hosts should pass an
+  explicit `colorScale` of EXACTLY 5 colors (light → dark); buckets are
+  fixed at 0-4, so shorter arrays leave cells unfilled.
+- Weekday gutter labels render every OTHER row (Mon/Wed/Fri pattern), like
+  GitHub's contribution graph.
 
 ## Translations
 

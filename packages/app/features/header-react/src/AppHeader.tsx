@@ -34,19 +34,15 @@ export interface AppHeaderProps {
   dataMolId?: string
 }
 
-/**
- * Sticky top app-shell header — logo + appName on the left, slotted actions on the right.
- *
- * Reproduces the byte-identical Header pattern found across 9 flagship apps (blog, crm,
- * helpdesk-ticketing, lms, online-store, personal-finance, project-management,
- * property-listing, team-chat). All visual styling routes through ClassMap tokens
- * (`cm.headerBar`, `cm.headerFixed`, `cm.logoText`) so the bonded styling layer
- * controls the visual treatment.
- */
 /** Default theme-toggle node used when the `themeToggle` prop is omitted. */
 const DEFAULT_THEME_TOGGLE = <ThemeToggle />
 
-/** Renders the {@link AppHeader} component. */
+/**
+ * Sticky top app-shell header — logo + appName on the left, slotted actions
+ * on the right. All visual styling routes through ClassMap tokens
+ * (`cm.headerBar`, `cm.headerFixed`, `cm.logoText`) so the bonded styling
+ * layer controls the visual treatment.
+ */
 export function AppHeader({
   appName,
   logoSrc = '/logo.svg',

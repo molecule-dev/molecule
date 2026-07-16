@@ -5,7 +5,7 @@ import { Card } from '@molecule/app-ui-react'
 
 import { type DefinitionField, DefinitionList } from './DefinitionList.js'
 
-interface InfoCardProps {
+export interface InfoCardProps {
   /** Card heading. */
   title: ReactNode
   /** Optional leading icon. */
@@ -28,14 +28,7 @@ interface InfoCardProps {
  * Used all over CRM/helpdesk/finance detail pages (CompanyInfoCard,
  * DealInfoCard, TicketDetailsCard, TransactionDetailsCard) — same shape
  * everywhere, only the fields differ.
- * @param root0
- * @param root0.title
- * @param root0.icon
- * @param root0.actions
- * @param root0.fields
- * @param root0.columns
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link InfoCardProps}).
  */
 export function InfoCard({
   title,

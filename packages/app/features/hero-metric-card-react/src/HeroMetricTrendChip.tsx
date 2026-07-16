@@ -5,7 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { HeroMetricTrend } from './types.js'
 
-interface HeroMetricTrendChipProps {
+export interface HeroMetricTrendChipProps {
   /** Direction + pre-formatted delta string. */
   trend: HeroMetricTrend
   /** Extra classes. */

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ForumThreadRowProps {
+export interface ForumThreadRowProps {
   title: ReactNode
   /** Optional snippet of the OP body. */
   excerpt?: ReactNode
@@ -34,20 +34,7 @@ interface ForumThreadRowProps {
  * Forum / discussion-board thread row. Shows the title, optional
  * excerpt, vote score + reply/view counts, pin/lock badges, author,
  * and timestamp. Pass `voteControls` to render up/down buttons inline.
- * @param root0
- * @param root0.title
- * @param root0.excerpt
- * @param root0.voteScore
- * @param root0.replyCount
- * @param root0.viewCount
- * @param root0.pinned
- * @param root0.locked
- * @param root0.author
- * @param root0.createdAt
- * @param root0.tags
- * @param root0.voteControls
- * @param root0.onClick
- * @param root0.className
+ * @param props - Component props (see {@link ForumThreadRowProps}).
  */
 export function ForumThreadRow({
   title,

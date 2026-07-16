@@ -52,9 +52,43 @@ interface DefinitionField {
 }
 ```
 
+#### `DefinitionListProps`
+
+```typescript
+interface DefinitionListProps {
+  /** Fields to render. */
+  fields: DefinitionField[]
+  /** Grid column count. */
+  columns?: 1 | 2 | 3
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `InfoCardProps`
+
+```typescript
+interface InfoCardProps {
+  /** Card heading. */
+  title: ReactNode
+  /** Optional leading icon. */
+  icon?: ReactNode
+  /** Optional right-side header actions (edit button, overflow menu). */
+  actions?: ReactNode
+  /** Structured fields to display. */
+  fields: DefinitionField[]
+  /** Grid column count — `1` stacks labels above values, `2+` puts labels beside values. */
+  columns?: 1 | 2 | 3
+  /** Extra classes on the outer Card. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
 ### Functions
 
-#### `DefinitionList(root0, root0, root0, root0)`
+#### `DefinitionList(props)`
 
 Structured label/value pair list. Use standalone or inside
 `<InfoCard>`. Apps pass already-formatted values (dates, currency,
@@ -68,12 +102,9 @@ function DefinitionList({
 }: DefinitionListProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .fields
-- `root0` — .columns
-- `root0` — .className
+- `props` — Component props (see {@link DefinitionListProps}).
 
-#### `InfoCard(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `InfoCard(props)`
 
 Card wrapping a `<DefinitionList>` of metadata fields.
 
@@ -93,14 +124,7 @@ function InfoCard({
 }: InfoCardProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .icon
-- `root0` — .actions
-- `root0` — .fields
-- `root0` — .columns
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link InfoCardProps}).
 
 ## Injection Notes
 
@@ -118,3 +142,8 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Purely presentational: pass already-formatted / already-translated
+ReactNodes as labels and values. `getClassMap()` requires a bonded
+ClassMap (e.g. `@molecule/app-ui-tailwind`) — there is no other wiring.
+`columns={1}` stacks label above value; `2`/`3` arrange fields in a grid.

@@ -21,9 +21,16 @@
  * ```
  *
  * @remarks
- * All UI text routes through `t('heatmap.*')` from `@molecule/app-react`'s
- * `useTranslation()`. Drop in `@molecule/app-locales-heatmap` for
- * translated month / weekday / tooltip strings.
+ * - All UI text routes through `t('heatmap.*')` — drop in
+ *   `@molecule/app-locales-heatmap` for translated month / weekday / tooltip
+ *   strings. `useTranslation()` THROWS outside `@molecule/app-react`'s
+ *   `I18nProvider`, and `getClassMap()` needs a bonded ClassMap.
+ * - The default `'quantile'` palette's zero bucket is `rgba(0,0,0,0.06)` —
+ *   near-invisible on dark themes. Dark/theme-aware hosts should pass an
+ *   explicit `colorScale` of EXACTLY 5 colors (light → dark); buckets are
+ *   fixed at 0-4, so shorter arrays leave cells unfilled.
+ * - Weekday gutter labels render every OTHER row (Mon/Wed/Fri pattern), like
+ *   GitHub's contribution graph.
  *
  * @module
  */

@@ -1,13 +1,19 @@
 /**
  * Gradebook UI — unified table of grades + optional GPA hero card.
  *
- * Pairs with the new `@molecule/api-resource-grade` resource. Composes with
- * `@molecule/app-status-badge-react` for letter-grade chips when the caller
- * wants a styled letter column.
+ * Pairs with the `@molecule/api-resource-grade` resource. Rows can be courses
+ * or assignments — the caller picks the granularity. The letter column renders
+ * `Grade.letter` as plain text (string); pass pre-styled content via `title`
+ * if you need richer cells.
  *
  * @example
  * ```tsx
+ * import type { Grade } from '@molecule/app-gradebook-react'
  * import { Gradebook, GpaCard } from '@molecule/app-gradebook-react'
+ *
+ * const rows: Grade[] = [
+ *   { id: 'g1', title: 'Algebra II', letter: 'A-', score: 92, weight: 0.25, contribution: 0.92 },
+ * ]
  *
  * function GradesPage() {
  *   return (
@@ -21,8 +27,11 @@
  *
  * @remarks
  * All visible text routes through `t()` via the companion
- * `@molecule/app-locales-gradebook` locale bond. All styling routes
- * through `getClassMap()` — no Tailwind utilities appear in this package.
+ * `@molecule/app-locales-gradebook` locale bond. Both components call
+ * `useTranslation()` (THROWS outside `@molecule/app-react`'s `I18nProvider`)
+ * and `getClassMap()` (requires a bonded ClassMap such as
+ * `@molecule/app-ui-tailwind`) — wire both before rendering. No Tailwind
+ * utilities appear in this package.
  *
  * @module
  */

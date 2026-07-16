@@ -20,7 +20,7 @@ export interface HttpResponse {
   headers?: HttpHeader[]
 }
 
-interface HttpInspectorProps {
+export interface HttpInspectorProps {
   method: HttpMethod
   onMethodChange: (m: HttpMethod) => void
   url: string
@@ -54,19 +54,7 @@ function statusColor(code: number): string {
  *
  * Shape: method + URL row, headers key/value editor, body textarea,
  * Send button, then a response panel showing status + timing + body.
- * @param root0
- * @param root0.method
- * @param root0.onMethodChange
- * @param root0.url
- * @param root0.onUrlChange
- * @param root0.headers
- * @param root0.onHeadersChange
- * @param root0.body
- * @param root0.onBodyChange
- * @param root0.onSend
- * @param root0.sending
- * @param root0.response
- * @param root0.className
+ * @param props - Component props (see {@link HttpInspectorProps}).
  */
 export function HttpInspector({
   method,

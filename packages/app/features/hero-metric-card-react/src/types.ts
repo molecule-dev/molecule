@@ -62,7 +62,7 @@ export interface HeroMetricCardProps {
   /** Optional click handler — turns the card into a button-role interactive. */
   onClick?: () => void
   /**
-   * When `true`, swaps the value/title for a skeleton placeholder and
+   * When `true`, swaps the value for a localized loading line and
    * announces a loading state to assistive tech.
    */
   loading?: boolean

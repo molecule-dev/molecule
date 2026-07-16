@@ -19,6 +19,16 @@
  * <Route path="/" element={<Home />} />
  * ```
  *
+ * @remarks
+ * - Calls `useAuth()` and `useTranslation()` — both THROW unless the tree is
+ *   wrapped in `@molecule/app-react`'s `AuthProvider` and `I18nProvider`
+ *   (scaffolded apps do this in `App.tsx`).
+ * - `home.greeting` / `home.world` have NO inline English fallback: they
+ *   resolve from `@molecule/app-locales-common`, which
+ *   `setupI18nDefault()` (from `@molecule/app-i18n-default-react`) merges
+ *   automatically. A custom i18n setup must register the common bond or the
+ *   raw keys render on screen.
+ *
  * @module
  */
 

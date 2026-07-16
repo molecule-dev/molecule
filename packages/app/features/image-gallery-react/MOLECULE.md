@@ -34,9 +34,30 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `ImageGalleryProps`
+
+```typescript
+interface ImageGalleryProps {
+  /** Image URLs in display order. */
+  images: string[]
+  /** Controlled selected index — caller owns state. */
+  selectedIndex?: number
+  /** Called when a thumbnail is clicked. */
+  onSelect?: (index: number) => void
+  /** Max thumbnails shown. Extra are summarised as "+N". */
+  maxThumbnails?: number
+  /** Alt-text for screen readers. Applied per-image; falls back to `'Image N'`. */
+  alts?: string[]
+  /** Extra classes on the outer wrapper. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `ImageGallery(root0, root0, root0, root0, root0, root0, root0)`
+#### `ImageGallery(props)`
 
 Main image + thumbnail grid gallery. Controlled-optional: when
 `selectedIndex` is omitted the component tracks its own selection.
@@ -54,13 +75,7 @@ function ImageGallery({
 }: ImageGalleryProps): JSX.Element | null
 ```
 
-- `root0` — *
-- `root0` — .images
-- `root0` — .selectedIndex
-- `root0` — .onSelect
-- `root0` — .maxThumbnails
-- `root0` — .alts
-- `root0` — .className
+- `props` — Component props (see {@link ImageGalleryProps}).
 
 ## Injection Notes
 
@@ -78,3 +93,12 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Renders `null` when `images` is empty — no empty-state UI.
+- `maxThumbnails` doubles as the thumbnail grid's column count; the
+  ClassMap grid supports small column counts (1-4 is safe) — larger values
+  may not resolve to a grid class.
+- Default alt text is the English "Image N" — pass `alts` with translated
+  strings in localized apps.
+- `getClassMap()` requires a bonded ClassMap (e.g.
+  `@molecule/app-ui-tailwind`).

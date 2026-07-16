@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
-interface InboxRowProps {
+export interface InboxRowProps {
   /** Sender display. */
   sender: ReactNode
   /** Avatar URL fallback for sender. */
@@ -37,20 +37,7 @@ interface InboxRowProps {
  * Inbox / email message list row — sender + subject + preview +
  * timestamp + unread/star indicators. Generalizes beyond email to any
  * "message list" UI (chat lists, notification archives, ticket queues).
- * @param root0
- * @param root0.sender
- * @param root0.senderAvatarSrc
- * @param root0.subject
- * @param root0.preview
- * @param root0.timestamp
- * @param root0.unread
- * @param root0.starred
- * @param root0.hasAttachment
- * @param root0.labels
- * @param root0.selectionSlot
- * @param root0.onClick
- * @param root0.onToggleStar
- * @param root0.className
+ * @param props - Component props (see {@link InboxRowProps}).
  */
 export function InboxRow({
   sender,

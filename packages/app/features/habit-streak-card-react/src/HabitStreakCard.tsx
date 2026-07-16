@@ -12,7 +12,7 @@ export interface StreakDay {
   count: number
 }
 
-interface HabitStreakCardProps {
+export interface HabitStreakCardProps {
   /** Habit name. */
   name: ReactNode
   /** Optional leading icon. */
@@ -47,15 +47,7 @@ function intensityColor(count: number, max: number): string {
  * Habit / streak summary card with current + best streak, total
  * completions, and an optional heatmap strip. Use for habit trackers,
  * meditation streaks, daily-task widgets.
- * @param root0
- * @param root0.name
- * @param root0.icon
- * @param root0.currentStreak
- * @param root0.bestStreak
- * @param root0.totalCompletions
- * @param root0.heatmap
- * @param root0.heatmapDays
- * @param root0.className
+ * @param props - Component props (see {@link HabitStreakCardProps}).
  */
 export function HabitStreakCard({
   name,

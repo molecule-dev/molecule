@@ -124,20 +124,7 @@ export function bucketValue(
  * Styling goes through `@molecule/app-ui`'s `getClassMap()`; the only inline
  * styling is the SVG `fill` attribute on each cell (a real SVG attribute,
  * not a Tailwind class).
- * @param root0 - Component props.
- * @param root0.data - Day-keyed value list.
- * @param root0.range - Inclusive date range.
- * @param root0.cellSize - Pixel size of each cell.
- * @param root0.gap - Pixel gap between cells.
- * @param root0.colorScale - Palette or `'quantile'`.
- * @param root0.weekStartsOn - First day of week (0=Sun, 1=Mon).
- * @param root0.showWeekdayLabels - Render weekday gutter labels.
- * @param root0.showMonthLabels - Render month header labels.
- * @param root0.onCellClick - Cell click handler.
- * @param root0.onCellHover - Cell hover handler.
- * @param root0.tooltipFormatter - Build tooltip / aria-label string.
- * @param root0.ariaLabel - Accessible label for the SVG.
- * @param root0.className - Extra classes merged onto the SVG root.
+ * @param props - Component props.
  * @returns The heatmap SVG element.
  */
 export function Heatmap({

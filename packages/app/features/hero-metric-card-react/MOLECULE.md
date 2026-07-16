@@ -62,7 +62,7 @@ interface HeroMetricCardProps {
   /** Optional click handler — turns the card into a button-role interactive. */
   onClick?: () => void
   /**
-   * When `true`, swaps the value/title for a skeleton placeholder and
+   * When `true`, swaps the value for a localized loading line and
    * announces a loading state to assistive tech.
    */
   loading?: boolean
@@ -86,6 +86,17 @@ interface HeroMetricTrend {
   direction: HeroMetricTrendDirection
   /** Pre-formatted delta string, e.g. `'+2.4%'` or `'-12 bpm'`. */
   delta: string
+}
+```
+
+#### `HeroMetricTrendChipProps`
+
+```typescript
+interface HeroMetricTrendChipProps {
+  /** Direction + pre-formatted delta string. */
+  trend: HeroMetricTrend
+  /** Extra classes. */
+  className?: string
 }
 ```
 
@@ -138,9 +149,9 @@ primitive.
 Layout: large value left (with optional unit + trend chip + subtitle),
 `progressRing` or `icon` slot to the right.
 
-Styling is fully delegated to `getClassMap()`; the only inline style
-is the optional colored top-border accent, which the molecule design
-system explicitly permits.
+Styling routes through `getClassMap()` plus a small set of raw utility
+classes (see the package remarks for their theme prerequisites); inline
+style is used only for the colored top-border accent.
 
 ```typescript
 function HeroMetricCard({
@@ -201,6 +212,22 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Accent tokens map to `var(--mol-color-<token>)`. In the standard scaffold
+  theme only `primary`, `success`, `warning`, and `info` resolve —
+  `danger` and `neutral` have NO backing variable and silently fall back to
+  `currentColor`. Use `warning`/`info` or pass a raw CSS color string until
+  the host theme defines `--mol-color-danger` / `--mol-color-neutral`.
+- KNOWN GAP: a few raw utility classes are used for typography
+  (`uppercase tracking-widest`, `font-extrabold leading-none`,
+  `text-on-surface-variant`). `text-on-surface-variant` only exists in apps
+  whose theme defines Material-3 color tokens (the polished flagship
+  templates) — in a plain scaffold the muted-text styling is absent, and
+  Tailwind builds that do not source-scan this package's dist will not
+  generate the utilities at all.
+- `getClassMap()` requires a bonded ClassMap. Text uses
+  `@molecule/app-i18n`'s `t()` with English fallbacks — the companion
+  `@molecule/app-locales-hero-metric-card` bond supplies translations.
 
 ## Translations
 

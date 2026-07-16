@@ -47,9 +47,9 @@ function resolveAccentStyle(accent: HeroMetricAccent): CSSProperties {
  * Layout: large value left (with optional unit + trend chip + subtitle),
  * `progressRing` or `icon` slot to the right.
  *
- * Styling is fully delegated to `getClassMap()`; the only inline style
- * is the optional colored top-border accent, which the molecule design
- * system explicitly permits.
+ * Styling routes through `getClassMap()` plus a small set of raw utility
+ * classes (see the package remarks for their theme prerequisites); inline
+ * style is used only for the colored top-border accent.
  *
  * @param props - Component props.
  * @returns The rendered hero metric card element.

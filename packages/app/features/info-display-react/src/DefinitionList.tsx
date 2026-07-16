@@ -12,7 +12,7 @@ export interface DefinitionField {
   icon?: ReactNode
 }
 
-interface DefinitionListProps {
+export interface DefinitionListProps {
   /** Fields to render. */
   fields: DefinitionField[]
   /** Grid column count. */
@@ -25,10 +25,7 @@ interface DefinitionListProps {
  * Structured label/value pair list. Use standalone or inside
  * `<InfoCard>`. Apps pass already-formatted values (dates, currency,
  * status pills, etc.) as ReactNodes.
- * @param root0
- * @param root0.fields
- * @param root0.columns
- * @param root0.className
+ * @param props - Component props (see {@link DefinitionListProps}).
  */
 export function DefinitionList({
   fields,

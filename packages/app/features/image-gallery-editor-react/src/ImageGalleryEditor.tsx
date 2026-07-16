@@ -14,7 +14,7 @@ import { type JSX, type ReactNode, useRef, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ImageGalleryEditorProps {
+export interface ImageGalleryEditorProps {
   /** Ordered slots, `null` for empty. Length determines slot count. */
   slots: (string | null)[]
   onChange: (slots: (string | null)[]) => void

@@ -1,23 +1,25 @@
 # @molecule/app-forum-thread-row-react
 
-Forum / discussion thread row.
-
-Exports `<ForumThreadRow>`.
+Forum / discussion-board thread row — title, optional excerpt, vote score,
+reply/view counts, pin/lock badges, author, timestamp, and an optional
+`voteControls` slot for inline up/down buttons.
 
 ## Quick Start
 
 ```tsx
 import { ForumThreadRow } from '@molecule/app-forum-thread-row-react'
 
+const thread = { id: 't1', title: 'How do I reset my password?' }
+
 <ForumThreadRow
-  title="How do I reset my password?"
+  title={thread.title}
   excerpt="I tried the forgot-password link but never received an email."
   voteScore={42}
   replyCount={7}
   viewCount={320}
   author="alice"
   createdAt="2 hours ago"
-  onClick={() => navigate(`/threads/${thread.id}`)}
+  onClick={() => console.log('open thread', thread.id)}
 />
 ```
 
@@ -32,9 +34,43 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `ForumThreadRowProps`
+
+```typescript
+interface ForumThreadRowProps {
+  title: ReactNode
+  /** Optional snippet of the OP body. */
+  excerpt?: ReactNode
+  /** Aggregate vote score / upvotes. */
+  voteScore?: number
+  /** Reply count. */
+  replyCount?: number
+  /** View count. */
+  viewCount?: number
+  /** Optional pinned indicator. */
+  pinned?: boolean
+  /** Optional locked indicator. */
+  locked?: boolean
+  /** Author display. */
+  author?: ReactNode
+  /** Created-at display (relative or absolute). */
+  createdAt?: ReactNode
+  /** Tag chips. */
+  tags?: ReactNode
+  /** Right-side voting controls slot. */
+  voteControls?: ReactNode
+  /** Click handler. */
+  onClick?: () => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `ForumThreadRow(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `ForumThreadRow(props)`
 
 Forum / discussion-board thread row. Shows the title, optional
 excerpt, vote score + reply/view counts, pin/lock badges, author,
@@ -58,20 +94,7 @@ function ForumThreadRow({
 }: ForumThreadRowProps): ReactNode
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .excerpt
-- `root0` — .voteScore
-- `root0` — .replyCount
-- `root0` — .viewCount
-- `root0` — .pinned
-- `root0` — .locked
-- `root0` — .author
-- `root0` — .createdAt
-- `root0` — .tags
-- `root0` — .voteControls
-- `root0` — .onClick
-- `root0` — .className
+- `props` — Component props (see {@link ForumThreadRowProps}).
 
 ## Injection Notes
 
@@ -89,3 +112,12 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Styling routes through `getClassMap()` — a ClassMap bond
+  (e.g. `@molecule/app-ui-tailwind`) must be wired or rendering throws.
+- KNOWN GAP: the counter labels ("votes", "replies", "views") and the
+  pin/lock aria-labels are hardcoded English (there is no companion locale
+  bond yet). For localized apps, pass pre-formatted content via `tags` /
+  `voteControls` or wrap the row until the package routes text through `t()`.
+- The row has no `data-mol-id` support yet; add your own wrapper attribute
+  if AI-agent/e2e selectors need to target it.

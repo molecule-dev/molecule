@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-interface HelpButtonProps {
+export interface HelpButtonProps {
   /** Optional icon — defaults to "?". */
   icon?: ReactNode
   /** Accessible label — defaults to "Help". */
@@ -31,15 +31,7 @@ const SIZE_MAP = { sm: 40, md: 52, lg: 64 } as const
  *
  * Use `position="inline"` inside other UI to drop the fixed
  * positioning and render as a normal in-flow button.
- * @param root0
- * @param root0.icon
- * @param root0.label
- * @param root0.onClick
- * @param root0.href
- * @param root0.size
- * @param root0.position
- * @param root0.hasNotification
- * @param root0.className
+ * @param props - Component props (see {@link HelpButtonProps}).
  */
 export function HelpButton({
   icon,

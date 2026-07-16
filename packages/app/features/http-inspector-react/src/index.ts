@@ -25,6 +25,19 @@
  * />
  * ```
  *
+ * @remarks
+ * - Fully controlled and transport-agnostic: the component renders the
+ *   builder UI only — YOUR `onSend` performs the fetch and sets `response`
+ *   (`HttpResponse` with statusCode/durationMs/body). `sending` disables the
+ *   Send button.
+ * - Requires `@molecule/app-react`'s `I18nProvider` (`useTranslation()`
+ *   THROWS without it) and a bonded ClassMap; button/tab labels come from the
+ *   `@molecule/app-locales-http-inspector` companion bond.
+ * - The body editor renders only for methods with bodies (hidden for GET and
+ *   HEAD).
+ * - The response status chip uses fixed severity colors (green/blue/
+ *   yellow/red) rendered inline — they do not follow the app theme.
+ *
  * @module
  */
 

@@ -51,6 +51,25 @@ interface HttpHeader {
 }
 ```
 
+#### `HttpInspectorProps`
+
+```typescript
+interface HttpInspectorProps {
+  method: HttpMethod
+  onMethodChange: (m: HttpMethod) => void
+  url: string
+  onUrlChange: (u: string) => void
+  headers: HttpHeader[]
+  onHeadersChange: (h: HttpHeader[]) => void
+  body: string
+  onBodyChange: (b: string) => void
+  onSend: () => void | Promise<void>
+  sending?: boolean
+  response?: HttpResponse | null
+  className?: string
+}
+```
+
 #### `HttpResponse`
 
 Parsed HTTP response returned after a request completes.
@@ -77,7 +96,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTION
 
 ### Functions
 
-#### `HttpInspector(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `HttpInspector(props)`
 
 Controlled HTTP request builder + response panel. App owns request
 state + the actual `fetch`; this component renders the UI.
@@ -102,19 +121,7 @@ function HttpInspector({
 }: HttpInspectorProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .method
-- `root0` — .onMethodChange
-- `root0` — .url
-- `root0` — .onUrlChange
-- `root0` — .headers
-- `root0` — .onHeadersChange
-- `root0` — .body
-- `root0` — .onBodyChange
-- `root0` — .onSend
-- `root0` — .sending
-- `root0` — .response
-- `root0` — .className
+- `props` — Component props (see {@link HttpInspectorProps}).
 
 ## Injection Notes
 
@@ -132,3 +139,19 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Fully controlled and transport-agnostic: the component renders the
+  builder UI only — YOUR `onSend` performs the fetch and sets `response`
+  (`HttpResponse` with statusCode/durationMs/body). `sending` disables the
+  Send button.
+- Requires `@molecule/app-react`'s `I18nProvider` (`useTranslation()`
+  THROWS without it) and a bonded ClassMap; button/tab labels come from the
+  `@molecule/app-locales-http-inspector` companion bond.
+- The body editor renders only for methods with bodies (hidden for GET and
+  HEAD).
+- The response status chip uses fixed severity colors (green/blue/
+  yellow/red) rendered inline — they do not follow the app theme.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-http-inspector`.

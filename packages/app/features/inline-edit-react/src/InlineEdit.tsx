@@ -5,7 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-react'
 
-interface InlineEditProps {
+export interface InlineEditProps {
   /** Current value. */
   value: string
   /** Called when the user commits a new value. Return a Promise to block the UI while saving. */
@@ -27,13 +27,7 @@ interface InlineEditProps {
  *
  * Common in titles, descriptions, table cells where modal-based forms
  * would be heavyweight.
- * @param root0
- * @param root0.value
- * @param root0.onSubmit
- * @param root0.variant
- * @param root0.renderRead
- * @param root0.placeholder
- * @param root0.className
+ * @param props - Component props (see {@link InlineEditProps}).
  */
 export function InlineEdit({
   value,

@@ -2,7 +2,7 @@ import { type JSX, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ImageGalleryProps {
+export interface ImageGalleryProps {
   /** Image URLs in display order. */
   images: string[]
   /** Controlled selected index — caller owns state. */
@@ -22,13 +22,7 @@ interface ImageGalleryProps {
  * `selectedIndex` is omitted the component tracks its own selection.
  *
  * Used for product images, property listings, portfolio galleries.
- * @param root0
- * @param root0.images
- * @param root0.selectedIndex
- * @param root0.onSelect
- * @param root0.maxThumbnails
- * @param root0.alts
- * @param root0.className
+ * @param props - Component props (see {@link ImageGalleryProps}).
  */
 export function ImageGallery({
   images,

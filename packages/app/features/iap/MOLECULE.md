@@ -675,6 +675,21 @@ Peer dependencies:
 - `@molecule/app-bond`
 - `@molecule/app-i18n`
 
+- NO store provider ships with the fleet yet: the only built-in
+  implementation is `createNoopIAPProvider()`, and `getProvider()` silently
+  self-bonds it when nothing is wired — so without a real provider
+  `order()` ALWAYS fails with `E_NOT_AVAILABLE`, `verify()` returns
+  `{ valid: false }`, and `isAvailable()` is `false`. To sell on iOS /
+  Android, implement `IAPProvider` yourself (e.g. wrapping
+  cordova-plugin-purchase, StoreKit 2, or Play Billing) and wire it with
+  `setProvider()` at startup.
+- `verify()` POSTs the purchase to YOUR server: implement the endpoint with
+  `@molecule/api-payments-apple` / `@molecule/api-payments-google` (receipt
+  validation) and call `finish()` only after the server says the receipt is
+  valid — finishing first loses the purchase if validation fails.
+- Error messages route through `t('iap.error.*')` with English fallbacks;
+  the `@molecule/app-locales-iap` bond supplies 79 translations.
+
 ## Translations
 
 Translation strings are provided by `@molecule/app-locales-iap`.
