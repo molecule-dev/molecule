@@ -21,6 +21,13 @@
  * objects (in-window) or via WhatsApp templates (out-of-window) when
  * `payload.template` is supplied.
  *
+ * **Webhook subscription needs a GET echo the bond does not provide.** When
+ * registering the webhook URL in the Meta console, Meta sends
+ * `GET ?hub.mode=subscribe&hub.verify_token=<your token>&hub.challenge=<n>`;
+ * your route must validate the verify token and respond `200` with the raw
+ * `hub.challenge`. Only POST deliveries flow through
+ * `verifyWebhookSignature()` / `parseInbound()`.
+ *
  * @module
  */
 

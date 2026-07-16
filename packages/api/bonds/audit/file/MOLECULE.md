@@ -33,7 +33,7 @@ Configuration options for the file-based audit provider.
 
 ```typescript
 interface FileAuditConfig {
-  /** Directory path where audit log files are written. Defaults to `'./audit-logs'`. */
+  /** Directory path where audit log files are written. Must already exist — the provider does not create it. Defaults to `'./audit-logs'`. */
   directory?: string
 
   /** Maximum size (in bytes) of a single log file before rotation. Defaults to `10_485_760` (10 MB). */
@@ -95,3 +95,11 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/api-audit`
+
+- **Create the log directory before the first `log()` call.** The provider
+  does NOT create it: `log()` throws `ENOENT` if `directory` (default
+  `'./audit-logs'`) doesn't exist. `await mkdir('./audit-logs', { recursive: true })`
+  at startup (or point `createProvider({ directory })` at an existing path).
+- Appends rewrite the whole current log file and `query()`/`export()` load
+  every matching record into memory — fine for dev/single-instance volumes;
+  use `@molecule/api-audit-database` for sustained production write rates.

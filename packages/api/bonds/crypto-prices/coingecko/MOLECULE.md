@@ -138,6 +138,13 @@ export function setupCryptoPricesCoingecko(): void {
 Peer dependencies:
 - `@molecule/api-crypto-prices` ^1.0.0
 
+### Environment Variables
+
+- `COINGECKO_API_KEY` *(optional)* — CoinGecko Pro API key
+  - Setup: Optional. Leave unset to use the free keyless public endpoint (conservative rate limits). Set a Pro key to switch to pro-api.coingecko.com with higher limits.
+  - Get it here: [https://www.coingecko.com/en/api/pricing](https://www.coingecko.com/en/api/pricing)
+  - Example: `CG-...`
+
 ### Runtime Dependencies
 
 - `@molecule/api-crypto-prices`

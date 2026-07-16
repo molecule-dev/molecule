@@ -83,6 +83,16 @@ Peer dependencies:
 - `@molecule/api-activity`
 - `@molecule/api-channel`
 
+- **Bond an activity sink or captures vanish.** Captured sends are delivered
+  via `@molecule/api-activity`'s `record()`, which silently no-ops when no
+  sink is bonded. Wire one at startup (e.g. `@molecule/api-activity-console`
+  or `-http`) before this provider, or every intercepted message is dropped
+  with no trace.
+- Intercept-only mode (no `realProvider`) returns a synthetic success from
+  `sendMessage()`, always fails `verifyWebhookSignature()` (`false`), and
+  `parseInbound()` returns a stub — inbound webhook flows need a real
+  provider wrapped via `createChannelCaptureProvider(realProvider)`.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

@@ -33,21 +33,21 @@ Configuration for docker.
 
 ```typescript
 interface DockerConfig {
-  /** Docker socket path. Defaults to /var/run/docker.sock. */
+  /** Docker unix-socket path. Defaults to /var/run/docker.sock (or DOCKER_SOCKET_PATH). The only supported daemon transport — remote TCP daemons are not supported. */
   socketPath?: string
-  /** Docker host URL (alternative to socketPath). */
+  /** NOT IMPLEMENTED — reserved. The provider always connects via the unix socket; this field is ignored. */
   host?: string
-  /** Docker API port. */
+  /** NOT IMPLEMENTED — reserved. Ignored; see `host`. */
   port?: number
-  /** Base image for sandbox containers. */
+  /** Base image for sandbox containers. Defaults to node:22-slim. Must already be present on the host — the provider never pulls images. */
   baseImage?: string
   /** Default CPU allocation (cores). */
   defaultCpu?: number
   /** Default memory allocation (MB). */
   defaultMemoryMB?: number
-  /** Default disk allocation (MB). */
+  /** NOT IMPLEMENTED — no disk quota is applied to sandbox containers; this field is ignored. */
   defaultDiskMB?: number
-  /** Network name for sandbox containers. */
+  /** IGNORED — the sandbox network is controlled exclusively by the SANDBOX_DOCKER_NETWORK env var (default molecule-sandbox, auto-created with ICC disabled). */
   network?: string
   /** Container label prefix for identification. */
   labelPrefix?: string
@@ -62,7 +62,6 @@ Process Env interface.
 
 ```typescript
 interface ProcessEnv {
-  DOCKER_HOST?: string
   DOCKER_SOCKET_PATH?: string
 }
 ```
@@ -162,6 +161,13 @@ shared docker bridge has ICC enabled (no cross-tenant isolation) and is REFUSED 
 Override `SANDBOX_DOCKER_NETWORK` only to point at another dedicated ICC-off network. This is
 an L2 isolation control; pair it with host-layer default-deny egress filtering (operator-
 provisioned) for full isolation. [C1-1]
+
+**Prerequisites.** A Docker daemon reachable at `DOCKER_SOCKET_PATH`
+(default `/var/run/docker.sock`) — remote TCP daemons are not supported —
+and the base image (default `node:22-slim`, or `config.baseImage`) already
+pulled on the host: the provider never pulls images, so `create()` fails
+with a no-such-image error otherwise. The isolated sandbox network is
+auto-created on first use; it is NOT a prerequisite.
 
 ## Translations
 

@@ -11,6 +11,13 @@
  * an L2 isolation control; pair it with host-layer default-deny egress filtering (operator-
  * provisioned) for full isolation. [C1-1]
  *
+ * **Prerequisites.** A Docker daemon reachable at `DOCKER_SOCKET_PATH`
+ * (default `/var/run/docker.sock`) — remote TCP daemons are not supported —
+ * and the base image (default `node:22-slim`, or `config.baseImage`) already
+ * pulled on the host: the provider never pulls images, so `create()` fails
+ * with a no-such-image error otherwise. The isolated sandbox network is
+ * auto-created on first use; it is NOT a prerequisite.
+ *
  * @module
  */
 

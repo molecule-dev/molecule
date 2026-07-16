@@ -334,6 +334,17 @@ Peer dependencies:
 - `@molecule/api-channel`
 - `@molecule/api-secrets`
 
+- **Inbound updates require a one-time webhook registration the bond does
+  not perform.** Call Telegram's `setWebhook` once with your public URL and
+  `secret_token=CHANNEL_TELEGRAM_WEBHOOK_SECRET`:
+  `https://api.telegram.org/bot<token>/setWebhook?url=<https-url>&secret_token=<secret>`.
+  Outbound `sendMessage()` works without this.
+- `verifyWebhookSignature()` compares the `X-Telegram-Bot-Api-Secret-Token`
+  header against `CHANNEL_TELEGRAM_WEBHOOK_SECRET` and is FAIL-CLOSED: with
+  no secret configured (or a secret never passed to `setWebhook`) every
+  inbound update is rejected. Treat the secret as required whenever the app
+  consumes inbound Telegram messages.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

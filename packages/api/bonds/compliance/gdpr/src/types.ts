@@ -11,16 +11,16 @@ import type { DataCategory, LegalBasis } from '@molecule/api-compliance'
  */
 export interface GdprConfig {
   /**
-   * Data retention period in days. Data older than this is eligible for
-   * automatic purging when `autoPurge` is enabled.
+   * NOT IMPLEMENTED — currently ignored by the provider (no purging logic
+   * consumes it). Reserved for a future retention sweep.
    *
    * @default 365
    */
   retentionDays?: number
 
   /**
-   * Whether to automatically purge data that exceeds the retention period
-   * during deletion requests.
+   * NOT IMPLEMENTED — currently ignored by the provider; no automatic
+   * purging occurs regardless of this setting.
    *
    * @default false
    */
@@ -57,6 +57,9 @@ export interface GdprConfig {
 
 /**
  * A function that collects user data for a specific category.
+ *
+ * NOTE: collectors are read-only — they are invoked by `exportUserData()`
+ * only and are NOT invoked during deletion.
  */
 export interface DataCollector {
   /** The data category this collector handles. */

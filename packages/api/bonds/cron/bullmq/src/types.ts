@@ -20,7 +20,7 @@ export interface RedisConnectionOptions {
   /** Redis database number. */
   db?: number
 
-  /** TLS configuration. Set to `true` for default TLS or an object for custom options. */
+  /** NOT IMPLEMENTED — currently ignored: the connection passed to BullMQ only forwards host/port/password/db, so TLS Redis endpoints are not yet supported by this bond. */
   tls?: boolean | Record<string, unknown>
 }
 
