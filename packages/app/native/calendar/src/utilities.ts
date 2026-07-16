@@ -1,5 +1,5 @@
 /**
- * `@molecule/app-calendar`
+ * `@molecule/app-device-calendar`
  * Utility functions for calendar module
  */
 

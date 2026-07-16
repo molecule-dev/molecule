@@ -1,9 +1,53 @@
 /**
- * `@molecule/app-screen-orientation`
- * Screen orientation interface for molecule.dev
+ * Screen orientation interface for molecule.dev.
  *
- * Provides a unified API for screen orientation control across platforms.
- * Supports locking, unlocking, and detecting orientation changes.
+ * Framework-agnostic core for reading and locking display orientation
+ * through a swappable `ScreenOrientationProvider`: current state
+ * (`getOrientation`, `getState`, `getDimensions`), locking (`lock`,
+ * `lockPortrait`, `lockLandscape`, `lockCurrent`, `unlock`, `isLocked`),
+ * and change events (`onChange`).
+ *
+ * @example
+ * ```typescript
+ * import {
+ *   getCapabilities,
+ *   hasProvider,
+ *   lockLandscape,
+ *   onChange,
+ *   unlock,
+ * } from '@molecule/app-screen-orientation'
+ *
+ * async function enterVideoFullscreen(): Promise<() => Promise<void>> {
+ *   if (!hasProvider()) return async () => {}
+ *   const caps = await getCapabilities()
+ *   if (caps.canLock) await lockLandscape()
+ *   return async () => {
+ *     if (caps.canLock) await unlock()
+ *   }
+ * }
+ *
+ * function reactToRotation(cb: (o: string) => void): () => void {
+ *   return onChange((event) => cb(event.current))
+ * }
+ * ```
+ *
+ * @remarks
+ * - **Every accessor THROWS until `setProvider()` is called** — **no
+ *   prebuilt provider package ships with molecule**; supply a
+ *   `ScreenOrientationProvider` from your native runtime (or a web one over
+ *   the Screen Orientation API).
+ * - **Wiring exception:** this core keeps its provider in a module-local
+ *   singleton — `bond('screen-orientation', provider)` through
+ *   `@molecule/app-bond` does NOT reach it and `validateBonds()` cannot
+ *   check it. Use THIS package's `setProvider()`.
+ * - On web, `screen.orientation.lock()` generally requires FULLSCREEN first
+ *   (and is rejected on most desktops); iOS Safari doesn't support locking
+ *   at all. Treat locking as best-effort: check `getCapabilities().canLock`
+ *   and design layouts that survive rotation anyway.
+ * - Locking is a per-screen concern — always `unlock()` when leaving the
+ *   screen that locked.
+ *
+ * @module
  */
 
 export * from './orientation.js'

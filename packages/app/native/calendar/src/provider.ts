@@ -1,5 +1,5 @@
 /**
- * `@molecule/app-calendar`
+ * `@molecule/app-device-calendar`
  * Provider management for calendar module
  */
 

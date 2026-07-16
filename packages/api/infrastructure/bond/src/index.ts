@@ -49,6 +49,20 @@
  * or call it inside a request handler. Keep module top-level to imports + pure
  * declarations only.
  *
+ * **Not every core reads this registry.** A handful of cores keep their
+ * provider in a module-local singleton instead (api side:
+ * `api-ai-embeddings`, `api-ai-image-generation`, `api-ai-speech`,
+ * `api-ai-translation`, `api-ai-vector-store`) — for those,
+ * `bond('<category>', provider)` is a SILENT NO-OP and `validateBonds()`
+ * cannot detect the miss. Wire them with the core package's own
+ * `setProvider()`. When both exist, prefer the core's `setProvider()`; it
+ * is always correct.
+ *
+ * Fail fast on missing wiring: cores call `expectBond(type)` at module
+ * scope, and calling `validateBonds()` once at the END of your startup
+ * wiring turns "crashes later on first use" into one clear boot error
+ * listing every expected-but-unbonded category.
+ *
  * @module
  */
 
