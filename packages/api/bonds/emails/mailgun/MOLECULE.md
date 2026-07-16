@@ -2,6 +2,15 @@
 
 Mailgun email provider for molecule.dev.
 
+## Quick Start
+
+```typescript
+import { setTransport } from '@molecule/api-emails'
+import { provider } from '@molecule/api-emails-mailgun'
+
+setTransport(provider)
+```
+
 ## Type
 `provider`
 
@@ -195,6 +204,9 @@ Peer dependencies:
   - Setup: Add and verify a sending domain in Mailgun (sandbox domains work for testing to authorized recipients).
   - Get it here: [https://app.mailgun.com/mg/sending/domains](https://app.mailgun.com/mg/sending/domains)
   - Example: `mg.example.com`
+- `MAILGUN_API_HOST` *(optional)* — Mailgun API host
+  - Setup: Only needed for EU-region Mailgun accounts (api.eu.mailgun.net) or a self-hosted/broker endpoint; leave unset for US-region accounts.
+  - Example: `api.eu.mailgun.net`
 
 ### Runtime Dependencies
 
@@ -203,6 +215,21 @@ Peer dependencies:
 - `@molecule/api-secrets`
 - `nodemailer`
 - `nodemailer-mailgun-transport`
+
+- **EU-region Mailgun accounts must set `MAILGUN_API_HOST=api.eu.mailgun.net`**
+  (optional env; defaults to Mailgun's US endpoint). Without it every send
+  fails upstream with 401 even though the key is valid — wrong region, not
+  wrong key.
+- **Sandbox domains auto-enable Mailgun test mode**: when `MAILGUN_DOMAIN`
+  matches `sandbox*.mailgun.org` (or `MAILGUN_TEST_MODE=true`), sends carry
+  `o:testmode=yes` — Mailgun accepts, validates, and assigns a message id
+  but NEVER delivers. A sandbox 403 for an unauthorized recipient is
+  reported as a synthetic success (`response: 'sandbox-test-mode'`). "Send
+  succeeded but no email arrived" in dev is this behavior, not a bug.
+- Credentials are read lazily on first send and fail fast with a tagged
+  `config.notConfigured` error naming the missing key (`MAILGUN_API_KEY`,
+  then `MAILGUN_DOMAIN`). On success `accepted` echoes the message's own
+  recipients (Mailgun's transport returns no per-recipient verdict).
 
 ## E2E Tests
 

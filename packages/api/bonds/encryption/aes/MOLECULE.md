@@ -120,3 +120,20 @@ Peer dependencies:
 
 - `@molecule/api-encryption`
 - `@molecule/api-secrets`
+
+- **`rotateKey()` does NOT keep old ciphertexts readable.** It swaps the
+  single in-memory key; `decrypt()` always uses the CURRENT key and ignores
+  the `v{n}` ciphertext prefix (informational only). After rotation,
+  anything encrypted under the old key fails to decrypt ("Unsupported state
+  or unable to authenticate data") — re-encrypt every stored ciphertext
+  with the new key as part of the rotation, or don't rotate. (The core
+  contract's "previously encrypted data can still be decrypted during a
+  transition period" is not implemented by this bond.)
+- Rotation state is per-process and in-memory: on restart the lazy
+  `provider` re-reads `ENCRYPTION_KEY` and the key version resets.
+- `hash()`/`verify()` are plain unsalted SHA-256 — integrity checks only.
+  NEVER use them for passwords; use `@molecule/api-password` with a bond
+  like `@molecule/api-password-bcrypt`.
+- `encrypt(plaintext, context)`: the optional `context` is GCM AAD — the
+  SAME context string must be supplied to `decrypt()` or authentication
+  fails.

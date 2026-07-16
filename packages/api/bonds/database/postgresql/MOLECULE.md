@@ -203,3 +203,16 @@ from the `DATABASE_URL` env var (server-side) — don't hardcode credentials.
   caller's own `%`/`_` are honored as wildcards, identical to the sqlite/mysql bonds. For
   human-typed search input, use `ilike` instead (escapes + auto-wraps `%…%`) — see
   `WhereCondition['operator']` in `@molecule/api-database`.
+- **`pool.transaction()` is NOT implemented** (the `DatabasePool` method is
+  optional): acquire a connection via `pool.connect()` and issue
+  `BEGIN`/`COMMIT`/`ROLLBACK` yourself, releasing in `finally`. The sqlite
+  and mysql bonds DO implement `transaction()` — code written against them
+  does not port unchanged.
+- **Nothing fails fast when `DATABASE_URL` is unset**: the pool falls through
+  to the pg driver defaults (localhost:5432, OS user) and the migrator to
+  `postgres://localhost:5432/myapp`, so a missing/late-resolved URL surfaces
+  as a raw `ECONNREFUSED`/auth error — not a "DATABASE_URL is not set"
+  message. Confirm the env var is populated before boot.
+- One-off bootstrap SQL (grants, extensions, seed data) goes in `.sql` files
+  under a `__setup__` directory (run via the exported `setup` namespace);
+  versioned schema belongs in `migrations` only.

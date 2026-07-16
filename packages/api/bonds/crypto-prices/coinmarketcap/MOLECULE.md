@@ -154,3 +154,18 @@ Peer dependencies:
 
 - `@molecule/api-crypto-prices`
 - `@molecule/api-secrets`
+
+- **Pass ticker SYMBOLS (`'BTC'`, `'ETH'`) to `getPrice()` / `getHistorical()`
+  / `getMarketStats()` — NOT the ids this bond returns.** Those methods send
+  the id as CoinMarketCap's `symbol=` query parameter, while `listCoins()`
+  and `listSupportedSymbols()` return CMC's NUMERIC ids (`'1'` for BTC).
+  Feeding a returned id back into a quote method fails upstream (HTTP 400 /
+  "no price data") — the core contract's id round-trip does not currently
+  hold for this bond. Key everything by ticker symbol.
+- The bond does not fail fast on a missing key: without
+  `COINMARKETCAP_API_KEY` the auth header is simply omitted and every call
+  surfaces CoinMarketCap's raw HTTP 401. `COINMARKETCAP_BASE_URL` (optional)
+  overrides the Pro v1 endpoint.
+- HTTP 429 raises `CoinMarketCapRateLimitedError` (code `RATE_LIMITED`,
+  `retryAfterSeconds` parsed from `Retry-After`) — catch on the code, not
+  the message.
