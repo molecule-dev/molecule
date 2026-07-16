@@ -94,6 +94,21 @@ provider key + `@molecule/api-ai` live; auth rides the session via the HTTP clie
 (cookie/bearer), so never attach a provider key or an absolute AI-provider URL here. See
 `@molecule/app-ai-chat` for the safe-render rules.
 
+
+Server contract (all on the ONE `config.endpoint` route): POST
+`{ message, model?, attachments?, resume?, suppressUserMessage?,
+automatic?, userInitiated? }` → SSE `data: <ChatStreamEvent JSON>` lines;
+GET → `{ messages, streaming?, mode? }` (extra fields are optional — omit
+them in a simple backend); DELETE → clear history. Two conventions beyond
+that route: a POST answered `409` means "conversation locked, still
+streaming" — this bond retries automatically (up to 10 tries, 500 ms
+doubling backoff) so return 409 rather than erroring; and Stop/unload
+aborts POST to `<endpoint>-abort` (suffix on the pathname, query kept)
+with `{ conversationId?, userInitiated? }` via sendBeacon.
+`abortOnServer()`, `isServerStreaming`, and `lastMode` are extensions on
+`HttpChatProvider` beyond the core `ChatProvider` type. `loadHistory()`
+returns `[]` on HTTP errors but REJECTS on network failure; wrap it.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

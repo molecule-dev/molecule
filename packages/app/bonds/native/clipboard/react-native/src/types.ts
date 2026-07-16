@@ -9,7 +9,7 @@
  */
 export interface ReactNativeClipboardConfig {
   /**
-   * Whether to poll for clipboard changes (iOS only).
+   * Whether to poll for clipboard changes (text-diff polling, works on all platforms). Without it, onChange() returns a no-op unsubscribe.
    * @default false
    */
   pollForChanges?: boolean

@@ -1,9 +1,11 @@
 /**
- * FullCalendar provider for the molecule calendar interface.
+ * FullCalendar-style provider for the molecule calendar interface.
  *
- * Implements `CalendarProvider` from `@molecule/app-calendar` using
- * a FullCalendar-style state management approach. Framework bindings
- * connect the headless state to the actual FullCalendar DOM library.
+ * Implements `CalendarProvider` from `@molecule/app-calendar` as a HEADLESS
+ * in-memory state manager modeled on FullCalendar's API shape — it does NOT
+ * depend on or load the FullCalendar library, and it renders nothing. Your
+ * app builds the grid from `getEvents()` / `getDate()` / `getView()` and
+ * drives navigation/mutations through the instance.
  *
  * @example
  * ```typescript
@@ -12,6 +14,12 @@
  *
  * setProvider(provider)
  * ```
+ *
+ * @remarks
+ * `FullCalendarConfig.allowEventOverlap` and `.minEventDurationMinutes` are
+ * currently NOT enforced by this provider — they are stored and exposed via
+ * `_getConfig()` for a rendering layer to honor. Overlap and duration rules
+ * you need today belong in your `onEventDrop` / `onEventResize` handlers.
  *
  * @module
  */

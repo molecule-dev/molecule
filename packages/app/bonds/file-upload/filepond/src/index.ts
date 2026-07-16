@@ -13,6 +13,18 @@
  * setProvider(provider)
  * ```
  *
+ * @remarks
+ * Transport is ONE multipart/form-data request per file to
+ * `destination.url` (default method POST, default field name `'file'`,
+ * `additionalData` appended as extra fields); the response is parsed as
+ * JSON when possible (else raw text) and can be reshaped with
+ * `destination.parseResponse`. This is NOT FilePond's process/revert server
+ * protocol — any endpoint accepting a multipart POST works. Files that fail
+ * validation are reported via `events.onValidationError` and NEVER enter
+ * the queue (they won't appear in `getFiles()`). `timeout` defaults to 0
+ * (no timeout). Error/validation messages are currently untranslated
+ * English strings — localize in your handlers before display.
+ *
  * @module
  */
 

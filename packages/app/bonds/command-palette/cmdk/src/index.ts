@@ -1,9 +1,10 @@
 /**
- * cmdk command palette provider for molecule.dev.
+ * cmdk-style command palette provider for molecule.dev.
  *
- * Implements `CommandPaletteProvider` from `@molecule/app-command-palette` using
- * a cmdk-style headless state management approach. Framework bindings
- * connect the headless state to the actual cmdk DOM library.
+ * Implements `CommandPaletteProvider` from `@molecule/app-command-palette`
+ * as a HEADLESS in-memory state manager modeled on cmdk's API shape — it
+ * does NOT depend on or load the cmdk library; your app renders the
+ * overlay/input/list and binds the keyboard shortcut.
  *
  * @example
  * ```typescript
@@ -12,6 +13,13 @@
  *
  * setProvider(provider)
  * ```
+ *
+ * @remarks
+ * Filtering: a custom `options.filter` always takes precedence; otherwise
+ * the built-in fuzzy matcher (exact substring scores highest, then
+ * in-order character match) is used. The `defaultFuzzyMatch` config knob
+ * currently has no effect. `close()` clears the query AND resets page
+ * navigation to root; `pushPage(id)` silently ignores unregistered page ids.
  *
  * @module
  */

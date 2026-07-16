@@ -1,10 +1,12 @@
 # @molecule/app-calendar-fullcalendar
 
-FullCalendar provider for the molecule calendar interface.
+FullCalendar-style provider for the molecule calendar interface.
 
-Implements `CalendarProvider` from `@molecule/app-calendar` using
-a FullCalendar-style state management approach. Framework bindings
-connect the headless state to the actual FullCalendar DOM library.
+Implements `CalendarProvider` from `@molecule/app-calendar` as a HEADLESS
+in-memory state manager modeled on FullCalendar's API shape — it does NOT
+depend on or load the FullCalendar library, and it renders nothing. Your
+app builds the grid from `getEvents()` / `getDate()` / `getView()` and
+drives navigation/mutations through the instance.
 
 ## Quick Start
 
@@ -16,7 +18,7 @@ setProvider(provider)
 ```
 
 ## Type
-`feature`
+`provider`
 
 ## Installation
 ```bash
@@ -154,6 +156,22 @@ Default FullCalendar provider instance.
 const provider: CalendarProvider
 ```
 
+## Core Interface
+Implements `@molecule/app-calendar` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-calendar'
+import { provider } from '@molecule/app-calendar-fullcalendar'
+
+export function setupCalendarFullcalendar(): void {
+  setProvider(provider)
+}
+```
+
 ## Injection Notes
 
 ### Requirements
@@ -164,3 +182,24 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-calendar`
+
+`FullCalendarConfig.allowEventOverlap` and `.minEventDurationMinutes` are
+currently NOT enforced by this provider — they are stored and exposed via
+`_getConfig()` for a rendering layer to honor. Overlap and duration rules
+you need today belong in your `onEventDrop` / `onEventResize` handlers.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] The calendar renders the seeded events on their correct dates/times.
+- [ ] Every view the app exposes (month/week/day/agenda) shows the same
+  events consistently when switching.
+- [ ] Prev/next/today navigation lands on the right period with its events.
+- [ ] Creating an event through the app's flow (slot click or button) shows
+  it on the calendar and it persists across a full reload.
+- [ ] Clicking an event opens its detail/edit, and an edit (time change, or
+  drag-and-drop if supported) sticks after reload.
+- [ ] Multi-day and overlapping events render legibly (no clipped or
+  stacked-wrong entries).

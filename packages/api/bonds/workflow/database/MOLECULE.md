@@ -134,3 +134,16 @@ Peer dependencies:
 - `@molecule/api-database`
 - `@molecule/api-i18n`
 - `@molecule/api-workflow`
+
+- **Requires its tables before first use.** This bond ships
+  `__setup__/workflow.sql` (`workflows`, `workflow_instances`,
+  `workflow_events`); molecule scaffolds replay the `.sql` files under
+  `__setup__` on `migrate`, but adding this bond to an existing app means
+  applying that DDL yourself first. The shipped DDL is PostgreSQL dialect.
+- `guard` / `onEnter` / `onExit` identifiers in workflow definitions are
+  DECLARATIVE ONLY here — this bond stores them but never evaluates or
+  executes them. Enforce preconditions and side-effects in your handler
+  around `transition()`.
+- `transition()` is read-then-write with no lock or transaction: serialize
+  concurrent transitions per instance yourself when a double-fire matters,
+  and authorize server-side — nothing is user-scoped.
