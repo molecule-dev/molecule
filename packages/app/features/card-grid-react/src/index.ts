@@ -23,6 +23,14 @@
  * />
  * ```
  *
+ * @remarks
+ * `<CardGrid>` collapses to one column on narrow viewports and grows to
+ * `columns` (1–6) at the md+ breakpoint via the ClassMap grid. In
+ * `<BentoGrid>`, span mode uses a `columns`-wide grid (default 12) with
+ * per-item `colSpan`/`rowSpan`; passing `areas` switches to named
+ * `grid-template-areas` — then every item must set a matching `area`
+ * token or it falls out of the template.
+ *
  * @module
  */
 

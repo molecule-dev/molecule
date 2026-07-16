@@ -163,7 +163,7 @@ positioning works without the caller having to provide a wrapper.
 All styling routes through `getClassMap()` (no Tailwind / raw class
 names). All user-visible text routes through `t()` so the layer
 translates via the companion
-`@molecule/app-locales-feature-annotation-pin-react` locale bond.
+`@molecule/app-locales-annotation-pin` locale bond.
 
 ```typescript
 function AnnotationLayer(props: AnnotationLayerProps): JSX.Element
@@ -187,7 +187,7 @@ wrapper automatically.
 All styling routes through `getClassMap()` (no Tailwind / raw class
 names). All user-visible text (aria-labels, fallback note text)
 routes through `t()` so the marker translates via the companion
-`@molecule/app-locales-feature-annotation-pin-react` locale bond.
+`@molecule/app-locales-annotation-pin` locale bond.
 
 ```typescript
 function AnnotationPin(props: AnnotationPinProps): JSX.Element
@@ -211,6 +211,16 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+Selection is fully controlled — the layer never stores the active pin;
+manage `activePinId` yourself and toggle it in `onPinClick`. `position`
+is normalised 0..1 by default (fractions of the layer box, so pins
+re-anchor on resize); pass `normalised={false}` for raw pixel offsets —
+on BOTH `<AnnotationLayer>` and any directly-rendered `<AnnotationPin>`,
+or clicks and markers will disagree. The layer wraps `children` in a
+`position: relative` box; a bare `<AnnotationPin>` needs its own
+positioned ancestor. Translations come from the companion
+`@molecule/app-locales-annotation-pin` locale bond.
 
 ## Translations
 

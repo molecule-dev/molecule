@@ -57,9 +57,43 @@ interface AvatarStackPerson {
 }
 ```
 
+#### `AvatarStackProps`
+
+```typescript
+interface AvatarStackProps {
+  /** People to render. */
+  people: AvatarStackPerson[]
+  /** Maximum visible avatars. Remaining are summarised in an "overflow" chip. */
+  max?: number
+  /** Avatar size preset. */
+  size?: 'xs' | 'sm' | 'md' | 'lg'
+  /** Extra classes on the outer stack. */
+  className?: string
+}
+```
+
+#### `UserChipProps`
+
+```typescript
+interface UserChipProps {
+  /** Display name. */
+  name: string
+  /** Optional avatar image URL. */
+  src?: string
+  /** Optional secondary line (role / email / handle). */
+  subtitle?: ReactNode
+  /** Optional trailing content (action button, status dot, etc.). */
+  trailing?: ReactNode
+  /** Avatar size preset. */
+  size?: 'xs' | 'sm' | 'md' | 'lg'
+  /** Extra classes on the outer row. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `AvatarStack(root0, root0, root0, root0, root0)`
+#### `AvatarStack(props)`
 
 Horizontal stack of overlapping avatars (assignees, attendees, etc.).
 
@@ -75,13 +109,9 @@ function AvatarStack({
 }: AvatarStackProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .people
-- `root0` — .max
-- `root0` — .size
-- `root0` — .className
+- `props` — Component props (see {@link AvatarStackProps}).
 
-#### `UserChip(root0, root0, root0, root0, root0, root0, root0)`
+#### `UserChip(props)`
 
 Avatar + name + optional subtitle row — useful in dropdowns, mention
 pickers, assignment popovers, and row-level user references.
@@ -97,13 +127,7 @@ function UserChip({
 }: UserChipProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .name
-- `root0` — .src
-- `root0` — .subtitle
-- `root0` — .trailing
-- `root0` — .size
-- `root0` — .className
+- `props` — Component props (see {@link UserChipProps}).
 
 ## Injection Notes
 
@@ -121,3 +145,9 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+The overflow chip announces "+N more" — this is the only user-visible
+text (currently English-only). Avatar fallbacks (initials, color hash)
+come from `<Avatar>` in `@molecule/app-ui-react`. Overlap uses a
+negative left margin from the ClassMap; verify your ClassMap bond
+supports negative spacing.

@@ -1,8 +1,13 @@
 # @molecule/app-auth-brand-header-react
 
-`@molecule/app-auth-brand-header-react` — auth-page brand header
-(gradient material-symbol chip + wordmark + tagline). Replaces 41
-byte-unique fleet copies.
+`@molecule/app-auth-brand-header-react` — auth-page brand header:
+gradient icon chip + wordmark + tagline, centered.
+
+Two modes: preset (pass `appName` / `tagline` / `icon` and the default
+chip + wordmark + tagline render) or composed (pass `children` built
+from the exported `<AuthBrandHeaderChip>`, `<AuthBrandHeaderWordmark>`,
+and `<AuthBrandHeaderTagline>` sub-components — preset props are then
+ignored).
 
 ## Quick Start
 
@@ -206,3 +211,12 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+`icon` is a Material Symbols name rendered with the
+`material-symbols-outlined` icon font — the app must load that font
+(molecule scaffolds do; a custom stack must add it) or the icon name
+renders as literal text. Omit `icon` to skip the chip entirely. The
+default chip/wordmark treatment uses Tailwind theme tokens
+(`bg-primary`, `text-on-surface`) from the wired ClassMap bond — with
+a non-Tailwind ClassMap, pass `chipGradient` / `wordmarkColor` /
+`className` explicitly.

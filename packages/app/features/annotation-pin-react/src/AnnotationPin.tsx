@@ -70,7 +70,7 @@ export interface AnnotationPinProps {
  * All styling routes through `getClassMap()` (no Tailwind / raw class
  * names). All user-visible text (aria-labels, fallback note text)
  * routes through `t()` so the marker translates via the companion
- * `@molecule/app-locales-feature-annotation-pin-react` locale bond.
+ * `@molecule/app-locales-annotation-pin` locale bond.
  *
  * @param props - Component props.
  * @returns The pin element.

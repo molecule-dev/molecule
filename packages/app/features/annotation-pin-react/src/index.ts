@@ -28,6 +28,17 @@
  * }
  * ```
  *
+ * @remarks
+ * Selection is fully controlled — the layer never stores the active pin;
+ * manage `activePinId` yourself and toggle it in `onPinClick`. `position`
+ * is normalised 0..1 by default (fractions of the layer box, so pins
+ * re-anchor on resize); pass `normalised={false}` for raw pixel offsets —
+ * on BOTH `<AnnotationLayer>` and any directly-rendered `<AnnotationPin>`,
+ * or clicks and markers will disagree. The layer wraps `children` in a
+ * `position: relative` box; a bare `<AnnotationPin>` needs its own
+ * positioned ancestor. Translations come from the companion
+ * `@molecule/app-locales-annotation-pin` locale bond.
+ *
  * @module
  */
 

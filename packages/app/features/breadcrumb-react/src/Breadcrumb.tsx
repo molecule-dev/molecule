@@ -15,7 +15,7 @@ export interface BreadcrumbItem {
   icon?: ReactNode
 }
 
-interface BreadcrumbProps {
+export interface BreadcrumbProps {
   /** Ordered list of crumbs, last one usually the current page. */
   items: BreadcrumbItem[]
   /**
@@ -38,12 +38,7 @@ interface BreadcrumbProps {
  * Each item before the last is rendered as a link; the last item is
  * rendered as plain text (the "current page"). Pass `onNavigate` to
  * intercept clicks (e.g. hand off to `useNavigate()` from react-router).
- * @param root0
- * @param root0.items
- * @param root0.onNavigate
- * @param root0.separator
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link BreadcrumbProps}).
  */
 export function Breadcrumb({
   items,

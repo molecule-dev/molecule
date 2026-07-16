@@ -2,10 +2,17 @@
 
 React auth-kit components for molecule.dev.
 
-Reusable pieces of the auth flow (OAuth button row, etc.) designed
-for apps to compose into their own branded Login/Signup pages.
-Structural pieces only — branded layouts, copy, and wrapping chrome
-stay at the app level.
+Exports `<OAuthButtons>` — the config-driven OAuth row for branded
+Login/Signup pages: reads `providers` from `useOAuth(oauthConfig)`,
+renders the "or continue with" divider + provider buttons, and owns
+the CALLBACK half of the page-based flow (`?code&state` exchange on
+the page it is mounted on, with a visible inline error on failure).
+
+NOT the same component as `OAuthButtons` from
+`@molecule/app-oauth-buttons-react` — that lower-level primitive takes
+an explicit `providers` list and renders only the row; this one wraps
+it and takes the app's `oauthConfig` from `config.ts`. Structural
+pieces only — branded layout, copy, and chrome stay at the app level.
 
 ## Quick Start
 
@@ -13,10 +20,11 @@ stay at the app level.
 import { OAuthButtons } from '@molecule/app-auth-ui-react'
 import { oauthConfig } from './config.js'
 
+// On the Login/Signup page (the OAuth redirect must land back here):
 <OAuthButtons
   oauthConfig={oauthConfig}
-  iconSize={28}
-  showLabels={true}
+  showLabels
+  onSuccess={() => navigate('/dashboard')}
 />
 ```
 
@@ -31,9 +39,46 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `OAuthButtonsProps`
+
+```typescript
+interface OAuthButtonsProps {
+  /**
+   * OAuth config object consumed by `useOAuth()`. Typed as `any` here
+   * because the concrete shape lives in the app's `config.ts`.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  oauthConfig: any
+  /** Extra class applied to the outer wrapper. */
+  className?: string
+  /** Icon size in pixels. Defaults to 30. */
+  iconSize?: number
+  /** Logo color mode — `'brand'` (default, official multi-color) or `'mono'`. */
+  iconMode?: 'brand' | 'mono'
+  /** When true, render the provider label text next to the logo. */
+  showLabels?: boolean
+  /** Override the default "or continue with" divider text. */
+  dividerKey?: string
+  dividerDefault?: string
+  /**
+   * Called after a successful OAuth login (the session is already
+   * established) — e.g. `() => navigate('/dashboard')`.
+   */
+  onSuccess?: () => void
+  /**
+   * Called when the OAuth callback exchange fails. The (already visible)
+   * inline error message is passed through for hosts that also want to
+   * surface it elsewhere.
+   */
+  onError?: (error: string) => void
+}
+```
+
 ### Functions
 
-#### `OAuthButtons(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `OAuthButtons(props)`
 
 Config-driven OAuth provider button row rendered beneath a
 login/signup form.
@@ -67,16 +112,7 @@ function OAuthButtons({
 }: OAuthButtonsProps): JSX.Element | null
 ```
 
-- `root0` — See `OAuthButtonsProps`.
-- `root0` — .oauthConfig - Config object passed to `useOAuth()`.
-- `root0` — .className - Extra class on the outer wrapper.
-- `root0` — .iconSize - Logo size in pixels (default 30).
-- `root0` — .iconMode - Logo color mode (`'brand'` | `'mono'`).
-- `root0` — .showLabels - Render provider label text next to the logo.
-- `root0` — .dividerKey - i18n key for the divider label.
-- `root0` — .dividerDefault - Fallback divider text.
-- `root0` — .onSuccess - Called after a successful OAuth login.
-- `root0` — .onError - Called (after the inline error renders) when the exchange fails.
+- `props` — Component props (see {@link OAuthButtonsProps}).
 
 ## Injection Notes
 
@@ -94,3 +130,11 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+Renders `null` when `oauthConfig` yields no providers — safe to include
+unconditionally. Mount it on the page the OAuth provider redirects back
+to, or the code exchange never runs. A failed exchange renders an
+inline `role="alert"` error (`data-mol-id="oauth-error"`) and also
+calls `onError`. Divider copy defaults to "or continue with"
+(override via `dividerKey` / `dividerDefault`); translations come from
+the companion `@molecule/app-locales-oauth-buttons` locale bond.

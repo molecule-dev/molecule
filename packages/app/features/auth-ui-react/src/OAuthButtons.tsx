@@ -4,7 +4,7 @@ import { OAuthButtons as OAuthButtonRow, OAuthDivider } from '@molecule/app-oaut
 import { useOAuth } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-interface OAuthButtonsProps {
+export interface OAuthButtonsProps {
   /**
    * OAuth config object consumed by `useOAuth()`. Typed as `any` here
    * because the concrete shape lives in the app's `config.ts`.
@@ -54,16 +54,7 @@ interface OAuthButtonsProps {
  * instead of failing silently, and a success fires `onSuccess` so the
  * host can navigate into the app.
  *
- * @param root0 - See `OAuthButtonsProps`.
- * @param root0.oauthConfig - Config object passed to `useOAuth()`.
- * @param root0.className - Extra class on the outer wrapper.
- * @param root0.iconSize - Logo size in pixels (default 30).
- * @param root0.iconMode - Logo color mode (`'brand'` | `'mono'`).
- * @param root0.showLabels - Render provider label text next to the logo.
- * @param root0.dividerKey - i18n key for the divider label.
- * @param root0.dividerDefault - Fallback divider text.
- * @param root0.onSuccess - Called after a successful OAuth login.
- * @param root0.onError - Called (after the inline error renders) when the exchange fails.
+ * @param props - Component props (see {@link OAuthButtonsProps}).
  */
 export function OAuthButtons({
   oauthConfig,

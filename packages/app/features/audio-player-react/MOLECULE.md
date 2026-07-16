@@ -1,8 +1,8 @@
 # @molecule/app-audio-player-react
 
-HTML5 audio player.
-
-Exports `<AudioPlayer>`.
+HTML5 audio player chrome — play/pause, scrub bar, elapsed/total time,
+and a mute toggle, over a hidden `<audio>` element. Use for podcasts,
+voice notes, music previews, narrated lessons.
 
 ## Quick Start
 
@@ -29,9 +29,35 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `AudioPlayerProps`
+
+```typescript
+interface AudioPlayerProps {
+  src: string
+  /** Optional title / track name. */
+  title?: ReactNode
+  /** Optional artist / source label. */
+  subtitle?: ReactNode
+  /** Optional waveform / visualizer slot rendered above the controls. */
+  visualizer?: ReactNode
+  /** Initial muted state. */
+  defaultMuted?: boolean
+  /** Autoplay (browser may block). */
+  autoPlay?: boolean
+  /** Callbacks. */
+  onPlay?: () => void
+  onPause?: () => void
+  onEnded?: () => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `AudioPlayer(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `AudioPlayer(props)`
 
 HTML5 audio player chrome — play/pause, scrub, time, mute, optional
 visualizer slot. Use for podcasts, voice notes, music previews,
@@ -52,17 +78,7 @@ function AudioPlayer({
 }: AudioPlayerProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .src
-- `root0` — .title
-- `root0` — .subtitle
-- `root0` — .visualizer
-- `root0` — .defaultMuted
-- `root0` — .autoPlay
-- `root0` — .onPlay
-- `root0` — .onPause
-- `root0` — .onEnded
-- `root0` — .className
+- `props` — Component props (see {@link AudioPlayerProps}).
 
 ## Injection Notes
 
@@ -80,3 +96,16 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+There is NO volume slider — only a mute toggle; and no playback-rate
+or skip controls. The optional `visualizer` prop is a free-form node
+slot rendered above the controls (bring your own waveform). `autoPlay`
+is passed to the `<audio>` element and is routinely blocked by
+browsers until user interaction — never rely on it. Duration renders
+`0:00` until `loadedmetadata` fires (`preload="metadata"`).
+Translations come from the companion `@molecule/app-locales-audio-player`
+locale bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-audio-player`.

@@ -5,7 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface CarouselProps {
+export interface CarouselProps {
   /** Slides — each child is one frame. */
   children: ReactNode[]
   /** Controlled active index — caller owns state. */
@@ -30,16 +30,7 @@ interface CarouselProps {
  * Generic image / card carousel with arrows + dots + optional autoplay.
  * Controlled-optional: omit `index` to let the component manage its own
  * state.
- * @param root0
- * @param root0.children
- * @param root0.index
- * @param root0.onChange
- * @param root0.showArrows
- * @param root0.showDots
- * @param root0.autoplayMs
- * @param root0.pauseOnHover
- * @param root0.loop
- * @param root0.className
+ * @param props - Component props (see {@link CarouselProps}).
  */
 export function Carousel({
   children,

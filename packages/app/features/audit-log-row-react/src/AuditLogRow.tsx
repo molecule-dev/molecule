@@ -11,7 +11,7 @@ export interface AuditLogEntry {
   action: ReactNode
   /** Target object / record. */
   target?: ReactNode
-  /** ISO timestamp. */
+  /** Pre-formatted display timestamp (rendered verbatim — format before passing, e.g. "2 min ago"). */
   timestamp: ReactNode
   /** Optional summary field for delta display — old + new values. */
   oldValue?: ReactNode
@@ -22,7 +22,7 @@ export interface AuditLogEntry {
   traceId?: ReactNode
 }
 
-interface AuditLogRowProps {
+export interface AuditLogRowProps {
   entry: AuditLogEntry
   /** Called when the row is clicked. */
   onClick?: () => void
@@ -34,10 +34,7 @@ interface AuditLogRowProps {
  * One row of an audit / activity / event log. Shape:
  * `[actor] [action] [target] · [timestamp]` with optional
  * `[old → new]` diff line and environment/trace metadata.
- * @param root0
- * @param root0.entry
- * @param root0.onClick
- * @param root0.className
+ * @param props - Component props (see {@link AuditLogRowProps}).
  */
 export function AuditLogRow({ entry, onClick, className }: AuditLogRowProps): JSX.Element {
   const cm = getClassMap()

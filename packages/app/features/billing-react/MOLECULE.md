@@ -9,6 +9,15 @@ Components:
   `<BillingStatusBadge />` — compact account-page status display that
   shows the current tier and offers a cancel-subscription button.
 
+  `<LimitsList>` / `<LimitsItem>` — building blocks for the
+  `renderLimits` prop: a stacked checklist row with check / dash icon,
+  e.g. `renderLimits={(l) => (
+    <LimitsList>
+      <LimitsItem>{l.maxAccounts} accounts</LimitsItem>
+      <LimitsItem included={l.canExport}>Data export</LimitsItem>
+    </LimitsList>
+  )}`
+
 Hooks:
   `usePricingTiers<TLimits>()`        → `UseHttpResult<PricingTiersResponse<TLimits>>`
   `useBillingStatus<TLimits>()`       → `UseHttpResult<BillingStatus<TLimits>>`
@@ -393,7 +402,7 @@ function usePricingTiers(): UseHttpResult<PricingTiersResponse<TLimits>>
 #### `useStartCheckout()`
 
 Start a Stripe Checkout session for a given Stripe price ID. The
-returned `start(priceId)` posts to `/billing/checkout`; the
+returned `start(priceId)` posts to `/api/billing/checkout`; the
 response is either `{ checkoutUrl }` (for new subscribers — redirect
 the browser) or `{ updated: true }` (for existing subscribers —
 refresh the page).
@@ -439,3 +448,7 @@ by one. A box you can't check is an integration bug to fix — not a skip:
 - [ ] A signed-out visitor can still view the public pricing table.
 - [ ] If the tiers endpoint fails, the page shows a visible error state — not a
   blank page or spinner forever.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-billing`.

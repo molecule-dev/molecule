@@ -27,9 +27,36 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `CarouselProps`
+
+```typescript
+interface CarouselProps {
+  /** Slides — each child is one frame. */
+  children: ReactNode[]
+  /** Controlled active index — caller owns state. */
+  index?: number
+  /** Called when the active index changes. */
+  onChange?: (index: number) => void
+  /** Show prev/next arrows. Defaults to true. */
+  showArrows?: boolean
+  /** Show dot indicator strip. Defaults to true. */
+  showDots?: boolean
+  /** Auto-advance interval in ms (set 0 to disable). */
+  autoplayMs?: number
+  /** Pause autoplay on mouseover. Defaults to true. */
+  pauseOnHover?: boolean
+  /** Loop back to start at end. Defaults to true. */
+  loop?: boolean
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `Carousel(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Carousel(props)`
 
 Generic image / card carousel with arrows + dots + optional autoplay.
 Controlled-optional: omit `index` to let the component manage its own
@@ -49,16 +76,7 @@ function Carousel({
 }: CarouselProps): JSX.Element | null
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .index
-- `root0` — .onChange
-- `root0` — .showArrows
-- `root0` — .showDots
-- `root0` — .autoplayMs
-- `root0` — .pauseOnHover
-- `root0` — .loop
-- `root0` — .className
+- `props` — Component props (see {@link CarouselProps}).
 
 ## Injection Notes
 
@@ -76,3 +94,15 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Controlled-optional: omit `index` for internal state; pass `index` +
+`onChange` to own it. `autoplayMs={0}` (the default) disables
+autoplay; autoplay pauses on hover unless `pauseOnHover={false}`.
+`loop` (default `true`) wraps at the ends. Slides are equal-width
+children of a translated flex track — give each child its own aspect
+ratio/height. Translations come from the companion
+`@molecule/app-locales-carousel` locale bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-carousel`.

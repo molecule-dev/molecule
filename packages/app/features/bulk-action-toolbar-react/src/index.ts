@@ -17,6 +17,14 @@
  * />
  * ```
  *
+ * @remarks
+ * Renders `null` while `count <= 0` — mount it unconditionally and drive
+ * it from selection state. `position` defaults to `'sticky-bottom'`
+ * (16px inset, z-30); `'sticky-top'` and `'inline'` are also supported.
+ * Destructive actions render as solid error-colored buttons. The count
+ * label and Clear button are translated via the companion
+ * `@molecule/app-locales-bulk-action-toolbar` locale bond.
+ *
  * @module
  */
 

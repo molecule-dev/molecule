@@ -4,17 +4,17 @@ import { useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-/** Semantic kind that controls the default styling of an AnnouncementBar. */
+/** Semantic kind, exposed as a `data-kind` attribute for per-kind styling (no built-in style change). */
 export type AnnouncementKind = 'info' | 'success' | 'warning' | 'error' | 'promo'
 
-interface AnnouncementBarProps {
+export interface AnnouncementBarProps {
   /** Primary message. */
   children: ReactNode
   /** Optional leading icon. */
   icon?: ReactNode
   /** Optional call-to-action (link or button). */
   action?: { label: ReactNode; href?: string; onClick?: () => void }
-  /** Semantic kind — affects default styling. Defaults to `'info'`. */
+  /** Semantic kind — emitted as `data-kind` on the root (style via CSS/`className`). Defaults to `'info'`. */
   kind?: AnnouncementKind
   /** Show a dismiss (×) button. Defaults to true. */
   dismissible?: boolean
@@ -33,16 +33,7 @@ interface AnnouncementBarProps {
  * notices, feature callouts. Different from `<Toast>` in being
  * long-lived and prominent (top-of-page), and from `<Alert>` in
  * including an action slot + dismiss.
- * @param root0
- * @param root0.children
- * @param root0.icon
- * @param root0.action
- * @param root0.kind
- * @param root0.dismissible
- * @param root0.onDismiss
- * @param root0.visible
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link AnnouncementBarProps}).
  */
 export function AnnouncementBar({
   children,

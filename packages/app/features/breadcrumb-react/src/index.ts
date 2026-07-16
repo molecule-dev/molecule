@@ -22,6 +22,13 @@
  * />
  * ```
  *
+ * @remarks
+ * Without `onNavigate`, crumbs render as plain `<a href>` (full page
+ * load in SPAs) — pass `onNavigate={(to) => navigate(to)}` to stay
+ * client-side; with it, crumbs render as `<button>`s. The last item (or
+ * any item without `to`) renders as plain text with `aria-current="page"`.
+ * No router dependency is required by the component itself.
+ *
  * @module
  */
 

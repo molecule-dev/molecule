@@ -55,7 +55,7 @@ export interface AuthModalProps {
 }
 
 /**
- * The in-app auth modal. See the module doc for the no-navigation contract.
+ * The in-app auth modal: login/signup tabs rendered in a Modal overlay — the user authenticates without leaving the current page (no navigation, no lost work). Usually rendered via `AuthModalMount`, not directly.
  *
  * @param props - {@link AuthModalProps}.
  * @returns The modal element (renders nothing when closed).

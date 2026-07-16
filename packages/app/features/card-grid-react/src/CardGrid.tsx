@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface CardGridProps {
+export interface CardGridProps {
   /** Cards. */
   children: ReactNode
   /** Column count at the md+ breakpoint. 1–6. Defaults to 3. */
@@ -17,11 +17,7 @@ interface CardGridProps {
  * Generic responsive card grid. Collapses to one column on narrow viewports
  * and grows to `columns` on md+. Typical uses: product grids, post grids,
  * dashboard widget rows.
- * @param root0
- * @param root0.children
- * @param root0.columns
- * @param root0.gap
- * @param root0.className
+ * @param props - Component props (see {@link CardGridProps}).
  */
 export function CardGrid({
   children,

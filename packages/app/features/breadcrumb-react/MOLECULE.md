@@ -55,9 +55,30 @@ interface BreadcrumbItem {
 }
 ```
 
+#### `BreadcrumbProps`
+
+```typescript
+interface BreadcrumbProps {
+  /** Ordered list of crumbs, last one usually the current page. */
+  items: BreadcrumbItem[]
+  /**
+   * Click handler invoked with the target `to` when an item is clicked.
+   * Useful when wiring to `react-router-dom`'s `useNavigate`. When
+   * omitted the component renders items with an anchor `<a href={to}>`.
+   */
+  onNavigate?: (to: string) => void
+  /** Separator between crumbs — defaults to a `/`. Accepts any node. */
+  separator?: ReactNode
+  /** Extra classes on the `<nav>` element. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
 ### Functions
 
-#### `Breadcrumb(root0, root0, root0, root0, root0, root0)`
+#### `Breadcrumb(props)`
 
 Breadcrumb navigation.
 
@@ -75,12 +96,7 @@ function Breadcrumb({
 }: BreadcrumbProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .onNavigate
-- `root0` — .separator
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link BreadcrumbProps}).
 
 ## Injection Notes
 
@@ -100,3 +116,9 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 - `react-router-dom`
+
+Without `onNavigate`, crumbs render as plain `<a href>` (full page
+load in SPAs) — pass `onNavigate={(to) => navigate(to)}` to stay
+client-side; with it, crumbs render as `<button>`s. The last item (or
+any item without `to`) renders as plain text with `aria-current="page"`.
+No router dependency is required by the component itself.

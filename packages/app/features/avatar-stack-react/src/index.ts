@@ -27,6 +27,13 @@
  * <UserChip name="Alice Kim" src="/avatars/alice.jpg" subtitle="Admin" />
  * ```
  *
+ * @remarks
+ * The overflow chip announces "+N more" — this is the only user-visible
+ * text (currently English-only). Avatar fallbacks (initials, color hash)
+ * come from `<Avatar>` in `@molecule/app-ui-react`. Overlap uses a
+ * negative left margin from the ClassMap; verify your ClassMap bond
+ * supports negative spacing.
+ *
  * @module
  */
 

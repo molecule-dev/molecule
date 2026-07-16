@@ -139,3 +139,18 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+`getUserMedia` only exists in a secure context — the recorder works on
+`https://` and `localhost`, and permanently shows the error state on
+plain HTTP. The requested `mimeType` is best-effort: unsupported types
+silently fall back to the browser default (the actual type is reported
+in `onRecorded`). Reaching `maxDurationSeconds` auto-stops and still
+fires `onRecorded`. The recording dot's pulse uses a `mol-pulse`
+CSS animation that the host app must define
+(`@keyframes mol-pulse { 50% { opacity: .4 } }`) — without it the dot
+is static (recording still works). Translations come from the companion
+`@molecule/app-locales-audio-recorder` locale bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-audio-recorder`.

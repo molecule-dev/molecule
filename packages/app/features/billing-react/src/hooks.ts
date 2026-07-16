@@ -63,7 +63,7 @@ export interface BillingActionState<T> {
 
 /**
  * Start a Stripe Checkout session for a given Stripe price ID. The
- * returned `start(priceId)` posts to `/billing/checkout`; the
+ * returned `start(priceId)` posts to `/api/billing/checkout`; the
  * response is either `{ checkoutUrl }` (for new subscribers — redirect
  * the browser) or `{ updated: true }` (for existing subscribers —
  * refresh the page).

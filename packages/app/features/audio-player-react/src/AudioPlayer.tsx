@@ -5,7 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface AudioPlayerProps {
+export interface AudioPlayerProps {
   src: string
   /** Optional title / track name. */
   title?: ReactNode
@@ -40,17 +40,7 @@ function fmt(s: number): string {
  * HTML5 audio player chrome — play/pause, scrub, time, mute, optional
  * visualizer slot. Use for podcasts, voice notes, music previews,
  * narrated lessons.
- * @param root0
- * @param root0.src
- * @param root0.title
- * @param root0.subtitle
- * @param root0.visualizer
- * @param root0.defaultMuted
- * @param root0.autoPlay
- * @param root0.onPlay
- * @param root0.onPause
- * @param root0.onEnded
- * @param root0.className
+ * @param props - Component props (see {@link AudioPlayerProps}).
  */
 export function AudioPlayer({
   src,

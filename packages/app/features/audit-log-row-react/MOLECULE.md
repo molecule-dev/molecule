@@ -49,7 +49,7 @@ interface AuditLogEntry {
   action: ReactNode
   /** Target object / record. */
   target?: ReactNode
-  /** ISO timestamp. */
+  /** Pre-formatted display timestamp (rendered verbatim — format before passing, e.g. "2 min ago"). */
   timestamp: ReactNode
   /** Optional summary field for delta display — old + new values. */
   oldValue?: ReactNode
@@ -61,9 +61,21 @@ interface AuditLogEntry {
 }
 ```
 
+#### `AuditLogRowProps`
+
+```typescript
+interface AuditLogRowProps {
+  entry: AuditLogEntry
+  /** Called when the row is clicked. */
+  onClick?: () => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `AuditLogRow(root0, root0, root0, root0)`
+#### `AuditLogRow(props)`
 
 One row of an audit / activity / event log. Shape:
 `[actor] [action] [target] · [timestamp]` with optional
@@ -73,10 +85,7 @@ One row of an audit / activity / event log. Shape:
 function AuditLogRow({ entry, onClick, className }: AuditLogRowProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .entry
-- `root0` — .onClick
-- `root0` — .className
+- `props` — Component props (see {@link AuditLogRowProps}).
 
 ## Injection Notes
 

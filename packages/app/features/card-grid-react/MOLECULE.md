@@ -38,6 +38,26 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `BentoGridProps`
+
+```typescript
+interface BentoGridProps {
+  /** Items to render. */
+  items: BentoItem[]
+  /**
+   * Optional `grid-template-areas` string (e.g. `'a a b' 'c d d'`). When
+   * provided, each `BentoItem.area` must match a token in the template.
+   */
+  areas?: string
+  /** Default column count when `areas` is absent. Defaults to 12. */
+  columns?: number
+  /** Gap between items. */
+  gap?: 'xs' | 'sm' | 'md' | 'lg'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 #### `BentoItem`
 
 Data descriptor for a single cell in a BentoGrid layout.
@@ -57,9 +77,24 @@ interface BentoItem {
 }
 ```
 
+#### `CardGridProps`
+
+```typescript
+interface CardGridProps {
+  /** Cards. */
+  children: ReactNode
+  /** Column count at the md+ breakpoint. 1–6. Defaults to 3. */
+  columns?: 1 | 2 | 3 | 4 | 5 | 6
+  /** Gap between cards. */
+  gap?: 'xs' | 'sm' | 'md' | 'lg'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `BentoGrid(root0, root0, root0, root0, root0, root0)`
+#### `BentoGrid(props)`
 
 Bento-style grid — items span multiple cells for a magazine / dashboard
 layout. Works in two modes: (a) col/row-span driven, (b) named-areas
@@ -75,14 +110,9 @@ function BentoGrid({
 }: BentoGridProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .areas
-- `root0` — .columns
-- `root0` — .gap
-- `root0` — .className
+- `props` — Component props (see {@link BentoGridProps}).
 
-#### `CardGrid(root0, root0, root0, root0, root0)`
+#### `CardGrid(props)`
 
 Generic responsive card grid. Collapses to one column on narrow viewports
 and grows to `columns` on md+. Typical uses: product grids, post grids,
@@ -97,11 +127,7 @@ function CardGrid({
 }: CardGridProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .columns
-- `root0` — .gap
-- `root0` — .className
+- `props` — Component props (see {@link CardGridProps}).
 
 ## Injection Notes
 
@@ -119,3 +145,10 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+`<CardGrid>` collapses to one column on narrow viewports and grows to
+`columns` (1–6) at the md+ breakpoint via the ClassMap grid. In
+`<BentoGrid>`, span mode uses a `columns`-wide grid (default 12) with
+per-item `colSpan`/`rowSpan`; passing `areas` switches to named
+`grid-template-areas` — then every item must set a matching `area`
+token or it falls out of the template.

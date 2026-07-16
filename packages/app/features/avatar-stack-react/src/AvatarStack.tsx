@@ -13,7 +13,7 @@ export interface AvatarStackPerson {
   alt?: string
 }
 
-interface AvatarStackProps {
+export interface AvatarStackProps {
   /** People to render. */
   people: AvatarStackPerson[]
   /** Maximum visible avatars. Remaining are summarised in an "overflow" chip. */
@@ -29,11 +29,7 @@ interface AvatarStackProps {
  *
  * Renders up to `max` avatars; any remaining are summarised as `+N` in a
  * trailing chip.
- * @param root0
- * @param root0.people
- * @param root0.max
- * @param root0.size
- * @param root0.className
+ * @param props - Component props (see {@link AvatarStackProps}).
  */
 export function AvatarStack({
   people,

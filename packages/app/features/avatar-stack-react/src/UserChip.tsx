@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
-interface UserChipProps {
+export interface UserChipProps {
   /** Display name. */
   name: string
   /** Optional avatar image URL. */
@@ -21,13 +21,7 @@ interface UserChipProps {
 /**
  * Avatar + name + optional subtitle row — useful in dropdowns, mention
  * pickers, assignment popovers, and row-level user references.
- * @param root0
- * @param root0.name
- * @param root0.src
- * @param root0.subtitle
- * @param root0.trailing
- * @param root0.size
- * @param root0.className
+ * @param props - Component props (see {@link UserChipProps}).
  */
 export function UserChip({
   name,

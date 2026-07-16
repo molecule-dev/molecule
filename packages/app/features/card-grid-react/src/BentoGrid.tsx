@@ -16,7 +16,7 @@ export interface BentoItem {
   area?: string
 }
 
-interface BentoGridProps {
+export interface BentoGridProps {
   /** Items to render. */
   items: BentoItem[]
   /**
@@ -36,12 +36,7 @@ interface BentoGridProps {
  * Bento-style grid — items span multiple cells for a magazine / dashboard
  * layout. Works in two modes: (a) col/row-span driven, (b) named-areas
  * driven via the `areas` prop.
- * @param root0
- * @param root0.items
- * @param root0.areas
- * @param root0.columns
- * @param root0.gap
- * @param root0.className
+ * @param props - Component props (see {@link BentoGridProps}).
  */
 export function BentoGrid({
   items,

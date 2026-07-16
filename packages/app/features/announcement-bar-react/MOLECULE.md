@@ -2,8 +2,10 @@
 
 React announcement / promo bar.
 
-Exports `<AnnouncementBar>` — persistent banner with icon, message,
-action, and optional dismiss.
+Exports `<AnnouncementBar>` — persistent top-of-page banner with icon,
+message, optional action (link or button), and optional dismiss (×).
+Long-lived and prominent, unlike a Toast; carries an action slot +
+dismiss, unlike an Alert.
 
 ## Quick Start
 
@@ -15,6 +17,7 @@ import { AnnouncementBar } from '@molecule/app-announcement-bar-react'
   icon={<span>🎉</span>}
   action={{ label: 'Learn more', href: '/pricing' }}
   onDismiss={() => console.log('dismissed')}
+  dataMolId="promo-bar"
 >
   New Pro plan — 3 months free for early adopters.
 </AnnouncementBar>
@@ -31,11 +34,38 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `AnnouncementBarProps`
+
+```typescript
+interface AnnouncementBarProps {
+  /** Primary message. */
+  children: ReactNode
+  /** Optional leading icon. */
+  icon?: ReactNode
+  /** Optional call-to-action (link or button). */
+  action?: { label: ReactNode; href?: string; onClick?: () => void }
+  /** Semantic kind — emitted as `data-kind` on the root (style via CSS/`className`). Defaults to `'info'`. */
+  kind?: AnnouncementKind
+  /** Show a dismiss (×) button. Defaults to true. */
+  dismissible?: boolean
+  /** Called when the bar is dismissed. */
+  onDismiss?: () => void
+  /** Controlled visibility — when provided, overrides internal state. */
+  visible?: boolean
+  /** Extra classes. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
 ### Types
 
 #### `AnnouncementKind`
 
-Semantic kind that controls the default styling of an AnnouncementBar.
+Semantic kind, exposed as a `data-kind` attribute for per-kind styling (no built-in style change).
 
 ```typescript
 type AnnouncementKind = 'info' | 'success' | 'warning' | 'error' | 'promo'
@@ -43,7 +73,7 @@ type AnnouncementKind = 'info' | 'success' | 'warning' | 'error' | 'promo'
 
 ### Functions
 
-#### `AnnouncementBar(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `AnnouncementBar(props)`
 
 Persistent announcement banner — product updates, promos, outage
 notices, feature callouts. Different from `<Toast>` in being
@@ -64,16 +94,7 @@ function AnnouncementBar({
 }: AnnouncementBarProps): JSX.Element | null
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .icon
-- `root0` — .action
-- `root0` — .kind
-- `root0` — .dismissible
-- `root0` — .onDismiss
-- `root0` — .visible
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link AnnouncementBarProps}).
 
 ## Injection Notes
 
@@ -91,3 +112,16 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+`kind` is exposed as a `data-kind` attribute on the root — it does NOT
+change the bar's colors by itself; style per-kind via `className` or a
+`[data-kind="…"]` selector. Dismissal is uncontrolled by default
+(internal state; the bar stays hidden until remount) — pass `visible`
+to control it, e.g. to persist dismissal per user. `dismissible`
+defaults to `true`. There is no default `data-mol-id`; pass `dataMolId`
+so agents/E2E can target the bar. Translations come from the companion
+`@molecule/app-locales-announcement-bar` locale bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-announcement-bar`.

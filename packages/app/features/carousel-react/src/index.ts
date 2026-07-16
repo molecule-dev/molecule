@@ -14,6 +14,15 @@
  * </Carousel>
  * ```
  *
+ * @remarks
+ * Controlled-optional: omit `index` for internal state; pass `index` +
+ * `onChange` to own it. `autoplayMs={0}` (the default) disables
+ * autoplay; autoplay pauses on hover unless `pauseOnHover={false}`.
+ * `loop` (default `true`) wraps at the ends. Slides are equal-width
+ * children of a translated flex track — give each child its own aspect
+ * ratio/height. Translations come from the companion
+ * `@molecule/app-locales-carousel` locale bond.
+ *
  * @module
  */
 

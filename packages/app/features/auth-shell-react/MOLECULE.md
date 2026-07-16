@@ -17,6 +17,12 @@ also exported for standalone use. Persistence flows through the
 `@molecule/app-storage` `StorageProvider` abstraction (never raw
 `sessionStorage`), defaulting to a process-shared in-memory store.
 
+Besides the `AuthShell` preset, the package exports the composable
+primitives it is built from — `AuthShellContainer`, `AuthShellDecoration`,
+`AuthShellCard`, `AuthShellHeading`, `AuthShellFooter`, `AuthShellBackLink` —
+plus a two-column family for the "brand panel + form card" split layout:
+`AuthShellSplit` > `AuthShellSplitRow` > (`AuthShellPanel` + `AuthShellCardColumn`).
+
 ## Quick Start
 
 ```tsx
@@ -581,3 +587,20 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `react`
 - `react-router-dom`
+
+`AuthShell` renders a react-router `<Link>` ("Back to home") by default,
+so it MUST be rendered inside a `<Router>`; pass `showBackLink={false}`
+in router-less setups. The back link's arrow uses the Material Symbols
+icon font — load it, or the glyph renders as text. The default glass
+card treatment (`rounded-3xl`, translucent surface, backdrop blur) and
+the panel's `hidden lg:flex` collapse are Tailwind classes resolved by
+the wired ClassMap bond's theme tokens — on a non-Tailwind ClassMap,
+override via `surfaceClassName` / `className`. Form-state persistence
+defaults to a process-shared in-memory store (survives route swaps, not
+reloads) — inject `createSessionStorageProvider()` for reload-safe,
+tab-scoped persistence. Translations come from the companion
+`@molecule/app-locales-auth-shell` locale bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-auth-shell`.

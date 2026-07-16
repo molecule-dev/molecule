@@ -8,6 +8,15 @@
  *   `<BillingStatusBadge />` — compact account-page status display that
  *   shows the current tier and offers a cancel-subscription button.
  *
+ *   `<LimitsList>` / `<LimitsItem>` — building blocks for the
+ *   `renderLimits` prop: a stacked checklist row with check / dash icon,
+ *   e.g. `renderLimits={(l) => (
+ *     <LimitsList>
+ *       <LimitsItem>{l.maxAccounts} accounts</LimitsItem>
+ *       <LimitsItem included={l.canExport}>Data export</LimitsItem>
+ *     </LimitsList>
+ *   )}`
+ *
  * Hooks:
  *   `usePricingTiers<TLimits>()`        → `UseHttpResult<PricingTiersResponse<TLimits>>`
  *   `useBillingStatus<TLimits>()`       → `UseHttpResult<BillingStatus<TLimits>>`

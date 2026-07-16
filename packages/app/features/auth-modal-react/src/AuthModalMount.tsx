@@ -61,7 +61,7 @@ export interface AuthModalMountProps {
 }
 
 /**
- * Mounts the in-app auth modal + the CTA click-interceptor. See the module doc.
+ * Mounts the in-app auth modal + the CTA click-interceptor: renders the (initially hidden) AuthModal and installs a capture-phase document click handler that opens it for in-app `/login`/`/signup` links (and routes `/pricing`/`/billing` clicks to the upgrade flow). Mount ONCE inside the app providers.
  *
  * @param props - {@link AuthModalMountProps}.
  * @returns The (lazily-mounted) auth modal element.

@@ -14,14 +14,14 @@ export interface BulkAction {
   disabled?: boolean
 }
 
-interface BulkActionToolbarProps {
+export interface BulkActionToolbarProps {
   /** Selection count — toolbar hides when 0. */
   count: number
   /** Action buttons. */
   actions: BulkAction[]
   /** Called when "Clear selection" is clicked. */
   onClearSelection?: () => void
-  /** Position — `'sticky-bottom'` (default) or `'inline'`. */
+  /** Position — `'sticky-bottom'` (default), `'sticky-top'`, or `'inline'`. */
   position?: 'sticky-bottom' | 'sticky-top' | 'inline'
   /** Extra classes. */
   className?: string
@@ -31,12 +31,7 @@ interface BulkActionToolbarProps {
  * Selection-aware bulk action bar — appears when the user has selected
  * one or more rows, shows the count + a row of action buttons + a
  * "Clear selection" link.
- * @param root0
- * @param root0.count
- * @param root0.actions
- * @param root0.onClearSelection
- * @param root0.position
- * @param root0.className
+ * @param props - Component props (see {@link BulkActionToolbarProps}).
  */
 export function BulkActionToolbar({
   count,

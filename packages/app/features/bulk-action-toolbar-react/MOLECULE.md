@@ -47,9 +47,26 @@ interface BulkAction {
 }
 ```
 
+#### `BulkActionToolbarProps`
+
+```typescript
+interface BulkActionToolbarProps {
+  /** Selection count — toolbar hides when 0. */
+  count: number
+  /** Action buttons. */
+  actions: BulkAction[]
+  /** Called when "Clear selection" is clicked. */
+  onClearSelection?: () => void
+  /** Position — `'sticky-bottom'` (default), `'sticky-top'`, or `'inline'`. */
+  position?: 'sticky-bottom' | 'sticky-top' | 'inline'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `BulkActionToolbar(root0, root0, root0, root0, root0, root0)`
+#### `BulkActionToolbar(props)`
 
 Selection-aware bulk action bar — appears when the user has selected
 one or more rows, shows the count + a row of action buttons + a
@@ -65,12 +82,7 @@ function BulkActionToolbar({
 }: BulkActionToolbarProps): ReactElement<unknown, string | JSXElementConstructor<any>> | null
 ```
 
-- `root0` — *
-- `root0` — .count
-- `root0` — .actions
-- `root0` — .onClearSelection
-- `root0` — .position
-- `root0` — .className
+- `props` — Component props (see {@link BulkActionToolbarProps}).
 
 ## Injection Notes
 
@@ -88,3 +100,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Renders `null` while `count <= 0` — mount it unconditionally and drive
+it from selection state. `position` defaults to `'sticky-bottom'`
+(16px inset, z-30); `'sticky-top'` and `'inline'` are also supported.
+Destructive actions render as solid error-colored buttons. The count
+label and Clear button are translated via the companion
+`@molecule/app-locales-bulk-action-toolbar` locale bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-bulk-action-toolbar`.
