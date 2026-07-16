@@ -1,6 +1,22 @@
 /**
  * AI chat core interface for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * import { requireProvider, setProvider } from '@molecule/app-ai-chat'
+ * import { createProvider } from '@molecule/app-ai-chat-http'
+ *
+ * setProvider(createProvider()) // at startup; same-origin base URL by default
+ *
+ * const chat = requireProvider()
+ * const config = { endpoint: '/api/chat' }
+ * await chat.sendMessage('Summarize my open orders', config, (event) => {
+ *   if (event.type === 'text') appendTokens(event.content)
+ *   if (event.type === 'error') showError(event.message)
+ * })
+ * const history = await chat.loadHistory(config)
+ * ```
+ *
  * @remarks
  * Chat runs through YOUR backend, not the AI provider directly. Bond a chat provider (e.g.
  * `@molecule/app-ai-chat-http`) pointed at your API's chat endpoint; the frontend sends

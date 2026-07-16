@@ -27,6 +27,21 @@
  * })
  * ```
  *
+ * @remarks
+ * - **HEADLESS — `createCalendar()` renders NOTHING.** The instance is a state
+ *   manager: your app builds the visible grid from `getEvents()` / `getDate()` /
+ *   `getView()` with its own markup (ClassMap-styled), and wires its own toolbar
+ *   buttons to `prev()` / `next()` / `today()` / `setView()`. If no calendar
+ *   appears on screen, this is why — there is no mount/element option to find.
+ * - **No change-listener on the instance.** After calling any mutator
+ *   (`setEvents`, `addEvent`, `updateEvent`, `removeEvent`, navigation), re-read
+ *   state and re-render — or mirror the instance state into your framework's
+ *   own state and drive rendering from that.
+ * - Events live in memory only: load persisted events from your API into
+ *   `options.events` / `setEvents()`, and persist creates/edits in your
+ *   `onDateClick` / `onEventDrop` handlers — the calendar will not do it.
+ * - Drag/resize callbacks fire only when `editable: true` (default `false`).
+ *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
  * each item to this app's actual screens/flows, and check every box off one

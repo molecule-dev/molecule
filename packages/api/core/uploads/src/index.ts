@@ -34,12 +34,15 @@
  *
  * @example
  * ```ts
+ * import { getProvider } from '@molecule/api-uploads'
+ * // a bond (e.g. `@molecule/api-uploads-s3`) called setProvider() at startup
+ *
  * router.post('/files', async (req, res) => {
  *   const userId = getUserId(res)
  *   if (!userId) return res.status(401).json({ error: 'Authentication required.' })
  *   // busboy/multer yields (fieldname, stream, info) — validate BEFORE trusting it.
  *   if (!ALLOWED_TYPES.has(info.mimeType)) return res.status(415).json({ error: 'Unsupported type.' })
- *   const file = provider.upload(fieldname, stream, info, (e) => res.status(500).json({ error: e.message }))
+ *   const file = getProvider().upload(fieldname, stream, info, (e) => res.status(500).json({ error: e.message }))
  *   await saveFileRow({ id: file.id, userId, name: info.filename }) // own it
  *   res.json({ id: file.id })
  * })
@@ -47,7 +50,7 @@
  * router.get('/files/:id', async (req, res) => {
  *   const row = await getFileRow(req.params.id)
  *   if (!row || row.userId !== getUserId(res)) return res.status(404).end() // ownership → no IDOR
- *   const stream = await provider.getFile?.(row.id)
+ *   const stream = await getProvider().getFile?.(row.id)
  *   if (!stream) return res.status(404).end()
  *   stream.pipe(res)
  * })

@@ -9,7 +9,8 @@ Defines the standard interface for webhook dispatch providers
 
 ```typescript
 import { setProvider, register, dispatch } from '@molecule/api-webhook'
-setProvider(httpWebhookProvider) // bond at startup
+import { createProvider } from '@molecule/api-webhook-http'
+setProvider(createProvider()) // bond at startup
 
 // SSRF guard: reject private/link-local/metadata destinations BEFORE registering.
 if (!isAllowedWebhookUrl(url)) throw new Error('Destination not allowed')

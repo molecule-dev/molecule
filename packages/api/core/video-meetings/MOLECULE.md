@@ -19,13 +19,10 @@ import {
   createMeeting,
   listMeetings,
 } from '@molecule/api-video-meetings'
+import { createProvider } from '@molecule/api-video-meetings-zoom'
 
-// Bond a provider at startup (e.g. Zoom)
-setProvider(createProvider({
-  accountId: process.env.ZOOM_ACCOUNT_ID,
-  clientId: process.env.ZOOM_CLIENT_ID,
-  clientSecret: process.env.ZOOM_CLIENT_SECRET,
-}))
+// Bond a provider at startup (reads ZOOM_* env vars when config is omitted)
+setProvider(createProvider())
 
 // Schedule a meeting
 const meeting = await createMeeting({
@@ -426,3 +423,17 @@ Peer dependencies:
 
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
+
+- **Server-side only.** Provider credentials (for the bundled Zoom bond:
+  `ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`) live in the API's env and
+  must never reach the browser. Create/update/list meetings in YOUR API; hand the client
+  only what it needs — usually the meeting's `joinUrl`.
+- **Unsupported {@link MeetingSettings} flags are silently IGNORED, not rejected** — a
+  2xx response does not prove `waitingRoom`/`autoRecording` took effect on every
+  provider. Don't advertise a setting in the UI unless the bonded provider supports it.
+- Recurrence configuration is provider-specific and travels through `settings.extra`;
+  only `type: 'recurring'` is normalized.
+- `listMeetings` defaults to `type: 'scheduled'` and paginates via
+  `MeetingPage.nextPageToken` → `options.pageToken` — a single call is not "all meetings".
+- Scheduled meetings ≠ ad-hoc rooms: for ephemeral join-now collaboration spaces use
+  `@molecule/api-video-rooms` instead.

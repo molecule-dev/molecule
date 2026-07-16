@@ -4,6 +4,21 @@
  * Provides a unified analytics API that can be backed by different
  * implementations (PostHog, Mixpanel, etc.).
  *
+ * @example
+ * ```typescript
+ * import { identify, reset, setProvider, track } from '@molecule/app-analytics'
+ * import { createProvider } from '@molecule/app-analytics-posthog'
+ *
+ * // At startup — the key comes from your build-time env (in Vite:
+ * // import.meta.env.VITE_POSTHOG_KEY); a missing key yields a warning +
+ * // no-op provider, never a crash.
+ * setProvider(createProvider({ apiKey: posthogApiKey }))
+ *
+ * identify({ userId: user.id, email: user.email })      // on login
+ * track({ name: 'order_placed', properties: { total } })
+ * reset()                                               // on logout
+ * ```
+ *
  * @remarks
  * - Every convenience function (`track`, `identify`, `page`, …) swallows
  *   provider errors and no-ops when nothing is bonded — analytics can never

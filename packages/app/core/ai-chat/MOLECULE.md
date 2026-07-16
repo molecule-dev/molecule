@@ -2,6 +2,23 @@
 
 AI chat core interface for molecule.dev.
 
+## Quick Start
+
+```typescript
+import { requireProvider, setProvider } from '@molecule/app-ai-chat'
+import { createProvider } from '@molecule/app-ai-chat-http'
+
+setProvider(createProvider()) // at startup; same-origin base URL by default
+
+const chat = requireProvider()
+const config = { endpoint: '/api/chat' }
+await chat.sendMessage('Summarize my open orders', config, (event) => {
+  if (event.type === 'text') appendTokens(event.content)
+  if (event.type === 'error') showError(event.message)
+})
+const history = await chat.loadHistory(config)
+```
+
 ## Type
 `core`
 
