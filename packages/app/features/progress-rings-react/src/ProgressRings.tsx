@@ -83,25 +83,7 @@ function computeGeometry(
  * typography resolve via the wired ClassMap; ring colors come from props
  * (typically resolved from theme tokens by the caller).
  *
- * @param root0
- * @param root0.rings
- * @param root0.size
- * @param root0.strokeWidth
- * @param root0.gap
- * @param root0.cornerRadius
- * @param root0.className
- * @param root0.dataMolId
- * @param root0.ariaLabel
- * @example
- * ```tsx
- * <ProgressRings
- *   rings={[
- *     { value: 8200, max: 10000, color: 'var(--color-success)', label: t('health.steps') },
- *     { value: 7,    max: 8,     color: 'var(--color-info)',    label: t('health.sleep') },
- *     { value: 35,   max: 60,    color: 'var(--color-warning)', label: t('health.active') },
- *   ]}
- * />
- * ```
+ * @param props - Component props (see {@link ProgressRingsProps}).
  */
 export function ProgressRings({
   rings,

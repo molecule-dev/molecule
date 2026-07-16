@@ -5,7 +5,8 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Textarea } from '@molecule/app-ui-react'
 
-interface RatingFormProps {
+/** Props for {@link RatingForm}. */
+export interface RatingFormProps {
   /** Called with the submitted rating + optional comment. */
   onSubmit: (rating: number, comment: string) => void | Promise<void>
   /** Maximum stars. Defaults to 5. */
@@ -27,15 +28,7 @@ interface RatingFormProps {
 /**
  * Interactive star-rating + comment form. Used for review submission
  * (product reviews, course feedback, support-ticket CSAT).
- * @param root0
- * @param root0.onSubmit
- * @param root0.max
- * @param root0.defaultRating
- * @param root0.requireComment
- * @param root0.title
- * @param root0.commentPlaceholder
- * @param root0.submitLabel
- * @param root0.className
+ * @param props - Component props (see {@link RatingFormProps}).
  */
 export function RatingForm({
   onSubmit,

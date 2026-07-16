@@ -7,6 +7,10 @@
  * ```tsx
  * import { PricingTable } from '@molecule/app-pricing-table-react'
  *
+ * const checkout = (planId: string): void => {
+ *   window.location.assign(`/checkout?plan=${planId}`)
+ * }
+ *
  * <PricingTable
  *   plans={[
  *     { id: 'starter', name: 'Starter', price: '$9', interval: '/mo',
@@ -20,6 +24,10 @@
  *   ]}
  * />
  * ```
+ *
+ * @remarks
+ * All text arrives via props — pass pre-translated strings; requires a wired
+ * ClassMap bond.
  *
  * @module
  */

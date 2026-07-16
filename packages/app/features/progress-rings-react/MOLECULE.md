@@ -87,7 +87,7 @@ interface ProgressRingsProps {
 
 ### Functions
 
-#### `ProgressRings(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `ProgressRings(props)`
 
 Apple-Health-style concentric SVG progress rings. Renders a single circular
 ring when `rings.length === 1`, or a nested stack of rings (outermost first)
@@ -108,15 +108,7 @@ function ProgressRings({
 }: ProgressRingsProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .rings
-- `root0` — .size
-- `root0` — .strokeWidth
-- `root0` — .gap
-- `root0` — .cornerRadius
-- `root0` — .className
-- `root0` — .dataMolId
-- `root0` — .ariaLabel
+- `props` — Component props (see {@link ProgressRingsProps}).
 
 ## Injection Notes
 
@@ -132,6 +124,12 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+Companion locale bond: `@molecule/app-locales-progress-rings` (aria summary
++ per-ring labels). Ring `color` is any CSS color — pass theme tokens like
+`var(--color-success)` so rings follow the active theme. Requires the
+app-react i18n provider and a wired ClassMap bond. Rings nest outside-in:
+`rings[0]` is the outermost.
 
 ## Translations
 

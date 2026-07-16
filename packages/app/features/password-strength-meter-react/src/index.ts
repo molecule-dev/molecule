@@ -12,8 +12,16 @@
  * `getClassMap()`; all text flows through `t()`; companion locale
  * bond is `@molecule/app-locales-password-strength-meter`.
  *
+ * @remarks
+ * `minScore` only surfaces as a `data-meets-min` attribute on the bar — gate
+ * your submit button on the `onScore` value yourself (as in the example).
+ * Segment colors read `var(--mol-color-error/warning/info/success)` with
+ * built-in light fallbacks; molecule scaffolds define these in theme.css.
+ * Companion locale bond: `@molecule/app-locales-password-strength-meter`.
+ *
  * @example
  * ```tsx
+ * import { useState } from 'react'
  * import { PasswordStrengthMeter } from '@molecule/app-password-strength-meter-react'
  *
  * function SignupForm() {

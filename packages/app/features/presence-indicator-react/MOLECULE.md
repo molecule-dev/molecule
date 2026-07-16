@@ -12,6 +12,8 @@ Exports:
 ```tsx
 import { PresenceDot, AvatarWithPresence } from '@molecule/app-presence-indicator-react'
 
+const user = { avatarUrl: '/avatar.png', name: 'Ada' }
+
 // Inline dot next to a user name
 <PresenceDot status="online" />
 
@@ -32,6 +34,47 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `AvatarWithPresenceProps`
+
+Props for {@link AvatarWithPresence}.
+
+```typescript
+interface AvatarWithPresenceProps {
+  /** The avatar / media to decorate. */
+  children: ReactNode
+  /** Presence status; omit to hide the dot. */
+  status?: PresenceStatus
+  /** Corner placement of the dot. Defaults to `'bottom-right'`. */
+  corner?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left'
+  /** Dot size. */
+  dotSize?: number
+  /** Extra classes on the outer wrapper. */
+  className?: string
+}
+```
+
+#### `PresenceDotProps`
+
+Props for {@link PresenceDot}.
+
+```typescript
+interface PresenceDotProps {
+  status: PresenceStatus
+  /** Diameter in pixels. Defaults to 10. */
+  size?: number
+  /** Position — `'inline'` default; `'overlay'` positions absolutely for avatar overlays. */
+  position?: 'inline' | 'overlay'
+  /** Overlay corner when `position="overlay"`. */
+  corner?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left'
+  /** Accessible label override. */
+  ariaLabel?: string
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Types
 
 #### `PresenceStatus`
@@ -44,7 +87,7 @@ type PresenceStatus = 'online' | 'away' | 'busy' | 'offline'
 
 ### Functions
 
-#### `AvatarWithPresence(root0, root0, root0, root0, root0, root0)`
+#### `AvatarWithPresence(props)`
 
 Wraps any avatar/image and overlays a presence dot at a corner.
 Non-destructive — just positions the dot; the child is untouched.
@@ -59,14 +102,9 @@ function AvatarWithPresence({
 }: AvatarWithPresenceProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .status
-- `root0` — .corner
-- `root0` — .dotSize
-- `root0` — .className
+- `props` — Component props (see {@link AvatarWithPresenceProps}).
 
-#### `PresenceDot(root0, root0, root0, root0, root0, root0, root0)`
+#### `PresenceDot(props)`
 
 Small colored circle indicating user presence. Use inline next to a
 name, or with `position="overlay"` attached to the corner of an
@@ -83,13 +121,7 @@ function PresenceDot({
 }: PresenceDotProps): React.JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .status
-- `root0` — .size
-- `root0` — .position
-- `root0` — .corner
-- `root0` — .ariaLabel
-- `root0` — .className
+- `props` — Component props (see {@link PresenceDotProps}).
 
 ## Injection Notes
 
@@ -107,3 +139,11 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+The default aria-label is the English string "Presence: <status>" — pass
+`ariaLabel` (e.g. from `t()`) in localized apps; the package has no locale
+bond. `position="overlay"` positions absolutely, so the dot must sit inside
+a relatively-positioned parent — `<AvatarWithPresence>` provides that
+wrapper. Status colors are fixed semantic hues (green/yellow/red/gray),
+identical in both themes; the overlay ring color follows
+`var(--color-surface)`.

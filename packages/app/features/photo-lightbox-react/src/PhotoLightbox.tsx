@@ -14,7 +14,8 @@ export interface LightboxPhoto {
   caption?: ReactNode
 }
 
-interface PhotoLightboxProps {
+/** Props for {@link PhotoLightbox}. */
+export interface PhotoLightboxProps {
   /** Photos array. */
   photos: LightboxPhoto[]
   /** Whether the lightbox is open. */
@@ -30,12 +31,7 @@ interface PhotoLightboxProps {
 /**
  * Fullscreen photo viewer with prev/next arrows, keyboard navigation
  * (← → Esc), close button, and optional captions.
- * @param root0
- * @param root0.photos
- * @param root0.open
- * @param root0.onClose
- * @param root0.initialIndex
- * @param root0.onIndexChange
+ * @param props - Component props (see {@link PhotoLightboxProps}).
  */
 export function PhotoLightbox({
   photos,

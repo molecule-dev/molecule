@@ -22,6 +22,13 @@
  * />
  * ```
  *
+ * @remarks
+ * Companion locale bond: `@molecule/app-locales-progress-rings` (aria summary
+ * + per-ring labels). Ring `color` is any CSS color — pass theme tokens like
+ * `var(--color-success)` so rings follow the active theme. Requires the
+ * app-react i18n provider and a wired ClassMap bond. Rings nest outside-in:
+ * `rings[0]` is the outermost.
+ *
  * @module
  */
 

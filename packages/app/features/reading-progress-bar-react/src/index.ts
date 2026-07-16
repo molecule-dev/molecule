@@ -18,6 +18,17 @@
  * // Simpler: track whole-page scroll
  * <ReadingProgressBar position="top" />
  * ```
+ *
+ * @remarks
+ * Companion locale bond: `@molecule/app-locales-reading-progress-bar` (the
+ * progressbar aria-label). The fill defaults to `currentColor` — it inherits
+ * the surrounding text color, so pass `color` (e.g. `var(--color-primary)`)
+ * when the ambient text color is low-contrast against the page edge. The bar
+ * renders `position: fixed` at `z-index: 1000` spanning the viewport width;
+ * it only listens to `window` scroll — `containerRef` changes what is
+ * measured, not which scroller is observed (inner scroll containers won't
+ * drive it). Requires the app-react i18n provider and a wired ClassMap bond.
+ *
  * @module
  */
 

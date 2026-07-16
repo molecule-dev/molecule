@@ -9,6 +9,10 @@ Exports `<RatingForm>`.
 ```tsx
 import { RatingForm } from '@molecule/app-rating-form-react'
 
+const submitReview = async (review: { rating: number; comment: string }): Promise<void> => {
+  await fetch('/api/reviews', { method: 'POST', body: JSON.stringify(review) })
+}
+
 <RatingForm
   title="Leave a review"
   onSubmit={async (rating, comment) => {
@@ -30,9 +34,36 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `RatingFormProps`
+
+Props for {@link RatingForm}.
+
+```typescript
+interface RatingFormProps {
+  /** Called with the submitted rating + optional comment. */
+  onSubmit: (rating: number, comment: string) => void | Promise<void>
+  /** Maximum stars. Defaults to 5. */
+  max?: number
+  /** Initial rating (uncontrolled). */
+  defaultRating?: number
+  /** Whether a comment is required. Defaults to false. */
+  requireComment?: boolean
+  /** Form heading. */
+  title?: ReactNode
+  /** Comment placeholder. */
+  commentPlaceholder?: string
+  /** Submit-button label. */
+  submitLabel?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `RatingForm(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `RatingForm(props)`
 
 Interactive star-rating + comment form. Used for review submission
 (product reviews, course feedback, support-ticket CSAT).
@@ -50,15 +81,7 @@ function RatingForm({
 }: RatingFormProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .onSubmit
-- `root0` — .max
-- `root0` — .defaultRating
-- `root0` — .requireComment
-- `root0` — .title
-- `root0` — .commentPlaceholder
-- `root0` — .submitLabel
-- `root0` — .className
+- `props` — Component props (see {@link RatingFormProps}).
 
 ## Injection Notes
 
@@ -76,3 +99,13 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Companion locale bond: `@molecule/app-locales-rating-form`. The submit button
+stays disabled until a star rating is selected, and `requireComment` blocks
+submission on blank comments silently (no inline error is rendered). Rejected
+`onSubmit` promises propagate — handle errors in your handler. Requires the
+app-react i18n provider and a wired ClassMap bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-rating-form`.

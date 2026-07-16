@@ -5,7 +5,8 @@ import { getClassMap } from '@molecule/app-ui'
 /** Union of supported user-presence states displayed by the dot. */
 export type PresenceStatus = 'online' | 'away' | 'busy' | 'offline'
 
-interface PresenceDotProps {
+/** Props for {@link PresenceDot}. */
+export interface PresenceDotProps {
   status: PresenceStatus
   /** Diameter in pixels. Defaults to 10. */
   size?: number
@@ -30,13 +31,7 @@ const STATUS_COLOR: Record<PresenceStatus, string> = {
  * Small colored circle indicating user presence. Use inline next to a
  * name, or with `position="overlay"` attached to the corner of an
  * `<Avatar>`.
- * @param root0
- * @param root0.status
- * @param root0.size
- * @param root0.position
- * @param root0.corner
- * @param root0.ariaLabel
- * @param root0.className
+ * @param props - Component props (see {@link PresenceDotProps}).
  */
 export function PresenceDot({
   status,

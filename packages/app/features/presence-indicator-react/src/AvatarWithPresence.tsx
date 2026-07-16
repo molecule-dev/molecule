@@ -4,7 +4,8 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { PresenceDot, type PresenceStatus } from './PresenceDot.js'
 
-interface AvatarWithPresenceProps {
+/** Props for {@link AvatarWithPresence}. */
+export interface AvatarWithPresenceProps {
   /** The avatar / media to decorate. */
   children: ReactNode
   /** Presence status; omit to hide the dot. */
@@ -20,12 +21,7 @@ interface AvatarWithPresenceProps {
 /**
  * Wraps any avatar/image and overlays a presence dot at a corner.
  * Non-destructive — just positions the dot; the child is untouched.
- * @param root0
- * @param root0.children
- * @param root0.status
- * @param root0.corner
- * @param root0.dotSize
- * @param root0.className
+ * @param props - Component props (see {@link AvatarWithPresenceProps}).
  */
 export function AvatarWithPresence({
   children,

@@ -3,28 +3,40 @@
 React page-header and hero-section primitives.
 
 Exports:
-- `<PageHeader>` — top-of-page header with breadcrumbs + title/subtitle + actions + meta.
-- `<HeroSection>` — dashboard/landing hero with text + optional media column.
+- `<PageHeader>` — top-of-page header with breadcrumbs + title/subtitle +
+  leading icon + right-aligned actions + meta row. `emphasis="extrabold"`
+  switches the title to the larger dashboard treatment.
+- `<HeroSection>` — dashboard/landing hero with text + optional media
+  column; `align="center"` for marketing-style heroes.
 
-Both accept `className` for per-brand accent styling.
+Both accept `className` for per-brand accent styling and `dataMolId` for
+AI-agent selectors.
 
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
 import { PageHeader, HeroSection } from '@molecule/app-page-chrome-react'
+import { Button } from '@molecule/app-ui-react'
 
-<PageHeader
-  title="Projects"
-  subtitle="Manage your active projects"
-  actions={<Button onClick={() => setOpen(true)}>New project</Button>}
-/>
-
-<HeroSection
-  eyebrow="Welcome back"
-  title="Your workspace"
-  description="Everything you need to ship faster."
-  primaryAction={<Button variant="solid">Get started</Button>}
-/>
+function ProjectsPage() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <PageHeader
+        title="Projects"
+        subtitle="Manage your active projects"
+        actions={<Button onClick={() => setOpen(true)}>New project</Button>}
+      />
+      <HeroSection
+        eyebrow="Welcome back"
+        title="Your workspace"
+        description="Everything you need to ship faster."
+        primaryAction={<Button variant="solid">Get started</Button>}
+      />
+    </>
+  )
+}
 ```
 
 ## Type
@@ -38,9 +50,75 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `HeroSectionProps`
+
+Props for {@link HeroSection}.
+
+```typescript
+interface HeroSectionProps {
+  /** Small eyebrow line above the headline. */
+  eyebrow?: ReactNode
+  /** Primary headline. */
+  title: ReactNode
+  /** Supporting description. */
+  description?: ReactNode
+  /** Primary call-to-action. */
+  primaryAction?: ReactNode
+  /** Optional secondary call-to-action. */
+  secondaryAction?: ReactNode
+  /** Optional visual / illustration slot, positioned to the right at md+. */
+  media?: ReactNode
+  /** Horizontal alignment — defaults to `start`. */
+  align?: 'start' | 'center'
+  /** Extra classes. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
+
+#### `PageHeaderProps`
+
+Props for {@link PageHeader}.
+
+```typescript
+interface PageHeaderProps {
+  /** Primary heading (usually `t('...')`). */
+  title: ReactNode
+  /** Optional subheading rendered below the title. */
+  subtitle?: ReactNode
+  /** Optional leading icon next to the title. */
+  icon?: ReactNode
+  /** Optional breadcrumb trail rendered above the title row. */
+  breadcrumbs?: ReactNode
+  /** Right-aligned actions (buttons, menus, etc.). */
+  actions?: ReactNode
+  /** Optional meta row rendered below the title/subtitle (status chips, timestamps, etc.). */
+  meta?: ReactNode
+  /**
+   * Title emphasis level.
+   * - `'normal'` (default) — 3xl bold, for general / reusable list-page
+   *   headers.
+   * - `'extrabold'` — intended as the larger `text-4xl font-extrabold
+   *   tracking-tight` dashboard treatment, but `font-extrabold` is a raw
+   *   class literal that appears in no `@source`-scanned dist, so default
+   *   Tailwind scaffolds never generate that utility — the title currently
+   *   renders at 4xl size with tight tracking at NORMAL font weight (the
+   *   `cm.fontWeight('extrabold')` code fix is tracked separately).
+   */
+  emphasis?: 'normal' | 'extrabold'
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+  /** Extra classes on the outer wrapper. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `HeroSection(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `HeroSection(props)`
 
 Dashboard / landing hero. Text column on the left, optional media on
 the right. Alignment defaults to `start` for dashboards; use
@@ -60,18 +138,9 @@ function HeroSection({
 }: HeroSectionProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .eyebrow
-- `root0` — .title
-- `root0` — .description
-- `root0` — .primaryAction
-- `root0` — .secondaryAction
-- `root0` — .media
-- `root0` — .align
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link HeroSectionProps}).
 
-#### `PageHeader(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `PageHeader(props)`
 
 Standard page-top header with optional breadcrumbs, leading icon,
 title / subtitle pair, meta row, and right-aligned actions.
@@ -93,15 +162,7 @@ function PageHeader({
 }: PageHeaderProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .subtitle
-- `root0` — .icon
-- `root0` — .breadcrumbs
-- `root0` — .actions
-- `root0` — .meta
-- `root0` — .dataMolId
-- `root0` — .className
+- `props` — Component props (see {@link PageHeaderProps}).
 
 ## Injection Notes
 
@@ -119,3 +180,10 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Not to be confused with `@molecule/app-ui-react`'s own `<PageHeader>`
+(props: `title`/`description`/`actions`/`breadcrumbs`): THIS PageHeader
+takes `subtitle` (not `description`) and adds `icon`, `meta`, and
+`emphasis`. Import from the package that matches the props you pass.
+Styling resolves via `getClassMap()` from `@molecule/app-ui`, so a ClassMap
+bond (e.g. `@molecule/app-ui-tailwind`) must be wired before render.

@@ -106,7 +106,7 @@ function computeWindowProgress(): number
 **Returns:** A number in `[0, 1]`. Falls back to `0` when there is nothing to
  *   scroll (page shorter than the viewport).
 
-#### `ReadingProgressBar(root0, root0, root0, root0, root0, root0, root0)`
+#### `ReadingProgressBar(props)`
 
 Top-of-page reading progress bar.
 
@@ -135,13 +135,7 @@ function ReadingProgressBar({
 }: ReadingProgressBarProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .containerRef
-- `root0` — .thickness
-- `root0` — .position
-- `root0` — .color
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link ReadingProgressBarProps}).
 
 ## Injection Notes
 
@@ -157,6 +151,15 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+Companion locale bond: `@molecule/app-locales-reading-progress-bar` (the
+progressbar aria-label). The fill defaults to `currentColor` — it inherits
+the surrounding text color, so pass `color` (e.g. `var(--color-primary)`)
+when the ambient text color is low-contrast against the page edge. The bar
+renders `position: fixed` at `z-index: 1000` spanning the viewport width;
+it only listens to `window` scroll — `containerRef` changes what is
+measured, not which scroller is observed (inner scroll containers won't
+drive it). Requires the app-react i18n provider and a wired ClassMap bond.
 
 ## Translations
 

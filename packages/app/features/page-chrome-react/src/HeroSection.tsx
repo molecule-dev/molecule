@@ -2,7 +2,8 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface HeroSectionProps {
+/** Props for {@link HeroSection}. */
+export interface HeroSectionProps {
   /** Small eyebrow line above the headline. */
   eyebrow?: ReactNode
   /** Primary headline. */
@@ -27,16 +28,7 @@ interface HeroSectionProps {
  * Dashboard / landing hero. Text column on the left, optional media on
  * the right. Alignment defaults to `start` for dashboards; use
  * `align="center"` for marketing-style landing heroes.
- * @param root0
- * @param root0.eyebrow
- * @param root0.title
- * @param root0.description
- * @param root0.primaryAction
- * @param root0.secondaryAction
- * @param root0.media
- * @param root0.align
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link HeroSectionProps}).
  */
 export function HeroSection({
   eyebrow,

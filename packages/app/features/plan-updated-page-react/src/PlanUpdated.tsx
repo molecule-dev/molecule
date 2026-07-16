@@ -8,7 +8,7 @@ import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-react'
  * Props for {@link PlanUpdated}. All optional — defaults reproduce the original
  * hardcoded copy, so existing `<PlanUpdated />` usages are unchanged.
  */
-interface PlanUpdatedProps {
+export interface PlanUpdatedProps {
   /** i18n key for the confirmation message. */
   messageKey?: string
   /** Default confirmation message when the key is missing. */
@@ -34,21 +34,15 @@ interface PlanUpdatedProps {
  * (`planUpdated.message`, `planUpdated.thankYou`), and a Return Home
  * button styled with the app's primary color tokens.
  *
- * All three translation keys are part of the universal common-locale
- * bond (`@molecule/app-locales-common`), so adopting apps don't need
- * to declare them locally. Visual layout uses only ClassMap tokens so
+ * Those three translation keys are part of the universal common-locale
+ * bond (`@molecule/app-locales-common`); the always-rendered "View
+ * receipt" link uses `planUpdated.viewReceipt` from the companion bond
+ * `@molecule/app-locales-plan-updated-page` and navigates to the
+ * hardcoded `/billing` route. Visual layout uses only ClassMap tokens so
  * it inherits the app's theme (radius, color tokens, spacing) with no
  * per-app override.
  *
- * @param root0 - Optional copy/navigation overrides (all default to the
- *   universal common-locale keys + sensible English fallbacks).
- * @param root0.messageKey - i18n key for the confirmation message.
- * @param root0.messageDefault - Default confirmation message.
- * @param root0.thankYouKey - i18n key for the thank-you line.
- * @param root0.thankYouDefault - Default thank-you line.
- * @param root0.actionKey - i18n key for the return-home action label.
- * @param root0.actionDefault - Default action label.
- * @param root0.actionHref - Href the return-home action navigates to.
+ * @param props - Component props (see {@link PlanUpdatedProps}).
  * @returns The plan-updated confirmation page element.
  */
 export function PlanUpdated({

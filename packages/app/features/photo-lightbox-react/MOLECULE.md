@@ -2,24 +2,35 @@
 
 Fullscreen photo viewer.
 
-Exports `<PhotoLightbox>` and `LightboxPhoto` type.
+Exports `<PhotoLightbox>` (modal overlay with prev/next arrows, keyboard
+navigation via ArrowLeft / ArrowRight / Escape, backdrop-click close,
+optional captions, and an "N / total" counter) and the `LightboxPhoto`
+type.
 
 ## Quick Start
 
 ```tsx
-import { PhotoLightbox, LightboxPhoto } from '@molecule/app-photo-lightbox-react'
+import { useState } from 'react'
+import { PhotoLightbox, type LightboxPhoto } from '@molecule/app-photo-lightbox-react'
 
 const photos: LightboxPhoto[] = [
   { src: '/images/photo1.jpg', alt: 'Mountain view', caption: 'Summit at dawn' },
   { src: '/images/photo2.jpg', alt: 'Valley below' },
 ]
 
-<PhotoLightbox
-  photos={photos}
-  open={lightboxOpen}
-  onClose={() => setLightboxOpen(false)}
-  initialIndex={selectedIndex}
-/>
+function Gallery() {
+  const [open, setOpen] = useState(false)
+  const [index, setIndex] = useState(0)
+  return (
+    <PhotoLightbox
+      photos={photos}
+      open={open}
+      onClose={() => setOpen(false)}
+      initialIndex={index}
+      onIndexChange={setIndex}
+    />
+  )
+}
 ```
 
 ## Type
@@ -47,9 +58,28 @@ interface LightboxPhoto {
 }
 ```
 
+#### `PhotoLightboxProps`
+
+Props for {@link PhotoLightbox}.
+
+```typescript
+interface PhotoLightboxProps {
+  /** Photos array. */
+  photos: LightboxPhoto[]
+  /** Whether the lightbox is open. */
+  open: boolean
+  /** Called when the user closes (X, backdrop, Escape). */
+  onClose: () => void
+  /** Initial active index. */
+  initialIndex?: number
+  /** Called whenever the active index changes. */
+  onIndexChange?: (index: number) => void
+}
+```
+
 ### Functions
 
-#### `PhotoLightbox(root0, root0, root0, root0, root0, root0)`
+#### `PhotoLightbox(props)`
 
 Fullscreen photo viewer with prev/next arrows, keyboard navigation
 (← → Esc), close button, and optional captions.
@@ -64,12 +94,7 @@ function PhotoLightbox({
 }: PhotoLightboxProps): JSX.Element | null
 ```
 
-- `root0` — *
-- `root0` — .photos
-- `root0` — .open
-- `root0` — .onClose
-- `root0` — .initialIndex
-- `root0` — .onIndexChange
+- `props` — Component props (see {@link PhotoLightboxProps}).
 
 ## Injection Notes
 
@@ -87,3 +112,13 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Companion locale bond: `@molecule/app-locales-photo-lightbox` (keys
+`lightbox.close` / `lightbox.previous` / `lightbox.next`). The overlay is
+`position: fixed` at `z-index: 100` with a near-black backdrop in both
+themes; it does NOT lock body scroll while open. Requires the app-react
+i18n provider and a wired ClassMap bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-photo-lightbox`.

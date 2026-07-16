@@ -2,7 +2,8 @@ import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface RatingDisplayProps {
+/** Props for {@link RatingDisplay}. */
+export interface RatingDisplayProps {
   /** Rating value (0–max). Fractional supported. */
   value: number
   /** Maximum rating. Defaults to 5. */
@@ -25,9 +26,7 @@ const SIZE_PX = { sm: 12, md: 16, lg: 20 } as const
 
 /**
  * Renders a single SVG star with a fractional fill gradient.
- * @param root0
- * @param root0.fill
- * @param root0.size
+ * @param props - Star fill fraction (0–1) + pixel size.
  */
 function Star({ fill, size }: { fill: number; size: number }): JSX.Element {
   const path =
@@ -52,15 +51,7 @@ function Star({ fill, size }: { fill: number; size: number }): JSX.Element {
  * interactive button.
  *
  * Uses inline SVG stars so the component works without icon-font fallback.
- * @param root0
- * @param root0.value
- * @param root0.max
- * @param root0.reviewCount
- * @param root0.onReviewsClick
- * @param root0.size
- * @param root0.onChange
- * @param root0.ariaLabel
- * @param root0.className
+ * @param props - Component props (see {@link RatingDisplayProps}).
  */
 export function RatingDisplay({
   value,

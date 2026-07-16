@@ -2,7 +2,8 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ProgressBarProps {
+/** Props for {@link ProgressBar}. */
+export interface ProgressBarProps {
   /** Current numeric value. */
   value: number
   /** Maximum (defaults to 100). */
@@ -25,14 +26,7 @@ interface ProgressBarProps {
  * Renders a `[label ... valueLabel]` header row above a track. The track
  * itself uses the wired ClassMap progress tokens — swap the ClassMap bond
  * to restyle without touching this component.
- * @param root0
- * @param root0.value
- * @param root0.max
- * @param root0.label
- * @param root0.valueLabel
- * @param root0.size
- * @param root0.color
- * @param root0.className
+ * @param props - Component props (see {@link ProgressBarProps}).
  */
 export function ProgressBar({
   value,

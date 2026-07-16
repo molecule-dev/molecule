@@ -21,6 +21,12 @@
  * />
  * ```
  *
+ * @remarks
+ * All text (`label`, `valueLabel`, `title`, `description`) is pass-through —
+ * supply already-translated strings; the package renders no text of its own.
+ * Requires a wired ClassMap bond: the track/fill styles come from the
+ * `progress*` ClassMap tokens, so colors follow the active theme.
+ *
  * @module
  */
 

@@ -26,7 +26,8 @@ export interface PricingFeature {
   groupHeading?: ReactNode
 }
 
-interface PricingTableProps {
+/** Props for {@link PricingTable}. */
+export interface PricingTableProps {
   plans: PricingPlan[]
   features: PricingFeature[]
   /** Extra classes. */
@@ -44,13 +45,11 @@ function renderValue(v: boolean | string | ReactNode): ReactNode {
 }
 
 /**
- * Side-by-side pricing comparison — features × plans matrix. Sticky
- * header row holds plan names, prices, and CTAs; following rows show
- * per-feature availability.
- * @param root0
- * @param root0.plans
- * @param root0.features
- * @param root0.className
+ * Side-by-side pricing comparison — features × plans matrix. A header
+ * row holds plan cards (name, price, CTA); body rows show per-feature
+ * availability (`true` → ✓, `false` → —, strings/nodes pass through).
+ * The wrapper scrolls horizontally when columns overflow.
+ * @param props - Component props (see {@link PricingTableProps}).
  */
 export function PricingTable({ plans, features, className }: PricingTableProps): ReactNode {
   const cm = getClassMap()

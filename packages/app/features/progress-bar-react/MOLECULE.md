@@ -34,9 +34,60 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `ProgressBarProps`
+
+Props for {@link ProgressBar}.
+
+```typescript
+interface ProgressBarProps {
+  /** Current numeric value. */
+  value: number
+  /** Maximum (defaults to 100). */
+  max?: number
+  /** Optional label rendered above the track. */
+  label?: ReactNode
+  /** Optional value display rendered on the right of the label row. */
+  valueLabel?: ReactNode
+  /** Size preset — maps to ClassMap `progressHeight`. */
+  size?: 'sm' | 'md' | 'lg'
+  /** Color variant — maps to ClassMap `progressColor`. */
+  color?: 'primary' | 'success' | 'warning' | 'error' | 'info'
+  /** Extra classes on the outer wrapper. */
+  className?: string
+}
+```
+
+#### `ProgressCardProps`
+
+Props for {@link ProgressCard}.
+
+```typescript
+interface ProgressCardProps {
+  title: ReactNode
+  /** Optional supporting description below the title. */
+  description?: ReactNode
+  /** Optional icon shown in the card header. */
+  icon?: ReactNode
+  /** Current value. */
+  value: number
+  /** Maximum (defaults to 100). */
+  max?: number
+  /** Value display on the right of the header (e.g. "73%"). */
+  valueLabel?: ReactNode
+  /** ProgressBar color. */
+  color?: 'primary' | 'success' | 'warning' | 'error' | 'info'
+  /** Extra classes on the Card wrapper. */
+  className?: string
+  /** Additional content rendered below the bar. */
+  children?: ReactNode
+}
+```
+
 ### Functions
 
-#### `ProgressBar(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `ProgressBar(props)`
 
 Labeled progress bar with optional value display.
 
@@ -56,16 +107,9 @@ function ProgressBar({
 }: ProgressBarProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .value
-- `root0` — .max
-- `root0` — .label
-- `root0` — .valueLabel
-- `root0` — .size
-- `root0` — .color
-- `root0` — .className
+- `props` — Component props (see {@link ProgressBarProps}).
 
-#### `ProgressCard(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `ProgressCard(props)`
 
 `<Card>`-wrapped progress display with title, optional icon and description,
 the progress bar itself, and an optional extras slot below. Useful for
@@ -85,16 +129,7 @@ function ProgressCard({
 }: ProgressCardProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .description
-- `root0` — .icon
-- `root0` — .value
-- `root0` — .max
-- `root0` — .valueLabel
-- `root0` — .color
-- `root0` — .className
-- `root0` — .children
+- `props` — Component props (see {@link ProgressCardProps}).
 
 ## Injection Notes
 
@@ -112,3 +147,8 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+All text (`label`, `valueLabel`, `title`, `description`) is pass-through —
+supply already-translated strings; the package renders no text of its own.
+Requires a wired ClassMap bond: the track/fill styles come from the
+`progress*` ClassMap tokens, so colors follow the active theme.

@@ -9,6 +9,10 @@ Exports `<PricingTable>` and `PricingPlan` / `PricingFeature` types.
 ```tsx
 import { PricingTable } from '@molecule/app-pricing-table-react'
 
+const checkout = (planId: string): void => {
+  window.location.assign(`/checkout?plan=${planId}`)
+}
+
 <PricingTable
   plans={[
     { id: 'starter', name: 'Starter', price: '$9', interval: '/mo',
@@ -69,22 +73,33 @@ interface PricingPlan {
 }
 ```
 
+#### `PricingTableProps`
+
+Props for {@link PricingTable}.
+
+```typescript
+interface PricingTableProps {
+  plans: PricingPlan[]
+  features: PricingFeature[]
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `PricingTable(root0, root0, root0, root0)`
+#### `PricingTable(props)`
 
-Side-by-side pricing comparison — features × plans matrix. Sticky
-header row holds plan names, prices, and CTAs; following rows show
-per-feature availability.
+Side-by-side pricing comparison — features × plans matrix. A header
+row holds plan cards (name, price, CTA); body rows show per-feature
+availability (`true` → ✓, `false` → —, strings/nodes pass through).
+The wrapper scrolls horizontally when columns overflow.
 
 ```typescript
 function PricingTable({ plans, features, className }: PricingTableProps): ReactNode
 ```
 
-- `root0` — *
-- `root0` — .plans
-- `root0` — .features
-- `root0` — .className
+- `props` — Component props (see {@link PricingTableProps}).
 
 ## Injection Notes
 
@@ -102,3 +117,6 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+All text arrives via props — pass pre-translated strings; requires a wired
+ClassMap bond.

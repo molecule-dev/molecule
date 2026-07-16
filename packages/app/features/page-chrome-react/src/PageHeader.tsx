@@ -2,7 +2,8 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface PageHeaderProps {
+/** Props for {@link PageHeader}. */
+export interface PageHeaderProps {
   /** Primary heading (usually `t('...')`). */
   title: ReactNode
   /** Optional subheading rendered below the title. */
@@ -17,11 +18,14 @@ interface PageHeaderProps {
   meta?: ReactNode
   /**
    * Title emphasis level.
-   * - `'normal'` (default) — `text-3xl font-bold` for general / reusable
-   *   list-page headers.
-   * - `'extrabold'` — `text-4xl font-extrabold tracking-tight` matching
-   *   the polished flagship dashboards (project-management, crm,
-   *   personal-finance). Use this on top-level dashboard / hero pages.
+   * - `'normal'` (default) — 3xl bold, for general / reusable list-page
+   *   headers.
+   * - `'extrabold'` — intended as the larger `text-4xl font-extrabold
+   *   tracking-tight` dashboard treatment, but `font-extrabold` is a raw
+   *   class literal that appears in no `@source`-scanned dist, so default
+   *   Tailwind scaffolds never generate that utility — the title currently
+   *   renders at 4xl size with tight tracking at NORMAL font weight (the
+   *   `cm.fontWeight('extrabold')` code fix is tracked separately).
    */
   emphasis?: 'normal' | 'extrabold'
   /** `data-mol-id` for AI-agent selectors. */
@@ -36,15 +40,7 @@ interface PageHeaderProps {
  *
  * Layout: breadcrumbs, then a two-column row with title+subtitle on the
  * left and actions on the right, then optional meta.
- * @param root0
- * @param root0.title
- * @param root0.subtitle
- * @param root0.icon
- * @param root0.breadcrumbs
- * @param root0.actions
- * @param root0.meta
- * @param root0.dataMolId
- * @param root0.className
+ * @param props - Component props (see {@link PageHeaderProps}).
  */
 export function PageHeader({
   title,

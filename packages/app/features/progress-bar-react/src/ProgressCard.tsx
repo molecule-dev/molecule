@@ -5,7 +5,8 @@ import { Card } from '@molecule/app-ui-react'
 
 import { ProgressBar } from './ProgressBar.js'
 
-interface ProgressCardProps {
+/** Props for {@link ProgressCard}. */
+export interface ProgressCardProps {
   title: ReactNode
   /** Optional supporting description below the title. */
   description?: ReactNode
@@ -29,16 +30,7 @@ interface ProgressCardProps {
  * `<Card>`-wrapped progress display with title, optional icon and description,
  * the progress bar itself, and an optional extras slot below. Useful for
  * budget/goal cards, storage-used panels, onboarding progress, etc.
- * @param root0
- * @param root0.title
- * @param root0.description
- * @param root0.icon
- * @param root0.value
- * @param root0.max
- * @param root0.valueLabel
- * @param root0.color
- * @param root0.className
- * @param root0.children
+ * @param props - Component props (see {@link ProgressCardProps}).
  */
 export function ProgressCard({
   title,

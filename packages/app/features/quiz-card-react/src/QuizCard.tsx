@@ -11,7 +11,8 @@ export interface QuizOption {
   label: ReactNode
 }
 
-interface QuizCardProps {
+/** Props for {@link QuizCard}. */
+export interface QuizCardProps {
   /** The question text. */
   question: ReactNode
   /** Answer options. */
@@ -34,15 +35,7 @@ interface QuizCardProps {
  * Single quiz question card with multiple-choice options. Tracks its
  * own submit state and reveals correct/incorrect when `correctId` is
  * provided.
- * @param root0
- * @param root0.question
- * @param root0.options
- * @param root0.correctId
- * @param root0.onAnswer
- * @param root0.progress
- * @param root0.timer
- * @param root0.explanation
- * @param root0.className
+ * @param props - Component props (see {@link QuizCardProps}).
  */
 export function QuizCard({
   question,

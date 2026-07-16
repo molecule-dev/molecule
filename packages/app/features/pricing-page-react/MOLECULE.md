@@ -12,8 +12,17 @@ Components:
                            Stripe's `success_url` redirect target.
 
 Translations live in the companion locale bond
-`@molecule/app-locales-pricing-page`. The Stripe checkout
-transport lives in `@molecule/app-billing-react`.
+`@molecule/app-locales-pricing-page`. The checkout transport lives in
+`@molecule/app-billing-react` (`usePricingTiers()` calls
+`GET /api/billing/tiers`; `useStartCheckout()` posts to
+`/api/billing/checkout`) — your API must serve those routes and the HTTP
+client must be wired. NOTE: `@molecule/app-billing-react` also exports its
+own different `PricingPage` (compound LimitsList/LimitsItem layout); import
+from the package whose API you are using. The default checkout redirects
+with `window.location.assign(checkoutUrl)` — pass `onCheckout` to route
+through an SPA router or a non-Stripe flow. `<PlanUpdatedPage />` here is
+the pricing-page-flavored success page; a standalone alternative is
+`@molecule/app-plan-updated-page-react`.
 
 ## Quick Start
 

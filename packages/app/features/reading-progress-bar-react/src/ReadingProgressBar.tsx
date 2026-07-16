@@ -100,13 +100,7 @@ export interface ReadingProgressBarProps {
  * No `containerRef` → measures `window`. With `containerRef` → measures
  * the element so the bar reflects progress through that specific article
  * even when the page has additional scrollable content above/below.
- * @param root0
- * @param root0.containerRef
- * @param root0.thickness
- * @param root0.position
- * @param root0.color
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link ReadingProgressBarProps}).
  */
 export function ReadingProgressBar({
   containerRef,

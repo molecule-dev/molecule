@@ -8,16 +8,17 @@ the session is still hydrating, so the page is safe to navigate to
 directly from a webhook redirect or fresh page load.
 
 Replaces the byte-identical `pages/PlanUpdated.tsx` shipped by 76 of
-the 115 flagship apps that have a paid-plan flow. All translation
-keys come from `@molecule/app-locales-common` — no per-app locale
-additions needed.
+the 115 flagship apps that have a paid-plan flow. Translation keys
+come from `@molecule/app-locales-common` plus one key from the
+companion bond `@molecule/app-locales-plan-updated-page` (see
+remarks).
 
 ## Quick Start
 
 ```tsx
+import { Route } from 'react-router-dom'
 import { PlanUpdated } from '@molecule/app-plan-updated-page-react'
 
-// In your router:
 <Route path="/plan-updated" element={<PlanUpdated />} />
 ```
 
@@ -32,9 +33,35 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `PlanUpdatedProps`
+
+Props for {@link PlanUpdated}. All optional — defaults reproduce the original
+hardcoded copy, so existing `<PlanUpdated />` usages are unchanged.
+
+```typescript
+interface PlanUpdatedProps {
+  /** i18n key for the confirmation message. */
+  messageKey?: string
+  /** Default confirmation message when the key is missing. */
+  messageDefault?: string
+  /** i18n key for the thank-you line. */
+  thankYouKey?: string
+  /** Default thank-you line when the key is missing. */
+  thankYouDefault?: string
+  /** i18n key for the return-home action label. */
+  actionKey?: string
+  /** Default action label when the key is missing. */
+  actionDefault?: string
+  /** Href the return-home action navigates to. Defaults to `/`. */
+  actionHref?: string
+}
+```
+
 ### Functions
 
-#### `PlanUpdated(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `PlanUpdated(props)`
 
 Post-purchase confirmation page rendered after a plan upgrade.
 
@@ -44,9 +71,11 @@ a large success glyph in a soft circular halo, a two-line thank-you
 (`planUpdated.message`, `planUpdated.thankYou`), and a Return Home
 button styled with the app's primary color tokens.
 
-All three translation keys are part of the universal common-locale
-bond (`@molecule/app-locales-common`), so adopting apps don't need
-to declare them locally. Visual layout uses only ClassMap tokens so
+Those three translation keys are part of the universal common-locale
+bond (`@molecule/app-locales-common`); the always-rendered "View
+receipt" link uses `planUpdated.viewReceipt` from the companion bond
+`@molecule/app-locales-plan-updated-page` and navigates to the
+hardcoded `/billing` route. Visual layout uses only ClassMap tokens so
 it inherits the app's theme (radius, color tokens, spacing) with no
 per-app override.
 
@@ -62,14 +91,7 @@ function PlanUpdated({
 }?: PlanUpdatedProps): JSX.Element
 ```
 
-- `root0` — Optional copy/navigation overrides (all default to the
-- `root0` — .messageKey - i18n key for the confirmation message.
-- `root0` — .messageDefault - Default confirmation message.
-- `root0` — .thankYouKey - i18n key for the thank-you line.
-- `root0` — .thankYouDefault - Default thank-you line.
-- `root0` — .actionKey - i18n key for the return-home action label.
-- `root0` — .actionDefault - Default action label.
-- `root0` — .actionHref - Href the return-home action navigates to.
+- `props` — Component props (see {@link PlanUpdatedProps}).
 
 **Returns:** The plan-updated confirmation page element.
 
@@ -91,3 +113,16 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 - `react-router-dom`
+
+Requires react-router-dom (renders `<Link>`, so it must sit inside your
+Router) and the `@molecule/app-react` auth provider (`useAuth` drives the
+hydration spinner). Keys `planUpdated.message` / `planUpdated.thankYou` /
+`planUpdated.returnHome` come from `@molecule/app-locales-common`; the
+"View receipt" link uses `planUpdated.viewReceipt` from the companion bond
+`@molecule/app-locales-plan-updated-page` and always navigates to
+`/billing` — ensure that route exists. For the pricing-page-integrated
+variant see `PlanUpdatedPage` in `@molecule/app-pricing-page-react`.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-plan-updated-page`.

@@ -4,7 +4,8 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Select } from '@molecule/app-ui-react'
 
-interface PaginationBarProps {
+/** Props for {@link PaginationBar}. */
+export interface PaginationBarProps {
   /** Current page (1-indexed). */
   page: number
   /** Total page count (>= 1). */
@@ -52,17 +53,7 @@ function buildWindow(page: number, totalPages: number): (number | '...')[] {
  * The "Showing X to Y of Z items" text is driven by an i18n key so apps can
  * specialize the noun ("tags", "orders", "transactions"). Page-size selector
  * is hidden unless `pageSizeOptions` + `onPageSizeChange` are supplied.
- * @param root0
- * @param root0.page
- * @param root0.totalPages
- * @param root0.pageSize
- * @param root0.total
- * @param root0.onPageChange
- * @param root0.onPageSizeChange
- * @param root0.pageSizeOptions
- * @param root0.showingKey
- * @param root0.showingDefault
- * @param root0.className
+ * @param props - Component props (see {@link PaginationBarProps}).
  */
 export function PaginationBar({
   page,

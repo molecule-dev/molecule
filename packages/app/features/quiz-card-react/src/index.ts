@@ -21,6 +21,14 @@
  * />
  * ```
  *
+ * @remarks
+ * Companion locale bond: `@molecule/app-locales-quiz-card` (`quizCard.submit`).
+ * The card is single-shot: after submit the options lock and the explanation
+ * replaces the button — there is no reset prop, so advance quizzes by
+ * remounting with a fresh `key` per question. Without `correctId` no
+ * correct/incorrect state is revealed and `onAnswer`'s second argument is
+ * `undefined`. Requires the app-react i18n provider and a wired ClassMap bond.
+ *
  * @module
  */
 

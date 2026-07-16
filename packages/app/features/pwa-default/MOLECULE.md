@@ -55,3 +55,14 @@ Peer dependencies:
 - `@molecule/app-i18n`
 - `@molecule/app-logger`
 - `vite-plugin-pwa`
+
+Vite-only: imports the `virtual:pwa-register` module that vite-plugin-pwa
+generates, so the `VitePWA()` plugin MUST be configured in vite.config.ts
+(molecule scaffolds do this) — without it the import does not resolve and
+the build fails. Not usable under other bundlers. Framework-agnostic at
+runtime: the update banner is plain DOM (no React), themed via the app's
+`--color-surface/--color-border/--color-foreground/--color-success` CSS
+variables. Banner labels use the `pwa.update`, `pwa.updateAvailable`, and
+`pwa.updating` keys from `@molecule/app-locales-common` — load that bond's
+translations before the banner can appear, or the raw keys are shown.
+Call `registerPWA()` exactly once at app startup; it is a no-op during SSR.

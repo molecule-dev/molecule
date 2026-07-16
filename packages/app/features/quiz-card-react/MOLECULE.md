@@ -36,6 +36,31 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `QuizCardProps`
+
+Props for {@link QuizCard}.
+
+```typescript
+interface QuizCardProps {
+  /** The question text. */
+  question: ReactNode
+  /** Answer options. */
+  options: QuizOption[]
+  /** Id of the correct option — when provided, the component reveals correct/incorrect on submit. */
+  correctId?: string
+  /** Called when the user submits an answer. */
+  onAnswer?: (optionId: string, correct?: boolean) => void
+  /** Progress display — e.g. `2 / 10`. */
+  progress?: ReactNode
+  /** Optional countdown / timer node above the question. */
+  timer?: ReactNode
+  /** Explanation shown after submit. */
+  explanation?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 #### `QuizOption`
 
 A single selectable answer option in a quiz question.
@@ -49,7 +74,7 @@ interface QuizOption {
 
 ### Functions
 
-#### `QuizCard(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `QuizCard(props)`
 
 Single quiz question card with multiple-choice options. Tracks its
 own submit state and reveals correct/incorrect when `correctId` is
@@ -68,15 +93,7 @@ function QuizCard({
 }: QuizCardProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .question
-- `root0` — .options
-- `root0` — .correctId
-- `root0` — .onAnswer
-- `root0` — .progress
-- `root0` — .timer
-- `root0` — .explanation
-- `root0` — .className
+- `props` — Component props (see {@link QuizCardProps}).
 
 ## Injection Notes
 
@@ -94,3 +111,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Companion locale bond: `@molecule/app-locales-quiz-card` (`quizCard.submit`).
+The card is single-shot: after submit the options lock and the explanation
+replaces the button — there is no reset prop, so advance quizzes by
+remounting with a fresh `key` per question. Without `correctId` no
+correct/incorrect state is revealed and `onAnswer`'s second argument is
+`undefined`. Requires the app-react i18n provider and a wired ClassMap bond.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-quiz-card`.

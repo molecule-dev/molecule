@@ -2,7 +2,8 @@ import type React from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface PriceRangeSliderProps {
+/** Props for {@link PriceRangeSlider}. */
+export interface PriceRangeSliderProps {
   /** Minimum possible value. */
   min: number
   /** Maximum possible value. */
@@ -25,15 +26,7 @@ interface PriceRangeSliderProps {
  * Dual-handle numeric range slider using two native `<input type="range">`
  * controls. Apps supply min/max/step and a `formatValue` to render the
  * endpoint labels (typical use: currency-formatted prices).
- * @param root0
- * @param root0.min
- * @param root0.max
- * @param root0.value
- * @param root0.onChange
- * @param root0.step
- * @param root0.formatValue
- * @param root0.label
- * @param root0.className
+ * @param props - Component props (see {@link PriceRangeSliderProps}).
  */
 export function PriceRangeSlider({
   min,

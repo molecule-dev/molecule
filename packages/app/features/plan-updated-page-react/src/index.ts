@@ -7,17 +7,28 @@
  * directly from a webhook redirect or fresh page load.
  *
  * Replaces the byte-identical `pages/PlanUpdated.tsx` shipped by 76 of
- * the 115 flagship apps that have a paid-plan flow. All translation
- * keys come from `@molecule/app-locales-common` — no per-app locale
- * additions needed.
+ * the 115 flagship apps that have a paid-plan flow. Translation keys
+ * come from `@molecule/app-locales-common` plus one key from the
+ * companion bond `@molecule/app-locales-plan-updated-page` (see
+ * remarks).
  *
  * @example
  * ```tsx
+ * import { Route } from 'react-router-dom'
  * import { PlanUpdated } from '@molecule/app-plan-updated-page-react'
  *
- * // In your router:
  * <Route path="/plan-updated" element={<PlanUpdated />} />
  * ```
+ *
+ * @remarks
+ * Requires react-router-dom (renders `<Link>`, so it must sit inside your
+ * Router) and the `@molecule/app-react` auth provider (`useAuth` drives the
+ * hydration spinner). Keys `planUpdated.message` / `planUpdated.thankYou` /
+ * `planUpdated.returnHome` come from `@molecule/app-locales-common`; the
+ * "View receipt" link uses `planUpdated.viewReceipt` from the companion bond
+ * `@molecule/app-locales-plan-updated-page` and always navigates to
+ * `/billing` — ensure that route exists. For the pricing-page-integrated
+ * variant see `PlanUpdatedPage` in `@molecule/app-pricing-page-react`.
  *
  * @module
  */
