@@ -17,6 +17,7 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-comment'
 // PUT    /comments/:commentId
 // DELETE /comments/:commentId
 // GET    /comments/:commentId/replies
+// GET    /:resourceType/:resourceId/comments/count — cheap badge counts
 ```
 
 ## Type
@@ -338,6 +339,22 @@ Peer dependencies:
 - `@molecule/api-logger`
 - `@molecule/api-resource`
 - `zod`
+
+- **Migration required.** `src/__setup__/comments.sql` ships with this package
+  and must exist in the target database before use (scaffolded apps apply it
+  automatically; existing apps must apply it first).
+- **Reads are PUBLIC by default.** `list`, `read`, `replies`, and `count` ship
+  with no auth middleware (comment threads on public content). If the
+  commented resources are private in your app, add an authorizer that checks
+  access to the PARENT resource before serving its comments.
+- **The author is always the session user.** Create/update/delete require
+  `authenticate`; the create handler ignores any client-supplied author id,
+  and update/delete verify ownership in the handler — keep those properties
+  in any custom path.
+- **The parent is polymorphic and unverified** (no FK on
+  `resourceType`/`resourceId`): validate that the target exists in your domain
+  code if orphaned threads matter, and reuse the same canonical type slugs as
+  your other polymorphic resources (bookmarks, activity feed).
 
 ## E2E Tests
 

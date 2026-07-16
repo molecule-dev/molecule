@@ -330,5 +330,17 @@ Peer dependencies:
 - `@molecule/api-database`
 - `@molecule/api-resource`
 
-The `src/__setup__/device_auth_tokens.sql` migration file ships with
-this package and must be applied to the target database before use.
+- **Migration required.** The `src/__setup__/device_auth_tokens.sql` migration
+  file ships with this package and must be applied to the target database
+  before use.
+- **No routes ship — you own the HTTP surface AND the ownership checks.**
+  `rotateToken(id)`, `revokeToken(id)`, and `listTokens(deviceId)` are
+  auth-agnostic: any endpoint exposing them must authenticate the caller and
+  verify the target device belongs to them (via your device/fleet ownership
+  model) before acting — id-only exposure is an IDOR.
+- **Never send `hashed_token` to a client** — return `masked`. The plaintext
+  exists exactly once, in the `issueToken`/`rotateToken` result.
+- **Scopes are stored, not enforced.** `verifyToken()` only proves the token is
+  valid, unexpired, and unrevoked; your middleware must check
+  `verified.scopes` per route. Call `recordTokenUse(verified.id, ip)` after
+  successful auth if you want `last_used_at`/`last_used_ip` accuracy.

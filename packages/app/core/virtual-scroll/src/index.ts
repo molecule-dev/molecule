@@ -20,6 +20,25 @@
  * const totalSize = virtualizer.getTotalSize()
  * ```
  *
+ * @remarks
+ * - **Bond a provider before the first `createVirtualizer()` call** — the core has
+ *   no fallback and throws when nothing is bonded. Wire it once at app startup
+ *   (e.g. `@molecule/app-virtual-scroll-tanstack`), never inside components.
+ * - **This core is HEADLESS — the app owns all rendering.** The instance returns
+ *   geometry only. Render: (1) a scroll container with a constrained height and
+ *   `overflow: auto`; (2) an inner spacer element sized to `getTotalSize()`;
+ *   (3) ONLY the rows from `getVirtualItems()`, each absolutely positioned at
+ *   `item.start` (a dynamic pixel offset — one of the few legitimate inline
+ *   styles; all other styling stays on `getClassMap()`/`cm.*`, all text on `t()`).
+ *   Rendering every row, or skipping the positioning, produces the overlap /
+ *   blank-gap bugs the E2E checklist below catches.
+ * - **Re-render on `onChange`.** The instance mutates internally as the user
+ *   scrolls — pass `onChange: () => rerender()` (or your framework's subscription
+ *   equivalent) or the visible window never updates.
+ * - For infinite scroll call `setCount(newTotal)` after appending data (never
+ *   recreate the virtualizer — that resets scroll). For variable-height rows,
+ *   wire `measureElement(el)` on each rendered item.
+ *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
  * each item to this app's actual screens/flows, and check every box off one

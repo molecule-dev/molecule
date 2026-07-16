@@ -16,6 +16,23 @@
  * // GET    /bookmarks/check/:resourceType/:resourceId
  * // DELETE /bookmarks/:resourceType/:resourceId
  * ```
+ *
+ * @remarks
+ * - **Migration required.** `src/__setup__/bookmarks.sql` ships with this package
+ *   and must exist in the target database before use (scaffolded apps apply it
+ *   automatically). Note the `UNIQUE ("userId","resourceType","resourceId")`
+ *   constraint — one bookmark per user per resource.
+ * - **`addBookmark()` is idempotent and does NOT move folders.** Re-adding an
+ *   existing bookmark returns the existing row unchanged — to move a bookmark to
+ *   another folder, remove and re-add it (or add your own update path).
+ * - **Owner-scoped via the session.** All routes require `authenticate` and every
+ *   query filters by the session `userId` — never accept a target userId from the
+ *   client (IDOR).
+ * - Bookmarked resources are polymorphic and unverified (no FK): use the same
+ *   canonical `resourceType` slugs as your other polymorphic resources
+ *   (comments, activity feed) so `check`/`remove` keys line up.
+ * - Folders are free-form strings on the bookmark row (`GET /bookmarks/folders`
+ *   returns the distinct set) — there is no folder entity to create first.
  */
 
 export * from './browser-guard.js'

@@ -21,8 +21,21 @@
  * ```
  *
  * @remarks
- * The `setup/api_keys.sql` migration file ships with this package and
- * must be applied to the target database before use.
+ * - **Migration required.** The `setup/api_keys.sql` migration file ships with
+ *   this package and must be applied to the target database before use.
+ * - **No routes ship — you own the HTTP surface AND the ownership checks.** The
+ *   service functions are deliberately auth-agnostic: `rotateApiKey(id)` and
+ *   `revokeApiKey(id)` act on any id. Every endpoint you expose must
+ *   authenticate AND verify the key's `user_id` matches the caller before
+ *   acting — exposing them keyed by `:id` alone is an IDOR.
+ * - **Never send `hashed_token` to a client** — return `masked` for display. The
+ *   plaintext exists exactly once, in the `createApiKey`/`rotateApiKey` result;
+ *   surface it immediately or it is unrecoverable.
+ * - **Scopes are stored, not enforced.** `verifyApiKey()` only proves the token
+ *   is valid, unexpired, and unrevoked — YOUR auth middleware must check
+ *   `verified.scopes` against the scope each route requires.
+ * - Call `recordApiKeyUse(verified.id)` after a successful authentication if you
+ *   want `last_used_at` accuracy — it is not automatic.
  *
  * @module `@molecule/api-resource-api-key`
  */

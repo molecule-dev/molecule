@@ -26,6 +26,27 @@
  *   await awardBadge('user-1', 'top-contributor')
  * }
  * ```
+ *
+ * @remarks
+ * - **Migration required.** Three files ship in `src/__setup__/`
+ *   (`reputation_events.sql`, `reputation_scores.sql`, `badges.sql`) and must
+ *   exist in the target database before use (scaffolded apps apply them
+ *   automatically; existing apps must apply them first).
+ * - **Mutations are server-internal ONLY — the shipped routes are read-only.**
+ *   `recordEvent()`, `awardBadge()`, `revokeBadge()` are service functions meant
+ *   to be called from YOUR domain code (an accepted-answer handler, a moderation
+ *   hook, a cron job). NEVER expose them on a route that accepts `kind` /
+ *   `delta` / `badgeKind` from the client — a client-supplied delta is score
+ *   tampering. The server decides the delta for each domain event.
+ * - **Reads are PUBLIC by design.** `GET /users/:id/reputation` and
+ *   `GET /users/:id/badges` ship with no auth middleware (public-profile data
+ *   for social apps). If reputation is private in your app, add an authorizer.
+ * - `awardBadge()` is idempotent (re-awarding returns the existing row);
+ *   `recordEvent()` is NOT — guard call sites against double-firing, and record
+ *   a compensating negative event for undo (the event history is append-only).
+ * - `computeLevel(score, thresholds)` is pure and accepts custom thresholds, but
+ *   the `level` stored by `recordEvent()` uses the DEFAULT thresholds — recompute
+ *   client-side from your own thresholds if you customize them.
  */
 
 export * from './browser-guard.js'
