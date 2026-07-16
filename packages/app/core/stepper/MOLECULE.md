@@ -9,14 +9,14 @@ to supply the concrete implementation.
 ## Quick Start
 
 ```typescript
-import { requireProvider } from '@molecule/app-stepper'
+import { requireProvider, setProvider } from '@molecule/app-stepper'
+import { provider } from '@molecule/app-stepper-default'
+
+setProvider(provider) // once, at startup (bonds.ts)
 
 const stepper = requireProvider().createStepper({
-  steps: [
-    { label: 'Account' },
-    { label: 'Profile' },
-    { label: 'Review' },
-  ],
+  steps: [{ label: 'Account' }, { label: 'Profile' }, { label: 'Review' }],
+  onStepChange: (step) => rerender(step),
 })
 stepper.next()
 ```
@@ -202,3 +202,14 @@ function setProvider(provider: StepperProvider): void
 | Provider | Package |
 |----------|---------|
 | Stepper | `@molecule/app-stepper-default` |
+
+## Injection Notes
+
+- **The instance is HEADLESS state, not UI.** `createStepper` returns a step
+  state machine — nothing appears on screen. The app renders the step
+  indicator and content itself, re-rendering from `onStepChange` /
+  `getActiveStep()`; style via `getClassMap()` from `@molecule/app-ui` and
+  run every label through `t('key', values, { defaultValue })`.
+- **Wire the bond at startup** — {@link requireProvider} throws until
+  `setProvider` has been called.
+- Call `destroy()` when the owning screen unmounts.
