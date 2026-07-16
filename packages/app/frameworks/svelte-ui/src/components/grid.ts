@@ -25,7 +25,7 @@ export interface GridClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getGridClasses, getGridStyle } from '`@molecule/app-ui-svelte`'
+ *   import { getGridClasses, getGridStyle } from '@molecule/app-ui-svelte'
  *   export let columns = 3
  *   export let gap = 'md'
  *   $: classes = getGridClasses({ columns, gap })

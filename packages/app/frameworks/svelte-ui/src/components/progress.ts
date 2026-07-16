@@ -56,7 +56,7 @@ export interface ProgressClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getProgressClasses, getProgressIndicatorClasses, getProgressPercentage } from '`@molecule/app-ui-svelte`'
+ *   import { getProgressClasses, getProgressIndicatorClasses, getProgressPercentage } from '@molecule/app-ui-svelte'
  *   export let value = 0
  *   export let max = 100
  *   export let size = 'md'

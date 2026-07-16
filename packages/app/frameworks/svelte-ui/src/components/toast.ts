@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { IconData } from '@molecule/app-icons'
+import type { IconData, IconName } from '@molecule/app-icons'
 import { getIcon } from '@molecule/app-icons'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -59,8 +59,8 @@ export interface ToastClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getToastClasses, getToastTitleClass, getToastDescriptionClass, getToastCloseClass } from '`@molecule/app-ui-svelte`'
- *   import { t } from '`@molecule/app-i18n`'
+ *   import { getToastClasses, getToastTitleClass, getToastDescriptionClass, getToastCloseClass } from '@molecule/app-ui-svelte'
+ *   import { t } from '@molecule/app-i18n'
  *   export let status = 'info'
  *   $: classes = getToastClasses({ status })
  * </script>
@@ -183,7 +183,7 @@ export function getToastContainerClasses(
 /**
  * Status icon name mapping.
  */
-const statusIconMap: Record<string, string> = {
+const statusIconMap: Record<string, IconName> = {
   info: 'info-circle',
   success: 'check-circle',
   warning: 'exclamation-triangle',

@@ -77,8 +77,8 @@ export interface CreateFormResult<T extends Record<string, unknown>> {
  *
  * @example
  * ```tsx
- * import { createForm } from '`@molecule/app-solid`'
- * import { createNativeFormProvider } from '`@molecule/app-forms-native`'
+ * import { createForm } from '@molecule/app-solid'
+ * import { createNativeFormProvider } from '@molecule/app-forms'
  *
  * const provider = createNativeFormProvider()
  *
@@ -297,8 +297,8 @@ export function createWatchSignal<T extends Record<string, unknown>, K extends k
  *
  * @example
  * ```tsx
- * import { createFormHelpers } from '`@molecule/app-solid`'
- * import { createNativeFormProvider } from '`@molecule/app-forms-native`'
+ * import { createFormHelpers } from '@molecule/app-solid'
+ * import { createNativeFormProvider } from '@molecule/app-forms'
  *
  * const { createForm } = createFormHelpers(createNativeFormProvider())
  *

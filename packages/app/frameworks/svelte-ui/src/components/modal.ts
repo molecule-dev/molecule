@@ -21,7 +21,7 @@ export interface ModalClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getModalContentClasses, getModalOverlayClass, getModalWrapperClass, getModalHeaderClass, getModalTitleClass, getModalCloseClass, getModalBodyClass } from '`@molecule/app-ui-svelte`'
+ *   import { getModalContentClasses, getModalOverlayClass, getModalWrapperClass, getModalHeaderClass, getModalTitleClass, getModalCloseClass, getModalBodyClass } from '@molecule/app-ui-svelte'
  *   export let open = false
  *   export let size = 'md'
  *   $: contentClass = getModalContentClasses({ size })
@@ -119,7 +119,7 @@ export function getModalWrapperClass(): string {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getModalWrapperClass, getModalWrapperStyle } from '`@molecule/app-ui-svelte`'
+ *   import { getModalWrapperClass, getModalWrapperStyle } from '@molecule/app-ui-svelte'
  *   export let centered = true
  *   $: wrapperStyle = getModalWrapperStyle(centered)
  * </script>

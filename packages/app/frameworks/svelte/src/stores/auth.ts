@@ -39,7 +39,7 @@ interface AuthStores<T> {
  * @example
  * ```svelte
  * <script>
- *   import { createAuthStores } from '`@molecule/app-svelte`'
+ *   import { createAuthStores } from '@molecule/app-svelte'
  *
  *   const { state, user, isAuthenticated, login, logout } = createAuthStores()
  * </script>

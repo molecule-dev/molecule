@@ -33,7 +33,7 @@ export function useI18nProvider(): I18nProvider {
  * @example
  * ```vue
  * <script setup>
- * import { useTranslation } from '`@molecule/app-vue`'
+ * import { useTranslation } from '@molecule/app-vue'
  *
  * const { t, locale, setLocale, formatNumber } = useTranslation()
  * </script>

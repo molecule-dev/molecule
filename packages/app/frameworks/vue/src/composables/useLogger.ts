@@ -34,7 +34,7 @@ export function useLoggerProvider(): LoggerProvider {
  * @example
  * ```vue
  * <script setup>
- * import { useLogger } from '`@molecule/app-vue`'
+ * import { useLogger } from '@molecule/app-vue'
  * import { onMounted, onUnmounted } from 'vue'
  *
  * const logger = useLogger('MyComponent')

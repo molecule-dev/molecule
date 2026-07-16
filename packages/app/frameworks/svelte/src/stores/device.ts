@@ -18,7 +18,7 @@ import { getProvider } from '@molecule/app-device'
  * @example
  * ```svelte
  * <script>
- *   import { createDeviceStores } from '`@molecule/app-svelte`'
+ *   import { createDeviceStores } from '@molecule/app-svelte'
  *
  *   const { deviceInfo, screenInfo, supports } = createDeviceStores()
  * </script>

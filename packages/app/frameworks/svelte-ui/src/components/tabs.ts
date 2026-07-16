@@ -20,7 +20,7 @@ export interface TabsListClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getTabsListClasses, getTabsTriggerClasses, getTabsContentClass } from '`@molecule/app-ui-svelte`'
+ *   import { getTabsListClasses, getTabsTriggerClasses, getTabsContentClass } from '@molecule/app-ui-svelte'
  *   export let items = []
  *   export let value = ''
  *   export let fitted = false

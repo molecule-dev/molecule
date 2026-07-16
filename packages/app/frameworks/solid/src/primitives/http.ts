@@ -18,7 +18,7 @@ import type { HttpState } from '../types.js'
  *
  * @example
  * ```tsx
- * import { createHttp } from '`@molecule/app-solid`'
+ * import { createHttp } from '@molecule/app-solid'
  *
  * function UserList() {
  *   const { get } = createHttp()

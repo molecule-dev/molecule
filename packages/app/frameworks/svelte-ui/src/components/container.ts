@@ -21,7 +21,7 @@ export interface ContainerClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getContainerClasses, getContainerCustomStyle } from '`@molecule/app-ui-svelte`'
+ *   import { getContainerClasses, getContainerCustomStyle } from '@molecule/app-ui-svelte'
  *   export let maxWidth = 'lg'
  *   export let centered = true
  *   $: classes = getContainerClasses({ maxWidth, centered })

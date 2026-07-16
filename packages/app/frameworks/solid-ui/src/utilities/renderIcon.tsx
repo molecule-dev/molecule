@@ -6,7 +6,7 @@
 
 import { For, type JSX } from 'solid-js'
 
-import { getIcon } from '@molecule/app-icons'
+import { getIcon, type IconName } from '@molecule/app-icons'
 
 /**
  * Renders an icon by name as a Solid SVG element.
@@ -14,7 +14,7 @@ import { getIcon } from '@molecule/app-icons'
  * @param className - Optional CSS class for the SVG element.
  * @returns The rendered SVG icon element.
  */
-export function renderIcon(name: string, className?: string): JSX.Element {
+export function renderIcon(name: IconName, className?: string): JSX.Element {
   const icon = getIcon(name)
   return (
     <svg

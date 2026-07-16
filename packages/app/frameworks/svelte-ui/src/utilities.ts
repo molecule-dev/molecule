@@ -10,7 +10,7 @@
  * Use this in Svelte components to conditionally combine classes:
  * ```svelte
  * <script>
- *   import { cn } from '`@molecule/app-ui-svelte`'
+ *   import { cn } from '@molecule/app-ui-svelte'
  *   export let variant = 'solid'
  *   export let className = ''
  *   $: classes = cn('base-class', variant === 'solid' && 'solid-variant', className)

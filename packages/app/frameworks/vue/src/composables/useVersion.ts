@@ -46,7 +46,7 @@ const VERSION_EVENTS: VersionEvent[] = [
  * @example
  * ```vue
  * <script setup>
- * import { useVersion } from '`@molecule/app-vue`'
+ * import { useVersion } from '@molecule/app-vue'
  *
  * const { isUpdateAvailable, newVersion, applyUpdate, dismissUpdate } = useVersion()
  * </script>

@@ -32,7 +32,7 @@ export interface DevicePrimitives {
  *
  * @example
  * ```tsx
- * import { createDevice } from '`@molecule/app-solid`'
+ * import { createDevice } from '@molecule/app-solid'
  *
  * function DeviceDetails() {
  *   const { deviceInfo, screenInfo, supports } = createDevice()

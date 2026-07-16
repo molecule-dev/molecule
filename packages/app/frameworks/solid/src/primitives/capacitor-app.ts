@@ -29,7 +29,7 @@ export interface CapacitorAppPrimitives {
  *
  * @example
  * ```tsx
- * import { createCapacitorApp } from '`@molecule/app-solid`'
+ * import { createCapacitorApp } from '@molecule/app-solid'
  *
  * function App() {
  *   const { state, ready } = createCapacitorApp({

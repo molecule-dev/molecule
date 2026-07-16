@@ -20,7 +20,7 @@ import type { StorageValueState } from '../types.js'
  *
  * @example
  * ```tsx
- * import { createStorageValue } from '`@molecule/app-solid`'
+ * import { createStorageValue } from '@molecule/app-solid'
  *
  * function ThemeSelector() {
  *   const { value, set, loading } = createStorageValue<string>('theme', 'light')

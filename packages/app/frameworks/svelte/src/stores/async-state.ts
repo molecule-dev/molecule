@@ -26,7 +26,7 @@ export interface AsyncStateStore<T> extends Writable<T> {
  * @example
  * ```svelte
  * <script>
- * import { createAsyncState } from '`@molecule/app-svelte`'
+ * import { createAsyncState } from '@molecule/app-svelte'
  *
  * const state = createAsyncState({ count: 0, name: 'world' })
  *

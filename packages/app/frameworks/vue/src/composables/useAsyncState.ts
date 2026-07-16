@@ -45,7 +45,7 @@ function isPromise<T>(value: unknown): value is Promise<T> {
  * @example
  * ```vue
  * <script setup>
- * import { useAsyncState } from '`@molecule/app-vue`'
+ * import { useAsyncState } from '@molecule/app-vue'
  *
  * const { state, setState, extendState } = useAsyncState({ name: '', loading: false })
  *

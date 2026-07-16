@@ -35,7 +35,7 @@ const directionToCm: Record<string, 'row' | 'col' | 'row-reverse' | 'col-reverse
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getFlexClasses, getFlexGapStyle } from '`@molecule/app-ui-svelte`'
+ *   import { getFlexClasses, getFlexGapStyle } from '@molecule/app-ui-svelte'
  *   export let direction = 'row'
  *   export let justify = undefined
  *   export let align = undefined

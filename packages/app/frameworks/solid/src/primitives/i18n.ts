@@ -23,7 +23,7 @@ import { getI18nProvider } from '../context.js'
  *
  * @example
  * ```tsx
- * import { createI18n } from '`@molecule/app-solid`'
+ * import { createI18n } from '@molecule/app-solid'
  *
  * function Greeting() {
  *   const { t, locale, setLocale } = createI18n()

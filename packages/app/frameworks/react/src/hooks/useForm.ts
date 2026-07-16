@@ -57,7 +57,7 @@ export interface UseFormResult<T extends Record<string, unknown>> {
  *
  * @example
  * ```tsx
- * import { createForm } from '`@molecule/app-forms-native`'
+ * import { createForm } from '@molecule/app-forms'
  *
  * function LoginForm() {
  *   const { register, handleSubmit, formState, isSubmitting } = useForm({

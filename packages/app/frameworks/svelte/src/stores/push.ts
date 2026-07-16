@@ -24,7 +24,7 @@ import { getProvider } from '@molecule/app-push'
  * @example
  * ```svelte
  * <script>
- *   import { createPushStores } from '`@molecule/app-svelte`'
+ *   import { createPushStores } from '@molecule/app-svelte'
  *
  *   const { permission, token, requestPermission, register } = createPushStores()
  * </script>

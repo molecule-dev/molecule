@@ -19,6 +19,7 @@ import {
 import { Portal } from 'solid-js/web'
 
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant, ToastProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -34,7 +35,7 @@ const statusVariantMap: Record<ColorVariant, 'default' | 'success' | 'warning' |
     info: 'info',
   }
 
-const statusIconMap: Record<string, string> = {
+const statusIconMap: Record<string, IconName> = {
   info: 'info-circle',
   success: 'check-circle',
   warning: 'exclamation-triangle',
@@ -66,7 +67,7 @@ export const Toast: Component<ToastProps> = (props) => {
   const [isVisible, setIsVisible] = createSignal(true)
   const variant = (): 'default' | 'success' | 'warning' | 'error' | 'info' =>
     statusVariantMap[local.status || 'info'] || 'default'
-  const iconName = (): string | undefined => statusIconMap[variant()]
+  const iconName = (): IconName | undefined => statusIconMap[variant()]
   const duration = (): number => local.duration ?? 5000
   const dismissible = (): boolean => local.dismissible ?? true
 

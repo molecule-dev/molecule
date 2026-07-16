@@ -42,7 +42,7 @@ export interface UseStorageValueOptions<T> {
  * @example
  * ```vue
  * <script setup>
- * import { useStorageValue } from '`@molecule/app-vue`'
+ * import { useStorageValue } from '@molecule/app-vue'
  *
  * const { value: theme, setValue: setTheme, loading } = useStorageValue('theme', {
  *   defaultValue: 'light'

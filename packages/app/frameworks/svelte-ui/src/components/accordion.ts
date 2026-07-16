@@ -24,7 +24,7 @@ export interface AccordionClassOptions {
  *   import {
  *     getAccordionClasses, getAccordionItemClass,
  *     getAccordionTriggerClasses, getAccordionContentClass, getAccordionContentInnerClass,
- *   } from '`@molecule/app-ui-svelte`'
+ *   } from '@molecule/app-ui-svelte'
  *   export let items = []
  *   let expandedItems = []
  *   $: containerClass = getAccordionClasses()

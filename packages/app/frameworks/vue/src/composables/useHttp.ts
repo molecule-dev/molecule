@@ -37,7 +37,7 @@ export function useHttpClient(): HttpClient {
  * @example
  * ```vue
  * <script setup>
- * import { useHttp } from '`@molecule/app-vue`'
+ * import { useHttp } from '@molecule/app-vue'
  *
  * const { data, loading, error, execute } = useHttp('GET', '/api/users')
  *

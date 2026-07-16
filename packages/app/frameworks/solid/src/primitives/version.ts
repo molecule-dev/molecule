@@ -32,7 +32,7 @@ export interface VersionPrimitives {
  *
  * @example
  * ```tsx
- * import { createVersion } from '`@molecule/app-solid`'
+ * import { createVersion } from '@molecule/app-solid'
  *
  * function UpdateBanner() {
  *   const { isUpdateAvailable, newVersion, applyUpdate, dismissUpdate } = createVersion()

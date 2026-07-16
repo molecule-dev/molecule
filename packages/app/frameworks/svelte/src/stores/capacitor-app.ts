@@ -29,7 +29,7 @@ export type CapacitorAppStore = Readable<CapacitorAppState> & {
  * @example
  * ```svelte
  * <script>
- *   import { createCapacitorAppStore } from '`@molecule/app-svelte`'
+ *   import { createCapacitorAppStore } from '@molecule/app-svelte'
  *
  *   const app = createCapacitorAppStore({
  *     pushNotifications: true,

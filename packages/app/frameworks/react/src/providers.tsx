@@ -42,9 +42,7 @@ import type {
 /**
  * Provider for state management.
  *
- * @param root0 - The component props.
- * @param root0.provider - The state provider instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link StateProviderProps}).
  * @returns The rendered state provider element.
  * @example
  * ```tsx
@@ -62,9 +60,7 @@ export function StateProvider({ provider, children }: StateProviderProps): React
 /**
  * Provider for authentication.
  *
- * @param root0 - The component props.
- * @param root0.client - The auth client instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link AuthProviderProps}).
  * @returns The rendered auth provider element.
  * @example
  * ```tsx
@@ -89,9 +85,7 @@ export function AuthProvider<T = unknown>({
 /**
  * Provider for theming.
  *
- * @param root0 - The component props.
- * @param root0.provider - The theme provider instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link ThemeProviderProps}).
  * @returns The rendered theme provider element.
  * @example
  * ```tsx
@@ -109,15 +103,13 @@ export function ThemeProvider({ provider, children }: ThemeProviderProps): React
 /**
  * Provider for routing.
  *
- * @param root0 - The component props.
- * @param root0.router - The router instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link RouterProviderProps}).
  * @returns The rendered router provider element.
  * @example
  * ```tsx
- * import { createRouter } from '@molecule/app-routing-react-router'
+ * import { createReactRouter } from '@molecule/app-routing-react-router'
  *
- * const router = createRouter({ ... })
+ * const router = createReactRouter()
  *
  * <RouterProvider router={router}>
  *   <App />
@@ -131,15 +123,13 @@ export function RouterProvider({ router, children }: RouterProviderProps): React
 /**
  * Provider for internationalization.
  *
- * @param root0 - The component props.
- * @param root0.provider - The i18n provider instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link I18nProviderProps}).
  * @returns The rendered i18n provider element.
  * @example
  * ```tsx
- * import { createI18nProvider } from '@molecule/app-i18n-react-i18next'
+ * import { createReactI18nextProvider } from '@molecule/app-i18n-react-i18next'
  *
- * const i18n = createI18nProvider({ ... })
+ * const i18n = createReactI18nextProvider()
  *
  * <I18nProvider provider={i18n}>
  *   <App />
@@ -153,15 +143,13 @@ export function I18nProvider({ provider, children }: I18nProviderProps): React.R
 /**
  * Provider for HTTP client.
  *
- * @param root0 - The component props.
- * @param root0.client - The HTTP client instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link HttpProviderProps}).
  * @returns The rendered HTTP provider element.
  * @example
  * ```tsx
- * import { createHttpClient } from '@molecule/app-http-axios'
+ * import { createAxiosClient } from '@molecule/app-http-axios'
  *
- * const httpClient = createHttpClient({ baseURL: '/api' })
+ * const httpClient = createAxiosClient({ baseURL: '/api' })
  *
  * <HttpProvider client={httpClient}>
  *   <App />
@@ -175,9 +163,7 @@ export function HttpProvider({ client, children }: HttpProviderProps): React.Rea
 /**
  * Provider for storage.
  *
- * @param root0 - The component props.
- * @param root0.provider - The storage provider instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link StorageProviderProps}).
  * @returns The rendered storage provider element.
  * @example
  * ```tsx
@@ -195,15 +181,15 @@ export function StorageProvider({ provider, children }: StorageProviderProps): R
 /**
  * Provider for logging.
  *
- * @param root0 - The component props.
- * @param root0.provider - The logger provider instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link LoggerProviderProps}).
  * @returns The rendered logger provider element.
  * @example
  * ```tsx
- * import { provider } from '@molecule/app-logger-loglevel'
+ * import { createConsoleLoggerProvider } from '@molecule/app-logger'
  *
- * <LoggerProvider provider={provider}>
+ * const loggerProvider = createConsoleLoggerProvider()
+ *
+ * <LoggerProvider provider={loggerProvider}>
  *   <App />
  * </LoggerProvider>
  * ```
@@ -214,9 +200,7 @@ export function LoggerProvider({ provider, children }: LoggerProviderProps): Rea
 
 /**
  * Provider for AI chat.
- * @param root0 - The component props.
- * @param root0.provider - The chat provider instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link ChatProviderProps}).
  * @returns The rendered chat provider element.
  */
 export function ChatProvider({ provider, children }: ChatProviderProps): React.ReactElement {
@@ -225,9 +209,7 @@ export function ChatProvider({ provider, children }: ChatProviderProps): React.R
 
 /**
  * Provider for IDE workspace.
- * @param root0 - The component props.
- * @param root0.provider - The workspace provider instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link WorkspaceProviderProps}).
  * @returns The rendered workspace provider element.
  */
 export function WorkspaceProvider({
@@ -239,9 +221,7 @@ export function WorkspaceProvider({
 
 /**
  * Provider for code editor.
- * @param root0 - The component props.
- * @param root0.provider - The editor provider instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link EditorProviderProps}).
  * @returns The rendered editor provider element.
  */
 export function EditorProvider({ provider, children }: EditorProviderProps): React.ReactElement {
@@ -250,9 +230,7 @@ export function EditorProvider({ provider, children }: EditorProviderProps): Rea
 
 /**
  * Provider for live preview.
- * @param root0 - The component props.
- * @param root0.provider - The preview provider instance.
- * @param root0.children - The child elements to render.
+ * @param props - Component props (see {@link PreviewProviderProps}).
  * @returns The rendered preview provider element.
  */
 export function PreviewProvider({ provider, children }: PreviewProviderProps): React.ReactElement {
@@ -265,20 +243,8 @@ export function PreviewProvider({ provider, children }: PreviewProviderProps): R
  * Provides a convenient way to wrap your app with all molecule providers at once.
  * Only providers that are passed will be included.
  *
- * @param root0 - The component props.
- * @param root0.children - The child elements to render.
- * @param root0.state - Optional state provider.
- * @param root0.auth - Optional auth client.
- * @param root0.theme - Optional theme provider.
- * @param root0.router - Optional router instance.
- * @param root0.i18n - Optional i18n provider.
- * @param root0.http - Optional HTTP client.
- * @param root0.storage - Optional storage provider.
- * @param root0.logger - Optional logger provider.
- * @param root0.chat - Optional chat provider.
- * @param root0.workspace - Optional workspace provider.
- * @param root0.editor - Optional editor provider.
- * @param root0.preview - Optional preview provider.
+ * @param props - Component props (see {@link MoleculeProviderProps}) — each service is
+ *   optional, and ONLY the services passed are provided to the tree.
  * @returns The rendered combined provider element.
  * @example
  * ```tsx

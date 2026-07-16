@@ -6,7 +6,7 @@
 
 import { h, type VNode } from 'vue'
 
-import { getIcon } from '@molecule/app-icons'
+import { getIcon, type IconName } from '@molecule/app-icons'
 
 /**
  * Renders an icon by name as a Vue VNode.
@@ -14,7 +14,7 @@ import { getIcon } from '@molecule/app-icons'
  * @param className - The CSS class name.
  * @returns The result.
  */
-export function renderIcon(name: string, className?: string): VNode {
+export function renderIcon(name: IconName, className?: string): VNode {
   const icon = getIcon(name)
   return h(
     'svg',

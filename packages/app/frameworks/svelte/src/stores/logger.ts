@@ -30,7 +30,7 @@ interface LoggerHelpers {
  * @example
  * ```svelte
  * <script>
- *   import { getLogger } from '`@molecule/app-svelte`'
+ *   import { getLogger } from '@molecule/app-svelte'
  *   import { onMount, onDestroy } from 'svelte'
  *
  *   const logger = getLogger('MyComponent')

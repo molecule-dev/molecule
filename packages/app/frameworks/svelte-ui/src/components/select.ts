@@ -25,7 +25,7 @@ export interface SelectClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getSelectClasses } from '`@molecule/app-ui-svelte`'
+ *   import { getSelectClasses } from '@molecule/app-ui-svelte'
  *   export let size = 'md'
  *   export let error = ''
  *   $: classes = getSelectClasses({ size, error })

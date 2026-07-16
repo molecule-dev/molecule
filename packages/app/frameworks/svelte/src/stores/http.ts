@@ -51,7 +51,7 @@ interface HttpStoreFactory {
  * @example
  * ```svelte
  * <script>
- *   import { createHttpStore } from '`@molecule/app-svelte`'
+ *   import { createHttpStore } from '@molecule/app-svelte'
  *
  *   const users = createHttpStore('GET', '/api/users')
  *

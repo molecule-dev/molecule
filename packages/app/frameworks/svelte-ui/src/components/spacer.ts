@@ -38,7 +38,7 @@ export interface SpacerClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getSpacerClasses, getSpacerStyle } from '`@molecule/app-ui-svelte`'
+ *   import { getSpacerClasses, getSpacerStyle } from '@molecule/app-ui-svelte'
  *   export let size = 'md'
  *   export let horizontal = false
  *   $: classes = getSpacerClasses({ size, horizontal })

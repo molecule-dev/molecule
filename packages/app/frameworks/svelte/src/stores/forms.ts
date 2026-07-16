@@ -55,8 +55,8 @@ interface FormStores<T extends Record<string, unknown>> {
  * @example
  * ```svelte
  * <script>
- *   import { createFormStores } from '`@molecule/app-svelte`'
- *   import { nativeProvider } from '`@molecule/app-forms`'
+ *   import { createFormStores } from '@molecule/app-svelte'
+ *   import { nativeProvider } from '@molecule/app-forms'
  *
  *   const {
  *     formState, isValid, isDirty, isSubmitting, errors,
@@ -199,7 +199,7 @@ export function createFormStores<T extends Record<string, unknown>>(
  * @example
  * ```svelte
  * <script>
- *   import { createFormStores, createFieldStore } from '`@molecule/app-svelte`'
+ *   import { createFormStores, createFieldStore } from '@molecule/app-svelte'
  *
  *   const { controller } = createFormStores(provider, { defaultValues: { email: '' } })
  *   const emailField = createFieldStore(controller, 'email')
@@ -231,7 +231,7 @@ export function createFieldStore<T extends Record<string, unknown>, K extends ke
  * @example
  * ```svelte
  * <script>
- *   import { createFormStores, createWatchStore } from '`@molecule/app-svelte`'
+ *   import { createFormStores, createWatchStore } from '@molecule/app-svelte'
  *
  *   const { controller } = createFormStores(provider, { defaultValues: { plan: 'free' } })
  *   const plan = createWatchStore(controller, 'plan')

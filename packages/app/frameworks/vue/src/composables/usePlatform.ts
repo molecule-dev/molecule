@@ -32,7 +32,7 @@ export interface UsePlatformReturn {
  * @example
  * ```vue
  * <script setup>
- * import { usePlatform } from '`@molecule/app-vue`'
+ * import { usePlatform } from '@molecule/app-vue'
  *
  * const { platform, isNative, isMobile, isPlatform } = usePlatform()
  * </script>

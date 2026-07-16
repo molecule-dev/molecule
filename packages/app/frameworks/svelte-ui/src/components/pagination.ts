@@ -5,7 +5,7 @@
  */
 
 import { t } from '@molecule/app-i18n'
-import type { IconData } from '@molecule/app-icons'
+import type { IconData, IconName } from '@molecule/app-icons'
 import { getIcon } from '@molecule/app-icons'
 import type { Size } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -28,8 +28,8 @@ export interface PaginationClassOptions {
  *   import {
  *     getPaginationClasses, getPaginationContentClass, getPaginationItemClasses,
  *     getPaginationEllipsisClass, generatePaginationRange,
- *   } from '`@molecule/app-ui-svelte`'
- *   import { t } from '`@molecule/app-i18n`'
+ *   } from '@molecule/app-ui-svelte'
+ *   import { t } from '@molecule/app-i18n'
  *   export let page = 1
  *   export let totalPages = 10
  *   export let siblings = 1
@@ -104,7 +104,7 @@ export function getPaginationItemClasses(
 /**
  * Pagination direction to icon name mapping.
  */
-const paginationIconMap: Record<string, string> = {
+const paginationIconMap: Record<string, IconName> = {
   first: 'chevrons-left',
   prev: 'chevron-left',
   next: 'chevron-right',

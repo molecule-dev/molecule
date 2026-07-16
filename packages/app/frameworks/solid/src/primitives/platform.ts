@@ -31,7 +31,7 @@ export interface PlatformPrimitives {
  *
  * @example
  * ```tsx
- * import { createPlatform } from '`@molecule/app-solid`'
+ * import { createPlatform } from '@molecule/app-solid'
  *
  * function PlatformInfo() {
  *   const { platform, isWeb, isMobile, isPlatform } = createPlatform()

@@ -27,7 +27,7 @@ export interface PromiseStore<T> extends Readable<PromiseState<T>> {
  * @example
  * ```svelte
  * <script>
- * import { createPromiseStore } from '`@molecule/app-svelte`'
+ * import { createPromiseStore } from '@molecule/app-svelte'
  *
  * const users = createPromiseStore((query) => api.searchUsers(query))
  * </script>

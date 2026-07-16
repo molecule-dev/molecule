@@ -24,7 +24,7 @@ import type { AuthPrimitives } from '../types.js'
  *
  * @example
  * ```tsx
- * import { createAuth } from '`@molecule/app-solid`'
+ * import { createAuth } from '@molecule/app-solid'
  *
  * function LoginButton() {
  *   const { isAuthenticated, user, login, logout } = createAuth()

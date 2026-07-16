@@ -33,7 +33,7 @@ const INITIAL_STATE: PromiseState<never> = {
  *
  * @example
  * ```tsx
- * import { createPromise } from '`@molecule/app-solid`'
+ * import { createPromise } from '@molecule/app-solid'
  *
  * function UserLoader() {
  *   const { state, call } = createPromise((id: string) => fetchUser(id))

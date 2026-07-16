@@ -44,7 +44,7 @@ interface RouterStores {
  * @example
  * ```svelte
  * <script>
- *   import { createRouterStores } from '`@molecule/app-svelte`'
+ *   import { createRouterStores } from '@molecule/app-svelte'
  *
  *   const { location, params, query, navigate, back } = createRouterStores()
  * </script>
@@ -142,8 +142,8 @@ export function createRouterStores(): RouterStores {
  * @example
  * ```svelte
  * <script>
- *   import { createRouterStores, createIsActiveStore } from '`@molecule/app-svelte`'
- *   import { getRouter } from '`@molecule/app-svelte`'
+ *   import { createRouterStores, createIsActiveStore } from '@molecule/app-svelte'
+ *   import { getRouter } from '@molecule/app-svelte'
  *
  *   const { location } = createRouterStores()
  *   const router = getRouter()

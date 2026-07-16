@@ -36,8 +36,8 @@ const LOGGER_KEY = Symbol('molecule-logger')
  * @example
  * ```svelte
  * <script>
- *   import { setMoleculeContext } from '`@molecule/app-svelte`'
- *   import { provider as stateProvider } from '`@molecule/app-state-zustand`'
+ *   import { setMoleculeContext } from '@molecule/app-svelte'
+ *   import { provider as stateProvider } from '@molecule/app-state-zustand'
  *
  *   setMoleculeContext({
  *     state: stateProvider,

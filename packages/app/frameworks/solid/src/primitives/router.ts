@@ -24,7 +24,7 @@ import type { RouterPrimitives } from '../types.js'
  *
  * @example
  * ```tsx
- * import { createRouter } from '`@molecule/app-solid`'
+ * import { createRouter } from '@molecule/app-solid'
  *
  * function Navigation() {
  *   const { location, navigate, isActive } = createRouter()

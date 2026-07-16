@@ -33,7 +33,7 @@ export function useAuthClient<T = unknown>(): AuthClient<T> {
  * @example
  * ```vue
  * <script setup>
- * import { useAuth } from '`@molecule/app-vue`'
+ * import { useAuth } from '@molecule/app-vue'
  *
  * const { user, isAuthenticated, login, logout } = useAuth()
  *

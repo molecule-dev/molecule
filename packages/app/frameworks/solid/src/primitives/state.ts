@@ -18,7 +18,7 @@ import { getStateProvider } from '../context.js'
  *
  * @example
  * ```tsx
- * import { createStore } from '`@molecule/app-solid`'
+ * import { createStore } from '@molecule/app-solid'
  *
  * interface CounterState {
  *   count: number
@@ -126,7 +126,7 @@ interface StorageAdapter {
  * const [theme, setTheme] = createPersistedStore('theme', 'light', localStorage)
  *
  * // Use with a custom storage provider
- * import { getProvider } from '`@molecule/app-storage`'
+ * import { getProvider } from '@molecule/app-storage'
  * const storageProvider = getProvider()
  * const [user, setUser] = createPersistedStore('user', null, {
  *   getItem: (key) => storageProvider.get(key),

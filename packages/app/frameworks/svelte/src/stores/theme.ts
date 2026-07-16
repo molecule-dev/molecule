@@ -30,7 +30,7 @@ interface ThemeStores {
  * @example
  * ```svelte
  * <script>
- *   import { createThemeStores } from '`@molecule/app-svelte`'
+ *   import { createThemeStores } from '@molecule/app-svelte'
  *
  *   const { theme, themeName, mode, setTheme, toggleTheme } = createThemeStores()
  * </script>
@@ -100,7 +100,7 @@ export function createThemeStores(): ThemeStores & { colors: Readable<Theme['col
  * @example
  * ```svelte
  * <script>
- *   import { createThemeStores, createThemeColorsStore } from '`@molecule/app-svelte`'
+ *   import { createThemeStores, createThemeColorsStore } from '@molecule/app-svelte'
  *
  *   const { theme } = createThemeStores()
  *   const colors = createThemeColorsStore(theme)

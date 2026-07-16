@@ -2,8 +2,43 @@
 
 React Native framework bindings for molecule.dev.
 
-Re-exports all hooks from `@molecule/app-react` (which are pure React,
-no DOM dependency) and adds RN-specific hooks.
+Re-exports every hook and provider from `@molecule/app-react` (they are pure
+React — no DOM dependency) and adds RN-specific hooks: `useAppState`
+(foreground/background), `useBackHandler` (Android back button),
+`useKeyboardHeight`, and `useSafeArea`.
+
+## Quick Start
+
+```tsx
+import { MoleculeProvider, useAuth, useAppState, useSafeArea } from '@molecule/app-react-native'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { View } from 'react-native'
+import { provider as stateProvider } from '@molecule/app-state-zustand'
+import { createJWTAuthClient } from '@molecule/app-auth'
+
+const authClient = createJWTAuthClient({ baseURL: 'https://api.example.com' })
+
+function Shell() {
+  const { isAuthenticated } = useAuth()
+  const { isActive } = useAppState()
+  const insets = useSafeArea()
+  return (
+    <View style={{ paddingTop: insets.top }}>
+      {isAuthenticated && isActive ? <View /> : null}
+    </View>
+  )
+}
+
+function App() {
+  return (
+    <SafeAreaProvider>
+      <MoleculeProvider state={stateProvider} auth={authClient}>
+        <Shell />
+      </MoleculeProvider>
+    </SafeAreaProvider>
+  )
+}
+```
 
 ## Type
 `framework`
@@ -1376,7 +1411,7 @@ type UseCapacitorAppResult = CapacitorAppState & {
 
 ### Functions
 
-#### `AuthProvider(root0, root0, root0)`
+#### `AuthProvider(props)`
 
 Provider for authentication.
 
@@ -1384,13 +1419,11 @@ Provider for authentication.
 function AuthProvider({ client, children, }: AuthProviderProps<T>): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .client - The auth client instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link AuthProviderProps}).
 
 **Returns:** The rendered auth provider element.
 
-#### `ChatProvider(root0, root0, root0)`
+#### `ChatProvider(props)`
 
 Provider for AI chat.
 
@@ -1398,13 +1431,11 @@ Provider for AI chat.
 function ChatProvider({ provider, children }: ChatProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .provider - The chat provider instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link ChatProviderProps}).
 
 **Returns:** The rendered chat provider element.
 
-#### `EditorProvider(root0, root0, root0)`
+#### `EditorProvider(props)`
 
 Provider for code editor.
 
@@ -1412,13 +1443,11 @@ Provider for code editor.
 function EditorProvider({ provider, children }: EditorProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .provider - The editor provider instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link EditorProviderProps}).
 
 **Returns:** The rendered editor provider element.
 
-#### `HttpProvider(root0, root0, root0)`
+#### `HttpProvider(props)`
 
 Provider for HTTP client.
 
@@ -1426,13 +1455,11 @@ Provider for HTTP client.
 function HttpProvider({ client, children }: HttpProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .client - The HTTP client instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link HttpProviderProps}).
 
 **Returns:** The rendered HTTP provider element.
 
-#### `I18nProvider(root0, root0, root0)`
+#### `I18nProvider(props)`
 
 Provider for internationalization.
 
@@ -1440,13 +1467,11 @@ Provider for internationalization.
 function I18nProvider({ provider, children }: I18nProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .provider - The i18n provider instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link I18nProviderProps}).
 
 **Returns:** The rendered i18n provider element.
 
-#### `LoggerProvider(root0, root0, root0)`
+#### `LoggerProvider(props)`
 
 Provider for logging.
 
@@ -1454,13 +1479,11 @@ Provider for logging.
 function LoggerProvider({ provider, children }: LoggerProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .provider - The logger provider instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link LoggerProviderProps}).
 
 **Returns:** The rendered logger provider element.
 
-#### `MoleculeProvider(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `MoleculeProvider(props)`
 
 Combined provider for all molecule services.
 
@@ -1471,24 +1494,11 @@ Only providers that are passed will be included.
 function MoleculeProvider({ children, state, auth, theme, router, i18n, http, storage, logger, chat, workspace, editor, preview, }: MoleculeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .children - The child elements to render.
-- `root0` — .state - Optional state provider.
-- `root0` — .auth - Optional auth client.
-- `root0` — .theme - Optional theme provider.
-- `root0` — .router - Optional router instance.
-- `root0` — .i18n - Optional i18n provider.
-- `root0` — .http - Optional HTTP client.
-- `root0` — .storage - Optional storage provider.
-- `root0` — .logger - Optional logger provider.
-- `root0` — .chat - Optional chat provider.
-- `root0` — .workspace - Optional workspace provider.
-- `root0` — .editor - Optional editor provider.
-- `root0` — .preview - Optional preview provider.
+- `props` — Component props (see {@link MoleculeProviderProps}) — each service is
 
 **Returns:** The rendered combined provider element.
 
-#### `PreviewProvider(root0, root0, root0)`
+#### `PreviewProvider(props)`
 
 Provider for live preview.
 
@@ -1496,9 +1506,7 @@ Provider for live preview.
 function PreviewProvider({ provider, children }: PreviewProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .provider - The preview provider instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link PreviewProviderProps}).
 
 **Returns:** The rendered preview provider element.
 
@@ -1521,7 +1529,7 @@ outlive component mounts), so it persists across test cases — reset it in a
 function resetChatStoresForTests(): void
 ```
 
-#### `RouterProvider(root0, root0, root0)`
+#### `RouterProvider(props)`
 
 Provider for routing.
 
@@ -1529,13 +1537,11 @@ Provider for routing.
 function RouterProvider({ router, children }: RouterProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .router - The router instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link RouterProviderProps}).
 
 **Returns:** The rendered router provider element.
 
-#### `StateProvider(root0, root0, root0)`
+#### `StateProvider(props)`
 
 Provider for state management.
 
@@ -1543,13 +1549,11 @@ Provider for state management.
 function StateProvider({ provider, children }: StateProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .provider - The state provider instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link StateProviderProps}).
 
 **Returns:** The rendered state provider element.
 
-#### `StorageProvider(root0, root0, root0)`
+#### `StorageProvider(props)`
 
 Provider for storage.
 
@@ -1557,13 +1561,11 @@ Provider for storage.
 function StorageProvider({ provider, children }: StorageProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .provider - The storage provider instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link StorageProviderProps}).
 
 **Returns:** The rendered storage provider element.
 
-#### `ThemeProvider(root0, root0, root0)`
+#### `ThemeProvider(props)`
 
 Provider for theming.
 
@@ -1571,9 +1573,7 @@ Provider for theming.
 function ThemeProvider({ provider, children }: ThemeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .provider - The theme provider instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link ThemeProviderProps}).
 
 **Returns:** The rendered theme provider element.
 
@@ -2347,7 +2347,7 @@ function useWorkspaceProvider(): WorkspaceProvider
 
 **Returns:** The result.
 
-#### `WorkspaceProvider(root0, root0, root0)`
+#### `WorkspaceProvider(props)`
 
 Provider for IDE workspace.
 
@@ -2355,9 +2355,7 @@ Provider for IDE workspace.
 function WorkspaceProvider({ provider, children, }: WorkspaceProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `root0` — The component props.
-- `root0` — .provider - The workspace provider instance.
-- `root0` — .children - The child elements to render.
+- `props` — Component props (see {@link WorkspaceProviderProps}).
 
 **Returns:** The rendered workspace provider element.
 
@@ -2521,3 +2519,13 @@ Peer dependencies:
 - `react`
 - `react-native`
 - `react-native-safe-area-context`
+
+- **The re-exported hooks keep `@molecule/app-react`'s contract**: each one throws unless its
+  provider was passed to `MoleculeProvider` (or mounted individually). See the
+  `@molecule/app-react` docs for the hook→provider map.
+- **`useSafeArea` needs `SafeAreaProvider`** (from `react-native-safe-area-context`) mounted at
+  the root; without it — or without the library installed — it silently returns zero insets
+  rather than throwing, so a notch-overlapped header means missing provider, not a bug in the hook.
+- `useBackHandler` only fires on Android; iOS has no hardware back button.
+- For components/styling pair this with `@molecule/app-ui-react-native`, whose ClassMap
+  styling requires the NativeWind setup (`@molecule/app-ui-nativewind`) — see that package's docs.

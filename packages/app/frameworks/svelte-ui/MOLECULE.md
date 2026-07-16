@@ -2,13 +2,30 @@
 
 Svelte UI class generators for molecule.dev.
 
-Provides class generators, variant maps, and utility functions for building
-Svelte components that implement the `@molecule/app-ui` component interfaces
-using the UIClassMap abstraction from `@molecule/app-ui`.
+Unlike the React and Vue packages, which export framework components, this
+package exports pure TypeScript CLASS GENERATORS (plus variant maps and
+helpers like `cn` and `getIconData`) that your own Svelte components call to
+produce UIClassMap-resolved class strings: `getButtonClasses`,
+`getCardClasses`, `getModalContentClasses`, `getInputClasses`, and one
+generator family per `@molecule/app-ui` component interface.
 
-Unlike the React and Vue packages which export framework-specific components,
-this package exports pure TypeScript utilities that Svelte components consume
-to generate their class strings.
+## Quick Start
+
+```svelte
+<script lang="ts">
+  import { setClassMap } from '@molecule/app-ui'
+  import { classMap } from '@molecule/app-ui-tailwind'
+  import { getButtonClasses } from '@molecule/app-ui-svelte'
+
+  // Once at app startup (root layout), before anything renders:
+  setClassMap(classMap)
+
+  export let variant: 'solid' | 'outline' = 'solid'
+  $: classes = getButtonClasses({ variant, color: 'primary', size: 'md' })
+</script>
+
+<button class={classes} on:click><slot /></button>
+```
 
 ## Type
 `framework`
@@ -1913,7 +1930,7 @@ Merge class names, filtering out falsy values.
 Use this in Svelte components to conditionally combine classes:
 ```svelte
 <script>
-  import { cn } from '`@molecule/app-ui-svelte`'
+  import { cn } from '@molecule/app-ui-svelte'
   export let variant = 'solid'
   export let className = ''
   $: classes = cn('base-class', variant === 'solid' && 'solid-variant', className)
@@ -1996,7 +2013,7 @@ Usage in Svelte:
   import {
     getAccordionClasses, getAccordionItemClass,
     getAccordionTriggerClasses, getAccordionContentClass, getAccordionContentInnerClass,
-  } from '`@molecule/app-ui-svelte`'
+  } from '@molecule/app-ui-svelte'
   export let items = []
   let expandedItems = []
   $: containerClass = getAccordionClasses()
@@ -2075,7 +2092,7 @@ Generate classes for an alert container.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getAlertClasses, getAlertTitleClass, getAlertDescriptionClass } from '`@molecule/app-ui-svelte`'
+  import { getAlertClasses, getAlertTitleClass, getAlertDescriptionClass } from '@molecule/app-ui-svelte'
   export let status = 'info'
   $: classes = getAlertClasses({ status })
 </script>
@@ -2162,9 +2179,9 @@ Generate classes for the avatar container.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getAvatarClasses, getAvatarImageClass, getAvatarFallbackClass, getAvatarCustomSize } from '`@molecule/app-ui-svelte`'
-  import { getInitials } from '`@molecule/app-ui-svelte`'
-  import { t } from '`@molecule/app-i18n`'
+  import { getAvatarClasses, getAvatarImageClass, getAvatarFallbackClass, getAvatarCustomSize } from '@molecule/app-ui-svelte'
+  import { getInitials } from '@molecule/app-ui-svelte'
+  import { t } from '@molecule/app-i18n'
   export let src = ''
   export let name = ''
   export let size = 'md'
@@ -2251,7 +2268,7 @@ Generate classes for a badge element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getBadgeClasses } from '`@molecule/app-ui-svelte`'
+  import { getBadgeClasses } from '@molecule/app-ui-svelte'
   export let color = 'primary'
   export let variant = 'solid'
   $: classes = getBadgeClasses({ color, variant })
@@ -2274,7 +2291,7 @@ Generate classes for a button component.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getButtonClasses } from '`@molecule/app-ui-svelte`'
+  import { getButtonClasses } from '@molecule/app-ui-svelte'
   export let variant = 'solid'
   export let color = 'primary'
   export let size = 'md'
@@ -2299,7 +2316,7 @@ Generate classes for a card container.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getCardClasses, getCardHeaderClass, getCardTitleClass, getCardContentClass, getCardFooterClass } from '`@molecule/app-ui-svelte`'
+  import { getCardClasses, getCardHeaderClass, getCardTitleClass, getCardContentClass, getCardFooterClass } from '@molecule/app-ui-svelte'
   export let variant = 'elevated'
   export let padding = 'md'
   export let interactive = false
@@ -2385,7 +2402,7 @@ Generate classes for a checkbox input element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getCheckboxClasses, checkboxLabelWrapperClass } from '`@molecule/app-ui-svelte`'
+  import { getCheckboxClasses, checkboxLabelWrapperClass } from '@molecule/app-ui-svelte'
   export let error = ''
   export let checked = false
   $: classes = getCheckboxClasses({ error })
@@ -2445,7 +2462,7 @@ Generate classes for a container element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getContainerClasses, getContainerCustomStyle } from '`@molecule/app-ui-svelte`'
+  import { getContainerClasses, getContainerCustomStyle } from '@molecule/app-ui-svelte'
   export let maxWidth = 'lg'
   export let centered = true
   $: classes = getContainerClasses({ maxWidth, centered })
@@ -2487,7 +2504,7 @@ Usage in Svelte:
   import {
     getDropdownContentClasses, getDropdownItemClasses, getDropdownSeparatorClass,
     calculateDropdownPosition, dropdownTriggerClass,
-  } from '`@molecule/app-ui-svelte`'
+  } from '@molecule/app-ui-svelte'
   export let items = []
   export let placement = 'bottom-start'
   let open = false
@@ -2603,7 +2620,7 @@ Generate classes for a flex container.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getFlexClasses, getFlexGapStyle } from '`@molecule/app-ui-svelte`'
+  import { getFlexClasses, getFlexGapStyle } from '@molecule/app-ui-svelte'
   export let direction = 'row'
   export let justify = undefined
   export let align = undefined
@@ -2653,7 +2670,7 @@ Generate classes for a form field wrapper.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getFormFieldClasses, getFormLabelClasses, getFormErrorClass, getFormHintClass } from '`@molecule/app-ui-svelte`'
+  import { getFormFieldClasses, getFormLabelClasses, getFormErrorClass, getFormHintClass } from '@molecule/app-ui-svelte'
 </script>
 <form on:submit|preventDefault={handleSubmit}>
   <fieldset disabled={submitting} class="contents">
@@ -2716,7 +2733,7 @@ Generate classes for a grid container.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getGridClasses, getGridStyle } from '`@molecule/app-ui-svelte`'
+  import { getGridClasses, getGridStyle } from '@molecule/app-ui-svelte'
   export let columns = 3
   export let gap = 'md'
   $: classes = getGridClasses({ columns, gap })
@@ -2753,7 +2770,7 @@ function getGridStyle(options?: GridClassOptions): string
 Gets icon data by name from the current icon set.
 
 ```typescript
-function getIconData(name: string): IconData
+function getIconData(name: IconName): IconData
 ```
 
 - `name` — Icon name
@@ -2780,7 +2797,7 @@ Generate classes for an input element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getInputClasses } from '`@molecule/app-ui-svelte`'
+  import { getInputClasses } from '@molecule/app-ui-svelte'
   export let size = 'md'
   export let error = ''
   $: classes = getInputClasses({ size, error })
@@ -2907,7 +2924,7 @@ Generate classes for the modal content container.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getModalContentClasses, getModalOverlayClass, getModalWrapperClass, getModalHeaderClass, getModalTitleClass, getModalCloseClass, getModalBodyClass } from '`@molecule/app-ui-svelte`'
+  import { getModalContentClasses, getModalOverlayClass, getModalWrapperClass, getModalHeaderClass, getModalTitleClass, getModalCloseClass, getModalBodyClass } from '@molecule/app-ui-svelte'
   export let open = false
   export let size = 'md'
   $: contentClass = getModalContentClasses({ size })
@@ -3005,7 +3022,7 @@ allows for values ClassMap genuinely cannot express.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getModalWrapperClass, getModalWrapperStyle } from '`@molecule/app-ui-svelte`'
+  import { getModalWrapperClass, getModalWrapperStyle } from '@molecule/app-ui-svelte'
   export let centered = true
   $: wrapperStyle = getModalWrapperStyle(centered)
 </script>
@@ -3032,8 +3049,8 @@ Usage in Svelte:
   import {
     getPaginationClasses, getPaginationContentClass, getPaginationItemClasses,
     getPaginationEllipsisClass, generatePaginationRange,
-  } from '`@molecule/app-ui-svelte`'
-  import { t } from '`@molecule/app-i18n`'
+  } from '@molecule/app-ui-svelte'
+  import { t } from '@molecule/app-i18n'
   export let page = 1
   export let totalPages = 10
   export let siblings = 1
@@ -3120,7 +3137,7 @@ Generate classes for the progress bar track.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getProgressClasses, getProgressIndicatorClasses, getProgressPercentage } from '`@molecule/app-ui-svelte`'
+  import { getProgressClasses, getProgressIndicatorClasses, getProgressPercentage } from '@molecule/app-ui-svelte'
   export let value = 0
   export let max = 100
   export let size = 'md'
@@ -3209,7 +3226,7 @@ Generate classes for a radio input element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getRadioClasses, getRadioGroupClasses } from '`@molecule/app-ui-svelte`'
+  import { getRadioClasses, getRadioGroupClasses } from '@molecule/app-ui-svelte'
   export let direction = 'vertical'
   export let error = ''
   $: radioClass = getRadioClasses({ error })
@@ -3300,7 +3317,7 @@ Generate classes for a select element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getSelectClasses } from '`@molecule/app-ui-svelte`'
+  import { getSelectClasses } from '@molecule/app-ui-svelte'
   export let size = 'md'
   export let error = ''
   $: classes = getSelectClasses({ size, error })
@@ -3379,7 +3396,7 @@ Generate classes for a separator element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getSeparatorClasses } from '`@molecule/app-ui-svelte`'
+  import { getSeparatorClasses } from '@molecule/app-ui-svelte'
   export let orientation = 'horizontal'
   export let decorative = true
   $: classes = getSeparatorClasses({ orientation })
@@ -3406,7 +3423,7 @@ Generate classes for a skeleton element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getSkeletonClasses, getSkeletonStyle } from '`@molecule/app-ui-svelte`'
+  import { getSkeletonClasses, getSkeletonStyle } from '@molecule/app-ui-svelte'
   export let width = undefined
   export let height = undefined
   export let circle = false
@@ -3482,7 +3499,7 @@ Generate classes for a spacer element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getSpacerClasses, getSpacerStyle } from '`@molecule/app-ui-svelte`'
+  import { getSpacerClasses, getSpacerStyle } from '@molecule/app-ui-svelte'
   export let size = 'md'
   export let horizontal = false
   $: classes = getSpacerClasses({ size, horizontal })
@@ -3518,8 +3535,8 @@ Generate classes for a spinner element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getSpinnerClasses, getSpinnerColorStyle } from '`@molecule/app-ui-svelte`'
-  import { t } from '`@molecule/app-i18n`'
+  import { getSpinnerClasses, getSpinnerColorStyle } from '@molecule/app-ui-svelte'
+  import { t } from '@molecule/app-i18n'
   export let size = 'md'
   export let color = undefined
   $: classes = getSpinnerClasses({ size })
@@ -3568,7 +3585,7 @@ Generate classes for the switch track element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getSwitchClasses, getSwitchThumbClasses, getSwitchWrapperClasses } from '`@molecule/app-ui-svelte`'
+  import { getSwitchClasses, getSwitchThumbClasses, getSwitchWrapperClasses } from '@molecule/app-ui-svelte'
   export let checked = false
   export let size = 'md'
   export let disabled = false
@@ -3663,7 +3680,7 @@ Usage in Svelte:
   import {
     getTableClasses, getTableHeaderClass, getTableBodyClass,
     getTableRowClasses, getTableHeadClasses, getTableCellClasses,
-  } from '`@molecule/app-ui-svelte`'
+  } from '@molecule/app-ui-svelte'
   export let bordered = false
   export let striped = false
   export let hoverable = true
@@ -3808,7 +3825,7 @@ Generate classes for the tabs list container.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getTabsListClasses, getTabsTriggerClasses, getTabsContentClass } from '`@molecule/app-ui-svelte`'
+  import { getTabsListClasses, getTabsTriggerClasses, getTabsContentClass } from '@molecule/app-ui-svelte'
   export let items = []
   export let value = ''
   export let fitted = false
@@ -3862,7 +3879,7 @@ Generate classes for a textarea element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getTextareaClasses } from '`@molecule/app-ui-svelte`'
+  import { getTextareaClasses } from '@molecule/app-ui-svelte'
   export let error = ''
   $: classes = getTextareaClasses({ error })
 </script>
@@ -3928,8 +3945,8 @@ Generate classes for a toast element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getToastClasses, getToastTitleClass, getToastDescriptionClass, getToastCloseClass } from '`@molecule/app-ui-svelte`'
-  import { t } from '`@molecule/app-i18n`'
+  import { getToastClasses, getToastTitleClass, getToastDescriptionClass, getToastCloseClass } from '@molecule/app-ui-svelte'
+  import { t } from '@molecule/app-i18n'
   export let status = 'info'
   $: classes = getToastClasses({ status })
 </script>
@@ -4054,7 +4071,7 @@ box's own edge.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getTooltipClasses, getTooltipArrowStyle } from '`@molecule/app-ui-svelte`'
+  import { getTooltipClasses, getTooltipArrowStyle } from '@molecule/app-ui-svelte'
   export let placement = 'top'
   export let hasArrow = false
 </script>
@@ -4081,7 +4098,7 @@ Generate classes for the tooltip content element.
 Usage in Svelte:
 ```svelte
 <script>
-  import { getTooltipClasses, calculateTooltipPosition } from '`@molecule/app-ui-svelte`'
+  import { getTooltipClasses, calculateTooltipPosition } from '@molecule/app-ui-svelte'
   export let placement = 'top'
   let triggerEl, tooltipEl
   let visible = false
@@ -4507,6 +4524,15 @@ Peer dependencies:
 - `@molecule/app-icons`
 - `@molecule/app-ui`
 - `svelte`
+
+- **`setClassMap()` must run before the first generator call** — every generator resolves
+  through `getClassMap()` from `@molecule/app-ui`, which THROWS until a ClassMap bond (e.g.
+  `@molecule/app-ui-tailwind`) is set. Do it in the root layout's module context or first
+  component script.
+- Recompute reactively: wrap generator calls in `$:` (or `$derived` in runes mode) so class
+  strings update when props change — a plain `const` computes once.
+- There are no prebuilt Svelte components here; per-component usage recipes are on each
+  generator's docs below.
 
 ## Translations
 

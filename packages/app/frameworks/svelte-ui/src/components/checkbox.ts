@@ -20,7 +20,7 @@ export interface CheckboxClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getCheckboxClasses, checkboxLabelWrapperClass } from '`@molecule/app-ui-svelte`'
+ *   import { getCheckboxClasses, checkboxLabelWrapperClass } from '@molecule/app-ui-svelte'
  *   export let error = ''
  *   export let checked = false
  *   $: classes = getCheckboxClasses({ error })

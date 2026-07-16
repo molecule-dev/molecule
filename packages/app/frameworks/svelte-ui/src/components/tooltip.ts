@@ -33,7 +33,7 @@ const ARROW_SIZE = 8
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getTooltipClasses, getTooltipArrowStyle } from '`@molecule/app-ui-svelte`'
+ *   import { getTooltipClasses, getTooltipArrowStyle } from '@molecule/app-ui-svelte'
  *   export let placement = 'top'
  *   export let hasArrow = false
  * </script>
@@ -111,7 +111,7 @@ export interface TooltipClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getTooltipClasses, calculateTooltipPosition } from '`@molecule/app-ui-svelte`'
+ *   import { getTooltipClasses, calculateTooltipPosition } from '@molecule/app-ui-svelte'
  *   export let placement = 'top'
  *   let triggerEl, tooltipEl
  *   let visible = false

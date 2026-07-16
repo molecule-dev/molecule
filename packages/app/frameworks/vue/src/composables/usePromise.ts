@@ -48,7 +48,7 @@ export interface UsePromiseReturn<T> {
  * @example
  * ```vue
  * <script setup>
- * import { usePromise } from '`@molecule/app-vue`'
+ * import { usePromise } from '@molecule/app-vue'
  *
  * const { status, value, error, call } = usePromise(async (id: string) => {
  *   const response = await fetch(`/api/users/${id}`)

@@ -37,7 +37,7 @@ interface I18nStores {
  * @example
  * ```svelte
  * <script>
- *   import { createI18nStores } from '`@molecule/app-svelte`'
+ *   import { createI18nStores } from '@molecule/app-svelte'
  *
  *   const { locale, direction, t, setLocale, formatNumber } = createI18nStores()
  * </script>

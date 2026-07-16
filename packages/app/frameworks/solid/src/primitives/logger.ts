@@ -16,7 +16,7 @@ import { getLoggerProvider } from '../context.js'
  *
  * @example
  * ```tsx
- * import { getLogger } from '`@molecule/app-solid`'
+ * import { getLogger } from '@molecule/app-solid'
  * import { onMount, onCleanup } from 'solid-js'
  *
  * function MyComponent() {

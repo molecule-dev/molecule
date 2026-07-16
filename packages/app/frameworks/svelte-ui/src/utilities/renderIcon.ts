@@ -5,7 +5,7 @@
  */
 
 import type { IconData } from '@molecule/app-icons'
-import { getIcon } from '@molecule/app-icons'
+import { getIcon, type IconName } from '@molecule/app-icons'
 
 /**
  * Gets icon data by name from the current icon set.
@@ -13,7 +13,7 @@ import { getIcon } from '@molecule/app-icons'
  * @param name - Icon name
  * @returns Icon data for SVG rendering in Svelte templates
  */
-export function getIconData(name: string): IconData {
+export function getIconData(name: IconName): IconData {
   return getIcon(name)
 }
 

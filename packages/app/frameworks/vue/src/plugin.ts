@@ -46,8 +46,8 @@ export interface MoleculePluginOptions {
  * @example
  * ```ts
  * import { createApp } from 'vue'
- * import { moleculePlugin } from '`@molecule/app-vue`'
- * import { provider as stateProvider } from '`@molecule/app-state-pinia`'
+ * import { moleculePlugin } from '@molecule/app-vue'
+ * import { provider as stateProvider } from '@molecule/app-state-zustand'
  *
  * const app = createApp(App)
  *

@@ -21,7 +21,7 @@ export interface TextareaClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getTextareaClasses } from '`@molecule/app-ui-svelte`'
+ *   import { getTextareaClasses } from '@molecule/app-ui-svelte'
  *   export let error = ''
  *   $: classes = getTextareaClasses({ error })
  * </script>

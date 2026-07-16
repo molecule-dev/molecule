@@ -33,7 +33,7 @@ export function useThemeProvider(): ThemeProvider {
  * @example
  * ```vue
  * <script setup>
- * import { useTheme } from '`@molecule/app-vue`'
+ * import { useTheme } from '@molecule/app-vue'
  *
  * const { theme, themeName, setTheme, toggleTheme } = useTheme()
  * </script>
@@ -119,7 +119,7 @@ export function useThemeMode(): ComputedRef<'light' | 'dark'> {
  * @example
  * ```vue
  * <script setup>
- * import { useThemeColors } from '`@molecule/app-vue`'
+ * import { useThemeColors } from '@molecule/app-vue'
  *
  * const colors = useThemeColors()
  * </script>

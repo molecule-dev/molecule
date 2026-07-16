@@ -24,7 +24,7 @@ export interface BadgeClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getBadgeClasses } from '`@molecule/app-ui-svelte`'
+ *   import { getBadgeClasses } from '@molecule/app-ui-svelte'
  *   export let color = 'primary'
  *   export let variant = 'solid'
  *   $: classes = getBadgeClasses({ color, variant })

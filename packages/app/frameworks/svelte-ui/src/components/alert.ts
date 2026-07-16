@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { IconData } from '@molecule/app-icons'
+import type { IconData, IconName } from '@molecule/app-icons'
 import { getIcon } from '@molecule/app-icons'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
@@ -36,7 +36,7 @@ export interface AlertClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getAlertClasses, getAlertTitleClass, getAlertDescriptionClass } from '`@molecule/app-ui-svelte`'
+ *   import { getAlertClasses, getAlertTitleClass, getAlertDescriptionClass } from '@molecule/app-ui-svelte'
  *   export let status = 'info'
  *   $: classes = getAlertClasses({ status })
  * </script>
@@ -121,7 +121,7 @@ export const alertContentClass = /* @__PURE__ */ getClassMap().alertContent
 /**
  * Status icon name mapping.
  */
-const statusIconMap: Record<string, string> = {
+const statusIconMap: Record<string, IconName> = {
   info: 'info-circle',
   success: 'check-circle',
   warning: 'exclamation-triangle',

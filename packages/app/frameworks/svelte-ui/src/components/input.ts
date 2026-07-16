@@ -27,7 +27,7 @@ export interface InputClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getInputClasses } from '`@molecule/app-ui-svelte`'
+ *   import { getInputClasses } from '@molecule/app-ui-svelte'
  *   export let size = 'md'
  *   export let error = ''
  *   $: classes = getInputClasses({ size, error })

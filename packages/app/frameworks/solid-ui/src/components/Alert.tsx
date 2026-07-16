@@ -7,6 +7,7 @@
 import { type Component, type JSX, Show, splitProps } from 'solid-js'
 
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 import type { AlertProps, ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -22,7 +23,7 @@ const statusVariantMap: Record<ColorVariant, 'default' | 'info' | 'success' | 'w
     info: 'info',
   }
 
-const statusIconMap: Record<string, string> = {
+const statusIconMap: Record<string, IconName> = {
   info: 'info-circle',
   success: 'check-circle',
   warning: 'exclamation-triangle',
@@ -52,7 +53,7 @@ export const Alert: Component<AlertProps> = (props) => {
   const cm = getClassMap()
   const cmVariant = (): 'default' | 'info' | 'success' | 'warning' | 'error' =>
     statusVariantMap[local.status || 'info'] || 'default'
-  const iconName = (): string | undefined => statusIconMap[cmVariant()]
+  const iconName = (): IconName | undefined => statusIconMap[cmVariant()]
 
   const alertClasses = (): string => cm.cn(cm.alert({ variant: cmVariant() }), local.className)
 

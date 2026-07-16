@@ -17,7 +17,7 @@ import type { Store as MoleculeStore } from '@molecule/app-state'
  * @example
  * ```svelte
  * <script>
- *   import { createStoreReadable } from '`@molecule/app-svelte`'
+ *   import { createStoreReadable } from '@molecule/app-svelte'
  *   import { counterStore } from './stores/counter'
  *
  *   const count = createStoreReadable(counterStore)
@@ -44,7 +44,7 @@ export function createStoreReadable<T>(store: MoleculeStore<T>): Readable<T> {
  * @example
  * ```svelte
  * <script>
- *   import { createStoreSelector } from '`@molecule/app-svelte`'
+ *   import { createStoreSelector } from '@molecule/app-svelte'
  *   import { userStore } from './stores/user'
  *
  *   const userName = createStoreSelector(userStore, s => s.name)

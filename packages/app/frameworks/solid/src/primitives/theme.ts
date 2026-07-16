@@ -17,7 +17,7 @@ import type { ThemePrimitives } from '../types.js'
  *
  * @example
  * ```tsx
- * import { createTheme } from '`@molecule/app-solid`'
+ * import { createTheme } from '@molecule/app-solid'
  *
  * function ThemeToggle() {
  *   const { mode, toggleTheme } = createTheme()

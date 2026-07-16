@@ -18,7 +18,7 @@ import { getPlatformInfo, isPlatform } from '@molecule/app-platform'
  * @example
  * ```svelte
  * <script>
- *   import { createPlatformStores } from '`@molecule/app-svelte`'
+ *   import { createPlatformStores } from '@molecule/app-svelte'
  *
  *   const { platform, isNative, isMobile, isPlatform } = createPlatformStores()
  * </script>

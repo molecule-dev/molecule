@@ -25,7 +25,7 @@ export interface TableClassOptions {
  *   import {
  *     getTableClasses, getTableHeaderClass, getTableBodyClass,
  *     getTableRowClasses, getTableHeadClasses, getTableCellClasses,
- *   } from '`@molecule/app-ui-svelte`'
+ *   } from '@molecule/app-ui-svelte'
  *   export let bordered = false
  *   export let striped = false
  *   export let hoverable = true

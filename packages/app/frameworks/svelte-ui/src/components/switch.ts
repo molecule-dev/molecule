@@ -23,7 +23,7 @@ export interface SwitchClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getSwitchClasses, getSwitchThumbClasses, getSwitchWrapperClasses } from '`@molecule/app-ui-svelte`'
+ *   import { getSwitchClasses, getSwitchThumbClasses, getSwitchWrapperClasses } from '@molecule/app-ui-svelte'
  *   export let checked = false
  *   export let size = 'md'
  *   export let disabled = false

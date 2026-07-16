@@ -39,7 +39,7 @@ export function useRouterInstance(): Router {
  * @example
  * ```vue
  * <script setup>
- * import { useRouter } from '`@molecule/app-vue`'
+ * import { useRouter } from '@molecule/app-vue'
  *
  * const { location, params, navigate, back } = useRouter()
  *
@@ -159,7 +159,7 @@ export function useNavigate(): (path: string, options?: NavigateOptions) => void
  * @example
  * ```vue
  * <script setup>
- * import { useIsActive } from '`@molecule/app-vue`'
+ * import { useIsActive } from '@molecule/app-vue'
  *
  * const isHomeActive = useIsActive('/home')
  * const isAboutExact = useIsActive('/about', true)

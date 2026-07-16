@@ -33,7 +33,7 @@ export interface UseDeviceReturn {
  * @example
  * ```vue
  * <script setup>
- * import { useDevice } from '`@molecule/app-vue`'
+ * import { useDevice } from '@molecule/app-vue'
  *
  * const { deviceInfo, screenInfo, supports, isOnline } = useDevice()
  * </script>

@@ -42,7 +42,7 @@ interface StorageHelpers {
  * @example
  * ```svelte
  * <script>
- *   import { createStorageStore } from '`@molecule/app-svelte`'
+ *   import { createStorageStore } from '@molecule/app-svelte'
  *
  *   const theme = createStorageStore('theme', 'light')
  *

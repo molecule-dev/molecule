@@ -44,7 +44,7 @@ export interface UsePushReturn {
  * @example
  * ```vue
  * <script setup>
- * import { usePush } from '`@molecule/app-vue`'
+ * import { usePush } from '@molecule/app-vue'
  *
  * const { permission, token, requestPermission, register } = usePush()
  *

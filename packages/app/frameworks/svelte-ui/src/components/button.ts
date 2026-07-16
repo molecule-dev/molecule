@@ -26,7 +26,7 @@ export interface ButtonClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getButtonClasses } from '`@molecule/app-ui-svelte`'
+ *   import { getButtonClasses } from '@molecule/app-ui-svelte'
  *   export let variant = 'solid'
  *   export let color = 'primary'
  *   export let size = 'md'

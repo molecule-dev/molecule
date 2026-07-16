@@ -21,7 +21,7 @@ export interface SkeletonClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getSkeletonClasses, getSkeletonStyle } from '`@molecule/app-ui-svelte`'
+ *   import { getSkeletonClasses, getSkeletonStyle } from '@molecule/app-ui-svelte'
  *   export let width = undefined
  *   export let height = undefined
  *   export let circle = false

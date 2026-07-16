@@ -17,7 +17,7 @@ import { getProvider } from '@molecule/app-version'
  * @example
  * ```svelte
  * <script>
- *   import { createVersionStores } from '`@molecule/app-svelte`'
+ *   import { createVersionStores } from '@molecule/app-svelte'
  *
  *   const { state, isUpdateAvailable, applyUpdate, dismissUpdate } = createVersionStores()
  * </script>

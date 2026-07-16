@@ -49,7 +49,7 @@ const variantMap: Record<string, 'default' | 'elevated' | 'outline' | 'ghost'> =
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getCardClasses, getCardHeaderClass, getCardTitleClass, getCardContentClass, getCardFooterClass } from '`@molecule/app-ui-svelte`'
+ *   import { getCardClasses, getCardHeaderClass, getCardTitleClass, getCardContentClass, getCardFooterClass } from '@molecule/app-ui-svelte'
  *   export let variant = 'elevated'
  *   export let padding = 'md'
  *   export let interactive = false

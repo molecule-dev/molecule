@@ -26,7 +26,7 @@ export interface CreateAsyncStateReturn<T> {
  *
  * @example
  * ```tsx
- * import { createAsyncState } from '`@molecule/app-solid`'
+ * import { createAsyncState } from '@molecule/app-solid'
  *
  * interface State {
  *   foo: string

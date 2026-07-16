@@ -48,7 +48,7 @@ export interface DropdownContentClassOptions {
  *   import {
  *     getDropdownContentClasses, getDropdownItemClasses, getDropdownSeparatorClass,
  *     calculateDropdownPosition, dropdownTriggerClass,
- *   } from '`@molecule/app-ui-svelte`'
+ *   } from '@molecule/app-ui-svelte'
  *   export let items = []
  *   export let placement = 'bottom-start'
  *   let open = false

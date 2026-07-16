@@ -19,6 +19,7 @@ import {
 } from 'vue'
 
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
@@ -34,7 +35,7 @@ const statusVariantMap: Record<ColorVariant, 'default' | 'success' | 'warning' |
     info: 'info',
   }
 
-const statusIconMap: Record<string, string> = {
+const statusIconMap: Record<string, IconName> = {
   info: 'info-circle',
   success: 'check-circle',
   warning: 'exclamation-triangle',

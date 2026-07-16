@@ -39,7 +39,7 @@ export interface UseCapacitorAppReturn {
  * @example
  * ```vue
  * <script setup>
- * import { useCapacitorApp } from '`@molecule/app-vue`'
+ * import { useCapacitorApp } from '@molecule/app-vue'
  *
  * const { ready, deviceReady, pushReady, error } = useCapacitorApp({
  *   pushNotifications: true,

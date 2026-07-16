@@ -19,7 +19,7 @@ export interface FormFieldClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getFormFieldClasses, getFormLabelClasses, getFormErrorClass, getFormHintClass } from '`@molecule/app-ui-svelte`'
+ *   import { getFormFieldClasses, getFormLabelClasses, getFormErrorClass, getFormHintClass } from '@molecule/app-ui-svelte'
  * </script>
  * <form on:submit|preventDefault={handleSubmit}>
  *   <fieldset disabled={submitting} class="contents">

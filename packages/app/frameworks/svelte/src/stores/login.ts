@@ -22,7 +22,7 @@ export type LoginStore<T = unknown> = PromiseStore<AuthResult<T>>
  * @example
  * ```svelte
  * <script>
- *   import { createLoginStore } from '`@molecule/app-svelte`'
+ *   import { createLoginStore } from '@molecule/app-svelte'
  *   const login = createLoginStore()
  * </script>
  *

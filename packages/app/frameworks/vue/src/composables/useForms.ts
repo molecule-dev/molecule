@@ -71,8 +71,8 @@ export interface UseFormReturn<T extends Record<string, unknown>> {
  * @example
  * ```vue
  * <script setup>
- * import { useForm } from '`@molecule/app-vue`'
- * import { createForm } from '`@molecule/app-forms-native`'
+ * import { useForm } from '@molecule/app-vue'
+ * import { createForm } from '@molecule/app-forms'
  *
  * const {
  *   register,
@@ -201,7 +201,7 @@ export function useForm<T extends Record<string, unknown>>(
  * @example
  * ```vue
  * <script setup>
- * import { useForm, useWatch } from '`@molecule/app-vue`'
+ * import { useForm, useWatch } from '@molecule/app-vue'
  *
  * const { form, register } = useForm({
  *   createForm,
@@ -244,7 +244,7 @@ export function useWatch<T extends Record<string, unknown>, K extends keyof T>(
  * @example
  * ```vue
  * <script setup>
- * import { useForm, useFieldState } from '`@molecule/app-vue`'
+ * import { useForm, useFieldState } from '@molecule/app-vue'
  *
  * const { form, register } = useForm({
  *   createForm,

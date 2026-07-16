@@ -4,7 +4,56 @@
  * Provides React implementations of the `@molecule/app-ui` component
  * interfaces using the UIClassMap abstraction from `@molecule/app-ui`.
  *
+ * @example
+ * ```tsx
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
+ * import { Button, Modal, Icon, EmptyState } from '@molecule/app-ui-react'
+ * import { useState } from 'react'
+ *
+ * // Once at startup, before first render — components throw without it:
+ * setClassMap(classMap)
+ *
+ * function ConfirmDelete({ onConfirm }: { onConfirm: () => void }) {
+ *   const [open, setOpen] = useState(false)
+ *   return (
+ *     <>
+ *       <Button color="error" onClick={() => setOpen(true)}>
+ *         <Icon name="trash" size={16} /> Delete
+ *       </Button>
+ *       <Modal open={open} onClose={() => setOpen(false)} title="Delete item?" data-mol-id="confirm-delete">
+ *         <EmptyState title="This cannot be undone" />
+ *         <Button color="error" onClick={onConfirm}>Confirm</Button>
+ *       </Modal>
+ *     </>
+ *   )
+ * }
+ * ```
+ *
  * @remarks
+ * Wiring prerequisites — get these right before debugging anything else:
+ *
+ * - **A ClassMap bond must be set before first render.** Every component resolves styling via
+ *   `getClassMap()` from `@molecule/app-ui`, which THROWS ("No UIClassMap has been set") until
+ *   `setClassMap(...)` runs with a bond like `@molecule/app-ui-tailwind`. Scaffolded apps do
+ *   this in `bonds/index.ts` — keep that import first in `main.tsx`.
+ * - **Some components require molecule providers from `@molecule/app-react`** and throw without
+ *   them: `UserMenu`, `UserMenuPopover`, `LanguagePicker`, `SidebarUserCard`, `AuthGuard`, and
+ *   `ThemeToggle` need `I18nProvider` (via `MoleculeProvider i18n={...}`); `ThemeToggle` also
+ *   needs `ThemeProvider`; `AuthGuard` also needs `AuthProvider`. The primitive components
+ *   (Button, Modal, Input, …) need only the ClassMap.
+ * - **Router-linked components** (`UserMenu`, `UserMenuPopover`, `SidebarUserCard`, `Dropdown`
+ *   item `href`s, `AuthGuard` redirects) render react-router `<Link>`/navigation — they need a
+ *   react-router context (`<BrowserRouter>`) and, in workspace dev setups, the Vite
+ *   `resolve.dedupe: ['react', 'react-dom', 'react-router-dom', 'react-router']` entry; a
+ *   duplicate copy surfaces as "useHref may be used only in the context of a <Router>".
+ * - **`UserMenu` panel content is `children`** (rendered inside the popover, with
+ *   `PanelClose`/`usePanelClose` available) — there is no `renderPanel` prop.
+ * - **`Icon` names are kebab-case `IconName`s from `@molecule/app-icons`** — an unknown name is
+ *   a runtime error, not a blank. Extend via `CustomIconNames` augmentation, never raw SVG.
+ * - This package's `EmptyState` (icon/title/description/action props) is distinct from any
+ *   feature-package EmptyState — import it from `@molecule/app-ui-react` explicitly.
+ *
  * A11y contracts worth knowing before you debug "it doesn't look like it's
  * doing anything" on these components:
  *

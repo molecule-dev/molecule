@@ -20,7 +20,7 @@ export interface SeparatorClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getSeparatorClasses } from '`@molecule/app-ui-svelte`'
+ *   import { getSeparatorClasses } from '@molecule/app-ui-svelte'
  *   export let orientation = 'horizontal'
  *   export let decorative = true
  *   $: classes = getSeparatorClasses({ orientation })

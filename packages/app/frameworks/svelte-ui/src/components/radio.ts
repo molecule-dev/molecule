@@ -20,7 +20,7 @@ export interface RadioClassOptions {
  * Usage in Svelte:
  * ```svelte
  * <script>
- *   import { getRadioClasses, getRadioGroupClasses } from '`@molecule/app-ui-svelte`'
+ *   import { getRadioClasses, getRadioGroupClasses } from '@molecule/app-ui-svelte'
  *   export let direction = 'vertical'
  *   export let error = ''
  *   $: radioClass = getRadioClasses({ error })

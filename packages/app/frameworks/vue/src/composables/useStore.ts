@@ -35,7 +35,7 @@ export function useStateProvider(): StateProvider {
  * @example
  * ```vue
  * <script setup>
- * import { useStore } from '`@molecule/app-vue`'
+ * import { useStore } from '@molecule/app-vue'
  * import { counterStore } from './stores/counter'
  *
  * const state = useStore(counterStore)
