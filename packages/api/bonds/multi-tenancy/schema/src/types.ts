@@ -32,8 +32,10 @@ export interface SchemaConfig {
   tenantHeader?: string
 
   /**
-   * Schema name prefix applied to tenant schemas.
-   * The full schema name is `{schemaPrefix}{tenantId}`.
+   * RESERVED — currently unused. Intended schema-name prefix for a future
+   * schema-per-tenant integration (`{schemaPrefix}{tenantId}`); today the
+   * provider performs no schema creation, selection, or query scoping, and
+   * setting this has no effect.
    *
    * @default 'tenant_'
    */

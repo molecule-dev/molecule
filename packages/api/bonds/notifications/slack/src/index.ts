@@ -1,7 +1,8 @@
 /**
  * Slack notifications provider for molecule.dev.
  *
- * Sends notifications to Slack via incoming webhooks.
+ * Sends notifications to a Slack channel via an incoming webhook
+ * (`NOTIFICATIONS_SLACK_WEBHOOK_URL` or `createProvider({ webhookUrl })`).
  *
  * @example
  * ```typescript
@@ -10,6 +11,19 @@
  *
  * setProvider('slack', provider)
  * ```
+ *
+ * @remarks
+ * - **`send()` never throws — it fails open.** A missing webhook URL, a non-2xx
+ *   from Slack, or a timeout (default 10 s) all resolve to
+ *   `{ success: false, error }`. If delivery matters, check `result.success`
+ *   (or the per-channel results from the core `notifyAll()`); an
+ *   unconfigured channel is otherwise silent.
+ * - The message is a single mrkdwn `text` field: `*subject*` newline `body`.
+ *   **`Notification.metadata` is not sent to Slack** — bake anything the
+ *   receiver needs into `body`.
+ * - The webhook URL and timeout are captured on first use (lazy) and frozen —
+ *   env changes after the first send require a restart, or build a fresh
+ *   instance via `createProvider()`.
  *
  * @module
  */

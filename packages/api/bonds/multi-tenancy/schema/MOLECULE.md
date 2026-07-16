@@ -2,10 +2,11 @@
 
 Schema-based multi-tenancy provider for molecule.dev.
 
-Implements the `TenancyProvider` interface with schema-based tenant
-isolation. Each tenant is logically mapped to a database schema via
-a configurable prefix. Includes middleware that resolves the tenant
-from a configurable HTTP header (`x-tenant-id` by default).
+Implements the `TenancyProvider` interface with request-scoped tenant
+context and header-based tenant resolution (`x-tenant-id` by default).
+Tenant records live in an in-process registry; the provider does NOT
+create or select database schemas — see the remarks for what "schema"
+does and does not mean here.
 
 ## Quick Start
 
@@ -57,8 +58,10 @@ interface SchemaConfig {
   tenantHeader?: string
 
   /**
-   * Schema name prefix applied to tenant schemas.
-   * The full schema name is `{schemaPrefix}{tenantId}`.
+   * RESERVED — currently unused. Intended schema-name prefix for a future
+   * schema-per-tenant integration (`{schemaPrefix}{tenantId}`); today the
+   * provider performs no schema creation, selection, or query scoping, and
+   * setting this has no effect.
    *
    * @default 'tenant_'
    */
@@ -164,7 +167,7 @@ Implements `@molecule/api-multi-tenancy` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, setTenant } from '@molecule/api-multi-tenancy'
+import { setProvider } from '@molecule/api-multi-tenancy'
 import { provider } from '@molecule/api-multi-tenancy-schema'
 
 export function setupMultiTenancySchema(): void {
@@ -200,3 +203,11 @@ Peer dependencies:
    into the raw-header path and mount the middleware strictly behind that gate.
    Either way the middleware also validates the header tenant exists and is
    `active` (404/403 otherwise) before activating it.
+3. **Tenant records are IN-MEMORY and this provider does no database
+   work.** `createTenant()` writes to a per-process `Map` — tenants are
+   lost on restart (the middleware then 404s every header tenant until
+   they are re-created) and are NOT shared across instances. No database
+   schema is created or selected, and queries are NOT scoped for you:
+   derive per-tenant scoping in your own data layer from `getTenant()`
+   (e.g. a `tenant_id` column filter or your own schema switching). The
+   `schemaPrefix` config option is currently reserved and has no effect.

@@ -42,7 +42,11 @@ interface HlsConfig {
   /** Path to the ffmpeg binary. Defaults to `'ffmpeg'` (resolved via PATH). */
   ffmpegPath?: string
 
-  /** Path to the ffprobe binary. Defaults to `'ffprobe'` (resolved via PATH). */
+  /**
+   * Path to the ffprobe binary. RESERVED for future use — the current
+   * provider never invokes ffprobe (segment durations are taken from
+   * `segmentDuration`, not probed). Setting this has no effect today.
+   */
   ffprobePath?: string
 
   /** Base directory where stream output files are written. Defaults to `os.tmpdir()`. */
@@ -197,3 +201,21 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/api-media-streaming`
+
+- **Requires the `ffmpeg` binary on the host** (resolved via PATH, or set
+  `createProvider({ ffmpegPath })`). A missing binary fails at first
+  `createStream()`/`transcode()` call with `spawn ffmpeg ENOENT` — verify
+  with `ffmpeg -version` before shipping.
+- **The default output directory is `os.tmpdir()`** — volatile and served by
+  nothing. Pass `createProvider({ outputBasePath })` pointing at a directory
+  your server exposes (see the core remarks), or serve bytes through
+  `getSegment()` / `generateManifest()` endpoints.
+- `createStream()` also caches every segment `Buffer` in an in-process map
+  (never evicted) so `getSegment()` is fast; memory grows by the full video
+  size per stream. `getSegment()` disk fallback looks ONLY under
+  `outputBasePath/<streamId>/` — a per-call `createStream(..., { outputPath })`
+  override writes segments where the fallback cannot find them after a
+  restart, and `transcode()` ignores `outputPath` entirely (always writes
+  under `outputBasePath`).
+- `ffprobePath` in `HlsConfig` is currently RESERVED — no ffprobe call exists
+  yet; segment durations come from the requested `segmentDuration`.
