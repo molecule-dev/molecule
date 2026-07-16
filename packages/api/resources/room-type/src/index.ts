@@ -40,6 +40,40 @@
  * Tables: `src/__setup__/room-types.sql` creates `room_types`. An
  * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
  * anywhere else run it once — nothing at runtime creates them.
+ *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] Creating a room type persists its real fields — `name`, `capacity`,
+ *   `baseRateCents`, `currency`, `totalUnits`, `amenities`, `photos` — and the
+ *   new type then appears in the listing under its own `propertyId` (scoped to
+ *   the right property, not shown globally).
+ * - [ ] Price and capacity render correctly on the card/detail: the rate shows
+ *   as a per-night price in the room type's `currency` with `baseRateCents`
+ *   converted back to major units (cents → dollars, no off-by-100), and
+ *   capacity reads as the max guest count.
+ * - [ ] Inventory (`totalUnits`) is respected end-to-end: where the app has a
+ *   booking/availability flow, available count = `totalUnits` minus units
+ *   already booked for the dates, and a booking that would push a room type
+ *   past its `totalUnits` is refused — no overbooking below zero available.
+ *   Editing `totalUnits` up or down changes what the availability view offers.
+ * - [ ] Any per-night / seasonal rate layer the app models (rate plans are NOT
+ *   in this resource — `baseRateCents` is only the baseline) applies on top of
+ *   the baseline for the selected dates; with no such layer, the baseline rate
+ *   is what's quoted.
+ * - [ ] Toggling `active` controls bookability: an inactive room type is hidden
+ *   from the public/guest listing (or shown as unavailable) and cannot be
+ *   booked; flipping it back `active` makes it offered again, and `?activeOnly`
+ *   on the list endpoint returns only bookable types.
+ * - [ ] `amenities` and `photos` render — amenity codes map to labels/icons and
+ *   photos load from the app's own uploads/storage (not hotlinked externals).
+ * - [ ] AUTHORIZATION: a public/guest visitor (no session) can browse and read
+ *   bookable room types, but every mutation is owner/manager-gated — a
+ *   non-admin or unauthenticated caller's create/edit/delete or inventory/price
+ *   change is refused (401 unauthenticated, 403 non-admin) — and a room type is
+ *   scoped to its property: an owner/manager of one property cannot
+ *   create/edit/delete another property's room types.
  */
 
 export * from './browser-guard.js'

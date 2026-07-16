@@ -223,3 +223,37 @@ request).
 Tables: `src/__setup__/readings.sql` creates `readings` (owner-scoped via
 `owner_id`). An mlcl-scaffolded API replays `__setup__/*.sql` automatically
 on migrate; anywhere else run it once — nothing at runtime creates them.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is a correctness bug to fix — not a skip:
+- [ ] Recording a reading (POST /) persists its value, unit, metric, and
+  recorded_at against the right sensor_id, and the chart/list reflects it:
+  the newest point is the LAST entry of the chronological raw query (readings
+  come back ordered by recorded_at ascending), so it shows the true latest
+  value for that sensor — not a stale or averaged one.
+- [ ] A time-range query (from/to) returns ONLY readings inside the window,
+  in chronological order, with no gaps or duplicates — points outside the
+  range are absent and a point exactly on a boundary is present.
+- [ ] An aggregated query (granularity=5min|hour|day) computes the correct
+  min/max/avg/sum/count for the readings in each bucket — spot-check one
+  bucket by hand against its raw points (avg = sum / count; min and max are
+  real members of the bucket; count matches the number of raw points).
+  Aggregation is Postgres-only; on SQLite/MySQL use granularity=raw and
+  verify the app buckets client-side instead.
+- [ ] Every value renders as a real number with its unit (e.g. "1.42 kwh"),
+  never NaN, null, or undefined; a gap in the readings shows as a gap (or an
+  explicit "no data"), never as a fabricated 0.
+- [ ] Malformed readings are rejected, not stored as truth: a non-numeric or
+  NaN value, or a missing sensor_id/metric, is refused by validation (400) and
+  never ingested; if the domain has a sane range, an out-of-range value is
+  flagged/rejected by the app, not silently recorded. If the readings are
+  health or otherwise personal, missing data is never shown as zero.
+- [ ] AUTHORIZATION — readings are scoped to owner_id (the authenticated
+  session user via requireUser): a user sees ONLY their own readings, and no
+  sensor_id/from/to filter or guessed id surfaces another user's data.
+  Ingestion is authenticated (401 fail-closed) and the owner is taken from the
+  session, never the request body — a caller can't spoof readings onto another
+  owner or device.

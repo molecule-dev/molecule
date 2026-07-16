@@ -699,6 +699,50 @@ once — nothing at runtime creates them. Handler errors flow through `t()`
 with English defaults; install `@molecule/api-locales-resource-version-history`
 and register it with `registerLocaleModule` for translations.
 
+## E2E Tests
+
+Versioning-correctness checklist — drive the real UI (live preview, no mocks)
+wherever this app surfaces revisions/history, adapt each item to the actual
+screens, and check every box. A box you can't check is a versioning bug to
+fix — not a skip. The point is to PROVE versions are recorded, ordered,
+diffable, restorable, and tamper-evident, not just that CRUD compiles:
+- [ ] Editing a versioned resource RECORDS a new version: after a save the
+  history count grows by exactly one, the prior version is RETAINED (its
+  snapshot unchanged — not overwritten), and the new row carries the next
+  1-based `version` number (previous + 1), the acting user as `userId`
+  (author), and a fresh `createdAt`. The very first save has `changes: null`;
+  later saves record a `changes` shallow diff (before/after per field)
+  against the prior snapshot.
+- [ ] Listing history returns versions newest-first (by `version` descending)
+  with `total` reflecting every version, each row showing its number, author
+  (`userId`), `reason`, and `createdAt` — and the count only ever GROWS across
+  saves (append-only: no save shrinks or rewrites history).
+- [ ] Viewing an old version shows that version's full `snapshot`; diffing two
+  versions renders the per-field `changes` as a forward delta (the
+  lower-numbered version is `from`, the higher is `to`), and a diff across two
+  different resources is rejected (no cross-resource diff).
+- [ ] Reverting/restoring an old version makes it current AND itself APPENDS a
+  new version whose snapshot equals the target's — the prior current version
+  and the restored-from version both still exist afterward, the new version's
+  number is the next in sequence, its author is the acting user, and its
+  `reason` records the restore (default `Restored from version <n>`). History
+  is never lost by a revert.
+- [ ] Retention is append-only and unbounded — nothing prunes: there is no UI
+  or endpoint to edit or delete an individual version (no UPDATE/DELETE
+  route), so a resource's history count never decreases. (If the app layers
+  its own retention policy on top, verify it prunes oldest-first per that
+  policy and never drops the current version.)
+- [ ] AUTHORIZATION — a resource's version history is reachable only by a user
+  who can access that resource: a different user id-guessing the
+  `(resourceType, resourceId)` or a `versionId` gets 404 (no existence leak),
+  never another tenant's history, and with no ownership resolver registered
+  every read/list/diff/restore fails closed. The version author is always the
+  session user (`res.locals.session.userId`), never a body-supplied id — a
+  caller cannot attribute a change to someone else. A user cannot fabricate or
+  delete history to hide a change: versions are append-only and a revert
+  appends rather than rewrites; only the opt-in `versionHistoryAdmin`
+  middleware crosses tenants.
+
 ## Translations
 
 Translation strings are provided by `@molecule/api-locales-resource-version-history`.
