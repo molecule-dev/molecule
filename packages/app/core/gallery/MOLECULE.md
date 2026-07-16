@@ -2,22 +2,24 @@
 
 Gallery core interface for molecule.dev.
 
-Provides a standardized API for image gallery and lightbox UI
-components. Bond a provider (e.g. `@molecule/app-gallery-photoswipe`)
-to supply the concrete implementation.
+Framework-agnostic contract for image gallery / lightbox **state**
+(item list, current index, open/closed). Bond a provider (e.g.
+`@molecule/app-gallery-photoswipe`) to supply the navigation logic; your
+UI renders the lightbox and calls the instance to navigate.
 
 ## Quick Start
 
 ```typescript
-import { requireProvider } from '@molecule/app-gallery'
+import { setProvider, requireProvider } from '@molecule/app-gallery'
+import { provider } from '@molecule/app-gallery-photoswipe'
+
+setProvider(provider)                    // once, at app startup (bonds.ts)
 
 const gallery = requireProvider().createGallery({
-  items: [
-    { src: '/photos/1.jpg', width: 1200, height: 800, alt: 'Sunset' },
-  ],
+  items: [{ src: '/photos/1.jpg', width: 1200, height: 800, alt: 'Sunset' }],
   zoomable: true,
 })
-gallery.open()
+gallery.open(0)   // then render your overlay from getCurrentIndex()
 ```
 
 ## Type
@@ -197,3 +199,15 @@ function setProvider(provider: GalleryProvider): void
 | Provider | Package |
 |----------|---------|
 | Gallery | `@molecule/app-gallery-photoswipe` |
+
+## Injection Notes
+
+- **The instance is headless — `open()` displays nothing by itself.** Your app
+  renders the lightbox overlay (image, prev/next, close, counter) with
+  `getClassMap()`/`cm.*` and `t('key', values, { defaultValue })` for labels, and
+  drives it via `open/close/next/previous/goTo`, re-reading `getCurrentIndex()`
+  after each call (there is no change-subscription API).
+- **Wire with `setProvider()` from THIS package, not `bond('gallery', …)`** — the
+  singleton is module-local; `requireProvider()` throws otherwise.
+- Provide real `width`/`height` per item (they drive layout/zoom math) and an
+  `alt` for accessibility — empty alt text fails the a11y bar.

@@ -190,6 +190,23 @@ function setProvider(provider: KeyboardShortcutsProvider): void
 |----------|---------|
 | Keyboard Shortcuts | `@molecule/app-keyboard-shortcuts-hotkeys` |
 
+## Injection Notes
+
+- **Wire with `setProvider()` from THIS package** (e.g. the `provider` export of
+  `@molecule/app-keyboard-shortcuts-hotkeys`) once at startup —
+  `requireProvider()` throws otherwise, and a generic `bond('…')` registration is
+  not seen by this module-local singleton.
+- **The bonded provider owns the actual key event binding** (global
+  `keydown`/`keyup` listeners, combo matching, `preventDefault` per the
+  `Shortcut.preventDefault` flag, and not firing while an
+  input/textarea/contenteditable has focus). After wiring, PRESS a registered
+  combo and confirm the real action runs — a registry that accepts `register()`
+  calls but never fires handlers is an integration bug to fix, not to skip.
+- `register()` returns an unregister function — call it when the owning
+  screen/component unmounts, or stale shortcuts ghost-fire elsewhere.
+- Shortcut `description`s surface in help overlays: pass them through
+  `t('key', values, { defaultValue })`.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

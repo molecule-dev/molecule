@@ -319,6 +319,19 @@ Peer dependencies:
 
 - `@molecule/app-bond`
 
+- **The instance is headless — no dialog renders and no key is bound by the
+  provider.** Your app owns the UI: render an overlay + input + results list from
+  `isOpen()` / `getFilteredGroups()` (re-read after each `setQuery()` call), style
+  it via `getClassMap()`/`cm.*`, and localize every label through
+  `t('key', values, { defaultValue })`.
+- **Bind the open shortcut yourself** (e.g. register Cmd+K / Ctrl+K through the
+  app's keyboard-shortcuts layer and call `palette.open()`); wire Escape to
+  `palette.close()` and Enter to `selectCommand(...)`.
+- Pass command/group `label`s through i18n BEFORE building the options — the
+  palette never translates for you.
+- An `onSelect` returning a string navigates to that palette page id — return
+  nothing for plain actions.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

@@ -342,6 +342,22 @@ Peer dependencies:
 
 - `@molecule/app-bond`
 
+- **Client-side `validation` is UX, NOT a security boundary.** It gives instant
+  feedback, but a request can skip the uploader entirely — the SERVER must
+  re-validate size, type, and content of every upload, and enforce authorization.
+- **Uploads do NOT go through the app's HTTP client.** The provider sends
+  directly to `destination.url`, so the HTTP client's `baseURL` and auth
+  interceptors are not applied: give the full relative path (e.g. `'/api/upload'`
+  — never an absolute `http://localhost…` host), and pass auth via
+  `destination.headers` if the endpoint requires it.
+- `autoUpload` defaults to `false` — without it, call `upload()` on the instance
+  or files sit queued forever.
+- Wire the bond once at startup (`setProvider(provider)` from e.g.
+  `@molecule/app-file-upload-filepond`); `createUploader` throws with the fix
+  named if nothing is bonded. Any upload UI you render (drop zone, progress,
+  errors) styles via `getClassMap()`/`cm.*` with text through
+  `t('key', values, { defaultValue })`.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

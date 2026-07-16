@@ -4,6 +4,28 @@
  * Provides a unified form management API that works across different
  * form libraries (native, React Hook Form, Formik, etc.).
  *
+ * @example
+ * ```typescript
+ * import { createForm } from '@molecule/app-forms'
+ * // (React apps: prefer the `useForm` hook from `@molecule/app-react` — same options.)
+ *
+ * const form = createForm<{ email: string; password: string }>({
+ *   defaultValues: { email: '', password: '' },
+ *   mode: 'onBlur',
+ * })
+ *
+ * const email = form.register({
+ *   name: 'email',
+ *   required: t('forms.required', undefined, { defaultValue: 'This field is required' }),
+ *   email: true,
+ * })
+ * // Wire email.value / email.onChange / email.onBlur to your input element.
+ *
+ * const onSubmit = form.handleSubmit(async (values) => {
+ *   await http.post('/signup', values)   // relative path via the app HTTP client
+ * })
+ * ```
+ *
  * @remarks
  * Build forms with {@link createForm} (or the framework hook), not a direct react-hook-form /
  * formik import — that couples you to one library and breaks the swap.
