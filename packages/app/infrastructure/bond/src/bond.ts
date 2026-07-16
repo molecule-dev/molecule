@@ -7,7 +7,7 @@
  *
  * @example
  * ```typescript
- * import { bond, get, require as bondRequire, isBonded } from '`@molecule/app-bond`'
+ * import { bond, get, require as bondRequire, isBonded } from '@molecule/app-bond'
  *
  * // Singleton providers
  * bond('state', zustandProvider)
@@ -134,7 +134,7 @@ export function getAll<T = unknown>(type: string): Map<string, T> {
  *
  * @example
  * ```typescript
- * import { require as bondRequire } from '`@molecule/app-bond`'
+ * import { require as bondRequire } from '@molecule/app-bond'
  * const theme = bondRequire<ThemeProvider>('theme')
  * ```
  *

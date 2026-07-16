@@ -20,7 +20,7 @@ import type * as types from './types.js'
  *
  * Example usage:
  * ```ts
- * import { del as resourceDel } from '`@molecule/api-resource`'
+ * import { del as resourceDel } from '@molecule/api-resource'
  * import type * as types from '../../types.js'
  *
  * export const del = ({ name, tableName, schema }: types.Resource) => {

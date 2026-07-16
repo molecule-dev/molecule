@@ -6,9 +6,9 @@
  * functions that every flagship app shipped. Per-app bond files
  * become 1-line re-exports — `bonds/index.ts` import sites unchanged.
  *
- * `setupAppStylingTailwind` is a no-op (Tailwind is configured via
- * env vars and the Vite plugin), retained for naming consistency
- * so apps can wire it in `setupProviders()` alongside the others.
+ * `setupAppStylingTailwind` registers `tailwind-merge` as the class merger
+ * for `cn()`; Tailwind itself is configured via env vars and the Vite plugin.
+ * Apps wire it in `setupProviders()` alongside the others.
  *
  * @module
  */

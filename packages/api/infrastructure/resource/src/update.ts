@@ -21,7 +21,7 @@ import { getValidProps } from './utilities/index.js'
  *
  * Example usage:
  * ```ts
- * import { update as resourceUpdate } from '`@molecule/api-resource`'
+ * import { update as resourceUpdate } from '@molecule/api-resource'
  * import type * as types from '../../types.js'
  *
  * export const update = ({ name, tableName, schema }: types.Resource) => {

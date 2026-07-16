@@ -18,7 +18,7 @@ import type * as types from './types.js'
  *
  * Example usage:
  * ```ts
- * import { read as resourceRead } from '`@molecule/api-resource`'
+ * import { read as resourceRead } from '@molecule/api-resource'
  * import type * as types from '../../types.js'
  *
  * export const read = ({ name, tableName, schema }: types.Resource) => {

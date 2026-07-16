@@ -22,7 +22,7 @@ import { getValidProps } from './utilities/index.js'
  *
  * Example usage:
  * ```ts
- * import { create as resourceCreate } from '`@molecule/api-resource`'
+ * import { create as resourceCreate } from '@molecule/api-resource'
  * import type * as types from '../../types.js'
  *
  * export const create = ({ name, tableName, schema }: types.Resource) => {
