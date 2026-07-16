@@ -20,6 +20,10 @@ Built-in safety:
 - SSRF guard refuses private/loopback/link-local hosts by default
   on every URL — input, redirects, AND the discovered oEmbed
   endpoint.
+- The SSRF guard checks hostname and IP literals only — it does NOT
+  resolve DNS, so a public hostname that resolves to a private address is
+  not caught. For stricter deployments resolve the host yourself and
+  re-validate the IP, or restrict egress at the network layer.
 - HTML sanitization on `OEmbedResponse.html` strips `<script>`
   blocks, `on*=` event handlers, and `javascript:` URLs.
 - Manual redirect handling re-validates each hop.
@@ -605,3 +609,9 @@ Throws {@link OEmbedError} (`error.code` is one of `invalid-url`,
 Map `error.code` to translated user-facing text in the calling
 handler — this utility intentionally has no locale bond
 (handler-error pattern).
+
+Proxied egress: Node's built-in fetch ignores HTTP_PROXY/HTTPS_PROXY. In
+proxy-only environments (e.g. molecule.dev sandboxes) pass a proxy-aware
+implementation via `options.fetch`, or every resolution fails with
+`fetch-failed`. Remember the targets are arbitrary user-submitted hosts —
+an egress allowlist and this package are natural partners.

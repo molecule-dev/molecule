@@ -28,6 +28,15 @@
  * - Per-query `timeoutMs` and `maxRows` caps protect against runaway
  *   queries; defaults are 30s / 1000 rows.
  *
+ * Network reality: connections are raw TCP from the API process to the
+ * user-supplied host (5432 / 3306 by default) — they do NOT traverse
+ * HTTP_PROXY-style egress proxies. In deployments with default-deny egress
+ * (e.g. molecule.dev sandboxes, where only HTTP(S) via the egress proxy is
+ * permitted), remote Postgres/MySQL connections fail at connect with a
+ * timeout ({@link RemoteDbError} code `connection-failed`). Direct outbound
+ * TCP to the database host/port must be allowed for this package to work;
+ * SQLite is exempt (local file path, no network).
+ *
  * Drivers (`pg`, `mysql2`, `better-sqlite3`) are declared as **optional**
  * peer dependencies and lazy-loaded — only install the engines you need.
  *

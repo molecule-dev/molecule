@@ -23,6 +23,18 @@
  * (compatible with `@molecule/api-cache`) can be supplied to coalesce
  * repeated lookups for the same prefix.
  *
+ * Network + failure mode: each uncached call makes one outbound HTTPS GET to
+ * `https://api.pwnedpasswords.com/range/{prefix}` (override host via
+ * `options.apiUrl`; 5 s default timeout). The check FAILS CLOSED — on any
+ * non-2xx, timeout, or network failure `checkPassword` THROWS instead of
+ * returning "not breached". Callers must choose a policy: wrap in try/catch
+ * and either block the flow or allow-with-logging while HIBP is unreachable —
+ * never let the raw error take signup down, and never swallow it into an
+ * implicit "safe". In environments that force egress through an HTTP proxy
+ * (e.g. molecule.dev sandboxes), Node's built-in fetch ignores
+ * HTTP_PROXY/HTTPS_PROXY — pass a proxy-aware implementation via
+ * `options.fetch`, and ensure the HIBP host is on the egress allowlist.
+ *
  * @module
  */
 

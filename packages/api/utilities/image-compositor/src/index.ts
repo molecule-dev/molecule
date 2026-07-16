@@ -2,7 +2,7 @@
  * Multi-layer image composition for molecule.dev.
  *
  * Takes a {@link LayeredImage} document (the server-side analogue of the
- * shape consumed by `@molecule/app-feature-image-canvas`) and renders a
+ * shape consumed by `@molecule/app-feature-image-canvas-react`) and renders a
  * single flat PNG/JPEG/WebP buffer.
  *
  * Decoupled from any concrete image library: at runtime the compositor
@@ -55,6 +55,22 @@
  * ```
  *
  * @remarks
+ * Wiring: an image bond must be registered before any composite call. At
+ * startup:
+ *
+ * ```ts
+ * import { bond } from '@molecule/api-bond'
+ * import { provider } from '@molecule/api-image-sharp'
+ *
+ * bond('image', provider)
+ * ```
+ *
+ * Without it, compositing throws "No image provider bonded. Call
+ * bond("image", provider) at startup, or pass deps.raster explicitly."
+ * The `@molecule/api-*` peers (api-bond, api-i18n, api-image) are
+ * peerDependencies — install them in the app; api-image-sharp is an
+ * optional peer, needed only when you wire it as the bonded provider.
+ *
  * Resource intensity: a high-resolution layered document with many
  * blended layers will allocate sizeable RGBA buffers (4 bytes per pixel,
  * per layer at peak). For flagship apps with unrestricted user input,

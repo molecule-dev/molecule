@@ -43,6 +43,16 @@
  * (IDLE, mailbox locks, raw search/fetch) are intentionally not surfaced —
  * if you need them, drop down to `imapflow` directly.
  *
+ * Network reality: IMAP is raw TLS/TCP (typically port 993) from the API
+ * process to the mail host — it does NOT traverse HTTP_PROXY-style egress
+ * proxies. In deployments with default-deny egress (e.g. molecule.dev
+ * sandboxes, where only HTTP(S) via the egress proxy is permitted),
+ * `connectImap` fails at connect with a timeout; direct outbound TCP to the
+ * IMAP host must be allowed. Credential reality: Gmail and Microsoft reject
+ * plain account passwords for IMAP — use an OAuth2 access token
+ * (`auth: { user, accessToken }`, sent as XOAUTH2) or a provider-issued app
+ * password. Credentials are per-call config; nothing is read from env vars.
+ *
  * @module
  */
 

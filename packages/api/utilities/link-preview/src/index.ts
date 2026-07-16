@@ -11,6 +11,10 @@
  * Built-in safety:
  *
  * - SSRF guard refuses private/loopback/link-local hosts by default.
+ * - The SSRF guard checks hostname and IP literals only — it does NOT
+ *   resolve DNS, so a public hostname that resolves to a private address is
+ *   not caught. For stricter deployments resolve the host yourself and
+ *   re-validate the IP, or restrict egress at the network layer.
  * - Manual redirect handling re-validates each hop.
  * - Hard timeout (default 5s) via `AbortController`.
  * - Body-size cap (default 1 MiB) — large pages are truncated.
@@ -46,6 +50,12 @@
  * `timeout`, `fetch-failed`). Map `error.code` to translated user-facing
  * text in the calling handler — this utility intentionally has no
  * locale bond (handler-error pattern).
+ *
+ * Proxied egress: Node's built-in fetch ignores HTTP_PROXY/HTTPS_PROXY. In
+ * proxy-only environments (e.g. molecule.dev sandboxes) pass a proxy-aware
+ * implementation via `options.fetch`, or every preview fails with
+ * `fetch-failed`. Remember the targets are arbitrary user-submitted hosts —
+ * an egress allowlist and this package are natural partners.
  *
  * @module
  */

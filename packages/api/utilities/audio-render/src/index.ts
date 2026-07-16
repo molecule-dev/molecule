@@ -57,6 +57,27 @@
  * sessions. The package is queue-driven on purpose so flagship apps can
  * gate concurrency at the queue tier rather than in the request path.
  *
+ * **ffmpeg is a runtime prerequisite, not a dependency.** The worker spawns
+ * whatever `ffmpegPath` points at (default: `ffmpeg` resolved on `$PATH`).
+ * Install it in the runtime image (e.g. `apt-get install -y ffmpeg`) or pass
+ * an explicit `ffmpegPath`; without it every job fails at processing time
+ * with a spawn ENOENT recorded on the job's `error` field.
+ *
+ * **Queue wiring:** `renderAudio` dispatches through the abstract
+ * `@molecule/api-queue` core, so a queue bond must be wired at startup —
+ * `bond('queue', provider)` with `@molecule/api-queue-memory` (same-process
+ * dev default), `-redis`, `-rabbitmq`, or `-sqs` — and
+ * `startAudioRenderWorker()` must be running to consume jobs. Both throw
+ * "Queue provider not configured. Call setProvider() first." otherwise.
+ *
+ * **Job status is process-local.** `getRenderStatus` / `cancelRender` read an
+ * in-memory map that is shared between `renderAudio` and the worker ONLY when
+ * both run in the same process (true with the memory queue bond). With a
+ * distributed queue bond and a separate worker process, the enqueuing process
+ * never sees status transitions — persist durable status from the worker's
+ * `onJobComplete` callback instead. For HTTP exposure of enqueue/status/cancel,
+ * see `createAudioRenderRoutes()`.
+ *
  * **No locale bond:** This package's surface is programmatic — no
  * user-visible strings are generated, so there's no companion
  * `@molecule/api-locales-audio-render`.

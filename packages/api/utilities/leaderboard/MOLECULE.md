@@ -363,3 +363,21 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/api-database`
+
+Table prerequisites: the service helpers read/write `leaderboard_events`
+and `leaderboard_rollups`. The DDL ships as .sql files under the package's
+`__setup__` directory. An mlcl-scaffolded API replays those .sql files
+automatically on migrate; anywhere else run the file once against your
+database — nothing at runtime creates the tables. The shipped DDL is
+PostgreSQL dialect (`gen_random_uuid()`, `TIMESTAMPTZ`, a partial index);
+adapt column types/defaults for SQLite or MySQL — the service itself is
+dialect-agnostic (abstract DataStore calls only).
+
+A `@molecule/api-database` bond must be wired at startup before calling
+the service helpers; the pure engine (`computeLeaderboard`) needs no
+database at all.
+
+Scope semantics: omitting `scopeKey` in a query targets the GLOBAL board
+(rows whose `scope_key` is null) — it does not aggregate across scopes.
+Ranking is competition style: tied scores share a rank, and `tieBreak`
+(`'none' | 'earliest' | 'user_id'`) controls ordering within a tie.

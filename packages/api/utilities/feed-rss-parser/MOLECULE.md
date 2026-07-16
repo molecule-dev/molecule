@@ -281,8 +281,9 @@ function sanitizeHtml(html: string | null | undefined): string | undefined
 
 The parser is a pure function — it accepts the response body string plus
 optional `contentType` / `format` hints and returns a normalized result.
-No fetch, no state, no caching: callers wire those in via the bond
-system (`@molecule/api-cache`, `@molecule/api-fetch`, etc.).
+No fetch, no state, no caching: callers fetch the document themselves
+(native `fetch` or the bonded `@molecule/api-http` provider) and can
+layer `@molecule/api-cache` on top for TTL caching.
 
 iTunes podcast namespace fields (`<itunes:duration>`, `<itunes:author>`,
 `<itunes:image>`, `<itunes:category>`) are extracted into the normalized

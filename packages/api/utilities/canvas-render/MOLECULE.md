@@ -27,8 +27,9 @@ const result = await renderCanvasDocument(
   { format: 'png', dpi: 2 },
 )
 
-import { writeFile } from 'node:fs/promises'
-await writeFile(`canvas.${result.extension}`, result.buffer)
+// result.buffer is a PNG/JPEG/WebP Buffer — write it to disk
+// (fs.writeFile) or stream it in an HTTP response.
+console.log(result.extension, result.buffer.byteLength)
 ```
 
 ```ts
@@ -547,3 +548,11 @@ Resource intensity: a high-DPI PNG of a complex document will allocate a
 sizeable raster. For flagship apps with unknown user input, gate the
 handler behind a queue / rate limiter rather than calling it inline on
 the hot request path.
+
+PNG output loads the `@napi-rs/canvas` native addon (prebuilt binaries for
+common Linux/macOS/Windows targets — nothing to apt-install for the addon
+itself). Text layers, however, rasterize with the fonts installed on the
+HOST: a minimal container image with no fonts renders text as empty
+rectangles. Install a font package in the runtime image (e.g. fontconfig
+plus a sans-serif family) when PNG output includes text, or prefer
+SVG/PDF output, which embeds font-family names for the viewer to resolve.

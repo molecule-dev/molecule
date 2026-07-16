@@ -29,15 +29,28 @@
  * const json = serializeJsonFeed(feed)
  * ```
  *
- * @example HTTP handler with caching
+ * @example HTTP handler with caching — Express adapter
  * ```ts
- * import { createFeedHandler } from '@molecule/api-feed-rss'
+ * import { createFeedHandler, type Feed } from '@molecule/api-feed-rss'
+ *
+ * const loadFromDb = async (): Promise<Feed> => ({ title: 'My Feed', link: 'https://example.com', description: 'Latest posts', items: [] }) // your DB lookup
+ * const app = { get(_path: string, _fn: (req: any, res: any) => void): void {} } // your Express app
  *
  * const handle = createFeedHandler({
  *   loadFeed: async () => loadFromDb(),
  *   cacheTtlMs: 60_000,
  * })
- * // Wire `handle` into Express / Hono / Fastify — see createFeedHandler docs.
+ *
+ * // Serves GET /feed.rss, /feed.atom, /feed.json (keyed by extension).
+ * // The handler returns { status, headers, body } — map those onto any
+ * // framework's response (Fastify/Hono/raw http look the same).
+ * app.get('/feed.:ext', async (req, res) => {
+ *   const result = await handle({
+ *     extension: req.params.ext,
+ *     ifNoneMatch: req.get('If-None-Match'),
+ *   })
+ *   res.status(result.status).set(result.headers).send(result.body)
+ * })
  * ```
  *
  * **Security**: every user-supplied field is escaped before serialization.

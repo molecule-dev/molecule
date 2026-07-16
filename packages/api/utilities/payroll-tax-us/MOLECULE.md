@@ -415,6 +415,17 @@ const PERIODS_PER_YEAR: Record<PayPeriod, number>
 
 ## Injection Notes
 
-Brackets are pinned per tax year. Each January's IRS / state
-publication update requires a new package release that adds
-the new year to `federal.ts`, `fica.ts`, and `state.ts`.
+Supported tax years: 2024 and 2025 only (the `TaxYear` union). `year`
+DEFAULTS to 2025 — there is no current-date detection, so from calendar
+2026 onward an omitted `year` silently computes with 2025 tables. Passing
+an unsupported year is a compile-time error; there is no runtime fallback.
+Brackets are pinned per tax year: each January's IRS / state publication
+update requires a package release that adds the new year to `federal.ts`,
+`fica.ts`, and `state.ts` — check that the year you need exists before
+shipping payroll math.
+
+Scope: withholding ESTIMATES via the IRS Pub 15-T percentage method plus
+simplified state schedules (CA and NY progressive brackets; IL and MA
+flat; TX and FL zero income tax). Local/city taxes, SDI/SUI, and W-4
+step-level adjustments are not modeled — treat results as
+preview/planning figures, not filed-payroll-grade numbers.

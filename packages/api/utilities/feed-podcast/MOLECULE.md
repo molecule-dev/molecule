@@ -43,6 +43,25 @@ const xml = serializePodcastRss({
 })
 ```
 
+```ts
+// HTTP endpoint — Express adapter
+import { createPodcastFeedHandler, type Podcast } from '@molecule/api-feed-podcast'
+
+const loadPodcastById = async (id: string): Promise<Podcast | null> => null // your DB lookup
+const app = { get(_path: string, _fn: (req: any, res: any) => void): void {} } // your Express app
+
+const handler = createPodcastFeedHandler({
+  load: async (id) => loadPodcastById(id),
+})
+
+app.get('/podcasts/:id/feed.xml', async (req, res) => {
+  const result = await handler({ params: { id: req.params.id } })
+  res.status(result.status)
+  for (const [key, value] of Object.entries(result.headers)) res.setHeader(key, value)
+  res.send(result.body)
+})
+```
+
 ## Type
 `utility`
 
@@ -472,10 +491,12 @@ iTunes durations are formatted automatically — pass
 `durationSeconds` as a number; the serializer emits `MM:SS` for
 episodes shorter than one hour and `HH:MM:SS` otherwise.
 
-For HTTP endpoints, see {@link createPodcastFeedHandler} — a
-framework-agnostic factory that wires loader → serializer →
-`application/rss+xml` response and is adapted by
-`@molecule/api-middleware-*` to any specific server library.
+For HTTP endpoints, see the second example: {@link createPodcastFeedHandler}
+wires loader → serializer → `application/rss+xml` response behind a
+framework-agnostic `(req) => Promise` handler whose response carries only
+`status`, `headers`, and `body` — adapt it to Express, Fastify, Hono, or
+raw Node http in a few lines. When the loader returns `null`, the handler
+responds 404.
 
 The Podcast Index namespace is enabled by default; pass
 `{ includePodcastNamespace: false }` to {@link serializePodcastRss}

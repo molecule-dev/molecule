@@ -7,8 +7,8 @@ inclusion, push-notification icons, and any other server-rendered
 delivery channel.
 
 Companion to the client-side `@molecule/app-qr-code-react` package; the
-two share the same `qrcode-generator@1.4.4` dependency so encoded output
-is byte-identical between server and client for the same inputs.
+two pin the identical `qrcode-generator` version so encoded output is
+byte-identical between server and client for the same inputs.
 
 ## Quick Start
 
