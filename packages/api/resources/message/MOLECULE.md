@@ -500,6 +500,35 @@ Subscribers should listen on `threadRoomId(threadId)` for
 User-facing strings go through `t(key, …, { defaultValue })`; translations
 ship in the companion `@molecule/api-locales-resource-message` bond.
 
+## E2E Tests
+
+Integration checklist — drive the real messaging UI (live preview, no
+mocks), adapt each item to this app's actual threads/screens, and check
+every box off one by one. A box you can't check is an integration bug to
+fix — not a skip. Messaging PRIVACY is the point here, so the last item is
+not optional:
+- [ ] Sending a message in a thread persists it and it appears in that
+  thread for BOTH participants in chronological (`createdAt`) order, stamped
+  with the sender and a timestamp. Send from each side and confirm both see
+  the same ordered transcript.
+- [ ] Read / unread works: a message you send is unread for the recipient —
+  their thread badge and `GET /message-threads/unread-count` increment;
+  opening the thread and marking it read (`POST /message-threads/:threadId/read`)
+  clears that side's unread count to zero and the total badge drops to match.
+- [ ] Editing a message shows an edited state (an "edited" marker /
+  `editedAt`) and deleting it removes it or renders a "message was deleted"
+  tombstone (`deletedAt`) — and ONLY the author can edit or delete their OWN
+  message: the other participant gets no edit/delete affordance and a forged
+  PATCH/DELETE on someone else's message is rejected, never applied.
+- [ ] Delivery to the other participant: with `@molecule/api-realtime`
+  bonded, a new message appears in their already-open thread WITHOUT a
+  reload; with no realtime bond it appears on their next load/refresh.
+- [ ] PRIVACY / AUTHORIZATION — a thread and its messages are visible ONLY
+  to its two participants. Sign in as a THIRD user and confirm they cannot
+  read the thread or any message by guessing its id (403/404), cannot post
+  into a thread they are not part of (403), and cannot spoof the sender —
+  the sender is always the session user, never a request-body field.
+
 ## Translations
 
 Translation strings are provided by `@molecule/api-locales-resource-message`.

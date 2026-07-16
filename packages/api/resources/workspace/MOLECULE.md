@@ -662,3 +662,33 @@ Tables: `src/__setup__/workspaces.sql` creates `workspaces`,
 `workspace_members`, and `workspace_invites`. An mlcl-scaffolded API replays
 `__setup__/*.sql` automatically on migrate; anywhere else run it once —
 nothing at runtime creates them.
+
+## E2E Tests
+
+Membership/isolation checklist — drive the real UI (live preview, no mocks)
+with at least TWO distinct signed-in users, adapt each item to this app's
+actual workspace screens/flows, and check every box off one by one. A box
+you can't check is a tenancy bug to fix — not a skip:
+- [ ] Creating a workspace makes the creator its `owner`: it appears in their
+  own workspace list (GET /workspaces) and GET /workspaces/:id returns it,
+  backed by a `workspace_members` row at role `owner`.
+- [ ] Inviting a user (POST /workspaces/:id/invites, admin-only) issues a
+  single-use token; the invited user accepting it (POST
+  /workspaces/invites/accept) becomes a member at the invited role and can
+  now read the workspace and its scoped data — data they could NOT see before.
+- [ ] Role enforcement: a plain `member` is 403 on every privileged endpoint —
+  invite, revoke an invite, change a member's role, edit settings (PATCH
+  /workspaces/:id), delete (DELETE /workspaces/:id) — while an `admin`/`owner`
+  can perform them. A caller can never grant a role higher than their own.
+- [ ] Removing a member (an admin removes them, or they leave via DELETE
+  /workspaces/:id/members/:selfId) revokes access immediately: their next read
+  of the workspace or its scoped data is 403, and it drops from their list.
+- [ ] Isolation: a user who is NOT a member of workspace W cannot read or
+  mutate W or its scoped data by guessing W's id — every such call is 403 (or
+  404), never leaking W's contents. Verify with a real second account.
+- [ ] No self-join: accepting a bogus/expired token, or any attempt to add
+  yourself without a valid invite, is rejected — the only way in is a token
+  an admin issued for you.
+- [ ] A workspace is never orphaned: removing or demoting the LAST `owner` is
+  refused (409), and ownership transfer works — an owner promotes another
+  member to `owner`, after which the original owner can safely leave.

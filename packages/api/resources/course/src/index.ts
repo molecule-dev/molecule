@@ -50,6 +50,50 @@
  * - Persistence goes through the abstract `@molecule/api-database` DataStore —
  *   wire any database bond at startup before calling these functions.
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual course/enrollment screens, and check every
+ * box off one by one. A box you can't check is an integration bug to fix — not
+ * a skip. Ground every check in the REAL model (course status
+ * draft/published/archived; enrollment role student/instructor/ta/observer and
+ * status active/invited/completed/dropped; content = modules -> module items of
+ * kind video/reading/quiz/assignment) — never a field the interface lacks:
+ * - [ ] An instructor CREATING a course persists its real fields (title,
+ *   description, and its modules + module items) and the course then appears in
+ *   the instructor's own list at the exact title/structure entered — not
+ *   renamed, not missing its modules.
+ * - [ ] Only PUBLISHED courses are visible to students: a course left `draft`
+ *   is hidden from the student catalog and cannot be enrolled in (enrolling in
+ *   a draft is rejected), while publishing it (status -> published) makes it
+ *   appear and become enrollable. An archived course likewise drops out of the
+ *   catalog.
+ * - [ ] A student ENROLLING in a published course gains access to its content
+ *   and the enrollment is recorded once — a role `student`, status `active`
+ *   row keyed to that (user, course); re-enrolling is idempotent (no duplicate
+ *   enrollment), and the student can now read the modules/items they could not
+ *   see before.
+ * - [ ] PROGRESS tracking advances correctly as the student completes lessons:
+ *   finishing 2 of 4 module items reads 50% (progress is a fraction of the
+ *   course's real item count, never a hardcoded number), and completing every
+ *   item flips the enrollment to status `completed` (issuing a certificate if
+ *   the app models one). Progress only moves by actually completing items — a
+ *   student cannot self-mark `completed` without doing the lessons.
+ * - [ ] Un-enrolled / gated access is denied SERVER-SIDE: a student with no
+ *   active enrollment who requests the course's member-only (paid/gated)
+ *   content is rejected 403 (assertEnrolled -> NotEnrolledError), never served
+ *   the gated lessons by client-side hiding alone; a `dropped`/`invited`
+ *   enrollment is not `active` and is treated as un-enrolled.
+ * - [ ] AUTHORIZATION (staff) — only the course owner (`created_by`) or an
+ *   active instructor/ta may edit content, publish/unpublish, delete the
+ *   course, or view the enrollment roster: a student or observer attempting any
+ *   of these is denied 403 (assertCourseStaff -> NotCourseStaffError), and a
+ *   missing course id returns 404 (CourseNotFoundError), not a 500.
+ * - [ ] AUTHORIZATION (per-student) — enrollment and progress are scoped to the
+ *   session user: the enrollment/progress a student sees is their OWN, and
+ *   reading or mutating another student's enrollment/progress by guessing its
+ *   id is denied 403 — a caller can never enroll, advance, or complete on
+ *   behalf of another user (the subject is the session, never the request body).
+ *
  * @module
  */
 

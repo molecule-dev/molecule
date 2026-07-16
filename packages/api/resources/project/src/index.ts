@@ -28,6 +28,26 @@
  * it once. User-facing strings use `t(key, …, { defaultValue })`; translations
  * ship in the companion `@molecule/api-locales-project` bond.
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip.
+ * Project is strictly OWNER-scoped: a project belongs to exactly one user
+ * (`userId`), with no members, collaborators, or roles — so every check is
+ * about the owner seeing/mutating only their own rows, never a shared grant:
+ * - [ ] Creating a project persists its real fields (name → derived slug,
+ *   projectType, framework, packages) and it appears at the top of the owner's
+ *   project list (the list is scoped to the session user, newest-updated first).
+ * - [ ] Editing reflects and persists: renaming updates the name; a single-key
+ *   settings/envVars PATCH MERGES onto the stored bag without wiping sibling
+ *   keys; a sandboxStatus change round-trips. Reload — the changes survive.
+ * - [ ] Deleting a project removes it from the owner's list and a re-fetch of
+ *   its id no longer returns it; there are no members to notify or re-scope.
+ * - [ ] Authorization — the list and every `:id` route return ONLY projects the
+ *   caller owns. Signed in as a second user (or guessing another user's project
+ *   id), GET/PATCH/DELETE `/projects/:id` is refused (403/404) and the row is
+ *   neither readable nor mutable; existence is not leaked to a non-owner.
+ *
  * @module
  */
 
