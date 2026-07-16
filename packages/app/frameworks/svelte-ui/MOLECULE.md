@@ -3951,7 +3951,7 @@ Usage in Svelte:
   $: classes = getToastClasses({ status })
 </script>
 <div role="alert" data-state="open" class={classes}>
-  <span class={cm.toastIconWrapper}>{\@html icon}</span>
+  <span class={cm.toastIconWrapper}>{@html icon}</span>
   <div class={cm.toastContentWrapper}>
     {#if title}<div class={getToastTitleClass()}>{title}</div>{/if}
     {#if description}<div class={getToastDescriptionClass()}>{description}</div>{/if}
