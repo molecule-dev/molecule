@@ -60,7 +60,7 @@ Implements `@molecule/api-middleware-cors` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setCors, setCorsFactory } from '@molecule/api-middleware-cors'
+import { setCorsFactory } from '@molecule/api-middleware-cors'
 import { corsFactory } from '@molecule/api-middleware-cors-express'
 
 export function setupMiddlewareCorsExpress(): void {

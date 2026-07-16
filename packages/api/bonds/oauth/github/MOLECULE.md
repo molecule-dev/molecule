@@ -201,10 +201,10 @@ Setup function to register this provider with the bond system:
 
 ```typescript
 import { bond } from '@molecule/api-bond'
-import { serverName, verify } from '@molecule/api-oauth-github'
+import { serverName, verify, getAuthorizeUrl } from '@molecule/api-oauth-github'
 
 export function setupOauthGithub(): void {
-  bond('oauth', serverName, { serverName, verify })
+  bond('oauth', serverName, { serverName, verify, getAuthorizeUrl })
 }
 ```
 
@@ -221,7 +221,7 @@ Peer dependencies:
 ### Environment Variables
 
 - `OAUTH_GITHUB_CLIENT_ID` *(required)* — GitHub OAuth client ID
-  - Setup: GitHub → Settings → Developer settings → OAuth Apps → New OAuth App; set the callback URL to {apiUrl}/api/users/log-in/oauth.
+  - Setup: GitHub → Settings → Developer settings → OAuth Apps → New OAuth App; set the Authorization callback URL to your APP ORIGIN plus each page path that starts OAuth (e.g. {appUrl} and {appUrl}/login) — the API sends redirect_uri = APP_ORIGIN + the initiating page path.
   - Get it here: [https://github.com/settings/developers](https://github.com/settings/developers)
   - Example: `Iv1.abc123...`
 - `OAUTH_GITHUB_CLIENT_SECRET` *(required)* — GitHub OAuth client secret

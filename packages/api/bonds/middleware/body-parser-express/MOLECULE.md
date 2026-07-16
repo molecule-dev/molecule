@@ -63,7 +63,7 @@ Implements `@molecule/api-middleware-body-parser` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setBodyParser, setJsonParserFactory } from '@molecule/api-middleware-body-parser'
+import { setJsonParserFactory } from '@molecule/api-middleware-body-parser'
 import { jsonParserFactory } from '@molecule/api-middleware-body-parser-express'
 
 export function setupMiddlewareBodyParserExpress(): void {

@@ -659,10 +659,10 @@ Setup function to register this provider with the bond system:
 
 ```typescript
 import { bond } from '@molecule/api-bond'
-import { serverName, verify } from '@molecule/api-oauth-microsoft'
+import { serverName, verify, getAuthorizeUrl } from '@molecule/api-oauth-microsoft'
 
 export function setupOauthMicrosoft(): void {
-  bond('oauth', serverName, { serverName, verify })
+  bond('oauth', serverName, { serverName, verify, getAuthorizeUrl })
 }
 ```
 

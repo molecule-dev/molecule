@@ -201,10 +201,10 @@ Setup function to register this provider with the bond system:
 
 ```typescript
 import { bond } from '@molecule/api-bond'
-import { serverName, verify } from '@molecule/api-oauth-gitlab'
+import { serverName, verify, getAuthorizeUrl } from '@molecule/api-oauth-gitlab'
 
 export function setupOauthGitlab(): void {
-  bond('oauth', serverName, { serverName, verify })
+  bond('oauth', serverName, { serverName, verify, getAuthorizeUrl })
 }
 ```
 
@@ -221,7 +221,7 @@ Peer dependencies:
 ### Environment Variables
 
 - `OAUTH_GITLAB_CLIENT_ID` *(required)* — GitLab OAuth application ID
-  - Setup: GitLab → User settings → Applications → Add new application with the {apiUrl}/api/users/log-in/oauth redirect URI.
+  - Setup: GitLab → User Settings → Applications → New application; set the Redirect URI to your APP ORIGIN plus each page path that starts OAuth (e.g. {appUrl} and {appUrl}/login) — GitLab matches redirect URIs exactly, and the API sends redirect_uri = APP_ORIGIN + the initiating page path.
   - Get it here: [https://gitlab.com/-/user_settings/applications](https://gitlab.com/-/user_settings/applications)
 - `OAUTH_GITLAB_CLIENT_SECRET` *(required)* — GitLab OAuth secret
   - Setup: Shown when creating the application in GitLab.

@@ -59,7 +59,7 @@ Implements `@molecule/api-middleware-cookie-parser` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setCookieParser, setCookieParserFactory } from '@molecule/api-middleware-cookie-parser'
+import { setCookieParserFactory } from '@molecule/api-middleware-cookie-parser'
 import { cookieParserFactory } from '@molecule/api-middleware-cookie-parser-express'
 
 export function setupMiddlewareCookieParserExpress(): void {

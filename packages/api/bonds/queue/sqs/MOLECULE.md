@@ -340,10 +340,9 @@ Peer dependencies:
 - `AWS_SECRET_ACCESS_KEY` *(required)* — AWS secret access key
   - Setup: Shown once when creating the IAM access key — store it immediately.
   - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
-- `SQS_QUEUE_URL` *(required)* — SQS queue URL
-  - Setup: Create a queue in the SQS console and copy its URL.
-  - Get it here: [https://console.aws.amazon.com/sqs/](https://console.aws.amazon.com/sqs/)
-  - Example: `https://sqs.us-east-1.amazonaws.com/123456789012/my-queue`
+- `SQS_ENDPOINT` *(optional)* — SQS endpoint override
+  - Setup: Only for LocalStack or a custom SQS-compatible endpoint. Leave unset for real AWS — queues are addressed by NAME (the queue must exist, or pass { autoCreateQueues: true } to createProvider()).
+  - Example: `http://localhost:4566`
 
 ### Runtime Dependencies
 

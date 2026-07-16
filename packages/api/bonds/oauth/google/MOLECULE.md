@@ -262,10 +262,10 @@ Setup function to register this provider with the bond system:
 
 ```typescript
 import { bond } from '@molecule/api-bond'
-import { serverName, verify } from '@molecule/api-oauth-google'
+import { serverName, verify, getAuthorizeUrl } from '@molecule/api-oauth-google'
 
 export function setupOauthGoogle(): void {
-  bond('oauth', serverName, { serverName, verify })
+  bond('oauth', serverName, { serverName, verify, getAuthorizeUrl })
 }
 ```
 
@@ -282,7 +282,7 @@ Peer dependencies:
 ### Environment Variables
 
 - `OAUTH_GOOGLE_CLIENT_ID` *(required)* — Google OAuth client ID
-  - Setup: Google Cloud Console → APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application); add your app origin and {apiUrl}/api/users/log-in/oauth as an authorized redirect URI.
+  - Setup: Google Cloud Console → APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application); add your app origin as an authorized JavaScript origin, and the app origin plus each page path that starts OAuth (e.g. {appUrl}/login) as authorized redirect URIs.
   - Get it here: [https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
   - Example: `1234567890-abc.apps.googleusercontent.com`
 - `OAUTH_GOOGLE_CLIENT_SECRET` *(required)* — Google OAuth client secret
