@@ -427,6 +427,22 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 
+- **Wire the database first — and migrate the target table.** Providers
+  persist through the bonded `@molecule/api-database` DataStore: bond it
+  before `setProvider(...)`, and the `table` (with its columns) must already
+  exist via your app's migrations. Imports do NOT create tables.
+- **Never pass a client-supplied `table` (or raw filter fields) through.**
+  `exportCSV(req.query.table)` is a full-database exfiltration hole.
+  Whitelist the table server-side per endpoint, and ALWAYS add server-side
+  owner scoping to the query (e.g. a `{ field: 'user_id', operator: 'eq',
+  value: authenticatedUserId }` filter) so users can only export their own rows.
+- Exports return the file CONTENT (`Buffer` for CSV/Excel, rows for JSON) —
+  the endpoint must set `Content-Type` / `Content-Disposition` itself for a
+  download.
+- Import failures are per-row (`result.errors`, 1-based row numbers) with
+  `skippedRows` counted separately — surface them; don't report success when
+  `importedRows < totalRows`.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

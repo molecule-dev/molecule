@@ -8,6 +8,23 @@
  * convenience functions (`createStream`, `transcode`, `generateManifest`,
  * `getSegment`) which delegate to the bonded provider.
  *
+ * @remarks
+ * - **Transcoding and stream creation are long-running CPU work** — minutes for
+ *   real videos, not request-scoped. Kick them off from a background job/queue
+ *   and persist the returned ids + status; never `await transcode(...)` inline
+ *   in an upload request with the client hanging.
+ * - **The app must SERVE what this creates.** Returned manifest/segment URIs
+ *   only work if they resolve over HTTP: either point `outputPath` at a
+ *   directory your server actually exposes, or wire endpoints that return
+ *   `generateManifest(segments)` (correct manifest content-type) and stream
+ *   `getSegment(streamId, index)` bytes. Writing segments to an unserved dir
+ *   ships a player full of 404s.
+ * - `generateManifest` is synchronous (no await); `getSegment` resolves
+ *   segments for a previously created stream — persist `StreamManifest.id`
+ *   with your media record.
+ * - Runtime prerequisites (e.g. an ffmpeg binary for real transcoding) are
+ *   bond-specific — check the bonded package's docs before shipping.
+ *
  * @example
  * ```typescript
  * import { setProvider, createStream, transcode } from '@molecule/api-media-streaming'

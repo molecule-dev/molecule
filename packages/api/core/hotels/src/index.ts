@@ -12,6 +12,22 @@
  * strings so providers can use whatever opaque catalogue identifier they
  * expose.
  *
+ * @remarks
+ * - **Not every provider can complete a booking server-side.** Many hotel APIs
+ *   only support search + priced offers and hand the guest to the provider's
+ *   own checkout. Such bonds throw from `bookHotel` with
+ *   `cause.code === 'BOOKING_NOT_SUPPORTED'` — handle that path (link out /
+ *   deep-link to the provider) instead of assuming an in-app booking form works
+ *   for every bond.
+ * - **Offers are short-lived quotes, not reservations.** An `offerId` from
+ *   `getHotelOffers` expires; book promptly after selection, and on a booking
+ *   failure re-fetch offers and re-confirm the price with the user — never
+ *   retry a stale offer id or present a cached price as bookable.
+ * - Booking is a real-money, PII-bearing call: keep it SERVER-SIDE behind an
+ *   authenticated endpoint (provider API keys live in the bond's config, never
+ *   in app code), validate `guestInfo` server-side, and persist the returned
+ *   `HotelBooking.bookingId` before reporting success to the user.
+ *
  * @example
  * ```typescript
  * import { setProvider, searchHotels, getHotelOffers } from '@molecule/api-hotels'
