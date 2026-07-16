@@ -55,24 +55,7 @@
  *   QR/secret will never verify again. Do not click "set up" twice and reuse the first QR.
  * - `verify()`, `getUrls()`, and otplib v13's `generate()` are all ASYNC — always `await`.
  *
- * **E2E verification — how to PROVE this integration works (do this before calling it done).**
- * Drive the app's REAL UI as the user would (in molecule.dev: `navigate_preview` →
- * `read_preview_ui` → `interact_preview`, targeting elements by `data-mol-id`), asserting each
- * expected outcome:
- *
- * 1. Sign UP + log in through the real auth screens (proves auth still works after your edits —
- *    the most common 2FA-integration regression is a broken login).
- * 2. Open the security/settings screen → activate "Set up 2FA" → a QR code / secret key is
- *    VISIBLE. (An error state here means the server-side setup route or table is broken.)
- * 3. Enter a REAL TOTP code computed from the enrollment secret (never a made-up `000000` —
- *    that one must FAIL) → status flips to enabled.
- * 4. Log out, log back in → the 2FA challenge appears after the password → a valid code
- *    completes login; a wrong code is rejected with a clear error.
- * 5. Disable 2FA from settings → log out/in again → no challenge.
- *
- * Any step showing an error state or a missing element IS the bug — fix the root cause and
- * re-drive. Also keep a real-path integration test in the repo (second example below) so the
- * lifecycle stays covered on every later build.
+ * (The end-to-end lifecycle to drive is the `@e2e` checklist below.)
  *
  * **Adding 2FA to an app that already has its OWN backend/database:** persist the 2FA record
  * in YOUR server-side datastore — the state (secret + `enabled`) has to live somewhere the
@@ -164,6 +147,27 @@
  *   await store.delete(userId)                                    // disable
  * })
  * ```
+ *
+ * @e2e
+ * Integration checklist — drive the app's REAL UI as the user would (in
+ * molecule.dev: navigate_preview → read_preview_ui → interact_preview, targeting
+ * elements by data-mol-id), adapt to this app's actual auth/settings screens, and
+ * check every box off one by one. A box you can't check is an integration bug to
+ * fix — not a skip:
+ * - [ ] Sign up + log in through the real auth screens still works — do this
+ *   FIRST; the most common 2FA-integration regression is a broken login.
+ * - [ ] Open security/settings → "Set up 2FA" → a QR code / secret key is
+ *   VISIBLE. An error here means the server-side setup route or 2FA store is broken.
+ * - [ ] Entering a REAL TOTP code enables 2FA; a made-up `000000` must FAIL.
+ *   COUNTERPARTY: the secret is shown on screen during setup — compute the current
+ *   6-digit code from it with the preinstalled otplib (v13: `await generate({ secret })`;
+ *   both otplib's `generate()` and this package's `verify()` are async). NEVER add
+ *   an endpoint that leaks the stored secret to the client to obtain the code.
+ * - [ ] Log out, log back in → the 2FA challenge appears AFTER the password → a
+ *   valid code completes login; a wrong code is rejected with a clear error.
+ * - [ ] Disable 2FA from settings → log out / log back in → no challenge.
+ * Keep a real-path integration test in the repo (the second `@example`) so the
+ * lifecycle stays covered on every later build.
  *
  * @module
  */

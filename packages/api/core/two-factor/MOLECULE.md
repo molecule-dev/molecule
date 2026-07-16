@@ -372,24 +372,21 @@ the default acceptance window is `[60, 30]` (≈60–90s of past validity). So:
   QR/secret will never verify again. Do not click "set up" twice and reuse the first QR.
 - `verify()`, `getUrls()`, and otplib v13's `generate()` are all ASYNC — always `await`.
 
-**E2E verification — how to PROVE this integration works (do this before calling it done).**
-Drive the app's REAL UI as the user would (in molecule.dev: `navigate_preview` →
-`read_preview_ui` → `interact_preview`, targeting elements by `data-mol-id`), asserting each
-expected outcome:
+(The end-to-end lifecycle to drive is the `@e2e` checklist below.)
 
-1. Sign UP + log in through the real auth screens (proves auth still works after your edits —
-   the most common 2FA-integration regression is a broken login).
-2. Open the security/settings screen → activate "Set up 2FA" → a QR code / secret key is
-   VISIBLE. (An error state here means the server-side setup route or table is broken.)
-3. Enter a REAL TOTP code computed from the enrollment secret (never a made-up `000000` —
-   that one must FAIL) → status flips to enabled.
-4. Log out, log back in → the 2FA challenge appears after the password → a valid code
-   completes login; a wrong code is rejected with a clear error.
-5. Disable 2FA from settings → log out/in again → no challenge.
+**Adding 2FA to an app that already has its OWN backend/database:** persist the 2FA record
+in YOUR server-side datastore — the state (secret + `enabled`) has to live somewhere the
+server controls. Do NOT assume the imported app's own hosted-DB ADMIN credentials are
+available: an imported repo ships only its public/client config, so a server-side admin write
+to the app's external database fails at runtime with a "missing env var". Use whatever
+server-side datastore the ENVIRONMENT actually provides — in the molecule sandbox that's the
+provisioned `DATABASE_URL` (`@molecule/api-database` or a `pg` pool) — keyed by the app's user
+id. (Still route EVERY 2FA read AND write through the server — a direct read/write of the 2FA
+table from the BROWSER exposes the secret; a leftover client-side DB call is a bug.)
 
-Any step showing an error state or a missing element IS the bug — fix the root cause and
-re-drive. Also keep a real-path integration test in the repo (second example below) so the
-lifecycle stays covered on every later build.
+## E2E Tests
+
+` checklist below.)
 
 **Adding 2FA to an app that already has its OWN backend/database:** persist the 2FA record
 in YOUR server-side datastore — the state (secret + `enabled`) has to live somewhere the
