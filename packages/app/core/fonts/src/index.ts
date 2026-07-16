@@ -19,6 +19,15 @@
  * ```
  *
  * @remarks
+ * - **ALL fonts are local — NEVER load one from a CDN.** Every provider bond here
+ *   (`@molecule/app-fonts-inter`, `-jetbrains-mono`, `-material-symbols`, and the
+ *   display/serif faces) is `source: 'local'` and self-hosts from `/fonts/`. Do
+ *   NOT add a Google Fonts `<link href="https://fonts.googleapis.com…">`, an
+ *   `@import url(https://fonts.gstatic…)`, or a `next/font/google` import: external
+ *   fonts fail in the sandbox (egress is blocked), leak the visitor's IP, and add
+ *   render-blocking round-trips (cross-site CDN caching died with browser cache
+ *   partitioning ~2020). If an imported app loads fonts from a CDN, localize them —
+ *   swap to one of these packages, or bundle the file + a local `@font-face`.
  * - **Consume fonts through the CSS variable (`var(--mol-font-sans)` etc.), never a
  *   hardcoded `font-family`** — the variable is the swap point; hardcoding defeats
  *   the bond. The app's theme/ClassMap layer normally references it already.

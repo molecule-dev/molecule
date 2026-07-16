@@ -236,8 +236,22 @@ const systemSerif: FontDefinition
 | Provider | Package |
 |----------|---------|
 | Arimo | `@molecule/app-fonts-arimo` |
+| DM Sans | `@molecule/app-fonts-dm-sans` |
+| DM Serif Display | `@molecule/app-fonts-dm-serif-display` |
+| IBM Plex Mono | `@molecule/app-fonts-ibm-plex-mono` |
+| IBM Plex Sans | `@molecule/app-fonts-ibm-plex-sans` |
 | Inter | `@molecule/app-fonts-inter` |
 | JetBrains Mono | `@molecule/app-fonts-jetbrains-mono` |
+| Lato | `@molecule/app-fonts-lato` |
+| Lora | `@molecule/app-fonts-lora` |
+| Manrope | `@molecule/app-fonts-manrope` |
+| Material Symbols Outlined | `@molecule/app-fonts-material-symbols` |
+| Merriweather | `@molecule/app-fonts-merriweather` |
+| Newsreader | `@molecule/app-fonts-newsreader` |
+| Playfair Display | `@molecule/app-fonts-playfair-display` |
+| Plus Jakarta Sans | `@molecule/app-fonts-plus-jakarta-sans` |
+| Source Serif 4 | `@molecule/app-fonts-source-serif-4` |
+| Space Grotesk | `@molecule/app-fonts-space-grotesk` |
 | System | `@molecule/app-fonts-system` |
 
 ## Injection Notes
@@ -251,6 +265,15 @@ Peer dependencies:
 
 - `@molecule/app-bond`
 
+- **ALL fonts are local — NEVER load one from a CDN.** Every provider bond here
+  (`@molecule/app-fonts-inter`, `-jetbrains-mono`, `-material-symbols`, and the
+  display/serif faces) is `source: 'local'` and self-hosts from `/fonts/`. Do
+  NOT add a Google Fonts `<link href="https://fonts.googleapis.com…">`, an
+  `@import url(https://fonts.gstatic…)`, or a `next/font/google` import: external
+  fonts fail in the sandbox (egress is blocked), leak the visitor's IP, and add
+  render-blocking round-trips (cross-site CDN caching died with browser cache
+  partitioning ~2020). If an imported app loads fonts from a CDN, localize them —
+  swap to one of these packages, or bundle the file + a local `@font-face`.
 - **Consume fonts through the CSS variable (`var(--mol-font-sans)` etc.), never a
   hardcoded `font-family`** — the variable is the swap point; hardcoding defeats
   the bond. The app's theme/ClassMap layer normally references it already.
