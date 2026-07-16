@@ -23,13 +23,28 @@
  * })
  * ```
  *
+ * @remarks
+ * Requires a bonded `ai` chat provider (`@molecule/api-ai`) — both functions
+ * throw if none is bonded.
+ *
+ * Failure shapes (no rejection): malformed model output — or a provider API
+ * failure, which arrives as an in-band `error` event this package does not
+ * treat as fatal — makes `generateQuiz()` resolve `{ questions: [] }` and
+ * `gradeResponses()` resolve `{ responses: [], earned: 0, percentage: 0 }`.
+ * An empty `questions` array means the model output failed to parse, not
+ * "the source had nothing to ask" — surface a retry instead of rendering an
+ * empty quiz, and don't record a 0% grade whose `responses` array is empty.
+ * `total`/`percentage` are computed from the quiz's own question count, so a
+ * partially-parsed grading under-reports `earned`, never over-reports.
+ *
  * @module
  */
 
 import { requireProvider as requireAI } from '@molecule/api-ai'
 
-/** Union of supported quiz question formats. */
 export * from './browser-guard.js'
+
+/** Union of supported quiz question formats. */
 export type QuestionType = 'multiple_choice' | 'true_false' | 'short_answer' | 'fill_in_the_blank'
 /** Relative difficulty level for a question or generated quiz. */
 export type Difficulty = 'easy' | 'medium' | 'hard'

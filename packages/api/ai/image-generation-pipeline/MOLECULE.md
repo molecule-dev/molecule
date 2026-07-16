@@ -3,7 +3,7 @@
 `@molecule/api-ai-image-generation-pipeline` — high-level pipeline
 wrapping `@molecule/api-ai-image-generation` (vendor abstraction) with
 style application, brand-model mapping, base64-to-data-URL
-normalization, variation support, and chat-driven prompt enhancement.
+normalization, and chat-driven prompt enhancement.
 
 Extracted from the ai-image-generator flagship. Use it when you need
 end-to-end "user types prompt → image" semantics with graceful fallback
@@ -99,6 +99,8 @@ interface RunImageGenerationOptions {
 
 #### `GenerationStatus`
 
+Union of terminal + intermediate image-generation states.
+
 ```typescript
 type GenerationStatus = 'succeeded' | 'failed' | 'queued'
 ```
@@ -158,3 +160,18 @@ Peer dependencies:
 
 - `@molecule/api-ai`
 - `@molecule/api-ai-image-generation`
+
+Wiring — this package composes TWO different accessor mechanisms:
+- `runImageGeneration()` resolves `@molecule/api-ai-image-generation`, whose
+  core keeps its OWN singleton: wire it with THAT package's `setProvider(...)`
+  (e.g. `setProvider(createProvider())` from
+  `@molecule/api-ai-image-generation-openai`). A generic
+  `bond('ai-image-generation', …)` call is never seen by that core — the
+  pipeline then returns `status: 'queued'` forever with no error to debug.
+- `enhancePrompt()` resolves the registry-based `@molecule/api-ai` chat bond
+  (`bond('ai', provider)` / named providers); with none bonded it returns
+  `{ enhanced: false, text: prompt }` instead of failing.
+
+`status: 'queued'` means "no image provider wired" (the graceful no-op path),
+NOT "an async job is pending" — nothing retries it. Treat a persistent
+`'queued'` as a wiring bug.

@@ -17,6 +17,24 @@
  * if (decision.action === 'flag') void notifyMods(decision)
  * ```
  *
+ * @remarks
+ * Tables: `src/__setup__/moderation_audit_log.sql` creates
+ * `moderation_audit_log`. An mlcl-scaffolded API replays `__setup__/*.sql`
+ * automatically on migrate; anywhere else run it once. Audit writes are
+ * best-effort BY DESIGN (a DB failure never blocks the moderation decision) —
+ * so with the table missing, decisions still return but no audit rows are
+ * ever written, silently.
+ *
+ * Requires a bonded `ai` chat provider (`@molecule/api-ai`) — `classify()` /
+ * `moderate()` throw if none is bonded.
+ *
+ * FAILS OPEN on classifier failure: malformed model output (and provider API
+ * errors, which arrive as in-band `error` events) resolve to empty `scores`
+ * with `reasoning: 'classifier returned malformed JSON'`, and `applyPolicy()`
+ * then returns the policy's `defaultAction` (`'allow'` in `DEFAULT_POLICY`)
+ * with `flagged: false`. If your app must fail closed, treat empty `scores`
+ * (or that reasoning string) as a manual-review case instead of an allow.
+ *
  * @module
  */
 

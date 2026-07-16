@@ -1,6 +1,22 @@
 /**
  * OpenAI ai-embeddings provider for molecule.dev.
  *
+ * @remarks
+ * Config: `OPENAI_API_KEY` (SERVER-side only) plus optional `defaultModel`
+ * (default `text-embedding-3-small`; also supports `text-embedding-3-large`
+ * and `text-embedding-ada-002`), `dimensions` (text-embedding-3 models only),
+ * `maxBatchSize` (default 2048 inputs per request — larger arrays are batched
+ * automatically), and a base URL override (`OPENAI_BASE_URL` env var or
+ * `baseUrl`, for proxies/gateways).
+ *
+ * Wire it with the core's `setProvider()` — NOT `bond('ai-embeddings', …)`:
+ * the `@molecule/api-ai-embeddings` core keeps its own singleton and never
+ * reads the bond registry (see the core's docs).
+ *
+ * Unlike the chat AI bonds, a missing `OPENAI_API_KEY` does NOT fail fast —
+ * the first embed call fails with the upstream 401. Validate the key at boot
+ * if you want an actionable startup error.
+ *
  * @module
  */
 

@@ -1,7 +1,8 @@
 /**
  * `@molecule/api-ai-workflow-engine` — trigger / condition / action
- * workflow runner with pluggable handler registry + optional
- * AI-assisted step suggestions.
+ * workflow runner with pluggable handler registry + an optional AI
+ * `ai_prompt` step (send a templated prompt to the bonded AI provider
+ * mid-run).
  *
  * Extracted from ai-workflow-automator flagship. Use it like an
  * embeddable Zapier engine inside your app.
@@ -30,13 +31,31 @@
  * })
  * ```
  *
+ * @remarks
+ * SECURITY: `condition` steps evaluate `expression` with `new Function` in the
+ * API process — full, unsandboxed JavaScript with no allowlist. Treat workflow
+ * definitions as TRUSTED code (authored by developers/admins). Never execute
+ * definitions assembled from end-user input without your own sandboxing. An
+ * expression that throws or fails to parse counts as `false` — the run
+ * short-circuits with `ok: true` (a skipped run, not a failure).
+ *
+ * The `'http'` member of `WorkflowStepType` is a reserved discriminant with NO
+ * executor: an `{ type: 'http' }` step is silently skipped (it does not even
+ * appear in `trace`). Make HTTP calls via a registered action instead — see
+ * the `http.post` action in the example.
+ *
+ * Only `ai_prompt` steps need a bonded `ai` provider (`@molecule/api-ai`);
+ * with none bonded that step errors and the run returns `ok: false` with the
+ * error on its trace entry. All other step types run without any AI provider.
+ *
  * @module
  */
 
 import { hasProvider as hasAI, requireProvider as requireAI } from '@molecule/api-ai'
 
-/** Union of all supported step type discriminants. */
 export * from './browser-guard.js'
+
+/** Union of all supported step type discriminants. */
 export type WorkflowStepType = 'condition' | 'action' | 'delay' | 'http' | 'ai_prompt'
 
 /** A step that evaluates a JS expression and short-circuits the run on false. */

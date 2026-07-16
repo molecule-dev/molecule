@@ -16,6 +16,10 @@ export interface OpenaiImageGenerationConfig {
   baseUrl?: string
   /** Default image size. Defaults to '1024x1024'. */
   defaultSize?: string
-  /** Default quality level. Defaults to 'auto'. */
+  /**
+   * Default quality level. Omitted from requests unless set — 'auto' is only
+   * valid for gpt-image-1; dall-e-3 accepts 'standard' | 'hd'. When unset,
+   * OpenAI applies the model-appropriate default.
+   */
   defaultQuality?: string
 }
