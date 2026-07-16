@@ -584,6 +584,27 @@ describe('buildTools', () => {
     expect(seen.map(([c]) => c)).toEqual(['run forbidden thing', 'echo ok'])
     expect(seen[0][1]).toBeTruthy()
   })
+
+  it('exec_command uses execTimeoutMs — default 120s (not the old 30s), consumer-raisable', async () => {
+    // Regression: the 30s hardcap silently killed npm install / build / test at
+    // 30s even though the caller (molecule-dev) grants exec_command ~300s.
+    const backend = mockBackend()
+    const execCmd = buildTools(backend).find((t) => t.name === 'exec_command')!
+    await execCmd.execute({ command: 'npm install some-lib' })
+    const runOpts = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][1]
+    expect(runOpts).toMatchObject({ timeout: 120_000 })
+    expect(runOpts.timeout).not.toBe(30000) // the old, too-short value
+
+    // A consumer can raise it to match its own outer per-tool budget.
+    const backend2 = mockBackend()
+    const execCmd2 = buildTools(backend2, { execTimeoutMs: 300_000 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    await execCmd2.execute({ command: 'npm run build' })
+    expect((backend2.run as ReturnType<typeof vi.fn>).mock.calls[0][1]).toMatchObject({
+      timeout: 300_000,
+    })
+  })
 })
 
 // ── buildAgentPrompt ────────────────────────────────────────────────────────

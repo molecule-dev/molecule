@@ -46,6 +46,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     redactSecrets: doRedact = true,
     blockDangerousCommands = false,
     blockCommand,
+    execTimeoutMs = 120_000,
     searchExcludedDirs,
     onAfterWrite,
     onFileDiff,
@@ -530,7 +531,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       }
 
       try {
-        const result = await backend.run(command, { cwd, timeout: 30000 })
+        // exec_command runs installs/builds/tests — the old 30s hardcap killed
+        // those spuriously; use the (generous, caller-configurable) budget.
+        const result = await backend.run(command, { cwd, timeout: execTimeoutMs })
         // truncateMiddle (not truncate): a failing build/test/migration puts its
         // error at the TAIL, so keep the head AND the tail — head-only truncation
         // strands the executor with passing progress and no failure reason.
