@@ -98,3 +98,9 @@ Peer dependencies:
 
 - `@molecule/api-secrets`
 - `@molecule/api-video-rooms`
+
+`createProvider()` throws at bond time when no API key is available
+(config.apiKey or DAILY_CO_API_KEY) — an app wiring
+`setProvider(createProvider())` at startup will not boot until the key is
+set. `recording: true` maps to Daily.co cloud recording
+(`enable_recording: 'cloud'`), which must be enabled on your Daily.co plan.

@@ -285,8 +285,8 @@ export function createProvider(config: LiveKitVideoRoomsConfig = {}): VideoRooms
 
   /**
    * Generates a fresh meeting token for `roomName` with the given
-   * options. Owners get full publish + subscribe; non-owners get
-   * subscribe-only by default unless they're explicitly granted owner.
+   * options. All tokens get publish + subscribe; owners additionally get
+   * roomAdmin + canUpdateOwnMetadata.
    *
    * @param roomName - The room the token is scoped to.
    * @param options - Token options.

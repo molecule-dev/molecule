@@ -8,7 +8,10 @@
  * with `otplib` itself (this bond's own dependency, already installed):
  *
  * ```bash
- * node -e "import('otplib').then(o => console.log(o.authenticator.generate(process.argv[1])))" <base32-secret>
+ * node -e "import('otplib').then(async o => console.log(await o.generate({ secret: process.argv[1] })))" <base32-secret>
+ *
+ * (otplib v13 exposes `generate({ secret })` — the v12 `authenticator.generate()`
+ * was removed and will throw.)
  * ```
  *
  * Use the secret returned by `generateSecret()` during setup (or read it back

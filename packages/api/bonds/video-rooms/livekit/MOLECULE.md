@@ -270,3 +270,20 @@ Peer dependencies:
 - `@molecule/api-secrets`
 - `@molecule/api-video-rooms`
 - `livekit-server-sdk`
+
+- **`privacy` is decorative on LiveKit.** LiveKit has no public/private
+  room modes — EVERY participant needs a token from
+  `createMeetingToken()`, and the returned `Room.url` is the server's
+  `wss://` endpoint (not a joinable link). The bond echoes `privacy` back
+  on the room object but nothing enforces it; the core's "public rooms are
+  joinable by URL" caveat does not apply to this bond.
+- **`recording: true` does not start or configure recording.** LiveKit
+  records via Egress, which this bond never starts — the flag is echoed
+  back only, and `listRecordings()` stays empty unless an egress was
+  started elsewhere.
+- `expiresAt` on `createRoom` maps to LiveKit's `emptyTimeout` (how long
+  an empty room survives), not an absolute expiry.
+- All meeting tokens grant `canPublish` + `canSubscribe`; `isOwner` adds
+  `roomAdmin` — there is no subscribe-only token option in this revision.
+- `createProvider()` throws at bond time when LIVEKIT_URL /
+  LIVEKIT_API_KEY / LIVEKIT_API_SECRET are unset.

@@ -3,6 +3,18 @@
  *
  * Implements the `@molecule/api-sms` interface using the Vonage SMS API.
  *
+ * Two `SMSOptions` capabilities are NOT supported by the Vonage SMS API —
+ * this bond fails fast instead of silently dropping them:
+ * - `options.scheduledAt`: `send()` throws ('Vonage SMS API does not support
+ *   scheduled sending.') — delay dispatch with a job scheduler instead.
+ * - `getStatus()`: always throws — Vonage reports delivery only via DLR
+ *   webhooks. Pass `options.callbackUrl` to `send()`/`sendBulk()` and
+ *   receive delivery receipts on that endpoint instead of polling.
+ *
+ * Credentials are captured ONCE when `createProvider()` runs — setting
+ * `VONAGE_*` later in the same process has no effect until the provider is
+ * re-created (an API restart after filling in secrets does this).
+ *
  * @module
  * @example
  * ```typescript

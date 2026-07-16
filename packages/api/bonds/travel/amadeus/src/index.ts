@@ -15,6 +15,13 @@
  * Cars are intentionally returned as an empty array: Amadeus does not
  * expose a public car-rental API as of v22.
  *
+ * Hotels require a check-out date: `searchTripOptions` prices hotels only
+ * when `returnDate` is supplied — a one-way search (where `includeHotels`
+ * defaults to true) resolves with `hotels: []` rather than throwing. Hotel
+ * pricing is also best-effort per batch: individual batch failures are
+ * swallowed and partial hotel results returned, so a short/empty hotels
+ * array is not necessarily an upstream outage.
+ *
  * @example
  * ```typescript
  * import { setProvider } from '@molecule/api-travel'

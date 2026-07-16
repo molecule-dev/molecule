@@ -16,6 +16,11 @@
  *   object public just to "make it load".
  * - The AWS credentials are server-only (never in the browser) — the browser uploads to YOUR
  *   API, which streams to S3.
+ * - **Blocked MIME types:** `text/html`, `application/xhtml+xml`, JavaScript
+ *   types, `image/svg+xml`, and XML are REJECTED at `upload()` (reported via
+ *   `onError`; same list as the filesystem bond) — SVG uploads must be
+ *   rasterized/re-typed client-side. `Content-Disposition: attachment`
+ *   (next bullet) is the second layer for everything that IS accepted.
  * - **Every object is uploaded with `Content-Disposition: attachment`** — a deliberate
  *   stored-XSS safety default (S3 has no server-side rendering, so this stops a browser from
  *   ever executing an uploaded HTML/SVG file inline). This means a browser hitting the object

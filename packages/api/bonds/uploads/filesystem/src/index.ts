@@ -13,6 +13,18 @@
  * bond's abort behavior; see that core package's `AbortHandler` remarks for the
  * full cross-provider contract.
  *
+ * - **Blocked MIME types:** uploads declaring `text/html`,
+ *   `application/xhtml+xml`, JavaScript types, `image/svg+xml`, or XML are
+ *   REJECTED at `upload()` as a stored-XSS defense (same list as the S3
+ *   bond). The rejection is reported through the `onError` callback and the
+ *   returned file has `uploaded: false` and NO `uploadPromise` — handle
+ *   `onError`; don't await `uploadPromise` alone. Rasterize SVGs client-side
+ *   if the app needs vector-source uploads.
+ * - **Import-time setup:** `FILE_UPLOAD_PATH` is read ONCE at module import
+ *   and the directory is created immediately — importing this package throws
+ *   an actionable error if the path is not writable, and changing the env
+ *   var later in the same process has no effect (restart required).
+ *
  * @module
  */
 

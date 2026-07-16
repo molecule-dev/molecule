@@ -49,9 +49,13 @@ Configuration options for the MJML template provider.
 interface MjmlTemplateConfig {
   /**
    * Validation level for MJML templates.
-   * - `'strict'` — throws on any MJML error (default)
-   * - `'soft'` — renders despite errors, attaching warnings
+   * - `'strict'` — `render()` throws on any MJML validation error
+   * - `'soft'` — renders despite errors (default)
    * - `'skip'` — no validation at all
+   *
+   * Defaults to `'soft'`. Note: only `render()` enforces `'strict'` —
+   * `renderCompiled()` never throws on MJML validation errors regardless
+   * of this setting.
    */
   validationLevel?: MjmlValidationLevel
 
@@ -120,7 +124,7 @@ Implements `@molecule/api-templating` interface.
 Setup function to register this provider with the core interface:
 
 ```typescript
-import { setProvider, registerHelper, registerPartial } from '@molecule/api-templating'
+import { setProvider } from '@molecule/api-templating'
 import { provider } from '@molecule/api-templating-mjml'
 
 export function setupTemplatingMjml(): void {
@@ -140,3 +144,11 @@ Peer dependencies:
 - `@molecule/api-templating`
 - `handlebars`
 - `mjml`
+
+- Validation defaults to `'soft'` (render despite MJML errors). Set
+  `createProvider({ validationLevel: 'strict' })` to make `render()` throw
+  on invalid MJML — but note `renderCompiled()` skips validation entirely.
+- `compile()` pre-compiles only the Handlebars interpolation; the MJML →
+  responsive-HTML conversion still runs on every `renderCompiled()` call.
+- Raw (unescaped) interpolation is per-render only (`options.escape:
+  false` on `render()`); compiled templates always escape.

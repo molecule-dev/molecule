@@ -49,7 +49,8 @@ function delay(ms: number): Promise<void> {
  * Creates an HTTP-backed {@link WebhookProvider}.
  *
  * Webhook registrations and delivery logs are stored in memory.
- * For persistent storage, use `@molecule/api-webhook-queue` instead.
+ * For asynchronous background delivery with retry backoff, use
+ * `@molecule/api-webhook-queue` (note: also in-memory).
  *
  * @param config - HTTP webhook provider configuration.
  * @returns A fully initialised `WebhookProvider` backed by direct HTTP delivery.

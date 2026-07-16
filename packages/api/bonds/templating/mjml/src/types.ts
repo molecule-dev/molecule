@@ -15,9 +15,13 @@ export type MjmlValidationLevel = 'strict' | 'soft' | 'skip'
 export interface MjmlTemplateConfig {
   /**
    * Validation level for MJML templates.
-   * - `'strict'` — throws on any MJML error (default)
-   * - `'soft'` — renders despite errors, attaching warnings
+   * - `'strict'` — `render()` throws on any MJML validation error
+   * - `'soft'` — renders despite errors (default)
    * - `'skip'` — no validation at all
+   *
+   * Defaults to `'soft'`. Note: only `render()` enforces `'strict'` —
+   * `renderCompiled()` never throws on MJML validation errors regardless
+   * of this setting.
    */
   validationLevel?: MjmlValidationLevel
 

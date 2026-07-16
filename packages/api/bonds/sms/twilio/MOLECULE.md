@@ -4,6 +4,16 @@ Twilio SMS provider for molecule.dev.
 
 Implements the `@molecule/api-sms` interface using the Twilio REST API.
 
+`options.scheduledAt` is forwarded as Twilio's `sendAt` + `scheduleType:
+'fixed'`, which Twilio only honors for messages sent through a Messaging
+Service — with a plain `from` phone number (this bond's only sender mode)
+the API rejects the scheduled send. Treat `scheduledAt` as unsupported
+here and delay dispatch with a job scheduler instead.
+
+Credentials are captured ONCE when `createProvider()` runs — setting
+`TWILIO_*` later in the same process has no effect until the provider is
+re-created (an API restart after filling in secrets does this).
+
 ## Quick Start
 
 ```typescript

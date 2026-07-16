@@ -26,6 +26,15 @@
  * `, { name: 'World' })
  * ```
  *
+ * @remarks
+ * - Validation defaults to `'soft'` (render despite MJML errors). Set
+ *   `createProvider({ validationLevel: 'strict' })` to make `render()` throw
+ *   on invalid MJML — but note `renderCompiled()` skips validation entirely.
+ * - `compile()` pre-compiles only the Handlebars interpolation; the MJML →
+ *   responsive-HTML conversion still runs on every `renderCompiled()` call.
+ * - Raw (unescaped) interpolation is per-render only (`options.escape:
+ *   false` on `render()`); compiled templates always escape.
+ *
  * @module
  */
 

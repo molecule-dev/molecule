@@ -4,6 +4,14 @@
  * Implements the `@molecule/api-video-meetings` interface using the Zoom
  * REST v2 API.
  *
+ * @remarks
+ * `createProvider()` validates credentials EAGERLY: without an `accessToken`
+ * resolver, any missing ZOOM_ACCOUNT_ID / ZOOM_CLIENT_ID / ZOOM_CLIENT_SECRET
+ * throws at bond time — an app wiring `setProvider(createProvider())` at
+ * startup will not boot until the secrets are set (unlike the sms bonds,
+ * which defer validation to first send). Requires a Zoom "Server-to-Server
+ * OAuth" app type for the env-credentials mode.
+ *
  * @module
  * @example
  * ```typescript

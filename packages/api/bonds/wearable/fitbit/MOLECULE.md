@@ -678,3 +678,16 @@ Peer dependencies:
 - `@molecule/api-http`
 - `@molecule/api-secrets`
 - `@molecule/api-wearable`
+
+**OAuth callback contract for `connect(userId, code)`:** `startAuthorize()`
+stores the PKCE verifier under the returned `state`, but `connect()` looks
+it up by the authorization `code`. Your callback handler must bridge the
+two: validate `state`, `take(state)` the verifier, `put(code, verifier)`
+it back, then call `connect(userId, code)` — or skip the store entirely
+and call `connectWithVerifier(userId, code, verifier)`. Calling `connect()`
+without the re-put fails with 'no PKCE verifier found for supplied code'.
+
+Tokens refresh transparently (proactively on expiry, once on 401) and are
+written back to the credentials store before any call returns.
+`disconnect()` always removes the local record even if Fitbit's revoke
+call fails.
