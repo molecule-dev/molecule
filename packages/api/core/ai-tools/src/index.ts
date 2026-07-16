@@ -49,6 +49,37 @@
  * }
  * ```
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual agent/chat surface and its registered tools,
+ * and check every box off one by one. A box you can't check is an integration
+ * bug to fix — not a skip:
+ * - [ ] A prompt that should trigger a registered tool makes the model INVOKE
+ *   it with args matching that tool's `parameters` schema (e.g. "read
+ *   src/index.ts" -> calls `read_file` with `{ path: 'src/index.ts' }`).
+ *   Confirm the tool's `execute` actually RAN — its backend side effect / log /
+ *   the file it touched — not that the model merely narrated calling it.
+ * - [ ] The tool's returned value flows back into the model and shapes the
+ *   final answer: the REAL result (the file's actual contents, the command's
+ *   real stdout/exitCode) appears in the reply, not a plausible hallucination.
+ * - [ ] A prompt that needs no tool is answered directly, with no spurious
+ *   tool call.
+ * - [ ] A tool whose `execute` throws or returns `{ error }` (missing file,
+ *   failing command, blocked path) degrades gracefully — the error is caught
+ *   and fed back to the model as text, the conversation continues, and nothing
+ *   crashes the request.
+ * - [ ] The model can invoke ONLY the tools handed to this run: an
+ *   `include`/`exclude`-scoped agent (e.g. read-only — no `write_file` /
+ *   `exec_command`) cannot call an excluded tool, and a tool name the model
+ *   invents that was never registered is refused, not executed.
+ * - [ ] Tool execution is server-side and authorized: `exec_command` /
+ *   `write_file` run only on the bonded backend under its guards (`pathGuards`,
+ *   `symlinkGuards`, `redactSecrets`, `blockDangerousCommands` / `blockCommand`)
+ *   and stay inside `projectRoot`. Feed a prompt-injected instruction (a file or
+ *   message telling the model to read `/etc/passwd`, escape the workspace, or run
+ *   a privileged command) and confirm the guard REFUSES it — a user must not be
+ *   able to trigger, via the model, any action they could not perform directly.
+ *
  * @module
  */
 

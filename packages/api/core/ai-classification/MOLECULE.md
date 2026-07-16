@@ -223,3 +223,30 @@ Peer dependencies:
 - `ClassifyResult.labels` is restricted to the candidate set, sorted
   descending by score. See the bonded provider for parsing/normalization
   semantics.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Each flow that classifies content (tagging, routing, moderation,
+  triage — whatever the app defines) runs it from the real UI and the
+  returned `top` is one of the app's candidate `labels`, never free text,
+  with a `score` in 0..1. The sandbox has a live AI provider, so assert on
+  the actual result — never mock the classifier or hardcode a label.
+- [ ] Assert BOTH directions with clear samples: a clearly-on-topic example
+  lands in its expected class AND a clearly-different example lands in a
+  different class. A classifier that returns the same label for every input
+  is broken — one positive check alone does not prove it works.
+- [ ] Ambiguity is treated as uncertain, not force-fit: when the app gates
+  on a minimum confidence, a genuinely-ambiguous input yields a low winning
+  `score` and is routed to the app's "unsure"/unlabeled path rather than
+  silently assigned the top label.
+- [ ] The label actually DRIVES app behavior (routes/filters/tags/badges the
+  item), not just renders as text — verify the downstream effect in the UI,
+  not only that a label appeared on screen.
+- [ ] Empty or ambiguous input is handled without a crash or a blank screen
+  (a visible "couldn't classify"/unlabeled state, not an unhandled error).
+- [ ] The classify call runs SERVER-SIDE: it goes through the app's API and
+  the AI provider key never reaches the browser — the Network tab shows no
+  provider request or key issued from client code.
