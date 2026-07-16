@@ -30,10 +30,12 @@
  * `routes`/`requestHandlerMap` export; this package ships the Express router
  * factory shown above.
  *
- * Access is space-scoped through `getAccessibleSpace`: a caller may act on a
- * page when they OWN its `wiki_spaces` row or the space is `is_public`. Note
- * that a public space is writable by ANY authenticated user — keep spaces
- * private for owner-only editing, or wrap the router with your own role gate.
+ * Access is space-scoped through `getAccessibleSpace`: a caller may READ a page
+ * when they OWN its `wiki_spaces` row or the space is `is_public`. WRITES
+ * (create/update/delete) are OWNER-ONLY — the write handlers additionally
+ * require `space.owner_id === userId`, so a non-owner's write is refused (404)
+ * even in a public space. If you need collaborative editing across a space,
+ * wrap the router with your own role gate.
  * This package ships no space CRUD: create/seed the `wiki_spaces` row yourself
  * before creating pages. `DELETE /:id` is recursive (children first). If a
  * search provider is bonded via `@molecule/api-search`, creates and updates
