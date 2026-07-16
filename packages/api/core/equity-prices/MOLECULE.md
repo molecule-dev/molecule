@@ -383,3 +383,19 @@ Peer dependencies:
 
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
+
+- **Server-side only.** Provider API keys are secrets; fetch quotes in API
+  handlers/jobs and serve the UI through the app's own endpoints.
+- **Cache aggressively.** Free market-data tiers are severely rate-limited
+  (some to a few dozen calls per DAY) — a `getQuote()` per page render
+  exhausts the quota. Cache quotes server-side and refresh on an interval,
+  not per request.
+- **Symbols and exchanges are provider catalogues, not universal.** Resolve
+  user input through `searchSymbol()` instead of assuming a ticker exists,
+  and store what the provider returned.
+- **`EquityFundamentals` fields are optional by contract** — treat a missing
+  field as "unknown", never as zero (an absent P/E is not a `0` P/E).
+- Quotes carry an explicit ISO 4217 `currency` — format prices with it;
+  never hardcode `$`.
+- `getHistorical(symbol, range)` takes an enum range (`'1d'`…`'5y'`,
+  `'max'`); bars return in ascending chronological order.

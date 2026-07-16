@@ -18,6 +18,19 @@
  * const interactions = await checkInteractions(['860975', '1191'])
  * ```
  *
+ * @remarks
+ * - **An empty `checkInteractions()` result is NOT a safety verdict.** The
+ *   contract lets providers degrade to `[]` when their upstream lacks
+ *   interaction coverage — render it as "no known interactions found" with any
+ *   medical disclaimer intact, never as "safe to combine".
+ * - **`DrugId` is provider-specific** (e.g. an RxNorm RXCUI). Obtain ids from
+ *   `searchDrug()` results or store what the bonded provider returned — never
+ *   hardcode ids from a different vendor's catalogue.
+ * - **Server-side only.** Lookups belong in API handlers; expose app endpoints
+ *   for the UI. Upstream medical APIs are rate-limited — debounce user-typed
+ *   search and cache `getDrug()` detail lookups.
+ * - `getDrug()` resolves `null` for an unknown id — map it to a 404, not a 500.
+ *
  * @module
  */
 

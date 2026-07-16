@@ -160,3 +160,18 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/api-compliance`
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] A logged-in user can export their own data from the UI and the export
+  contains their data — and only theirs.
+- [ ] Requesting an export or deletion for a DIFFERENT user's id (e.g. by
+  editing the request) is rejected server-side — not merely hidden in the UI.
+- [ ] The deletion flow requires an explicit confirmation, completes, and the
+  user's content is gone after a full reload; any retained categories are
+  stated in the UI.
+- [ ] Toggling a consent purpose off persists (survives reload) and the
+  consent-scoped behavior actually stops.

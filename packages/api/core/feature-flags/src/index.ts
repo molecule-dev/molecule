@@ -24,6 +24,24 @@
  * // Evaluate all flags for a user
  * const flags = await evaluateForUser('user-123')
  * ```
+ *
+ * @remarks
+ * - **Percentage/rule targeting only applies when you pass context.**
+ *   `isEnabled('new-dashboard')` with NO `{ userId }` falls back to the bare
+ *   global toggle — for a percentage flag that means EVERYONE gets it. Always
+ *   pass the authenticated user's id for user-facing gating.
+ * - **Evaluate flags SERVER-SIDE and ship booleans.** Expose an endpoint that
+ *   returns `evaluateForUser(userId)` results for the UI to consume — never
+ *   send raw flag definitions/rules to the client or re-implement targeting
+ *   there.
+ * - **A client-side flag gate is UX, not security.** Anything the flag
+ *   protects must also be gated on the API route with the same check.
+ * - **Rollouts must be sticky per user.** Evaluate with the same stable
+ *   `userId` every time — a session id (or none) makes features flicker
+ *   between requests.
+ * - `setFlag()` is an upsert keyed on `name`. Flag CRUD (`setFlag`,
+ *   `deleteFlag`, `getAllFlags`) is an admin surface — put it behind an admin
+ *   authorizer, not a public route.
  */
 
 export * from './browser-guard.js'

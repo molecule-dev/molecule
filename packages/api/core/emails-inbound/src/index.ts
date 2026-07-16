@@ -31,6 +31,28 @@
  * await createTicketFromEmail(email)
  * ```
  *
+ * @remarks
+ * The inbound webhook endpoint is PUBLIC and unauthenticated — treat every
+ * request as forgeable:
+ *
+ * - **Verify BEFORE trusting: `verifySignature()` first, then
+ *   `parseWebhookPayload()`.** Reject failures with a 401 — never create
+ *   tickets/replies from an unverified payload.
+ * - **Signature verification needs the EXACT bytes received.** Wire the route
+ *   so the raw request body is available (the fleet's Express body-parser bond
+ *   exposes `req.rawBody`; on other stacks capture the raw body alongside
+ *   parsing). A re-serialized/parsed-then-stringified body breaks HMAC
+ *   verification.
+ * - **Don't map every failure to 401.** A thrown tagged configuration error
+ *   (e.g. unset signing key) is a server misconfiguration — let it propagate
+ *   to error middleware (→ 503) instead of catching it into the same 401 a
+ *   forged webhook gets.
+ * - **Replying is optional per provider.** Check `supportsReply()` before
+ *   `replyTo()` (which throws otherwise), and reply dispatch composes onto the
+ *   outbound `@molecule/api-emails` bond — wire a transport or replies fail.
+ * - Respond 2xx promptly once verified and make handling idempotent (dedupe on
+ *   `InboundEmail.messageId`) — providers retry slow or 5xx webhooks.
+ *
  * @module
  */
 

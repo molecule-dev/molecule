@@ -471,3 +471,18 @@ Peer dependencies:
 
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
+
+- **Server-side only.** Price lookups run in API handlers/jobs — provider
+  API keys are secrets and never reach the browser. Expose an app endpoint
+  that returns exactly the data the UI needs.
+- **`CoinId` is provider-specific — never hardcode one provider's ids.**
+  `'bitcoin'` is a CoinGecko id; other providers key coins differently.
+  Resolve ids at runtime (`listCoins()` / `listSupportedSymbols()`) or store
+  the id the bonded provider returned, so swapping bonds doesn't silently
+  break lookups.
+- **Cache aggressively.** Free upstream tiers are heavily rate-limited — a
+  `getPrice()` per page render gets the app throttled. Cache quotes
+  server-side (seconds–minutes of staleness is fine for display) and prefer
+  one `listCoins()` over N `getPrice()` calls.
+- `getHistorical(id, days)` takes a positive integer count of days back from
+  now (`7`, `30`, `365`) — not a date or a range string.

@@ -14,7 +14,8 @@ webhook glue that maps Stripe / Apple / Google subscription events to
 ## Quick Start
 
 ```typescript
-import { defineTiers, setProvider } from '@molecule/api-entitlements'
+import { defineTiers, setProvider, enforceLimit, requireCategoryAtLeast } from '@molecule/api-entitlements'
+import { count } from '@molecule/api-database'
 
 interface BlogLimits {
   maxPosts: number
@@ -31,6 +32,17 @@ const registry = defineTiers<BlogLimits>({
 })
 
 setProvider(registry)
+
+// Gate the API routes — the SERVER enforces tiers, never the UI alone:
+router.post('/posts',
+  enforceLimit<BlogLimits>({
+    limitType: 'maxPosts',
+    getLimit: (limits) => limits.maxPosts,
+    getCurrent: (userId) => count('posts', [{ field: 'userId', operator: '=', value: userId }]),
+  }),
+  handlers.createPost,
+)
+router.get('/analytics', requireCategoryAtLeast('pro'), handlers.analytics)
 ```
 
 ## Type
@@ -584,6 +596,25 @@ Peer dependencies:
 - `@molecule/api-database`
 - `@molecule/api-i18n`
 - `@molecule/api-rate-limit`
+
+- **Enforcement is middleware on the API route** (`requireCategory`,
+  `requireCategoryAtLeast`, `enforceLimit`) — hiding a button in the UI is
+  not entitlement enforcement. The middleware reads the authenticated user
+  from `res.locals.session.userId`, so it must be registered AFTER the auth
+  middleware; unauthenticated requests get a 401.
+- **`enforceLimit` blocks at `current >= limit`** and responds with a
+  structured `LimitErrorPayload` (default 403; pass `status: 429` for
+  usage-style limits) that the app's limit/upgrade notice renders — don't
+  swallow it into a generic error page.
+- **Plan keys are cached per process** (default 5-minute TTL). The
+  resource-user payment webhook glue invalidates on plan change; any custom
+  path that mutates a user's `planKey` must call
+  `invalidateCachedPlanKey(userId)` or the old tier lingers until TTL.
+- Unknown, expired, or missing plan keys resolve to the `defaultPlanKey`
+  tier — make the default tier's limits the safe floor.
+- The middleware factories are connect/Express-shaped conveniences. Other
+  stacks (queues, websockets, non-Express frameworks) enforce the same tiers
+  directly via `getProvider()` + `getCachedPlanKey(userId)`.
 
 ## E2E Tests
 
