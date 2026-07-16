@@ -254,16 +254,19 @@ describe('truncateMiddle', () => {
   })
 
   it('keeps the head too (what ran / first errors) and marks the elision', () => {
-    const out = truncateMiddle('HEAD_MARKER' + 'x'.repeat(500) + 'TAIL_MARKER', 100)
+    const out = truncateMiddle('HEAD_MARKER' + 'x'.repeat(2000) + 'TAIL_MARKER', 400)
     expect(out.startsWith('HEAD_MARKER')).toBe(true)
     expect(out.endsWith('TAIL_MARKER')).toBe(true)
-    expect(out).toMatch(/chars omitted from the middle/)
+    expect(out).toMatch(/middle truncated/)
   })
 
-  it('never exceeds maxLength + the elision notice', () => {
-    const out = truncateMiddle('z'.repeat(10000), 1000)
-    // head(400) + tail(600) of real content, plus the fixed notice.
-    expect(out.length).toBeLessThan(1000 + 200)
+  it('stays WITHIN maxLength (reserves room for the notice — the cap is a real budget)', () => {
+    // Both a big and a small cap: total output (head + notice + tail) must not
+    // exceed maxLength, so exec_command's MAX_OUTPUT_SIZE bound actually holds.
+    for (const cap of [1000, 102400, 300]) {
+      const out = truncateMiddle('z'.repeat(cap * 3), cap)
+      expect(out.length, `cap=${cap}`).toBeLessThanOrEqual(cap)
+    }
   })
 })
 

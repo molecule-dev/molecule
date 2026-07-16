@@ -270,12 +270,21 @@ export function truncate(s: string, maxLength: number): string {
  */
 export function truncateMiddle(s: string, maxLength: number): string {
   if (s.length <= maxLength) return s
-  const headLen = Math.floor(maxLength * 0.4)
-  const tailLen = maxLength - headLen
-  const omitted = s.length - maxLength
+  // Reserve room for the elision notice so head + notice + tail stays WITHIN
+  // maxLength — the cap is a real token budget the caller relies on (a head-only
+  // truncate that overshoots by its suffix length breaks that contract). 140 =
+  // the fixed notice text (~124) + up to ~12 digits for the omitted count.
+  const noticeReserve = 140
+  // Cap too small to fit the notice + any head/tail → plain head slice (still
+  // within maxLength; the middle-preserving form only helps at real sizes).
+  if (maxLength <= noticeReserve) return s.slice(0, maxLength)
+  const budget = maxLength - noticeReserve
+  const headLen = Math.floor(budget * 0.4)
+  const tailLen = budget - headLen
+  const omitted = s.length - headLen - tailLen
   return (
     s.slice(0, headLen) +
-    `\n\n... (${omitted} chars omitted from the middle — showing the head and the tail; a failing command's error is usually near the end) ...\n\n` +
+    `\n\n... [middle truncated — ${omitted} chars omitted; the head AND the tail are shown, a failing command's error is usually near the end] ...\n\n` +
     s.slice(s.length - tailLen)
   )
 }
