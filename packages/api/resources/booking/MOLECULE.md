@@ -15,7 +15,8 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-booking'
 // POST   /bookings                       — create (starts 'pending', 409 on overlap)
 // GET    /bookings                       — the caller's bookings
 // GET    /bookings/:id
-// POST   /bookings/:id/cancel | /reschedule | /confirm | /complete
+// POST   /bookings/:id/cancel | /confirm | /complete
+// PUT    /bookings/:id/reschedule
 ```
 
 ## Type
