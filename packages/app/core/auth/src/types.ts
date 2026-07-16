@@ -368,7 +368,7 @@ export interface AuthClientConfig {
    * storage: 'memory'
    *
    * // Use custom storage from `@molecule/app-storage`
-   * import { getProvider } from '`@molecule/app-storage`'
+   * import { getProvider } from '@molecule/app-storage'
    * const storageProvider = getProvider()
    * storage: {
    *   getItem: (key) => storageProvider.get(key),

@@ -1,5 +1,5 @@
 /**
- * Sandbox execution backend — wraps \@molecule/api-code-sandbox Sandbox interface.
+ * Sandbox execution backend — wraps `@molecule/api-code-sandbox` Sandbox interface.
  * Used by Synthase (molecule.dev IDE).
  *
  * @module
@@ -8,7 +8,7 @@
 import type { ExecutionBackend } from '../types.js'
 import { shellQuote } from '../utilities.js'
 
-/** Minimal Sandbox shape to avoid hard dependency on \@molecule/api-code-sandbox. */
+/** Minimal Sandbox shape to avoid hard dependency on `@molecule/api-code-sandbox`. */
 interface SandboxLike {
   readFile(path: string): Promise<string>
   writeFile(path: string, content: string): Promise<void>
@@ -23,7 +23,7 @@ interface SandboxLike {
  * Create an ExecutionBackend that delegates to a Docker sandbox instance.
  * The sandbox.exec method is inherently safe — it runs inside an isolated Docker container.
  *
- * @param sandbox - A running Sandbox instance from \@molecule/api-code-sandbox
+ * @param sandbox - A running Sandbox instance from `@molecule/api-code-sandbox`
  * @param projectRoot - Root directory inside the sandbox (default: '/workspace')
  * @returns A backend that proxies all filesystem calls into the sandbox.
  */

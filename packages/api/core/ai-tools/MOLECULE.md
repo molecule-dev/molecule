@@ -294,7 +294,7 @@ The sandbox.exec method is inherently safe — it runs inside an isolated Docker
 function createSandboxBackend(sandbox: SandboxLike, projectRoot?: string): ExecutionBackend
 ```
 
-- `sandbox` — A running Sandbox instance from \@molecule/api-code-sandbox
+- `sandbox` — A running Sandbox instance from `@molecule/api-code-sandbox`
 - `projectRoot` — Root directory inside the sandbox (default: '/workspace')
 
 **Returns:** A backend that proxies all filesystem calls into the sandbox.
