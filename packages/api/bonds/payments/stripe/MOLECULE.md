@@ -797,11 +797,16 @@ host, but still use these bond functions underneath.
 Two things a weak Stripe integration gets wrong:
 
 - **The webhook body MUST be RAW for signature verification.** {@link verifyWebhookSignature}
-  (Stripe's `constructEvent`) hashes the exact bytes, so if `express.json()` already parsed
-  the request, verification ALWAYS fails. Mount the notification route with
-  `express.raw({ type: 'application/json' })` (or capture `req.rawBody`) BEFORE the JSON body
-  parser, and pass that raw Buffer/string + the `stripe-signature` header. NEVER act on an
-  unverified webhook body — it is attacker-controlled.
+  (Stripe's `constructEvent`) hashes the exact bytes, so a parsed-then-re-serialized body
+  ALWAYS fails. In a molecule app you need NO special middleware: the always-included
+  `@molecule/api-middleware-body-parser-express` already captures the unparsed body as
+  `req.rawBody` (a string) on EVERY request — just pass `req.rawBody` + the `stripe-signature`
+  header to {@link verifyWebhookSignature}. Do NOT add a route-specific `express.raw(...)` here —
+  it is redundant and fights the global JSON parser (which has already consumed the stream and
+  set `req.rawBody`). (ONLY on a NON-molecule Express host that lacks `req.rawBody` do you mount
+  `express.raw({ type: 'application/json' })` before the JSON parser; on Next.js App Router read
+  the raw body with `await req.text()`.) NEVER act on an unverified webhook body — it is
+  attacker-controlled.
 - **Webhooks are redelivered — be idempotent.** Stripe retries until it gets a 2xx, so the
   same `event.id` can arrive twice. Dedupe on it (the payment record's
   `UNIQUE(platformKey, transactionId)` already blocks a double-grant), and return 2xx once
