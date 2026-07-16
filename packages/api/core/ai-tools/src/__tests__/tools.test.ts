@@ -189,6 +189,30 @@ describe('buildTools', () => {
     expect(backend.writeFile).toHaveBeenCalled()
   })
 
+  it('save_plan accepts the plan under the `body` alias the weak executor often uses', async () => {
+    // Regression: deepseek sent the plan as `body`, not `content`; reading only `content`
+    // left it undefined and a VALID checklist got the "not a checklist" error, looping the
+    // whole plan phase. The tool now accepts body/plan/markdown aliases.
+    const backend = mockBackend()
+    const savePlan = buildTools(backend).find((t) => t.name === 'save_plan')
+    const result = (await savePlan!.execute({
+      name: 'Search',
+      body: '- [ ] Create lib/search/index.ts\n- [ ] Create app/actions/search.ts\n',
+    })) as { ok?: boolean; error?: string }
+    expect(result.error).toBeUndefined()
+    expect(result.ok).toBe(true)
+    expect(backend.writeFile).toHaveBeenCalled()
+  })
+
+  it('save_plan reports missing plan text (not a format error) when no content field is present', async () => {
+    const backend = mockBackend()
+    const savePlan = buildTools(backend).find((t) => t.name === 'save_plan')
+    const result = (await savePlan!.execute({ name: 'Empty' })) as { error?: string }
+    expect(result.error).toMatch(/no plan text/i)
+    expect(result.error).toMatch(/`content`/)
+    expect(backend.writeFile).not.toHaveBeenCalled()
+  })
+
   it('load_skill enforces the symlink guard like every other read tool [C3-2]', async () => {
     const backend = mockBackend()
     // readlink -f resolves the (planted-symlink) candidate to a path OUTSIDE the workspace root.

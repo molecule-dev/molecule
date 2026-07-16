@@ -575,7 +575,26 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
     async save_plan(input) {
       const name = input.name as string
-      const content = input.content as string
+      // The schema field is `content`, but a weak executor frequently sends the plan under
+      // `body`/`plan`/`markdown` instead. Reading only `content` then left it undefined, and
+      // the checklist regex below (run on "undefined") failed — so a perfectly valid
+      // checklist got the "not a checklist" error, the model kept "fixing" the FORMAT (never
+      // the real problem, the field name), and the whole plan phase looped for turns. Accept
+      // the common aliases so a field-name slip is not misdiagnosed as a format error.
+      const content = (input.content ??
+        input.body ??
+        input.plan ??
+        input.markdown ??
+        input.text) as string
+
+      // Genuinely empty content (wrong/missing field) — name the fix, don't blame the format.
+      if (typeof content !== 'string' || content.trim() === '') {
+        return {
+          error:
+            'save_plan received no plan text. Put the full markdown plan in the `content` field — ' +
+            'a checklist with every actionable step as a `- [ ]` checkbox.',
+        }
+      }
 
       // The plan is executed step-by-step with each step checked off in the file as it
       // completes, so it must be a checklist — reject prose-only plans and let the
