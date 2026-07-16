@@ -29,6 +29,27 @@
  * })
  * ```
  *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual screens/flows, and check every box off one
+ * by one. A box you can't check is an integration bug to fix — not a skip:
+ * - [ ] The board renders every column with its cards in order, and each
+ *   column's card count matches the cards actually shown beneath it.
+ * - [ ] Dragging a card onto a DIFFERENT column moves it there and it persists:
+ *   after a full reload the card stays in the new column — proving the move
+ *   fired the change callback (onCardMove) and the app SAVED it, not just
+ *   shuffled local state.
+ * - [ ] Dragging a card WITHIN a column to a new spot changes its order, and
+ *   that new position survives a reload.
+ * - [ ] Adding a card through the app's flow drops it into the target column,
+ *   editing a card updates its content in place, and deleting removes it — each
+ *   change sticking after reload.
+ * - [ ] An empty column is a valid drop target: a card dragged onto it lands
+ *   there and both columns' counts update correctly.
+ * - [ ] If the app defines WIP limits, a column already at its limit visibly
+ *   flags or rejects an over-limit drop (the core stores `limit` but does not
+ *   enforce it — the app must), so a column's count never silently exceeds it.
+ *
  * @module
  */
 

@@ -305,6 +305,40 @@ Peer dependencies:
   labels) styles via `getClassMap()`/`cm.*` and localizes via
   `t('key', values, { defaultValue })`.
 
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. Drive it through the preview: navigate_preview to the screen that
+embeds the editor, read_preview_ui to read the rendered editor surface and
+its file tabs/controls, and interact_preview to click and type — target the
+app's own data-mol-id controls (file-tree entries, tab bar, save button),
+since the editor engine renders its own inner chrome. A box you can't check
+is an integration bug to fix — not a skip:
+- [ ] Opening a file loads its content into the editor surface, and syntax
+  highlighting matches the file's language — a `.ts` file colorizes as
+  TypeScript (keywords, strings, comments tokenized in distinct colors), not
+  flat plain text. Opening a second file of a different language re-highlights
+  for that language.
+- [ ] Typing into the editor edits the content and the surface reflects every
+  keystroke: read_preview_ui shows the new text, and `getContent()` for that
+  path returns it.
+- [ ] Changing content marks the file dirty — its tab/label shows the unsaved
+  indicator (dot/asterisk) — and saving clears it back to clean (`markSaved`).
+  After save, reopening the file (close the tab, open it again) shows the
+  SAVED text, not the pre-edit content — the change was persisted, not just
+  held in the buffer.
+- [ ] With multiple files open as tabs, switching tabs preserves each file's
+  own content and cursor position: edit file A, switch to B, switch back, and
+  A still has its edit with the caret where you left it (no bleed-over between
+  files, no reset to the top).
+- [ ] A file the app opens read-only (readOnly config) cannot be edited —
+  typing or paste does not change its content and it never shows a dirty
+  indicator.
+- [ ] Change (and save) events fire so the app can react: whatever this app
+  wires onto `onChange` (autosave, live validation/diagnostics, an unsaved
+  guard on navigation) actually triggers when you edit and when you save.
+
 ## Translations
 
 Translation strings are provided by `@molecule/app-locales-code-editor`.
