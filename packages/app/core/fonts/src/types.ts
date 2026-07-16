@@ -7,8 +7,15 @@
 /** How a font is loaded. */
 export type FontSourceType = 'google' | 'bunny' | 'local' | 'system' | 'custom'
 
-/** Which font role this font fills. */
-export type FontRole = 'sans' | 'serif' | 'mono'
+/**
+ * Which font role this font fills.
+ *
+ * `sans`/`serif`/`mono` are text roles applied app-wide via `--mol-font-{role}`.
+ * `icon` is for icon fonts (e.g. Material Symbols) — consumed through a utility
+ * class (`.material-symbols-outlined`), not a text `font-family`, so an `icon`
+ * font carries `utilityCss` that `setFont()` injects alongside its `@font-face`.
+ */
+export type FontRole = 'sans' | 'serif' | 'mono' | 'icon'
 
 /** Descriptor for a single `@font-face` declaration (local fonts). */
 export interface FontFaceDescriptor {
@@ -44,6 +51,12 @@ export interface FontDefinition {
   fallbacks: string[]
   /** How to load this font. */
   source: FontSource
+  /**
+   * Extra CSS injected verbatim after this font's `@font-face` block — the
+   * utility class an icon font needs (e.g. `.material-symbols-outlined { … }`).
+   * Only meaningful for `icon`-role fonts; ignored for text roles.
+   */
+  utilityCss?: string
 }
 
 /** Resolved font configuration for all three roles. */

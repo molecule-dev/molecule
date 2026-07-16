@@ -72,9 +72,12 @@ export function setFont(font: FontDefinition): void {
         })
         .join('\n')
 
+      // Icon fonts (e.g. Material Symbols) ship a utility class alongside the
+      // @font-face — inject it here so the font is fully self-contained locally
+      // (Google's CSS used to provide both; we no longer load it).
       const styleEl = document.createElement('style')
       styleEl.id = styleId
-      styleEl.textContent = css
+      styleEl.textContent = font.utilityCss ? `${css}\n${font.utilityCss}` : css
       document.head.appendChild(styleEl)
     }
   }

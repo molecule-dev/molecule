@@ -61,6 +61,18 @@ const systemFont: FontDefinition = {
   source: { type: 'system' },
 }
 
+const iconFont: FontDefinition = {
+  family: 'Material Symbols Outlined',
+  role: 'icon',
+  fallbacks: [],
+  source: {
+    type: 'local',
+    faces: [{ file: 'MaterialSymbolsOutlined.woff2', weight: '100 700', variable: true }],
+  },
+  utilityCss:
+    ".material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-weight: normal; font-style: normal; line-height: 1; }",
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -278,6 +290,19 @@ describe('@molecule/app-fonts', () => {
       expect(styleEl.textContent).toContain("font-family: 'Arimo'")
       expect(styleEl.textContent).toContain('Arimo-Regular.ttf')
       expect(styleEl.textContent).toContain('Arimo-Bold.ttf')
+    })
+
+    it('should inject @font-face plus the utility class for icon fonts', () => {
+      setFont(iconFont)
+      expect(mockAppendChild).toHaveBeenCalledTimes(1)
+      const styleEl = mockAppendChild.mock.calls[0][0]
+      expect(styleEl.tagName).toBe('style')
+      expect(styleEl.id).toBe('mol-font-icon')
+      // @font-face is local (never a Google <link>)…
+      expect(styleEl.textContent).toContain("font-family: 'Material Symbols Outlined'")
+      expect(styleEl.textContent).toContain('MaterialSymbolsOutlined.woff2')
+      // …and the utility class the icons need is injected alongside it.
+      expect(styleEl.textContent).toContain('.material-symbols-outlined {')
     })
 
     it('should not inject duplicate stylesheet links', () => {

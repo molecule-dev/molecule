@@ -29,6 +29,12 @@
  *   again for the same role replaces the font (idempotent per role).
  * - `getFontConfig()` always returns a complete config — roles never explicitly set
  *   fall back to system stacks (`systemSans`/`systemSerif`/`systemMono`).
+ * - **Icon fonts (role `icon`, e.g. `@molecule/app-fonts-material-symbols`) are
+ *   local like any other font** — never load them from a CDN. They carry a
+ *   `utilityCss` string (the `.material-symbols-outlined` class) that `setFont()`
+ *   injects with the `@font-face`, so the icon glyphs work fully offline. NEVER
+ *   add a `<link href="https://fonts.googleapis.com/...Material+Symbols...">` —
+ *   it fails in the sandbox (blocked egress) and leaks the visitor's IP.
  * - DOM injection is skipped outside the browser, so `setFont()` is SSR-safe.
  *
  * @module
