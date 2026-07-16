@@ -15,8 +15,8 @@ import type { LocalStorageConfig } from './types.js'
  *
  * @example
  * ```ts
- * import { createLocalStorageProvider } from '`@molecule/app-storage-localstorage`'
- * import { setProvider } from '`@molecule/app-storage`'
+ * import { createLocalStorageProvider } from '@molecule/app-storage-localstorage'
+ * import { setProvider } from '@molecule/app-storage'
  *
  * const storage = createLocalStorageProvider({
  *   prefix: 'myapp_',

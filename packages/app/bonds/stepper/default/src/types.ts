@@ -8,6 +8,6 @@
  * Provider-specific configuration options.
  */
 export interface DefaultStepperConfig {
-  /** Default orientation. Defaults to `'horizontal'`. */
+  /** Currently not implemented — orientation is a rendering concern the app owns. */
   orientation?: 'horizontal' | 'vertical'
 }

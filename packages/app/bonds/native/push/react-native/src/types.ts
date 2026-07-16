@@ -9,12 +9,12 @@
  */
 export interface ReactNativePushConfig {
   /**
-   * Android notification channel ID.
+   * Android notification channel ID. (Reserved — not currently applied by the provider.)
    */
   androidChannelId?: string
 
   /**
-   * Android notification channel name.
+   * Android notification channel name. (Reserved — not currently applied by the provider.)
    */
   androidChannelName?: string
 

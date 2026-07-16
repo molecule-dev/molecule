@@ -15,8 +15,8 @@ export { themeToCSS } from '@molecule/app-styling'
  * @example
  * ```typescript
  * // tailwind.config.ts
- * import { themeToTailwind } from '`@molecule/app-styling-tailwind`'
- * import { lightTheme } from '`@molecule/app-theme`'
+ * import { themeToTailwind } from '@molecule/app-styling-tailwind'
+ * import { lightTheme } from '@molecule/app-theme'
  *
  * export default {
  *   theme: {

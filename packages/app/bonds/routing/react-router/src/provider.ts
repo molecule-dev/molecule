@@ -26,7 +26,7 @@ import { generatePath, matchPath, parseSearchParams, stringifyQuery } from './ut
  * @example
  * ```tsx
  * import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom'
- * import { createReactRouter, setRouter } from '`@molecule/app-routing-react-router`'
+ * import { createReactRouter, setRouter } from '@molecule/app-routing-react-router'
  * import { useEffect, useMemo } from 'react'
  *
  * function RouterProvider({ children }) {

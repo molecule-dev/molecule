@@ -19,9 +19,9 @@ import type { QueryParams, RouteDefinition, RouteLocation, RouteParams, Router }
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useMoleculeRouter } from '`@molecule/app-routing-vue-router`'
+ * import { useMoleculeRouter } from '@molecule/app-routing-vue-router'
  * import { provide } from 'vue'
- * import { MOLECULE_ROUTER_KEY } from '`@molecule/app-routing-vue-router`'
+ * import { MOLECULE_ROUTER_KEY } from '@molecule/app-routing-vue-router'
  *
  * const router = useMoleculeRouter()
  *
@@ -51,7 +51,7 @@ export function useMoleculeRouter(routes?: RouteDefinition[]): ComputedRef<Route
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useLocation } from '`@molecule/app-routing-vue-router`'
+ * import { useLocation } from '@molecule/app-routing-vue-router'
  *
  * const location = useLocation()
  * </script>
@@ -74,7 +74,7 @@ export function useLocation(): ComputedRef<RouteLocation> {
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useParams } from '`@molecule/app-routing-vue-router`'
+ * import { useParams } from '@molecule/app-routing-vue-router'
  *
  * const params = useParams()
  * </script>
@@ -97,7 +97,7 @@ export function useParams<T extends RouteParams = RouteParams>(): ComputedRef<T>
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useQuery } from '`@molecule/app-routing-vue-router`'
+ * import { useQuery } from '@molecule/app-routing-vue-router'
  *
  * const query = useQuery()
  * </script>
@@ -120,7 +120,7 @@ export function useQuery(): ComputedRef<QueryParams> {
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useNavigate } from '`@molecule/app-routing-vue-router`'
+ * import { useNavigate } from '@molecule/app-routing-vue-router'
  *
  * const navigate = useNavigate()
  *
@@ -147,7 +147,7 @@ export function useNavigate() {
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useIsActive } from '`@molecule/app-routing-vue-router`'
+ * import { useIsActive } from '@molecule/app-routing-vue-router'
  *
  * const isHomeActive = useIsActive('/')
  * const isUsersActive = useIsActive('/users', false)
@@ -174,7 +174,7 @@ export function useIsActive(path: string, exact?: boolean): ComputedRef<boolean>
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useRouteChange } from '`@molecule/app-routing-vue-router`'
+ * import { useRouteChange } from '@molecule/app-routing-vue-router'
  *
  * useRouteChange((location, action) => {
  *   console.log('Route changed:', location.pathname, action)
@@ -205,7 +205,7 @@ export function useRouteChange(
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useNavigationGuard } from '`@molecule/app-routing-vue-router`'
+ * import { useNavigationGuard } from '@molecule/app-routing-vue-router'
  * import { useAuth } from './auth'
  *
  * const { isAuthenticated } = useAuth()

@@ -34,8 +34,8 @@ import {
  * ```vue
  * <script setup lang="ts">
  * import { useRouter, useRoute } from 'vue-router'
- * import { createVueRouter } from '`@molecule/app-routing-vue-router`'
- * import { setRouter } from '`@molecule/app-routing`'
+ * import { createVueRouter } from '@molecule/app-routing-vue-router'
+ * import { setRouter } from '@molecule/app-routing'
  * import { watch, computed } from 'vue'
  *
  * const vueRouter = useRouter()

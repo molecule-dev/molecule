@@ -60,11 +60,13 @@ export interface QuillOptions extends EditorOptions {
 
   /**
    * Scroll container element.
+   * (Quill v1 option — ignored by the pinned Quill v2.)
    */
   scrollingContainer?: HTMLElement | string | null
 
   /**
    * Strict mode (limit user input to editor's capabilities).
+   * (Quill v1 option — ignored by the pinned Quill v2.)
    */
   strict?: boolean
 

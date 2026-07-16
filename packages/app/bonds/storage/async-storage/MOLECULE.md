@@ -165,3 +165,16 @@ Peer dependencies:
 - `@molecule/app-logger`
 - `@molecule/app-storage`
 - `@react-native-async-storage/async-storage`
+
+- **Set a `prefix` in real apps.** With no prefix, `clear()` calls AsyncStorage's
+  global clear — wiping keys owned by OTHER libraries (navigation state, auth
+  SDKs). A prefix scopes `clear()` and `keys()` to this app's entries.
+- `get()` returns `null` (with a logged warning) on any failure, including a value
+  that fails to deserialize — a corrupted entry is indistinguishable from a missing
+  one at the call site.
+- `@react-native-async-storage/async-storage` is a peer dependency loaded on first
+  use — install it with `npm install @react-native-async-storage/async-storage`.
+- Values round-trip through `JSON.stringify`/`JSON.parse` by default (Dates become
+  strings; `undefined`/functions are dropped) — pass custom
+  `serialize`/`deserialize` for anything richer.
+```

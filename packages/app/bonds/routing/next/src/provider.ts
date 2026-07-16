@@ -30,7 +30,7 @@ import { generatePath, matchPath, stringifyQuery } from './utilities.js'
  * 'use client'
  *
  * import { useRouter, usePathname, useSearchParams, useParams } from 'next/navigation'
- * import { createNextRouter, setRouter } from '`@molecule/app-routing-next`'
+ * import { createNextRouter, setRouter } from '@molecule/app-routing-next'
  *
  * function RouterProvider({ children }) {
  *   const navigation = useRouter()

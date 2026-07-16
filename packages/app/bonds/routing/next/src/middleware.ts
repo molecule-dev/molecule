@@ -13,7 +13,7 @@ import type { MiddlewareGuardRule } from './types.js'
  * ```typescript
  * // middleware.ts
  * import { NextResponse } from 'next/server'
- * import { createMiddlewareGuard } from '`@molecule/app-routing-next`'
+ * import { createMiddlewareGuard } from '@molecule/app-routing-next'
  *
  * const guard = createMiddlewareGuard([
  *   {
@@ -26,8 +26,12 @@ import type { MiddlewareGuardRule } from './types.js'
  *   },
  * ])
  *
- * export function middleware(request) {
- *   return guard(request)
+ * export async function middleware(request) {
+ *   const result = await guard(request)
+ *   if ('redirect' in result) {
+ *     return NextResponse.redirect(new URL(result.redirect, request.url))
+ *   }
+ *   return NextResponse.next()
  * }
  * ```
  * @param rules - Array of guard rules, each with a `match` pattern (supports `*` wildcards) and an async `check` function.

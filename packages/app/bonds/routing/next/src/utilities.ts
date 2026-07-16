@@ -17,7 +17,7 @@ export { generatePath, matchPath, parseQuery, stringifyQuery }
  * @example
  * ```tsx
  * import Link from 'next/link'
- * import { createLinkHref } from '`@molecule/app-routing-next`'
+ * import { createLinkHref } from '@molecule/app-routing-next'
  *
  * <Link href={createLinkHref('/products', { category: 'shoes', sort: 'price' })}>
  *   View Shoes
