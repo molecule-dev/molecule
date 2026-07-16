@@ -28,7 +28,7 @@ export interface FeatureFlag {
   environments: FeatureFlagEnvironment[]
 }
 
-interface FeatureFlagRowProps {
+export interface FeatureFlagRowProps {
   flag: FeatureFlag
   /** Called when an environment toggles. */
   onToggle: (flagKey: string, envId: string, next: boolean) => void
@@ -39,10 +39,7 @@ interface FeatureFlagRowProps {
 /**
  * Feature-flag list row with per-environment toggle + rollout-percentage
  * display. Use inside a grid or table to build a flags dashboard.
- * @param root0
- * @param root0.flag
- * @param root0.onToggle
- * @param root0.className
+ * @param props - Component props (see {@link FeatureFlagRowProps}).
  */
 export function FeatureFlagRow({ flag, onToggle, className }: FeatureFlagRowProps): JSX.Element {
   const cm = getClassMap()

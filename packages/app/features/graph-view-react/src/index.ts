@@ -11,8 +11,8 @@
  *   `layoutNodes`, `boundingBox`, `createRng`).
  *
  * Used by note-taking and other apps to visualize page / note linkages
- * the same way Obsidian does — a draggable, force-directed map of which
- * notes link to which.
+ * the same way Obsidian does — a force-directed map of which notes link
+ * to which.
  *
  * @example
  * ```tsx
@@ -24,6 +24,21 @@
  *   return <GraphView nodes={nodes} edges={edges} onNodeClick={(n) => open(n.id)} />
  * }
  * ```
+ *
+ * @remarks
+ * The root element fills 100% of its parent — the PARENT must have an
+ * explicit height (e.g. a fixed-height panel or a flex/grid track) or
+ * the graph renders zero-tall and appears blank.
+ *
+ * Interaction surface is click / keyboard-activate + `selectedNodeId`
+ * highlighting only. Nodes are NOT draggable and there is no built-in
+ * pan / zoom — the SVG `viewBox` auto-fits the layout bounds. For a
+ * pannable / zoomable surface, compose with
+ * `@molecule/app-feature-canvas-react` instead.
+ *
+ * Layout is deterministic (seeded RNG), computed once per
+ * `(nodes, edges, layout, forceOptions)` change. `forceOptions` is
+ * ignored by the `circular` and `grid` layouts.
  *
  * @module
  */

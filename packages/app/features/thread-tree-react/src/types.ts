@@ -17,7 +17,12 @@ export interface Comment {
   author: ReactNode
   /** Body content. Plain string, or pre-rendered ReactNode for rich-text. */
   body: ReactNode
-  /** ISO-8601 created-at timestamp. Optional — omit to hide the relative-time chip. */
+  /**
+   * Timestamp string rendered VERBATIM in a `<time>` element — pass a
+   * pre-formatted display string (e.g. "2 hours ago"); an ISO string
+   * will be shown raw to users. Also used as the `dateTime` attribute.
+   * Omit to hide the timestamp.
+   */
   createdAt?: string
   /** Score / upvote count. Optional — omit to hide the count display. */
   score?: number

@@ -400,6 +400,16 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `react`
 
+The canvas fills 100% of its parent — give the PARENT an explicit
+height (fixed-height panel, flex/grid track) or the canvas renders
+zero-tall and appears blank.
+
+Passing `onChange` puts the canvas in controlled mode: built-in edits
+(node drag, connect, Backspace/Delete) call `onChange` with the full
+next `{ nodes, edges }` and the caller re-renders with them. Without
+`onChange` the canvas manages internal copies and `nodes` / `edges`
+act as initial values only.
+
 ## Translations
 
 Translation strings are provided by `@molecule/app-locales-flow-canvas`.

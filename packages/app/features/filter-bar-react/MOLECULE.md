@@ -3,8 +3,10 @@
 Composable, field-driven React filter bar.
 
 Exports:
-- `<FilterBar>` — data-driven filter row with text, select, multi, and date-range fields.
-- `FilterField`, `FilterValues` types for configuring the fields + storing state.
+- `<FilterBar>` — data-driven filter row with text, select, multi, and
+  date-range fields.
+- `FilterField`, `FilterValues` types for configuring the fields +
+  storing state.
 
 ## Quick Start
 
@@ -20,7 +22,7 @@ const fields: FilterField[] = [
   { id: 'created', type: 'date-range', label: 'Created' },
 ]
 
-export function IssueFilters() {
+function IssueFilters() {
   const [values, setValues] = useState<FilterValues>({})
   return (
     <FilterBar fields={fields} values={values} onChange={setValues} onClear={() => setValues({})} />
@@ -40,6 +42,32 @@ npm install -D @types/react
 ## API
 
 ### Interfaces
+
+#### `FilterBarProps`
+
+```typescript
+interface FilterBarProps {
+  /** Field definitions. */
+  fields: FilterField[]
+  /** Current filter values keyed by field id. */
+  values: FilterValues
+  /** Called on any individual field change. */
+  onChange: (next: FilterValues) => void
+  /** Optional "Clear all" handler — renders a clear button when provided. */
+  onClear?: () => void
+  /** Extra right-side actions (e.g. "Add filter", "Save view"). */
+  actions?: ReactNode
+  /**
+   * When `true`, renders each field's `label` above its input as a
+   * 10px-uppercase-tracking-widest label (matching the polished flagship
+   * apps' settings/filter sections). Default `false` keeps the original
+   * unlabeled inline-row layout used by simple toolbar consumers.
+   */
+  showLabels?: boolean
+  /** Extra classes. */
+  className?: string
+}
+```
 
 #### `FilterFieldBase`
 
@@ -125,7 +153,7 @@ type FilterValues = Record<
 
 ### Functions
 
-#### `FilterBar(root0, root0, root0, root0, root0, root0, root0)`
+#### `FilterBar(props)`
 
 Data-driven filter bar. Renders one control per field in `fields`,
 emits a full updated values map on each change so parents can store
@@ -144,13 +172,7 @@ function FilterBar({
 }: FilterBarProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .fields
-- `root0` — .values
-- `root0` — .onChange
-- `root0` — .onClear
-- `root0` — .actions
-- `root0` — .className
+- `props` — Component props (see {@link FilterBarProps}).
 
 ## Injection Notes
 
@@ -168,3 +190,20 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Fully controlled: every field change calls `onChange` with the FULL
+updated `FilterValues` map — store it in URL params / app state and
+pass it back via `values`.
+
+`type: 'multi'` currently renders as a comma-separated text input
+(values are split on commas), not a multi-select control — plan UX
+accordingly or compose your own control via `actions`.
+
+Set `showLabels` to render each field's label above its control
+(settings-page style); the default is a compact unlabeled toolbar
+row. Controls are the `Input` / `Select` / `Button` primitives from
+the `@molecule/app-ui-react` peer dependency.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-filter-bar`.

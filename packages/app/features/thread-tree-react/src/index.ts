@@ -1,5 +1,5 @@
 /**
- * Nested comment tree with collapse / collapse-deep / parent-line indicator.
+ * Nested comment tree with per-node collapse, auto-collapse below a configurable depth, and a parent-line indicator.
  *
  * Exports the `<ThreadTree>` recursive renderer plus the `Comment` type
  * and `defaultCollapsedDepth` prop. Used by link-aggregator, blog comments,

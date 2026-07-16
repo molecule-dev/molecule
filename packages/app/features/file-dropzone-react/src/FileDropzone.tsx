@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-interface FileDropzoneProps {
+export interface FileDropzoneProps {
   /** Called with the File[] the user selected or dropped. */
   onFiles: (files: File[]) => void
   /** Accept attribute (e.g. `'image/*'` or `'.pdf,.docx'`). */
@@ -29,15 +29,7 @@ interface FileDropzoneProps {
  *
  * Rejects files exceeding `maxSize` or not matching `accept` (best-effort
  * extension/MIME check) via `onRejected`.
- * @param root0
- * @param root0.onFiles
- * @param root0.accept
- * @param root0.multiple
- * @param root0.maxSize
- * @param root0.onRejected
- * @param root0.children
- * @param root0.disabled
- * @param root0.className
+ * @param props - Component props (see {@link FileDropzoneProps}).
  */
 export function FileDropzone({
   onFiles,

@@ -6,7 +6,7 @@ import { Button, Input, Select } from '@molecule/app-ui-react'
 
 import type { FilterField, FilterValues } from './types.js'
 
-interface FilterBarProps {
+export interface FilterBarProps {
   /** Field definitions. */
   fields: FilterField[]
   /** Current filter values keyed by field id. */
@@ -33,13 +33,7 @@ interface FilterBarProps {
  * emits a full updated values map on each change so parents can store
  * filters in URL params, zustand, etc. Multi-select uses a comma-joined
  * `<Input>` fallback since multi-select UI isn't in the primitives yet.
- * @param root0
- * @param root0.fields
- * @param root0.values
- * @param root0.onChange
- * @param root0.onClear
- * @param root0.actions
- * @param root0.className
+ * @param props - Component props (see {@link FilterBarProps}).
  */
 export function FilterBar({
   fields,

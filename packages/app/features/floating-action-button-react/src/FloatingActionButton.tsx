@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-interface FloatingActionButtonProps {
+export interface FloatingActionButtonProps {
   /** Icon rendered inside the FAB. */
   icon: ReactNode
   /** Accessible label / tooltip text (usually `t('...')`). */
@@ -38,15 +38,7 @@ const SIZE_MAP = { sm: 10, md: 14, lg: 16 } as const
  * Fixed-position circular action button. Renders either an anchor (when
  * `href` is set) or a button (when `onClick` is set). Positioning is
  * inline-style so the component works without extra CSS setup.
- * @param root0
- * @param root0.icon
- * @param root0.label
- * @param root0.onClick
- * @param root0.href
- * @param root0.position
- * @param root0.size
- * @param root0.showTooltip
- * @param root0.className
+ * @param props - Component props (see {@link FloatingActionButtonProps}).
  */
 export function FloatingActionButton({
   icon,

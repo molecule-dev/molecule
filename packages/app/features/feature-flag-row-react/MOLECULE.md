@@ -1,27 +1,35 @@
 # @molecule/app-feature-flag-row-react
 
-Feature-flag list row.
+Feature-flag list row — flag name + type badge + key + description on
+the left, one labelled `<Switch>` per environment (with a rollout-%
+readout for percentage flags) on the right. Stack rows inside a list
+or table to build a flags dashboard.
 
-Exports `<FeatureFlagRow>`, `FeatureFlag`, `FeatureFlagEnvironment`, `FlagType` types.
+Exports `<FeatureFlagRow>` and the `FeatureFlag`,
+`FeatureFlagEnvironment`, and `FlagType` types.
 
 ## Quick Start
 
 ```tsx
 import { FeatureFlagRow } from '@molecule/app-feature-flag-row-react'
 
-<FeatureFlagRow
-  flag={{
-    key: 'new-checkout',
-    name: 'New Checkout Flow',
-    description: 'Redesigned multi-step checkout experience.',
-    type: 'percentage',
-    environments: [
-      { id: 'staging', label: 'Staging', enabled: true, rolloutPct: 100 },
-      { id: 'production', label: 'Production', enabled: true, rolloutPct: 20 },
-    ],
-  }}
-  onToggle={(key, envId, next) => updateFlag(key, envId, next)}
-/>
+function FlagsList() {
+  return (
+    <FeatureFlagRow
+      flag={{
+        key: 'new-checkout',
+        name: 'New Checkout Flow',
+        description: 'Redesigned multi-step checkout experience.',
+        type: 'percentage',
+        environments: [
+          { id: 'staging', label: 'Staging', enabled: true, rolloutPct: 100 },
+          { id: 'production', label: 'Production', enabled: true, rolloutPct: 20 },
+        ],
+      }}
+      onToggle={(key, envId, next) => updateFlag(key, envId, next)}
+    />
+  )
+}
 ```
 
 ## Type
@@ -68,6 +76,18 @@ interface FeatureFlagEnvironment {
 }
 ```
 
+#### `FeatureFlagRowProps`
+
+```typescript
+interface FeatureFlagRowProps {
+  flag: FeatureFlag
+  /** Called when an environment toggles. */
+  onToggle: (flagKey: string, envId: string, next: boolean) => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Types
 
 #### `FlagType`
@@ -80,7 +100,7 @@ type FlagType = 'boolean' | 'multivariate' | 'percentage' | 'string'
 
 ### Functions
 
-#### `FeatureFlagRow(root0, root0, root0, root0)`
+#### `FeatureFlagRow(props)`
 
 Feature-flag list row with per-environment toggle + rollout-percentage
 display. Use inside a grid or table to build a flags dashboard.
@@ -89,10 +109,7 @@ display. Use inside a grid or table to build a flags dashboard.
 function FeatureFlagRow({ flag, onToggle, className }: FeatureFlagRowProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .flag
-- `root0` — .onToggle
-- `root0` — .className
+- `props` — Component props (see {@link FeatureFlagRowProps}).
 
 ## Injection Notes
 
@@ -110,3 +127,17 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+The environment toggle is the `<Switch>` from the
+`@molecule/app-ui-react` peer dependency — that package must be
+installed and its ClassMap bond wired for the row to render styled.
+
+`rolloutPct` is displayed only when `flag.type === 'percentage'`; on
+other flag types the field is ignored. The row is presentation-only:
+`onToggle` receives `(flagKey, envId, next)` and the caller persists
+the change and re-renders with updated `flag` data.
+
+The type badge translates via `t('flagType.<type>')` with the raw
+type string as the English fallback (no locale bond currently ships
+`flagType.*` keys — add them to your app's locale resources for
+non-English UIs).

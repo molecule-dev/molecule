@@ -7,8 +7,8 @@ import { getClassMap } from '@molecule/app-ui'
 /**
  * Supported barcode/symbology formats. Mirrors the W3C Shape Detection
  * `BarcodeFormat` enum so values can be passed straight through to the
- * native `BarcodeDetector` constructor when present, and mapped to
- * equivalents in the `@zxing/library` fallback.
+ * native `BarcodeDetector` constructor when present. The
+ * `@zxing/library` fallback ignores this list and decodes all symbologies.
  */
 export type BarcodeFormat =
   | 'aztec'

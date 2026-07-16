@@ -8,7 +8,7 @@ import { Button, Card } from '@molecule/app-ui-react'
 /** SM-2-compatible grade values the caller uses to schedule the next review. */
 export type SrsGrade = 'again' | 'hard' | 'good' | 'easy'
 
-interface FlashcardCardProps {
+export interface FlashcardCardProps {
   /** Front content (prompt). */
   front: ReactNode
   /** Back content (answer). */
@@ -27,13 +27,7 @@ interface FlashcardCardProps {
  * Flashcard study component — front face → reveal back → SM-2 style
  * grade buttons (Again / Hard / Good / Easy). Apps own the
  * spaced-repetition scheduling logic.
- * @param root0
- * @param root0.front
- * @param root0.back
- * @param root0.onGrade
- * @param root0.progress
- * @param root0.defaultRevealed
- * @param root0.className
+ * @param props - Component props (see {@link FlashcardCardProps}).
  */
 export function FlashcardCard({
   front,

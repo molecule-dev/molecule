@@ -11,9 +11,9 @@ export interface TransportBarProps {
    */
   isPlaying: boolean
   /**
-   * Whether recording is currently armed / running. When defined, the
-   * record button is rendered. Drives the record button's icon, label,
-   * and `aria-pressed` state.
+   * Whether recording is currently armed / running. Drives the record
+   * button's icon, label, and `aria-pressed` state. The record button
+   * itself renders only when `onRecordToggle` is provided.
    */
   isRecording?: boolean
   /**
@@ -30,9 +30,9 @@ export interface TransportBarProps {
    */
   canSkip?: boolean
   /**
-   * Whether loop playback is currently engaged. When defined, the loop
-   * toggle button is rendered. Drives the loop button's `aria-pressed`
-   * state.
+   * Whether loop playback is currently engaged. Drives the loop
+   * button's `aria-pressed` state. The loop button itself renders only
+   * when `onLoopToggle` is provided.
    */
   loop?: boolean
   /** Toggle play / pause. Required. */

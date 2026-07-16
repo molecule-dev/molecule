@@ -288,6 +288,25 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `react`
 
+Pan / zoom interaction is CONTROLLED-ONLY: pointer-drag and wheel
+events call `onChange` with the proposed `{ zoom, pan }` and never
+mutate internal state. If you do not pass `onChange` and feed the
+values back through the `zoom` / `pan` props, dragging and scrolling
+do nothing.
+
+URL sources load with `crossOrigin="anonymous"` so `toDataURL()` is
+never blocked by a tainted canvas — which means remote images MUST be
+served with CORS headers (`Access-Control-Allow-Origin`), otherwise
+the image fails to load and the error state renders. Same-origin and
+data-URL sources are unaffected.
+
+The canvas bitmap is exactly `width` x `height` device-independent
+pixels — there is no devicePixelRatio upscaling. For crisp retina
+display / export, pass doubled `width` / `height` and size the
+element down via `className`. Filters rely on Canvas2D
+`context.filter` support; on engines without it (older Safari) the
+image renders unfiltered.
+
 ## Translations
 
 Translation strings are provided by `@molecule/app-locales-feature-image-canvas`.
