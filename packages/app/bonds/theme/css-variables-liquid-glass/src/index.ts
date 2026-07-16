@@ -19,6 +19,17 @@
  * setProvider(provider)
  * ```
  *
+ * @remarks
+ * - The frosted BLUR comes from the ClassMap, not from these themes: pair with
+ *   `@molecule/app-ui-tailwind-glass` (`setClassMap(classMap)`), which layers
+ *   `backdrop-filter` onto surface components. These themes alone give
+ *   translucent colors with no blur.
+ * - Same precedence trap as the base bond: template-based apps ship
+ *   `app/src/theme.css` whose `--color-*` variables SHADOW these theme colors —
+ *   when `theme.css` defines colors, wiring this preset changes nothing visible;
+ *   port the glass palette into `theme.css` instead (see
+ *   `@molecule/app-theme-css-variables` remarks for the full mechanism).
+ *
  * @module
  */
 

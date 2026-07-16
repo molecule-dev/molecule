@@ -20,13 +20,13 @@ export interface ActionMenuItem {
   href?: string
   /** When true, rendered in a disabled state. */
   disabled?: boolean
-  /** Mark the item as destructive (uses error color accent). */
+  /** Marks the item as destructive. Currently rendered with semibold weight only (no error-color accent). */
   destructive?: boolean
   /** Insert a divider below this item. */
   divider?: boolean
 }
 
-interface ActionMenuProps {
+export interface ActionMenuProps {
   /** Items to render. */
   items: ActionMenuItem[]
   /** Trigger content — usually a kebab icon. Defaults to "⋮". */
@@ -45,12 +45,7 @@ interface ActionMenuProps {
  *
  * Pure uncontrolled — the component manages its own open state. For
  * external control, use `<Dropdown>` from `@molecule/app-ui-react`.
- * @param root0
- * @param root0.items
- * @param root0.trigger
- * @param root0.align
- * @param root0.triggerAriaLabel
- * @param root0.className
+ * @param props - Component props (see {@link ActionMenuProps}).
  */
 export function ActionMenu({
   items,

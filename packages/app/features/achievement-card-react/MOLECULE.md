@@ -30,9 +30,34 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `AchievementCardProps`
+
+```typescript
+interface AchievementCardProps {
+  /** Achievement name. */
+  name: ReactNode
+  /** Description / what it took to earn. */
+  description?: ReactNode
+  /** Icon / illustration slot. */
+  icon: ReactNode
+  /** Whether the user has earned this achievement. */
+  earned?: boolean
+  /** Earned-at display. */
+  earnedAt?: ReactNode
+  /** Optional progress data (for in-progress achievements). */
+  progress?: { value: number; max: number }
+  /** Optional rarity / tier label ("Legendary", "Common"). */
+  tier?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `AchievementCard(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `AchievementCard(props)`
 
 Badge / achievement unlock card — icon + name + description + earned
 state. Locked achievements render greyed-out.
@@ -50,15 +75,7 @@ function AchievementCard({
 }: AchievementCardProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .name
-- `root0` — .description
-- `root0` — .icon
-- `root0` — .earned
-- `root0` — .earnedAt
-- `root0` — .progress
-- `root0` — .tier
-- `root0` — .className
+- `props` — Component props (see {@link AchievementCardProps}).
 
 ## Injection Notes
 
@@ -76,3 +93,6 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+The "Earned"/"Locked" state labels are currently English-only (not
+i18n-routed) — no override prop exists yet.

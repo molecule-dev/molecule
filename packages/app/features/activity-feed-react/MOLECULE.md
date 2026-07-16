@@ -38,6 +38,19 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `ActivityFeedGroupProps`
+
+```typescript
+interface ActivityFeedGroupProps {
+  /** Group heading — typically a formatted date ("Today", "Yesterday", "Mar 12"). */
+  heading: ReactNode
+  /** Items in this group. */
+  items: ActivityFeedItemData[]
+  /** Extra classes. */
+  className?: string
+}
+```
+
 #### `ActivityFeedItemData`
 
 Per-row activity data.
@@ -63,9 +76,34 @@ interface ActivityFeedItemData {
 }
 ```
 
+#### `ActivityFeedItemProps`
+
+```typescript
+interface ActivityFeedItemProps {
+  item: ActivityFeedItemData
+  /** Extra classes on the row wrapper. */
+  className?: string
+}
+```
+
+#### `ActivityFeedProps`
+
+```typescript
+interface ActivityFeedProps {
+  /** Items in display order (usually most-recent first). */
+  items: ActivityFeedItemData[]
+  /** Rendered when `items` is empty. */
+  emptyState?: ReactNode
+  /** Optional footer (e.g. "Load more"). */
+  footer?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `ActivityFeed(root0, root0, root0, root0, root0)`
+#### `ActivityFeed(props)`
 
 Simple activity feed — renders each `ActivityFeedItemData` via
 `<ActivityFeedItem>` and stacks them. For date-grouped feeds use
@@ -80,13 +118,9 @@ function ActivityFeed({
 }: ActivityFeedProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .emptyState
-- `root0` — .footer
-- `root0` — .className
+- `props` — Component props (see {@link ActivityFeedProps}).
 
-#### `ActivityFeedGroup(root0, root0, root0, root0)`
+#### `ActivityFeedGroup(props)`
 
 Date-grouped activity section — a heading followed by a stack of items.
 Compose multiple `<ActivityFeedGroup>`s together for an organized
@@ -100,12 +134,9 @@ function ActivityFeedGroup({
 }: ActivityFeedGroupProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .heading
-- `root0` — .items
-- `root0` — .className
+- `props` — Component props (see {@link ActivityFeedGroupProps}).
 
-#### `ActivityFeedItem(root0, root0, root0)`
+#### `ActivityFeedItem(props)`
 
 One entry in an `<ActivityFeed>`.
 
@@ -115,9 +146,7 @@ Shape: `[avatar|icon] [actor verb target · timestamp] [body]`.
 function ActivityFeedItem({ item, className }: ActivityFeedItemProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .item
-- `root0` — .className
+- `props` — Component props (see {@link ActivityFeedItemProps}).
 
 ## Injection Notes
 

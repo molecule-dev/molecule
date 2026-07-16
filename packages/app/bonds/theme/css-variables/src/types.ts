@@ -28,8 +28,16 @@ export interface CSSVariablesThemeConfig {
   prefix?: string
   /** Whether to auto-apply CSS variables to :root (default: true). */
   applyToDocument?: boolean
-  /** Key for persisting theme preference. Requires `storage` to be set. */
+  /**
+   * Key for persisting the selected theme name across reloads. When `storage`
+   * is omitted, persistence falls back to `window.localStorage` in browser
+   * environments; in SSR / non-browser environments persistence is skipped.
+   */
   persistKey?: string
-  /** Storage adapter for persisting theme preference. When omitted, persistence is disabled. */
+  /**
+   * Storage adapter for persisting theme preference. Optional — when omitted
+   * and `persistKey` is set, `window.localStorage` is used when available.
+   * Provide an adapter for React Native (AsyncStorage wrapper) or custom stores.
+   */
   storage?: ThemeStorageAdapter
 }

@@ -18,7 +18,7 @@ export interface Address {
   country?: string
 }
 
-interface AddressDisplayProps {
+export interface AddressDisplayProps {
   /** Address fields. */
   address: Address
   /** Optional name / label preceding the address. */
@@ -54,14 +54,7 @@ function joinAddress(a: Address): string[] {
  * Formatted multi-line address display with optional name, phone,
  * leading slot, and right-side actions. Set `inline` to render all
  * fields on a single line (e.g., in a table cell).
- * @param root0
- * @param root0.address
- * @param root0.name
- * @param root0.phone
- * @param root0.leading
- * @param root0.actions
- * @param root0.inline
- * @param root0.className
+ * @param props - Component props (see {@link AddressDisplayProps}).
  */
 export function AddressDisplay({
   address,

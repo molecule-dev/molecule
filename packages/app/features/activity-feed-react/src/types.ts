@@ -1,9 +1,13 @@
 import type { ReactNode } from 'react'
 
 /**
- * Per-row activity data.
+ * Types for the activity-feed primitives.
  *
  * @module
+ */
+
+/**
+ * Per-row activity data.
  */
 export interface ActivityFeedItemData {
   /** Row id (React key). */

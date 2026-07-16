@@ -21,6 +21,14 @@
  * gain backdrop-filter effects. Pair with a translucent theme preset
  * (e.g. `@molecule/app-theme-css-variables-liquid-glass`) for the full effect.
  *
+ * Tailwind must SCAN this package or every `backdrop-*` class it adds is
+ * purged from the compiled CSS (the classes appear in the DOM but style
+ * nothing): add
+ * `@source "../node_modules/@molecule/app-ui-tailwind-glass/dist";`
+ * to the app's Tailwind CSS entry (scaffolded apps scan only
+ * `app-ui-tailwind` / `app-styling-tailwind` / the framework UI dist by
+ * default, which does NOT cover this bond).
+ *
  * @module
  */
 

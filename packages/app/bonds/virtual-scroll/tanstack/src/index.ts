@@ -12,6 +12,10 @@
  * setProvider(provider)
  * ```
  *
+ * @remarks
+ * Provide `onChange` in the INITIAL options — `setOptions()` cannot attach
+ * one after creation (the callback is wired only at `createVirtualizer` time).
+ *
  * @module
  */
 

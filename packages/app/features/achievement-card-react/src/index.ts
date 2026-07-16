@@ -17,6 +17,10 @@
  * />
  * ```
  *
+ * @remarks
+ * The "Earned"/"Locked" state labels are currently English-only (not
+ * i18n-routed) — no override prop exists yet.
+ *
  * @module
  */
 

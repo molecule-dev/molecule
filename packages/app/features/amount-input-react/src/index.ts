@@ -23,6 +23,12 @@
  * />
  * ```
  *
+ * @remarks
+ * The type-toggle labels ("Income" / "Expense" / "Transfer" / "Other") and
+ * the input's aria-label are currently built-in English strings with no
+ * override prop — for localized apps, hide the toggle (omit `onTypeChange`)
+ * and render your own, or contribute the i18n fix.
+ *
  * @module
  */
 

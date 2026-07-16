@@ -32,7 +32,7 @@ const columns: AdminTableColumn<Product>[] = [
     { label: 'Edit', hrefFor: (p) => `/product/${p.id}`, onSelect: () => {} },
     { label: 'Delete', destructive: true, onSelect: (p) => http.delete(`/api/products/${p.id}`) },
   ]}
-  footer={<Pagination ... />}
+  footer={pagination}
 />
 ```
 
@@ -63,10 +63,41 @@ interface AdminTableColumn<T> {
   render: (row: T) => ReactNode
   /** Optional alignment override; defaults to left. */
   align?: 'left' | 'right' | 'center'
-  /** Optional ClassMap class string for the `<td>`. */
+  /** Optional class string appended to the `<td>` (resolve via `getClassMap()` — e.g. `cm.textRight` — rather than raw utilities). */
   className?: string
-  /** Optional ClassMap class string for the `<th>`. */
+  /** Optional class string appended to the `<th>` (resolve via `getClassMap()` rather than raw utilities). */
   headerClassName?: string
+}
+```
+
+#### `AdminTableProps`
+
+```typescript
+interface AdminTableProps<T> {
+  rows: T[]
+  columns: AdminTableColumn<T>[]
+  rowKey: (row: T) => string
+  loading?: boolean
+  skeletonRowCount?: number
+  /** Click handler for whole-row navigation. */
+  onRowClick?: (row: T) => void
+  /** When set, renders a leading checkbox column and tracks selection. */
+  bulkSelect?: boolean
+  /**
+   * Selected row keys. Honored ONLY when `onSelectedIdsChange` is also
+   * provided (controlled mode); otherwise selection state is internal.
+   */
+  selectedIds?: string[]
+  /** Selection-change handler — providing it switches selection to controlled mode. */
+  onSelectedIdsChange?: (ids: string[]) => void
+  /** Kebab menu items. When set, a trailing right-aligned actions column is rendered. */
+  rowActions?: AdminTableRowAction<T>[]
+  rowActionsAriaLabel?: (row: T) => string
+  /** Slot rendered below the table (typically a `<Pagination>` row). */
+  footer?: ReactNode
+  className?: string
+  /** Optional `data-mol-id` to attach to the rendered `<tbody>` for tests/AI. */
+  tbodyDataMolId?: string
 }
 ```
 
@@ -86,6 +117,16 @@ interface AdminTableRowAction<T> {
   destructive?: boolean
   /** Optional href for non-click actions (rendered as a link). */
   hrefFor?: (row: T) => string
+}
+```
+
+#### `AdminTableRowActionsProps`
+
+```typescript
+interface AdminTableRowActionsProps<T> {
+  row: T
+  actions: AdminTableRowAction<T>[]
+  ariaLabel: string
 }
 ```
 
@@ -161,3 +202,11 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+- Requires the Material Symbols Outlined font (row-actions kebab icon) —
+  load it via an `@molecule/app-fonts-*` bond or a font link.
+- The current implementation styles with a fixed light palette
+  (white/slate surfaces) — verify against your theme before shipping a
+  dark-mode surface.
+- `selectedIds` is honored only together with `onSelectedIdsChange`
+  (controlled selection); omit both for internal selection state.

@@ -51,16 +51,33 @@ interface ActionMenuItem {
   href?: string
   /** When true, rendered in a disabled state. */
   disabled?: boolean
-  /** Mark the item as destructive (uses error color accent). */
+  /** Marks the item as destructive. Currently rendered with semibold weight only (no error-color accent). */
   destructive?: boolean
   /** Insert a divider below this item. */
   divider?: boolean
 }
 ```
 
+#### `ActionMenuProps`
+
+```typescript
+interface ActionMenuProps {
+  /** Items to render. */
+  items: ActionMenuItem[]
+  /** Trigger content — usually a kebab icon. Defaults to "⋮". */
+  trigger?: ReactNode
+  /** Menu alignment relative to the trigger. Defaults to `'right'`. */
+  align?: 'left' | 'right'
+  /** Accessible label for the trigger button. */
+  triggerAriaLabel?: string
+  /** Extra classes on the outer wrapper. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `ActionMenu(root0, root0, root0, root0, root0, root0)`
+#### `ActionMenu(props)`
 
 Compact overflow / kebab menu button that opens a popover list of
 actions on click. Closes on outside-click and Escape.
@@ -78,12 +95,7 @@ function ActionMenu({
 }: ActionMenuProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .trigger
-- `root0` — .align
-- `root0` — .triggerAriaLabel
-- `root0` — .className
+- `props` — Component props (see {@link ActionMenuProps}).
 
 ## Injection Notes
 

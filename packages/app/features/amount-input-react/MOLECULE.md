@@ -36,6 +36,31 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `AmountInputProps`
+
+```typescript
+interface AmountInputProps {
+  /** Current numeric amount (major units). */
+  amount: number | ''
+  /** Called whenever the amount text changes. */
+  onAmountChange: (amount: number | '') => void
+  /** Optional type (income/expense/transfer) toggle. */
+  type?: AmountType
+  /** Called when the user changes the type. When omitted, the toggle is hidden. */
+  onTypeChange?: (type: AmountType) => void
+  /** Type options to show in the toggle. Defaults to `['income', 'expense']`. */
+  typeOptions?: AmountType[]
+  /** Currency symbol or label rendered to the left of the input. Defaults to `'$'`. */
+  currencySymbol?: string
+  /** Input size. */
+  size?: 'md' | 'lg' | 'xl'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Types
 
 #### `AmountType`
@@ -48,7 +73,7 @@ type AmountType = 'income' | 'expense' | 'transfer' | 'other'
 
 ### Functions
 
-#### `AmountInput(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `AmountInput(props)`
 
 Large transaction-style amount input with optional type toggle +
 currency symbol. Common in budgeting, expense-reporting, and
@@ -67,15 +92,7 @@ function AmountInput({
 }: AmountInputProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .amount
-- `root0` — .onAmountChange
-- `root0` — .type
-- `root0` — .onTypeChange
-- `root0` — .typeOptions
-- `root0` — .currencySymbol
-- `root0` — .size
-- `root0` — .className
+- `props` — Component props (see {@link AmountInputProps}).
 
 #### `formatCurrency(amount, currency, locale)`
 
@@ -104,3 +121,8 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+The type-toggle labels ("Income" / "Expense" / "Transfer" / "Other") and
+the input's aria-label are currently built-in English strings with no
+override prop — for localized apps, hide the toggle (omit `onTypeChange`)
+and render your own, or contribute the i18n fix.

@@ -1,17 +1,33 @@
 # @molecule/app-tour-shepherd
 
-Shepherd.js provider for \@molecule/app-tour.
+Headless tour provider for `@molecule/app-tour` — Shepherd-STYLE step
+sequencing without the shepherd.js library.
 
-Provides an in-memory tour implementation conforming to
-the molecule tour provider interface.
+IMPORTANT: this bond renders NO tour UI — no overlay, tooltip, highlight,
+or buttons appear on screen, and it does not depend on or use shepherd.js.
+It is an in-memory step-state machine: it tracks the active step and fires
+each step's `action` plus `onComplete`/`onCancel`. Render the tooltip /
+highlight UI yourself from `getCurrentStep()` and the step's
+`target`/`title`/`content` — style it via `getClassMap()` from
+`@molecule/app-ui` and run step text through
+`t('key', values, { defaultValue })`.
 
 ## Quick Start
 
 ```typescript
 import { provider } from '@molecule/app-tour-shepherd'
-import { setProvider } from '@molecule/app-tour'
+import { setProvider, requireProvider } from '@molecule/app-tour'
 
-setProvider(provider)
+setProvider(provider) // once, at startup (bonds.ts)
+
+const tour = requireProvider().createTour({
+  steps: [
+    { target: '[data-mol-id="editor"]', title: 'Editor', content: 'Write code here',
+      action: () => renderTourStep(tour.getCurrentStep()) },
+  ],
+  onComplete: () => markTourSeen(),
+})
+tour.start() // fires step 0's action — YOUR action callback draws the UI
 ```
 
 ## Type
@@ -30,12 +46,16 @@ npm install @molecule/app-tour-shepherd @molecule/app-tour
 
 Provider-specific configuration options.
 
+Reserved — the current implementation consumes NO configuration; these
+fields have no effect (there is no built-in overlay or button UI to
+configure — see the module notes).
+
 ```typescript
 interface ShepherdConfig {
-  /** Default overlay behavior. Defaults to `true`. */
+  /** Reserved. Not consumed — this provider draws no overlay. */
   overlay?: boolean
 
-  /** Default button visibility. Defaults to `true`. */
+  /** Reserved. Not consumed — this provider draws no buttons. */
   showButtons?: boolean
 }
 ```

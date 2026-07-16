@@ -5,7 +5,7 @@ import { Avatar } from '@molecule/app-ui-react'
 
 import type { ActivityFeedItemData } from './types.js'
 
-interface ActivityFeedItemProps {
+export interface ActivityFeedItemProps {
   item: ActivityFeedItemData
   /** Extra classes on the row wrapper. */
   className?: string
@@ -15,9 +15,7 @@ interface ActivityFeedItemProps {
  * One entry in an `<ActivityFeed>`.
  *
  * Shape: `[avatar|icon] [actor verb target · timestamp] [body]`.
- * @param root0
- * @param root0.item
- * @param root0.className
+ * @param props - Component props (see {@link ActivityFeedItemProps}).
  */
 export function ActivityFeedItem({ item, className }: ActivityFeedItemProps): JSX.Element {
   const cm = getClassMap()

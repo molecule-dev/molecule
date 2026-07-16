@@ -1,6 +1,6 @@
 # @molecule/app-timeline-default
 
-Default provider for \@molecule/app-timeline.
+Default provider for `@molecule/app-timeline`.
 
 Provides an in-memory timeline implementation with sorting
 and item management.
@@ -32,7 +32,11 @@ Provider-specific configuration options.
 
 ```typescript
 interface DefaultTimelineConfig {
-  /** Default orientation. Defaults to `'vertical'`. */
+  /**
+   * Reserved — NOT consumed by this headless provider. Orientation is a
+   * rendering concern: pass `orientation` on `TimelineOptions` and apply it
+   * in your own rendering of `getItems()`.
+   */
   orientation?: 'vertical' | 'horizontal'
 
   /** Whether to sort items by date. Defaults to `true`. */

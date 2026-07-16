@@ -62,9 +62,17 @@ interface CSSVariablesThemeConfig {
   prefix?: string
   /** Whether to auto-apply CSS variables to :root (default: true). */
   applyToDocument?: boolean
-  /** Key for persisting theme preference. Requires `storage` to be set. */
+  /**
+   * Key for persisting the selected theme name across reloads. When `storage`
+   * is omitted, persistence falls back to `window.localStorage` in browser
+   * environments; in SSR / non-browser environments persistence is skipped.
+   */
   persistKey?: string
-  /** Storage adapter for persisting theme preference. When omitted, persistence is disabled. */
+  /**
+   * Storage adapter for persisting theme preference. Optional — when omitted
+   * and `persistKey` is set, `window.localStorage` is used when available.
+   * Provide an adapter for React Native (AsyncStorage wrapper) or custom stores.
+   */
   storage?: ThemeStorageAdapter
 }
 ```
@@ -113,7 +121,8 @@ const darkTheme: Theme
 
 Default light theme.
 
-White backgrounds, dark text, blue primary (#3b82f6).
+Near-white backgrounds (#f6f6f6 background, #ffffff surface), dark text,
+blue primary (#4070e0).
 
 ```typescript
 const lightTheme: Theme
@@ -170,3 +179,8 @@ colors come only from `theme.css`. When `theme.css` defines colors, editing
 this bond has NO visible effect; recolor by editing `app/src/theme.css`. This
 bond still drives light/dark mode and is the palette for non-Tailwind targets
 (e.g. React Native). Precedence: `theme.css` > this bond > base defaults.
+
+The provider also toggles a `.dark` class on `<html>` (alongside the
+`data-mol-mode` attribute) so Tailwind `dark:` variants react to theme
+toggles — if `dark:` utilities aren't switching, check that this bond is
+wired and applying to the document.

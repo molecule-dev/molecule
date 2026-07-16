@@ -16,9 +16,9 @@ export interface AdminTableColumn<T> {
   render: (row: T) => ReactNode
   /** Optional alignment override; defaults to left. */
   align?: 'left' | 'right' | 'center'
-  /** Optional ClassMap class string for the `<td>`. */
+  /** Optional class string appended to the `<td>` (resolve via `getClassMap()` — e.g. `cm.textRight` — rather than raw utilities). */
   className?: string
-  /** Optional ClassMap class string for the `<th>`. */
+  /** Optional class string appended to the `<th>` (resolve via `getClassMap()` rather than raw utilities). */
   headerClassName?: string
 }
 

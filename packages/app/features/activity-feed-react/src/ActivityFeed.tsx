@@ -5,7 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { ActivityFeedItem } from './ActivityFeedItem.js'
 import type { ActivityFeedItemData } from './types.js'
 
-interface ActivityFeedProps {
+export interface ActivityFeedProps {
   /** Items in display order (usually most-recent first). */
   items: ActivityFeedItemData[]
   /** Rendered when `items` is empty. */
@@ -20,11 +20,7 @@ interface ActivityFeedProps {
  * Simple activity feed — renders each `ActivityFeedItemData` via
  * `<ActivityFeedItem>` and stacks them. For date-grouped feeds use
  * `<ActivityFeedGroup>`.
- * @param root0
- * @param root0.items
- * @param root0.emptyState
- * @param root0.footer
- * @param root0.className
+ * @param props - Component props (see {@link ActivityFeedProps}).
  */
 export function ActivityFeed({
   items,

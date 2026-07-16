@@ -5,7 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { ActivityFeedItem } from './ActivityFeedItem.js'
 import type { ActivityFeedItemData } from './types.js'
 
-interface ActivityFeedGroupProps {
+export interface ActivityFeedGroupProps {
   /** Group heading — typically a formatted date ("Today", "Yesterday", "Mar 12"). */
   heading: ReactNode
   /** Items in this group. */
@@ -18,10 +18,7 @@ interface ActivityFeedGroupProps {
  * Date-grouped activity section — a heading followed by a stack of items.
  * Compose multiple `<ActivityFeedGroup>`s together for an organized
  * "Today / Yesterday / Last week" feed.
- * @param root0
- * @param root0.heading
- * @param root0.items
- * @param root0.className
+ * @param props - Component props (see {@link ActivityFeedGroupProps}).
  */
 export function ActivityFeedGroup({
   heading,

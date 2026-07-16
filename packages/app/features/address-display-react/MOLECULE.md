@@ -58,9 +58,30 @@ interface Address {
 }
 ```
 
+#### `AddressDisplayProps`
+
+```typescript
+interface AddressDisplayProps {
+  /** Address fields. */
+  address: Address
+  /** Optional name / label preceding the address. */
+  name?: ReactNode
+  /** Optional phone number rendered under the address. */
+  phone?: string
+  /** Optional `<Icon>` / avatar leading slot. */
+  leading?: ReactNode
+  /** Optional right-side actions. */
+  actions?: ReactNode
+  /** Format as a single line instead of multi-line. */
+  inline?: boolean
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `AddressDisplay(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `AddressDisplay(props)`
 
 Formatted multi-line address display with optional name, phone,
 leading slot, and right-side actions. Set `inline` to render all
@@ -78,14 +99,7 @@ function AddressDisplay({
 }: AddressDisplayProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .address
-- `root0` — .name
-- `root0` — .phone
-- `root0` — .leading
-- `root0` — .actions
-- `root0` — .inline
-- `root0` — .className
+- `props` — Component props (see {@link AddressDisplayProps}).
 
 ## Injection Notes
 

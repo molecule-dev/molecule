@@ -13,7 +13,8 @@ import type { Theme } from '@molecule/app-theme'
 /**
  * Default light theme.
  *
- * White backgrounds, dark text, blue primary (#3b82f6).
+ * Near-white backgrounds (#f6f6f6 background, #ffffff surface), dark text,
+ * blue primary (#4070e0).
  */
 export const lightTheme: Theme = {
   name: 'light',

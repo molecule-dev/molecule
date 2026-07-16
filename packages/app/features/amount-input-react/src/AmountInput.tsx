@@ -8,7 +8,7 @@ import { formatCurrency } from './utils.js'
 /** Transaction type used to categorise an amount entry. */
 export type AmountType = 'income' | 'expense' | 'transfer' | 'other'
 
-interface AmountInputProps {
+export interface AmountInputProps {
   /** Current numeric amount (major units). */
   amount: number | ''
   /** Called whenever the amount text changes. */
@@ -38,15 +38,7 @@ const TYPE_LABEL: Record<AmountType, string> = {
  * Large transaction-style amount input with optional type toggle +
  * currency symbol. Common in budgeting, expense-reporting, and
  * financial-form UX.
- * @param root0
- * @param root0.amount
- * @param root0.onAmountChange
- * @param root0.type
- * @param root0.onTypeChange
- * @param root0.typeOptions
- * @param root0.currencySymbol
- * @param root0.size
- * @param root0.className
+ * @param props - Component props (see {@link AmountInputProps}).
  */
 export function AmountInput({
   amount,

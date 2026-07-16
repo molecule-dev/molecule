@@ -11,7 +11,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { AdminTableRowAction } from './types.js'
 
-interface AdminTableRowActionsProps<T> {
+export interface AdminTableRowActionsProps<T> {
   row: T
   actions: AdminTableRowAction<T>[]
   ariaLabel: string

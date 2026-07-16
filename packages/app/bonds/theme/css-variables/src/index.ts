@@ -52,6 +52,11 @@
  * bond still drives light/dark mode and is the palette for non-Tailwind targets
  * (e.g. React Native). Precedence: `theme.css` > this bond > base defaults.
  *
+ * The provider also toggles a `.dark` class on `<html>` (alongside the
+ * `data-mol-mode` attribute) so Tailwind `dark:` variants react to theme
+ * toggles — if `dark:` utilities aren't switching, check that this bond is
+ * wired and applying to the document.
+ *
  * @module
  */
 

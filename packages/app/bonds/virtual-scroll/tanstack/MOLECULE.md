@@ -105,6 +105,9 @@ Peer dependencies:
 - `@molecule/app-virtual-scroll`
 - `@tanstack/virtual-core`
 
+Provide `onChange` in the INITIAL options — `setOptions()` cannot attach
+one after creation (the callback is wired only at `createVirtualizer` time).
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

@@ -3,7 +3,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
-interface AchievementCardProps {
+export interface AchievementCardProps {
   /** Achievement name. */
   name: ReactNode
   /** Description / what it took to earn. */
@@ -25,15 +25,7 @@ interface AchievementCardProps {
 /**
  * Badge / achievement unlock card — icon + name + description + earned
  * state. Locked achievements render greyed-out.
- * @param root0
- * @param root0.name
- * @param root0.description
- * @param root0.icon
- * @param root0.earned
- * @param root0.earnedAt
- * @param root0.progress
- * @param root0.tier
- * @param root0.className
+ * @param props - Component props (see {@link AchievementCardProps}).
  */
 export function AchievementCard({
   name,

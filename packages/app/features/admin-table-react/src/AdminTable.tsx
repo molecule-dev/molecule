@@ -13,7 +13,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { AdminTableRowActions } from './AdminTableRowActions.js'
 import type { AdminTableColumn, AdminTableRowAction } from './types.js'
 
-interface AdminTableProps<T> {
+export interface AdminTableProps<T> {
   rows: T[]
   columns: AdminTableColumn<T>[]
   rowKey: (row: T) => string
@@ -23,7 +23,12 @@ interface AdminTableProps<T> {
   onRowClick?: (row: T) => void
   /** When set, renders a leading checkbox column and tracks selection. */
   bulkSelect?: boolean
+  /**
+   * Selected row keys. Honored ONLY when `onSelectedIdsChange` is also
+   * provided (controlled mode); otherwise selection state is internal.
+   */
   selectedIds?: string[]
+  /** Selection-change handler — providing it switches selection to controlled mode. */
   onSelectedIdsChange?: (ids: string[]) => void
   /** Kebab menu items. When set, a trailing right-aligned actions column is rendered. */
   rowActions?: AdminTableRowAction<T>[]

@@ -30,9 +30,18 @@
  *     { label: 'Edit', hrefFor: (p) => `/product/${p.id}`, onSelect: () => {} },
  *     { label: 'Delete', destructive: true, onSelect: (p) => http.delete(`/api/products/${p.id}`) },
  *   ]}
- *   footer={<Pagination ... />}
+ *   footer={pagination}
  * />
  * ```
+ *
+ * @remarks
+ * - Requires the Material Symbols Outlined font (row-actions kebab icon) —
+ *   load it via an `@molecule/app-fonts-*` bond or a font link.
+ * - The current implementation styles with a fixed light palette
+ *   (white/slate surfaces) — verify against your theme before shipping a
+ *   dark-mode surface.
+ * - `selectedIds` is honored only together with `onSelectedIdsChange`
+ *   (controlled selection); omit both for internal selection state.
  *
  * @module
  */
