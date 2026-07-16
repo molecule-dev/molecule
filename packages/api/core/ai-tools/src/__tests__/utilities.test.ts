@@ -95,22 +95,22 @@ describe('redactSecrets', () => {
 
 describe('checkBlockedCommand', () => {
   it('blocks bare env / printenv', () => {
-    expect(checkBlockedCommand('env')).toMatch(/environment variable dumps/)
-    expect(checkBlockedCommand('printenv')).toMatch(/environment variable dumps/)
+    expect(checkBlockedCommand('env')).toMatch(/dumping environment variables/)
+    expect(checkBlockedCommand('printenv')).toMatch(/dumping environment variables/)
   })
 
   it('blocks env through sh -c wrapper', () => {
-    expect(checkBlockedCommand('sh -c "env"')).toMatch(/environment variable dumps/)
-    expect(checkBlockedCommand('bash -c env')).toMatch(/environment variable dumps/)
+    expect(checkBlockedCommand('sh -c "env"')).toMatch(/dumping environment variables/)
+    expect(checkBlockedCommand('bash -c env')).toMatch(/dumping environment variables/)
   })
 
   it('blocks pipe / chain to env (env after ; & |)', () => {
-    expect(checkBlockedCommand('echo hi; env')).toMatch(/environment variable dumps/)
-    expect(checkBlockedCommand('echo hi && env')).toMatch(/environment variable dumps/)
+    expect(checkBlockedCommand('echo hi; env')).toMatch(/dumping environment variables/)
+    expect(checkBlockedCommand('echo hi && env')).toMatch(/dumping environment variables/)
   })
 
   it('blocks cat /etc/environment', () => {
-    expect(checkBlockedCommand('cat /etc/environment')).toMatch(/environment variable/)
+    expect(checkBlockedCommand('cat /etc/environment')).toMatch(/dumping environment/)
   })
 
   it('blocks /proc/<pid>/environ via cat', () => {
@@ -124,12 +124,10 @@ describe('checkBlockedCommand', () => {
 
   it('blocks interpreter-based env dumps (python / node / ruby)', () => {
     expect(checkBlockedCommand('python -c "import os; print(os.environ)"')).toMatch(
-      /interpreter environment/,
+      /from an interpreter/,
     )
-    expect(checkBlockedCommand('node -e "console.log(process.env)"')).toMatch(
-      /interpreter environment/,
-    )
-    expect(checkBlockedCommand('ruby -e "puts ENV[\'X\']"')).toMatch(/interpreter environment/)
+    expect(checkBlockedCommand('node -e "console.log(process.env)"')).toMatch(/from an interpreter/)
+    expect(checkBlockedCommand('ruby -e "puts ENV[\'X\']"')).toMatch(/from an interpreter/)
   })
 
   it('returns null for innocuous commands', () => {

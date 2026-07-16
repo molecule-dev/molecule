@@ -116,12 +116,20 @@ const BLOCKED_INTERPRETER_ENV =
  * @returns A human-readable block reason, or `null` when the command is allowed.
  */
 export function checkBlockedCommand(command: string): string | null {
+  // These blocks fire when the executor tries to DUMP the environment (usually to discover
+  // what managed services are configured). Don't just refuse — redirect: the values are
+  // already in the process environment, so it never needs to print them.
+  const envDumpSteer =
+    ' You do NOT need to dump it: the managed service values (DATABASE_URL, etc.) are already ' +
+    'in the process environment — read them IN CODE via process.env / your config loader, or ' +
+    "check the project's provisioned env file to see WHICH services exist. Printing them only " +
+    'leaks secrets into the transcript.'
   if (BLOCKED_COMMANDS.test(command))
-    return 'Command blocked: environment variable dumps are not allowed'
+    return `Command blocked: dumping environment variables is not allowed.${envDumpSteer}`
   if (BLOCKED_PROC_REDIRECT.test(command))
-    return 'Command blocked: /proc/environ access is not allowed'
+    return 'Command blocked: /proc/environ access is not allowed.' + envDumpSteer
   if (BLOCKED_INTERPRETER_ENV.test(command))
-    return 'Command blocked: interpreter environment dumps are not allowed'
+    return `Command blocked: dumping the environment from an interpreter is not allowed.${envDumpSteer}`
   return null
 }
 
