@@ -19,7 +19,7 @@ export const oauthGithubSecretDefinitions: SecretDefinition[] = [
   {
     key: 'OAUTH_GITHUB_CLIENT_ID',
     description:
-      'GitHub OAuth client ID — GitHub → Settings → Developer settings → OAuth Apps → New OAuth App; set the callback URL to {apiUrl}/api/users/log-in/oauth.',
+      'GitHub OAuth client ID — GitHub → Settings → Developer settings → OAuth Apps → New OAuth App; set the Authorization callback URL to your APP ORIGIN plus each page path that starts OAuth (e.g. {appUrl} and {appUrl}/login) — the API sends redirect_uri = APP_ORIGIN + the initiating page path.',
     helpUrl: 'https://github.com/settings/developers',
     required: true,
     example: 'Iv1.abc123...',

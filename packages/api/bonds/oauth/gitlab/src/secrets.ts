@@ -19,7 +19,7 @@ export const oauthGitlabSecretDefinitions: SecretDefinition[] = [
   {
     key: 'OAUTH_GITLAB_CLIENT_ID',
     description:
-      'GitLab OAuth application ID — GitLab → User settings → Applications → Add new application with the {apiUrl}/api/users/log-in/oauth redirect URI.',
+      'GitLab OAuth application ID — GitLab → User settings → Applications → New application; set the Redirect URI to your APP ORIGIN plus each page path that starts OAuth (e.g. {appUrl} and {appUrl}/login) — GitLab matches redirect URIs exactly, and the API sends redirect_uri = APP_ORIGIN + the initiating page path.',
     helpUrl: 'https://gitlab.com/-/user_settings/applications',
     required: true,
   },

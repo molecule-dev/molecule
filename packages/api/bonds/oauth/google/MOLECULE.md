@@ -28,7 +28,7 @@ Google OAuth provider for molecule.dev.
 
     5a. If you already have an OAuth client you would like to use, view it by clicking the name. Your client credentials should be visible on the right.
 
-      - Copy the client ID and set it to your API's `OAUTH_GOOGLE_CLIENT_ID` environment variable and your app's `REACT_APP_GOOGLE_CLIENT_ID` environment variable.
+      - Copy the client ID and set it to your API's `OAUTH_GOOGLE_CLIENT_ID` environment variable.
 
       - Copy the client secret and set it to your API's `OAUTH_GOOGLE_CLIENT_SECRET` environment variable.
 
@@ -38,13 +38,13 @@ Google OAuth provider for molecule.dev.
 
       - Enter the name of your Google OAuth client.
 
-      - For development, add `http://localhost:3000` to both the "Authorized JavaScript origins" and "Authorized redirect URIs".
+      - For development, add `http://localhost:3000` to the "Authorized JavaScript origins", and add BOTH `http://localhost:3000` and `http://localhost:3000/login` (plus any other page your app starts OAuth from) to the "Authorized redirect URIs". Google matches redirect URIs exactly, and the API sends `redirect_uri = APP_ORIGIN + the initiating page's path` — a login started from `/login` redirects back to `http://localhost:3000/login`.
 
-      - For production, add your app's origin to both the "Authorized JavaScript origins" and "Authorized redirect URIs". This should typically match your API's `APP_ORIGIN` environment variable.
+      - For production, do the same with your app's origin (this should match your API's `APP_ORIGIN` environment variable): the origin as a JavaScript origin, and the origin + each OAuth-initiating page path as redirect URIs.
 
       - Click "Create".
 
-      - Copy the client ID and set it to your API's `OAUTH_GOOGLE_CLIENT_ID` environment variable and your app's `REACT_APP_GOOGLE_CLIENT_ID` environment variable.
+      - Copy the client ID and set it to your API's `OAUTH_GOOGLE_CLIENT_ID` environment variable.
 
       - Copy the client secret and set it to your API's `OAUTH_GOOGLE_CLIENT_SECRET` environment variable.
 

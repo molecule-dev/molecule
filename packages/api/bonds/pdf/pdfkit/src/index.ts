@@ -19,6 +19,18 @@
  * setProvider(customProvider)
  * ```
  *
+ * @remarks
+ * `fromHTML` is a rudimentary HTML renderer, not a browser. It understands ONLY
+ * `h1`–`h6`, `p`, `br`, `hr`, `b`/`strong`, `i`/`em`, and `ul`/`ol`/`li`; any other
+ * tag renders as its plain text content, and CSS, tables, images, links, and
+ * attributes are ignored entirely. Feed it simple semantic markup (or use
+ * `fromTemplate` with `{{key}}` interpolation); switch to
+ * `@molecule/api-pdf-puppeteer` when the PDF must look like the HTML.
+ *
+ * This bond does NOT implement the core contract's optional `toImages()` —
+ * calling it is a runtime "not a function" error. The puppeteer bond implements
+ * it; swap bonds if you need page-to-image rendering.
+ *
  * @module
  */
 

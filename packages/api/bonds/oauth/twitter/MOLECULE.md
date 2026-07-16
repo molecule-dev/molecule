@@ -32,17 +32,17 @@ Twitter OAuth provider for molecule.dev.
 
 8. Choose "Web App" for "Type of App".
 
-9. Under "Callback URI / Redirect URL", add two entries:
+9. Under "Callback URI / Redirect URL", add entries for BOTH your app origin and each page your app starts OAuth from (X matches these exactly, and the API sends `redirect_uri = APP_ORIGIN + the initiating page's path`):
 
-    - For development: `http://localhost:3000`
+    - For development: `http://localhost:3000` and `http://localhost:3000/login`
 
-    - For production: Your app's origin. This should typically match your API's `APP_ORIGIN` environment variable.
+    - For production: your app's origin (typically your API's `APP_ORIGIN` environment variable) and the same origin + `/login` (plus any other OAuth-initiating page paths).
 
 10. Fill out the remaining information as necessary and click the "Save" button.
 
 11. You should be taken to a screen containing your OAuth client ID and secret.
 
-    11.1. Set the client ID to your API's `OAUTH_TWITTER_CLIENT_ID` environment variable and your app's `REACT_APP_OAUTH_TWITTER_CLIENT_ID` environment variable.
+    11.1. Set the client ID to your API's `OAUTH_TWITTER_CLIENT_ID` environment variable.
 
     11.2. Set the client secret to your API's `OAUTH_TWITTER_CLIENT_SECRET` environment variable.
 
@@ -228,7 +228,7 @@ function verify(code: string, codeVerifier?: string, redirectUri?: string): Prom
 - `codeVerifier` — The PKCE code verifier (if PKCE was used).
 - `redirectUri` — The redirect URI used in the authorization request.
 
-**Returns:** An `OAuthUserInfo` with the user's Twitter username, email, and OAuth ID.
+**Returns:** An `OAuthUserInfo` with the user's Twitter username, email, and OAuth ID — or `null` when X affirmatively rejected the code (expired/reused/forged), which the consumer surfaces as a 403.
 
 ### Constants
 

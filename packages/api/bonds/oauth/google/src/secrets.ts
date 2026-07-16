@@ -21,7 +21,7 @@ export const oauthGoogleSecretDefinitions: SecretDefinition[] = [
   {
     key: 'OAUTH_GOOGLE_CLIENT_ID',
     description:
-      'Google OAuth client ID — Google Cloud Console → APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application); add your app origin and {apiUrl}/api/users/log-in/oauth as an authorized redirect URI.',
+      'Google OAuth client ID — Google Cloud Console → APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application); add your app origin as an authorized JavaScript origin, and the app origin plus each page path that starts OAuth (e.g. {appUrl}/login) as authorized redirect URIs.',
     helpUrl: 'https://console.cloud.google.com/apis/credentials',
     required: true,
     example: '1234567890-abc.apps.googleusercontent.com',

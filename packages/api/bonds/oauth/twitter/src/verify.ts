@@ -94,7 +94,7 @@ const formEncode = (record: Record<string, string | undefined>): string => {
  * @param code - The authorization code from the OAuth callback.
  * @param codeVerifier - The PKCE code verifier (if PKCE was used).
  * @param redirectUri - The redirect URI used in the authorization request.
- * @returns An `OAuthUserInfo` with the user's Twitter username, email, and OAuth ID.
+ * @returns An `OAuthUserInfo` with the user's Twitter username, email, and OAuth ID — or `null` when X affirmatively rejected the code (expired/reused/forged), which the consumer surfaces as a 403.
  */
 export const verify: OAuthVerifier = async (
   code: string,

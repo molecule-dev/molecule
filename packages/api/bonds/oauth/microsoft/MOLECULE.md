@@ -29,8 +29,7 @@ rotation, or Microsoft Graph access (Outlook, OneDrive, Teams).
 3. After registration:
 
     - Copy the **Application (client) ID** to your API's
-      `OAUTH_MICROSOFT_CLIENT_ID` and your app's
-      `REACT_APP_OAUTH_MICROSOFT_CLIENT_ID` environment variables.
+      `OAUTH_MICROSOFT_CLIENT_ID` environment variable.
 
     - Open **Certificates & secrets → Client secrets → New client
       secret**, then copy the secret value (NOT the secret id) to
