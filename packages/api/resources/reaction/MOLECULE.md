@@ -247,3 +247,23 @@ Peer dependencies:
 - `@molecule/api-logger`
 - `@molecule/api-resource`
 - `zod`
+
+Session-auth prerequisite: `create` and `del` read the caller from
+`res.locals.session.userId` and fail closed with 401 — mount the routes
+behind your global auth middleware (the declared `authenticate` middleware
+string). Reactions are always owner-scoped: handlers derive the reacting
+user from the SESSION, never from the request body, and `del` removes only
+the caller's own reactions (optionally a single `type` via `?type=`).
+
+The GET summary route is PUBLIC by default (no `authenticate`) so anonymous
+visitors can see counts; when a session is present it also includes the
+current user's reactions. This resource does NOT validate that the target
+resource exists or that the caller may see it — if reactions attach to
+private resources in your app, gate these routes behind the parent
+resource's own access check; this package cannot know who owns an arbitrary
+`(resourceType, resourceId)`.
+
+Tables: `src/__setup__/reactions.sql` creates `reactions` (unique per
+`(resourceType, resourceId, userId, type)` — add is idempotent). An
+mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
+anywhere else run it once — nothing at runtime creates them.

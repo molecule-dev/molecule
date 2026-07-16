@@ -36,11 +36,14 @@ registerOwnershipResolver('document', async ({ resourceId, userId }) => {
 //   POST   /versions/:versionId/restore
 //   GET    /versions/:fromVersionId/diff/:toVersionId
 
-// Or call the service directly from another resource's update handler:
+// Or call the service directly from another resource's update handler.
+// The acting user ALWAYS comes from the session (res.locals.session) —
+// never from the request body:
+const userId = (res.locals.session as { userId?: string } | undefined)?.userId
 await createVersion({
   resourceType: 'document',
   resourceId: doc.id,
-  userId: req.session.userId,
+  userId: userId ?? null,
   snapshot: doc,
   reason: 'autosave',
 })
@@ -689,6 +692,12 @@ read/list/diff/restore returns 404 (no existence leak) rather than exposing
 another tenant's snapshots. Cross-tenant admin access is opt-in via the
 {@link versionHistoryAdmin} middleware. Do NOT mount the raw routes without
 either a registered resolver or your own resource-ownership gate.
+
+Tables: `src/__setup__/versions.sql` creates `versions`. An mlcl-scaffolded
+API replays `__setup__/*.sql` automatically on migrate; anywhere else run it
+once — nothing at runtime creates them. Handler errors flow through `t()`
+with English defaults; install `@molecule/api-locales-resource-version-history`
+and register it with `registerLocaleModule` for translations.
 
 ## Translations
 

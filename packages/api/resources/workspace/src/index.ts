@@ -25,6 +25,29 @@
  * //   DELETE /workspaces/:id/invites/:inviteId
  * //   POST   /workspaces/invites/accept
  * ```
+ *
+ * @remarks
+ * Session-auth prerequisite: every route requires an authenticated session
+ * (`authenticate`) — handlers read `res.locals.session.userId` and fail closed
+ * with 401; mount behind your global auth middleware.
+ *
+ * Role gates are enforced in-handler via `assertMember(workspaceId, userId,
+ * minRole)` with the `owner` > `admin` > `member` hierarchy: `list` returns
+ * only workspaces the CALLER belongs to, reads require membership, member-role
+ * changes/removals and all invite management require at least `admin`, and an
+ * inviter cannot grant a role higher than their own. Non-members are denied
+ * (403). Never accept a client-supplied user id for any of these checks.
+ *
+ * Invite delivery is YOUR app's concern: `POST /workspaces/:id/invites` stores
+ * a single-use, expiring token and returns it to the (admin) caller — this
+ * package sends no email. Build the accept link from the token; `POST
+ * /workspaces/invites/accept` with `{ token }` joins the CURRENT session user
+ * at the invite's role.
+ *
+ * Tables: `src/__setup__/workspaces.sql` creates `workspaces`,
+ * `workspace_members`, and `workspace_invites`. An mlcl-scaffolded API replays
+ * `__setup__/*.sql` automatically on migrate; anywhere else run it once —
+ * nothing at runtime creates them.
  */
 
 export * from './browser-guard.js'

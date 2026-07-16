@@ -26,6 +26,18 @@
  *   app[route.method](route.path, ...middlewares, requestHandlerMap[route.handler])
  * }
  * ```
+ *
+ * @remarks
+ * Delivery is YOUR app's concern: `subscribe` stores the record and returns
+ * `{ subscriber, confirmToken, unsubscribeToken }` exactly once (201) — this
+ * package sends nothing. Build the confirm/unsubscribe links from those tokens
+ * and deliver them via your email/SMS/webhook bond. Re-subscribing an existing
+ * `(channel, address, topic)` returns 409.
+ *
+ * Tables: `src/__setup__/subscribers.sql` creates `subscribers` (unique per
+ * `(channel, address, topic)`, unique token indexes). An mlcl-scaffolded API
+ * replays `__setup__/*.sql` automatically on migrate; anywhere else run it
+ * once — nothing at runtime creates them.
  */
 
 export * from './browser-guard.js'

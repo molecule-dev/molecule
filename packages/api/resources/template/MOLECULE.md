@@ -552,3 +552,20 @@ Peer dependencies:
 - `@molecule/api-logger`
 - `@molecule/api-resource`
 - `zod`
+
+Session-auth prerequisite: every route — including reads — requires an
+authenticated session; handlers read `res.locals.session.userId` and fail
+closed with 401, so mount behind your global auth middleware. Visibility is
+per-row: a template is readable when `isPublic` is true or the caller is its
+`createdBy` creator (`canViewTemplate`), and editable/deletable ONLY by its
+creator (`canEditTemplate`) — a non-visible row returns 404 (existence is
+not leaked); a public row edited by a non-owner returns 403. `createdBy` is
+derived from the session, never from the request body.
+
+`(resourceType, slug)` is UNIQUE — a duplicate `create` returns 409
+(`template.error.conflict`).
+
+Tables: `src/__setup__/resource-templates.sql` creates `resource-templates`
+(note the hyphenated table name). An mlcl-scaffolded API replays
+`__setup__/*.sql` automatically on migrate; anywhere else run it once —
+nothing at runtime creates them.

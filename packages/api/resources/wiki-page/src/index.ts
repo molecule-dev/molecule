@@ -24,10 +24,24 @@
  * ```
  *
  * @remarks
- * Run `src/__setup__/wiki_pages.sql` once (creates both `wiki_spaces`
- * and `wiki_pages` tables). If a search provider is bonded via
- * `@molecule/api-search`, page creates and updates index the content
- * automatically.
+ * Session-auth prerequisite: every route reads the caller via
+ * `requireUser(res)` (`res.locals.session.userId`, 401 fail-closed) — mount
+ * `createWikiPageRouter()` behind your global auth middleware. There is no
+ * `routes`/`requestHandlerMap` export; this package ships the Express router
+ * factory shown above.
+ *
+ * Access is space-scoped through `getAccessibleSpace`: a caller may act on a
+ * page when they OWN its `wiki_spaces` row or the space is `is_public`. Note
+ * that a public space is writable by ANY authenticated user — keep spaces
+ * private for owner-only editing, or wrap the router with your own role gate.
+ * This package ships no space CRUD: create/seed the `wiki_spaces` row yourself
+ * before creating pages. `DELETE /:id` is recursive (children first). If a
+ * search provider is bonded via `@molecule/api-search`, creates and updates
+ * index content automatically.
+ *
+ * Tables: `src/__setup__/wiki_pages.sql` creates `wiki_spaces` and
+ * `wiki_pages`. An mlcl-scaffolded API replays `__setup__/*.sql` automatically
+ * on migrate; anywhere else run it once — nothing at runtime creates them.
  *
  * @module
  */

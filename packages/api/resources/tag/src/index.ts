@@ -31,6 +31,19 @@
  * })
  * ```
  *
+ * Taxonomy mutations are ADMIN-ONLY and DENY by default: `POST/PATCH/DELETE
+ * /tags` are gated by the `requireAdmin` middleware AND re-checked in-handler
+ * (fail-closed). "Admin" = an admin session claim (`isAdmin`, `role: 'admin'`,
+ * a `'tag:manage'`/`'admin'` permission string) OR a bonded
+ * `@molecule/api-permissions` grant of `manage` on `tag` — grant one of those
+ * at startup or every taxonomy write is denied; do NOT strip the gate. The
+ * tag read routes (`list`, `popular`, `read`, `getBySlug`) are PUBLIC by
+ * design.
+ *
+ * Tables: `src/__setup__/tags.sql` creates `tags` and `resource_tags`. An
+ * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
+ * anywhere else run it once — nothing at runtime creates them.
+ *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
  * each item to this app's actual screens/flows, and check every box off one

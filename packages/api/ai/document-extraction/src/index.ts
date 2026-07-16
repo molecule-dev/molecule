@@ -23,6 +23,24 @@
  * if (missing.length) console.warn('Could not extract:', missing)
  * ```
  *
+ * @remarks
+ * Requires a bonded AI provider: `extractFields` resolves the singleton via
+ * `requireProvider()` from `@molecule/api-ai` — wire your AI bond at startup
+ * (whichever provider bond the app uses) or the call THROWS. It also throws
+ * when multiple named providers are bonded with no default; set the default at
+ * bond time rather than selecting per-call.
+ *
+ * The result is BEST-EFFORT and never throws on content: malformed model
+ * output yields `{ data: {}, reasoning: 'AI returned malformed JSON' }`, any
+ * field may be `null`, and `confidence` is optional/partial. ALWAYS validate
+ * with `missingRequiredFields(result, fields)` before trusting `result.data` —
+ * treat a non-empty return as "extraction failed for these fields", not an
+ * exception. `temperature` defaults to 0 for determinism.
+ *
+ * Text in, structure out: this package does no OCR/PDF parsing (pre-process
+ * with `@molecule/api-pdf` or your OCR provider) and no chunking — split or
+ * truncate very long documents yourself before calling.
+ *
  * @module
  */
 

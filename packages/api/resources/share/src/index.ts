@@ -13,16 +13,15 @@
  * ```typescript
  * import { routes, requestHandlerMap } from '@molecule/api-resource-share'
  *
- * // Wire routes into your Express app via mlcl inject
- * // POST   /resource-shares
- * // GET    /resource-shares/:resourceType/:resourceId
- * // GET    /resource-shares/:resourceType/:resourceId/role
- * // PATCH  /resource-shares/:id
- * // DELETE /resource-shares/:id
- * // POST   /resource-share-links
- * // GET    /resource-share-links/:resourceType/:resourceId
- * // DELETE /resource-share-links/:id
- * // GET    /resource-share-links/resolve/:slug   (public)
+ * // Auto-mountable surface (via mlcl inject) — read-only + public link resolve:
+ * // GET    /resource-shares/:resourceType/:resourceId        (full ACL — ownership-gated)
+ * // GET    /resource-shares/:resourceType/:resourceId/role   (caller's own effective role)
+ * // GET    /resource-share-links/:resourceType/:resourceId   (link list — ownership-gated)
+ * // GET    /resource-share-links/resolve/:slug               (public — the slug is the credential)
+ * //
+ * // The MUTATING handlers (`create`/`update`/`del` grants, `createLink`/`revokeLink`)
+ * // are intentionally NOT in `routes` — mount them yourself behind a
+ * // resource-ownership gate. See @remarks.
  * ```
  *
  * @example
@@ -34,8 +33,9 @@
  * ```
  *
  * @remarks
- * SECURITY — the raw grant/update/revoke routes are secure by default and MUST
- * be wrapped with a resource-ownership gate; never mount them directly. The
+ * SECURITY — the raw grant/update/revoke handlers DENY by default (every
+ * mutation returns 403 until an ownership authorizer is registered) and MUST
+ * be mounted behind a resource-ownership gate; never auto-mount them. The
  * share table has no inherent knowledge of who *owns* an arbitrary
  * `(resourceType, resourceId)`, so without a gate any authenticated user could
  * `POST /resource-shares` to grant themselves the highest role on ANY resource
@@ -75,6 +75,12 @@
  *
  * `update`/`del` resolve the share row first to learn its
  * `(resourceType, resourceId)` and authorize the caller against THAT resource.
+ *
+ * Tables: `src/__setup__/resource-shares.sql` and
+ * `src/__setup__/resource-share-links.sql` create `resource-shares` and
+ * `resource-share-links`. An mlcl-scaffolded API replays `__setup__/*.sql`
+ * automatically on migrate; anywhere else run them once — nothing at runtime
+ * creates them.
  */
 
 export * from './browser-guard.js'

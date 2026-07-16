@@ -220,7 +220,15 @@ Peer dependencies:
 - `express`
 - `zod`
 
-Run the bundled setup SQL once to create the `tasks` table:
-`setup/tasks.sql`. The migrator factory in
-`@molecule/api-bonds-default-express` will run it automatically if
-placed in your `api/migrations` directory.
+Session-auth prerequisite: every route reads the caller via
+`requireUser(res)` (`res.locals.session.userId`, 401 fail-closed) — mount
+`createTaskRouter()` behind your global auth middleware. All queries are
+owner-scoped through the `*ForOwner` service functions using that session
+id; never pass a client-supplied owner id. Unlike declarative-route
+resources there is no `routes`/`requestHandlerMap` export — this package
+ships the Express router factory shown above (plus a `taskRouter`
+singleton).
+
+Tables: `src/__setup__/tasks.sql` creates `tasks`. An mlcl-scaffolded API
+replays `__setup__/*.sql` automatically on migrate; anywhere else run it
+once — nothing at runtime creates them.
