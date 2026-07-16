@@ -373,7 +373,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             return {
               error: `old_string found ${count} times in ${path} — must be unique. Include more surrounding context.`,
             }
-          content = content.replace(oldString, newString)
+          // Splice by index rather than `content.replace(oldString, newString)`:
+          // String.replace treats `$&`, `$$`, `` $` ``, `$'` in the REPLACEMENT as
+          // special patterns, so a new_string containing regex-replacement code
+          // (`'$&!'`) or literal dollars (`"$$$"`) would be silently corrupted —
+          // a self-inflicted syntax error written with ok:true that the executor
+          // then can't locate. count === 1 here, so indexOf is the unique site.
+          const at = content.indexOf(oldString)
+          content = content.slice(0, at) + newString + content.slice(at + oldString.length)
         }
 
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })

@@ -392,6 +392,33 @@ describe('buildTools', () => {
     expect(result.replacementsApplied).toBe(2)
   })
 
+  it('edit_file writes new_string verbatim when it contains $ replacement patterns (no corruption)', async () => {
+    // Regression: String.replace(oldString, newString) interprets `$&`, `$$`,
+    // `` $` ``, `$'` in the replacement — so regex-replacement code or literal
+    // dollars in new_string would be silently corrupted (written with ok:true).
+    // The handler splices by index instead, so new_string lands byte-for-byte.
+    const backend = mockBackend()
+    let written: string | null = null
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('const v = OLD;')
+    ;(backend.writeFile as ReturnType<typeof vi.fn>).mockImplementation(
+      async (_p: string, c: string) => {
+        written = c
+      },
+    )
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const newString = `slug.replace(/\\s+/g, '$&-') + "$$" + "$\`" + "$'"`
+    const result = (await editFile.execute({
+      path: '/test/file.ts',
+      old_string: 'OLD',
+      new_string: newString,
+    })) as Record<string, unknown>
+    expect(result.ok).toBe(true)
+    // The $-bearing text is present exactly as authored — not expanded to the
+    // matched text ($&), collapsed ($$ -> $), or replaced by surrounding content.
+    expect(written).toBe(`const v = ${newString};`)
+  })
+
   it('edit_file rejects a batch element missing new_string (no silent "undefined" insert)', async () => {
     const backend = mockBackend()
     let written: string | null = null
