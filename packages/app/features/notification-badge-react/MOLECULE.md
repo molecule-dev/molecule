@@ -12,15 +12,12 @@ Exports:
 ```tsx
 import { NotificationBadge, NotificationDot, NotificationWrapper } from '@molecule/app-notification-badge-react'
 
-// Count pill on its own
 <NotificationBadge count={5} variant="error" />
 
-// Unread presence dot
-<NotificationDot visible={hasUnread} variant="info" position="corner" />
+<NotificationDot visible variant="info" position="corner" />
 
-// Badge overlaid on an icon button
 <NotificationWrapper count={12} placement="top-right">
-  <BellIcon />
+  <span aria-hidden>notifications</span>
 </NotificationWrapper>
 ```
 
@@ -35,9 +32,64 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `NotificationBadgeProps`
+
+```typescript
+interface NotificationBadgeProps {
+  /** Numeric count — renders as a pill. When 0 and `hideOnZero` is true, the badge isn't rendered. */
+  count: number
+  /** Hide the badge when `count` is 0. Defaults to true. */
+  hideOnZero?: boolean
+  /** When `count > max`, renders as `max+`. Defaults to 99. */
+  max?: number
+  /** Accent color. */
+  variant?: 'error' | 'warning' | 'info' | 'success' | 'neutral'
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `NotificationDotProps`
+
+```typescript
+interface NotificationDotProps {
+  /** When false, nothing is rendered. */
+  visible?: boolean
+  /** Color variant. */
+  variant?: 'error' | 'warning' | 'info' | 'success' | 'neutral'
+  /** Dot size (pixels). Defaults to 8. */
+  size?: number
+  /** Optional positioning — `'corner'` places absolutely at top-right of parent. */
+  position?: 'inline' | 'corner'
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `NotificationWrapperProps`
+
+```typescript
+interface NotificationWrapperProps {
+  /** The child that should receive the badge (icon button, avatar, nav item). */
+  children: ReactNode
+  /** Notification count. */
+  count: number
+  /** Hide the badge when count is 0. Defaults to true. */
+  hideOnZero?: boolean
+  /** Visual variant. */
+  variant?: 'error' | 'warning' | 'info' | 'success' | 'neutral'
+  /** Corner placement. Defaults to `'top-right'`. */
+  placement?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `NotificationBadge(root0, root0, root0, root0, root0, root0)`
+#### `NotificationBadge(props)`
 
 Small count pill — typically attached to a nav item, icon button, or
 inbox entry. Use `<NotificationDot>` when you just need a presence
@@ -53,14 +105,9 @@ function NotificationBadge({
 }: NotificationBadgeProps): ReactElement<unknown, string | JSXElementConstructor<any>> | null
 ```
 
-- `root0` — *
-- `root0` — .count
-- `root0` — .hideOnZero
-- `root0` — .max
-- `root0` — .variant
-- `root0` — .className
+- `props` — Component props (see {@link NotificationBadgeProps}).
 
-#### `NotificationDot(root0, root0, root0, root0, root0, root0)`
+#### `NotificationDot(props)`
 
 Tiny unread / presence indicator. For counted badges use
 `<NotificationBadge>`.
@@ -75,14 +122,9 @@ function NotificationDot({
 }: NotificationDotProps): JSX.Element | null
 ```
 
-- `root0` — *
-- `root0` — .visible
-- `root0` — .variant
-- `root0` — .size
-- `root0` — .position
-- `root0` — .className
+- `props` — Component props (see {@link NotificationDotProps}).
 
-#### `NotificationWrapper(root0, root0, root0, root0, root0, root0, root0)`
+#### `NotificationWrapper(props)`
 
 Positions a `<NotificationBadge>` at a corner of any child element.
 The wrapper becomes `relative` so the badge absolutely positions
@@ -99,13 +141,7 @@ function NotificationWrapper({
 }: NotificationWrapperProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .children
-- `root0` — .count
-- `root0` — .hideOnZero
-- `root0` — .variant
-- `root0` — .placement
-- `root0` — .className
+- `props` — Component props (see {@link NotificationWrapperProps}).
 
 ## Injection Notes
 
@@ -123,3 +159,17 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
+
+Variant colors currently resolve to raw `bg-error` / `bg-warning` /
+`bg-info` / `bg-success` / `bg-outline` utility classes rather than
+ClassMap resolvers. In a standard molecule Tailwind app the first four
+happen to be generated, but `variant="neutral"` maps to `bg-outline`,
+which standard themes do NOT define — the neutral pill/dot renders
+transparent. Prefer the four semantic variants, or define an
+`outline` theme color (and ensure your Tailwind build scans a source
+containing `bg-outline`) before using `neutral`.
+
+`<NotificationWrapper>` absolutely positions the badge 4px OUTSIDE the
+child's corner — an `overflow: hidden` ancestor will clip it.

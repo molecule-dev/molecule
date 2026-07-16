@@ -7,7 +7,7 @@ Exports `<OrderTimeline>` and `OrderMilestone` type.
 ## Quick Start
 
 ```tsx
-import { OrderTimeline, OrderMilestone } from '@molecule/app-order-timeline-react'
+import { OrderTimeline, type OrderMilestone } from '@molecule/app-order-timeline-react'
 
 const milestones: OrderMilestone[] = [
   { id: 'placed', label: 'Order placed', completed: true },
@@ -50,9 +50,23 @@ interface OrderMilestone {
 }
 ```
 
+#### `OrderTimelineProps`
+
+```typescript
+interface OrderTimelineProps {
+  milestones: OrderMilestone[]
+  /** Optional ETA / summary line. */
+  eta?: ReactNode
+  /** Layout orientation. */
+  orientation?: 'horizontal' | 'vertical'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `OrderTimeline(root0, root0, root0, root0, root0)`
+#### `OrderTimeline(props)`
 
 Order / shipment progress timeline — typical e-commerce flow:
 "Placed → Confirmed → Shipped → Out for delivery → Delivered".
@@ -71,11 +85,7 @@ function OrderTimeline({
 }: OrderTimelineProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .milestones
-- `root0` — .eta
-- `root0` — .orientation
-- `root0` — .className
+- `props` — Component props (see {@link OrderTimelineProps}).
 
 ## Injection Notes
 
@@ -93,3 +103,15 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
+
+All strings (`label`, `detail`, `eta`) are caller-provided — resolve
+them through your app's `t()` before passing so the timeline localizes.
+
+Status node colors are currently fixed hex values (blue = current,
+green = completed, gray = pending) rather than theme variables — the
+pending gray has low contrast on dark surfaces. `completed` and
+`current` are independent booleans: mark every finished milestone
+`completed: true` and exactly one in-progress milestone
+`current: true`; a milestone with neither renders as pending.

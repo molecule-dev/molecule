@@ -51,7 +51,9 @@ Now-playing bar component props.
 
 ```typescript
 interface NowPlayingBarProps {
-  /** The currently loaded track. Pass `null` to render the bar in an empty / collapsed state (caller usually hides the bar instead). */
+  /** The currently loaded track. REQUIRED — render the bar conditionally
+   *  (`{track ? <NowPlayingBar track={track} ... /> : null}`) when nothing
+   *  is playing; passing null/undefined crashes. */
   track: NowPlayingTrack
   /** True when the track is actively playing. Drives the play/pause toggle. */
   isPlaying: boolean
@@ -156,6 +158,13 @@ Peer dependencies:
 Pair with `@molecule/app-locales-now-playing-bar` for translations
 in 79 languages. All styling routes through `getClassMap()`; all
 user-facing text routes through `t()`.
+
+`track` is REQUIRED — hide the bar (conditional render) when nothing
+is playing; the component does not accept null. Requires a wired
+ClassMap bond and a React `I18nProvider` ancestor — `getClassMap()`
+and `useTranslation()` both throw before wiring. Transport buttons
+render text glyphs (not an icon set), so their size tracks the app
+font.
 
 ## Translations
 

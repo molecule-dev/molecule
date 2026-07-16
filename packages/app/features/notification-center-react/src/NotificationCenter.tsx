@@ -19,7 +19,7 @@ export interface NotificationItem {
   onClick?: () => void
 }
 
-interface NotificationCenterProps {
+export interface NotificationCenterProps {
   /** Items to render. */
   items: NotificationItem[]
   /** Called when "Mark all as read" is clicked. Hides the link if omitted. */
@@ -52,15 +52,7 @@ interface NotificationCenterProps {
  * Standalone notification panel — title + mark-all-read action +
  * scrollable item list + footer "View all". Drop inside a popover /
  * dropdown / drawer to make a full notification center.
- * @param root0
- * @param root0.items
- * @param root0.onMarkAllRead
- * @param root0.onViewAll
- * @param root0.emptyState
- * @param root0.title
- * @param root0.className
- * @param root0.lastError
- * @param root0.onRetry
+ * @param props - Component props (see {@link NotificationCenterProps}).
  */
 export function NotificationCenter({
   items,

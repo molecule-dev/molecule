@@ -36,10 +36,10 @@ export interface OAuthButtonsProps {
    */
   onSelect?: (provider: string) => void
   /**
-   * Optional success callback. Reserved for host apps that resolve the
-   * OAuth handshake inline (popup / pkce-on-page) rather than via a full
-   * page redirect. Called with the provider id once the handshake
-   * completes successfully.
+   * RESERVED — not currently invoked by this component. The full-page
+   * `redirect(provider)` flow never returns to the caller, so there is
+   * nothing to call it on. Kept for API compatibility with popup/PKCE
+   * hosts that resolve the handshake inline and invoke it themselves.
    */
   onSuccess?: (provider: string) => void
   /**

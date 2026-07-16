@@ -3,7 +3,7 @@ import { type JSX, useState } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface MiniCalendarProps {
+export interface MiniCalendarProps {
   /** Controlled selected date (ISO yyyy-mm-dd or Date). */
   selected?: Date | string
   /** Called when the user picks a day. */
@@ -56,14 +56,7 @@ function isSameDay(a: Date, b: Date): boolean {
  * Compact month-view calendar. Supports controlled `selected` + `month`
  * props or runs uncontrolled. Weekday / month names come from
  * `Intl.DateTimeFormat` so locales render correctly without extra data.
- * @param root0
- * @param root0.selected
- * @param root0.onSelect
- * @param root0.month
- * @param root0.onMonthChange
- * @param root0.locale
- * @param root0.isDisabled
- * @param root0.className
+ * @param props - Component props (see {@link MiniCalendarProps}).
  */
 export function MiniCalendar({
   selected,

@@ -8,7 +8,7 @@ export interface FooterLink {
   to?: string
 }
 
-interface AppShellFooterProps {
+export interface AppShellFooterProps {
   /** Optional brand / logo. */
   logo?: ReactNode
   /** Optional copyright text. */
@@ -24,12 +24,7 @@ interface AppShellFooterProps {
 /**
  * Bottom page footer shell. All content is optional — apps mix and match
  * logo / copyright / links / right-slot as the design demands.
- * @param root0
- * @param root0.logo
- * @param root0.copyright
- * @param root0.links
- * @param root0.right
- * @param root0.className
+ * @param props - Component props (see {@link AppShellFooterProps}).
  */
 export function AppShellFooter({
   logo,

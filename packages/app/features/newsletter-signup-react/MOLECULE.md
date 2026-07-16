@@ -2,12 +2,16 @@
 
 Email subscribe form.
 
-Exports `<NewsletterSignup>` with inline + stacked layouts.
+Exports `<NewsletterSignup>` with inline + stacked layouts. Tracks its
+own submitting / error / success state; the app owns the subscription
+side-effect via `onSubscribe`.
 
 ## Quick Start
 
 ```tsx
 import { NewsletterSignup } from '@molecule/app-newsletter-signup-react'
+
+declare const api: { subscribe: (email: string) => Promise<void> }
 
 <NewsletterSignup
   title="Stay in the loop"
@@ -29,9 +33,34 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `NewsletterSignupProps`
+
+```typescript
+interface NewsletterSignupProps {
+  /** Called with the email on submit. Return a Promise to block double-submit. */
+  onSubscribe: (email: string) => void | Promise<void>
+  /** Optional title above the form. */
+  title?: ReactNode
+  /** Optional supporting copy under the title. */
+  description?: ReactNode
+  /** Placeholder for the email input. */
+  placeholder?: string
+  /** Submit-button label. */
+  buttonLabel?: ReactNode
+  /** Rendered after successful subscription. */
+  successContent?: ReactNode
+  /** Layout — `'inline'` default (input + button on one row) or `'stacked'`. */
+  layout?: 'inline' | 'stacked'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `NewsletterSignup(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `NewsletterSignup(props)`
 
 Email + subscribe button widget. Tracks its own submitting/error/success
 state. Apps own the actual subscription side-effect via `onSubscribe`.
@@ -49,15 +78,7 @@ function NewsletterSignup({
 }: NewsletterSignupProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .onSubscribe
-- `root0` — .title
-- `root0` — .description
-- `root0` — .placeholder
-- `root0` — .buttonLabel
-- `root0` — .successContent
-- `root0` — .layout
-- `root0` — .className
+- `props` — Component props (see {@link NewsletterSignupProps}).
 
 ## Injection Notes
 
@@ -75,3 +96,19 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Requires a wired ClassMap bond and a React `I18nProvider` ancestor —
+`getClassMap()` and `useTranslation()` both throw before wiring.
+Pair with `@molecule/app-locales-newsletter-signup` for the
+placeholder / button strings in 79 languages.
+
+ALWAYS pass `successContent` — without it a successful submit only
+clears the input and re-renders the empty form (no built-in "thanks"
+message). Return a Promise from `onSubscribe` so double-submits are
+blocked while in flight; a rejected Promise renders the error's
+`message` verbatim below the form, so throw user-readable (ideally
+pre-translated) messages.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-newsletter-signup`.

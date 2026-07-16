@@ -4,7 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { NavItem } from './types.js'
 
-interface AppShellTopNavProps {
+export interface AppShellTopNavProps {
   /** Left-side brand / logo slot. */
   logo?: ReactNode
   /** Centre nav items (usually the primary app sections). */
@@ -23,13 +23,7 @@ interface AppShellTopNavProps {
  * Top navigation shell — logo on the left, nav items in the centre,
  * app-level actions on the right. Fully slot-driven; apps decide what
  * to render in each position.
- * @param root0
- * @param root0.logo
- * @param root0.items
- * @param root0.activeId
- * @param root0.onItemClick
- * @param root0.right
- * @param root0.className
+ * @param props - Component props (see {@link AppShellTopNavProps}).
  */
 export function AppShellTopNav({
   logo,

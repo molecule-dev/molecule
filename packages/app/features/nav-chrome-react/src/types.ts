@@ -12,7 +12,12 @@ export interface NavItem {
   label: ReactNode
   /** Optional leading icon. */
   icon?: ReactNode
-  /** Route target — when provided, the item renders as a link. */
+  /**
+   * Route target. The shells do NOT render links — every item renders a
+   * button and navigation is delegated to `onItemClick` (call your
+   * router there, e.g. `navigate(item.to)`). `to` is carried through
+   * untouched for exactly that purpose.
+   */
   to?: string
   /** Optional badge / count to the right of the label. */
   badge?: ReactNode

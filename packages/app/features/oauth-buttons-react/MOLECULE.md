@@ -103,10 +103,10 @@ interface OAuthButtonsProps {
    */
   onSelect?: (provider: string) => void
   /**
-   * Optional success callback. Reserved for host apps that resolve the
-   * OAuth handshake inline (popup / pkce-on-page) rather than via a full
-   * page redirect. Called with the provider id once the handshake
-   * completes successfully.
+   * RESERVED — not currently invoked by this component. The full-page
+   * `redirect(provider)` flow never returns to the caller, so there is
+   * nothing to call it on. Kept for API compatibility with popup/PKCE
+   * hosts that resolve the handshake inline and invoke it themselves.
    */
   onSuccess?: (provider: string) => void
   /**
@@ -353,6 +353,14 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+Rendering-only: this package draws the buttons; the OAuth handshake
+itself — authorize redirect, and the callback/code-to-session
+exchange on return — belongs to `useOAuth(config)` (which needs the
+`@molecule/app-react` Auth provider context) or your auth bond's
+`signInWithProvider`. `onSuccess` is currently reserved/no-op.
+Requires a wired ClassMap bond and a React `I18nProvider` ancestor —
+`getClassMap()` and `useTranslation()` both throw before wiring.
 
 ## Translations
 

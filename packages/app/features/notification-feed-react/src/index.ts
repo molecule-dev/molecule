@@ -17,6 +17,26 @@
  * <NotificationFeed items={items} ariaLabel="Notifications" dataMolId="notification-feed" />
  * ```
  *
+ * @remarks
+ * `FeedItem.icon` is a Material Symbols LIGATURE — the app must load the
+ * "Material Symbols Outlined" font and define the
+ * `material-symbols-outlined` CSS class, or icon names render as plain
+ * text (the literal string `check_circle`). The icon circle background
+ * and the unread left-border accent additionally rely on raw Tailwind
+ * utilities (`bg-primary-container`, `border-l-4`) that standard
+ * molecule scaffolds neither scan nor theme — add an `@source` line for
+ * this package's dist plus a `primary-container` theme color, or expect
+ * both to be invisible until the package is migrated to ClassMap.
+ *
+ * Rows WITH `href` render a react-router `<Link>` — they THROW outside a
+ * `<Router>` context. In apps not using react-router, omit `href` (rows
+ * render as plain divs) or handle navigation on a wrapping element.
+ * Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
+ *
+ * `fmtRelativeShort` (exported) renders compact `12m` / `3h` / `5d`
+ * strings with English unit letters — swap in your own formatter for
+ * localized feeds by pre-formatting and rendering your own rows.
+ *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
  * each item to this app's actual screens/flows, and check every box off one

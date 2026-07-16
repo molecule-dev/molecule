@@ -47,11 +47,7 @@ export interface NotificationFeedProps {
  * pass the resolved icon string in. Keeps this package free of per-app
  * type unions.
  *
- * @param root0
- * @param root0.items
- * @param root0.ariaLabel
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link NotificationFeedProps}).
  */
 export function NotificationFeed({
   items,

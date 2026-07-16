@@ -4,7 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { NavItem } from './types.js'
 
-interface AppShellBottomNavProps {
+export interface AppShellBottomNavProps {
   items: NavItem[]
   activeId?: string
   onItemClick?: (item: NavItem) => void
@@ -16,11 +16,7 @@ interface AppShellBottomNavProps {
  * Mobile/tablet bottom tab bar — typically 3–5 primary nav destinations.
  * Each item shows icon + short label. On desktop layouts this is usually
  * hidden via parent-level responsive chrome.
- * @param root0
- * @param root0.items
- * @param root0.activeId
- * @param root0.onItemClick
- * @param root0.className
+ * @param props - Component props (see {@link AppShellBottomNavProps}).
  */
 export function AppShellBottomNav({
   items,

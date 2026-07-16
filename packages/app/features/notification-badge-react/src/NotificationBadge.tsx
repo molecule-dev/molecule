@@ -2,7 +2,7 @@ import type { ReactElement } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface NotificationBadgeProps {
+export interface NotificationBadgeProps {
   /** Numeric count — renders as a pill. When 0 and `hideOnZero` is true, the badge isn't rendered. */
   count: number
   /** Hide the badge when `count` is 0. Defaults to true. */
@@ -27,12 +27,7 @@ const VARIANT_BG: Record<NonNullable<NotificationBadgeProps['variant']>, string>
  * Small count pill — typically attached to a nav item, icon button, or
  * inbox entry. Use `<NotificationDot>` when you just need a presence
  * indicator without a count.
- * @param root0
- * @param root0.count
- * @param root0.hideOnZero
- * @param root0.max
- * @param root0.variant
- * @param root0.className
+ * @param props - Component props (see {@link NotificationBadgeProps}).
  */
 export function NotificationBadge({
   count,

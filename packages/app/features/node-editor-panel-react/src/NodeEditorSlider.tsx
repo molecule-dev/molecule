@@ -11,7 +11,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { NodeEditorSection } from './NodeEditorSection.js'
 
-interface NodeEditorSliderProps {
+export interface NodeEditorSliderProps {
   label: ReactNode
   value: number
   onChange: (next: number) => void

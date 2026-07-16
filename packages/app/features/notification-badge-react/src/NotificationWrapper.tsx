@@ -4,7 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { NotificationBadge } from './NotificationBadge.js'
 
-interface NotificationWrapperProps {
+export interface NotificationWrapperProps {
   /** The child that should receive the badge (icon button, avatar, nav item). */
   children: ReactNode
   /** Notification count. */
@@ -23,13 +23,7 @@ interface NotificationWrapperProps {
  * Positions a `<NotificationBadge>` at a corner of any child element.
  * The wrapper becomes `relative` so the badge absolutely positions
  * correctly — wrap icon buttons, avatars, or nav entries.
- * @param root0
- * @param root0.children
- * @param root0.count
- * @param root0.hideOnZero
- * @param root0.variant
- * @param root0.placement
- * @param root0.className
+ * @param props - Component props (see {@link NotificationWrapperProps}).
  */
 export function NotificationWrapper({
   children,

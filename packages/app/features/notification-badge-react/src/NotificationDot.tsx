@@ -2,7 +2,7 @@ import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface NotificationDotProps {
+export interface NotificationDotProps {
   /** When false, nothing is rendered. */
   visible?: boolean
   /** Color variant. */
@@ -26,12 +26,7 @@ const VARIANT_BG: Record<NonNullable<NotificationDotProps['variant']>, string> =
 /**
  * Tiny unread / presence indicator. For counted badges use
  * `<NotificationBadge>`.
- * @param root0
- * @param root0.visible
- * @param root0.variant
- * @param root0.size
- * @param root0.position
- * @param root0.className
+ * @param props - Component props (see {@link NotificationDotProps}).
  */
 export function NotificationDot({
   visible = true,

@@ -9,7 +9,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface NodeEditorPanelProps {
+export interface NodeEditorPanelProps {
   title: ReactNode
   children?: ReactNode
   /** Footer slot — typically the save bar + status row. */

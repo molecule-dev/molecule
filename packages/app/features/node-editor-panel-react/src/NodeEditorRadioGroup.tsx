@@ -9,12 +9,12 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface NodeEditorRadioOption<T extends string> {
+export interface NodeEditorRadioOption<T extends string> {
   value: T
   label: ReactNode
 }
 
-interface NodeEditorRadioGroupProps<T extends string> {
+export interface NodeEditorRadioGroupProps<T extends string> {
   options: NodeEditorRadioOption<T>[]
   value: T
   onChange: (next: T) => void

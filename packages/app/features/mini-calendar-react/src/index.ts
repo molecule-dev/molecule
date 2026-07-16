@@ -3,7 +3,7 @@
  *
  * Exports `<MiniCalendar>` — compact day picker with prev/next navigation,
  * Intl-localized weekday + month names, controlled-optional `selected` +
- * `month` props.
+ * `month` props, and an `isDisabled` day predicate.
  *
  * @example
  * ```tsx
@@ -15,6 +15,21 @@
  *   locale="en-US"
  * />
  * ```
+ *
+ * @remarks
+ * Requires a wired ClassMap bond (`setClassMap(...)` at startup) —
+ * `getClassMap()` throws before wiring, and the prev/next buttons come
+ * from `@molecule/app-ui-react`.
+ *
+ * Weekday and month names localize automatically through
+ * `Intl.DateTimeFormat(locale)` — no locale bond involved. The prev/next
+ * button aria-labels are currently English-only.
+ *
+ * When `month` is supplied the visible month is fully controlled —
+ * wire `onMonthChange` too or the arrows will appear dead. The grid
+ * always renders 6 weeks; days outside the visible month render dimmed
+ * and remain clickable unless `isDisabled` filters them.
+ *
  * @module
  */
 

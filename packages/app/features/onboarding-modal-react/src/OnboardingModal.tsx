@@ -14,7 +14,7 @@ export interface OnboardingStep {
   media?: ReactNode
 }
 
-interface OnboardingModalProps {
+export interface OnboardingModalProps {
   /** Whether the modal is open. */
   open: boolean
   /** Called when closing (skip / X / completion). */
@@ -32,13 +32,7 @@ interface OnboardingModalProps {
 /**
  * Multi-step onboarding overlay — title + body + media, with prev/next
  * navigation and an optional Skip link. Tracks its own step state.
- * @param root0
- * @param root0.open
- * @param root0.onClose
- * @param root0.steps
- * @param root0.onComplete
- * @param root0.allowSkip
- * @param root0.defaultStep
+ * @param props - Component props (see {@link OnboardingModalProps}).
  */
 export function OnboardingModal({
   open,

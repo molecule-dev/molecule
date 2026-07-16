@@ -4,7 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { NavGroup, NavItem } from './types.js'
 
-interface AppShellSideNavProps {
+export interface AppShellSideNavProps {
   /** Nav content: either a flat list of items or grouped sections. */
   items?: NavItem[]
   groups?: NavGroup[]
@@ -24,14 +24,7 @@ interface AppShellSideNavProps {
  * Vertical side nav shell. Pass either `items` for a flat list or
  * `groups` for a sectioned layout ("Main / Teams / Settings"). Header
  * and footer slots remain fixed while the middle scrolls.
- * @param root0
- * @param root0.items
- * @param root0.groups
- * @param root0.activeId
- * @param root0.onItemClick
- * @param root0.header
- * @param root0.footer
- * @param root0.className
+ * @param props - Component props (see {@link AppShellSideNavProps}).
  */
 export function AppShellSideNav({
   items,

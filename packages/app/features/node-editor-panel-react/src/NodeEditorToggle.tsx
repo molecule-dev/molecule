@@ -9,7 +9,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface NodeEditorToggleProps {
+export interface NodeEditorToggleProps {
   title: ReactNode
   subtitle?: ReactNode
   /** Material-symbols icon for the leading tile (omit for no tile). */

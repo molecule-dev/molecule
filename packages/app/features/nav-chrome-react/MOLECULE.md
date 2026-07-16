@@ -14,19 +14,21 @@ Every shell is pure slots — apps decide what renders in each position.
 ## Quick Start
 
 ```tsx
-import { AppShellTopNav, AppShellSideNav } from '@molecule/app-nav-chrome-react'
+import { AppShellTopNav, type NavItem } from '@molecule/app-nav-chrome-react'
 
-const navItems = [
+const navItems: NavItem[] = [
   { id: 'home', label: 'Home', to: '/' },
   { id: 'settings', label: 'Settings', to: '/settings' },
 ]
+
+declare function navigate(to: string): void
 
 <AppShellTopNav
   logo={<img src="/logo.svg" alt="App" />}
   items={navItems}
   activeId="home"
-  onItemClick={(item) => router.push(item.to!)}
-  right={<UserMenu />}
+  onItemClick={(item) => { if (item.to) navigate(item.to) }}
+  right={<span>account menu slot</span>}
 />
 ```
 
@@ -42,6 +44,74 @@ npm install -D @types/react
 ## API
 
 ### Interfaces
+
+#### `AppShellBottomNavProps`
+
+```typescript
+interface AppShellBottomNavProps {
+  items: NavItem[]
+  activeId?: string
+  onItemClick?: (item: NavItem) => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `AppShellFooterProps`
+
+```typescript
+interface AppShellFooterProps {
+  /** Optional brand / logo. */
+  logo?: ReactNode
+  /** Optional copyright text. */
+  copyright?: ReactNode
+  /** Footer links — rendered in a row. */
+  links?: FooterLink[]
+  /** Optional right-side slot (locale picker, social icons). */
+  right?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `AppShellSideNavProps`
+
+```typescript
+interface AppShellSideNavProps {
+  /** Nav content: either a flat list of items or grouped sections. */
+  items?: NavItem[]
+  groups?: NavGroup[]
+  /** Active item id. */
+  activeId?: string
+  /** Called when a nav item is clicked. */
+  onItemClick?: (item: NavItem) => void
+  /** Optional header slot (logo, workspace switcher). */
+  header?: ReactNode
+  /** Optional footer slot (theme toggle, sign-out). */
+  footer?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
+#### `AppShellTopNavProps`
+
+```typescript
+interface AppShellTopNavProps {
+  /** Left-side brand / logo slot. */
+  logo?: ReactNode
+  /** Centre nav items (usually the primary app sections). */
+  items?: NavItem[]
+  /** Which item is currently active (by `id`). */
+  activeId?: string
+  /** Called when an item is clicked (hand off to your router). */
+  onItemClick?: (item: NavItem) => void
+  /** Right-side slot — user menu, notifications, theme toggle, etc. */
+  right?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
 
 #### `FooterLink`
 
@@ -81,7 +151,12 @@ interface NavItem {
   label: ReactNode
   /** Optional leading icon. */
   icon?: ReactNode
-  /** Route target — when provided, the item renders as a link. */
+  /**
+   * Route target. The shells do NOT render links — every item renders a
+   * button and navigation is delegated to `onItemClick` (call your
+   * router there, e.g. `navigate(item.to)`). `to` is carried through
+   * untouched for exactly that purpose.
+   */
   to?: string
   /** Optional badge / count to the right of the label. */
   badge?: ReactNode
@@ -92,7 +167,7 @@ interface NavItem {
 
 ### Functions
 
-#### `AppShellBottomNav(root0, root0, root0, root0, root0)`
+#### `AppShellBottomNav(props)`
 
 Mobile/tablet bottom tab bar — typically 3–5 primary nav destinations.
 Each item shows icon + short label. On desktop layouts this is usually
@@ -107,13 +182,9 @@ function AppShellBottomNav({
 }: AppShellBottomNavProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .activeId
-- `root0` — .onItemClick
-- `root0` — .className
+- `props` — Component props (see {@link AppShellBottomNavProps}).
 
-#### `AppShellFooter(root0, root0, root0, root0, root0, root0)`
+#### `AppShellFooter(props)`
 
 Bottom page footer shell. All content is optional — apps mix and match
 logo / copyright / links / right-slot as the design demands.
@@ -128,14 +199,9 @@ function AppShellFooter({
 }: AppShellFooterProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .logo
-- `root0` — .copyright
-- `root0` — .links
-- `root0` — .right
-- `root0` — .className
+- `props` — Component props (see {@link AppShellFooterProps}).
 
-#### `AppShellSideNav(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `AppShellSideNav(props)`
 
 Vertical side nav shell. Pass either `items` for a flat list or
 `groups` for a sectioned layout ("Main / Teams / Settings"). Header
@@ -153,16 +219,9 @@ function AppShellSideNav({
 }: AppShellSideNavProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .groups
-- `root0` — .activeId
-- `root0` — .onItemClick
-- `root0` — .header
-- `root0` — .footer
-- `root0` — .className
+- `props` — Component props (see {@link AppShellSideNavProps}).
 
-#### `AppShellTopNav(root0, root0, root0, root0, root0, root0, root0)`
+#### `AppShellTopNav(props)`
 
 Top navigation shell — logo on the left, nav items in the centre,
 app-level actions on the right. Fully slot-driven; apps decide what
@@ -179,13 +238,7 @@ function AppShellTopNav({
 }: AppShellTopNavProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .logo
-- `root0` — .items
-- `root0` — .activeId
-- `root0` — .onItemClick
-- `root0` — .right
-- `root0` — .className
+- `props` — Component props (see {@link AppShellTopNavProps}).
 
 ## Injection Notes
 
@@ -205,3 +258,15 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 - `react-router-dom`
+
+Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
+
+Router-agnostic BY DESIGN: nav items render as `<button>` elements,
+never links — `NavItem.to` is only carried through so YOUR
+`onItemClick` can hand it to whatever router the app uses. Without an
+`onItemClick` handler, clicking a nav item does nothing. Only
+`AppShellFooter` links render real `<a href>` elements.
+
+The shells ship no surface/background/positioning of their own —
+sticky headers, sidebar widths, borders, and elevation are the
+caller's `className` / layout concern.

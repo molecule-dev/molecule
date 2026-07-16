@@ -217,7 +217,10 @@ the semantic ClassMap CSS custom properties
 (`--mol-color-error|warning|success`) so the chart re-themes
 automatically when the ClassMap bond is swapped. All user-facing text
 goes through `t()` with companion locale bond
-`@molecule/app-locales-nps-distribution-react`.
+`@molecule/app-locales-nps-distribution`. A wired ClassMap bond is
+required — `getClassMap()` throws before wiring. Text resolves through
+the global `t()` (not the React hook), so already-rendered charts
+don't re-translate on a live locale switch until re-render.
 
 ## Translations
 

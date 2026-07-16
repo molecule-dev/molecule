@@ -15,7 +15,7 @@ export interface OrderMilestone {
   current?: boolean
 }
 
-interface OrderTimelineProps {
+export interface OrderTimelineProps {
   milestones: OrderMilestone[]
   /** Optional ETA / summary line. */
   eta?: ReactNode
@@ -33,11 +33,7 @@ interface OrderTimelineProps {
  * - Focuses on milestones (with optional per-step detail) rather than
  *   multi-page wizard steps.
  * - Horizontal layout is responsive with connector lines between nodes.
- * @param root0
- * @param root0.milestones
- * @param root0.eta
- * @param root0.orientation
- * @param root0.className
+ * @param props - Component props (see {@link OrderTimelineProps}).
  */
 export function OrderTimeline({
   milestones,

@@ -4,7 +4,7 @@ React mini month-view calendar.
 
 Exports `<MiniCalendar>` — compact day picker with prev/next navigation,
 Intl-localized weekday + month names, controlled-optional `selected` +
-`month` props.
+`month` props, and an `isDisabled` day predicate.
 
 ## Quick Start
 
@@ -29,9 +29,32 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `MiniCalendarProps`
+
+```typescript
+interface MiniCalendarProps {
+  /** Controlled selected date (ISO yyyy-mm-dd or Date). */
+  selected?: Date | string
+  /** Called when the user picks a day. */
+  onSelect?: (date: Date) => void
+  /** Controlled visible month. If omitted the component tracks its own. */
+  month?: Date
+  /** Called when the user navigates months. */
+  onMonthChange?: (date: Date) => void
+  /** Locale for weekday + month name formatting. */
+  locale?: string
+  /** Optional day-disabled predicate. */
+  isDisabled?: (date: Date) => boolean
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `MiniCalendar(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `MiniCalendar(props)`
 
 Compact month-view calendar. Supports controlled `selected` + `month`
 props or runs uncontrolled. Weekday / month names come from
@@ -49,14 +72,7 @@ function MiniCalendar({
 }: MiniCalendarProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .selected
-- `root0` — .onSelect
-- `root0` — .month
-- `root0` — .onMonthChange
-- `root0` — .locale
-- `root0` — .isDisabled
-- `root0` — .className
+- `props` — Component props (see {@link MiniCalendarProps}).
 
 ## Injection Notes
 
@@ -74,3 +90,16 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Requires a wired ClassMap bond (`setClassMap(...)` at startup) —
+`getClassMap()` throws before wiring, and the prev/next buttons come
+from `@molecule/app-ui-react`.
+
+Weekday and month names localize automatically through
+`Intl.DateTimeFormat(locale)` — no locale bond involved. The prev/next
+button aria-labels are currently English-only.
+
+When `month` is supplied the visible month is fully controlled —
+wire `onMonthChange` too or the arrows will appear dead. The grid
+always renders 6 weeks; days outside the visible month render dimmed
+and remain clickable unless `isDisabled` filters them.

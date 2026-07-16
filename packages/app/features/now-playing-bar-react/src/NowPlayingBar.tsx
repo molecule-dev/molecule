@@ -21,7 +21,9 @@ export interface NowPlayingTrack {
 
 /** Now-playing bar component props. */
 export interface NowPlayingBarProps {
-  /** The currently loaded track. Pass `null` to render the bar in an empty / collapsed state (caller usually hides the bar instead). */
+  /** The currently loaded track. REQUIRED — render the bar conditionally
+   *  (`{track ? <NowPlayingBar track={track} ... /> : null}`) when nothing
+   *  is playing; passing null/undefined crashes. */
   track: NowPlayingTrack
   /** True when the track is actively playing. Drives the play/pause toggle. */
   isPlaying: boolean

@@ -22,6 +22,16 @@
  * resolves through `getClassMap()` — no Tailwind class names live in
  * this package.
  *
+ * Prereqs: an `<HttpProvider>` ancestor (from `@molecule/app-react` —
+ * `useHttpClient()` throws without it), a wired ClassMap bond, and an
+ * `I18nProvider`. Icons come from the composed
+ * `@molecule/app-notification-feed-react`, which renders Material
+ * Symbols LIGATURES — load the "Material Symbols Outlined" font (and its
+ * CSS class) or icon names render as plain text. Notifications whose
+ * `data.href` is set render react-router `<Link>` rows, which require a
+ * `<Router>` ancestor. Defaults assume the API is proxied at `/api` —
+ * override `endpoint` / `markAllReadEndpoint` otherwise.
+ *
  * @module
  */
 

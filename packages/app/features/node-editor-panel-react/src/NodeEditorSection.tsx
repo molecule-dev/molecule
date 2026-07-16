@@ -10,7 +10,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface NodeEditorSectionProps {
+export interface NodeEditorSectionProps {
   label: ReactNode
   children?: ReactNode
   /** Optional content rendered on the right side of the label row (value chip, numeric input). */

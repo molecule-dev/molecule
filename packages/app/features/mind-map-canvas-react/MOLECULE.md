@@ -18,11 +18,11 @@ Exports:
 - Pure tree mutators: `findNode`, `updateNode`, `setNodeText`,
   `toggleCollapsed`, `addChild`, `removeNode`.
 
-Used by the mind-mapping flagship.
-
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
+
 import { MindMapCanvas, type MindMapNode } from '@molecule/app-mind-map-canvas-react'
 
 function Demo() {
@@ -394,6 +394,21 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+Requires a wired ClassMap bond (`setClassMap(...)` at startup) and a
+React `I18nProvider` ancestor — `getClassMap()` and `useTranslation()`
+both throw before wiring. Pair with the companion locale bond
+`@molecule/app-locales-mind-map-canvas` for translated aria labels and
+the "New idea" default child text (English fallbacks otherwise).
+
+The surface is FIXED-SIZE: `width` / `height` are pixel props
+(default 800x600) — the canvas does not track its parent's size. To
+fill a panel, measure the parent (e.g. a resize observer) and pass
+the measured pixels down; CSS alone will clip, not resize.
+
+Supplying `onChange` makes the tree fully controlled (every
+fold / edit / add-child calls it with the next root); omitting it lets
+the canvas manage an internal copy seeded from `root`.
 
 ## Translations
 

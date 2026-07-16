@@ -8,45 +8,46 @@ Composable sub-primitives:
 - `<NodeEditorPanel>` — aside chrome with title row, scroll body, footer.
 - `<NodeEditorSection>` — labeled section with optional trailing slot.
 - `<NodeEditorSlider>` — range slider with mono-font value chip.
-- `<NodeEditorToggle>` — iOS-style switch row with optional icon tile.
+- `<NodeEditorToggle>` — switch row with optional icon tile.
 - `<NodeEditorRadioGroup>` — radio list with custom radio dots.
 
 Consumer brings the form state; the package handles structure and
-styling. Generalised from the ai-chatbot-builder
-BotEditorNodePropertiesPanel.
+styling.
 
 ## Quick Start
 
 ```tsx
+import { useState } from 'react'
+
 import {
   NodeEditorPanel,
+  NodeEditorRadioGroup,
   NodeEditorSection,
   NodeEditorSlider,
   NodeEditorToggle,
-  NodeEditorRadioGroup,
 } from '@molecule/app-node-editor-panel-react'
 
-<NodeEditorPanel
-  title="Node Properties"
-  footer={<SaveBar onSave={handleSave} saving={saving} error={saveError} />}
->
-  <NodeEditorSection label="Model Engine">
-    <select value={model} onChange={(e) => setModel(e.target.value)}>…</select>
-  </NodeEditorSection>
-  <NodeEditorSlider label="Temperature" value={temperature} onChange={setTemperature} />
-  <NodeEditorToggle title="Knowledge Base" icon="database" checked={kbEnabled} onChange={setKbEnabled} />
-  <NodeEditorSection label="Response Format">
-    <NodeEditorRadioGroup
-      value={format}
-      onChange={setFormat}
-      options={[
-        { value: 'conversational', label: 'Conversational' },
-        { value: 'structured', label: 'Structured' },
-        { value: 'json', label: 'JSON' },
-      ]}
-    />
-  </NodeEditorSection>
-</NodeEditorPanel>
+function Inspector() {
+  const [temperature, setTemperature] = useState(0.7)
+  const [kbEnabled, setKbEnabled] = useState(false)
+  const [format, setFormat] = useState('conversational')
+  return (
+    <NodeEditorPanel title="Node Properties" onClose={() => {}}>
+      <NodeEditorSlider label="Temperature" value={temperature} onChange={setTemperature} />
+      <NodeEditorToggle title="Knowledge Base" icon="database" checked={kbEnabled} onChange={setKbEnabled} />
+      <NodeEditorSection label="Response Format">
+        <NodeEditorRadioGroup
+          value={format}
+          onChange={setFormat}
+          options={[
+            { value: 'conversational', label: 'Conversational' },
+            { value: 'structured', label: 'Structured' },
+          ]}
+        />
+      </NodeEditorSection>
+    </NodeEditorPanel>
+  )
+}
 ```
 
 ## Type
@@ -59,6 +60,85 @@ npm install -D @types/react
 ```
 
 ## API
+
+### Interfaces
+
+#### `NodeEditorPanelProps`
+
+```typescript
+interface NodeEditorPanelProps {
+  title: ReactNode
+  children?: ReactNode
+  /** Footer slot — typically the save bar + status row. */
+  footer?: ReactNode
+  /** Click handler for the close button (omitted if `onClose` is null). */
+  onClose?: () => void
+  closeAriaLabel?: string
+  /** Tailwind width class fragment; defaults to `w-80` (20rem). */
+  widthClass?: string
+}
+```
+
+#### `NodeEditorRadioGroupProps`
+
+```typescript
+interface NodeEditorRadioGroupProps<T extends string> {
+  options: NodeEditorRadioOption<T>[]
+  value: T
+  onChange: (next: T) => void
+}
+```
+
+#### `NodeEditorRadioOption`
+
+```typescript
+interface NodeEditorRadioOption<T extends string> {
+  value: T
+  label: ReactNode
+}
+```
+
+#### `NodeEditorSectionProps`
+
+```typescript
+interface NodeEditorSectionProps {
+  label: ReactNode
+  children?: ReactNode
+  /** Optional content rendered on the right side of the label row (value chip, numeric input). */
+  trailing?: ReactNode
+  /** Stack gap between section header and children (default 3). */
+  gap?: 1 | 2 | 3 | 4 | 5 | 6 | 8
+}
+```
+
+#### `NodeEditorSliderProps`
+
+```typescript
+interface NodeEditorSliderProps {
+  label: ReactNode
+  value: number
+  onChange: (next: number) => void
+  min?: number
+  max?: number
+  step?: number
+  /** Rendered as the trailing value chip; defaults to `value`. */
+  valueDisplay?: ReactNode
+}
+```
+
+#### `NodeEditorToggleProps`
+
+```typescript
+interface NodeEditorToggleProps {
+  title: ReactNode
+  subtitle?: ReactNode
+  /** Material-symbols icon for the leading tile (omit for no tile). */
+  icon?: string
+  checked: boolean
+  onChange: (next: boolean) => void
+  ariaLabel?: string
+}
+```
 
 ### Functions
 
@@ -180,3 +260,24 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+KNOWN LIMITATION — this package currently styles itself with raw
+Tailwind classes and Material-3 color tokens (`bg-surface-container-low`,
+`text-on-surface-variant`, `border-outline-variant`, `accent-primary`,
+`w-80`, ...) instead of ClassMap resolvers. Out of the box in a
+standard molecule app the panel renders UNSTYLED because (a) the app's
+Tailwind build does not scan this package's dist for class literals,
+and (b) the M3 color tokens are not defined by standard themes. To
+adopt it today you must add an `@source "<path-to>/app-node-editor-panel-react/dist"`
+line to the app's Tailwind CSS AND define the referenced
+`surface-container-*` / `on-surface*` / `outline-variant` theme colors.
+
+The close button and `NodeEditorToggle.icon` render Material Symbols
+LIGATURES — without the "Material Symbols Outlined" font loaded and a
+`material-symbols-outlined` CSS class defined, icon names render as
+plain text (e.g. the word "close").
+
+A wired ClassMap bond is still required for the layout helpers —
+`getClassMap()` throws before wiring. The close button's default
+aria-label is English-only; pass `closeAriaLabel` with a translated
+string in localized apps.

@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface NoteCardProps {
+export interface NoteCardProps {
   /** Note title. */
   title?: ReactNode
   /** Note body text. */
@@ -25,15 +25,7 @@ interface NoteCardProps {
  * Sticky-note style card with optional color tint, pinned indicator,
  * and bottom-right actions. Use for note-taking apps, digital
  * post-its, dashboard quick-notes.
- * @param root0
- * @param root0.title
- * @param root0.body
- * @param root0.color
- * @param root0.pinned
- * @param root0.modifiedAt
- * @param root0.actions
- * @param root0.onClick
- * @param root0.className
+ * @param props - Component props (see {@link NoteCardProps}).
  */
 export function NoteCard({
   title,

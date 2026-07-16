@@ -5,7 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input } from '@molecule/app-ui-react'
 
-interface NewsletterSignupProps {
+export interface NewsletterSignupProps {
   /** Called with the email on submit. Return a Promise to block double-submit. */
   onSubscribe: (email: string) => void | Promise<void>
   /** Optional title above the form. */
@@ -27,15 +27,7 @@ interface NewsletterSignupProps {
 /**
  * Email + subscribe button widget. Tracks its own submitting/error/success
  * state. Apps own the actual subscription side-effect via `onSubscribe`.
- * @param root0
- * @param root0.onSubscribe
- * @param root0.title
- * @param root0.description
- * @param root0.placeholder
- * @param root0.buttonLabel
- * @param root0.successContent
- * @param root0.layout
- * @param root0.className
+ * @param props - Component props (see {@link NewsletterSignupProps}).
  */
 export function NewsletterSignup({
   onSubscribe,

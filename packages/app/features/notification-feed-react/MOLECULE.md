@@ -89,7 +89,7 @@ function fmtRelativeShort(iso: string): string
 
 **Returns:** short relative string (e.g. "12m", "3h", "5d")
 
-#### `NotificationFeed(root0, root0, root0, root0, root0)`
+#### `NotificationFeed(props)`
 
 Vertical notification feed: typed icon + title + body + relative time
 with optional unread border-l accent and optional per-row Link.
@@ -107,11 +107,7 @@ function NotificationFeed({
 }: NotificationFeedProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .ariaLabel
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link NotificationFeedProps}).
 
 ## Injection Notes
 
@@ -129,6 +125,25 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `react`
 - `react-router-dom`
+
+`FeedItem.icon` is a Material Symbols LIGATURE — the app must load the
+"Material Symbols Outlined" font and define the
+`material-symbols-outlined` CSS class, or icon names render as plain
+text (the literal string `check_circle`). The icon circle background
+and the unread left-border accent additionally rely on raw Tailwind
+utilities (`bg-primary-container`, `border-l-4`) that standard
+molecule scaffolds neither scan nor theme — add an `@source` line for
+this package's dist plus a `primary-container` theme color, or expect
+both to be invisible until the package is migrated to ClassMap.
+
+Rows WITH `href` render a react-router `<Link>` — they THROW outside a
+`<Router>` context. In apps not using react-router, omit `href` (rows
+render as plain divs) or handle navigation on a wrapping element.
+Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
+
+`fmtRelativeShort` (exported) renders compact `12m` / `3h` / `5d`
+strings with English unit letters — swap in your own formatter for
+localized feeds by pre-formatting and rendering your own rows.
 
 ## E2E Tests
 

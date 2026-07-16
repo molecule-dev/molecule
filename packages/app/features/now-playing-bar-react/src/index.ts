@@ -35,6 +35,13 @@
  * in 79 languages. All styling routes through `getClassMap()`; all
  * user-facing text routes through `t()`.
  *
+ * `track` is REQUIRED — hide the bar (conditional render) when nothing
+ * is playing; the component does not accept null. Requires a wired
+ * ClassMap bond and a React `I18nProvider` ancestor — `getClassMap()`
+ * and `useTranslation()` both throw before wiring. Transport buttons
+ * render text glyphs (not an icon set), so their size tracks the app
+ * font.
+ *
  * @module
  */
 
