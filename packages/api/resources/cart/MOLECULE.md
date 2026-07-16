@@ -429,3 +429,30 @@ commerce package that ships it) before surfacing coupon UI, or the mounted
 **The cart is a per-user singleton, keyed by the session.** `GET /cart`
 creates the row on first read; never accept a `cartId`/`userId` from the
 client — all routes operate on the caller's own cart.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] Adding a product (`POST /cart/items`) puts a line in the cart at the
+  quantity requested, and the cart view + subtotal reflect it.
+- [ ] Adding the SAME product (same `productId`/`variantId`) again MERGES —
+  the existing line's quantity increments, it does NOT create a second
+  duplicate line; a different product stays its own line.
+- [ ] Changing a line's quantity (`PUT /cart/items/:itemId`) and removing a
+  line (`DELETE /cart/items/:itemId`) update the cart, and the computed
+  subtotal/total RECOMPUTE correctly: subtotal is the sum of price × quantity,
+  and total = subtotal - discount + tax (tax is 0 until you wire a rate).
+  Apply a coupon (`POST /cart/coupon`, looked up server-side in the `coupons`
+  table) and confirm discount + total drop; removing it restores them.
+- [ ] An invalid quantity (0, negative, or non-integer) and a negative price
+  are REJECTED with a visible error and leave the cart unchanged — the totals
+  shown are for DISPLAY only; a real checkout must re-resolve prices server-side.
+- [ ] Clearing the cart (`DELETE /cart`) empties it — items and any applied
+  coupon gone, totals back to 0. If the app builds checkout, it hands off the
+  right items and a SERVER-recomputed total, never the client cart total.
+- [ ] AUTHORIZATION — the cart is a per-user singleton keyed by the session;
+  no route takes a `cartId`/`userId`. A second signed-in user sees only their
+  own cart, and a line `itemId` from another user's cart is neither readable
+  nor mutable (update/remove return not-found) — no path to someone else's cart.

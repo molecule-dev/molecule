@@ -34,6 +34,43 @@
  * `order_events`. An mlcl-scaffolded API replays `__setup__/*.sql`
  * automatically on migrate; anywhere else run it once — nothing at runtime
  * creates them.
+ *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks), adapt
+ * each item to this app's actual order/checkout screens, and check every box
+ * off one by one. A box you can't check is an integration bug to fix — not a
+ * skip. Ground every check in the REAL statuses
+ * (pending/confirmed/processing/shipped/delivered/cancelled/refunded) and the
+ * defined transitions — never a status the interface lacks:
+ * - [ ] Placing an order creates it `pending` with the exact line items
+ *   submitted (productId, name, price, quantity) and a correctly-computed
+ *   total: `subtotal` = the sum of price x quantity across items, and `total`
+ *   = subtotal - discount + tax + shipping. The amount the UI shows matches
+ *   that formula to the cent.
+ * - [ ] The fulfillment lifecycle advances ONLY through the defined
+ *   transitions — pending -> confirmed -> processing -> shipped -> delivered.
+ *   An illegal jump (e.g. pending -> shipped, or shipped -> pending) is
+ *   rejected 409 and the order's stored status is left unchanged.
+ * - [ ] Cancel is honored only from a cancellable state (pending, confirmed,
+ *   or processing); cancelling a shipped, delivered, cancelled, or already
+ *   refunded order is rejected 409 — you cannot cancel or ship a cancelled
+ *   order.
+ * - [ ] Refund is honored ONLY from `delivered` (the sole state whose
+ *   transitions include `refunded`); refunding an unpaid/`pending` or a merely
+ *   shipped order is rejected 409, and a refund amount <= 0 or greater than the
+ *   order `total` is rejected 400.
+ * - [ ] Line items and money stay consistent across the flow: a status change
+ *   never alters the stored items, subtotal, or total, and a refund records
+ *   its amount (<= total) without corrupting the order total.
+ * - [ ] AUTHORIZATION — a user sees and mutates only their OWN orders. The
+ *   list returns just the caller's orders; reading or acting on another user's
+ *   order id returns 403 (or 404 when it does not exist) — guessing an id never
+ *   leaks or mutates someone else's order.
+ * - [ ] AUTHORIZATION — no endpoint lets a normal user push an order into a
+ *   privileged merchant state. Marking an order confirmed/processing/shipped/
+ *   delivered, or issuing a refund, is DENIED 403 unless a merchant authorizer
+ *   (`setOrderMerchantAuthorizer`) approves the caller — deny by default. The
+ *   only buyer-driven lifecycle action is cancelling a still-`pending` order.
  */
 
 export * from './browser-guard.js'
