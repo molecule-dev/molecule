@@ -278,3 +278,30 @@ yourself if follower lists are private in your app.
 `targetType` is a free-form string (`user`, `post`, …) — the package does
 not validate it against your schema, so constrain accepted values in your
 app if arbitrary types would be a problem.
+
+## E2E Tests
+
+Integration checklist — drive the real UI (live preview, no mocks), adapt
+each item to this app's actual screens/flows, and check every box off one
+by one. A box you can't check is an integration bug to fix — not a skip:
+- [ ] User A follows user B (`POST /follow/user/:B`): B's follower count and
+  A's following count each increment by exactly one, B appears in A's
+  following list (`GET /following`) and A appears in B's followers list
+  (`GET /user/:B/followers`). Reload — the edge and both counts persist (it's
+  a real `follows` row, not local UI state).
+- [ ] Following is IDEMPOTENT: A following B a second time (double-tap Follow
+  or replay the POST) creates NO duplicate edge and does NOT double-count —
+  exactly one `follows` row exists for (A → B) and both counts are unchanged.
+- [ ] Unfollow (`DELETE /follow/user/:B`) removes the edge: A's following
+  count and B's follower count each decrement back, B leaves A's following
+  list, A leaves B's followers, and `GET /follow/check/user/:B` now returns
+  `{ following: false }`.
+- [ ] You cannot follow yourself: the UI never offers Follow on your own
+  profile, and following your own id never inflates your own counts. This
+  package's `follow()` does not reject `followerId === targetId`, so the app
+  must guard it — verify the guard exists, don't assume it.
+- [ ] AUTHORIZATION — the follower is ALWAYS the session user: handlers read
+  `res.locals.session` and 401 without it, so no UI or endpoint lets you
+  follow/unfollow on behalf of another user by passing their id, and
+  follow/unfollow act only on your own edges. Signed in as A you can never
+  make B follow or unfollow anyone.

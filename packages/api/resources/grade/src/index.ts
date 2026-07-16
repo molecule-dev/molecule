@@ -42,6 +42,47 @@
  * callers whose session userId ≠ `:userId` unless they are a grade admin —
  * handlers read the authenticated user from `res.locals.session` (mount
  * behind your global auth middleware).
+ *
+ * @e2e
+ * Integration checklist — drive the real UI (live preview, no mocks) against
+ * the running API; adapt each item to this app's actual screens/roles and check
+ * every box off one by one. A box you can't check is a real bug to fix, never a
+ * skip. Note that out of the box NO ONE may write grades — first grant your
+ * instructor/registrar role an admin session claim (isAdmin / role 'admin') or
+ * an `@molecule/api-permissions` `manage grade` grant, else every POST/PATCH/
+ * DELETE /grades correctly 403s and there is no instructor to test as.
+ * - [ ] As that instructor, enter a grade for a student on an assignment
+ *   (POST /grades with enrollmentId, assignmentId, the student's userId,
+ *   courseId, scorePoints, maxPoints); it persists (201) and — signed in AS THAT
+ *   STUDENT — the score and derived letter appear on their own grades view
+ *   (GET /grades, GET /grades/:id).
+ * - [ ] Score is range-validated: a negative scorePoints, a scorePoints above
+ *   maxPoints, or maxPoints <= 0 is rejected (400 scoreOutOfRange /
+ *   maxPointsPositive) and nothing is persisted — a student can never end up with
+ *   an impossible negative or over-100% grade.
+ * - [ ] Aggregates are RIGHT, not just present: a course average
+ *   (GET /enrollments/:enrollmentId/grade-average) equals 100 * sum(scorePoints)
+ *   / sum(maxPoints) — so a big exam outweighs a small quiz because points ARE
+ *   the weight (there is no separate assignment-weight field) — and GPA
+ *   (GET /users/:userId/gpa) is the mean of each course's letter-rung gpaPoints
+ *   on the active scale (each course counts equally; not credit-hour weighted).
+ *   An assignment with NO grade row is EXCLUDED from the average, never counted
+ *   as zero (the defined policy); confirm adding then removing one grade moves
+ *   the average accordingly.
+ * - [ ] Editing a grade (PATCH /grades/:id) reflects immediately for the student
+ *   and re-derives the letter/average, and updatedAt advances. (This resource
+ *   stores no grader/updatedBy column — if your app audits WHO changed a grade,
+ *   verify that trail too; if it doesn't, don't claim an audit that isn't
+ *   modeled.)
+ * - [ ] PRIVACY / AUTHORIZATION — a student sees ONLY their own grades: signed
+ *   in as student A, GET /grades never returns another student's rows (an
+ *   attacker-supplied ?userId= is ignored and force-scoped to A), and
+ *   id-guessing another student's grade / GPA / transcript / course-average
+ *   returns 403 (or 404), never their data.
+ * - [ ] Only the instructor/course-staff may enter or edit: as a plain student,
+ *   POST /grades (grading yourself or anyone else), PATCH /grades/:id to raise
+ *   your own score, and DELETE /grades/:id all 403 through every exposed
+ *   endpoint — a student can never write or alter a grade, only read their own.
  */
 
 export * from './browser-guard.js'

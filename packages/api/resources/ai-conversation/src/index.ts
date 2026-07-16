@@ -37,6 +37,37 @@
  * - One conversation row per project — history accumulates in a JSONB `messages`
  *   array; `DELETE …/chat` resets it. There is no per-message CRUD.
  *
+ * @e2e
+ * Integration checklist — drive the real UI (the project's chat panel via live
+ * preview, no mocks), adapt each item to this app's actual screens, and check
+ * every box off one by one. A box you can't check is an integration bug to fix,
+ * not a skip. This resource is the STORAGE of chat history (one `conversations`
+ * row per project, a `messages` JSONB array) — the reply text itself comes from
+ * the bonded `@molecule/api-ai` provider, so verify the transcript + privacy
+ * here, not generation quality:
+ * - [ ] Sending a message from the chat UI persists BOTH sides in order: the
+ *   `POST /projects/:projectId/chat` appends the user turn (`role: 'user'`, your
+ *   exact `content`), then after the SSE stream ends appends the assistant turn
+ *   (`role: 'assistant'`, the streamed text). The first message auto-creates the
+ *   conversation row for that project.
+ * - [ ] Reloading the project (`GET /projects/:projectId/chat`) shows the FULL
+ *   transcript in send order across several back-and-forth exchanges — every
+ *   user/assistant turn present, none lost, dropped, or reordered.
+ * - [ ] Clearing the chat (`DELETE /projects/:projectId/chat`) deletes the
+ *   conversation: history immediately returns `{ messages: [] }` and the row is
+ *   not re-fetchable (there is no archive/undo — clear removes it). Sending a
+ *   new message afterward starts a fresh conversation from empty.
+ * - [ ] If token usage is surfaced, each assistant response records its
+ *   `inputTokens`/`outputTokens` (the `conversation.ai_response` analytics
+ *   event) — usage is tracked per response, not accumulated on the row.
+ * - [ ] AUTHORIZATION / PRIVACY — chat history is strictly per project owner. A
+ *   second user hitting another user's `:projectId` (send, history, OR clear)
+ *   gets `403`, indistinguishable from "no such project" so existence isn't
+ *   leaked, and never sees or clears that chat. The owner is the authenticated
+ *   session (the project is looked up scoped to `session.userId`), NEVER a
+ *   request-body `userId` — forging one changes nothing. Chat content (which may
+ *   be sensitive) is never returned cross-user or logged in the clear.
+ *
  * @module
  */
 
