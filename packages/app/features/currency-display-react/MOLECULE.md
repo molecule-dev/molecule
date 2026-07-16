@@ -36,9 +36,36 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `CurrencyDisplayProps`
+
+```typescript
+interface CurrencyDisplayProps {
+  /** Current amount in major units. */
+  amount: number
+  /** Optional original amount — rendered strikethrough to show a discount. */
+  originalAmount?: number
+  /** ISO 4217 currency code. */
+  currency?: string
+  /** Locale override. */
+  locale?: string
+  /** Display size. */
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  /** Compact notation (`$12.3K`) instead of full. */
+  compact?: boolean
+  /** Show a savings chip when `originalAmount > amount`. */
+  showSavings?: boolean
+  /** Custom savings label renderer. */
+  savingsLabel?: (saved: number, pct: number) => string
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `CurrencyDisplay(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `CurrencyDisplay(props)`
 
 Display a monetary amount with optional original price (strikethrough)
 and a "saved X%" chip. Uses `Intl.NumberFormat` under the hood.
@@ -60,16 +87,7 @@ function CurrencyDisplay({
 }: CurrencyDisplayProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .amount
-- `root0` — .originalAmount
-- `root0` — .currency
-- `root0` — .locale
-- `root0` — .size
-- `root0` — .compact
-- `root0` — .showSavings
-- `root0` — .savingsLabel
-- `root0` — .className
+- `props` — Component props (see {@link CurrencyDisplayProps}).
 
 #### `formatCurrency(amount, currency, locale)`
 
@@ -113,3 +131,10 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Amounts are in MAJOR units (dollars, not cents) — divide stored cents by
+100 first. `showSavings` defaults to true, so a savings chip appears
+whenever `originalAmount > amount`; pass `showSavings={false}` for plain
+was/now price display. Formatting is `Intl.NumberFormat` (locale-aware,
+no i18n keys needed); `savingsLabel(saved, pct)` lets you localize the
+chip text.

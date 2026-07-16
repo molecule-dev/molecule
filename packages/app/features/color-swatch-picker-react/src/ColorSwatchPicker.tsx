@@ -12,7 +12,7 @@ export interface ColorSwatch {
   label?: string
 }
 
-interface ColorSwatchPickerProps {
+export interface ColorSwatchPickerProps {
   /** Swatch definitions. */
   swatches: ColorSwatch[]
   /** Currently selected swatch value. */
@@ -34,15 +34,7 @@ interface ColorSwatchPickerProps {
 /**
  * Grid of colored circles with single-select state. Used for tag
  * colors, label colors, theme accent swatches, etc.
- * @param root0
- * @param root0.swatches
- * @param root0.value
- * @param root0.onChange
- * @param root0.size
- * @param root0.gap
- * @param root0.preview
- * @param root0.className
- * @param root0.ariaLabel
+ * @param props - Component props (see {@link ColorSwatchPickerProps}).
  */
 export function ColorSwatchPicker({
   swatches,

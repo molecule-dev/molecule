@@ -19,6 +19,15 @@
  * <Countdown target={Date.now() + 3_600_000} format="long" />
  * ```
  *
+ * @remarks
+ * The built-in `'compact'` and `'long'` formats hardcode English unit labels
+ * and pluralization ("3d 4h", "3 days 4 hours") — there is no locale bond.
+ * For localized apps use the `render` prop with `useCountdown` state and
+ * compose translated units via `t()` (or `Intl.RelativeTimeFormat`). `expired`
+ * only swaps the rendering once the target passes — schedule side effects
+ * (redirects, refetches) from `useCountdown().expired` in an effect, not from
+ * the component.
+ *
  * @module
  */
 

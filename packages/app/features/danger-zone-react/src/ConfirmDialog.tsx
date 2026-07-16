@@ -4,7 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Modal } from '@molecule/app-ui-react'
 
-interface ConfirmDialogProps {
+export interface ConfirmDialogProps {
   /** Whether the dialog is open. */
   open: boolean
   /** Called when the dialog should close (escape, backdrop, cancel). */
@@ -23,7 +23,7 @@ interface ConfirmDialogProps {
   destructive?: boolean
   /** Extra body content between description and footer. */
   children?: ReactNode
-  /** When true, disables confirm while its Promise is pending. */
+  /** Disables both buttons. Set it yourself while your `onConfirm` promise is pending — the dialog does not track it and does not auto-close. */
   loading?: boolean
 }
 
@@ -32,17 +32,7 @@ interface ConfirmDialogProps {
  *
  * Use standalone (around delete buttons, revoke tokens, irreversible
  * migrations) or wrap DangerZoneSection's action with this dialog.
- * @param root0
- * @param root0.open
- * @param root0.onClose
- * @param root0.title
- * @param root0.description
- * @param root0.confirmLabel
- * @param root0.cancelLabel
- * @param root0.onConfirm
- * @param root0.destructive
- * @param root0.children
- * @param root0.loading
+ * @param props - Component props (see {@link ConfirmDialogProps}).
  */
 export function ConfirmDialog({
   open,

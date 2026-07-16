@@ -16,7 +16,7 @@ export interface ChecklistItem {
   disabled?: boolean
 }
 
-interface ChecklistProps {
+export interface ChecklistProps {
   items: ChecklistItem[]
   /** Called when an item is toggled. */
   onToggle: (id: string, next: boolean) => void
@@ -31,12 +31,7 @@ interface ChecklistProps {
 /**
  * Onboarding-style checklist with checkboxes, optional descriptions,
  * and an overall progress bar derived from `items`.
- * @param root0
- * @param root0.items
- * @param root0.onToggle
- * @param root0.showProgress
- * @param root0.title
- * @param root0.className
+ * @param props - Component props (see {@link ChecklistProps}).
  */
 export function Checklist({
   items,

@@ -31,6 +31,18 @@
  * />
  * ```
  *
+ * @remarks
+ * Built-in labels (`botPickerLabel` default "Test bot", `inputPlaceholder`
+ * default "Type a message…", `sendLabel` default "Send") are hardcoded
+ * English — there is no companion locale bond. For localized apps, pass all
+ * three props with `t('key', {}, { defaultValue: '…' })` values.
+ * Enter sends; Shift+Enter inserts a newline. The bot picker renders only
+ * when `bots` has 2+ entries. Styling includes Tailwind classes with
+ * Material-3 tokens (`bg-surface-container-high`, `border-outline-variant`,
+ * `text-on-primary`, …) — the app's Tailwind theme must define those tokens
+ * (the default molecule Tailwind ClassMap bond does); with a non-Tailwind
+ * ClassMap the bubbles/borders lose their styling.
+ *
  * @module
  */
 

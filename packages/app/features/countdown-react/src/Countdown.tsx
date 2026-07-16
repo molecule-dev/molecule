@@ -4,7 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { useCountdown } from './useCountdown.js'
 
-interface CountdownProps {
+export interface CountdownProps {
   /** Target date / ISO string / epoch ms. */
   target: Date | string | number
   /** Display format. Defaults to `'compact'`. */
@@ -24,12 +24,7 @@ interface CountdownProps {
  * - `'colon'` — `03:04:12:05`
  *
  * Pass `render` for full control over markup.
- * @param root0
- * @param root0.target
- * @param root0.format
- * @param root0.render
- * @param root0.expired
- * @param root0.className
+ * @param props - Component props (see {@link CountdownProps}).
  */
 export function Countdown({
   target,

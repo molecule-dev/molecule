@@ -20,6 +20,15 @@
  * />
  * ```
  *
+ * @remarks
+ * `contact` fields are display-only data — `email`/`phone` render as
+ * `mailto:`/`tel:` links; there is no formatting/validation. The email/phone/
+ * address markers are text glyphs (✉ ☎ ⌂), not themed SVG icons. `role`,
+ * `address`, and `company` accept ReactNodes — pass translated strings via
+ * `t()` where needed. When `onClick` is provided the whole row becomes
+ * clickable; supply your own keyboard affordance (e.g. wrap in a button/link)
+ * for accessibility-critical surfaces.
+ *
  * @module
  */
 

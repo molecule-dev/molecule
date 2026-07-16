@@ -4,7 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface CodeBlockProps {
+export interface CodeBlockProps {
   /** Source code to display. */
   code: string
   /** Language tag (`"ts"`, `"bash"`, …). Shown in the header and used as a hint by external highlighters. */
@@ -23,18 +23,13 @@ interface CodeBlockProps {
  * Read-only code block with an optional header (filename + language tag),
  * optional line numbers, and a copy-to-clipboard button.
  *
- * Does NOT perform syntax highlighting — pair with an external
- * highlighter (e.g. `prismjs`, `shiki`) by passing already-highlighted
- * HTML through the `code` prop or by wrapping this component. The
+ * Does NOT perform syntax highlighting, and `code` is always rendered as
+ * escaped plain text — passing pre-highlighted HTML displays literal tags.
+ * To highlight, wrap or replace this component with your highlighter's
+ * (e.g. `prismjs`, `shiki`) own renderer. The
  * component keeps the no-hidden-dependency contract typical of
  * `@molecule/*` features.
- * @param root0
- * @param root0.code
- * @param root0.language
- * @param root0.showLineNumbers
- * @param root0.showCopy
- * @param root0.filename
- * @param root0.className
+ * @param props - Component props (see {@link CodeBlockProps}).
  */
 export function CodeBlock({
   code,

@@ -26,6 +26,16 @@
  * />
  * ```
  *
+ * @remarks
+ * `<ConfirmDialog>` does NOT track `onConfirm`'s promise and does NOT close
+ * itself on confirm: set `loading` yourself while the action runs, then call
+ * `onClose()` when it settles — otherwise users can double-fire the
+ * destructive action or be left staring at an open dialog. Cancel/Confirm
+ * fall back to the `confirm.*` i18n keys (companion bond:
+ * `@molecule/app-locales-danger-zone`); pass `confirmLabel`/`cancelLabel`
+ * for action-specific wording ("Delete", "Revoke"). `destructive` (default
+ * true) only switches the confirm button color.
+ *
  * @module
  */
 

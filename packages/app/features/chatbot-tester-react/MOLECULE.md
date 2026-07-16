@@ -46,6 +46,52 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `ChatbotTesterInputProps`
+
+```typescript
+interface ChatbotTesterInputProps {
+  value: string
+  onChange: (next: string) => void
+  onSend: () => void
+  loading?: boolean
+  placeholder?: string
+  sendLabel?: string
+}
+```
+
+#### `ChatbotTesterMessagesProps`
+
+```typescript
+interface ChatbotTesterMessagesProps {
+  messages: TesterMessage[]
+  loading?: boolean
+  emptyState?: React.ReactNode
+}
+```
+
+#### `ChatbotTesterProps`
+
+```typescript
+interface ChatbotTesterProps {
+  messages: TesterMessage[]
+  loading?: boolean
+  /** When provided, send invokes this with the composer text. */
+  onSend: (text: string) => void | Promise<void>
+  /** Optional bot list — when length >= 2, a picker is rendered. */
+  bots?: TesterBotOption[]
+  botId?: string
+  onBotChange?: (id: string) => void
+  /** Last error message — rendered in a `role="alert"` paragraph. */
+  error?: ReactNode
+  /** Empty-state slot when there are no messages yet. */
+  emptyState?: ReactNode
+  botPickerLabel?: ReactNode
+  inputPlaceholder?: string
+  sendLabel?: string
+  className?: string
+}
+```
+
 #### `TesterBotOption`
 
 A selectable bot/agent option shown in the chatbot tester sandbox UI.
@@ -160,3 +206,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Built-in labels (`botPickerLabel` default "Test bot", `inputPlaceholder`
+default "Type a message…", `sendLabel` default "Send") are hardcoded
+English — there is no companion locale bond. For localized apps, pass all
+three props with `t('key', {}, { defaultValue: '…' })` values.
+Enter sends; Shift+Enter inserts a newline. The bot picker renders only
+when `bots` has 2+ entries. Styling includes Tailwind classes with
+Material-3 tokens (`bg-surface-container-high`, `border-outline-variant`,
+`text-on-primary`, …) — the app's Tailwind theme must define those tokens
+(the default molecule Tailwind ClassMap bond does); with a non-Tailwind
+ClassMap the bubbles/borders lose their styling.

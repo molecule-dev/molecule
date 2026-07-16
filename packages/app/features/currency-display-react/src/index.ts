@@ -23,6 +23,14 @@
  * const label = formatCurrency(1234.56, 'EUR', 'de-DE') // "1.234,56 €"
  * ```
  *
+ * @remarks
+ * Amounts are in MAJOR units (dollars, not cents) — divide stored cents by
+ * 100 first. `showSavings` defaults to true, so a savings chip appears
+ * whenever `originalAmount > amount`; pass `showSavings={false}` for plain
+ * was/now price display. Formatting is `Intl.NumberFormat` (locale-aware,
+ * no i18n keys needed); `savingsLabel(saved, pct)` lets you localize the
+ * chip text.
+ *
  * @module
  */
 

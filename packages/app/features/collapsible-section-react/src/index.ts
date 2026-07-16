@@ -18,6 +18,16 @@
  * </ShowMore>
  * ```
  *
+ * @remarks
+ * `<CollapsibleSection>` is uncontrolled by default (`defaultExpanded`);
+ * passing `expanded` makes it fully controlled — then you must update it from
+ * `onExpandedChange`. The header renders as a single `<button>`, so anything
+ * passed to `actions` must NOT contain buttons/links (nested interactive
+ * elements are invalid HTML) — put row actions outside the section instead.
+ * `<ShowMore>`'s labels use the i18n keys `showMore.more` / `showMore.less`
+ * with English `defaultValue`s; no companion locale bond ships these keys —
+ * add them to your app's locale resources (or pass custom `moreKey`/`lessKey`).
+ *
  * @module
  */
 

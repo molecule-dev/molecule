@@ -14,7 +14,7 @@ export interface ChartLegendItem {
   hidden?: boolean
 }
 
-interface ChartLegendProps {
+export interface ChartLegendProps {
   items: ChartLegendItem[]
   /** Called when an item is toggled. */
   onToggle?: (id: string) => void
@@ -28,11 +28,7 @@ interface ChartLegendProps {
  * Chart legend — swatch + label (+ optional value) per series. When
  * `onToggle` is provided, items become buttons that toggle series
  * visibility.
- * @param root0
- * @param root0.items
- * @param root0.onToggle
- * @param root0.layout
- * @param root0.className
+ * @param props - Component props (see {@link ChartLegendProps}).
  */
 export function ChartLegend({
   items,

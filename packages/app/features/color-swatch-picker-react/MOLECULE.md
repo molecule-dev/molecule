@@ -51,9 +51,32 @@ interface ColorSwatch {
 }
 ```
 
+#### `ColorSwatchPickerProps`
+
+```typescript
+interface ColorSwatchPickerProps {
+  /** Swatch definitions. */
+  swatches: ColorSwatch[]
+  /** Currently selected swatch value. */
+  value: string
+  /** Called when a swatch is picked. */
+  onChange: (value: string) => void
+  /** Swatch diameter in pixels. Defaults to 28. */
+  size?: number
+  /** Gap between swatches. */
+  gap?: 'xs' | 'sm' | 'md'
+  /** Optional child rendered below (e.g. a live preview). */
+  preview?: ReactNode
+  /** Extra classes. */
+  className?: string
+  /** `aria-label` for the group. */
+  ariaLabel?: string
+}
+```
+
 ### Functions
 
-#### `ColorSwatchPicker(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `ColorSwatchPicker(props)`
 
 Grid of colored circles with single-select state. Used for tag
 colors, label colors, theme accent swatches, etc.
@@ -71,15 +94,7 @@ function ColorSwatchPicker({
 }: ColorSwatchPickerProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .swatches
-- `root0` — .value
-- `root0` — .onChange
-- `root0` — .size
-- `root0` — .gap
-- `root0` — .preview
-- `root0` — .className
-- `root0` — .ariaLabel
+- `props` — Component props (see {@link ColorSwatchPickerProps}).
 
 ## Injection Notes
 
@@ -97,3 +112,9 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+All text (`label` per swatch, `ariaLabel` for the group) is
+consumer-provided — pass translated strings via `t()`; the component has no
+built-in copy. Selection is fully controlled: persist `onChange(value)` and
+re-render with the new `value`. Swatches render as `role="radio"` buttons
+sized by the `size` prop (default 28px) with the CSS `color` you provide.

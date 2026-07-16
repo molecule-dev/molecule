@@ -14,7 +14,7 @@ export interface ContactFields {
   company?: ReactNode
 }
 
-interface ContactDisplayProps {
+export interface ContactDisplayProps {
   contact: ContactFields
   /** Layout preset. */
   layout?: 'card' | 'row' | 'compact'
@@ -30,12 +30,7 @@ interface ContactDisplayProps {
  * Formatted contact display — avatar + name + role + email/phone with
  * leading icons + optional address and company. Three layouts for
  * different densities.
- * @param root0
- * @param root0.contact
- * @param root0.layout
- * @param root0.actions
- * @param root0.onClick
- * @param root0.className
+ * @param props - Component props (see {@link ContactDisplayProps}).
  */
 export function ContactDisplay({
   contact,

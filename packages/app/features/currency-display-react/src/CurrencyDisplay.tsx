@@ -4,7 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { formatCurrency, formatCurrencyCompact } from './formatCurrency.js'
 
-interface CurrencyDisplayProps {
+export interface CurrencyDisplayProps {
   /** Current amount in major units. */
   amount: number
   /** Optional original amount — rendered strikethrough to show a discount. */
@@ -38,16 +38,7 @@ const SIZE_CLASS = {
  *
  * Use the `formatCurrency` / `formatCurrencyCompact` utilities directly
  * when you just need a string without rendering chrome.
- * @param root0
- * @param root0.amount
- * @param root0.originalAmount
- * @param root0.currency
- * @param root0.locale
- * @param root0.size
- * @param root0.compact
- * @param root0.showSavings
- * @param root0.savingsLabel
- * @param root0.className
+ * @param props - Component props (see {@link CurrencyDisplayProps}).
  */
 export function CurrencyDisplay({
   amount,

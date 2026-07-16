@@ -14,7 +14,7 @@ export interface ContactFormValues {
   [key: string]: string
 }
 
-interface ContactFormProps {
+export interface ContactFormProps {
   /** Called with the form values on submit. Return a Promise to block double-submit. */
   onSubmit: (values: ContactFormValues) => void | Promise<void>
   /** Form heading. */
@@ -35,14 +35,7 @@ interface ContactFormProps {
  * Generic name + email + message contact form with submit handling and
  * success state. `extraFields` slot lets apps add domain-specific
  * inputs (subject, phone, agent id, etc.).
- * @param root0
- * @param root0.onSubmit
- * @param root0.title
- * @param root0.description
- * @param root0.submitLabel
- * @param root0.successContent
- * @param root0.extraFields
- * @param root0.className
+ * @param props - Component props (see {@link ContactFormProps}).
  */
 export function ContactForm({
   onSubmit,

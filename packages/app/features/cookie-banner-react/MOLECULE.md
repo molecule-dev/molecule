@@ -36,6 +36,33 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `CookieBannerProps`
+
+```typescript
+interface CookieBannerProps {
+  /** Cookie categories to offer (omit for a simple accept/reject banner). */
+  categories?: CookieCategory[]
+  /** Called when accept-all is clicked. */
+  onAcceptAll?: () => void
+  /** Called when reject-non-essential is clicked. */
+  onRejectAll?: () => void
+  /** Called when "Save preferences" is clicked. */
+  onSave?: (enabled: Record<string, boolean>) => void
+  /** Optional title. */
+  title?: ReactNode
+  /** Optional description. */
+  description?: ReactNode
+  /** Privacy policy link URL. */
+  policyHref?: string
+  /** Whether the banner is visible (controlled). */
+  visible?: boolean
+  /** Called when dismissed via Save / Accept / Reject. */
+  onDismiss?: () => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 #### `CookieCategory`
 
 Describes a single cookie category offered in the granular consent UI.
@@ -54,7 +81,7 @@ interface CookieCategory {
 
 ### Functions
 
-#### `CookieBanner(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `CookieBanner(props)`
 
 GDPR / cookie-consent banner. Two modes:
 - Simple: Accept / Reject buttons.
@@ -77,17 +104,7 @@ function CookieBanner({
 }: CookieBannerProps): ReactElement<unknown, string | JSXElementConstructor<any>> | null
 ```
 
-- `root0` — *
-- `root0` — .categories
-- `root0` — .onAcceptAll
-- `root0` — .onRejectAll
-- `root0` — .onSave
-- `root0` — .title
-- `root0` — .description
-- `root0` — .policyHref
-- `root0` — .visible
-- `root0` — .onDismiss
-- `root0` — .className
+- `props` — Component props (see {@link CookieBannerProps}).
 
 ## Injection Notes
 
@@ -105,3 +122,14 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+The banner is UI-only — it stores nothing. `onAcceptAll` / `onRejectAll`
+receive NO arguments (derive "all on"/"essential only" yourself); only
+`onSave` receives the per-category `Record<string, boolean>`, and the
+"Save preferences" button renders only when `categories` AND `onSave` are
+provided and the user opened "Customize". Category toggle state is
+captured from `categories` on first render — later prop changes do not
+reset it. Visibility is controlled: keep `visible` false once consent is
+stored. Text uses `cookieBanner.*` i18n keys (companion bond:
+`@molecule/app-locales-cookie-banner`); `title`/`description`/category
+labels you pass in should already be translated.

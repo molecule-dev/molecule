@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
-interface ChartCardProps {
+export interface ChartCardProps {
   /** Card heading. */
   title: ReactNode
   /** Optional supporting description. */
@@ -30,16 +30,7 @@ interface ChartCardProps {
  *
  * The chart library itself comes from the `@molecule/app-charts` bond;
  * this package only provides the surrounding container.
- * @param root0
- * @param root0.title
- * @param root0.description
- * @param root0.actions
- * @param root0.summary
- * @param root0.children
- * @param root0.footer
- * @param root0.minChartHeight
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link ChartCardProps}).
  */
 export function ChartCard({
   title,

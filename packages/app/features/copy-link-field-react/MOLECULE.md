@@ -28,9 +28,30 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `CopyLinkFieldProps`
+
+```typescript
+interface CopyLinkFieldProps {
+  /** Value to display (and copy on click). */
+  value: string
+  /** Optional label above the field. */
+  label?: string
+  /** Called after a successful copy. */
+  onCopy?: () => void
+  /** How long the "Copied!" state lingers (ms). Defaults to 1500. */
+  feedbackMs?: number
+  /** Size of the copy button. Defaults to `'sm'`. */
+  size?: 'sm' | 'md'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `CopyLinkField(root0, root0, root0, root0, root0, root0, root0)`
+#### `CopyLinkField(props)`
 
 Read-only input + copy-to-clipboard button. Common in share-link
 panels, API-key cards, webhook URLs.
@@ -46,13 +67,7 @@ function CopyLinkField({
 }: CopyLinkFieldProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-- `root0` — *
-- `root0` — .value
-- `root0` — .label
-- `root0` — .onCopy
-- `root0` — .feedbackMs
-- `root0` — .size
-- `root0` — .className
+- `props` — Component props (see {@link CopyLinkFieldProps}).
 
 ## Injection Notes
 
@@ -70,3 +85,9 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+Copying uses `navigator.clipboard`, which exists only in secure contexts
+(HTTPS / localhost) — elsewhere the button silently does nothing and
+`onCopy` never fires. The input is read-only and selects its content on
+focus, so manual Ctrl/Cmd+C still works as the fallback. Labels use
+`copyLink.*` i18n keys (companion bond: `@molecule/app-locales-copy-link-field`).

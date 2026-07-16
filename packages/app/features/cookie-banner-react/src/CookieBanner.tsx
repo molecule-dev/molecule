@@ -16,7 +16,7 @@ export interface CookieCategory {
   defaultEnabled?: boolean
 }
 
-interface CookieBannerProps {
+export interface CookieBannerProps {
   /** Cookie categories to offer (omit for a simple accept/reject banner). */
   categories?: CookieCategory[]
   /** Called when accept-all is clicked. */
@@ -45,17 +45,7 @@ interface CookieBannerProps {
  * - Granular: Per-category toggles + "Save preferences".
  *
  * Apps own the actual cookie storage logic.
- * @param root0
- * @param root0.categories
- * @param root0.onAcceptAll
- * @param root0.onRejectAll
- * @param root0.onSave
- * @param root0.title
- * @param root0.description
- * @param root0.policyHref
- * @param root0.visible
- * @param root0.onDismiss
- * @param root0.className
+ * @param props - Component props (see {@link CookieBannerProps}).
  */
 export function CookieBanner({
   categories,

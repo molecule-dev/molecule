@@ -15,7 +15,7 @@ export interface DataTableColumn<Row> {
   headerClassName?: string
 }
 
-interface DataTableCardProps<Row> {
+export interface DataTableCardProps<Row> {
   /** Optional title above the table chrome. */
   title?: ReactNode
   /** Right-aligned action / "View all" / link in the title row. */
@@ -54,17 +54,7 @@ interface DataTableCardProps<Row> {
  *
  * For complex per-column rendering, pass cells that compose
  * `<StatusBadge>`, `<Avatar>`, etc.
- * @param root0
- * @param root0.title
- * @param root0.titleAction
- * @param root0.columns
- * @param root0.rows
- * @param root0.rowKey
- * @param root0.loading
- * @param root0.onRowClick
- * @param root0.emptyMessage
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link DataTableCardProps}).
  */
 export function DataTableCard<Row>({
   title,

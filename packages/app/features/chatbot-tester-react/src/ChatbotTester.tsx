@@ -18,7 +18,7 @@ import { ChatbotTesterInput } from './ChatbotTesterInput.js'
 import { ChatbotTesterMessages } from './ChatbotTesterMessages.js'
 import type { TesterBotOption, TesterMessage } from './types.js'
 
-interface ChatbotTesterProps {
+export interface ChatbotTesterProps {
   messages: TesterMessage[]
   loading?: boolean
   /** When provided, send invokes this with the composer text. */

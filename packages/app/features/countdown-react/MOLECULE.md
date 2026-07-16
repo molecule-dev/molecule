@@ -34,6 +34,23 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `CountdownProps`
+
+```typescript
+interface CountdownProps {
+  /** Target date / ISO string / epoch ms. */
+  target: Date | string | number
+  /** Display format. Defaults to `'compact'`. */
+  format?: 'compact' | 'long' | 'colon'
+  /** Renderer override — receives the live state for full control. */
+  render?: (state: ReturnType<typeof useCountdown>) => ReactNode
+  /** Optional rendered when the timer expires. */
+  expired?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 #### `CountdownState`
 
 Snapshot of time remaining until a target date.
@@ -57,7 +74,7 @@ interface CountdownState {
 
 ### Functions
 
-#### `Countdown(root0, root0, root0, root0, root0, root0)`
+#### `Countdown(props)`
 
 Live countdown display with three default formats:
 - `'compact'` — `3d 4h 12m 5s` (skips zero leading units)
@@ -76,12 +93,7 @@ function Countdown({
 }: CountdownProps): ReactNode
 ```
 
-- `root0` — *
-- `root0` — .target
-- `root0` — .format
-- `root0` — .render
-- `root0` — .expired
-- `root0` — .className
+- `props` — Component props (see {@link CountdownProps}).
 
 #### `useCountdown(target, tickMs)`
 
@@ -110,3 +122,11 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+The built-in `'compact'` and `'long'` formats hardcode English unit labels
+and pluralization ("3d 4h", "3 days 4 hours") — there is no locale bond.
+For localized apps use the `render` prop with `useCountdown` state and
+compose translated units via `t()` (or `Intl.RelativeTimeFormat`). `expired`
+only swaps the rendering once the target passes — schedule side effects
+(redirects, refetches) from `useCountdown().expired` in an effect, not from
+the component.

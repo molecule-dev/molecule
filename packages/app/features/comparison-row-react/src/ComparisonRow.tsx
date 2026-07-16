@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ComparisonRowProps {
+export interface ComparisonRowProps {
   /** Label for the metric (e.g. "Revenue"). */
   label: ReactNode
   /** Current period value (formatted). */
@@ -26,14 +26,7 @@ const COLOR = (n: number): string => (n > 0 ? '#22c55e' : n < 0 ? '#ef4444' : '#
  * Period-over-period stat comparison row — current value, optional
  * previous value, and a coloured delta% chip. Used in dashboards,
  * report summaries, finance overviews.
- * @param root0
- * @param root0.label
- * @param root0.current
- * @param root0.previous
- * @param root0.deltaPct
- * @param root0.formatDelta
- * @param root0.periodLabel
- * @param root0.className
+ * @param props - Component props (see {@link ComparisonRowProps}).
  */
 export function ComparisonRow({
   label,

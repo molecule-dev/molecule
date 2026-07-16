@@ -5,7 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
-interface CopyLinkFieldProps {
+export interface CopyLinkFieldProps {
   /** Value to display (and copy on click). */
   value: string
   /** Optional label above the field. */
@@ -23,13 +23,7 @@ interface CopyLinkFieldProps {
 /**
  * Read-only input + copy-to-clipboard button. Common in share-link
  * panels, API-key cards, webhook URLs.
- * @param root0
- * @param root0.value
- * @param root0.label
- * @param root0.onCopy
- * @param root0.feedbackMs
- * @param root0.size
- * @param root0.className
+ * @param props - Component props (see {@link CopyLinkFieldProps}).
  */
 export function CopyLinkField({
   value,

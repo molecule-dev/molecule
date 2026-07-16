@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface TableToolbarProps {
+export interface TableToolbarProps {
   /** Left-aligned content — usually a title or a results count. */
   left?: ReactNode
   /** Right-aligned actions — search input, filter button, export, etc. */
@@ -17,11 +17,7 @@ interface TableToolbarProps {
  * Table top-chrome row with left/right slots and an optional bottom
  * sub-row for active filter chips or tabs. Sits above an `<Table>`
  * from `@molecule/app-ui-react`.
- * @param root0
- * @param root0.left
- * @param root0.right
- * @param root0.below
- * @param root0.className
+ * @param props - Component props (see {@link TableToolbarProps}).
  */
 export function TableToolbar({ left, right, below, className }: TableToolbarProps): JSX.Element {
   const cm = getClassMap()

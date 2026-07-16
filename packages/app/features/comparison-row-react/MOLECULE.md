@@ -29,9 +29,32 @@ npm install -D @types/react
 
 ## API
 
+### Interfaces
+
+#### `ComparisonRowProps`
+
+```typescript
+interface ComparisonRowProps {
+  /** Label for the metric (e.g. "Revenue"). */
+  label: ReactNode
+  /** Current period value (formatted). */
+  current: ReactNode
+  /** Previous period value (formatted). */
+  previous?: ReactNode
+  /** Numeric delta% — drives direction + color when present. */
+  deltaPct?: number
+  /** Custom delta formatter. */
+  formatDelta?: (deltaPct: number) => ReactNode
+  /** Optional sub-text ("vs. last week"). */
+  periodLabel?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `ComparisonRow(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `ComparisonRow(props)`
 
 Period-over-period stat comparison row — current value, optional
 previous value, and a coloured delta% chip. Used in dashboards,
@@ -49,14 +72,7 @@ function ComparisonRow({
 }: ComparisonRowProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .label
-- `root0` — .current
-- `root0` — .previous
-- `root0` — .deltaPct
-- `root0` — .formatDelta
-- `root0` — .periodLabel
-- `root0` — .className
+- `props` — Component props (see {@link ComparisonRowProps}).
 
 ## Injection Notes
 
@@ -74,3 +90,10 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+The delta chip colors by SIGN with fixed semantics: positive = green,
+negative = red (hardcoded hexes, not theme tokens). There is no
+"down-is-good" inversion — for metrics like churn or costs, negate
+`deltaPct` (and restate the sign in `formatDelta`, which controls the text
+only, never the color). `label` / `current` / `previous` / `periodLabel`
+are consumer-provided ReactNodes — pass pre-formatted, translated values.

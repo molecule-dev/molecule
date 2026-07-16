@@ -2,7 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface TableEmptyProps {
+export interface TableEmptyProps {
   /** Number of columns to span (for colspan on the td). */
   colSpan: number
   /** Empty-state content. */
@@ -14,10 +14,7 @@ interface TableEmptyProps {
 /**
  * Single full-width row shown when a `<Table>` has no data. Typically
  * wraps `<EmptyState>` from `@molecule/app-empty-state-react`.
- * @param root0
- * @param root0.colSpan
- * @param root0.children
- * @param root0.className
+ * @param props - Component props (see {@link TableEmptyProps}).
  */
 export function TableEmpty({ colSpan, children, className }: TableEmptyProps): JSX.Element {
   const cm = getClassMap()

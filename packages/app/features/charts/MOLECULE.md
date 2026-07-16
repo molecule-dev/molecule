@@ -2,8 +2,13 @@
 
 Chart interface for molecule.dev.
 
-Provides a unified API for data visualization that works with
-different chart libraries (Chart.js, Recharts, D3, etc.).
+A framework-agnostic, imperative charting API: `createChart(container,
+config)` plus shorthands (`createLineChart`, `createBarChart`,
+`createPieChart`, `createDoughnutChart`, `createAreaChart`,
+`createScatterChart`, `createRadarChart`), color utilities
+(`colorPalettes`, `getColor`, `generateColors`), and a swappable
+`ChartProvider` contract so any chart library (Chart.js, Recharts, D3,
+uPlot, …) can back the same calls.
 
 ## Quick Start
 
@@ -847,6 +852,18 @@ Peer dependencies:
 
 - `@molecule/app-bond`
 - `@molecule/app-i18n`
+
+**The built-in default provider does NOT draw real charts.** If no provider
+is bonded, every `create*Chart` call renders a text placeholder ("line
+chart — Use a proper chart provider") onto the canvas, and it only
+recognises bar/line/pie. No prebuilt `@molecule/app-charts-*` provider
+package exists — to ship real charts, implement the `ChartProvider`
+interface around your chart library and wire it at startup with
+`bond('charts', provider)` (or `setProvider(provider)` — same thing) in
+`bonds.ts`, BEFORE any component calls `createChart`. All `create*Chart`
+calls then route through your provider unchanged. Do not import a chart
+library directly in screens/components — keep the library behind the
+provider so it stays swappable.
 
 ## E2E Tests
 

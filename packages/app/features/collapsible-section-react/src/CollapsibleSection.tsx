@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
-interface CollapsibleSectionProps {
+export interface CollapsibleSectionProps {
   /** Section heading — rendered as an expand-toggle button. */
   title: ReactNode
   /** Body to show when expanded. */
@@ -31,16 +31,7 @@ interface CollapsibleSectionProps {
  *
  * Typical uses: "Key concepts" in lesson pages, filter groups in a
  * sidebar, FAQ rows, disclosure in settings.
- * @param root0
- * @param root0.title
- * @param root0.children
- * @param root0.expanded
- * @param root0.defaultExpanded
- * @param root0.onExpandedChange
- * @param root0.badge
- * @param root0.actions
- * @param root0.level
- * @param root0.className
+ * @param props - Component props (see {@link CollapsibleSectionProps}).
  */
 export function CollapsibleSection({
   title,
@@ -91,7 +82,7 @@ export function CollapsibleSection({
   )
 }
 
-interface ShowMoreProps {
+export interface ShowMoreProps {
   /** Items before truncation. */
   children: ReactNode[]
   /** Number to show initially. Defaults to 3. */
@@ -107,12 +98,7 @@ interface ShowMoreProps {
 /**
  * "Show N more" / "Show less" toggle. Simpler than `<CollapsibleSection>`
  * when you just want to truncate a long list.
- * @param root0
- * @param root0.children
- * @param root0.initialCount
- * @param root0.moreKey
- * @param root0.lessKey
- * @param root0.className
+ * @param props - Component props (see {@link CollapsibleSectionProps}).
  */
 export function ShowMore({
   children,

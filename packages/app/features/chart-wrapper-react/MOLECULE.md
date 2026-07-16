@@ -4,22 +4,41 @@ React ChartCard + ChartLegend wrappers around `@molecule/app-charts`.
 
 Exports:
 - `<ChartCard>` — uniform chrome (title / description / actions / summary /
-  body / footer) around a chart rendering.
-- `<ChartLegend>` — swatch + label (+ value) legend with optional toggle.
+  body / footer) around a chart rendering. `minChartHeight` (default 240)
+  stops responsive charts collapsing; `dataMolId` sets `data-mol-id`.
+- `<ChartLegend>` — swatch + label (+ value) legend. Items become toggle
+  buttons when `onToggle` is provided.
 - `ChartLegendItem` type.
 
-The chart library itself comes from the `@molecule/app-charts` bond;
-these wrappers only provide surrounding chrome.
+These wrappers provide ONLY the surrounding chrome. The chart itself is
+whatever you render as `children` — typically a canvas driven by
+`createLineChart`/`createBarChart` from `@molecule/app-charts` (via a real
+bonded ChartProvider) or your own chart component. There is no `<BarChart>`
+component in `@molecule/app-charts`.
 
 ## Quick Start
 
 ```tsx
+import { useEffect, useRef } from 'react'
 import { ChartCard, ChartLegend } from '@molecule/app-chart-wrapper-react'
+import { createBarChart } from '@molecule/app-charts'
+
+function RevenueChart() {
+  const ref = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
+    if (!ref.current) return
+    const chart = createBarChart(ref.current, {
+      labels: ['Jan', 'Feb', 'Mar'],
+      datasets: [{ label: 'Revenue', data: [4200, 5800, 5100] }],
+    })
+    return () => chart.destroy()
+  }, [])
+  return <canvas ref={ref} height={240} />
+}
 
 <ChartCard
   title="Monthly Revenue"
   description="Last 12 months"
-  actions={<RangePicker />}
   footer={
     <ChartLegend
       items={[
@@ -29,7 +48,7 @@ import { ChartCard, ChartLegend } from '@molecule/app-chart-wrapper-react'
     />
   }
 >
-  <BarChart data={revenueData} />
+  <RevenueChart />
 </ChartCard>
 ```
 
@@ -45,6 +64,31 @@ npm install -D @types/react
 ## API
 
 ### Interfaces
+
+#### `ChartCardProps`
+
+```typescript
+interface ChartCardProps {
+  /** Card heading. */
+  title: ReactNode
+  /** Optional supporting description. */
+  description?: ReactNode
+  /** Optional right-aligned actions (range selector, export menu, filter). */
+  actions?: ReactNode
+  /** Optional KPI summary row shown between header and chart (e.g. "Total: 12,345 +12%"). */
+  summary?: ReactNode
+  /** Chart content — any rendering driven by `@molecule/app-charts`. */
+  children: ReactNode
+  /** Optional footer below the chart (legend, source attribution). */
+  footer?: ReactNode
+  /** Set a minimum chart height so responsive charts don't collapse. */
+  minChartHeight?: number
+  /** Extra classes on the Card. */
+  className?: string
+  /** `data-mol-id` for AI-agent selectors. */
+  dataMolId?: string
+}
+```
 
 #### `ChartLegendItem`
 
@@ -63,9 +107,23 @@ interface ChartLegendItem {
 }
 ```
 
+#### `ChartLegendProps`
+
+```typescript
+interface ChartLegendProps {
+  items: ChartLegendItem[]
+  /** Called when an item is toggled. */
+  onToggle?: (id: string) => void
+  /** Layout direction. */
+  layout?: 'horizontal' | 'vertical'
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `ChartCard(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `ChartCard(props)`
 
 Uniform chrome around an `@molecule/app-charts` rendering — header +
 actions + optional summary strip + chart body + optional footer.
@@ -87,18 +145,9 @@ function ChartCard({
 }: ChartCardProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .title
-- `root0` — .description
-- `root0` — .actions
-- `root0` — .summary
-- `root0` — .children
-- `root0` — .footer
-- `root0` — .minChartHeight
-- `root0` — .className
-- `root0` — .dataMolId
+- `props` — Component props (see {@link ChartCardProps}).
 
-#### `ChartLegend(root0, root0, root0, root0, root0)`
+#### `ChartLegend(props)`
 
 Chart legend — swatch + label (+ optional value) per series. When
 `onToggle` is provided, items become buttons that toggle series
@@ -113,11 +162,7 @@ function ChartLegend({
 }: ChartLegendProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .onToggle
-- `root0` — .layout
-- `root0` — .className
+- `props` — Component props (see {@link ChartLegendProps}).
 
 ## Injection Notes
 
@@ -135,3 +180,8 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+`@molecule/app-charts`' built-in provider renders a text placeholder, not a
+real chart — wire a real `ChartProvider` (or render your own chart component
+as `children`) before shipping. Legend `items` labels/values are
+consumer-provided ReactNodes; pass translated strings via `t()`.

@@ -9,7 +9,7 @@ import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
-interface ChatbotTesterInputProps {
+export interface ChatbotTesterInputProps {
   value: string
   onChange: (next: string) => void
   onSend: () => void

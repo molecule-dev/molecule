@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
-interface DangerZoneSectionProps {
+export interface DangerZoneSectionProps {
   /** Section title. */
   title: ReactNode
   /** Explanation of the destructive action. */
@@ -28,16 +28,7 @@ interface DangerZoneSectionProps {
  * Card-wrapped section for destructive actions — delete account,
  * reset data, revoke access. Uses the error/danger accent color and
  * puts the action on the right.
- * @param root0
- * @param root0.title
- * @param root0.description
- * @param root0.actionLabel
- * @param root0.onAction
- * @param root0.loading
- * @param root0.disabled
- * @param root0.children
- * @param root0.className
- * @param root0.dataMolId
+ * @param props - Component props (see {@link DangerZoneSectionProps}).
  */
 export function DangerZoneSection({
   title,

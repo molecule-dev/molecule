@@ -50,9 +50,25 @@ interface ChecklistItem {
 }
 ```
 
+#### `ChecklistProps`
+
+```typescript
+interface ChecklistProps {
+  items: ChecklistItem[]
+  /** Called when an item is toggled. */
+  onToggle: (id: string, next: boolean) => void
+  /** Show overall progress bar above the list. Defaults to true. */
+  showProgress?: boolean
+  /** Optional title above the checklist. */
+  title?: ReactNode
+  /** Extra classes. */
+  className?: string
+}
+```
+
 ### Functions
 
-#### `Checklist(root0, root0, root0, root0, root0, root0)`
+#### `Checklist(props)`
 
 Onboarding-style checklist with checkboxes, optional descriptions,
 and an overall progress bar derived from `items`.
@@ -67,12 +83,7 @@ function Checklist({
 }: ChecklistProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .items
-- `root0` — .onToggle
-- `root0` — .showProgress
-- `root0` — .title
-- `root0` — .className
+- `props` — Component props (see {@link ChecklistProps}).
 
 ## Injection Notes
 
@@ -90,3 +101,10 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+The progress line uses the i18n key `checklist.progress` with an English
+`defaultValue`; no companion locale bond ships this key, so add it to your
+app's locale resources for non-English UIs. `label`/`description` are
+consumer-provided ReactNodes — pass translated strings via `t()`. The
+component is fully controlled: it never mutates `completed`; persist the
+toggle in `onToggle(id, next)` and re-render with updated `items`.

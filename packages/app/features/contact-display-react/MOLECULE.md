@@ -35,6 +35,22 @@ npm install -D @types/react
 
 ### Interfaces
 
+#### `ContactDisplayProps`
+
+```typescript
+interface ContactDisplayProps {
+  contact: ContactFields
+  /** Layout preset. */
+  layout?: 'card' | 'row' | 'compact'
+  /** Optional right-side actions. */
+  actions?: ReactNode
+  /** Click handler on the row. */
+  onClick?: () => void
+  /** Extra classes. */
+  className?: string
+}
+```
+
 #### `ContactFields`
 
 Fields describing a contact rendered by ContactDisplay.
@@ -53,7 +69,7 @@ interface ContactFields {
 
 ### Functions
 
-#### `ContactDisplay(root0, root0, root0, root0, root0, root0)`
+#### `ContactDisplay(props)`
 
 Formatted contact display — avatar + name + role + email/phone with
 leading icons + optional address and company. Three layouts for
@@ -69,12 +85,7 @@ function ContactDisplay({
 }: ContactDisplayProps): JSX.Element
 ```
 
-- `root0` — *
-- `root0` — .contact
-- `root0` — .layout
-- `root0` — .actions
-- `root0` — .onClick
-- `root0` — .className
+- `props` — Component props (see {@link ContactDisplayProps}).
 
 ## Injection Notes
 
@@ -92,3 +103,11 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
+
+`contact` fields are display-only data — `email`/`phone` render as
+`mailto:`/`tel:` links; there is no formatting/validation. The email/phone/
+address markers are text glyphs (✉ ☎ ⌂), not themed SVG icons. `role`,
+`address`, and `company` accept ReactNodes — pass translated strings via
+`t()` where needed. When `onClick` is provided the whole row becomes
+clickable; supply your own keyboard affordance (e.g. wrap in a button/link)
+for accessibility-critical surfaces.
