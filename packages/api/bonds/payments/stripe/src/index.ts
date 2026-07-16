@@ -9,6 +9,22 @@
  * verification. Env: `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` are SERVER-ONLY; only the
  * publishable key (`pk_…`) is client-side.
  *
+ * **You do NOT need molecule's Express app, the `bond()` wiring, or the UI packages to use
+ * this — the functions below are framework-agnostic.** On a non-Express / non-molecule host
+ * (Next.js App Router, serverless functions, Hono, Fastify), import them and call them from
+ * your OWN route handlers:
+ * `import { createCheckoutSession, verifyWebhookSignature, getSubscription } from '@molecule/api-payments-stripe'`.
+ * They cover the whole flow — {@link createCheckoutSession} (server-owned `priceId`, so you
+ * never take a price/amount from the client), {@link verifyWebhookSignature}, and the
+ * subscription getters/updaters — and carry the security contract (config-not-configured
+ * errors, normalized status) for free, so reach for these instead of hand-rolling raw
+ * `stripe` calls. In a Next.js App Router route, read the RAW webhook body with
+ * `await req.text()` and the header with `req.headers.get('stripe-signature')`, then
+ * `verifyWebhookSignature(rawBody, signature)` (the `express.raw(...)` note below is the
+ * Express-host equivalent). Only `@molecule/api-middleware-billing-routes` (Express glue) and
+ * `@molecule/app-billing-react` (molecule UI) are framework-coupled — skip THOSE on such a
+ * host, but still use these bond functions underneath.
+ *
  * Two things a weak Stripe integration gets wrong:
  *
  * - **The webhook body MUST be RAW for signature verification.** {@link verifyWebhookSignature}
