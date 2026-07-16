@@ -1,0 +1,49 @@
+{
+  "name": "@molecule/app-fonts-newsreader",
+  "version": "1.0.0",
+  "description": "Newsreader font provider for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "fonts"
+  ],
+  "keywords": [
+    "molecule",
+    "fonts",
+    "newsreader",
+    "local-fonts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/app-fonts": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-fonts": "1.0.0",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/fonts/newsreader"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/fonts/newsreader",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
