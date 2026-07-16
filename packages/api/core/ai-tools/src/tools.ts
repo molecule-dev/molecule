@@ -26,7 +26,7 @@ import {
   resolvePath,
   shellQuote,
   stripControlChars,
-  truncate,
+  truncateMiddle,
   whitespaceTolerantReplace,
 } from './utilities.js'
 
@@ -531,8 +531,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
       try {
         const result = await backend.run(command, { cwd, timeout: 30000 })
-        const stdout = sanitizeOutput(truncate(result.stdout, MAX_OUTPUT_SIZE))
-        const stderr = sanitizeOutput(truncate(result.stderr, MAX_OUTPUT_SIZE))
+        // truncateMiddle (not truncate): a failing build/test/migration puts its
+        // error at the TAIL, so keep the head AND the tail — head-only truncation
+        // strands the executor with passing progress and no failure reason.
+        const stdout = sanitizeOutput(truncateMiddle(result.stdout, MAX_OUTPUT_SIZE))
+        const stderr = sanitizeOutput(truncateMiddle(result.stderr, MAX_OUTPUT_SIZE))
         return { stdout, stderr, exitCode: result.exitCode }
       } catch (e: unknown) {
         return { error: `Command failed: ${(e as Error).message}` }

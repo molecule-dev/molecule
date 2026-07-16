@@ -8,6 +8,7 @@ import {
   shellQuote,
   stripControlChars,
   truncate,
+  truncateMiddle,
   whitespaceTolerantReplace,
 } from '../utilities.js'
 
@@ -231,6 +232,38 @@ describe('truncate', () => {
   it('handles maxLength = 0', () => {
     const out = truncate('hello', 0)
     expect(out).toContain('(truncated)')
+  })
+})
+
+describe('truncateMiddle', () => {
+  it('returns input unchanged when at or below maxLength', () => {
+    expect(truncateMiddle('hello', 100)).toBe('hello')
+    expect(truncateMiddle('hello', 5)).toBe('hello')
+  })
+
+  it('KEEPS THE TAIL — a failing command error at the end survives (the bug)', () => {
+    // Head-only truncate() would drop this; truncateMiddle must retain it.
+    const progress = 'PASS a passing line of test output\n'.repeat(4000)
+    const failure =
+      'FAIL payment.test.ts\n  expected 200 got 500: relation "payments" does not exist\nTests: 1 failed, 240 passed\n'
+    const output = progress + failure
+    expect(output.length).toBeGreaterThan(102400)
+    const out = truncateMiddle(output, 102400)
+    expect(out).toContain('1 failed, 240 passed')
+    expect(out).toContain('relation "payments" does not exist')
+  })
+
+  it('keeps the head too (what ran / first errors) and marks the elision', () => {
+    const out = truncateMiddle('HEAD_MARKER' + 'x'.repeat(500) + 'TAIL_MARKER', 100)
+    expect(out.startsWith('HEAD_MARKER')).toBe(true)
+    expect(out.endsWith('TAIL_MARKER')).toBe(true)
+    expect(out).toMatch(/chars omitted from the middle/)
+  })
+
+  it('never exceeds maxLength + the elision notice', () => {
+    const out = truncateMiddle('z'.repeat(10000), 1000)
+    // head(400) + tail(600) of real content, plus the fixed notice.
+    expect(out.length).toBeLessThan(1000 + 200)
   })
 })
 

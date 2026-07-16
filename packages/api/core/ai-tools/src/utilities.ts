@@ -254,6 +254,33 @@ export function truncate(s: string, maxLength: number): string {
 }
 
 /**
+ * Truncate keeping BOTH the head and the tail, eliding the middle — for command
+ * output (build / test / migration / install logs). Plain head truncation
+ * ({@link truncate}) drops the TAIL, which is exactly where a failing command puts
+ * the reason: the `npm ERR!` line, the test-failure summary (`1 failed, 240
+ * passed`), the migration stack trace. When that is cut, the executor sees only
+ * passing progress and can't tell WHY the command failed — a self-inflicted error
+ * then survives every fix round. The head still shows what ran and the first
+ * errors; the split is weighted toward the tail since the summary lives there.
+ * No-op when `s` already fits.
+ *
+ * @param s - Arbitrary text (typically stdout/stderr) to bound in size.
+ * @param maxLength - Maximum characters to retain (excluding the elision notice).
+ * @returns The original string, or head + an elision notice + tail.
+ */
+export function truncateMiddle(s: string, maxLength: number): string {
+  if (s.length <= maxLength) return s
+  const headLen = Math.floor(maxLength * 0.4)
+  const tailLen = maxLength - headLen
+  const omitted = s.length - maxLength
+  return (
+    s.slice(0, headLen) +
+    `\n\n... (${omitted} chars omitted from the middle — showing the head and the tail; a failing command's error is usually near the end) ...\n\n` +
+    s.slice(s.length - tailLen)
+  )
+}
+
+/**
  * Attempt a whitespace-tolerant replacement when an exact `old_string` match
  * failed. Finds a contiguous run of lines in `content` whose per-line
  * whitespace-normalized form (runs of whitespace collapsed to one space, then
