@@ -19,7 +19,7 @@
  *   them: `getSupportedFormats()` returns only `jpeg, png, gif, tiff`. Requesting
  *   `webp`/`avif` as OUTPUT (`convert`/`optimize`) or as INPUT (any decode) fails
  *   early with a clear, actionable error that names the sharp sibling (for example:
- *   `jimp does not support the "webp" output format — use \@molecule/api-image-sharp for WebP/AVIF. jimp supports: jpeg, png, gif, tiff.`),
+ *   `jimp does not support the "webp" output format — use @molecule/api-image-sharp for WebP/AVIF. jimp supports: jpeg, png, gif, tiff.`),
  *   never an opaque mid-pipeline throw. The inherited E2E checklist's "WebP
  *   round-trips" item does NOT apply to this bond: feature-detect with
  *   `getSupportedFormats()` and bond `@molecule/api-image-sharp` when the app
