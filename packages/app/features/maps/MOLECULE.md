@@ -10,17 +10,17 @@ helpers (`provider`, `setProvider`, `getProvider`, `hasProvider`,
 `createMap`), geometry utilities (`calculateBounds`, `calculateCenter`,
 `calculateDistance`), and `createSimpleMapProvider()`.
 
-IMPORTANT: no real map SDK integration ships today — there are NO
-`@molecule/app-maps-*` provider bonds (no `app-maps-mapbox`, no
-`app-maps-google`; those names do not exist). The only built-in provider is
-`createSimpleMapProvider()`, a PLACEHOLDER that renders a static grey panel
-("Map Placeholder", tagged `data-mol-map-placeholder`) instead of a map and
-`console.warn`s once when it engages — markers are tracked in memory but
-never drawn, overlays/events/projection are no-ops, and `getSnapshot()`
-resolves to an empty string. To show a real map, implement `MapProvider`
-against your chosen SDK (Leaflet, MapLibre, Mapbox GL, Google Maps JS —
-install the SDK yourself) and wire it with `setProvider(myProvider)`
-(equivalent to `bond('maps', myProvider)`).
+IMPORTANT: for a REAL map, bond **`@molecule/app-maps-leaflet`** (Leaflet +
+OpenStreetMap tiles, no API key): `import 'leaflet/dist/leaflet.css'` once,
+then `import { provider } from '@molecule/app-maps-leaflet'` +
+`setProvider(provider)` (equivalent to `bond('maps', provider)`) at startup.
+The built-in `createSimpleMapProvider()` is only a PLACEHOLDER — it renders a
+static grey panel ("Map Placeholder", tagged `data-mol-map-placeholder`)
+instead of a map and `console.warn`s once when it engages (markers tracked in
+memory but never drawn, overlays/events no-ops). Use the placeholder only in
+tests / before the real provider is wired. (To use a different SDK — MapLibre,
+Mapbox GL, Google Maps — implement `MapProvider` against it; but the Leaflet
+bond covers the common "show a map with pins" case with zero config.)
 
 ## Quick Start
 

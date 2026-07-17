@@ -47,11 +47,10 @@ export const createSimpleMapProvider = (options?: SimpleMapProviderOptions): Map
         hasWarned = true
         console.warn(
           '[@molecule/app-maps] No map provider bonded — rendering a NON-FUNCTIONAL ' +
-            'grey placeholder, not a real map. Markers are tracked in memory but never ' +
-            'drawn; overlays, popups, events and projection are no-ops; getSnapshot() ' +
-            'returns an empty string. No real map SDK ships with the fleet: implement ' +
-            'the MapProvider interface against your SDK (Mapbox GL / Google Maps / ' +
-            'Leaflet / MapLibre) and bond it with setProvider(myProvider).',
+            'grey placeholder, not a real map. Bond @molecule/app-maps-leaflet (Leaflet + ' +
+            "OpenStreetMap, no API key): import 'leaflet/dist/leaflet.css'; import { provider } " +
+            "from '@molecule/app-maps-leaflet'; setProvider(provider) at startup, before any " +
+            'createMap call. Or implement the MapProvider interface against another SDK.',
         )
       }
 

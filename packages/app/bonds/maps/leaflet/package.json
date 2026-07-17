@@ -1,0 +1,46 @@
+{
+  "name": "@molecule/app-maps-leaflet",
+  "version": "1.0.0",
+  "description": "Leaflet (OpenStreetMap) provider for @molecule/app-maps",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "maps",
+    "leaflet",
+    "openstreetmap"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "directory": "packages/app/bonds/maps/leaflet"
+  },
+  "peerDependencies": {
+    "@molecule/app-maps": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-maps": "1.0.0",
+    "@types/leaflet": "1.9.21",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  },
+  "dependencies": {
+    "leaflet": "1.9.4"
+  }
+}
