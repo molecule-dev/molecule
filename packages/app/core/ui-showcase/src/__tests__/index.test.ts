@@ -1,9 +1,26 @@
 import { describe, expect, it } from 'vitest'
 
 import type { ComponentShowcase } from '../index.js'
+import * as showcaseModule from '../index.js'
 import { generateCombinations, showcaseComponents } from '../index.js'
 
 describe('@molecule/app-ui-showcase', () => {
+  describe('public export surface', () => {
+    it('barrel re-exports every public value (export * keeps the surface intact)', () => {
+      // Guards the barrel: `src/index.ts` must re-export via `export *` (Rule 2),
+      // and doing so must preserve exactly the runtime value exports below.
+      // `ComponentShowcase` is a type-only export (compile-time), asserted via the
+      // typed usage in the "ComponentShowcase type" block.
+      expect(Object.keys(showcaseModule).sort()).toEqual(
+        ['generateCombinations', 'showcaseComponents'].sort(),
+      )
+      expect(showcaseModule.showcaseComponents).toBe(showcaseComponents)
+      expect(showcaseModule.generateCombinations).toBe(generateCombinations)
+      expect(typeof showcaseModule.generateCombinations).toBe('function')
+      expect(Array.isArray(showcaseModule.showcaseComponents)).toBe(true)
+    })
+  })
+
   describe('showcaseComponents', () => {
     it('exports a non-empty array of component showcases', () => {
       expect(Array.isArray(showcaseComponents)).toBe(true)
