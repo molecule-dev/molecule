@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `statusBar.error.noProvider` | @molecule/app-status-bar: No provider set. Call setProvider() with a StatusBarProvider implementation (e.g., from @molecule/app-status-bar-capacitor). |
+| `statusBar.error.noProvider` | @molecule/app-status-bar: No provider set. Call setProvider() with a StatusBarProvider implementation (e.g., from @molecule/app-status-bar-react-native). |
 
 ## Metadata
 

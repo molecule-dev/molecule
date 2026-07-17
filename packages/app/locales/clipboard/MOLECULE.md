@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `clipboard.error.noProvider` | @molecule/app-clipboard: No provider set. Call setProvider() with a ClipboardProvider implementation (e.g., from @molecule/app-clipboard-capacitor). |
+| `clipboard.error.noProvider` | @molecule/app-clipboard: No provider set. Call setProvider() with a ClipboardProvider implementation (e.g., from @molecule/app-clipboard-react-native). |
 | `clipboard.warn.onChangeNotSupported` | @molecule/app-clipboard: onChange not supported by provider |
 
 ## Metadata

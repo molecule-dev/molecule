@@ -771,6 +771,15 @@ const uuidParamSchema: z.ZodObject<{ id: z.ZodString; }, z.core.$strip>
 
 #### `userAuthorization`
 
+Members:
+
+- `userAuthorization.getAuthCookieName` — const: Resolve the actual cookie name for an auth cookie.
+- `userAuthorization.getAuthCookieOptions` — const: Base cookie attributes shared by EVERY auth cookie this resource sets and
+- `userAuthorization.invalidateDeviceExistsCache` — const: Evict a single device's positive entry from the device-exists cache so the
+- `userAuthorization.invalidateAllDeviceExistsCache` — const: Evict ALL positive entries from the device-exists cache.
+- `userAuthorization.set` — const: Set authorization headers and cookie for a session.
+- `userAuthorization.verifyMiddleware` — const: Middleware that verifies the JWT token from the `Authorization` header and sets `res.locals.session`.
+
 ## Injection Notes
 
 ### Requirements

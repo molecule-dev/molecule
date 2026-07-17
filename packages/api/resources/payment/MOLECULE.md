@@ -210,6 +210,17 @@ const updatePropsSchema: z.ZodObject<{ data: z.ZodOptional<z.ZodOptional<z.ZodRe
 
 #### `types`
 
+Members:
+
+- `types.PlatformKey` — type: Every available platform.
+- `types.PlanAlias` — type: Every available plan alias.
+- `types.PlanPeriod` — type: Every available plan period.
+- `types.Props` — interface: The payment's properties.
+- `types.CreateProps` — type: Properties when creating a payment.
+- `types.UpdateProps` — type: Properties when updating a payment.
+- `types.Plan` — interface: A plan's properties.
+- `types.Resource` — interface: Resource type.
+
 ## Services
 
 This package exports services that should be registered with the bond system:

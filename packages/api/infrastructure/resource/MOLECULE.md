@@ -465,9 +465,38 @@ const querySchema: z.ZodObject<{ limit: z.ZodDefault<z.ZodCoercedNumber<unknown>
 
 #### `schema`
 
+Members:
+
+- `schema.basePropsSchema` — const: Base Zod schema with the three fields every resource row must have:
+- `schema.BaseProps` — type: TypeScript type inferred from `basePropsSchema`, containing `id`, `createdAt`, and `updatedAt`.
+- `schema.responseSchema` — function: Creates a Zod schema for the standard `{ statusCode, body }` response
+- `schema.resourceSchema` — function: Creates a Zod schema that validates a resource descriptor object
+- `schema.validate` — function: Validates data against a Zod schema, throwing an `Error` with a
+- `schema.safeParse` — function: Validates data against a Zod schema without throwing. Returns a discriminated
+- `schema.partial` — function: Creates a schema where all fields are optional, suitable for validating
+- `schema.pick` — function: Creates a schema with only the specified fields, useful for create payloads
+
 #### `types`
 
+Members:
+
+- `types.BaseProps` — type: TypeScript type inferred from `basePropsSchema`, containing `id`, `createdAt`, and `updatedAt`.
+- `types.Props` — interface: The resource's properties to be stored in the database.
+- `types.Resource` — interface: An object describing the resource.
+- `types.ZodResource` — interface: An object describing the resource with a Zod schema.
+- `types.Response` — interface: Standard response from resource operations.
+
 #### `utilities`
+
+Members:
+
+- `utilities.getValidProps` — const: Validates resource props against a Zod schema, returning typed valid props or throwing
+- `utilities.safeParse` — const: Validates data against a Zod schema without throwing, returning a discriminated union.
+- `utilities.validate` — const: Validates data against a Zod schema, throwing a ZodError on failure.
+- `utilities.ZodError` — interface: An Error-like class used to store Zod validation issues.
+- `utilities.ZodSchema` — interface
+- `utilities.isEmail` — const: Basic regex for determining whether or not a string is an email address.
+- `utilities.isUuid` — const: Basic regex for determining whether or not a string is a UUID.
 
 ## Injection Notes
 

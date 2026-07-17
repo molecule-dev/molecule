@@ -297,9 +297,318 @@ const uptimeWindowPropsSchema: z.ZodObject<{ id: z.ZodString; serviceId: z.ZodSt
 
 #### `handlers`
 
+Members:
+
+- `handlers.createIncident` — function: Creates a new incident record. Validates the request body against
+- `handlers.createService` — function: Creates a new monitored service. Validates the request body against
+- `handlers.deleteService` — function: Deletes a monitored service by ID. Returns 404 if the service does not exist.
+- `handlers.getService` — function: Returns a single service by ID along with the last 50 check results.
+- `handlers.getStatus` — function: Returns the aggregated system health status.
+- `handlers.getUptime` — function: Returns uptime window statistics for all services, or filtered by
+- `handlers.listIncidents` — function: Lists incidents with support for `?status=` filtering and pagination
+- `handlers.listServices` — function: Lists all services along with each service's latest check result.
+- `handlers.updateIncident` — function: Updates an existing incident by ID. Validates the request body against
+- `handlers.updateService` — function: Updates an existing monitored service by ID. Validates the request body
+
 #### `types`
 
+Members:
+
+- `types.CheckProps` — type: Health check result properties.
+- `types.CreateIncidentProps` — type: Fields accepted when creating a new incident.
+- `types.CreateServiceProps` — type: Fields accepted when creating a new service.
+- `types.IncidentProps` — type: Full incident record properties.
+- `types.ServiceProps` — type: Full service record properties.
+- `types.UpdateIncidentProps` — type: Updatable incident fields.
+- `types.UpdateServiceProps` — type: Updatable service fields.
+- `types.UptimeWindowProps` — type: Uptime window statistics properties.
+- `types.Resource` — type: An object describing the `status` resource.
+
 #### `z`
+
+Members:
+
+- `z.core` — namespace
+- `z.infer` — type
+- `z.output` — type
+- `z.input` — type
+- `z.JSONType` — type
+- `z.globalRegistry` — const
+- `z.GlobalMeta` — interface
+- `z.registry` — function
+- `z.config` — function
+- `z.$output` — const
+- `z.$input` — const
+- `z.$brand` — const
+- `z.clone` — function
+- `z.regexes` — namespace
+- `z.treeifyError` — function
+- `z.prettifyError` — function
+- `z.formatError` — function
+- `z.flattenError` — function
+- `z.TimePrecision` — const
+- `z.util` — namespace
+- `z.NEVER` — const: A special constant with type `never`
+- `z.toJSONSchema` — function
+- `z.fromJSONSchema` — function: Converts a JSON Schema to a Zod schema. This function should be considered semi-experimental. It's behavior is liable to change.
+- `z.locales` — namespace
+- `z.ZodISODateTime` — interface
+- `z.ZodISODate` — interface
+- `z.ZodISOTime` — interface
+- `z.ZodISODuration` — interface
+- `z.iso` — namespace
+- `z.ZodCoercedString` — interface
+- `z.ZodCoercedNumber` — interface
+- `z.ZodCoercedBigInt` — interface
+- `z.ZodCoercedBoolean` — interface
+- `z.ZodCoercedDate` — interface
+- `z.coerce` — namespace
+- `z.string` — function
+- `z.email` — function
+- `z.guid` — function
+- `z.uuid` — function
+- `z.uuidv4` — function
+- `z.uuidv6` — function
+- `z.uuidv7` — function
+- `z.url` — function
+- `z.httpUrl` — function
+- `z.emoji` — function
+- `z.nanoid` — function
+- `z.cuid` — function: Validates a CUID v1 string.
+- `z.cuid2` — function
+- `z.ulid` — function
+- `z.xid` — function
+- `z.ksuid` — function
+- `z.ipv4` — function
+- `z.mac` — function
+- `z.ipv6` — function
+- `z.cidrv4` — function
+- `z.cidrv6` — function
+- `z.base64` — function
+- `z.base64url` — function
+- `z.e164` — function
+- `z.jwt` — function
+- `z.stringFormat` — function
+- `z.hostname` — function
+- `z.hex` — function
+- `z.hash` — function
+- `z.number` — function
+- `z.int` — function
+- `z.float32` — function
+- `z.float64` — function
+- `z.int32` — function
+- `z.uint32` — function
+- `z.boolean` — function
+- `z.bigint` — function
+- `z.int64` — function
+- `z.uint64` — function
+- `z.symbol` — function
+- `z.any` — function
+- `z.unknown` — function
+- `z.never` — function
+- `z.date` — function
+- `z.array` — function
+- `z.keyof` — function
+- `z.object` — function
+- `z.strictObject` — function
+- `z.looseObject` — function
+- `z.union` — function
+- `z.xor` — function: Creates an exclusive union (XOR) where exactly one option must match.
+- `z.discriminatedUnion` — function
+- `z.intersection` — function
+- `z.tuple` — function
+- `z.record` — function
+- `z.partialRecord` — function
+- `z.looseRecord` — function
+- `z.map` — function
+- `z.set` — function
+- `z.nativeEnum` — function
+- `z.literal` — function
+- `z.file` — function
+- `z.transform` — function
+- `z.optional` — function
+- `z.exactOptional` — function
+- `z.nullable` — function
+- `z.nullish` — function
+- `z._default` — function
+- `z.prefault` — function
+- `z.nonoptional` — function
+- `z.success` — function
+- `z.nan` — function
+- `z.pipe` — function
+- `z.codec` — function
+- `z.invertCodec` — function
+- `z.readonly` — function
+- `z.templateLiteral` — function
+- `z.lazy` — function
+- `z.promise` — function
+- `z._function` — function
+- `z.check` — function
+- `z.custom` — function
+- `z.refine` — function
+- `z.superRefine` — function
+- `z.json` — function
+- `z.preprocess` — function
+- `z.ZodStandardSchemaWithJSON` — type
+- `z.ZodType` — interface
+- `z._ZodType` — interface
+- `z._ZodString` — interface
+- `z.ZodString` — interface
+- `z.ZodStringFormat` — interface
+- `z.ZodEmail` — interface
+- `z.ZodGUID` — interface
+- `z.ZodUUID` — interface
+- `z.ZodURL` — interface
+- `z.ZodEmoji` — interface
+- `z.ZodNanoID` — interface
+- `z.ZodCUID` — interface
+- `z.ZodCUID2` — interface
+- `z.ZodULID` — interface
+- `z.ZodXID` — interface
+- `z.ZodKSUID` — interface
+- `z.ZodIPv4` — interface
+- `z.ZodMAC` — interface
+- `z.ZodIPv6` — interface
+- `z.ZodCIDRv4` — interface
+- `z.ZodCIDRv6` — interface
+- `z.ZodBase64` — interface
+- `z.ZodBase64URL` — interface
+- `z.ZodE164` — interface
+- `z.ZodJWT` — interface
+- `z.ZodCustomStringFormat` — interface
+- `z._ZodNumber` — interface
+- `z.ZodNumber` — interface
+- `z.ZodNumberFormat` — interface
+- `z.ZodInt` — interface
+- `z.ZodFloat32` — interface
+- `z.ZodFloat64` — interface
+- `z.ZodInt32` — interface
+- `z.ZodUInt32` — interface
+- `z._ZodBoolean` — interface
+- `z.ZodBoolean` — interface
+- `z._ZodBigInt` — interface
+- `z.ZodBigInt` — interface
+- `z.ZodBigIntFormat` — interface
+- `z.ZodSymbol` — interface
+- `z.ZodUndefined` — interface
+- `z.undefined` — function
+- `z.ZodNull` — interface
+- `z.null` — function
+- `z.ZodAny` — interface
+- `z.ZodUnknown` — interface
+- `z.ZodNever` — interface
+- `z.ZodVoid` — interface
+- `z.void` — function
+- `z._ZodDate` — interface
+- `z.ZodDate` — interface
+- `z.ZodArray` — interface
+- `z.SafeExtendShape` — type
+- `z.ZodObject` — interface
+- `z.ZodUnion` — interface
+- `z.ZodXor` — interface
+- `z.ZodDiscriminatedUnion` — interface
+- `z.ZodIntersection` — interface
+- `z.ZodTuple` — interface
+- `z.ZodRecord` — interface
+- `z.ZodMap` — interface
+- `z.ZodSet` — interface
+- `z.ZodEnum` — interface
+- `z.enum` — function
+- `z.ZodLiteral` — interface
+- `z.ZodFile` — interface
+- `z.ZodTransform` — interface
+- `z.ZodOptional` — interface
+- `z.ZodExactOptional` — interface
+- `z.ZodNullable` — interface
+- `z.ZodDefault` — interface
+- `z.ZodPrefault` — interface
+- `z.ZodNonOptional` — interface
+- `z.ZodSuccess` — interface
+- `z.ZodCatch` — interface
+- `z.catch` — function
+- `z.ZodNaN` — interface
+- `z.ZodPipe` — interface
+- `z.ZodCodec` — interface
+- `z.ZodPreprocess` — interface
+- `z.ZodReadonly` — interface
+- `z.ZodTemplateLiteral` — interface
+- `z.ZodLazy` — interface
+- `z.ZodPromise` — interface
+- `z.ZodFunction` — interface
+- `z.function` — function
+- `z.ZodCustom` — interface
+- `z.describe` — const
+- `z.meta` — const
+- `z.instanceof` — function
+- `z.stringbool` — const
+- `z.ZodJSONSchemaInternals` — interface
+- `z.ZodJSONSchema` — interface
+- `z.lt` — function
+- `z.lte` — function
+- `z.gt` — function
+- `z.gte` — function
+- `z.positive` — function
+- `z.negative` — function
+- `z.nonpositive` — function
+- `z.nonnegative` — function
+- `z.multipleOf` — function
+- `z.maxSize` — function
+- `z.minSize` — function
+- `z.size` — function
+- `z.maxLength` — function
+- `z.minLength` — function
+- `z.length` — function
+- `z.regex` — function
+- `z.lowercase` — function
+- `z.uppercase` — function
+- `z.includes` — function
+- `z.startsWith` — function
+- `z.endsWith` — function
+- `z.property` — function
+- `z.mime` — function
+- `z.overwrite` — function
+- `z.normalize` — function
+- `z.trim` — function
+- `z.toLowerCase` — function
+- `z.toUpperCase` — function
+- `z.slugify` — function
+- `z.RefinementCtx` — interface
+- `z.ZodIssue` — type
+- `z.ZodError` — interface: An Error-like class used to store Zod validation issues.
+- `z.ZodRealError` — const
+- `z.ZodFlattenedError` — type
+- `z.ZodFormattedError` — type
+- `z.ZodErrorMap` — interface
+- `z.IssueData` — type
+- `z.ZodSafeParseResult` — type
+- `z.ZodSafeParseSuccess` — type
+- `z.ZodSafeParseError` — type
+- `z.parse` — const
+- `z.parseAsync` — const
+- `z.safeParse` — const
+- `z.safeParseAsync` — const
+- `z.encode` — const
+- `z.decode` — const
+- `z.encodeAsync` — const
+- `z.decodeAsync` — const
+- `z.safeEncode` — const
+- `z.safeDecode` — const
+- `z.safeEncodeAsync` — const
+- `z.safeDecodeAsync` — const
+- `z.setErrorMap` — function
+- `z.getErrorMap` — function
+- `z.TypeOf` — type
+- `z.Infer` — type
+- `z.ZodFirstPartySchemaTypes` — type
+- `z.ZodIssueCode` — const
+- `z.inferFlattenedErrors` — type
+- `z.inferFormattedError` — type
+- `z.BRAND` — type: Use `z.$brand` instead
+- `z.ZodTypeAny` — interface
+- `z.ZodSchema` — interface
+- `z.Schema` — interface
+- `z.ZodRawShape` — type: Included for Zod 3 compatibility
+- `z.ZodFirstPartyTypeKind` — enum
 
 ## Injection Notes
 
