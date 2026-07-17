@@ -264,7 +264,16 @@ import {
   tooltipContent,
   tooltipTrigger,
 } from './components.js'
-import { center, container, flex, grid, notSrOnly, srOnly, stack as stackLayout } from './layout.js'
+import {
+  center,
+  container,
+  flex,
+  grid,
+  gridResponsiveCols,
+  notSrOnly,
+  srOnly,
+  stack as stackLayout,
+} from './layout.js'
 import { cn } from './utilities.js'
 
 // ============================================================================
@@ -665,16 +674,28 @@ export const classMap: UIClassMap = {
   },
 
   grid(opts?: GridClassOptions): string {
-    // Grid CVA uses numeric keys but cva requires string lookups — stringify cols
-    const cols = opts?.cols !== undefined ? (String(opts.cols) as unknown as 1) : undefined
+    const colsNum = opts?.cols
     const gap = opts?.gap
+    // Responsive by DEFAULT: a grid of `cols >= 2` gets a mobile-first ramp
+    // (1 column on phones → `cols` at sm/lg/xl) so cards collapse instead of
+    // overflowing on mobile. `responsive: false`, a single column, or a
+    // column count with no defined ramp falls back to the fixed `grid-cols-N`
+    // from the CVA. `rampCols` is a complete literal Tailwind class string.
+    const rampCols =
+      opts?.responsive !== false && colsNum !== undefined && colsNum >= 2
+        ? gridResponsiveCols[colsNum]
+        : undefined
+    // Grid CVA uses numeric keys but cva requires string lookups — stringify
+    // cols. When the ramp handles columns, omit cols from the CVA so it emits
+    // only the base `grid` (+ gap); the ramp classes are appended after.
+    const cols =
+      rampCols === undefined && colsNum !== undefined
+        ? (String(colsNum) as unknown as 1)
+        : undefined
     if (typeof gap === 'number') {
-      return cn(stripGapUtilities(grid({ cols })), `gap-${gap}`)
+      return cn(stripGapUtilities(grid({ cols })), rampCols, `gap-${gap}`)
     }
-    return grid({
-      cols,
-      gap: gap,
-    })
+    return cn(grid({ cols, gap }), rampCols)
   },
 
   cardPadding(size?: Size | 'none'): string {

@@ -58,6 +58,15 @@
 /* cm.gridRows(n) → grid-rows-{n} */
 @source inline("grid-rows-{1,2,3,4,5,6}");
 
+/* cm.grid({ cols }) — fixed columns (opt-out `responsive: false` / single col). */
+@source inline("grid-cols-{1,2,3,4,5,6,12}");
+
+/* cm.grid({ cols }) — responsive-by-default ramp (see `gridResponsiveCols` in
+ * @molecule/app-ui-tailwind layout.ts). 1 col on phones → `cols` at sm/lg/xl so
+ * KPI / listing / card grids collapse on mobile. Emitted via runtime function
+ * calls, so Tailwind's static scanner needs these safelisted explicitly. */
+@source inline("sm:grid-cols-2 lg:grid-cols-{3,4,6} xl:grid-cols-{5,6,12}");
+
 /* Full-range fills (continued). Same drift for the sizing methods: WidthValue has
  * 'fit', HeightValue / MinHeight admit the 1/2..3/4 fractions, and MaxWidthScale
  * goes to 7xl + screen-2xl — and cm.w / cm.h / cm.minH / cm.maxW emit the value

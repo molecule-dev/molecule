@@ -46,6 +46,7 @@ import {
   formError,
   formHint,
   grid,
+  gridResponsiveCols,
   hstack,
   input,
   label,
@@ -956,6 +957,75 @@ describe('layout components', () => {
       expect(classMap.grid({ cols: 2, gap: 10 })).not.toContain('gap-0')
       expect(classMap.grid({ cols: 3, gap: 3 })).toContain('gap-3')
       expect(classMap.grid({ cols: 3, gap: 3 })).not.toMatch(/\bgap-4\b/)
+    })
+  })
+
+  describe('classMap.grid (responsive by default)', () => {
+    // Match an UNPREFIXED tailwind col utility (a bare `grid-cols-N`, not the
+    // `sm:`/`lg:`/`xl:` variant) — the responsive ramp must never emit the
+    // fixed class, and the fixed path must emit only the fixed class.
+    const bare = (n: number) => new RegExp(`(^|\\s)grid-cols-${n}(\\s|$)`)
+    const hasBreakpointCols = /(?:sm|md|lg|xl):grid-cols-\d/
+
+    it('collapses a 4-column grid on mobile (task example)', () => {
+      const r = classMap.grid({ cols: 4 })
+      // 1 col on phones → 2 at sm → 4 at lg. NOT a bare grid-cols-4.
+      expect(r).toMatch(bare(1))
+      expect(r).toContain('sm:grid-cols-2')
+      expect(r).toContain('lg:grid-cols-4')
+      expect(r).not.toMatch(bare(4))
+    })
+
+    it('emits the documented ramp for cols 2..6', () => {
+      expect(classMap.grid({ cols: 2 })).toContain('grid-cols-1 sm:grid-cols-2')
+      expect(classMap.grid({ cols: 3 })).toContain('grid-cols-1 sm:grid-cols-2 lg:grid-cols-3')
+      expect(classMap.grid({ cols: 4 })).toContain('grid-cols-1 sm:grid-cols-2 lg:grid-cols-4')
+      expect(classMap.grid({ cols: 5 })).toContain(
+        'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5',
+      )
+      expect(classMap.grid({ cols: 6 })).toContain(
+        'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6',
+      )
+    })
+
+    it('keeps cols:1 a single, unprefixed column', () => {
+      const r = classMap.grid({ cols: 1 })
+      expect(r).toMatch(bare(1))
+      expect(r).not.toMatch(hasBreakpointCols)
+    })
+
+    it('opt-out: responsive:false emits a FIXED grid at every viewport', () => {
+      for (const cols of [2, 3, 4, 5, 6, 12]) {
+        const r = classMap.grid({ cols, responsive: false })
+        expect(r).toMatch(bare(cols))
+        expect(r).not.toMatch(hasBreakpointCols)
+      }
+    })
+
+    it('keeps the numeric-gap path working alongside the ramp', () => {
+      const r = classMap.grid({ cols: 4, gap: 8 })
+      expect(r).toContain('grid-cols-1')
+      expect(r).toContain('sm:grid-cols-2')
+      expect(r).toContain('lg:grid-cols-4')
+      expect(r).toContain('gap-8')
+      expect(r).not.toMatch(/\bgap-4\b/)
+    })
+
+    it('leaves a col-less grid (BentoGrid style) untouched', () => {
+      const r = classMap.grid({ gap: 'md' })
+      expect(r).toContain('grid')
+      expect(r).not.toMatch(/grid-cols-/)
+    })
+
+    it('exports a ramp whose values are complete, scannable literal classes', () => {
+      // Guards the Tailwind-scanner/safelist contract: no template-built
+      // classes, every token a real utility.
+      expect(gridResponsiveCols[4]).toBe('grid-cols-1 sm:grid-cols-2 lg:grid-cols-4')
+      for (const value of Object.values(gridResponsiveCols)) {
+        for (const token of value.split(' ')) {
+          expect(token).toMatch(/^(?:(?:sm|md|lg|xl):)?grid-cols-(?:[1-6]|12)$/)
+        }
+      }
     })
   })
 

@@ -19,8 +19,9 @@
  * - `ListingCard.onClick` is attached to the WHOLE card — clicks on buttons inside
  *   `<ListingCardActions>` bubble into it. Call `e.stopPropagation()` in every
  *   action handler (as in the example) or the card navigation fires too.
- * - `<ListingGrid columns={n}>` renders a FIXED n-column grid at every viewport
- *   width — it does not collapse on mobile.
+ * - `<ListingGrid columns={n}>` renders a responsive n-column grid (via `cm.grid`):
+ *   1 column on phones, stepping up to `n` at larger breakpoints, so listings
+ *   don't overflow on mobile. Override `className` for a fixed grid.
  * - `overlay` children are rendered inside an absolutely-positioned inset-0 layer;
  *   give interactive overlays their own pointer handling and stopPropagation.
  * - Styling resolves through `getClassMap()`; the shell uses `<Card>` from

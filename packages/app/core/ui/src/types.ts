@@ -1948,6 +1948,15 @@ export interface GridClassOptions {
   cols?: number
   /** Named tokens or Tailwind spacing scale index (e.g. `10` → `gap-10`). */
   gap?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number
+  /**
+   * Mobile-first responsive collapse. When omitted (the default), a grid of
+   * `cols >= 2` starts at a single column on small screens and steps up to
+   * `cols` at larger breakpoints, so cards don't overflow on mobile. Pass
+   * `false` for a FIXED `cols`-column grid at every viewport width. Ignored
+   * for `cols <= 1` (always single-column) and by ClassMap bonds without a
+   * breakpoint system (e.g. NativeWind).
+   */
+  responsive?: boolean
 }
 
 /**

@@ -249,8 +249,9 @@ Peer dependencies:
 - `<KpiCardTrend>` renders only the arrow glyph + number — it does NOT color
   the delta by direction. Pass `className` with a semantic text color (e.g.
   success/error) yourself if you want red/green deltas.
-- `<KpiCardGrid columns={n}>` renders a FIXED n-column grid at every viewport
-  width — it does not collapse on mobile. Wrap it or override `className` if you
-  need responsive behavior.
+- `<KpiCardGrid columns={n}>` renders a responsive n-column grid (via
+  `cm.grid`): it starts at 1 column on phones and steps up to `n` at larger
+  breakpoints, so cards don't overflow on mobile. Override `className` if you
+  need a fixed (non-collapsing) grid.
 - `value`/`title` are ReactNode — format numbers and translate labels yourself
   (`t('...')`).

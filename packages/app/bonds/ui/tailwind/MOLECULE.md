@@ -959,8 +959,34 @@ const formHint: "text-sm text-foreground-secondary mt-1"
 
 Grid layout classes.
 
+These `cols` values are the FIXED (non-responsive) column classes — a grid
+that is `cols`-wide at every viewport width. The ClassMap `grid` resolver
+(see `classMap.ts`) uses these only for the opt-out (`responsive: false`)
+and single-column paths; by DEFAULT it emits the mobile-first ramp in
+{@link gridResponsiveCols} instead.
+
 ```typescript
 const grid: (props?: ({ cols?: 1 | 2 | 3 | 4 | 5 | 6 | 12 | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
+```
+
+#### `gridResponsiveCols`
+
+Mobile-first responsive column ramps for `cm.grid({ cols })`.
+
+Each value is a COMPLETE, literal Tailwind class string (never built by
+template interpolation) so Tailwind's scanner picks it up from this
+package's compiled `dist` (see the `@source` note in `index.ts`), and
+`base.css` safelists the same set. A multi-column grid starts at one
+column on phones and steps up to the requested `cols` at `sm`/`lg`/`xl`,
+so KPI / listing / card grids COLLAPSE on mobile instead of overflowing.
+`cols: 1` stays single-column. The ClassMap `grid` resolver uses this as
+the DEFAULT for `cols >= 2`; pass `responsive: false` there for the fixed
+`grid-cols-N` from the {@link grid} CVA above. Every emitted token is a
+real Tailwind utility (`grid-cols-1..6`, `grid-cols-12`, and the
+`sm:`/`lg:`/`xl:` variants of each).
+
+```typescript
+const gridResponsiveCols: Record<number, string>
 ```
 
 #### `headerFixed`
