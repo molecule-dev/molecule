@@ -87,6 +87,7 @@ export function setupFileUploadFilepond(): void {
 
 Peer dependencies:
 - `@molecule/app-file-upload` >=1.0.0
+- `@molecule/app-i18n` >=1.0.0
 
 ### Runtime Dependencies
 
@@ -100,8 +101,13 @@ JSON when possible (else raw text) and can be reshaped with
 protocol — any endpoint accepting a multipart POST works. Files that fail
 validation are reported via `events.onValidationError` and NEVER enter
 the queue (they won't appear in `getFiles()`). `timeout` defaults to 0
-(no timeout). Error/validation messages are currently untranslated
-English strings — localize in your handlers before display.
+(no timeout). Every error/validation message routes through `t()` under the
+`fileUpload.error.*` namespace with an English `defaultValue`, so English
+works out of the box. There is no dedicated companion locale bond yet —
+to translate these, register `fileUpload.error.*` keys with your i18n
+provider (e.g. `addTranslations('fr', { 'fileUpload.error.timedOut': '…' })`).
+Interpolated messages expose `{{maxSize}}`, `{{minSize}}`, `{{type}}`,
+`{{extension}}`, `{{maxFiles}}`, and `{{status}}`.
 
 ## E2E Tests
 

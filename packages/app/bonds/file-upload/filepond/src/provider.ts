@@ -16,6 +16,7 @@ import type {
   UploadDestination,
   UploadFile,
 } from '@molecule/app-file-upload'
+import { t } from '@molecule/app-i18n'
 
 import type { FilepondConfig } from './types.js'
 
@@ -57,11 +58,23 @@ function validateFile(
   const errors: string[] = []
 
   if (validation.maxSize !== undefined && file.size > validation.maxSize) {
-    errors.push(`File exceeds maximum size of ${validation.maxSize} bytes`)
+    errors.push(
+      t(
+        'fileUpload.error.maxSize',
+        { maxSize: validation.maxSize },
+        { defaultValue: 'File exceeds maximum size of {{maxSize}} bytes' },
+      ),
+    )
   }
 
   if (validation.minSize !== undefined && file.size < validation.minSize) {
-    errors.push(`File is below minimum size of ${validation.minSize} bytes`)
+    errors.push(
+      t(
+        'fileUpload.error.minSize',
+        { minSize: validation.minSize },
+        { defaultValue: 'File is below minimum size of {{minSize}} bytes' },
+      ),
+    )
   }
 
   if (validation.acceptedTypes?.length) {
@@ -72,7 +85,13 @@ function validateFile(
       return file.type === type
     })
     if (!accepted) {
-      errors.push(`File type "${file.type}" is not accepted`)
+      errors.push(
+        t(
+          'fileUpload.error.typeNotAccepted',
+          { type: file.type },
+          { defaultValue: 'File type "{{type}}" is not accepted' },
+        ),
+      )
     }
   }
 
@@ -80,12 +99,24 @@ function validateFile(
     const dotIdx = file.name.lastIndexOf('.')
     const ext = dotIdx >= 0 ? file.name.slice(dotIdx).toLowerCase() : ''
     if (!validation.acceptedExtensions.includes(ext)) {
-      errors.push(`File extension "${ext}" is not accepted`)
+      errors.push(
+        t(
+          'fileUpload.error.extensionNotAccepted',
+          { extension: ext },
+          { defaultValue: 'File extension "{{extension}}" is not accepted' },
+        ),
+      )
     }
   }
 
   if (validation.maxFiles !== undefined && currentFileCount >= validation.maxFiles) {
-    errors.push(`Maximum number of files (${validation.maxFiles}) reached`)
+    errors.push(
+      t(
+        'fileUpload.error.maxFiles',
+        { maxFiles: validation.maxFiles },
+        { defaultValue: 'Maximum number of files ({{maxFiles}}) reached' },
+      ),
+    )
   }
 
   if (validation.custom) {
@@ -191,20 +222,38 @@ function uploadWithXHR(
           resolve(xhr.responseText)
         }
       } else {
-        reject(new Error(`Upload failed with status ${xhr.status}`))
+        reject(
+          new Error(
+            t(
+              'fileUpload.error.uploadFailedStatus',
+              { status: xhr.status },
+              { defaultValue: 'Upload failed with status {{status}}' },
+            ),
+          ),
+        )
       }
     })
 
     xhr.addEventListener('error', () => {
-      reject(new Error('Upload failed due to a network error'))
+      reject(
+        new Error(
+          t('fileUpload.error.networkError', undefined, {
+            defaultValue: 'Upload failed due to a network error',
+          }),
+        ),
+      )
     })
 
     xhr.addEventListener('abort', () => {
-      reject(new Error('Upload cancelled'))
+      reject(
+        new Error(t('fileUpload.error.cancelled', undefined, { defaultValue: 'Upload cancelled' })),
+      )
     })
 
     xhr.addEventListener('timeout', () => {
-      reject(new Error('Upload timed out'))
+      reject(
+        new Error(t('fileUpload.error.timedOut', undefined, { defaultValue: 'Upload timed out' })),
+      )
     })
 
     xhr.open(method, url)
@@ -246,7 +295,15 @@ function uploadWithFetch(
     // Abort with an explicit reason so a timeout rejects with 'Upload timed out'
     // (parity with the XHR path) instead of a generic AbortError — otherwise a
     // caller cannot tell a timeout apart from a cancellation or network abort.
-    timeoutId = setTimeout(() => controller.abort(new Error('Upload timed out')), timeout)
+    timeoutId = setTimeout(
+      () =>
+        controller.abort(
+          new Error(
+            t('fileUpload.error.timedOut', undefined, { defaultValue: 'Upload timed out' }),
+          ),
+        ),
+      timeout,
+    )
   }
 
   const promise = fetch(url, {
@@ -258,7 +315,13 @@ function uploadWithFetch(
     .then(async (res) => {
       if (timeoutId) clearTimeout(timeoutId)
       if (!res.ok) {
-        throw new Error(`Upload failed with status ${res.status}`)
+        throw new Error(
+          t(
+            'fileUpload.error.uploadFailedStatus',
+            { status: res.status },
+            { defaultValue: 'Upload failed with status {{status}}' },
+          ),
+        )
       }
       const text = await res.text()
       try {
@@ -380,8 +443,11 @@ function createUploaderInstance(
    */
   function startUpload(file: UploadFile): void {
     if (!file.source) {
-      Object.assign(file, { status: 'error' as const, error: 'No source file available' })
-      events.onError?.(file, 'No source file available')
+      const noSourceMsg = t('fileUpload.error.noSource', undefined, {
+        defaultValue: 'No source file available',
+      })
+      Object.assign(file, { status: 'error' as const, error: noSourceMsg })
+      events.onError?.(file, noSourceMsg)
       checkAllComplete()
       return
     }
@@ -421,7 +487,9 @@ function createUploaderInstance(
           checkAllComplete()
           return
         }
-        const errorMsg = err.message || 'Upload failed'
+        const errorMsg =
+          err.message ||
+          t('fileUpload.error.uploadFailed', undefined, { defaultValue: 'Upload failed' })
         Object.assign(file, { status: 'error' as const, error: errorMsg })
         events.onError?.(file, errorMsg)
         processQueue()

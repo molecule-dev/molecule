@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { FileUploadOptions, UploadFile } from '@molecule/app-file-upload'
+import { addTranslations, setLocale } from '@molecule/app-i18n'
 
 import { createFilepondProvider, provider } from '../provider.js'
 
@@ -689,6 +690,128 @@ describe('@molecule/app-file-upload-filepond', () => {
       expect(onAllComplete).not.toHaveBeenCalled()
 
       vi.unstubAllGlobals()
+    })
+  })
+
+  describe('i18n error messages', () => {
+    // Every error/validation string flows through t() under the fileUpload.error.*
+    // namespace. With no i18n bond registered these tests exercise the English
+    // defaultValue path; the override tests register real translations and assert
+    // the SAME surfaces re-render in the new locale (proving the strings are not
+    // hardcoded English).
+    afterEach(async () => {
+      // Reset back to English so a registered override can't bleed into other suites.
+      await setLocale('en')
+    })
+
+    it('renders validation errors via t() English defaultValues (with interpolation)', () => {
+      const onValidationError = vi.fn()
+      const uploader = provider.createUploader(
+        createOptions({
+          validation: { maxSize: 5, acceptedTypes: ['image/png'], maxFiles: 0 },
+          events: { onValidationError },
+        }),
+      )
+
+      uploader.addFiles([createFile('big.txt', 'this is way too large')])
+
+      const errors = onValidationError.mock.calls[0][1] as string[]
+      // maxSize interpolates the byte count into the English default.
+      expect(errors).toContain('File exceeds maximum size of 5 bytes')
+      // type rejection interpolates the MIME type.
+      expect(errors).toContain('File type "text/plain" is not accepted')
+      // maxFiles interpolates the limit.
+      expect(errors).toContain('Maximum number of files (0) reached')
+    })
+
+    it('a locale override changes the rendered validation error', async () => {
+      // Register a non-English locale for the same key, then switch to it: the
+      // rendered error must come from the translation, not the hardcoded default.
+      addTranslations('xx', {
+        'fileUpload.error.typeNotAccepted': 'Type {{type}} refusé',
+      })
+      await setLocale('xx')
+
+      const onValidationError = vi.fn()
+      const uploader = provider.createUploader(
+        createOptions({
+          validation: { acceptedTypes: ['image/png'] },
+          events: { onValidationError },
+        }),
+      )
+
+      uploader.addFiles([createFile('doc.txt')])
+
+      const errors = onValidationError.mock.calls[0][1] as string[]
+      expect(errors).toContain('Type text/plain refusé')
+      expect(errors).not.toContain('File type "text/plain" is not accepted')
+    })
+
+    it('renders the HTTP-failure error via t() with the status interpolated', async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 503,
+        text: () => Promise.resolve('Service Unavailable'),
+      })
+      vi.stubGlobal('fetch', mockFetch)
+
+      const onError = vi.fn()
+      const uploader = provider.createUploader(createOptions({ events: { onError } }))
+      uploader.addFiles([createFile('test.txt')])
+      uploader.upload()
+
+      await vi.waitFor(() => expect(onError).toHaveBeenCalled())
+      expect(uploader.getFiles()[0].error).toBe('Upload failed with status 503')
+
+      vi.unstubAllGlobals()
+    })
+
+    it('a locale override changes the rendered HTTP-failure error', async () => {
+      addTranslations('xx', {
+        'fileUpload.error.uploadFailedStatus': 'Échec du téléversement ({{status}})',
+      })
+      await setLocale('xx')
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        text: () => Promise.resolve('boom'),
+      })
+      vi.stubGlobal('fetch', mockFetch)
+
+      const onError = vi.fn()
+      const uploader = provider.createUploader(createOptions({ events: { onError } }))
+      uploader.addFiles([createFile('test.txt')])
+      uploader.upload()
+
+      await vi.waitFor(() => expect(onError).toHaveBeenCalled())
+      expect(uploader.getFiles()[0].error).toBe('Échec du téléversement (500)')
+
+      vi.unstubAllGlobals()
+    })
+
+    it('renders the missing-source error via t() default and honors an override', async () => {
+      // English default.
+      const onError = vi.fn()
+      const uploader = provider.createUploader(createOptions({ events: { onError } }))
+      const [added] = uploader.addFiles([createFile('test.txt')])
+      // Strip the source so startUpload() takes the no-source branch.
+      const tracked = uploader.getFile(added.id) as UploadFile
+      tracked.source = undefined
+      uploader.upload()
+      expect(tracked.error).toBe('No source file available')
+      expect(onError).toHaveBeenCalledWith(tracked, 'No source file available')
+
+      // Locale override.
+      addTranslations('xx', { 'fileUpload.error.noSource': 'Aucun fichier source' })
+      await setLocale('xx')
+      const onError2 = vi.fn()
+      const uploader2 = provider.createUploader(createOptions({ events: { onError: onError2 } }))
+      const [added2] = uploader2.addFiles([createFile('test2.txt')])
+      const tracked2 = uploader2.getFile(added2.id) as UploadFile
+      tracked2.source = undefined
+      uploader2.upload()
+      expect(tracked2.error).toBe('Aucun fichier source')
     })
   })
 })
