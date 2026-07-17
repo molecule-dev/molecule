@@ -1,3 +1,9 @@
+import {
+  EncodedFileOutput,
+  RoomCompositeEgressRequest,
+  RoomEgress,
+  S3Upload,
+} from 'livekit-server-sdk'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { VideoRoomsProvider } from '@molecule/api-video-rooms'
@@ -266,7 +272,6 @@ describe('@molecule/api-video-rooms-livekit', () => {
         name: 'class-101',
         maxParticipants: 30,
         privacy: 'private',
-        recording: true,
         expiresAt,
       })
 
@@ -276,12 +281,16 @@ describe('@molecule/api-video-rooms-livekit', () => {
       expect(args.name).toBe('class-101')
       expect(args.maxParticipants).toBe(30)
       expect(typeof args.emptyTimeout).toBe('number')
+      // No recording requested → no auto-egress attached.
+      expect(args.egress).toBeUndefined()
 
       expect(result.name).toBe('class-101')
       expect(result.url).toBe(HOST.replace('https://', 'wss://'))
       expect(result.maxParticipants).toBe(30)
+      // LiveKit is always token-gated → the true privacy state is `private`.
       expect(result.privacy).toBe('private')
-      expect(result.recording).toBe(true)
+      // Recording was not requested → not reported as enabled.
+      expect(result.recording).toBeUndefined()
       expect(result.expiresAt).toBe(expiresAt)
       expect(typeof result.token).toBe('string')
       expect(result.token).toMatch(/^fake\.jwt\.for\./)
@@ -293,6 +302,88 @@ describe('@molecule/api-video-rooms-livekit', () => {
       expect(grant.roomAdmin).toBe(true)
       expect(grant.canPublish).toBe(true)
       expect(grant.canSubscribe).toBe(true)
+    })
+
+    it('reports privacy as private even when privacy is omitted (all rooms are token-gated)', async () => {
+      roomStub.queueCreateRoom({ name: 'class-101' })
+      const result = await provider.createRoom({ name: 'class-101' })
+      expect(result.privacy).toBe('private')
+    })
+
+    it('throws when a public room is requested and never creates a room', async () => {
+      await expect(provider.createRoom({ name: 'class-101', privacy: 'public' })).rejects.toThrow(
+        /does not support public/,
+      )
+      // Fails before touching the SDK — no orphan room is created.
+      expect(roomStub.roomCalls).toHaveLength(0)
+    })
+
+    it('attaches the configured recordingEgress to the room and reports recording enabled', async () => {
+      const egressSpec = new RoomEgress({
+        room: new RoomCompositeEgressRequest({
+          roomName: 'class-101',
+          output: {
+            case: 'file',
+            value: new EncodedFileOutput({
+              filepath: 'recordings/class-101.mp4',
+              output: { case: 's3', value: new S3Upload({ bucket: 'rec-bucket' }) },
+            }),
+          },
+        }),
+      })
+      const recordingProvider = buildProvider({ recordingEgress: egressSpec })
+
+      // The freshly created room has no active egress yet (no participants).
+      roomStub.queueCreateRoom({ name: 'class-101', activeRecording: false })
+
+      const result = await recordingProvider.createRoom({ name: 'class-101', recording: true })
+
+      const args = roomStub.roomCalls[0]!.args as { egress?: RoomEgress }
+      // The real SDK auto-egress spec reaches RoomServiceClient.createRoom.
+      expect(args.egress).toBe(egressSpec)
+      // Recording is enabled for the room even before it becomes active.
+      expect(result.recording).toBe(true)
+    })
+
+    it('passes the room name to a recordingEgress factory and forwards its result', async () => {
+      const built: Array<{ roomName: string; egress: RoomEgress }> = []
+      const recordingProvider = buildProvider({
+        recordingEgress: (roomName: string) => {
+          const egress = new RoomEgress({
+            room: new RoomCompositeEgressRequest({ roomName }),
+          })
+          built.push({ roomName, egress })
+          return egress
+        },
+      })
+
+      roomStub.queueCreateRoom({ name: 'standup' })
+      await recordingProvider.createRoom({ name: 'standup', recording: true })
+
+      expect(built).toHaveLength(1)
+      expect(built[0]!.roomName).toBe('standup')
+      const args = roomStub.roomCalls[0]!.args as { egress?: RoomEgress }
+      expect(args.egress).toBe(built[0]!.egress)
+    })
+
+    it('throws when recording is requested but no recordingEgress is configured', async () => {
+      await expect(provider.createRoom({ name: 'class-101', recording: true })).rejects.toThrow(
+        /no egress output is configured/,
+      )
+      // Fails before touching the SDK — no room is created without recording.
+      expect(roomStub.roomCalls).toHaveLength(0)
+    })
+
+    it('does not attach egress or report recording when recording is false', async () => {
+      const egressSpec = new RoomEgress({})
+      const recordingProvider = buildProvider({ recordingEgress: egressSpec })
+      roomStub.queueCreateRoom({ name: 'class-101' })
+
+      const result = await recordingProvider.createRoom({ name: 'class-101', recording: false })
+
+      const args = roomStub.roomCalls[0]!.args as { egress?: RoomEgress }
+      expect(args.egress).toBeUndefined()
+      expect(result.recording).toBeUndefined()
     })
 
     it('auto-generates a name when none is provided', async () => {

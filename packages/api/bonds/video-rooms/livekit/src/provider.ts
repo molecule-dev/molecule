@@ -18,7 +18,13 @@
 // runtime registry is populated even when provider.js is imported directly
 // (not through the package barrel).
 import './secrets.js'
-import { AccessToken, EgressClient, EgressStatus, RoomServiceClient } from 'livekit-server-sdk'
+import {
+  AccessToken,
+  EgressClient,
+  EgressStatus,
+  type RoomEgress,
+  RoomServiceClient,
+} from 'livekit-server-sdk'
 
 import type {
   CreateMeetingTokenOptions,
@@ -265,6 +271,21 @@ export function createProvider(config: LiveKitVideoRoomsConfig = {}): VideoRooms
     config.egressClient ??
     (new EgressClient(httpUrl, resolvedApiKey, resolvedApiSecret) as unknown as LiveKitEgressClient)
 
+  const recordingEgress = config.recordingEgress
+
+  /**
+   * Resolves the configured auto-egress specification for a room, if any.
+   * Returns the fixed `RoomEgress`, the result of the factory, or
+   * `undefined` when no recording output has been configured on this bond.
+   *
+   * @param roomName - The room the egress would record.
+   * @returns The `RoomEgress` to attach, or `undefined` when unconfigured.
+   */
+  function resolveRecordingEgress(roomName: string): RoomEgress | undefined {
+    if (recordingEgress === undefined) return undefined
+    return typeof recordingEgress === 'function' ? recordingEgress(roomName) : recordingEgress
+  }
+
   /**
    * Wraps a thrown error in a provider-prefixed `Error` whose message is
    * scrubbed of the LiveKit API secret.
@@ -321,12 +342,26 @@ export function createProvider(config: LiveKitVideoRoomsConfig = {}): VideoRooms
 
   const provider: VideoRoomsProvider = {
     async createRoom(options: CreateRoomOptions): Promise<RoomCreated> {
+      // Privacy: LiveKit is *always* token-gated — every join needs a token
+      // from createMeetingToken(), and Room.url is the server's wss://
+      // endpoint, not a click-to-join link. There is no URL-joinable /
+      // token-free mode, so a `public` room cannot be honoured. Fail loudly
+      // at creation rather than return a room falsely labelled `public`.
+      if (options.privacy === 'public') {
+        throw new Error(
+          'LiveKit does not support public (URL-joinable) rooms: every join ' +
+            'requires a meeting token from createMeetingToken(). Use ' +
+            "privacy: 'private' (the default enforced by this bond) or omit it.",
+        )
+      }
+
       const name = options.name ?? `room-${Date.now()}-${Math.floor(Math.random() * 1e6)}`
 
       const createOptions: {
         name: string
         emptyTimeout?: number
         maxParticipants?: number
+        egress?: RoomEgress
       } = { name }
 
       if (options.maxParticipants !== undefined) {
@@ -338,6 +373,27 @@ export function createProvider(config: LiveKitVideoRoomsConfig = {}): VideoRooms
         createOptions.emptyTimeout = ttl
       }
 
+      // Recording: LiveKit records via Egress, which requires a storage
+      // output that the core `recording: boolean` flag does not carry. When
+      // recording is requested we attach the operator-configured auto-egress
+      // spec so LiveKit really starts a room-composite egress once the room
+      // is active; without it we throw rather than pretend recording is on.
+      let recordingEnabled = false
+      if (options.recording === true) {
+        const egressSpec = resolveRecordingEgress(name)
+        if (egressSpec === undefined) {
+          throw new Error(
+            'LiveKit recording was requested (recording: true) but no egress ' +
+              'output is configured. Set config.recordingEgress to a LiveKit ' +
+              'RoomEgress with a storage destination (S3 / GCP / Azure / AliOSS ' +
+              'file output, or a stream/segment output). LiveKit cannot record ' +
+              'without a storage output.',
+          )
+        }
+        createOptions.egress = egressSpec
+        recordingEnabled = true
+      }
+
       let raw: LiveKitRoom
       try {
         raw = await roomService.createRoom(createOptions)
@@ -346,14 +402,15 @@ export function createProvider(config: LiveKitVideoRoomsConfig = {}): VideoRooms
       }
 
       const room = mapRoom(raw, wsUrl)
-      if (options.privacy !== undefined) {
-        room.privacy = options.privacy
-      }
+      // Every LiveKit room is token-gated — report the true privacy state.
+      room.privacy = 'private'
       if (options.expiresAt !== undefined) {
         room.expiresAt = options.expiresAt
       }
-      if (options.recording !== undefined && room.recording === undefined) {
-        room.recording = options.recording
+      // Recording is enabled for the room even before the first participant
+      // makes the egress active, so report it as enabled once wired.
+      if (recordingEnabled) {
+        room.recording = true
       }
 
       const result: RoomCreated = { ...room }

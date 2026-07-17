@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { AccessToken as AccessTokenClass } from 'livekit-server-sdk'
+import type { AccessToken as AccessTokenClass, RoomEgress } from 'livekit-server-sdk'
 
 /**
  * Constructor for `livekit-server-sdk`'s `AccessToken` class. Exposed so
@@ -30,6 +30,12 @@ export interface LiveKitRoomServiceClient {
     departureTimeout?: number
     maxParticipants?: number
     metadata?: string
+    /**
+     * Auto-egress specification. When set, LiveKit automatically starts a
+     * room-composite (or participant/track) egress once the room becomes
+     * active — this is how the bond wires `CreateRoomOptions.recording`.
+     */
+    egress?: RoomEgress
   }): Promise<LiveKitRoom>
 
   /** Lists active rooms, optionally filtered by name. */
@@ -134,6 +140,23 @@ export interface LiveKitVideoRoomsConfig {
    * `21600` (6 hours), matching the `livekit-server-sdk` default.
    */
   defaultTokenTtl?: number
+
+  /**
+   * Auto-egress specification used to satisfy `createRoom({ recording:
+   * true })`. LiveKit records via Egress, which **requires** a storage
+   * destination (S3 / GCP / Azure / AliOSS via `EncodedFileOutput`, or a
+   * stream/segment output) — a destination the core `recording: boolean`
+   * flag does not carry. Supply the LiveKit `RoomEgress` (with your
+   * storage output) here, either as a fixed object or a factory that
+   * receives the room name and returns a per-room `RoomEgress`. When it is
+   * set, `createRoom({ recording: true })` attaches it to the room so
+   * LiveKit auto-starts a room-composite egress once the room is active.
+   *
+   * When this is **not** configured, `createRoom({ recording: true })`
+   * throws rather than silently returning a room with no recording — LiveKit
+   * cannot record without a storage output.
+   */
+  recordingEgress?: RoomEgress | ((roomName: string) => RoomEgress)
 
   /**
    * Optional pre-built `RoomServiceClient` (or compatible stub). Tests
