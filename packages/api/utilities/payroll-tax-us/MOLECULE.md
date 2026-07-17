@@ -14,8 +14,10 @@ representative states (CA, NY, TX, FL, IL, MA).
 Apps that need additional states can plug them in via
 {@link registerStateCalculator} without forking the package.
 
-No I/O, no clock reads, no DB — every result is a pure function
-of its input. All amounts are integer cents.
+No DB, no network — every result is a function of its input, with
+one exception: when `year` is omitted the current calendar year is read
+(`new Date()`) to select the tax tables. Pass an explicit `year` for a
+fully deterministic result. All amounts are integer cents.
 
 Used by `payroll-manager` and any other app that runs US payroll.
 
@@ -86,7 +88,11 @@ interface PayrollTaxInput {
    */
   preTax?: PreTaxDeductions
   /**
-   * Tax year for bracket / wage-cap lookup. Defaults to 2025.
+   * Tax year for bracket / wage-cap lookup. Omit to use the current
+   * calendar year. Only years in `SUPPORTED_TAX_YEARS` have tables — an
+   * omitted year whose current calendar year is unsupported, or an
+   * unsupported explicit year, THROWS rather than silently using stale
+   * tables (see {@link resolveTaxYear}).
    */
   year?: TaxYear
 }
@@ -191,12 +197,12 @@ type StateCalculator = (input: PayrollTaxInput) => number
 
 #### `TaxYear`
 
-Tax-year selector. Brackets, wage caps, and standard deductions
-are pinned per year; future years are added by extending the
-tables in `federal.ts` / `fica.ts` / `state.ts`.
+Tax-year selector. Brackets, wage caps, and standard deductions are
+pinned per year; the union is derived from {@link SUPPORTED_TAX_YEARS}
+so it can never drift from the shipped tables.
 
 ```typescript
-type TaxYear = 2024 | 2025
+type TaxYear = (typeof SUPPORTED_TAX_YEARS)[number]
 ```
 
 ### Functions
@@ -247,13 +253,13 @@ Compute the federal income-tax withholding for a single paycheck
 using the IRS Pub 15-T annualised wage-bracket method.
 
 ```typescript
-function calculateFederal(taxableCents: number, filingStatus: FilingStatus, period: PayPeriod, year?: TaxYear): number
+function calculateFederal(taxableCents: number, filingStatus: FilingStatus, period: PayPeriod, year?: 2024 | 2025): number
 ```
 
 - `taxableCents` — Per-paycheck federal-taxable wages (gross minus pre-tax deductions).
 - `filingStatus` — Federal filing status.
 - `period` — Pay frequency.
-- `year` — Tax year (defaults to 2025).
+- `year` — Tax year. Omit to use the current calendar year; an
 
 **Returns:** Federal withholding for this paycheck in integer cents.
 
@@ -290,12 +296,12 @@ function calculatePayrollTax(input: PayrollTaxInput): PayrollTaxResult
 Compute the Social Security tax withholding for a single paycheck.
 
 ```typescript
-function calculateSocialSecurity(ficaWageCents: number, ytdCents: number, year?: TaxYear): number
+function calculateSocialSecurity(ficaWageCents: number, ytdCents: number, year?: 2024 | 2025): number
 ```
 
 - `ficaWageCents` — FICA-taxable wages for this paycheck (post-Section-125, but pre-401k).
 - `ytdCents` — Year-to-date FICA-eligible wages already paid (pre this paycheck).
-- `year` — Tax year selector (defaults to 2025).
+- `year` — Tax year selector. Omit to use the current calendar year; an
 
 **Returns:** Social Security tax withheld this period, in integer cents.
 
@@ -326,6 +332,18 @@ function getStateCalculator(state: string): StateCalculator | undefined
 
 **Returns:** The registered calculator, or `undefined`.
 
+#### `isSupportedTaxYear(year)`
+
+Runtime type guard: does this package ship tables for `year`?
+
+```typescript
+function isSupportedTaxYear(year: number): boolean
+```
+
+- `year` — Any calendar year.
+
+**Returns:** `true` (narrowing to {@link TaxYear}) when the year is supported.
+
 #### `registerStateCalculator(state, fn)`
 
 Register (or override) a state calculator. Use this from app code
@@ -338,6 +356,28 @@ function registerStateCalculator(state: string, fn: StateCalculator): void
 
 - `state` — 2-letter state code (case-insensitive — stored uppercased).
 - `fn` — Pure calculator function returning per-period withholding in cents.
+
+#### `resolveTaxYear(year)`
+
+Resolve the tax year to use for a calculation.
+
+- **Omitted** (`undefined`): the CURRENT calendar year is detected
+  (`new Date().getFullYear()`) and used — never a hardcoded past year.
+- **Unsupported** (an omitted year in a calendar year with no tables, or
+  an explicitly-passed unsupported year): THROWS a clear error naming the
+  supported years, rather than silently computing against the wrong
+  year's tables.
+
+This is the guarantee that a caller can never silently get numbers
+computed from a different year than they intended.
+
+```typescript
+function resolveTaxYear(year?: number): 2024 | 2025
+```
+
+- `year` — Explicit tax year, or `undefined` to use the current year.
+
+**Returns:** A supported {@link TaxYear}.
 
 #### `stateTaxableWageCents(input)`
 
@@ -390,7 +430,7 @@ Sourced from IRS Pub 15-T (2024 and 2025), "Annual Payroll Period —
 Standard withholding" tables for Form W-4 from 2020 or later.
 
 ```typescript
-const FEDERAL_BRACKETS: Record<TaxYear, Record<FilingStatus, TaxBracket[]>>
+const FEDERAL_BRACKETS: Record<2024 | 2025, Record<FilingStatus, TaxBracket[]>>
 ```
 
 #### `FEDERAL_STANDARD_DEDUCTION`
@@ -401,7 +441,7 @@ about pre-deduction taxable wages — but {@link calculateFederal}
 does NOT subtract it, since the brackets already account for it.
 
 ```typescript
-const FEDERAL_STANDARD_DEDUCTION: Record<TaxYear, Record<FilingStatus, number>>
+const FEDERAL_STANDARD_DEDUCTION: Record<2024 | 2025, Record<FilingStatus, number>>
 ```
 
 #### `PERIODS_PER_YEAR`
@@ -413,16 +453,34 @@ The "annual" period is its own identity (no scaling).
 const PERIODS_PER_YEAR: Record<PayPeriod, number>
 ```
 
+#### `SUPPORTED_TAX_YEARS`
+
+The tax years this package ships tables for, in ascending order.
+
+SINGLE SOURCE OF TRUTH: {@link TaxYear} is derived from this and
+{@link resolveTaxYear} / {@link isSupportedTaxYear} validate against it.
+To add 2026, append `2026` here and add the matching rows to
+`FEDERAL_BRACKETS` / `FEDERAL_STANDARD_DEDUCTION` (`federal.ts`),
+`SS_WAGE_BASE_CENTS` (`fica.ts`), and any year-specific state schedules
+(`state.ts`).
+
+```typescript
+const SUPPORTED_TAX_YEARS: readonly [2024, 2025]
+```
+
 ## Injection Notes
 
-Supported tax years: 2024 and 2025 only (the `TaxYear` union). `year`
-DEFAULTS to 2025 — there is no current-date detection, so from calendar
-2026 onward an omitted `year` silently computes with 2025 tables. Passing
-an unsupported year is a compile-time error; there is no runtime fallback.
-Brackets are pinned per tax year: each January's IRS / state publication
-update requires a package release that adds the new year to `federal.ts`,
-`fica.ts`, and `state.ts` — check that the year you need exists before
-shipping payroll math.
+Supported tax years: 2024 and 2025 only ({@link SUPPORTED_TAX_YEARS}, the
+single source of truth the `TaxYear` union is derived from). When `year`
+is OMITTED the current calendar year is detected and used — it is NEVER
+silently defaulted to a hardcoded past year. If the resolved year has no
+tables (an omitted `year` in calendar 2026+, or an unsupported explicit
+year), the calculator THROWS a clear error naming the supported years
+(via {@link resolveTaxYear}) instead of returning numbers computed from
+the wrong year. Brackets are pinned per tax year: each January's IRS /
+state publication update requires a package release that appends the new
+year to {@link SUPPORTED_TAX_YEARS} and adds the matching rows in
+`federal.ts`, `fica.ts`, and `state.ts`.
 
 Scope: withholding ESTIMATES via the IRS Pub 15-T percentage method plus
 simplified state schedules (CA and NY progressive brackets; IL and MA

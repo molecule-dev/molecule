@@ -13,8 +13,10 @@
  * Apps that need additional states can plug them in via
  * {@link registerStateCalculator} without forking the package.
  *
- * No I/O, no clock reads, no DB — every result is a pure function
- * of its input. All amounts are integer cents.
+ * No DB, no network — every result is a function of its input, with
+ * one exception: when `year` is omitted the current calendar year is read
+ * (`new Date()`) to select the tax tables. Pass an explicit `year` for a
+ * fully deterministic result. All amounts are integer cents.
  *
  * Used by `payroll-manager` and any other app that runs US payroll.
  *
@@ -44,14 +46,17 @@
  * ```
  *
  * @remarks
- * Supported tax years: 2024 and 2025 only (the `TaxYear` union). `year`
- * DEFAULTS to 2025 — there is no current-date detection, so from calendar
- * 2026 onward an omitted `year` silently computes with 2025 tables. Passing
- * an unsupported year is a compile-time error; there is no runtime fallback.
- * Brackets are pinned per tax year: each January's IRS / state publication
- * update requires a package release that adds the new year to `federal.ts`,
- * `fica.ts`, and `state.ts` — check that the year you need exists before
- * shipping payroll math.
+ * Supported tax years: 2024 and 2025 only ({@link SUPPORTED_TAX_YEARS}, the
+ * single source of truth the `TaxYear` union is derived from). When `year`
+ * is OMITTED the current calendar year is detected and used — it is NEVER
+ * silently defaulted to a hardcoded past year. If the resolved year has no
+ * tables (an omitted `year` in calendar 2026+, or an unsupported explicit
+ * year), the calculator THROWS a clear error naming the supported years
+ * (via {@link resolveTaxYear}) instead of returning numbers computed from
+ * the wrong year. Brackets are pinned per tax year: each January's IRS /
+ * state publication update requires a package release that appends the new
+ * year to {@link SUPPORTED_TAX_YEARS} and adds the matching rows in
+ * `federal.ts`, `fica.ts`, and `state.ts`.
  *
  * Scope: withholding ESTIMATES via the IRS Pub 15-T percentage method plus
  * simplified state schedules (CA and NY progressive brackets; IL and MA
@@ -67,4 +72,5 @@ export * from './calculate.js'
 export * from './federal.js'
 export * from './fica.js'
 export * from './state.js'
+export * from './tax-year.js'
 export * from './types.js'

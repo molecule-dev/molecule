@@ -1,12 +1,16 @@
 /**
  * Type definitions for the US payroll-tax calculator.
  *
- * All amounts are integer cents (no floating-point drift). All
- * functions in this package are pure: given an input record, they
- * return a deterministic breakdown — no I/O, no clock reads.
+ * All amounts are integer cents (no floating-point drift). Every result
+ * is a deterministic function of its input, with a single exception: when
+ * `year` is omitted, the current calendar year is read (`new Date()`) to
+ * select the tax tables — pass an explicit `year` for a fully deterministic
+ * result. No DB, no network.
  *
  * @module
  */
+
+import type { TaxYear } from './tax-year.js'
 
 /**
  * Federal filing-status codes used for income-tax withholding lookups.
@@ -24,13 +28,6 @@ export type FilingStatus = 'single' | 'married-jointly' | 'married-separately' |
  * tax back to a per-paycheck withholding amount.
  */
 export type PayPeriod = 'weekly' | 'biweekly' | 'semimonthly' | 'monthly' | 'annual'
-
-/**
- * Tax-year selector. Brackets, wage caps, and standard deductions
- * are pinned per year; future years are added by extending the
- * tables in `federal.ts` / `fica.ts` / `state.ts`.
- */
-export type TaxYear = 2024 | 2025
 
 /**
  * Pre-tax deduction categories that reduce wages BEFORE federal
@@ -76,7 +73,11 @@ export interface PayrollTaxInput {
    */
   preTax?: PreTaxDeductions
   /**
-   * Tax year for bracket / wage-cap lookup. Defaults to 2025.
+   * Tax year for bracket / wage-cap lookup. Omit to use the current
+   * calendar year. Only years in `SUPPORTED_TAX_YEARS` have tables — an
+   * omitted year whose current calendar year is unsupported, or an
+   * unsupported explicit year, THROWS rather than silently using stale
+   * tables (see {@link resolveTaxYear}).
    */
   year?: TaxYear
 }

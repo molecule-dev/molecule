@@ -14,7 +14,8 @@
  * @module
  */
 
-import type { FilingStatus, TaxYear } from './types.js'
+import { resolveTaxYear, type TaxYear } from './tax-year.js'
+import type { FilingStatus } from './types.js'
 
 /** Annual Social-Security wage base by year (integer cents). */
 const SS_WAGE_BASE_CENTS: Record<TaxYear, number> = {
@@ -55,15 +56,17 @@ export const ADDITIONAL_MEDICARE_FILING_THRESHOLD_CENTS: Record<FilingStatus, nu
  *
  * @param ficaWageCents - FICA-taxable wages for this paycheck (post-Section-125, but pre-401k).
  * @param ytdCents - Year-to-date FICA-eligible wages already paid (pre this paycheck).
- * @param year - Tax year selector (defaults to 2025).
+ * @param year - Tax year selector. Omit to use the current calendar year; an
+ *   unsupported year (omitted or explicit) throws — see {@link resolveTaxYear}.
  * @returns Social Security tax withheld this period, in integer cents.
+ * @throws {Error} When the resolved year has no Social-Security wage base.
  */
 export function calculateSocialSecurity(
   ficaWageCents: number,
   ytdCents: number,
-  year: TaxYear = 2025,
+  year?: TaxYear,
 ): number {
-  const cap = SS_WAGE_BASE_CENTS[year]
+  const cap = SS_WAGE_BASE_CENTS[resolveTaxYear(year)]
   if (ytdCents >= cap) return 0
   const remaining = cap - ytdCents
   const taxable = Math.min(ficaWageCents, remaining)

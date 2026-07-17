@@ -9,6 +9,7 @@
 import { calculateFederal } from './federal.js'
 import { calculateAdditionalMedicare, calculateMedicare, calculateSocialSecurity } from './fica.js'
 import { calculateState } from './state.js'
+import { resolveTaxYear } from './tax-year.js'
 import type { PayrollTaxInput, PayrollTaxResult } from './types.js'
 
 /**
@@ -20,6 +21,9 @@ import type { PayrollTaxInput, PayrollTaxResult } from './types.js'
  *
  * @param input - Per-paycheck input record. See {@link PayrollTaxInput}.
  * @returns Per-paycheck breakdown including a `netCents` take-home figure.
+ * @throws {Error} When `input.year` (or, when omitted, the current calendar
+ *   year) has no tax tables — see {@link resolveTaxYear}. Never silently
+ *   falls back to a stale year.
  *
  * @example
  * ```ts
@@ -37,7 +41,7 @@ import type { PayrollTaxInput, PayrollTaxResult } from './types.js'
  * ```
  */
 export function calculatePayrollTax(input: PayrollTaxInput): PayrollTaxResult {
-  const year = input.year ?? 2025
+  const year = resolveTaxYear(input.year)
   const pre = input.preTax ?? {}
   const retirement401k = Math.max(0, pre.retirement401k ?? 0)
   const healthPremium = Math.max(0, pre.healthPremium ?? 0)

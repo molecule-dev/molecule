@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { calculatePayrollTax } from '../calculate.js'
+import type { TaxYear } from '../tax-year.js'
 import type { PayrollTaxInput } from '../types.js'
 
 const baseInput: PayrollTaxInput = {
@@ -145,6 +146,10 @@ describe('high-income behavior', () => {
 })
 
 describe('tax-year selector', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('different years produce different federal numbers (brackets shift)', () => {
     const a = calculatePayrollTax({ ...baseInput, year: 2024 })
     const b = calculatePayrollTax({ ...baseInput, year: 2025 })
@@ -152,7 +157,18 @@ describe('tax-year selector', () => {
     expect(b.federalCents).toBeLessThan(a.federalCents)
   })
 
-  it('defaults to 2025 when year omitted', () => {
+  it('2024 and 2025 both compute a full, positive federal withholding', () => {
+    for (const year of [2024, 2025] as const) {
+      const r = calculatePayrollTax({ ...baseInput, year })
+      expect(Number.isFinite(r.federalCents)).toBe(true)
+      expect(r.federalCents).toBeGreaterThan(0)
+    }
+  })
+
+  it('omitting year uses the CURRENT year and works when it is supported', () => {
+    // Freeze the clock inside the supported window.
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2025-06-15T00:00:00Z'))
     const omitted = calculatePayrollTax({
       grossCents: baseInput.grossCents,
       filingStatus: baseInput.filingStatus,
@@ -161,5 +177,26 @@ describe('tax-year selector', () => {
     })
     const explicit = calculatePayrollTax({ ...baseInput, year: 2025 })
     expect(omitted.federalCents).toBe(explicit.federalCents)
+  })
+
+  it('omitting year THROWS (naming supported years) when the current year has no tables', () => {
+    // A caller in 2026+ must NOT silently get stale 2025 tables.
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-06-15T00:00:00Z'))
+    expect(() =>
+      calculatePayrollTax({
+        grossCents: baseInput.grossCents,
+        filingStatus: baseInput.filingStatus,
+        payPeriod: baseInput.payPeriod,
+        ytdCents: baseInput.ytdCents,
+      }),
+    ).toThrow(/no tax tables for 2026; supported: 2024, 2025/)
+  })
+
+  it('an explicitly-passed unsupported year THROWS naming the supported years', () => {
+    expect(() =>
+      // Cast: simulate an untyped JS caller passing a year with no tables.
+      calculatePayrollTax({ ...baseInput, year: 2099 as unknown as TaxYear }),
+    ).toThrow(/no tax tables for 2099; supported: 2024, 2025/)
   })
 })

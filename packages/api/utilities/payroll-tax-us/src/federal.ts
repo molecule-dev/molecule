@@ -6,16 +6,18 @@
  * are zero. This covers the overwhelming majority of employees
  * and is sufficient for payroll-manager / scaffolded payroll apps.
  *
- * Tables are pinned to IRS Pub 15-T 2024 and 2025. To extend,
- * add a new year to {@link FEDERAL_BRACKETS} and bump
- * {@link TaxYear} in `types.ts`.
+ * Tables are pinned to IRS Pub 15-T 2024 and 2025. To extend, add a new
+ * year to {@link SUPPORTED_TAX_YEARS} (`tax-year.ts`) and the matching rows
+ * to {@link FEDERAL_BRACKETS} / {@link FEDERAL_STANDARD_DEDUCTION}.
  *
- * All amounts are integer cents. Pure functions.
+ * All amounts are integer cents. Deterministic given a `year`; when `year`
+ * is omitted the current calendar year is detected (see {@link resolveTaxYear}).
  *
  * @module
  */
 
-import type { FilingStatus, PayPeriod, TaxBracket, TaxYear } from './types.js'
+import { resolveTaxYear, type TaxYear } from './tax-year.js'
+import type { FilingStatus, PayPeriod, TaxBracket } from './types.js'
 
 /**
  * Pay-period multipliers used to annualise per-paycheck wages.
@@ -189,18 +191,21 @@ export function applyBrackets(taxableAnnualCents: number, brackets: TaxBracket[]
  * @param taxableCents - Per-paycheck federal-taxable wages (gross minus pre-tax deductions).
  * @param filingStatus - Federal filing status.
  * @param period - Pay frequency.
- * @param year - Tax year (defaults to 2025).
+ * @param year - Tax year. Omit to use the current calendar year; an
+ *   unsupported year (omitted or explicit) throws — see {@link resolveTaxYear}.
  * @returns Federal withholding for this paycheck in integer cents.
+ * @throws {Error} When the resolved year has no bracket tables.
  */
 export function calculateFederal(
   taxableCents: number,
   filingStatus: FilingStatus,
   period: PayPeriod,
-  year: TaxYear = 2025,
+  year?: TaxYear,
 ): number {
+  const resolvedYear = resolveTaxYear(year)
   if (taxableCents <= 0) return 0
   const annual = annualise(taxableCents, period)
-  const brackets = FEDERAL_BRACKETS[year][filingStatus]
+  const brackets = FEDERAL_BRACKETS[resolvedYear][filingStatus]
   const annualTax = applyBrackets(annual, brackets)
   const perPeriod = annualTax / PERIODS_PER_YEAR[period]
   return Math.max(0, Math.round(perPeriod))
