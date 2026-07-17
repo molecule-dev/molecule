@@ -53,7 +53,7 @@ import type { OAuthButtonsProps } from './types.js'
 export function OAuthButtons({
   providers,
   onSelect,
-  onSuccess: _onSuccess,
+  onSuccess,
   layout = 'horizontal',
   iconSize = 30,
   iconMode = 'brand',
@@ -66,6 +66,31 @@ export function OAuthButtons({
 
   const ordered = dedupeProviders(providers)
   if (ordered.length === 0) return null
+
+  /**
+   * Activate a provider button: start the flow via `onSelect`, and — for an
+   * inline handler that resolves the handshake in place (popup/PKCE, e.g. an
+   * auth bond's `signInWithProvider`) — fire `onSuccess(provider)` on
+   * completion. A full-page `redirect` onSelect returns `void`, so there is
+   * nothing to await and `onSuccess` correctly never fires (that flow's
+   * completion is observed on the callback page by `useOAuth(config).onSuccess`
+   * instead). A rejected handshake also does not fire `onSuccess`.
+   */
+  const activate = (provider: string): void => {
+    if (!onSelect) return
+    const result = onSelect(provider)
+    if (result instanceof Promise) {
+      void result.then(
+        () => onSuccess?.(provider),
+        (_error) => {
+          // The handshake failed/aborted — `onSuccess` must NOT fire. Surfacing
+          // the error is the initiating `onSelect` handler's responsibility
+          // (e.g. `useOAuth`'s `onError`); this presentational row only reports
+          // success. Swallowing here is the documented, correct noop.
+        },
+      )
+    }
+  }
 
   const wrapperStyle = getLayoutStyle(layout, ordered.length)
   const buttonStyle = getButtonLayoutStyle(layout)
@@ -94,7 +119,7 @@ export function OAuthButtons({
           <button
             key={provider}
             type="button"
-            onClick={onSelect ? () => onSelect(provider) : undefined}
+            onClick={onSelect ? () => activate(provider) : undefined}
             aria-label={ariaLabel}
             className={cm.oauthButton}
             data-mol-id={`oauth-button-${provider}`}

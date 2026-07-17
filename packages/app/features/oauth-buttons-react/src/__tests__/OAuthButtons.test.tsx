@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 // Stub the wired classmap so getClassMap() returns deterministic strings
@@ -63,6 +63,41 @@ describe('<OAuthButtons />', () => {
     render(<OAuthButtons providers={['github', 'google']} onSelect={onSelect} />)
     fireEvent.click(screen.getByRole('button', { name: /Continue with GitHub/ }))
     expect(onSelect).toHaveBeenCalledExactlyOnceWith('github')
+  })
+
+  it('fires onSuccess with the provider id when an inline onSelect promise resolves', async () => {
+    // An inline flow (popup/PKCE, e.g. an auth bond's signInWithProvider) returns
+    // a promise that settles when the handshake completes.
+    const onSelect = vi.fn().mockResolvedValue(undefined)
+    const onSuccess = vi.fn()
+    render(
+      <OAuthButtons providers={['github', 'google']} onSelect={onSelect} onSuccess={onSuccess} />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: /Continue with GitHub/ }))
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledExactlyOnceWith('github'))
+  })
+
+  it('does NOT fire onSuccess for a fire-and-navigate (void) onSelect', async () => {
+    // redirect(provider) returns void and navigates away — there is nothing to
+    // await, so onSuccess must not fire (completion is observed elsewhere).
+    const onSelect = vi.fn(() => undefined)
+    const onSuccess = vi.fn()
+    render(<OAuthButtons providers={['github']} onSelect={onSelect} onSuccess={onSuccess} />)
+    fireEvent.click(screen.getByRole('button', { name: /Continue with GitHub/ }))
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith('github')
+    expect(onSuccess).not.toHaveBeenCalled()
+  })
+
+  it('does NOT fire onSuccess when the inline onSelect promise rejects', async () => {
+    // A failed/aborted handshake — onSuccess must stay unfired; the initiating
+    // onSelect handler owns error surfacing.
+    const onSelect = vi.fn().mockRejectedValue(new Error('handshake failed'))
+    const onSuccess = vi.fn()
+    render(<OAuthButtons providers={['github']} onSelect={onSelect} onSuccess={onSuccess} />)
+    fireEvent.click(screen.getByRole('button', { name: /Continue with GitHub/ }))
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(onSuccess).not.toHaveBeenCalled()
   })
 
   it('renders the group as the root element (no redundant wrapper div)', () => {

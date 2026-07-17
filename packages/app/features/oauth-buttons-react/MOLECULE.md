@@ -98,15 +98,27 @@ interface OAuthButtonsProps {
    *
    * If omitted, buttons render as plain `<button type="button">` with no
    * default behavior — host apps wire the handler (typically calling
-   * `redirect(provider)` from `useOAuth(...)` or the auth bond's
+   * `redirect(provider)` from `useOAuth(...)` or an auth bond's inline
    * `signInWithProvider(provider)`).
+   *
+   * May be sync or async. A fire-and-navigate `redirect` returns `void`;
+   * an inline flow (popup / PKCE / an auth bond that settles the session
+   * in place) returns a `Promise` that resolves when the handshake
+   * completes — in that case `onSuccess(provider)` fires on resolve.
    */
-  onSelect?: (provider: string) => void
+  onSelect?: (provider: string) => void | Promise<unknown>
   /**
-   * RESERVED — not currently invoked by this component. The full-page
-   * `redirect(provider)` flow never returns to the caller, so there is
-   * nothing to call it on. Kept for API compatibility with popup/PKCE
-   * hosts that resolve the handshake inline and invoke it themselves.
+   * Called with the provider id when the OAuth handshake completes
+   * successfully — but ONLY when `onSelect` returns a `Promise` that
+   * resolves (an inline / popup / PKCE flow, e.g. an auth bond's
+   * `signInWithProvider` that settles the session in place). The
+   * component awaits that promise and invokes `onSuccess` on resolve.
+   *
+   * A full-page `redirect(provider)` onSelect returns `void` and
+   * navigates away, so there is nothing to await and `onSuccess` does
+   * NOT fire — that flow's completion is observed on the callback page by
+   * `useOAuth(config).onSuccess` instead. A rejected handshake also does
+   * not fire it.
    */
   onSuccess?: (provider: string) => void
   /**
@@ -278,7 +290,7 @@ this row plus `<OAuthDivider>`.
 function OAuthButtons({
   providers,
   onSelect,
-  onSuccess: _onSuccess,
+  onSuccess,
   layout = 'horizontal',
   iconSize = 30,
   iconMode = 'brand',
@@ -358,8 +370,12 @@ Rendering-only: this package draws the buttons; the OAuth handshake
 itself — authorize redirect, and the callback/code-to-session
 exchange on return — belongs to `useOAuth(config)` (which needs the
 `@molecule/app-react` Auth provider context) or your auth bond's
-`signInWithProvider`. `onSuccess` is currently reserved/no-op.
-Requires a wired ClassMap bond and a React `I18nProvider` ancestor —
+`signInWithProvider`. `onSuccess(provider)` fires only for an inline
+`onSelect` that returns a `Promise` resolving on handshake completion
+(popup / PKCE); a full-page `redirect` onSelect returns `void`, so
+`onSuccess` does not fire and completion is observed by
+`useOAuth(config).onSuccess` on the callback page instead. Requires a
+wired ClassMap bond and a React `I18nProvider` ancestor —
 `getClassMap()` and `useTranslation()` both throw before wiring.
 
 ## Translations

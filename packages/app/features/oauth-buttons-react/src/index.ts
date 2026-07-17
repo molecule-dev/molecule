@@ -51,8 +51,12 @@
  * itself — authorize redirect, and the callback/code-to-session
  * exchange on return — belongs to `useOAuth(config)` (which needs the
  * `@molecule/app-react` Auth provider context) or your auth bond's
- * `signInWithProvider`. `onSuccess` is currently reserved/no-op.
- * Requires a wired ClassMap bond and a React `I18nProvider` ancestor —
+ * `signInWithProvider`. `onSuccess(provider)` fires only for an inline
+ * `onSelect` that returns a `Promise` resolving on handshake completion
+ * (popup / PKCE); a full-page `redirect` onSelect returns `void`, so
+ * `onSuccess` does not fire and completion is observed by
+ * `useOAuth(config).onSuccess` on the callback page instead. Requires a
+ * wired ClassMap bond and a React `I18nProvider` ancestor —
  * `getClassMap()` and `useTranslation()` both throw before wiring.
  *
  * @module
