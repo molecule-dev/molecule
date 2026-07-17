@@ -25,6 +25,7 @@ const {
   mockGetPermissionsAsync,
   mockRequestPermissionsAsync,
   mockGetExpoPushTokenAsync,
+  mockUnregisterForNotificationsAsync,
   mockSetNotificationHandler,
   mockAddNotificationReceivedListener,
   mockAddNotificationResponseReceivedListener,
@@ -42,6 +43,7 @@ const {
   mockGetPermissionsAsync: vi.fn().mockResolvedValue({ status: 'granted' }),
   mockRequestPermissionsAsync: vi.fn().mockResolvedValue({ status: 'granted' }),
   mockGetExpoPushTokenAsync: vi.fn().mockResolvedValue({ data: 'ExponentPushToken[xxx]' }),
+  mockUnregisterForNotificationsAsync: vi.fn().mockResolvedValue(undefined),
   mockSetNotificationHandler: vi.fn(),
   mockAddNotificationReceivedListener: vi.fn().mockReturnValue({ remove: vi.fn() }),
   mockAddNotificationResponseReceivedListener: vi.fn().mockReturnValue({ remove: vi.fn() }),
@@ -61,6 +63,7 @@ vi.mock('expo-notifications', () => ({
   getPermissionsAsync: mockGetPermissionsAsync,
   requestPermissionsAsync: mockRequestPermissionsAsync,
   getExpoPushTokenAsync: mockGetExpoPushTokenAsync,
+  unregisterForNotificationsAsync: mockUnregisterForNotificationsAsync,
   setNotificationHandler: mockSetNotificationHandler,
   addNotificationReceivedListener: mockAddNotificationReceivedListener,
   addNotificationResponseReceivedListener: mockAddNotificationResponseReceivedListener,
@@ -74,6 +77,12 @@ vi.mock('expo-notifications', () => ({
   dismissAllNotificationsAsync: mockDismissAllNotificationsAsync,
   setBadgeCountAsync: mockSetBadgeCountAsync,
   getBadgeCountAsync: mockGetBadgeCountAsync,
+}))
+
+// The provider reads the EAS projectId from the Expo config via expo-constants
+// when no explicit `projectId` option is supplied.
+vi.mock('expo-constants', () => ({
+  default: { expoConfig: { extra: { eas: { projectId: 'app-json-project-id' } } } },
 }))
 
 vi.mock('react-native', () => ({
@@ -170,6 +179,17 @@ describe('@molecule/app-push-react-native', () => {
         expect(token.value).toBe('ExponentPushToken[abc123]')
         expect(token.timestamp).toBeTypeOf('number')
       })
+
+      it('passes an explicit projectId option to getExpoPushTokenAsync', async () => {
+        const withProject = createReactNativePushProvider({ projectId: 'cfg-project-id' })
+        await withProject.register()
+        expect(mockGetExpoPushTokenAsync).toHaveBeenCalledWith({ projectId: 'cfg-project-id' })
+      })
+
+      it('falls back to the Expo config projectId (app.json extra.eas.projectId) when no option is set', async () => {
+        await p.register()
+        expect(mockGetExpoPushTokenAsync).toHaveBeenCalledWith({ projectId: 'app-json-project-id' })
+      })
     })
 
     describe('unregister', () => {
@@ -178,6 +198,13 @@ describe('@molecule/app-push-react-native', () => {
         await p.unregister()
         const token = await p.getToken()
         expect(token).toBeNull()
+      })
+
+      it('actually deregisters the device (not just the local cache)', async () => {
+        await p.register()
+        await p.unregister()
+        expect(mockUnregisterForNotificationsAsync).toHaveBeenCalled()
+        expect(await p.getToken()).toBeNull()
       })
     })
 
@@ -327,7 +354,14 @@ describe('@molecule/app-push-react-native', () => {
         cleanup()
       })
 
-      it('should call listener with new token', async () => {
+      it('re-fetches the Expo token on a native device-token change and never clobbers with the native token', async () => {
+        // Establish an Expo token via register first.
+        mockGetExpoPushTokenAsync.mockResolvedValue({ data: 'ExponentPushToken[registered]' })
+        await p.register()
+        expect((await p.getToken())!.value).toBe('ExponentPushToken[registered]')
+
+        // A native device-token roll arrives; the next Expo fetch returns a new token.
+        mockGetExpoPushTokenAsync.mockResolvedValue({ data: 'ExponentPushToken[refreshed]' })
         let capturedCallback: ((tokenData: { data: string }) => void) | undefined
         mockAddPushTokenListener.mockImplementation(
           (callback: (tokenData: { data: string }) => void) => {
@@ -343,13 +377,23 @@ describe('@molecule/app-push-react-native', () => {
           expect(capturedCallback).toBeDefined()
         })
 
-        capturedCallback!({ data: 'new-token-value' })
+        capturedCallback!({ data: 'native-device-token-xyz' })
 
+        await vi.waitFor(() => {
+          expect(listener).toHaveBeenCalled()
+        })
+
+        // The listener receives the freshly re-fetched EXPO token, NOT the raw native token.
         expect(listener).toHaveBeenCalledWith(
-          expect.objectContaining({
-            value: 'new-token-value',
-          }),
+          expect.objectContaining({ value: 'ExponentPushToken[refreshed]' }),
         )
+        const delivered = listener.mock.calls[0][0]
+        expect(delivered.value).not.toBe('native-device-token-xyz')
+
+        // getToken() still returns an Expo token — the native device token never overwrites it.
+        const cached = await p.getToken()
+        expect(cached!.value).toBe('ExponentPushToken[refreshed]')
+        expect(cached!.value).not.toBe('native-device-token-xyz')
       })
     })
 

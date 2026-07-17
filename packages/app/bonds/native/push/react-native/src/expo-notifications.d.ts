@@ -61,7 +61,8 @@ declare module 'expo-notifications' {
 
   export function getPermissionsAsync(): Promise<{ status: string }>
   export function requestPermissionsAsync(): Promise<{ status: string }>
-  export function getExpoPushTokenAsync(): Promise<ExpoPushToken>
+  export function getExpoPushTokenAsync(options?: { projectId?: string }): Promise<ExpoPushToken>
+  export function unregisterForNotificationsAsync(): Promise<void>
   export function setNotificationHandler(handler: {
     handleNotification: (notification: Notification) => Promise<{
       shouldShowAlert: boolean

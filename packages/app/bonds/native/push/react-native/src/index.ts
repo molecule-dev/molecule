@@ -31,15 +31,23 @@
  *   send through Expo's Push API (`https://exp.host/--/api/v2/push/send`); an
  *   FCM/APNs sender cannot deliver to an `ExponentPushToken[…]`.
  * - **Standalone/EAS builds need an EAS `projectId`** for token registration
- *   (Expo SDK 49+ throws without one outside Expo Go) — configure it in `app.json`
- *   (`extra.eas.projectId`).
+ *   (Expo SDK 49+ throws without one outside Expo Go). Pass it as the provider's
+ *   `projectId` config option, or set `app.json` `extra.eas.projectId` — the
+ *   provider reads that automatically via `expo-constants` when the option is
+ *   omitted.
  * - `expo-notifications` is a peer dependency loaded on demand — install it with
  *   `npx expo install expo-notifications`.
  * - With `handleForeground: true` (default), the global foreground-display handler
  *   is installed when `onNotificationReceived()` is first subscribed — subscribe
  *   early (app root) if foreground alerts should always show.
- * - `unregister()` only clears the locally cached token; it does not invalidate the
- *   token with Expo/APNs/FCM.
+ * - **The Expo push token and the native device token are distinct.**
+ *   `register()`/`getToken()` return the Expo push token; `onTokenChange` fires
+ *   with a freshly re-fetched Expo push token (NOT the raw native FCM/APNs token
+ *   that triggered the change), so the token you send to your backend always
+ *   stays an `ExponentPushToken[…]`.
+ * - `unregister()` deregisters the device with the OS push service
+ *   (`unregisterForNotificationsAsync()`) AND clears the locally cached token, so
+ *   the backend can no longer deliver to it.
  *
  * @module @molecule/app-push-react-native
  */

@@ -80,7 +80,12 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
   const { handleForeground = true } = config
   const logger = getLogger('push')
   const subscriptions: Array<{ remove(): void }> = []
+  // Canonical EXPO push token (`ExponentPushToken[...]`) — what the server sends
+  // through Expo's Push API. Distinct from `currentDeviceToken`.
   let currentToken: PushToken | null = null
+  // Raw NATIVE device push token (FCM/APNs) observed via `onTokenChange`. Tracked
+  // separately so a device-token roll never clobbers the Expo token above.
+  let currentDeviceToken: string | null = null
 
   /**
    * Resolves the runtime platform, falling back to 'android' when react-native
@@ -99,6 +104,53 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
     }
   }
 
+  /**
+   * Resolves the EAS `projectId` required by `getExpoPushTokenAsync` on Expo
+   * SDK 49+ standalone/EAS builds. Prefers the explicit `projectId` config
+   * option, then falls back to the value baked into the Expo config
+   * (`app.json` `extra.eas.projectId`, exposed at runtime via `expo-constants`).
+   * Returns `undefined` when neither is available (valid inside Expo Go).
+   */
+  async function resolveProjectId(): Promise<string | undefined> {
+    if (config.projectId) return config.projectId
+    try {
+      const Constants = (await import('expo-constants')).default
+      return (
+        Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId ?? undefined
+      )
+    } catch (_error) {
+      // expo-constants is optional. Without it (and without config.projectId)
+      // registration proceeds with no projectId — fine in Expo Go, but EAS /
+      // standalone builds must supply one or getExpoPushTokenAsync will throw.
+      return undefined
+    }
+  }
+
+  /**
+   * Fetches a fresh EXPO push token (`ExponentPushToken[...]`) and caches it as
+   * the canonical `currentToken`. Passes the resolved `projectId` so it works
+   * outside Expo Go on SDK 49+.
+   * @param notifications - The loaded expo-notifications module.
+   * @param platform - The runtime platform for the returned token.
+   * @returns The freshly fetched Expo push token.
+   */
+  async function fetchExpoToken(
+    notifications: typeof import('expo-notifications'),
+    platform: 'ios' | 'android' | 'web',
+  ): Promise<PushToken> {
+    const projectId = await resolveProjectId()
+    const tokenData = await notifications.getExpoPushTokenAsync(
+      projectId ? { projectId } : undefined,
+    )
+    const token: PushToken = {
+      value: tokenData.data,
+      platform,
+      timestamp: Date.now(),
+    }
+    currentToken = token
+    return token
+  }
+
   const provider: PushProvider = {
     async checkPermission(): Promise<PermissionStatus> {
       const Notifications = await getExpoNotifications()
@@ -113,23 +165,26 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
     },
 
     async register(): Promise<PushToken> {
-      const Notifications = await getExpoNotifications()
-      const [tokenData, platform] = await Promise.all([
-        Notifications.getExpoPushTokenAsync(),
+      const [Notifications, platform] = await Promise.all([
+        getExpoNotifications(),
         getRuntimePlatform(),
       ])
-      const token: PushToken = {
-        value: tokenData.data,
-        platform,
-        timestamp: Date.now(),
-      }
-      currentToken = token
+      const token = await fetchExpoToken(Notifications, platform)
       logger.debug('Push token registered', token.value)
       return token
     },
 
     async unregister(): Promise<void> {
+      const Notifications = await getExpoNotifications()
+      // Actually deregister the device with the OS push service (APNs/FCM), not
+      // just drop the local cache — otherwise the backend keeps delivering to a
+      // token the user meant to disable. Guard for older expo-notifications
+      // versions that predate this API.
+      if (typeof Notifications.unregisterForNotificationsAsync === 'function') {
+        await Notifications.unregisterForNotificationsAsync()
+      }
       currentToken = null
+      currentDeviceToken = null
     },
 
     async getToken(): Promise<PushToken | null> {
@@ -218,14 +273,26 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
 
       void Promise.all([getExpoNotifications(), getRuntimePlatform()])
         .then(([notifications, platform]) => {
-          subscription = notifications.addPushTokenListener((tokenData: ExpoDevicePushToken) => {
-            const token: PushToken = {
-              value: tokenData.data as string,
-              platform,
-              timestamp: Date.now(),
-            }
-            currentToken = token
-            listener(token)
+          subscription = notifications.addPushTokenListener((deviceToken: ExpoDevicePushToken) => {
+            // `addPushTokenListener` fires with the NATIVE device push token
+            // (FCM/APNs) — NOT the Expo push token. Record it distinctly (never
+            // overwrite the cached Expo token), then re-fetch a fresh Expo push
+            // token and hand THAT to the listener, so `onTokenChange` stays
+            // consistent with `register()`/`getToken()` — all Expo tokens the
+            // Expo Push API can deliver to, never a raw native token.
+            currentDeviceToken =
+              typeof deviceToken.data === 'string'
+                ? deviceToken.data
+                : JSON.stringify(deviceToken.data)
+            logger.debug('Native device push token changed', currentDeviceToken)
+
+            void fetchExpoToken(notifications, platform)
+              .then((token) => {
+                listener(token)
+              })
+              .catch((err: unknown) => {
+                logger.warn('Failed to refresh Expo push token after device token change', err)
+              })
           })
           if (subscription) subscriptions.push(subscription)
         })

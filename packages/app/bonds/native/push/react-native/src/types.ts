@@ -19,6 +19,14 @@ export interface ReactNativePushConfig {
   androidChannelName?: string
 
   /**
+   * EAS `projectId` used when requesting an Expo push token. Required on Expo
+   * SDK 49+ standalone/EAS builds — `getExpoPushTokenAsync` throws without it
+   * outside Expo Go. When omitted, the provider falls back to the value in the
+   * Expo config (`app.json` `extra.eas.projectId`, read via `expo-constants`).
+   */
+  projectId?: string
+
+  /**
    * Whether to handle notifications when the app is in the foreground.
    * @default true
    */
