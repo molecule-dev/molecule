@@ -131,8 +131,9 @@ export async function composeEmail(opts: ComposeOptions): Promise<EmailDraft> {
     model: opts.model,
     temperature: 0.4,
   })) {
-    const e = event as { type: string; text?: string }
-    if (e.type === 'text') raw += e.text ?? ''
+    // A ChatEvent's text payload is `content` (NOT `text`, which is the
+    // ContentBlock shape) — reading `event.text` accumulated nothing.
+    if (event.type === 'text') raw += event.content
   }
 
   try {

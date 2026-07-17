@@ -116,12 +116,13 @@ export async function classify(content: string): Promise<ClassificationResult> {
       messages: [{ role: 'user', content: CLASSIFY_PROMPT.replace('{{CONTENT}}', content) }],
       temperature: 0,
     })) {
-      const e = event as { type: string; text?: string; message?: string }
-      if (e.type === 'text') raw += e.text ?? ''
-      else if (e.type === 'error') {
+      // A ChatEvent's text payload is `content` (NOT `text`, which is the
+      // ContentBlock shape) — reading `event.text` accumulated nothing.
+      if (event.type === 'text') raw += event.content
+      else if (event.type === 'error') {
         // In-band provider error — the classifier did not produce a usable
         // signal. Capture it so the caller fails per policy, never silently.
-        streamError = new Error(e.message ?? 'AI provider returned an error event')
+        streamError = new Error(event.message ?? 'AI provider returned an error event')
       }
     }
   } catch (error) {

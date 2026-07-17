@@ -135,8 +135,11 @@ export async function answerQuestion(opts: {
     model: opts.model,
     temperature: opts.temperature ?? 0.2,
   })) {
-    const e = event as { type: string; text?: string }
-    if (e.type === 'text') answer += e.text ?? ''
+    // A ChatEvent's text payload is `content` (NOT `text` — that is the
+    // ContentBlock shape). Reading `event.text` here silently accumulated
+    // nothing, so every grounded answer came back empty in production while
+    // the unit test's wrong-shaped mock kept it green.
+    if (event.type === 'text') answer += event.content
   }
 
   return {

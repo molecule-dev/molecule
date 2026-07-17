@@ -15,7 +15,8 @@ import type { ExtractionField } from '../types.js'
 function streamChunks(chunks: string[]) {
   return {
     async *[Symbol.asyncIterator]() {
-      for (const text of chunks) yield { type: 'text', text }
+      // Real ChatEvent text payload is `content` (see @molecule/api-ai types).
+      for (const text of chunks) yield { type: 'text', content: text }
     },
   }
 }
@@ -109,7 +110,7 @@ describe('extractFields', () => {
     mockChat.mockReturnValue({
       async *[Symbol.asyncIterator]() {
         yield { type: 'tool_use', name: 'x' }
-        yield { type: 'text', text: '{"data":{"invoice_number":"INV-9"}}' }
+        yield { type: 'text', content: '{"data":{"invoice_number":"INV-9"}}' }
       },
     })
     const out = await extractFields({ text: 'doc', fields: FIELDS })

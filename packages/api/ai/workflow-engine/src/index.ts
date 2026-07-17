@@ -313,8 +313,9 @@ export function createWorkflowEngine(opts: EngineOptions): WorkflowEngine {
             for await (const event of ai.chat({
               messages: [{ role: 'user', content: prompt }],
             })) {
-              const e = event as { type: string; text?: string }
-              if (e.type === 'text') answer += e.text ?? ''
+              // A ChatEvent's text payload is `content` (NOT `text`, which is
+              // the ContentBlock shape) — reading `event.text` did nothing.
+              if (event.type === 'text') answer += event.content
             }
             setContextPath(ctx, step.output, answer)
             trace.push({ index: i, type: step.type, outcome: 'executed' })

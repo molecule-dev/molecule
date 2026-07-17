@@ -39,7 +39,8 @@ import { answerQuestion, deleteDocument, indexDocument, retrieve } from '../pipe
 function streamChunks(chunks: string[]) {
   return {
     async *[Symbol.asyncIterator]() {
-      for (const text of chunks) yield { type: 'text', text }
+      // Real ChatEvent text payload is `content` (see @molecule/api-ai types).
+      for (const text of chunks) yield { type: 'text', content: text }
     },
   }
 }
@@ -281,7 +282,7 @@ describe('answerQuestion (end-to-end RAG)', () => {
     mockChat.mockReturnValue({
       async *[Symbol.asyncIterator]() {
         yield { type: 'tool_use', name: 'search' }
-        yield { type: 'text', text: 'real-answer' }
+        yield { type: 'text', content: 'real-answer' }
         yield { type: 'end' }
       },
     })

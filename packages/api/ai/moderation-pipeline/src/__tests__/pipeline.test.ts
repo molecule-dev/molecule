@@ -32,7 +32,8 @@ import type { ModerationCategory, ModerationPolicy, ModerationScore } from '../t
 function streamChunks(chunks: string[]) {
   return {
     async *[Symbol.asyncIterator]() {
-      for (const text of chunks) yield { type: 'text', text }
+      // Real ChatEvent text payload is `content` (see @molecule/api-ai types).
+      for (const text of chunks) yield { type: 'text', content: text }
     },
   }
 }
@@ -185,7 +186,7 @@ describe('classify', () => {
     mockChat.mockReturnValue({
       async *[Symbol.asyncIterator]() {
         yield { type: 'tool_use', name: 'x' } // ignored
-        yield { type: 'text', text: '{"scores":{},"reasoning":"r"}' }
+        yield { type: 'text', content: '{"scores":{},"reasoning":"r"}' }
         yield { type: 'end' } // ignored
       },
     })

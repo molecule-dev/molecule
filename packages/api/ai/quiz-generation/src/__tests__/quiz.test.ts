@@ -14,7 +14,8 @@ import { generateQuiz, gradeResponses, type Quiz } from '../index.js'
 function streamChunks(chunks: string[]) {
   return {
     async *[Symbol.asyncIterator]() {
-      for (const text of chunks) yield { type: 'text', text }
+      // Real ChatEvent text payload is `content` (see @molecule/api-ai types).
+      for (const text of chunks) yield { type: 'text', content: text }
     },
   }
 }

@@ -14,7 +14,8 @@ import { composeEmail } from '../index.js'
 function streamChunks(chunks: string[]) {
   return {
     async *[Symbol.asyncIterator]() {
-      for (const text of chunks) yield { type: 'text', text }
+      // Real ChatEvent text payload is `content` (see @molecule/api-ai types).
+      for (const text of chunks) yield { type: 'text', content: text }
     },
   }
 }
@@ -135,7 +136,7 @@ describe('composeEmail', () => {
     mockChat.mockReturnValue({
       async *[Symbol.asyncIterator]() {
         yield { type: 'tool_use', name: 'x' }
-        yield { type: 'text', text: '{"subject":"S","body":"B"}' }
+        yield { type: 'text', content: '{"subject":"S","body":"B"}' }
       },
     })
     const out = await composeEmail({ brief: 'b' })
