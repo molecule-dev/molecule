@@ -1,12 +1,12 @@
 # @molecule/app-drag-drop-dndkit
 
-dnd-kit-style drag-drop provider for molecule.dev.
+Real @dnd-kit drag-drop provider for molecule.dev.
 
-Implements `DragDropProvider` from `@molecule/app-drag-drop` as a
-HEADLESS state layer modeled on dnd-kit's concepts (sortable/draggable/
-droppable) — it does NOT depend on or load `@dnd-kit/*`; your UI attaches
-its own pointer/drag listeners and drives the instances (the `_`-prefixed
-instance methods exist for that wiring).
+Implements `DragDropProvider` from `@molecule/app-drag-drop` against
+`@dnd-kit/*`. Two layers ship here:
+
+1. An imperative order store ({@link provider} / {@link createDndKitProvider})
+   — `createSortable`/`createDraggable`/`createDroppable` — whose reorders use
 
 ## Quick Start
 
@@ -15,6 +15,15 @@ import { provider } from '@molecule/app-drag-drop-dndkit'
 import { setProvider } from '@molecule/app-drag-drop'
 
 setProvider(provider)
+```
+
+```tsx
+import { SortableList, useSortableItem } from '@molecule/app-drag-drop-dndkit'
+
+// Dropping a row calls onReorder(newOrder); Space + arrow keys reorder too.
+<SortableList items={items} onReorder={setItems}>
+  <ul>{items.map((item) => <Row key={item.id} item={item} />)}</ul>
+</SortableList>
 ```
 
 ## Type
@@ -31,26 +40,30 @@ npm install @molecule/app-drag-drop-dndkit @molecule/app-drag-drop
 
 #### `DndKitConfig`
 
-Configuration options for the dnd-kit drag-drop provider.
+Configuration options for the dnd-kit drag-drop provider. `activationDelay`
+and `activationDistance` are honored by the React binding's pointer sensor
+(see `SortableList` / `createSortableSensors`).
 
 ```typescript
 interface DndKitConfig {
   /**
-   * Activation delay in milliseconds before a drag starts.
-   * Useful for distinguishing between click and drag on touch devices.
-   * Defaults to `0`.
+   * Activation delay in milliseconds before a drag starts. A positive value
+   * makes the pointer sensor use a delay+tolerance constraint — useful for
+   * distinguishing between click/tap and drag on touch devices. Takes
+   * precedence over `activationDistance`. Defaults to `0` (immediate).
    */
   activationDelay?: number
 
   /**
-   * Distance in pixels a pointer must travel before a drag starts.
-   * Defaults to `0`.
+   * Distance in pixels a pointer must travel before a drag starts. A positive
+   * value makes the pointer sensor use a distance constraint (ignored when
+   * `activationDelay` is set). Defaults to `0` (immediate).
    */
   activationDistance?: number
 
   /**
-   * Whether to cancel a drag when the Escape key is pressed.
-   * Defaults to `true`.
+   * Whether Escape cancels a drag. @dnd-kit's keyboard sensor cancels on Escape
+   * by default, so this is effectively `true`. Defaults to `true`.
    */
   cancelOnEscape?: boolean
 }
@@ -154,6 +167,95 @@ interface DndKitSortableInstance<T extends { id: string }> extends SortableInsta
 }
 ```
 
+#### `SortableDragEndContext`
+
+Inputs for {@link handleSortableDragEnd}.
+
+```typescript
+interface SortableDragEndContext<T extends { id: string }> {
+  /** The current ordered items. */
+  items: T[]
+  /** Core reorder callback, invoked with the new order after a real move. */
+  onReorder: (items: T[]) => void
+  /** Whether sorting is disabled — suppresses the reorder. Defaults to `false`. */
+  disabled?: boolean
+  /** Optional passthrough of the core drag-end event. */
+  onDragEnd?: (event: DragEndEvent) => void
+}
+```
+
+#### `SortableItemState`
+
+The wiring returned by {@link useSortableItem} for a single sortable row.
+
+```typescript
+interface SortableItemState {
+  /** Ref for the row element (the sortable node). */
+  setNodeRef: (node: HTMLElement | null) => void
+  /** Ref for an optional drag handle — spread `listeners` on this element for handle-only dragging. */
+  setActivatorNodeRef: (element: HTMLElement | null) => void
+  /** Accessibility attributes (role/tabindex/aria) — spread onto the row for keyboard support. */
+  attributes: DraggableAttributes
+  /** Pointer/keyboard drag listeners — spread onto the row body or the handle. */
+  listeners: DraggableSyntheticListeners
+  /** Inline transform/transition styles that animate the row while sorting. */
+  style: CSSProperties
+  /** `true` while this row is being dragged. */
+  isDragging: boolean
+  /** `true` while another dragged row is over this one. */
+  isOver: boolean
+}
+```
+
+#### `SortableListProps`
+
+Props for {@link SortableList}.
+
+```typescript
+interface SortableListProps<T extends { id: string }> {
+  /** Ordered items to render. Each must have a stable string `id`. */
+  items: T[]
+  /**
+   * Called with the full reordered array when a drag completes a move. This is
+   * the core `SortableOptions['onReorder']` callback — persist the new order.
+   *
+   * @param items - The reordered items.
+   */
+  onReorder: (items: T[]) => void
+  /** Sort axis. Selects the default sorting strategy. Defaults to `'vertical'`. */
+  axis?: SortableAxis
+  /** Explicit sorting strategy override. */
+  strategy?: SortableStrategy
+  /** Disable all drag interactions. Defaults to `false`. */
+  disabled?: boolean
+  /** Sensor activation thresholds (pointer delay / distance). */
+  config?: DndKitConfig
+  /** Optional passthrough: fired when a drag starts. */
+  onDragStart?: (event: DragStartEvent) => void
+  /** Optional passthrough: fired while dragging over a target. */
+  onDragOver?: (event: DragOverEvent) => void
+  /** Optional passthrough: fired when a drag ends (before/besides `onReorder`). */
+  onDragEnd?: (event: DragEndEvent) => void
+  /** The rendered list — items using {@link useSortableItem} for their rows. */
+  children: ReactNode
+}
+```
+
+#### `UseSortableItemOptions`
+
+Options for {@link useSortableItem}.
+
+```typescript
+interface UseSortableItemOptions {
+  /** The sortable item's id — must match the `id` of the corresponding item. */
+  id: string
+  /** Arbitrary data carried with the drag (surfaced on drag events). */
+  data?: Record<string, unknown>
+  /** Whether this specific item is undraggable. Defaults to `false`. */
+  disabled?: boolean
+}
+```
+
 ### Functions
 
 #### `createDndKitProvider(_config)`
@@ -167,6 +269,69 @@ function createDndKitProvider(_config?: DndKitConfig): DragDropProvider
 - `_config` — Optional dnd-kit-specific configuration.
 
 **Returns:** A `DragDropProvider` backed by dnd-kit state management.
+
+#### `createSortableSensors(config)`
+
+Builds the sensor descriptor list used by {@link SortableList}: a pointer
+sensor (mouse/touch) and a keyboard sensor wired to
+`sortableKeyboardCoordinates` so a sortable list is keyboard-accessible.
+Exported so callers/tests can assert both sensors are present.
+
+```typescript
+function createSortableSensors(config?: DndKitConfig): (SensorDescriptor<PointerSensorOptions> | SensorDescriptor<KeyboardSensorOptions>)[]
+```
+
+- `config` — dnd-kit provider configuration (activation thresholds).
+
+**Returns:** The pointer + keyboard sensor descriptors.
+
+#### `handleSortableDragEnd(event, context)`
+
+Bridges a
+
+```typescript
+function handleSortableDragEnd(event: DndKitDragEndEvent, context: SortableDragEndContext<T>): void
+```
+
+- `event` — The
+- `context` — Items, callbacks, and disabled flag.
+
+#### `resolveSortingStrategy(axis, strategy)`
+
+Maps a molecule {@link SortableAxis}/{@link SortableStrategy} to a concrete
+
+```typescript
+function resolveSortingStrategy(axis?: SortableAxis, strategy?: SortableStrategy): SortingStrategy
+```
+
+- `axis` — The sort axis. Defaults to `'vertical'`.
+- `strategy` — An explicit strategy override.
+
+**Returns:** The
+
+#### `SortableList(props)`
+
+A real
+
+```typescript
+function SortableList(props: SortableListProps<T>): JSX.Element
+```
+
+- `props` — {@link SortableListProps}.
+
+**Returns:** The drag-and-drop context wrapping the sortable list.
+
+#### `useSortableItem(options)`
+
+Wraps
+
+```typescript
+function useSortableItem(options: UseSortableItemOptions): SortableItemState
+```
+
+- `options` — {@link UseSortableItemOptions}.
+
+**Returns:** The refs, attributes, listeners, and transform style for the row.
 
 ### Constants
 
@@ -200,16 +365,14 @@ export function setupDragDropDndkit(): void {
 
 Peer dependencies:
 - `@molecule/app-drag-drop` >=1.0.0
+- `react` ^18.0.0 || ^19.0.0
+- `react-dom` ^18.0.0 || ^19.0.0
 
 ### Runtime Dependencies
 
 - `@molecule/app-drag-drop`
 
-The `DndKitConfig` knobs (`activationDelay`, `activationDistance`,
-`cancelOnEscape`) are currently NOT implemented — activation thresholds
-and Escape-to-cancel belong in your event-wiring layer. Reorders ignore
-out-of-range indices and are suppressed while `disabled`; a droppable
-with no `accept` list accepts every type.
+The React binding requires `react` / `react-dom` (peer dependencies) since
 
 ## E2E Tests
 

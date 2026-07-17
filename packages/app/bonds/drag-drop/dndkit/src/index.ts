@@ -1,11 +1,17 @@
 /**
- * dnd-kit-style drag-drop provider for molecule.dev.
+ * Real @dnd-kit drag-drop provider for molecule.dev.
  *
- * Implements `DragDropProvider` from `@molecule/app-drag-drop` as a
- * HEADLESS state layer modeled on dnd-kit's concepts (sortable/draggable/
- * droppable) — it does NOT depend on or load `@dnd-kit/*`; your UI attaches
- * its own pointer/drag listeners and drives the instances (the `_`-prefixed
- * instance methods exist for that wiring).
+ * Implements `DragDropProvider` from `@molecule/app-drag-drop` against
+ * `@dnd-kit/*`. Two layers ship here:
+ *
+ * 1. An imperative order store ({@link provider} / {@link createDndKitProvider})
+ *    — `createSortable`/`createDraggable`/`createDroppable` — whose reorders use
+ *    @dnd-kit's own `arrayMove`.
+ * 2. A **real React binding** — {@link SortableList} + {@link useSortableItem} —
+ *    that wraps `DndContext` / `SortableContext` / `useSortable` with pointer and
+ *    keyboard sensors and, on drop, reorders and invokes the core `onReorder`
+ *    with the new order. This is the shipped DOM-event bridge; a drag actually
+ *    reorders the list (mouse, touch, or keyboard).
  *
  * @example
  * ```typescript
@@ -15,15 +21,26 @@
  * setProvider(provider)
  * ```
  *
+ * @example
+ * ```tsx
+ * import { SortableList, useSortableItem } from '@molecule/app-drag-drop-dndkit'
+ *
+ * // Dropping a row calls onReorder(newOrder); Space + arrow keys reorder too.
+ * <SortableList items={items} onReorder={setItems}>
+ *   <ul>{items.map((item) => <Row key={item.id} item={item} />)}</ul>
+ * </SortableList>
+ * ```
+ *
  * @remarks
- * The `DndKitConfig` knobs (`activationDelay`, `activationDistance`,
- * `cancelOnEscape`) are currently NOT implemented — activation thresholds
- * and Escape-to-cancel belong in your event-wiring layer. Reorders ignore
- * out-of-range indices and are suppressed while `disabled`; a droppable
- * with no `accept` list accepts every type.
+ * The React binding requires `react` / `react-dom` (peer dependencies) since
+ * @dnd-kit is React-only. The imperative store's extended instance types
+ * (`_`-prefixed methods) remain available for consumers wiring their own
+ * (non-@dnd-kit) drag events. `DndKitConfig.activationDelay` /
+ * `activationDistance` are honored by the React binding's pointer sensor.
  *
  * @module
  */
 
 export * from './provider.js'
+export * from './react.js'
 export * from './types.js'

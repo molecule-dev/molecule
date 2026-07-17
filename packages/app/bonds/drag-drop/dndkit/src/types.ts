@@ -14,25 +14,29 @@ import type {
 } from '@molecule/app-drag-drop'
 
 /**
- * Configuration options for the dnd-kit drag-drop provider.
+ * Configuration options for the dnd-kit drag-drop provider. `activationDelay`
+ * and `activationDistance` are honored by the React binding's pointer sensor
+ * (see `SortableList` / `createSortableSensors`).
  */
 export interface DndKitConfig {
   /**
-   * Activation delay in milliseconds before a drag starts.
-   * Useful for distinguishing between click and drag on touch devices.
-   * Defaults to `0`.
+   * Activation delay in milliseconds before a drag starts. A positive value
+   * makes the pointer sensor use a delay+tolerance constraint — useful for
+   * distinguishing between click/tap and drag on touch devices. Takes
+   * precedence over `activationDistance`. Defaults to `0` (immediate).
    */
   activationDelay?: number
 
   /**
-   * Distance in pixels a pointer must travel before a drag starts.
-   * Defaults to `0`.
+   * Distance in pixels a pointer must travel before a drag starts. A positive
+   * value makes the pointer sensor use a distance constraint (ignored when
+   * `activationDelay` is set). Defaults to `0` (immediate).
    */
   activationDistance?: number
 
   /**
-   * Whether to cancel a drag when the Escape key is pressed.
-   * Defaults to `true`.
+   * Whether Escape cancels a drag. @dnd-kit's keyboard sensor cancels on Escape
+   * by default, so this is effectively `true`. Defaults to `true`.
    */
   cancelOnEscape?: boolean
 }

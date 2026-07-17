@@ -1,13 +1,18 @@
 /**
  * dnd-kit implementation of the molecule DragDropProvider.
  *
- * Provides a framework-agnostic state management layer for drag-and-drop
- * operations. Framework bindings (React, Vue, etc.) use the extended instance
- * types ({@link DndKitSortableInstance}, {@link DndKitDraggableInstance},
- * {@link DndKitDroppableInstance}) to wire state to DOM interactions.
+ * Provides the imperative order-store layer for drag-and-drop. Reorders are
+ * computed with @dnd-kit's own `arrayMove`, so the imperative store and the
+ * React binding (see `./react.tsx`) agree on move semantics. The React binding
+ * (`SortableList` + `useSortableItem`) is the shipped DOM-event bridge that
+ * drives a real drag → `onReorder`; framework bindings may also drive the
+ * extended instance types ({@link DndKitSortableInstance},
+ * {@link DndKitDraggableInstance}, {@link DndKitDroppableInstance}) directly.
  *
  * @module
  */
+
+import { arrayMove } from '@dnd-kit/sortable'
 
 import type {
   DragDropProvider,
@@ -23,26 +28,6 @@ import type {
   DndKitDroppableInstance,
   DndKitSortableInstance,
 } from './types.js'
-
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Moves an item within an array from one index to another, returning
- * a new array (immutable).
- *
- * @param items - The original array.
- * @param fromIndex - The source index.
- * @param toIndex - The destination index.
- * @returns A new array with the item moved.
- */
-function arrayMove<T>(items: T[], fromIndex: number, toIndex: number): T[] {
-  const result = [...items]
-  const [removed] = result.splice(fromIndex, 1)
-  result.splice(toIndex, 0, removed)
-  return result
-}
 
 // ---------------------------------------------------------------------------
 // Sortable

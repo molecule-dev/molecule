@@ -28,15 +28,27 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@molecule/app-drag-drop": ">=1.0.0"
+    "@molecule/app-drag-drop": ">=1.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "@molecule/app-drag-drop": "1.0.0",
+    "@testing-library/react": "16.3.2",
     "@types/node": "25.9.2",
+    "@types/react": "19.2.17",
+    "jsdom": "29.1.1",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "typescript": "6.0.3",
     "vitest": "4.1.8"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2"
   }
 }
