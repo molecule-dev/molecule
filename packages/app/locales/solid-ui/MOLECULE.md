@@ -1,10 +1,6 @@
 # @molecule/app-locales-solid-ui
 
-Translations for the `@molecule/app-solid-ui` package in 79 languages.
-
-## Purpose
-
-Provides translations for the `@molecule/app-solid-ui` package, which has 16 translation keys.
+Translations for @molecule/app-ui-solid in 79 languages
 
 ## Languages
 
@@ -13,20 +9,24 @@ Provides translations for the `@molecule/app-solid-ui` package, which has 16 tra
 ## Quick Start
 
 ```typescript
-import * as solid_ui from '@molecule/app-locales-solid-ui'
+import { af, am, ar } from '@molecule/app-locales-solid-ui'
 import type { SolidUiTranslationKey, SolidUiTranslations } from '@molecule/app-locales-solid-ui'
 ```
 
-Pass to `setupI18nDefault` via the `packageLocales` option to register
-all langs at app startup:
+## Registration
+
+In an mlcl-scaffolded app, installed locale bonds are registered automatically by the app's i18n setup at startup — installing this package is normally all you need. To register manually (or in a custom app), pass the whole module to `registerLocaleModule` from `@molecule/app-i18n` at startup:
 
 ```typescript
-setupI18nDefault({
-  enUi: en,
-  lazyLoadUi,
-  packageLocales: [solid_ui, /* ...other bonds */],
-})
+import { registerLocaleModule } from '@molecule/app-i18n'
+import * as locales from '@molecule/app-locales-solid-ui'
+
+registerLocaleModule(locales)
 ```
+
+## Editing translations
+
+`en.ts` is the canonical key set — every other language file mirrors its keys. To change or add strings, edit the locale files in this package (add new keys to `en.ts` first) or merge overrides at runtime with `addTranslations(locale, map)`. Never hand-write translations inline in feature code: features call `t(key, values, { defaultValue })` and THIS bond supplies the translations — inline strings bypass every other language.
 
 ## Translation Keys
 
@@ -48,3 +48,9 @@ setupI18nDefault({
 | `ui.table.empty` | No data available |
 | `ui.toast.close` | Close |
 | `solid.error.useToastOutsideProvider` | useToast must be used within a ToastProvider |
+
+## Metadata
+
+- **Type:** locales
+- **Category:** i18n
+- **Stack:** app
