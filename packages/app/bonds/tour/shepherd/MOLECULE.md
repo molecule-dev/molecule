@@ -1,26 +1,20 @@
 # @molecule/app-tour-shepherd
 
-Headless tour provider for `@molecule/app-tour` — Shepherd-STYLE step
-sequencing without the shepherd.js library.
+Shepherd.js v15 tour provider for `@molecule/app-tour`.
 
-IMPORTANT: this bond renders NO tour UI — no overlay, tooltip, highlight,
-or buttons appear on screen, and it does not depend on or use shepherd.js.
-It is an in-memory step-state machine: it tracks the active step and fires
-each step's `action` plus `onComplete`/`onCancel`. Render the tooltip /
-highlight UI yourself from `getCurrentStep()` and the step's
-`target`/`title`/`content` — style it via `getClassMap()` from
-`@molecule/app-ui` and run step text through
-`t('key', values, { defaultValue })`.
-
-The bond draws nothing, but it DOES resolve and expose the `overlay` /
-`showButtons` intent so your render code can honor it: `hasOverlay()` and
-`hasButtons()` on the instance return the resolved flag (per-tour
-`TourOptions` option → provider-level `ShepherdConfig` default → `true`).
-Gate the backdrop and nav buttons you paint on those accessors.
+A real, rendering tour provider: `createTour()` builds a live
+`Shepherd.Tour` from the core tour options and shepherd draws the actual
+step tooltips, highlight, and modal overlay on screen. `start` / `next` /
+`previous` / `cancel` / `complete` drive the shepherd instance, and the
+core's active-state + step index stay in sync with shepherd's events. This
+replaces the previous headless step-state machine — the package now depends
+on and uses shepherd.js, as its name promises.
 
 ## Quick Start
 
 ```typescript
+// REQUIRED — also `import 'shepherd.js/dist/css/shepherd.css'` in your app
+// entry (see @remarks), or the tooltip/buttons/overlay render unstyled.
 import { provider } from '@molecule/app-tour-shepherd'
 import { setProvider, requireProvider } from '@molecule/app-tour'
 
@@ -28,12 +22,11 @@ setProvider(provider) // once, at startup (bonds.ts)
 
 const tour = requireProvider().createTour({
   steps: [
-    { target: '[data-mol-id="editor"]', title: 'Editor', content: 'Write code here',
-      action: () => renderTourStep(tour.getCurrentStep()) },
+    { target: '[data-mol-id="editor"]', title: 'Editor', content: 'Write code here' },
   ],
   onComplete: () => markTourSeen(),
 })
-tour.start() // fires step 0's action — YOUR action callback draws the UI
+tour.start() // shepherd renders the anchored tooltip + overlay
 ```
 
 ## Type
@@ -41,7 +34,7 @@ tour.start() // fires step 0's action — YOUR action callback draws the UI
 
 ## Installation
 ```bash
-npm install @molecule/app-tour-shepherd @molecule/app-tour
+npm install @molecule/app-tour-shepherd @molecule/app-tour shepherd.js
 ```
 
 ## API
@@ -50,28 +43,55 @@ npm install @molecule/app-tour-shepherd @molecule/app-tour
 
 #### `ShepherdConfig`
 
-Provider-level defaults for the tour provider.
+Provider-level defaults for the Shepherd tour provider.
 
-These set the DEFAULT value of the resolved UI flags each tour instance
-exposes via `hasOverlay()` / `hasButtons()`. A per-tour
+`overlay` sets the default for shepherd's modal backdrop (`useModalOverlay`)
+and the resolved `hasOverlay()` flag; `showButtons` sets whether nav buttons
+are rendered and the resolved `hasButtons()` flag. A per-tour
 `TourOptions.overlay` / `TourOptions.showButtons` overrides them; if neither
-is set, the flags default to `true`. The provider still draws no UI itself —
-the consumer reads the resolved flags off the instance to decide what to
-render (see the module notes).
+is set, both default to `true`. `labels` provides the nav-button text.
 
 ```typescript
 interface ShepherdConfig {
   /**
-   * Default for `hasOverlay()` when a tour does not set `overlay`.
-   * Defaults to `true`.
+   * Default for the modal backdrop / `hasOverlay()` when a tour does not set
+   * `overlay`. Feeds shepherd's `useModalOverlay`. Defaults to `true`.
    */
   overlay?: boolean
 
   /**
-   * Default for `hasButtons()` when a tour does not set `showButtons`.
-   * Defaults to `true`.
+   * Default for whether nav buttons render / `hasButtons()` when a tour does
+   * not set `showButtons`. Defaults to `true`.
    */
   showButtons?: boolean
+
+  /**
+   * Labels for the rendered nav buttons. Supply translated strings; each
+   * omitted label falls back to its English default.
+   */
+  labels?: ShepherdLabels
+}
+```
+
+#### `ShepherdLabels`
+
+Labels for the nav buttons shepherd renders in each step's footer.
+
+shepherd.js draws real buttons, so the bond has to supply their text. These
+are user-facing strings — pass them already translated, e.g.
+`{ back: t('tour.back', {}, { defaultValue: 'Back' }), … }`. Any label left
+unset falls back to its English default (`Back` / `Next` / `Done`).
+
+```typescript
+interface ShepherdLabels {
+  /** Label for the "back" button (shown on every step after the first). Defaults to `Back`. */
+  back?: string
+
+  /** Label for the "next" button (shown on every step before the last). Defaults to `Next`. */
+  next?: string
+
+  /** Label for the "done" button (shown on the last step). Defaults to `Done`. */
+  done?: string
 }
 ```
 
@@ -125,6 +145,36 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-tour`
+- `shepherd.js`
+
+- **Import shepherd's stylesheet yourself** — this package does not:
+  `import 'shepherd.js/dist/css/shepherd.css'` in your app entry. Without it
+  the tooltip, buttons, arrow, and modal overlay render unstyled/invisible
+  (same as quill/photoswipe's theme CSS).
+- **Browser-only.** `start()` runs `new Shepherd.Tour(...).start()`, which
+  needs a live DOM — start tours in a client-only effect, never during SSR.
+- **Step mapping.** Each core `TourStep` maps to a
+  shepherd step: `target` → `attachTo.element` (CSS selector), `placement` →
+  `attachTo.on` (defaults to `'bottom'` so the tooltip anchors with an
+  arrow), `title` → `title`, `content` → `text`, `action` → shepherd's
+  per-step `when.show` hook, `beforeShow` → `beforeShowPromise`.
+- **`overlay` → `useModalOverlay`.** The resolved `overlay` flag (per-tour
+  `TourOptions.overlay` → provider default → `true`) becomes shepherd's
+  `useModalOverlay`, so the darkened backdrop is rendered by shepherd itself
+  and mirrored on `hasOverlay()`.
+- **`showButtons` gates the nav buttons.** When the resolved `showButtons`
+  flag is true, each step gets `Back` / `Next` (or `Done` on the last step)
+  buttons that drive the tour; when false, no buttons are added.
+  `hasButtons()` mirrors the flag.
+- **Button labels are UI text.** shepherd renders the buttons, so the bond
+  supplies their labels via `ShepherdConfig.labels` — pass translated strings
+  (`createProvider({ labels: { next: t('tour.next', {}, { defaultValue: 'Next' }) } })`);
+  omitted labels fall back to English `Back` / `Next` / `Done`. Step
+  `title`/`content` are the consumer's to i18n via `t('key', v, { defaultValue })`.
+- **`target`** is a CSS selector: prefer stable `[data-mol-id="…"]` selectors
+  over styling class names (class strings are ClassMap-bond-owned and swappable).
+- **Wire it** with `setProvider()` from `@molecule/app-tour` or
+  `bond('tour', provider)` — both write the same registry slot.
 
 ## E2E Tests
 
