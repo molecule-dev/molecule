@@ -182,7 +182,9 @@ Peer dependencies:
 - `react`
 
 `@molecule/app-charts`' built-in provider renders a non-functional placeholder
-notice (and logs a one-time console warning), not a real chart — wire a real
-`ChartProvider` (or render your own chart component as `children`) before
-shipping. Legend `items` labels/values are consumer-provided ReactNodes; pass
-translated strings via `t()`.
+notice (and logs a one-time console warning), not a real chart. Bond the
+Chart.js provider once at startup — `import { provider } from
+'@molecule/app-charts-chartjs'; setProvider(provider)` — so `createChart` /
+`createBarChart` draw real charts (or render your own chart component as
+`children`). Legend `items` labels/values are consumer-provided ReactNodes;
+pass translated strings via `t()`.
