@@ -39,7 +39,7 @@ export function getProvider(): SplashScreenProvider {
         defaultValue:
           '@molecule/app-splash-screen: No provider set. ' +
           'Call setProvider() with a SplashScreenProvider implementation ' +
-          '(e.g., from @molecule/app-splash-screen-capacitor).',
+          '(e.g., from @molecule/app-splash-screen-react-native).',
       }),
     )
   }

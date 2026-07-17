@@ -29,7 +29,7 @@ export function getProvider(): ClipboardProvider {
     throw new Error(
       t('clipboard.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-clipboard: No provider set. Call setProvider() with a ClipboardProvider implementation (e.g., from @molecule/app-clipboard-capacitor).',
+          '@molecule/app-clipboard: No provider set. Call setProvider() with a ClipboardProvider implementation (e.g., from @molecule/app-clipboard-react-native).',
       }),
     )
   }

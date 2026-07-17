@@ -44,7 +44,7 @@ export function getProvider(): KeyboardProvider {
     throw new Error(
       t('keyboard.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-keyboard: No provider set. Call setProvider() with a KeyboardProvider implementation (e.g., from @molecule/app-keyboard-capacitor).',
+          '@molecule/app-keyboard: No provider set. Call setProvider() with a KeyboardProvider implementation (e.g., from @molecule/app-keyboard-react-native).',
       }),
     )
   }

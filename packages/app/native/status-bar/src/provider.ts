@@ -29,7 +29,7 @@ export function getProvider(): StatusBarProvider {
     throw new Error(
       t('statusBar.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-status-bar: No provider set. Call setProvider() with a StatusBarProvider implementation (e.g., from @molecule/app-status-bar-capacitor).',
+          '@molecule/app-status-bar: No provider set. Call setProvider() with a StatusBarProvider implementation (e.g., from @molecule/app-status-bar-react-native).',
       }),
     )
   }
