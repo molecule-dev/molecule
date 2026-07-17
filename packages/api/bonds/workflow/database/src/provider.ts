@@ -21,6 +21,25 @@ import type {
 import type { WorkflowEventRow, WorkflowInstanceRow, WorkflowRow } from './types.js'
 
 /**
+ * Deserializes a raw JSON/JSONB column value returned by the bonded DataStore.
+ *
+ * Database bonds do NOT normalize the shape of a JSON column: PostgreSQL
+ * `jsonb` (and MySQL `json`) columns are returned by the driver ALREADY
+ * PARSED — a JS object/array — while the SQLite bond stores JSON as TEXT and
+ * returns a string. Calling `JSON.parse()` unconditionally therefore crashes
+ * on real Postgres with `SyntaxError: "[object Object]" is not valid JSON`.
+ * This guard parses only when the value is still a string and passes an
+ * already-parsed value through unchanged, so the round-trip is correct on
+ * every database bond.
+ *
+ * @param value - The raw column value (a JSON string on SQLite, a parsed object on Postgres/MySQL).
+ * @returns The parsed value, narrowed to `T`.
+ */
+function parseMaybeJson<T>(value: string | Record<string, unknown>): T {
+  return (typeof value === 'string' ? JSON.parse(value) : value) as T
+}
+
+/**
  * Converts a workflow database row into a typed {@link Workflow}.
  *
  * @param row - The raw database row.
@@ -31,7 +50,7 @@ function toWorkflow(row: WorkflowRow): Workflow {
     id: row.id,
     name: row.name,
     initialState: row.initialState,
-    states: JSON.parse(row.states) as Record<string, StateDefinition>,
+    states: parseMaybeJson<Record<string, StateDefinition>>(row.states),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }
@@ -48,7 +67,7 @@ function toWorkflowInstance(row: WorkflowInstanceRow): WorkflowInstance {
     id: row.id,
     workflowId: row.workflowId,
     state: row.state,
-    data: JSON.parse(row.data) as Record<string, unknown>,
+    data: parseMaybeJson<Record<string, unknown>>(row.data),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   }
@@ -71,7 +90,7 @@ function toWorkflowEvent(row: WorkflowEventRow): WorkflowEvent {
   }
   if (row.data) {
     try {
-      event.data = JSON.parse(row.data) as Record<string, unknown>
+      event.data = parseMaybeJson<Record<string, unknown>>(row.data)
     } catch (_error) {
       /* ignore malformed JSON — event.data is optional; a parse failure leaves it undefined */
     }
@@ -158,7 +177,7 @@ export const provider: WorkflowProvider = {
       )
     }
 
-    const states = JSON.parse(workflowRow.states) as Record<string, StateDefinition>
+    const states = parseMaybeJson<Record<string, StateDefinition>>(workflowRow.states)
     const currentState = states[instanceRow.state]
 
     if (!currentState) {
@@ -181,7 +200,7 @@ export const provider: WorkflowProvider = {
     const fromState = instanceRow.state
     const toState = transitionDef.target
 
-    const existingData = JSON.parse(instanceRow.data) as Record<string, unknown>
+    const existingData = parseMaybeJson<Record<string, unknown>>(instanceRow.data)
     const mergedData = data ? { ...existingData, ...data } : existingData
     const now = new Date().toISOString()
 
@@ -248,7 +267,7 @@ export const provider: WorkflowProvider = {
       )
     }
 
-    const states = JSON.parse(workflowRow.states) as Record<string, StateDefinition>
+    const states = parseMaybeJson<Record<string, StateDefinition>>(workflowRow.states)
     const currentState = states[instanceRow.state]
 
     if (!currentState) return []

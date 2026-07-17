@@ -46,6 +46,21 @@ const INSTANCE_ROW = {
   updatedAt: '2024-01-01T00:00:00Z',
 }
 
+// Real PostgreSQL `jsonb` (and MySQL `json`) columns are returned by the driver
+// ALREADY PARSED — a JS object, not a JSON string. The SQLite-shaped rows above
+// exercise the defensive string path; these mirror what node-postgres actually
+// hands back so the tests catch the `JSON.parse([object Object])` crash the old
+// unconditional-parse code would throw against a real Postgres database.
+const WORKFLOW_ROW_PARSED = {
+  ...WORKFLOW_ROW,
+  states: JSON.parse(STATES_JSON) as Record<string, unknown>,
+}
+
+const INSTANCE_ROW_PARSED = {
+  ...INSTANCE_ROW,
+  data: { orderId: '123' } as Record<string, unknown>,
+}
+
 describe('@molecule/api-workflow-database provider', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -373,6 +388,101 @@ describe('@molecule/api-workflow-database provider', () => {
       const result = await provider.getAvailableActions('inst-1')
 
       expect(result).toEqual([])
+    })
+  })
+
+  // These prove the round-trip is correct against a REAL Postgres `jsonb` column:
+  // the driver returns the value already parsed (an object), so the provider must
+  // NOT `JSON.parse` it. Every case here would throw
+  // `SyntaxError: "[object Object]" is not valid JSON` against the old
+  // unconditional-`JSON.parse` code; the string-shaped rows in the suites above
+  // still cover the defensive path where a driver hands back a JSON string.
+  describe('jsonb round-trip (pre-parsed objects, as real Postgres returns)', () => {
+    it('getWorkflow should use an already-parsed states object as-is', async () => {
+      mockFindById.mockResolvedValueOnce(WORKFLOW_ROW_PARSED)
+
+      const result = await provider.getWorkflow('wf-1')
+
+      expect(result).not.toBeNull()
+      expect(typeof result!.states).toBe('object')
+      expect(result!.states.pending).toBeDefined()
+      expect(result!.states.pending.transitions.confirm.target).toBe('confirmed')
+    })
+
+    it('listWorkflows should deserialize already-parsed states objects', async () => {
+      mockFindMany.mockResolvedValueOnce([WORKFLOW_ROW_PARSED])
+
+      const result = await provider.listWorkflows()
+
+      expect(result).toHaveLength(1)
+      expect(result[0].states.pending).toBeDefined()
+    })
+
+    it('getInstance should use an already-parsed data object as-is', async () => {
+      mockFindById.mockResolvedValueOnce(INSTANCE_ROW_PARSED)
+
+      const result = await provider.getInstance('inst-1')
+
+      expect(result).not.toBeNull()
+      expect(result!.data.orderId).toBe('123')
+    })
+
+    it('startInstance should deserialize the created instance when data comes back parsed', async () => {
+      mockFindById.mockResolvedValueOnce(WORKFLOW_ROW_PARSED)
+      mockCreate.mockResolvedValueOnce({ data: INSTANCE_ROW_PARSED })
+
+      const result = await provider.startInstance('wf-1', { orderId: '123' })
+
+      expect(result.state).toBe('pending')
+      expect(result.data.orderId).toBe('123')
+    })
+
+    it('transition should merge into an already-parsed data object without re-parsing', async () => {
+      mockFindById
+        .mockResolvedValueOnce(INSTANCE_ROW_PARSED) // getInstance
+        .mockResolvedValueOnce(WORKFLOW_ROW_PARSED) // getWorkflow
+      mockUpdateById.mockResolvedValueOnce({})
+      mockCreate.mockResolvedValueOnce({ data: {} }) // event
+
+      const result = await provider.transition('inst-1', 'confirm', { note: 'approved' })
+
+      expect(result.state).toBe('confirmed')
+      expect(result.data.orderId).toBe('123')
+      expect(result.data.note).toBe('approved')
+    })
+
+    it('getState should read an instance whose data column is already parsed', async () => {
+      mockFindById.mockResolvedValueOnce(INSTANCE_ROW_PARSED)
+
+      expect(await provider.getState('inst-1')).toBe('pending')
+    })
+
+    it('getAvailableActions should read already-parsed states', async () => {
+      mockFindById
+        .mockResolvedValueOnce(INSTANCE_ROW_PARSED)
+        .mockResolvedValueOnce(WORKFLOW_ROW_PARSED)
+
+      const result = await provider.getAvailableActions('inst-1')
+
+      expect(result).toEqual(['confirm', 'cancel'])
+    })
+
+    it('getHistory should use an already-parsed event data object as-is', async () => {
+      const eventRow = {
+        id: 'evt-1',
+        instanceId: 'inst-1',
+        action: 'confirm',
+        fromState: 'pending',
+        toState: 'confirmed',
+        data: { note: 'approved' } as Record<string, unknown>,
+        createdAt: '2024-01-01T01:00:00Z',
+      }
+      mockFindMany.mockResolvedValueOnce([eventRow])
+
+      const result = await provider.getHistory('inst-1')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].data).toEqual({ note: 'approved' })
     })
   })
 })

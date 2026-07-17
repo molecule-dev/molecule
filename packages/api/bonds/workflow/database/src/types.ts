@@ -14,8 +14,12 @@ export interface WorkflowRow {
   id: string
   /** Human-readable workflow name. */
   name: string
-  /** JSON-serialized states definition. */
-  states: string
+  /**
+   * The states definition, from a JSONB column. The bonded DataStore returns
+   * this ALREADY PARSED (an object) on Postgres/MySQL but as a JSON string on
+   * SQLite — read it through `parseMaybeJson`, never a bare `JSON.parse`.
+   */
+  states: string | Record<string, unknown>
   /** The initial state for new instances. */
   initialState: string
   /** Creation timestamp. */
@@ -34,8 +38,12 @@ export interface WorkflowInstanceRow {
   workflowId: string
   /** Current state of the instance. */
   state: string
-  /** JSON-serialized instance data. */
-  data: string
+  /**
+   * The instance data, from a JSONB column. Returned ALREADY PARSED (an
+   * object) on Postgres/MySQL but as a JSON string on SQLite — read it through
+   * `parseMaybeJson`, never a bare `JSON.parse`.
+   */
+  data: string | Record<string, unknown>
   /** Creation timestamp. */
   createdAt: string
   /** Last modification timestamp. */
@@ -56,8 +64,12 @@ export interface WorkflowEventRow {
   fromState: string
   /** The state after the transition. */
   toState: string
-  /** JSON-serialized data snapshot, or null. */
-  data: string | null
+  /**
+   * The data snapshot, from a nullable JSONB column, or null. Returned ALREADY
+   * PARSED (an object) on Postgres/MySQL but as a JSON string on SQLite — read
+   * it through `parseMaybeJson`, never a bare `JSON.parse`.
+   */
+  data: string | Record<string, unknown> | null
   /** Event timestamp. */
   createdAt: string
 }
