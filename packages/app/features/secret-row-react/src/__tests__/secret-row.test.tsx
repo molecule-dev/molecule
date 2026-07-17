@@ -25,8 +25,13 @@ vi.mock('@molecule/app-ui', () => ({
 
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+      // Mirror i18next `{{var}}` interpolation so tests can assert the rendered value.
+      const template = opts?.defaultValue ?? key
+      return template.replace(/\{\{(\w+)\}\}/g, (_m, name: string) =>
+        values && name in values ? String(values[name]) : `{{${name}}}`,
+      )
+    },
   }),
 }))
 
@@ -72,6 +77,29 @@ describe('SecretRow', () => {
     expect(expired).toContain('Expired')
     const fresh = html(createElement(SecretRow, { secret: secret({ daysUntilRotation: 30 }) }))
     expect(fresh).not.toContain('Expired')
+  })
+
+  it('renders a rotation countdown when daysUntilRotation is zero or positive', () => {
+    const soon = html(createElement(SecretRow, { secret: secret({ daysUntilRotation: 14 }) }))
+    expect(soon).toContain('Rotate in 14d')
+    const dueToday = html(createElement(SecretRow, { secret: secret({ daysUntilRotation: 0 }) }))
+    expect(dueToday).toContain('Rotate in 0d')
+    // Negative → expired, never a countdown.
+    const expired = html(createElement(SecretRow, { secret: secret({ daysUntilRotation: -1 }) }))
+    expect(expired).not.toContain('Rotate in')
+    // Field omitted → no rotation chip at all.
+    const none = html(createElement(SecretRow, { secret: secret() }))
+    expect(none).not.toContain('Rotate in')
+  })
+
+  it('renders the last-rotated note when lastRotatedAt is provided', () => {
+    const withDate = html(
+      createElement(SecretRow, { secret: secret({ lastRotatedAt: '2026-01-02' }) }),
+    )
+    expect(withDate).toContain('Last rotated')
+    expect(withDate).toContain('2026-01-02')
+    const without = html(createElement(SecretRow, { secret: secret() }))
+    expect(without).not.toContain('Last rotated')
   })
 
   it('always renders Show and Copy buttons', () => {

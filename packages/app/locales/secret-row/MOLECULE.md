@@ -4,7 +4,7 @@ Translations for @molecule/app-secret-row-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-secret-row-react` package which has 7 translation keys.
+Provides translations for the `@molecule/app-secret-row-react` package which has 9 translation keys.
 
 ## Languages
 
@@ -37,6 +37,8 @@ registerLocaleModule(locales)
 | Key | English |
 |-----|---------|
 | `secretRow.expired` | Expired |
+| `secretRow.rotateIn` | Rotate in {{days}}d |
+| `secretRow.lastRotated` | Last rotated |
 | `secretRow.hide` | Hide |
 | `secretRow.show` | Show |
 | `secretRow.copied` | Copied! |

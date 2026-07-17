@@ -3,9 +3,11 @@
  *
  * Exports `<SecretRow>` and the `SecretRowData` type (`{ id, key, value,
  * version?, daysUntilRotation?, lastRotatedAt?, description? }`). Renders
- * key + masked value with Show/Hide and Copy buttons, plus optional Rotate /
- * Delete buttons (shown only when `onRotate` / `onDelete` are passed).
- * `maskChar` customizes the mask glyph (default `'•'`).
+ * key + masked value with Show/Hide and Copy buttons, an optional rotation
+ * status (an "Expired" tag / "Rotate in {n}d" countdown / "Last rotated
+ * {value}" note), plus optional Rotate / Delete buttons (shown only when
+ * `onRotate` / `onDelete` are passed). `maskChar` customizes the mask glyph
+ * (default `'•'`).
  *
  * @example
  * ```tsx
@@ -32,10 +34,10 @@
  * ```
  *
  * @remarks
- * - Rotation display is expiry-only: `daysUntilRotation < 0` shows an
- *   "Expired" tag; POSITIVE values render nothing (no countdown), and
- *   `lastRotatedAt` is accepted but currently never rendered — surface those
- *   in your own row chrome if needed.
+ * - Rotation status renders from two fields: `daysUntilRotation < 0` shows an
+ *   "Expired" tag, `daysUntilRotation >= 0` shows a "Rotate in {n}d" countdown,
+ *   and `lastRotatedAt` (when set) renders a "Last rotated {value}" note. Omit
+ *   a field to hide its chip.
  * - Copy silently does nothing when `navigator.clipboard` is unavailable
  *   (non-HTTPS origins, some webviews) — no error, no fallback.
  * - The version chip renders as `v{version}` — pass `version="2"`, not "v2".

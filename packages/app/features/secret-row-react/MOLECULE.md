@@ -4,9 +4,11 @@ Vault-style secret / credential row.
 
 Exports `<SecretRow>` and the `SecretRowData` type (`{ id, key, value,
 version?, daysUntilRotation?, lastRotatedAt?, description? }`). Renders
-key + masked value with Show/Hide and Copy buttons, plus optional Rotate /
-Delete buttons (shown only when `onRotate` / `onDelete` are passed).
-`maskChar` customizes the mask glyph (default `'•'`).
+key + masked value with Show/Hide and Copy buttons, an optional rotation
+status (an "Expired" tag / "Rotate in {n}d" countdown / "Last rotated
+{value}" note), plus optional Rotate / Delete buttons (shown only when
+`onRotate` / `onDelete` are passed). `maskChar` customizes the mask glyph
+(default `'•'`).
 
 ## Quick Start
 
@@ -58,9 +60,13 @@ interface SecretRowData {
   value: string
   /** Version number / label. */
   version?: ReactNode
-  /** Days until rotation — a negative value renders an "Expired" tag; positive values render nothing. */
+  /**
+   * Days until the secret should be rotated. A negative value renders an
+   * "Expired" tag; zero or a positive value renders a "Rotate in {n}d"
+   * countdown.
+   */
   daysUntilRotation?: number
-  /** ISO timestamp of last rotation. Accepted but not currently rendered. */
+  /** Last-rotation timestamp (ISO string or any node); rendered as "Last rotated {value}". */
   lastRotatedAt?: ReactNode
   /** Additional description (e.g. "Stripe API key"). */
   description?: ReactNode
@@ -90,8 +96,9 @@ interface SecretRowProps {
 #### `SecretRow(props)`
 
 Secret / credential row for vault UIs. Masked by default; the user
-toggles reveal, can copy to clipboard, and sees an "Expired" tag when
-`daysUntilRotation` is negative (positive values render no countdown).
+toggles reveal, can copy to clipboard, sees an "Expired" tag when
+`daysUntilRotation` is negative or a "Rotate in {n}d" countdown when it is
+zero/positive, and a "Last rotated {value}" note when `lastRotatedAt` is set.
 
 ```typescript
 function SecretRow({
@@ -122,10 +129,10 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 
-- Rotation display is expiry-only: `daysUntilRotation < 0` shows an
-  "Expired" tag; POSITIVE values render nothing (no countdown), and
-  `lastRotatedAt` is accepted but currently never rendered — surface those
-  in your own row chrome if needed.
+- Rotation status renders from two fields: `daysUntilRotation < 0` shows an
+  "Expired" tag, `daysUntilRotation >= 0` shows a "Rotate in {n}d" countdown,
+  and `lastRotatedAt` (when set) renders a "Last rotated {value}" note. Omit
+  a field to hide its chip.
 - Copy silently does nothing when `navigator.clipboard` is unavailable
   (non-HTTPS origins, some webviews) — no error, no fallback.
 - The version chip renders as `v{version}` — pass `version="2"`, not "v2".

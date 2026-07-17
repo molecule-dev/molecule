@@ -13,9 +13,13 @@ export interface SecretRowData {
   value: string
   /** Version number / label. */
   version?: ReactNode
-  /** Days until rotation — a negative value renders an "Expired" tag; positive values render nothing. */
+  /**
+   * Days until the secret should be rotated. A negative value renders an
+   * "Expired" tag; zero or a positive value renders a "Rotate in {n}d"
+   * countdown.
+   */
   daysUntilRotation?: number
-  /** ISO timestamp of last rotation. Accepted but not currently rendered. */
+  /** Last-rotation timestamp (ISO string or any node); rendered as "Last rotated {value}". */
   lastRotatedAt?: ReactNode
   /** Additional description (e.g. "Stripe API key"). */
   description?: ReactNode
@@ -36,8 +40,9 @@ export interface SecretRowProps {
 
 /**
  * Secret / credential row for vault UIs. Masked by default; the user
- * toggles reveal, can copy to clipboard, and sees an "Expired" tag when
- * `daysUntilRotation` is negative (positive values render no countdown).
+ * toggles reveal, can copy to clipboard, sees an "Expired" tag when
+ * `daysUntilRotation` is negative or a "Rotate in {n}d" countdown when it is
+ * zero/positive, and a "Last rotated {value}" note when `lastRotatedAt` is set.
  * @param props - Component props (see {@link SecretRowProps}).
  */
 export function SecretRow({
@@ -81,6 +86,20 @@ export function SecretRow({
           style={{ color: '#ef4444' }}
         >
           {t('secretRow.expired', {}, { defaultValue: 'Expired' })}
+        </span>
+      )}
+      {secret.daysUntilRotation !== undefined && secret.daysUntilRotation >= 0 && (
+        <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
+          {t(
+            'secretRow.rotateIn',
+            { days: secret.daysUntilRotation },
+            { defaultValue: 'Rotate in {{days}}d' },
+          )}
+        </span>
+      )}
+      {secret.lastRotatedAt !== undefined && secret.lastRotatedAt !== null && (
+        <span className={cm.cn(cm.textSize('xs'), cm.textMuted)}>
+          {t('secretRow.lastRotated', {}, { defaultValue: 'Last rotated' })} {secret.lastRotatedAt}
         </span>
       )}
       <Button variant="ghost" size="sm" onClick={() => setRevealed((x) => !x)}>
