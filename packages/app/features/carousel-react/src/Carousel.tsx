@@ -2,8 +2,18 @@ import type { JSX, ReactNode } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import type { CSSProperties } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
+
+// Arrow offsets + vertical centering. `cm.position('absolute')` gives the
+// positioning context, but the ClassMap contract exposes no left/right/top or
+// translate resolver (only `position` + `inset0`), so the edge offsets and the
+// -50% Y translate that centers each arrow are inline — a sanctioned
+// "ClassMap can't express it" case (AGENTS.md Rule 5). Left arrow pins to the
+// left edge, right arrow to the right edge; both sit at the vertical middle.
+const arrowLeftStyle: CSSProperties = { left: 8, top: '50%', transform: 'translateY(-50%)' }
+const arrowRightStyle: CSSProperties = { right: 8, top: '50%', transform: 'translateY(-50%)' }
 
 export interface CarouselProps {
   /** Slides — each child is one frame. */
@@ -110,6 +120,7 @@ export function Carousel({
             onClick={() => setIdx(active - 1)}
             aria-label={t('carousel.previous', {}, { defaultValue: 'Previous' })}
             className={cm.position('absolute')}
+            style={arrowLeftStyle}
           >
             ‹
           </Button>
@@ -119,6 +130,7 @@ export function Carousel({
             onClick={() => setIdx(active + 1)}
             aria-label={t('carousel.next', {}, { defaultValue: 'Next' })}
             className={cm.position('absolute')}
+            style={arrowRightStyle}
           >
             ›
           </Button>

@@ -31,13 +31,24 @@ vi.mock('@molecule/app-react', () => ({
 }))
 
 vi.mock('@molecule/app-ui-react', () => ({
+  // Forward `style` (and `className`) exactly as the real `<Button>` does, so
+  // arrow positioning is observable in the rendered markup.
   Button: ({
     children,
+    style,
+    className,
     ['aria-label']: ariaLabel,
   }: {
     children?: ReactNode
+    style?: Record<string, unknown>
+    className?: string
     'aria-label'?: string
-  }) => createElement('button', { 'data-button': '', 'aria-label': ariaLabel }, children),
+  }) =>
+    createElement(
+      'button',
+      { 'data-button': '', 'aria-label': ariaLabel, style, className },
+      children,
+    ),
 }))
 
 const { Carousel } = await import('../Carousel.js')
@@ -69,6 +80,28 @@ describe('Carousel', () => {
     const markup = html(createElement(Carousel, { children: slides(3) }))
     expect(markup).toContain('aria-label="Previous"')
     expect(markup).toContain('aria-label="Next"')
+  })
+
+  it('pins the prev arrow left and the next arrow right, both vertically centered', () => {
+    // Regression: both arrows used `cm.position('absolute')` with no offsets,
+    // so they stacked at the same spot (top-left).
+    const markup = html(createElement(Carousel, { children: slides(3) }))
+    const firstClose = markup.indexOf('</button>')
+    const rest = markup.slice(firstClose + '</button>'.length)
+    const prev = markup.slice(0, firstClose)
+    const next = rest.slice(0, rest.indexOf('</button>'))
+
+    expect(prev).toContain('aria-label="Previous"')
+    expect(prev).toContain('left:8px')
+    expect(prev).not.toContain('right:8px')
+
+    expect(next).toContain('aria-label="Next"')
+    expect(next).toContain('right:8px')
+    expect(next).not.toContain('left:8px')
+
+    // Both arrows are vertically centered (offset + translate), not stacked.
+    expect((markup.match(/top:50%/g) ?? []).length).toBe(2)
+    expect((markup.match(/translateY\(-50%\)/g) ?? []).length).toBe(2)
   })
 
   it('omits the arrows when showArrows is false', () => {
