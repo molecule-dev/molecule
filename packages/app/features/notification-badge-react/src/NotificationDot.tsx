@@ -15,12 +15,17 @@ export interface NotificationDotProps {
   className?: string
 }
 
+// Each variant maps to the background class emitted by a real ClassMap theme
+// token. `neutral` uses the `surface-secondary` surface token (what
+// `cm.surfaceSecondary` resolves to) — a visible neutral fill in both light and
+// dark themes. It previously used `bg-outline`, which no theme defines, so the
+// neutral dot rendered transparent.
 const VARIANT_BG: Record<NonNullable<NotificationDotProps['variant']>, string> = {
   error: 'bg-error',
   warning: 'bg-warning',
   info: 'bg-info',
   success: 'bg-success',
-  neutral: 'bg-outline',
+  neutral: 'bg-surface-secondary',
 }
 
 /**

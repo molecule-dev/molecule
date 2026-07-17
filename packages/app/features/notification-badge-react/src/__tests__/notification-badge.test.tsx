@@ -68,10 +68,20 @@ describe('NotificationBadge', () => {
       ['warning', 'bg-warning'],
       ['info', 'bg-info'],
       ['success', 'bg-success'],
-      ['neutral', 'bg-outline'],
+      ['neutral', 'bg-surface-secondary'],
     ] as const) {
       expect(html(createElement(NotificationBadge, { count: 1, variant }))).toContain(bg)
     }
+  })
+
+  it('gives the neutral variant a visible surface (never the phantom bg-outline)', () => {
+    const markup = html(createElement(NotificationBadge, { count: 1, variant: 'neutral' }))
+    // A real, theme-defined surface token — visible in light and dark themes.
+    expect(markup).toContain('bg-surface-secondary')
+    // The old phantom class no theme defines must not resurface.
+    expect(markup).not.toContain('bg-outline')
+    // Sanity: the emitted class list is non-empty.
+    expect(markup).toMatch(/class="[^"]*bg-surface-secondary[^"]*"/)
   })
 
   it('defaults to the error variant', () => {
@@ -100,7 +110,15 @@ describe('NotificationDot', () => {
 
   it('maps each variant to its background token', () => {
     expect(html(createElement(NotificationDot, { variant: 'success' }))).toContain('bg-success')
-    expect(html(createElement(NotificationDot, { variant: 'neutral' }))).toContain('bg-outline')
+    expect(html(createElement(NotificationDot, { variant: 'neutral' }))).toContain(
+      'bg-surface-secondary',
+    )
+  })
+
+  it('gives the neutral dot a visible surface (never the phantom bg-outline)', () => {
+    const markup = html(createElement(NotificationDot, { variant: 'neutral' }))
+    expect(markup).toContain('bg-surface-secondary')
+    expect(markup).not.toContain('bg-outline')
   })
 
   it('defaults to an 8px inline dot', () => {

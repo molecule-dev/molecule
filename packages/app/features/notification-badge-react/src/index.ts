@@ -22,14 +22,12 @@
  * @remarks
  * Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
  *
- * Variant colors currently resolve to raw `bg-error` / `bg-warning` /
- * `bg-info` / `bg-success` / `bg-outline` utility classes rather than
- * ClassMap resolvers. In a standard molecule Tailwind app the first four
- * happen to be generated, but `variant="neutral"` maps to `bg-outline`,
- * which standard themes do NOT define — the neutral pill/dot renders
- * transparent. Prefer the four semantic variants, or define an
- * `outline` theme color (and ensure your Tailwind build scans a source
- * containing `bg-outline`) before using `neutral`.
+ * Every variant resolves to a real theme background token, so all five are
+ * visible in both light and dark themes: `error` / `warning` / `info` /
+ * `success` map to the semantic status colors, and `neutral` maps to the
+ * `surface-secondary` surface token (what `cm.surfaceSecondary` emits) for a
+ * neutral grey fill. (`neutral` previously used `bg-outline`, which no theme
+ * defines, so the neutral pill/dot rendered transparent — fixed.)
  *
  * `<NotificationWrapper>` absolutely positions the badge 4px OUTSIDE the
  * child's corner — an `overflow: hidden` ancestor will clip it.
