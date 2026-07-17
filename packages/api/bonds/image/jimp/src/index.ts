@@ -14,12 +14,16 @@
  * ```
  *
  * @remarks
- * - **WebP and AVIF are NOT supported.** The core `ImageFormat` union includes
- *   them, but any jimp operation targeting `webp`/`avif` throws
- *   (`Jimp does not support the "webp" format. Supported formats: jpeg, png,
- *   gif, tiff.`), and WebP input cannot be decoded either. The inherited E2E
- *   checklist's "WebP round-trips" item does NOT apply to this bond — if the
- *   app touches WebP/AVIF, bond `@molecule/api-image-sharp` instead.
+ * - **WebP and AVIF are NOT supported** — Jimp 1.x ships no codec for either.
+ *   The core `ImageFormat` union includes them, but this bond does not advertise
+ *   them: `getSupportedFormats()` returns only `jpeg, png, gif, tiff`. Requesting
+ *   `webp`/`avif` as OUTPUT (`convert`/`optimize`) or as INPUT (any decode) fails
+ *   early with a clear, actionable error that names the sharp sibling (for example:
+ *   `jimp does not support the "webp" output format — use \@molecule/api-image-sharp for WebP/AVIF. jimp supports: jpeg, png, gif, tiff.`),
+ *   never an opaque mid-pipeline throw. The inherited E2E checklist's "WebP
+ *   round-trips" item does NOT apply to this bond: feature-detect with
+ *   `getSupportedFormats()` and bond `@molecule/api-image-sharp` when the app
+ *   touches WebP/AVIF.
  * - Pure-JS tradeoff: zero native dependencies (runs anywhere Node runs) but
  *   markedly slower and more memory-hungry than sharp on large images — treat
  *   sharp as the default and jimp as the no-native-binaries fallback.

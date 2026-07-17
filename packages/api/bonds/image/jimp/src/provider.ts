@@ -5,8 +5,12 @@
  * dependencies. Supports resize, crop, format conversion, thumbnailing,
  * optimization, rotation, flip, and flop.
  *
- * Note: Jimp natively supports JPEG, PNG, BMP, TIFF, and GIF.
- * WebP and AVIF are not supported and will throw an error.
+ * Note: Jimp natively supports JPEG, PNG, BMP, TIFF, and GIF. Jimp 1.x ships NO
+ * WebP or AVIF codec, so requesting either format — as OUTPUT (`convert`/`optimize`)
+ * or as INPUT (any decode) — fails early with an actionable error pointing at the
+ * `@molecule/api-image-sharp` sibling, never an opaque mid-pipeline throw. Read
+ * `getSupportedFormats()` / `SUPPORTED_FORMATS` to feature-detect before requesting
+ * a conversion.
  *
  * @module
  */
@@ -29,11 +33,42 @@ import type { JimpConfig } from './types.js'
 type JimpSupportedMime = 'image/jpeg' | 'image/png' | 'image/gif' | 'image/tiff' | 'image/bmp'
 
 /**
+ * The `ImageFormat`s this bond can actually decode AND encode. Deliberately
+ * EXCLUDES `webp` and `avif`: Jimp 1.x ships no codec for either, so this bond
+ * must not advertise formats it cannot produce — use `@molecule/api-image-sharp`
+ * when those are required. Callers can read this to feature-detect before
+ * requesting a conversion.
+ */
+export const SUPPORTED_FORMATS: readonly ImageFormat[] = ['jpeg', 'png', 'gif', 'tiff']
+
+/**
+ * Returns the image formats this bond can produce. Never advertises `webp`/`avif`.
+ *
+ * @returns The list of supported `ImageFormat`s for capability feature-detection.
+ */
+export const getSupportedFormats = (): readonly ImageFormat[] => SUPPORTED_FORMATS
+
+/**
+ * Builds the actionable error thrown when an unsupported format is requested,
+ * naming the sibling bond that does support WebP/AVIF.
+ *
+ * @param format - The unsupported format name.
+ * @param direction - Whether it was requested as `output` or `input`.
+ * @returns An `Error` naming `@molecule/api-image-sharp` and Jimp's real formats.
+ */
+const unsupportedFormatError = (format: string, direction: 'output' | 'input'): Error =>
+  new Error(
+    `jimp does not support the "${format}" ${direction} format — ` +
+      `use @molecule/api-image-sharp for WebP/AVIF. ` +
+      `jimp supports: ${SUPPORTED_FORMATS.join(', ')}.`,
+  )
+
+/**
  * Maps an `ImageFormat` to the corresponding Jimp MIME type.
  *
  * @param format - The target image format.
  * @returns The MIME type string for Jimp.
- * @throws {Error} If the format is not supported by Jimp.
+ * @throws {Error} If the format is not supported by Jimp (e.g. webp/avif).
  */
 const toJimpMime = (format: ImageFormat): JimpSupportedMime => {
   const mimeMap: Partial<Record<ImageFormat, JimpSupportedMime>> = {
@@ -44,11 +79,51 @@ const toJimpMime = (format: ImageFormat): JimpSupportedMime => {
   }
   const mime = mimeMap[format]
   if (!mime) {
-    throw new Error(
-      `Jimp does not support the "${format}" format. Supported formats: jpeg, png, gif, tiff.`,
-    )
+    throw unsupportedFormatError(format, 'output')
   }
   return mime
+}
+
+/**
+ * Sniffs a buffer's magic bytes for formats Jimp cannot decode (WebP, AVIF),
+ * so a bad input fails with an actionable error instead of Jimp's opaque
+ * "Mime type image/webp does not support decoding".
+ *
+ * @param input - The image buffer to inspect.
+ * @returns The detected unsupported format name, or `null` if Jimp can attempt it.
+ */
+const detectUnsupportedInput = (input: Buffer): 'webp' | 'avif' | null => {
+  if (input.length < 12) {
+    return null
+  }
+  // WebP: "RIFF" <4-byte size> "WEBP"
+  if (input.toString('latin1', 0, 4) === 'RIFF' && input.toString('latin1', 8, 12) === 'WEBP') {
+    return 'webp'
+  }
+  // AVIF: ISO-BMFF "ftyp" box at offset 4 with an AVIF brand.
+  if (input.toString('latin1', 4, 8) === 'ftyp') {
+    const brand = input.toString('latin1', 8, 12)
+    if (brand === 'avif' || brand === 'avis') {
+      return 'avif'
+    }
+  }
+  return null
+}
+
+/**
+ * Decodes a buffer into a Jimp image, first rejecting inputs Jimp has no codec
+ * for (WebP/AVIF) with a loud, actionable error naming the sharp sibling.
+ *
+ * @param input - The image buffer to decode.
+ * @returns The loaded Jimp image instance.
+ * @throws {Error} If the input is a WebP/AVIF buffer Jimp cannot decode.
+ */
+const loadImage = async (input: Buffer): Promise<Awaited<ReturnType<typeof Jimp.fromBuffer>>> => {
+  const unsupported = detectUnsupportedInput(input)
+  if (unsupported) {
+    throw unsupportedFormatError(unsupported, 'input')
+  }
+  return Jimp.fromBuffer(input)
 }
 
 /**
@@ -102,7 +177,7 @@ export const createProvider = (config?: JimpConfig): ImageProvider => {
 
   return {
     async resize(input: Buffer, options: ResizeOptions): Promise<Buffer> {
-      const image = await Jimp.fromBuffer(input)
+      const image = await loadImage(input)
 
       image.resize({
         w: options.width ?? image.width,
@@ -113,7 +188,7 @@ export const createProvider = (config?: JimpConfig): ImageProvider => {
     },
 
     async crop(input: Buffer, options: CropOptions): Promise<Buffer> {
-      const image = await Jimp.fromBuffer(input)
+      const image = await loadImage(input)
 
       image.crop({
         x: options.left,
@@ -126,8 +201,10 @@ export const createProvider = (config?: JimpConfig): ImageProvider => {
     },
 
     async convert(input: Buffer, format: ImageFormat, quality?: number): Promise<Buffer> {
-      const image = await Jimp.fromBuffer(input)
+      // Validate the requested format BEFORE decoding, so unsupported requests
+      // (webp/avif) fail loudly and early instead of mid-pipeline.
       const mime = toJimpMime(format)
+      const image = await loadImage(input)
 
       if (format === 'jpeg' && quality !== undefined) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,7 +216,7 @@ export const createProvider = (config?: JimpConfig): ImageProvider => {
     },
 
     async thumbnail(input: Buffer, size: number): Promise<Buffer> {
-      const image = await Jimp.fromBuffer(input)
+      const image = await loadImage(input)
 
       // Cover: resize to fill the square, then crop center
       const ratio = Math.max(size / image.width, size / image.height)
@@ -156,8 +233,10 @@ export const createProvider = (config?: JimpConfig): ImageProvider => {
     },
 
     async optimize(input: Buffer, options?: OptimizeOptions): Promise<Buffer> {
-      const image = await Jimp.fromBuffer(input)
-      const mime = options?.format ? toJimpMime(options.format) : resolveMime(image.mime)
+      // Validate a requested output format BEFORE decoding (fail early on webp/avif).
+      const requestedMime = options?.format ? toJimpMime(options.format) : undefined
+      const image = await loadImage(input)
+      const mime = requestedMime ?? resolveMime(image.mime)
       const quality = options?.quality ?? defaultJpegQuality
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -165,7 +244,7 @@ export const createProvider = (config?: JimpConfig): ImageProvider => {
     },
 
     async getMetadata(input: Buffer): Promise<ImageMetadata> {
-      const image = await Jimp.fromBuffer(input)
+      const image = await loadImage(input)
 
       return {
         width: image.width,
@@ -177,19 +256,19 @@ export const createProvider = (config?: JimpConfig): ImageProvider => {
     },
 
     async rotate(input: Buffer, options: RotateOptions): Promise<Buffer> {
-      const image = await Jimp.fromBuffer(input)
+      const image = await loadImage(input)
       image.rotate(options.angle)
       return toBuffer(image)
     },
 
     async flip(input: Buffer): Promise<Buffer> {
-      const image = await Jimp.fromBuffer(input)
+      const image = await loadImage(input)
       image.flip({ horizontal: false, vertical: true })
       return toBuffer(image)
     },
 
     async flop(input: Buffer): Promise<Buffer> {
-      const image = await Jimp.fromBuffer(input)
+      const image = await loadImage(input)
       image.flip({ horizontal: true, vertical: false })
       return toBuffer(image)
     },
