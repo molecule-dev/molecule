@@ -178,6 +178,31 @@ describe('@molecule/api-webhook-queue', () => {
       expect(log[0].success).toBe(false)
       expect(log[0].status).toBe(0)
     })
+
+    it('returns a 202 acceptance receipt that does NOT reflect the real (failed) outcome — the log does', async () => {
+      // The whole point of the false-success fix: the dispatch return is an
+      // acceptance receipt (queued), never a claim that delivery succeeded.
+      mockFetch.mockRejectedValue(new Error('Network error'))
+
+      const hook = await provider.register('https://example.com/hook', ['event.a'])
+      const results = await provider.dispatch('event.a', {})
+
+      // Acceptance receipt: 202 = queued, success = enqueued, deliveryId = poll handle.
+      expect(results).toHaveLength(1)
+      expect(results[0].status).toBe(202)
+      expect(results[0].success).toBe(true)
+      expect(results[0].deliveryId).toBeTruthy()
+
+      await waitForProcessing()
+
+      // The REAL delivery outcome is recorded in the log, keyed by the receipt's
+      // deliveryId, and a failed delivery is NEVER reported as a success.
+      const log = await provider.getDeliveryLog(hook.id)
+      expect(log).toHaveLength(1)
+      expect(log[0].id).toBe(results[0].deliveryId)
+      expect(log[0].success).toBe(false)
+      expect(log[0].status).toBe(0)
+    })
   })
 
   describe('dispatch with retries', () => {
@@ -222,6 +247,45 @@ describe('@molecule/api-webhook-queue', () => {
       const log = await retryProvider.getDeliveryLog(hook.id)
       expect(log).toHaveLength(1)
       expect(log[0].success).toBe(false)
+    })
+
+    it('honors a per-registration retryCount LOWER than the provider maxRetries', async () => {
+      // Provider default would allow 5 retries; the registration caps it at 1.
+      const p = createProvider({ maxRetries: 5, baseDelay: 0, maxDelay: 0 })
+      mockFetch.mockRejectedValue(new Error('fail'))
+
+      const hook = await p.register('https://example.com/hook', ['event.a'], { retryCount: 1 })
+      await p.dispatch('event.a', {})
+
+      await waitForProcessing()
+
+      // initial + exactly 1 retry — NOT the provider's 5 (the pre-fix bug).
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+      const log = await p.getDeliveryLog(hook.id)
+      expect(log).toHaveLength(1)
+      expect(log[0].success).toBe(false)
+    })
+
+    it('honors a per-registration retryCount HIGHER than the provider maxRetries', async () => {
+      // Provider maxRetries is 0, so the pre-fix code would make a single attempt
+      // and fail. Honoring the registration's retryCount of 2 gives it 3 attempts,
+      // and the 3rd succeeds — proving retryCount is genuinely honored, not just capped.
+      const p = createProvider({ maxRetries: 0, baseDelay: 0, maxDelay: 0 })
+      mockFetch
+        .mockRejectedValueOnce(new Error('fail'))
+        .mockRejectedValueOnce(new Error('fail'))
+        .mockResolvedValueOnce(new Response('OK', { status: 200 }))
+
+      const hook = await p.register('https://example.com/hook', ['event.a'], { retryCount: 2 })
+      await p.dispatch('event.a', {})
+
+      await waitForProcessing()
+
+      expect(mockFetch).toHaveBeenCalledTimes(3)
+      const log = await p.getDeliveryLog(hook.id)
+      expect(log).toHaveLength(1)
+      expect(log[0].success).toBe(true)
+      expect(log[0].status).toBe(200)
     })
   })
 

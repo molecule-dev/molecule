@@ -3,8 +3,18 @@
  *
  * Delivers webhook payloads through an internal job queue with exponential
  * backoff retries and configurable concurrency. Unlike the HTTP provider,
- * `dispatch()` enqueues jobs and returns immediately with "accepted" results
- * while deliveries are processed asynchronously.
+ * `dispatch()` enqueues jobs and returns immediately with an ACCEPTANCE receipt
+ * (`status: 202` = queued, `success: true` = enqueued) — NOT a delivery result —
+ * while deliveries are processed asynchronously. The real per-delivery outcome
+ * (the receiver's 2xx/failure) is recorded by `processJob` and is only visible
+ * via `getDeliveryLog(webhookId)`, matched on the returned `deliveryId`; a
+ * delivery that fails is never recorded as a success.
+ *
+ * Each delivery retries up to its registration's own `retryCount`
+ * ({@link WebhookOptions.retryCount}, captured at register time; defaults to the
+ * provider-level `maxRetries`) with exponential backoff. All state
+ * (registrations, delivery log, queue) is in-memory and NOT durable — see the
+ * package `@module` docs.
  *
  * @module
  */
@@ -185,15 +195,24 @@ export function createProvider(config: QueueWebhookConfig = {}): WebhookProvider
   async function processJob(job: DeliveryJob): Promise<void> {
     job.status = 'processing'
 
+    // Honor the PER-REGISTRATION retry cap (WebhookOptions.retryCount, captured
+    // at register time; defaults to the provider-level `maxRetries`). NOT the
+    // provider `maxRetries` directly — a webhook registered with its own
+    // retryCount must retry exactly that many times. If the registration was
+    // removed mid-flight, retryLimit is 0 (deliverJob already records a failure).
+    const retryLimit = registrations.get(job.webhookId)?.retryCount ?? 0
+
     let delivery = await deliverJob(job)
 
-    while (!delivery.success && job.attempt < maxRetries) {
+    while (!delivery.success && job.attempt < retryLimit) {
       const backoff = calculateBackoff(job.attempt, baseDelay, maxDelay)
       await delay(backoff)
       job.attempt += 1
       delivery = await deliverJob(job)
     }
 
+    // Record the REAL final outcome (never a synthetic success): a delivery that
+    // still fails after the last retry is stored as `success: false`.
     job.status = delivery.success ? 'completed' : 'failed'
     deliveries.set(job.id, delivery)
   }
@@ -282,6 +301,12 @@ export function createProvider(config: QueueWebhookConfig = {}): WebhookProvider
         }
         queue.push(job)
 
+        // ACCEPTANCE receipt, NOT a delivery result: `status: 202` means the
+        // job was QUEUED (accepted for async delivery), and `success: true`
+        // means it was successfully enqueued — neither claims the receiver was
+        // reached. The real per-delivery outcome (the receiver's 2xx/failure)
+        // is recorded asynchronously by processJob; poll getDeliveryLog(webhookId)
+        // and match on this `deliveryId` for the final status.
         results.push({
           webhookId: registration.id,
           deliveryId: jobId,
@@ -346,6 +371,9 @@ export function createProvider(config: QueueWebhookConfig = {}): WebhookProvider
 
       startProcessing()
 
+      // ACCEPTANCE receipt for the re-enqueued delivery (same semantics as
+      // dispatch): 202 = queued, not delivered. Poll getDeliveryLog(webhookId)
+      // and match on this `deliveryId` for the real retried outcome.
       return {
         webhookId: original.webhookId,
         deliveryId: jobId,
