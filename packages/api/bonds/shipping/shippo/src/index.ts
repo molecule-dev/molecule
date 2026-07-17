@@ -31,11 +31,13 @@
  * rules and may be queued or rejected; a successful return only means the
  * refund was requested.
  *
- * **Only the FIRST parcel is used** — `shipment.parcels[1..n]` are silently ignored;
- * quote multi-parcel shipments one parcel per call.
+ * **All parcels are quoted** — `shipment.parcels` is sent as a Shippo multi-piece
+ * shipment (Shippo's `parcels` field is an array), so every parcel is included and
+ * none are dropped. Carrier limits still apply (e.g. USPS does not support
+ * multi-piece and the carrier returns the error; UPS allows up to 50).
  *
- * Parcel units: `Parcel.distanceUnit`/`massUnit` are honored and default to
- * `'in'`/`'lb'` when unspecified — metric parcels MUST set them or dimensions are
+ * Parcel units: `Parcel.distanceUnit`/`massUnit` are honored per parcel and default
+ * to `'in'`/`'lb'` when unspecified — metric parcels MUST set them or dimensions are
  * interpreted as inches/pounds.
  *
  * `createLabel(shipmentId, rate)` ignores `shipmentId` (Shippo buys by `rateId`

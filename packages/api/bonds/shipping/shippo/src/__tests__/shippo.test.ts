@@ -219,6 +219,39 @@ describe('Shippo Shipping Provider', () => {
       expect(body.parcels[0].mass_unit).toBe('kg')
     })
 
+    it('sends EVERY parcel (multi-piece shipment) — never drops parcels[1..n]', async () => {
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
+      const { getRates } = await import('../provider.js')
+
+      await getRates({
+        ...validShipment,
+        parcels: [
+          { length: 10, width: 6, height: 4, weight: 12 },
+          { length: 8, width: 5, height: 3, weight: 1.5, distanceUnit: 'cm', massUnit: 'kg' },
+        ],
+      })
+
+      const body = JSON.parse((fetchMock.mock.calls[0]![1] as RequestInit).body as string)
+      expect(body.parcels).toHaveLength(2)
+      // Second parcel is preserved AND its own units are honored per parcel.
+      expect(body.parcels[0]).toMatchObject({
+        length: '10',
+        width: '6',
+        height: '4',
+        weight: '12',
+        distance_unit: 'in',
+        mass_unit: 'lb',
+      })
+      expect(body.parcels[1]).toMatchObject({
+        length: '8',
+        width: '5',
+        height: '3',
+        weight: '1.5',
+        distance_unit: 'cm',
+        mass_unit: 'kg',
+      })
+    })
+
     it('throws when no parcels are supplied', async () => {
       const { getRates } = await import('../provider.js')
       await expect(getRates({ ...validShipment, parcels: [] })).rejects.toThrow(

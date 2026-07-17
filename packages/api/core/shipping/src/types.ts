@@ -58,10 +58,10 @@ export interface Parcel {
   /** Parcel weight. */
   weight: number
 
-  /** Linear unit for length, width, and height. */
+  /** Linear unit for length, width, and height. Defaults to `'in'` when omitted (all bonds agree). */
   distanceUnit?: 'in' | 'cm'
 
-  /** Mass unit for weight. */
+  /** Mass unit for weight. Defaults to `'lb'` when omitted (all bonds agree). */
   massUnit?: 'lb' | 'oz' | 'kg' | 'g'
 }
 

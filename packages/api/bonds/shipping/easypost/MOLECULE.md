@@ -406,12 +406,16 @@ Peer dependencies:
 - **`createLabel(shipmentId, rate)` needs the EasyPost shipment id from the SAME
   quote.** Use this bond's `getRatesDetailed(shipment)` → `{ shipmentId, rates }`
   and persist BOTH between quote and purchase; plain `getRates()` discards the id.
-- **Only the FIRST parcel is used.** `shipment.parcels[1..n]` are silently ignored
-  — quote/purchase multi-parcel shipments one parcel per call.
-- **Dimensions are sent as inches and weight as OUNCES, always.**
-  `Parcel.distanceUnit`/`massUnit` are ignored by this bond — convert cm/kg/lb/g
-  to inches/ounces yourself before calling, or the quote (and the label you PAY
-  for) is priced for the wrong size. (The `-shippo` bond honors the unit fields.)
+- **One parcel per shipment.** An EasyPost shipment carries exactly one parcel
+  (its API has a single `parcel` field, not an array), so passing
+  `parcels.length > 1` THROWS rather than silently dropping the extras — send
+  each parcel as its own shipment, or use `-shippo` for multi-piece shipments.
+- **`Parcel.distanceUnit`/`massUnit` are honored.** Dimensions are converted to
+  inches and weight to ounces (EasyPost's only accepted units — its Parcel
+  object has no unit fields) before the call: `cm`→in, `lb`/`kg`/`g`→oz, so a
+  metric parcel is priced correctly. Units default to `'in'`/`'lb'` when
+  unspecified, matching the `-shippo` bond so a unit-less parcel is priced the
+  same by either provider.
 - `voidLabel(labelId)` refunds via `POST /shipments/:id/refund` — pass
   `ShippingLabel.id` (the EasyPost shipment id) returned by `createLabel`.
 

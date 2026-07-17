@@ -36,7 +36,9 @@ const validShipment: Shipment = {
     postalCode: '90277',
     country: 'US',
   },
-  parcels: [{ length: 10, width: 6, height: 4, weight: 12 }],
+  // Explicit imperial units: EasyPost's native inches + ounces, so
+  // `toEasyPostParcel` is an identity conversion and the payload matches 1:1.
+  parcels: [{ length: 10, width: 6, height: 4, weight: 12, distanceUnit: 'in', massUnit: 'oz' }],
 }
 
 const mockShipmentResponse = {
@@ -252,6 +254,108 @@ describe('EasyPost Shipping Provider', () => {
       } catch (err) {
         expect((err as Error).message).not.toContain('EZTKtest_abcdef0123456789')
       }
+    })
+
+    it('converts a metric (cm/kg) parcel to inches/ounces — never prices it as imperial', async () => {
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
+      const { getRates } = await import('../provider.js')
+
+      await getRates({
+        ...validShipment,
+        // 25.4cm→10in, 15.24cm→6in, 10.16cm→4in; 1kg→35.274oz.
+        parcels: [
+          {
+            length: 25.4,
+            width: 15.24,
+            height: 10.16,
+            weight: 1,
+            distanceUnit: 'cm',
+            massUnit: 'kg',
+          },
+        ],
+      })
+
+      const body = JSON.parse((fetchMock.mock.calls[0]![1] as RequestInit).body as string)
+      const parcel = body.shipment.parcel
+      expect(parcel.length).toBeCloseTo(10, 4)
+      expect(parcel.width).toBeCloseTo(6, 4)
+      expect(parcel.height).toBeCloseTo(4, 4)
+      expect(parcel.weight).toBeCloseTo(35.274, 3)
+      // The raw metric numbers must NOT be sent as-is — that is the mispricing bug.
+      expect(parcel.length).not.toBe(25.4)
+      expect(parcel.weight).not.toBe(1)
+    })
+
+    it('converts pounds, grams, and ounces to ounces with the correct factors', async () => {
+      const { getRates } = await import('../provider.js')
+
+      // 2 lb → 32 oz
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
+      await getRates({
+        ...validShipment,
+        parcels: [
+          { length: 5, width: 5, height: 5, weight: 2, distanceUnit: 'in', massUnit: 'lb' },
+        ],
+      })
+      expect(
+        JSON.parse((fetchMock.mock.calls[0]![1] as RequestInit).body as string).shipment.parcel
+          .weight,
+      ).toBeCloseTo(32, 4)
+
+      // 500 g → 17.6371 oz
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
+      await getRates({
+        ...validShipment,
+        parcels: [
+          { length: 5, width: 5, height: 5, weight: 500, distanceUnit: 'in', massUnit: 'g' },
+        ],
+      })
+      expect(
+        JSON.parse((fetchMock.mock.calls[1]![1] as RequestInit).body as string).shipment.parcel
+          .weight,
+      ).toBeCloseTo(17.6371, 3)
+
+      // 12 oz → 12 oz (identity)
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
+      await getRates({
+        ...validShipment,
+        parcels: [
+          { length: 5, width: 5, height: 5, weight: 12, distanceUnit: 'in', massUnit: 'oz' },
+        ],
+      })
+      expect(
+        JSON.parse((fetchMock.mock.calls[2]![1] as RequestInit).body as string).shipment.parcel
+          .weight,
+      ).toBe(12)
+    })
+
+    it('defaults unspecified units to inches/pounds (consistent with the -shippo bond)', async () => {
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
+      const { getRates } = await import('../provider.js')
+
+      // No distanceUnit/massUnit: dims are inches (as-is), weight is POUNDS → ×16 oz.
+      await getRates({
+        ...validShipment,
+        parcels: [{ length: 10, width: 6, height: 4, weight: 3 }],
+      })
+
+      const body = JSON.parse((fetchMock.mock.calls[0]![1] as RequestInit).body as string)
+      expect(body.shipment.parcel).toEqual({ length: 10, width: 6, height: 4, weight: 48 })
+    })
+
+    it('throws — never silently drops cargo — when more than one parcel is supplied', async () => {
+      const { getRates, getRatesDetailed } = await import('../provider.js')
+      const multiParcel: Shipment = {
+        ...validShipment,
+        parcels: [
+          { length: 10, width: 6, height: 4, weight: 12, distanceUnit: 'in', massUnit: 'oz' },
+          { length: 8, width: 5, height: 3, weight: 6, distanceUnit: 'in', massUnit: 'oz' },
+        ],
+      }
+
+      await expect(getRates(multiParcel)).rejects.toThrow(/single parcel per shipment; got 2/)
+      await expect(getRatesDetailed(multiParcel)).rejects.toThrow(/single parcel/)
+      expect(fetchMock).not.toHaveBeenCalled()
     })
   })
 

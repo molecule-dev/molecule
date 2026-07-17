@@ -254,20 +254,102 @@ const toEasyPostAddress = (address: ShippingAddress): EasyPostAddress => ({
 })
 
 /**
- * Maps a normalized parcel to EasyPost's parcel payload. EasyPost expects
- * inches and ounces; if a parcel uses different units we pass the raw values
- * through as-is so callers controlling the EasyPost account can configure
- * their preferred units. A future revision can add unit conversion.
- *
- * @param parcel - Core parcel.
- * @returns EasyPost parcel payload.
+ * Centimeters per inch — exact, by definition of the international inch.
  */
-const toEasyPostParcel = (parcel: Parcel): EasyPostParcel => ({
-  length: parcel.length,
-  width: parcel.width,
-  height: parcel.height,
-  weight: parcel.weight,
-})
+const CM_PER_IN = 2.54
+
+/**
+ * Ounces per pound — exact.
+ */
+const OZ_PER_LB = 16
+
+/**
+ * Grams per ounce. 1 oz ≡ 28.349523125 g exactly; rounded to 4 dp, which is far
+ * finer than EasyPost's single-decimal storage so it loses nothing that affects
+ * the rate. Using one gram→ounce constant keeps `g` and `kg` mutually
+ * consistent (1 kg = 1000 g = 35.274 oz).
+ */
+const G_PER_OZ = 28.3495
+
+/**
+ * Rounds a converted measurement to 4 decimal places to strip IEEE-754 float
+ * noise (e.g. `25.4 / 2.54` computes to `9.999999999999998`). EasyPost stores
+ * dimensions and weights to a single decimal place, so 4 dp is well within its
+ * precision and does not alter the quoted rate.
+ *
+ * @param value - Raw converted value.
+ * @returns Value rounded to 4 decimal places.
+ */
+const round4 = (value: number): number => Math.round(value * 1e4) / 1e4
+
+/**
+ * Converts a linear dimension to inches — the only distance unit EasyPost's
+ * Parcel object accepts (it has no `distance_unit` field).
+ *
+ * @param value - Dimension in `unit`.
+ * @param unit - Source distance unit.
+ * @returns Dimension in inches.
+ * @throws {Error} If `unit` is not a supported distance unit.
+ */
+const toInches = (value: number, unit: 'in' | 'cm'): number => {
+  switch (unit) {
+    case 'in':
+      return round4(value)
+    case 'cm':
+      return round4(value / CM_PER_IN)
+    default:
+      throw new Error(`Unsupported distanceUnit "${String(unit)}"; expected "in" or "cm".`)
+  }
+}
+
+/**
+ * Converts a weight to ounces — the only mass unit EasyPost's Parcel object
+ * accepts (it has no `mass_unit` field). Never treat a metric weight as ounces:
+ * that misprices the label the caller PAYS for.
+ *
+ * @param value - Weight in `unit`.
+ * @param unit - Source mass unit.
+ * @returns Weight in ounces.
+ * @throws {Error} If `unit` is not a supported mass unit.
+ */
+const toOunces = (value: number, unit: 'lb' | 'oz' | 'kg' | 'g'): number => {
+  switch (unit) {
+    case 'oz':
+      return round4(value)
+    case 'lb':
+      return round4(value * OZ_PER_LB)
+    case 'g':
+      return round4(value / G_PER_OZ)
+    case 'kg':
+      return round4((value * 1000) / G_PER_OZ)
+    default:
+      throw new Error(`Unsupported massUnit "${String(unit)}"; expected "lb", "oz", "kg", or "g".`)
+  }
+}
+
+/**
+ * Maps a normalized parcel to EasyPost's parcel payload, converting dimensions
+ * to inches and weight to ounces — EasyPost's Parcel object has no unit fields
+ * and is always interpreted as inches + ounces, so a `cm`/`kg`/`g`/`lb` parcel
+ * MUST be converted or the carrier prices (and charges for) the wrong size.
+ * `Parcel.distanceUnit`/`massUnit` default to `'in'`/`'lb'` when unspecified,
+ * matching the `-shippo` bond so a unit-less parcel is priced identically by
+ * either provider.
+ *
+ * @see https://docs.easypost.com/docs/parcels
+ * @param parcel - Core parcel.
+ * @returns EasyPost parcel payload in inches + ounces.
+ */
+const toEasyPostParcel = (parcel: Parcel): EasyPostParcel => {
+  const distanceUnit = parcel.distanceUnit ?? 'in'
+  const massUnit = parcel.massUnit ?? 'lb'
+  return {
+    length: toInches(parcel.length, distanceUnit),
+    width: toInches(parcel.width, distanceUnit),
+    height: toInches(parcel.height, distanceUnit),
+    weight: toOunces(parcel.weight, massUnit),
+  }
+}
 
 /**
  * Maps EasyPost's status string to the normalized core status code.
@@ -389,7 +471,9 @@ export const listSupportedCarriers = async (): Promise<string[]> => {
  *
  * @param shipment - Normalized shipment payload.
  * @returns Array of normalized shipping rates.
- * @throws {Error} If the shipment contains no parcels.
+ * @throws {Error} If the shipment contains no parcels, or more than one (an
+ *   EasyPost shipment accepts exactly one parcel — this bond never silently
+ *   drops the extras).
  */
 export const getRates = async (shipment: Shipment): Promise<ShippingRate[]> => {
   const detailed = await getRatesDetailed(shipment)
@@ -403,13 +487,26 @@ export const getRates = async (shipment: Shipment): Promise<ShippingRate[]> => {
  *
  * @param shipment - Normalized shipment payload.
  * @returns Object with `shipmentId` (EasyPost shipment ID) and `rates`.
- * @throws {Error} If the shipment contains no parcels.
+ * @throws {Error} If the shipment contains no parcels, or more than one. An
+ *   EasyPost shipment carries exactly one parcel (its API has a single `parcel`
+ *   field, not an array), so rather than silently drop `parcels[1..n]` — cargo
+ *   the caller intends to pay to ship — this throws. Send each parcel as its own
+ *   shipment, or use `@molecule/api-shipping-shippo`, which quotes multi-piece
+ *   shipments.
  */
 export const getRatesDetailed = async (
   shipment: Shipment,
 ): Promise<{ shipmentId: string; rates: ShippingRate[] }> => {
   if (shipment.parcels.length === 0) {
     throw new Error('getRates requires at least one parcel.')
+  }
+  if (shipment.parcels.length > 1) {
+    throw new Error(
+      `@molecule/api-shipping-easypost supports a single parcel per shipment; got ` +
+        `${shipment.parcels.length}. An EasyPost shipment accepts exactly one parcel — ` +
+        `send each parcel as its own shipment, or use @molecule/api-shipping-shippo, ` +
+        `which quotes multi-piece shipments.`,
+    )
   }
   const body = {
     shipment: {

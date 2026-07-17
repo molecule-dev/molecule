@@ -416,6 +416,11 @@ export const listSupportedCarriers = async (): Promise<string[]> => {
  * separate "fetch rates" call. Each rate's `object_id` becomes the
  * `rateId` consumed by {@link createLabel}.
  *
+ * Every parcel in `shipment.parcels` is sent — Shippo's `parcels` field is an
+ * array (a multi-piece shipment), so none are dropped. Carrier limits still
+ * apply (e.g. USPS does not support multi-piece and the carrier returns the
+ * error; UPS allows up to 50).
+ *
  * @param shipment - Normalized shipment payload.
  * @returns Array of normalized shipping rates.
  * @throws {Error} If the shipment contains no parcels.
@@ -427,7 +432,7 @@ export const getRates = async (shipment: Shipment): Promise<ShippingRate[]> => {
   const body = {
     address_from: toShippoAddress(shipment.from),
     address_to: toShippoAddress(shipment.to),
-    parcels: [toShippoParcel(shipment.parcels[0]!)],
+    parcels: shipment.parcels.map(toShippoParcel),
     async: false,
   }
   const result = await request<ShippoShipment>('/shipments/', {
