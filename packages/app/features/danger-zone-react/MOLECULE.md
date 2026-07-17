@@ -166,3 +166,7 @@ fall back to the `confirm.*` i18n keys (companion bond:
 `@molecule/app-locales-danger-zone`); pass `confirmLabel`/`cancelLabel`
 for action-specific wording ("Delete", "Revoke"). `destructive` (default
 true) only switches the confirm button color.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-danger-zone`.

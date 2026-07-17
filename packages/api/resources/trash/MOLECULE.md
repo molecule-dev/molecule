@@ -49,7 +49,7 @@ registerRestoreCallback('document', async (snapshot) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-trash @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
+npm install @molecule/api-trash @molecule/api-database @molecule/api-i18n @molecule/api-locales-trash @molecule/api-logger @molecule/api-resource zod
 ```
 
 ## API
@@ -600,6 +600,7 @@ Peer dependencies:
 
 - `@molecule/api-database`
 - `@molecule/api-i18n`
+- `@molecule/api-locales-trash`
 - `@molecule/api-logger`
 - `@molecule/api-resource`
 - `zod`

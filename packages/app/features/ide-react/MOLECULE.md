@@ -1277,7 +1277,7 @@ function ActivityCard({ activity, onActivityClick }: ActivityCardProps): JSX.Ele
 
 **Returns:** The rendered activity card element.
 
-#### `activityFromEvent(raw, raw, raw, raw, raw, raw, raw)`
+#### `activityFromEvent(raw)`
 
 Maps a raw SSE `activity` event payload into a normalized {@link Activity}.
 Tolerates missing optional fields and supplies an id/timestamp if absent.
@@ -1287,12 +1287,12 @@ function activityFromEvent(raw: { id?: string; type?: string; status?: string; r
 ```
 
 - `raw` — The `activity` field from the SSE event.
-- `raw` — .id - Activity id; generated if absent.
-- `raw` — .type - Channel type; defaults to `webhook` if absent.
-- `raw` — .status - Lifecycle status; defaults to `captured` if absent.
-- `raw` — .recipient - Optional recipient.
-- `raw` — .summary - Optional short summary.
-- `raw` — .timestamp - ISO timestamp; defaults to now if absent.
+- `raw.id` — Activity id; generated if absent.
+- `raw.type` — Channel type; defaults to `webhook` if absent.
+- `raw.status` — Lifecycle status; defaults to `captured` if absent.
+- `raw.recipient` — Optional recipient.
+- `raw.summary` — Optional short summary.
+- `raw.timestamp` — ISO timestamp; defaults to now if absent.
 
 **Returns:** A normalized Activity object.
 

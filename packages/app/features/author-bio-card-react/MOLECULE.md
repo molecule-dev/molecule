@@ -85,7 +85,7 @@ interface AuthorSocials {
 
 ### Functions
 
-#### `AuthorBioCard(props, props, props, props, props, props, props)`
+#### `AuthorBioCard(props)`
 
 Author bio card — avatar + name + bio + social links + optional follow
 button. Designed for blog/podcast/video-streaming article footers and
@@ -112,12 +112,12 @@ function AuthorBioCard({
 ```
 
 - `props` — Component props.
-- `props` — .author - Author identity + bio + socials.
-- `props` — .layout - Layout preset: `compact` (default) or `full`.
-- `props` — .following - Whether the viewer currently follows this author.
-- `props` — .onFollow - Toggle handler for the follow button.
-- `props` — .className - Extra classes on the outer card.
-- `props` — .dataMolId - `data-mol-id` for AI-agent selectors.
+- `props.author` — Author identity + bio + socials.
+- `props.layout` — Layout preset: `compact` (default) or `full`.
+- `props.following` — Whether the viewer currently follows this author.
+- `props.onFollow` — Toggle handler for the follow button.
+- `props.className` — Extra classes on the outer card.
+- `props.dataMolId` — `data-mol-id` for AI-agent selectors.
 
 **Returns:** The rendered author bio card.
 

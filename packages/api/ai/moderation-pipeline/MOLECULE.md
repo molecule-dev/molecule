@@ -24,8 +24,7 @@ if (decision.action === 'flag') void notifyMods(decision)
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-moderation-pipeline @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-middleware-validation express zod
-npm install -D @types/express
+npm install @molecule/api-ai-moderation-pipeline @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-middleware-validation
 ```
 
 ## API
@@ -230,8 +229,6 @@ Peer dependencies:
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-middleware-validation` ^1.0.0
-- `express` ^5.0.0
-- `zod` ^4.0.0
 - `@molecule/api-ai` ^1.0.0
 
 ### Runtime Dependencies
@@ -242,8 +239,6 @@ Peer dependencies:
 - `@molecule/api-i18n`
 - `@molecule/api-logger`
 - `@molecule/api-middleware-validation`
-- `express`
-- `zod`
 
 Tables: `src/__setup__/moderation_audit_log.sql` creates
 `moderation_audit_log`. An mlcl-scaffolded API replays `__setup__/*.sql`

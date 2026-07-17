@@ -298,7 +298,7 @@ type VersionEventHandler<T = unknown> = (data: T) => void
 
 ### Functions
 
-#### `applyUpdate(options, options)`
+#### `applyUpdate(options)`
 
 Applies a pending update by activating a waiting service worker
 (if present) and reloading the page. If no service worker is
@@ -309,7 +309,7 @@ function applyUpdate(options?: { force?: boolean; }): void
 ```
 
 - `options` — Pass `{ force: true }` to reload even without a detected update.
-- `options` — .force - Whether to force a reload regardless of update status.
+- `options.force` — Whether to force a reload regardless of update status.
 
 **Returns:** Nothing.
 

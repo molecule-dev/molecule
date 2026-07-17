@@ -32,7 +32,7 @@ stop()
 
 ## Installation
 ```bash
-npm install @molecule/app-battery @molecule/app-i18n
+npm install @molecule/app-battery @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -415,7 +415,7 @@ function toPercentage(level: number): number
 
 **Returns:** The battery level as a rounded integer percentage (0-100).
 
-#### `waitForLevel(targetLevel, options, options, options)`
+#### `waitForLevel(targetLevel, options)`
 
 Wait for battery to reach a level
 
@@ -425,8 +425,8 @@ function waitForLevel(targetLevel: number, options?: { timeout?: number; checkIn
 
 - `targetLevel` — Target level (0-1)
 - `options` — Polling and timeout options
-- `options` — .timeout - Maximum time to wait in milliseconds (0 for no timeout)
-- `options` — .checkInterval - Interval between level checks in milliseconds
+- `options.timeout` — Maximum time to wait in milliseconds (0 for no timeout)
+- `options.checkInterval` — Interval between level checks in milliseconds
 
 **Returns:** Whether the target level was reached before timeout.
 
@@ -440,6 +440,7 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/app-bond`
 - `@molecule/app-i18n`
 
 - **Wire with `setProvider()` or `bond('battery', provider)`** — this core delegates to the

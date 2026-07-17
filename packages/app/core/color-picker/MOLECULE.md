@@ -28,7 +28,7 @@ const picker = requireProvider().createPicker({
 
 ## Installation
 ```bash
-npm install @molecule/app-color-picker
+npm install @molecule/app-color-picker @molecule/app-bond
 ```
 
 ## API
@@ -179,6 +179,10 @@ function setProvider(provider: ColorPickerProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+
 - **The instance is headless — it renders nothing.** Pair it with your
   framework's picker component (React: `@molecule/app-color-picker-react`) or
   render your own swatches/inputs (styled via `getClassMap()`/`cm.*`, labels via
@@ -218,3 +222,7 @@ by one. A box you can't check is an integration bug to fix — not a skip:
 - [ ] An invalid manual entry in the `showInput` text field is rejected or
   normalized — never emitted as a broken value; getValue()/onChange only
   ever produce a valid color in the configured format.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-color-picker`.

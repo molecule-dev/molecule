@@ -133,3 +133,7 @@ reset it. Visibility is controlled: keep `visible` false once consent is
 stored. Text uses `cookieBanner.*` i18n keys (companion bond:
 `@molecule/app-locales-cookie-banner`); `title`/`description`/category
 labels you pass in should already be translated.
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-cookie-banner`.

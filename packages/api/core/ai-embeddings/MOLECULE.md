@@ -30,7 +30,7 @@ const queryVector = await requireProvider().embedQuery('forgot my password')
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-embeddings
+npm install @molecule/api-ai-embeddings @molecule/api-bond
 ```
 
 ## API
@@ -192,6 +192,10 @@ function setProvider(provider: AIEmbeddingsProvider): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 - **Wire it at startup with `setProvider(...)` — or the equivalent
   `bond('ai-embeddings', provider)`.** This core routes through the shared

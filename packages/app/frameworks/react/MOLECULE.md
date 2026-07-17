@@ -1925,7 +1925,7 @@ function useNavigate(): (path: string, options?: NavigateOptions) => void
 
 **Returns:** The navigate function
 
-#### `useOAuth(config, config, config, config, config, config, config)`
+#### `useOAuth(config)`
 
 Hook for OAuth authentication.
 
@@ -1940,12 +1940,12 @@ function useOAuth(config?: { baseURL?: string; oauthProviders?: string[]; oauthE
 ```
 
 - `config` — Optional OAuth configuration override.
-- `config` — .baseURL - Base URL for the API server (e.g. "https://api.example.com").
-- `config` — .oauthProviders - List of supported OAuth provider names (e.g. ["google", "github"]).
-- `config` — .oauthEndpoint - Path prefix for OAuth routes (defaults to "/oauth").
-- `config` — .loginEndpoint - Path for the OAuth login POST endpoint (defaults to "/users/log-in/oauth").
-- `config` — .onSuccess - Callback after successful OAuth login.
-- `config` — .onError - Callback on OAuth login failure.
+- `config.baseURL` — Base URL for the API server (e.g. "https://api.example.com").
+- `config.oauthProviders` — List of supported OAuth provider names (e.g. ["google", "github"]).
+- `config.oauthEndpoint` — Path prefix for OAuth routes (defaults to "/oauth").
+- `config.loginEndpoint` — Path for the OAuth login POST endpoint (defaults to "/users/log-in/oauth").
+- `config.onSuccess` — Callback after successful OAuth login.
+- `config.onError` — Callback on OAuth login failure.
 
 **Returns:** OAuth helpers: providers, getOAuthUrl, redirect, and loginViaPopup.
 

@@ -194,3 +194,7 @@ Peer dependencies:
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `react`
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-color-picker`.

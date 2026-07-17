@@ -459,7 +459,7 @@ function isEnrolled(userId: string, courseId: string): Promise<boolean>
 
 **Returns:** Whether the user is enrolled.
 
-#### `listCourses(orgId, options, options, options, options)`
+#### `listCourses(orgId, options)`
 
 Lists courses for an org, ordered most-recent first.
 
@@ -469,13 +469,13 @@ function listCourses(orgId: string, options?: { limit?: number; offset?: number;
 
 - `orgId` — The owning org id.
 - `options` — Optional pagination and status filter.
-- `options` — .limit - Maximum number of results (default 20).
-- `options` — .offset - Number of results to skip (default 0).
-- `options` — .status - Restrict to courses with this lifecycle status.
+- `options.limit` — Maximum number of results (default 20).
+- `options.offset` — Number of results to skip (default 0).
+- `options.status` — Restrict to courses with this lifecycle status.
 
 **Returns:** Paginated courses.
 
-#### `listEnrollments(courseId, options, options, options)`
+#### `listEnrollments(courseId, options)`
 
 Lists enrollments in a course, optionally filtered by role.
 
@@ -485,8 +485,8 @@ function listEnrollments(courseId: string, options?: { role?: Enrollment["role"]
 
 - `courseId` — The course id.
 - `options` — Optional role filter.
-- `options` — .role - Restrict to enrollments with this role.
-- `options` — .status - Restrict to enrollments with this lifecycle status.
+- `options.role` — Restrict to enrollments with this role.
+- `options.status` — Restrict to enrollments with this lifecycle status.
 
 **Returns:** The enrollments.
 

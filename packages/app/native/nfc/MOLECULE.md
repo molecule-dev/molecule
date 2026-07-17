@@ -37,7 +37,7 @@ async function writeLink(url: string): Promise<void> {
 
 ## Installation
 ```bash
-npm install @molecule/app-nfc @molecule/app-i18n
+npm install @molecule/app-nfc @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -565,6 +565,7 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/app-bond`
 - `@molecule/app-i18n`
 
 - **Every provider-backed call THROWS until `setProvider()` is called** —

@@ -28,7 +28,7 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-message'
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-message @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-realtime @molecule/api-resource zod
+npm install @molecule/api-resource-message @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource-message @molecule/api-logger @molecule/api-realtime @molecule/api-resource zod
 ```
 
 ## API
@@ -485,6 +485,7 @@ Peer dependencies:
 
 - `@molecule/api-database`
 - `@molecule/api-i18n`
+- `@molecule/api-locales-resource-message`
 - `@molecule/api-logger`
 - `@molecule/api-realtime`
 - `@molecule/api-resource`

@@ -475,7 +475,7 @@ function setProvider(provider: I18nProvider): void
 
 - `provider` — The i18n provider implementation to bond.
 
-#### `t(key, values, options, options, options, options)`
+#### `t(key, values, options)`
 
 Translates a key using the bonded i18n provider. Falls back to `defaultValue` or
 the key itself if no translation is found. Supports interpolation via `{{variable}}`
@@ -499,9 +499,9 @@ function t(key: string, values?: InterpolationValues, options?: { defaultValue?:
 - `key` — The translation key (dot-notation, e.g. `'user.error.notFound'`).
 - `values` — Optional interpolation values to substitute `{{variable}}` placeholders.
 - `options` — Optional settings.
-- `options` — .defaultValue - Fallback string if no translation is found.
-- `options` — .count - Count for pluralization.
-- `options` — .locale - Override locale for this specific translation.
+- `options.defaultValue` — Fallback string if no translation is found.
+- `options.count` — Count for pluralization.
+- `options.locale` — Override locale for this specific translation.
 
 **Returns:** The translated string, or `defaultValue`, or the key if nothing matches.
 

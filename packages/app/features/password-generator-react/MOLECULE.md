@@ -140,7 +140,7 @@ function generatePassword(length: number, charset: PasswordCharsetOptions): stri
 
 **Returns:** A freshly-generated password.
 
-#### `PasswordGenerator(props, props, props, props, props, props, props, props)`
+#### `PasswordGenerator(props)`
 
 Cryptographically-secure password generator UI.
 
@@ -166,13 +166,13 @@ function PasswordGenerator({
 ```
 
 - `props` — Component props.
-- `props` — .defaultLength
-- `props` — .defaultCharset
-- `props` — .onPick
-- `props` — .autoCopy
-- `props` — .ariaLabel
-- `props` — .dataMolId
-- `props` — .className
+- `props.defaultLength` — *
+- `props.defaultCharset` — *
+- `props.onPick` — *
+- `props.autoCopy` — *
+- `props.ariaLabel` — *
+- `props.dataMolId` — *
+- `props.className` — *
 
 **Returns:** The rendered password generator.
 

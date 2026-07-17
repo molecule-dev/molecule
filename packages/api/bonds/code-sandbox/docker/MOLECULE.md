@@ -100,7 +100,7 @@ function createProvider(config?: DockerConfig): SandboxProvider
 
 **Returns:** A `SandboxProvider` that manages Docker containers as sandboxes.
 
-#### `withTransientRetry(op, opts, opts, opts, opts, opts, opts)`
+#### `withTransientRetry(op, opts)`
 
 Retry a Docker API operation that failed with a TRANSIENT fault — a request
 timeout or a connection-level reset, i.e. the daemon was momentarily overwhelmed,
@@ -124,11 +124,11 @@ function withTransientRetry(op: () => Promise<T>, opts: { label: string; attempt
 
 - `op` — the operation to attempt.
 - `opts` — tuning + the optional adopt-on-retry guard.
-- `opts` — .label - short operation name for log lines.
-- `opts` — .attempts - max attempts (default 3).
-- `opts` — .onRetry - adopt-an-existing-resource guard, run before each retry.
-- `opts` — .delayMs - backoff for attempt N (default `400 * N` ms).
-- `opts` — .log - optional logger for retry warnings.
+- `opts.label` — short operation name for log lines.
+- `opts.attempts` — max attempts (default 3).
+- `opts.onRetry` — adopt-an-existing-resource guard, run before each retry.
+- `opts.delayMs` — backoff for attempt N (default `400 * N` ms).
+- `opts.log` — optional logger for retry warnings.
 
 **Returns:** the operation's result, or an adopted result from `onRetry`.
 

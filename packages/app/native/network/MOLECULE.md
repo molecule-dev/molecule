@@ -209,7 +209,7 @@ function checkConnectivity(url?: string): Promise<boolean>
 
 **Returns:** Whether the connectivity check succeeded.
 
-#### `createNetworkAwareFetch(options, options, options, options)`
+#### `createNetworkAwareFetch(options)`
 
 Create a fetch wrapper that is aware of network connectivity. When offline, requests
 are either queued (if `queueOfflineRequests` is true) or immediately rejected.
@@ -220,9 +220,9 @@ function createNetworkAwareFetch(options?: { onOffline?: () => void; onReconnect
 ```
 
 - `options` — Configuration for offline behavior.
-- `options` — .onOffline - Called when the device goes offline.
-- `options` — .onReconnect - Called when the device reconnects after being offline.
-- `options` — .queueOfflineRequests - If true, requests made while offline are queued and retried on reconnect.
+- `options.onOffline` — Called when the device goes offline.
+- `options.onReconnect` — Called when the device reconnects after being offline.
+- `options.queueOfflineRequests` — If true, requests made while offline are queued and retried on reconnect.
 
 **Returns:** A fetch-compatible function that handles offline scenarios.
 

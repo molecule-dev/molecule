@@ -101,3 +101,7 @@ renders your highlighter's output; `language` is only a header label. The
 copy button uses `navigator.clipboard` and silently does nothing on
 insecure (non-HTTPS) contexts. Copy/Copied labels are translated via the
 `codeBlock.*` keys (companion bond: `@molecule/app-locales-code-block`).
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-code-block`.

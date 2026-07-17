@@ -33,7 +33,7 @@ await voice.speak('Order confirmed.')
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-voice
+npm install @molecule/app-ai-voice @molecule/app-bond
 ```
 
 ## API
@@ -291,6 +291,10 @@ function setProvider(provider: AIVoiceProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - **Wire it with THIS package's `setProvider()` or `bond('ai-voice', …)`.**
   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so

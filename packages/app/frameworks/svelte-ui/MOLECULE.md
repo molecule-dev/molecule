@@ -2539,7 +2539,7 @@ function getDropdownContentClasses(options?: DropdownContentClassOptions): strin
 
 **Returns:** The resulting string.
 
-#### `getDropdownItemClasses(options, options, options)`
+#### `getDropdownItemClasses(options)`
 
 Generate classes for a dropdown menu item.
 
@@ -2548,8 +2548,8 @@ function getDropdownItemClasses(options?: { disabled?: boolean; className?: stri
 ```
 
 - `options` — The options.
-- `options` — .disabled - Whether the item is disabled.
-- `options` — .className - Optional CSS class name to append.
+- `options.disabled` — Whether the item is disabled.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -2712,7 +2712,7 @@ function getFormHintClass(): string
 
 **Returns:** The resulting string.
 
-#### `getFormLabelClasses(options, options, options)`
+#### `getFormLabelClasses(options)`
 
 Generate classes for a form label.
 
@@ -2721,8 +2721,8 @@ function getFormLabelClasses(options?: { required?: boolean; className?: string;
 ```
 
 - `options` — The options.
-- `options` — .required - Whether the field is required.
-- `options` — .className - Optional CSS class name to append.
+- `options.required` — Whether the field is required.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -2853,7 +2853,7 @@ function getInputInnerClass(): string
 
 **Returns:** The input inner class string.
 
-#### `getInputLabelClasses(options, options, options)`
+#### `getInputLabelClasses(options)`
 
 Generate classes for an input label.
 
@@ -2862,8 +2862,8 @@ function getInputLabelClasses(options?: { required?: boolean; className?: string
 ```
 
 - `options` — The options.
-- `options` — .required - Whether the field is required.
-- `options` — .className - Optional CSS class name to append.
+- `options.required` — Whether the field is required.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -3115,7 +3115,7 @@ function getPaginationIconData(direction: string): IconData
 
 **Returns:** Icon data from the current icon set
 
-#### `getPaginationItemClasses(options, options, options, options)`
+#### `getPaginationItemClasses(options)`
 
 Generate classes for a pagination button item.
 
@@ -3124,9 +3124,9 @@ function getPaginationItemClasses(options?: { active?: boolean; size?: Size; cla
 ```
 
 - `options` — The options.
-- `options` — .active - Whether the item is currently active.
-- `options` — .size - The size of the pagination item.
-- `options` — .className - Optional CSS class name to append.
+- `options.active` — Whether the item is currently active.
+- `options.size` — The size of the pagination item.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -3161,7 +3161,7 @@ function getProgressClasses(options?: ProgressClassOptions): string
 
 **Returns:** The resulting class string.
 
-#### `getProgressIndicatorClasses(options, options, options, options)`
+#### `getProgressIndicatorClasses(options)`
 
 Generate classes for the progress indicator bar.
 
@@ -3170,9 +3170,9 @@ function getProgressIndicatorClasses(options?: { color?: ColorVariant; indetermi
 ```
 
 - `options` — The options.
-- `options` — .color - The color variant for the indicator.
-- `options` — .indeterminate - Whether the progress is indeterminate.
-- `options` — .className - Optional CSS class name to append.
+- `options.color` — The color variant for the indicator.
+- `options.indeterminate` — Whether the progress is indeterminate.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -3365,7 +3365,7 @@ function getSelectInnerClass(): string
 
 **Returns:** The resulting string.
 
-#### `getSelectLabelClasses(options, options, options)`
+#### `getSelectLabelClasses(options)`
 
 Generate classes for a select label.
 
@@ -3374,8 +3374,8 @@ function getSelectLabelClasses(options?: { required?: boolean; className?: strin
 ```
 
 - `options` — The options.
-- `options` — .required - Whether the field is required.
-- `options` — .className - Optional CSS class name to append.
+- `options.required` — Whether the field is required.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -3442,7 +3442,7 @@ function getSkeletonClasses(options?: SkeletonClassOptions): string
 
 **Returns:** The resulting string.
 
-#### `getSkeletonStyle(options, options, options, options, options)`
+#### `getSkeletonStyle(options)`
 
 Generate inline style for a skeleton element.
 
@@ -3451,10 +3451,10 @@ function getSkeletonStyle(options: { width?: string | number; height?: string | 
 ```
 
 - `options` — The style options.
-- `options` — .width - The width of the skeleton element.
-- `options` — .height - The height of the skeleton element.
-- `options` — .circle - Whether the skeleton is circular.
-- `options` — .borderRadius - Custom border radius value.
+- `options.width` — The width of the skeleton element.
+- `options.height` — The height of the skeleton element.
+- `options.circle` — Whether the skeleton is circular.
+- `options.borderRadius` — Custom border radius value.
 
 **Returns:** The inline style string.
 
@@ -3620,7 +3620,7 @@ function getSwitchLabelTextClass(): string
 
 **Returns:** The switch label text class string.
 
-#### `getSwitchThumbClasses(options, options)`
+#### `getSwitchThumbClasses(options)`
 
 Generate classes for the switch thumb element.
 
@@ -3629,11 +3629,11 @@ function getSwitchThumbClasses(options?: { size?: Size; }): string
 ```
 
 - `options` — The options.
-- `options` — .size - The size of the switch thumb.
+- `options.size` — The size of the switch thumb.
 
 **Returns:** The resulting class string.
 
-#### `getSwitchWrapperClasses(options, options)`
+#### `getSwitchWrapperClasses(options)`
 
 Generate classes for the switch wrapper (label element).
 
@@ -3642,7 +3642,7 @@ function getSwitchWrapperClasses(options?: { disabled?: boolean; }): string
 ```
 
 - `options` — The options.
-- `options` — .disabled - Whether the switch is disabled.
+- `options.disabled` — Whether the switch is disabled.
 
 **Returns:** The resulting class string.
 
@@ -3656,7 +3656,7 @@ function getTableBodyClass(): string
 
 **Returns:** The table body class string.
 
-#### `getTableCellClasses(options, options, options)`
+#### `getTableCellClasses(options)`
 
 Generate classes for a table data cell.
 
@@ -3665,8 +3665,8 @@ function getTableCellClasses(options?: { align?: "left" | "center" | "right"; cl
 ```
 
 - `options` — The options.
-- `options` — .align - The text alignment of the cell.
-- `options` — .className - Optional CSS class name to append.
+- `options.align` — The text alignment of the cell.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -3726,7 +3726,7 @@ function getTableEmptyCellClass(): string
 
 **Returns:** The resulting string.
 
-#### `getTableHeadClasses(options, options, options, options)`
+#### `getTableHeadClasses(options)`
 
 Generate classes for a table header cell.
 
@@ -3735,9 +3735,9 @@ function getTableHeadClasses(options?: { align?: "left" | "center" | "right"; so
 ```
 
 - `options` — The options.
-- `options` — .align - The text alignment of the header cell.
-- `options` — .sortable - Whether the column is sortable.
-- `options` — .className - Optional CSS class name to append.
+- `options.align` — The text alignment of the header cell.
+- `options.sortable` — Whether the column is sortable.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -3761,7 +3761,7 @@ function getTableLoadingOverlayClass(): string
 
 **Returns:** The resulting string.
 
-#### `getTableRowClasses(options, options, options, options, options, options)`
+#### `getTableRowClasses(options)`
 
 Generate classes for a table row.
 
@@ -3770,11 +3770,11 @@ function getTableRowClasses(options?: { striped?: boolean; hoverable?: boolean; 
 ```
 
 - `options` — The options.
-- `options` — .striped - Whether striped row styling is enabled.
-- `options` — .hoverable - Whether hover styling is enabled.
-- `options` — .index - The row index for striped styling.
-- `options` — .clickable - Whether the row is clickable.
-- `options` — .className - Optional CSS class name to append.
+- `options.striped` — Whether striped row styling is enabled.
+- `options.hoverable` — Whether hover styling is enabled.
+- `options.index` — The row index for striped styling.
+- `options.clickable` — Whether the row is clickable.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -3858,7 +3858,7 @@ function getTabsListClasses(options?: TabsListClassOptions): string
 
 **Returns:** The resulting string.
 
-#### `getTabsTriggerClasses(options, options, options)`
+#### `getTabsTriggerClasses(options)`
 
 Generate classes for a tab trigger button.
 
@@ -3867,8 +3867,8 @@ function getTabsTriggerClasses(options?: { fitted?: boolean; className?: string;
 ```
 
 - `options` — The options.
-- `options` — .fitted - Whether the tab takes equal width.
-- `options` — .className - Optional CSS class name to append.
+- `options.fitted` — Whether the tab takes equal width.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -3914,7 +3914,7 @@ function getTextareaHintClass(): string
 
 **Returns:** The resulting string.
 
-#### `getTextareaLabelClasses(options, options, options)`
+#### `getTextareaLabelClasses(options)`
 
 Generate classes for a textarea label.
 
@@ -3923,8 +3923,8 @@ function getTextareaLabelClasses(options?: { required?: boolean; className?: str
 ```
 
 - `options` — The options.
-- `options` — .required - Whether the field is required.
-- `options` — .className - Optional CSS class name to append.
+- `options.required` — Whether the field is required.
+- `options.className` — Optional CSS class name to append.
 
 **Returns:** The resulting class string.
 
@@ -4145,7 +4145,7 @@ function groupSelectOptions(options: SelectOption<T>[]): Record<string, SelectOp
 
 **Returns:** A record mapping group names to their options.
 
-#### `toggleAccordionItem(expandedItems, itemValue, options, options, options)`
+#### `toggleAccordionItem(expandedItems, itemValue, options)`
 
 Helper to manage accordion expanded state.
 Handles single/multiple expansion and collapsibility logic.
@@ -4157,8 +4157,8 @@ function toggleAccordionItem(expandedItems: string[], itemValue: string, options
 - `expandedItems` — The currently expanded item values.
 - `itemValue` — The value of the item being toggled.
 - `options` — Toggle behavior options.
-- `options` — .multiple - Whether multiple items can be expanded simultaneously.
-- `options` — .collapsible - Whether all items can be collapsed.
+- `options.multiple` — Whether multiple items can be expanded simultaneously.
+- `options.collapsible` — Whether all items can be collapsed.
 
 **Returns:** The updated array of expanded item values.
 

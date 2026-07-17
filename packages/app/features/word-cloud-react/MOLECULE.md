@@ -152,7 +152,7 @@ function estimateBBox(text: string, fontSize: number, rotation: number, cx: numb
 
 **Returns:** Axis-aligned bounding box in SVG units.
 
-#### `packWords(words, options, options, options, options, options, options)`
+#### `packWords(words, options)`
 
 Hand-rolled spiral packing for word clouds.
 
@@ -171,11 +171,11 @@ function packWords(words: Word[], options: { width: number; height: number; minF
 
 - `words` — The words to pack.
 - `options` — Packing options.
-- `options` — .width - Available width in px.
-- `options` — .height - Available height in px.
-- `options` — .minFontSize - Smallest font size in px.
-- `options` — .maxFontSize - Largest font size in px.
-- `options` — .orientation - `'horizontal'` or `'mixed'` (every 4th word at 90deg).
+- `options.width` — Available width in px.
+- `options.height` — Available height in px.
+- `options.minFontSize` — Smallest font size in px.
+- `options.maxFontSize` — Largest font size in px.
+- `options.orientation` — `'horizontal'` or `'mixed'` (every 4th word at 90deg).
 
 **Returns:** Array of `PlacedWord` objects, in placement order.
 

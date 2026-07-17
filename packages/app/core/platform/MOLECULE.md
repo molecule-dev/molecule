@@ -226,7 +226,7 @@ function detectPlatform(): Platform
 
 **Returns:** The detected platform identifier.
 
-#### `getPlatformInfo(env, env, env)`
+#### `getPlatformInfo(env)`
 
 Builds comprehensive platform information including platform type,
 environment flags, and user agent details.
@@ -236,8 +236,8 @@ function getPlatformInfo(env?: { isDevelopment?: boolean; isProduction?: boolean
 ```
 
 - `env` — Optional environment overrides for development/production flags.
-- `env` — .isDevelopment - Override for development mode detection.
-- `env` — .isProduction - Override for production mode detection.
+- `env.isDevelopment` — Override for development mode detection.
+- `env.isProduction` — Override for production mode detection.
 
 **Returns:** A `PlatformInfo` object with all platform details.
 

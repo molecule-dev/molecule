@@ -91,3 +91,7 @@ Copying uses `navigator.clipboard`, which exists only in secure contexts
 `onCopy` never fires. The input is read-only and selects its content on
 focus, so manual Ctrl/Cmd+C still works as the fallback. Labels use
 `copyLink.*` i18n keys (companion bond: `@molecule/app-locales-copy-link-field`).
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-copy-link-field`.

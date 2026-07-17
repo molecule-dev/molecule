@@ -26,7 +26,7 @@ stepper.next()
 
 ## Installation
 ```bash
-npm install @molecule/app-stepper
+npm install @molecule/app-stepper @molecule/app-bond
 ```
 
 ## API
@@ -209,6 +209,10 @@ function setProvider(provider: StepperProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - **The instance is HEADLESS state, not UI.** `createStepper` returns a step
   state machine — nothing appears on screen. The app renders the step

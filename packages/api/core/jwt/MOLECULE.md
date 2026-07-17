@@ -227,7 +227,7 @@ function setProvider(provider: JwtProvider): void
 
 - `provider` — The JWT provider implementation to bond.
 
-#### `sign(object, options, options, options, privateKey)`
+#### `sign(object, options, privateKey)`
 
 Signs a payload into a JWT string using the bonded provider. Uses the
 configured algorithm, expiry, and private key as defaults.
@@ -238,13 +238,13 @@ function sign(object: JSONObject, { algorithm = JWT_ALGORITHM, expiresIn = JWT_E
 
 - `object` — The JSON payload to sign.
 - `options` — Signing options; `algorithm` defaults to `JWT_ALGORITHM`, `expiresIn` defaults to `JWT_EXPIRES_TIME`.
-- `options` — .algorithm - The signing algorithm (e.g. `RS256`, `HS256`).
-- `options` — .expiresIn - Token lifetime in seconds.
+- `options.algorithm` — The signing algorithm (e.g. `RS256`, `HS256`).
+- `options.expiresIn` — Token lifetime in seconds.
 - `privateKey` — The private key for signing; defaults to `JWT_PRIVATE_KEY`.
 
 **Returns:** The signed JWT string.
 
-#### `verify(token, options, options, publicKey)`
+#### `verify(token, options, publicKey)`
 
 Verifies a JWT string and returns the decoded payload. Uses the configured
 algorithm and public key as defaults.
@@ -255,7 +255,7 @@ function verify(token: string, { algorithms = [JWT_ALGORITHM], ...rest }?: JwtVe
 
 - `token` — The JWT string to verify.
 - `options` — Verification options; `algorithms` defaults to `[JWT_ALGORITHM]`.
-- `options` — .algorithms - The allowed signing algorithms for verification.
+- `options.algorithms` — The allowed signing algorithms for verification.
 - `publicKey` — The public key for verification; defaults to `JWT_PUBLIC_KEY`.
 
 **Returns:** The decoded payload string or object.

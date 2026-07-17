@@ -291,7 +291,7 @@ function isUrl(value: string): boolean
 
 **Returns:** `true` if the string can be parsed as a valid URL.
 
-#### `openUrl(url, options, options, options)`
+#### `openUrl(url, options)`
 
 Opens a URL by navigating in the current tab or opening a new
 window/tab with `noopener,noreferrer` for security.
@@ -302,8 +302,8 @@ function openUrl(url: string, options?: { newWindow?: boolean; target?: string; 
 
 - `url` — The URL to open.
 - `options` — Navigation options.
-- `options` — .newWindow - When `true`, opens in a new window/tab instead of navigating.
-- `options` — .target - The window target name (default: `'_blank'` when `newWindow` is true).
+- `options.newWindow` — When `true`, opens in a new window/tab instead of navigating.
+- `options.target` — The window target name (default: `'_blank'` when `newWindow` is true).
 
 #### `parseQueryString(queryString)`
 
@@ -342,7 +342,7 @@ function readFromClipboard(): Promise<string | null>
 
 **Returns:** The clipboard text content, or `null` if reading is not supported or fails.
 
-#### `retry(fn, options, options, options, options, options)`
+#### `retry(fn, options)`
 
 Retries an async function with exponential backoff. Each failed attempt
 waits `initialDelay * backoffFactor^(attempt-1)` ms, capped at `maxDelay`.
@@ -353,10 +353,10 @@ function retry(fn: () => Promise<T>, options?: { maxAttempts?: number; initialDe
 
 - `fn` — The async function to retry.
 - `options` — Retry configuration.
-- `options` — .maxAttempts - Maximum number of attempts (default: 3).
-- `options` — .initialDelay - Delay in ms before the first retry (default: 1000).
-- `options` — .maxDelay - Maximum delay cap in ms (default: 30000).
-- `options` — .backoffFactor - Multiplier applied to the delay after each attempt (default: 2).
+- `options.maxAttempts` — Maximum number of attempts (default: 3).
+- `options.initialDelay` — Delay in ms before the first retry (default: 1000).
+- `options.maxDelay` — Maximum delay cap in ms (default: 30000).
+- `options.backoffFactor` — Multiplier applied to the delay after each attempt (default: 2).
 
 **Returns:** The resolved value from the first successful attempt.
 

@@ -32,7 +32,7 @@ if (devices[0]) {
 
 ## Installation
 ```bash
-npm install @molecule/app-bluetooth @molecule/app-i18n
+npm install @molecule/app-bluetooth @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -696,6 +696,7 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/app-bond`
 - `@molecule/app-i18n`
 
 - **Wire with `setProvider()` or `bond('bluetooth', provider)`** — this core delegates to the

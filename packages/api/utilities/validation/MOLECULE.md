@@ -144,7 +144,7 @@ interface ZodType<out Output = unknown, out Input = unknown, out Internals exten
 
 ### Functions
 
-#### `getValidProps(options, options, options, options)`
+#### `getValidProps(options)`
 
 Validates resource props against a Zod schema, returning typed valid props or throwing
 a descriptive error with field-level messages prefixed by the resource name.
@@ -158,9 +158,9 @@ function getValidProps({
 ```
 
 - `options` — Validation options.
-- `options` — .name - The resource name (used in error messages, e.g., `"User.email: Required"`).
-- `options` — .schema - The Zod schema to validate against.
-- `options` — .props - The raw props to validate.
+- `options.name` — The resource name (used in error messages, e.g., `"User.email: Required"`).
+- `options.schema` — The Zod schema to validate against.
+- `options.props` — The raw props to validate.
 
 **Returns:** The validated and typed props.
 

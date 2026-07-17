@@ -31,7 +31,8 @@ import { SortableList, useSortableItem } from '@molecule/app-drag-drop-dndkit'
 
 ## Installation
 ```bash
-npm install @molecule/app-drag-drop-dndkit @molecule/app-drag-drop
+npm install @molecule/app-drag-drop-dndkit @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities @molecule/app-drag-drop react react-dom
+npm install -D @types/react
 ```
 
 ## API
@@ -370,7 +371,12 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@dnd-kit/core`
+- `@dnd-kit/sortable`
+- `@dnd-kit/utilities`
 - `@molecule/app-drag-drop`
+- `react`
+- `react-dom`
 
 The React binding requires `react` / `react-dom` (peer dependencies) since
 

@@ -30,7 +30,7 @@ console.log(translations[0].text, translations[0].detectedSourceLang) // 'Hallo 
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-translation
+npm install @molecule/api-ai-translation @molecule/api-bond
 ```
 
 ## API
@@ -220,6 +220,10 @@ function setProvider(provider: AITranslationProvider): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 - **Wire it at startup with `setProvider(...)` — or the equivalent
   `bond('ai-translation', provider)`.** This core routes through the shared

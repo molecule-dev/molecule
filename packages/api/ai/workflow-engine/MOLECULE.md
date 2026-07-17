@@ -39,8 +39,7 @@ const run = await engine.execute({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-workflow-engine @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
-npm install -D @types/express
+npm install @molecule/api-ai-workflow-engine @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-http @molecule/api-i18n @molecule/api-middleware-validation
 ```
 
 ## API
@@ -272,8 +271,6 @@ Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-middleware-validation` ^1.0.0
-- `express` ^5.0.0
-- `zod` ^4.0.0
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 
@@ -282,10 +279,9 @@ Peer dependencies:
 - `@molecule/api-ai`
 - `@molecule/api-bonds-default-express`
 - `@molecule/api-database`
+- `@molecule/api-http`
 - `@molecule/api-i18n`
 - `@molecule/api-middleware-validation`
-- `express`
-- `zod`
 
 SECURITY — `condition` step evaluation is SAFE BY DEFAULT. Expressions are run
 through a small built-in interpreter ({@link safeEvaluateCondition}) that

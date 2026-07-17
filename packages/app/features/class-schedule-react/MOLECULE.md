@@ -124,7 +124,7 @@ function assignLanes(events: E[]): { event: E; lane: number; lanes: number; }[]
 
 **Returns:** Array of `{ event, lane, lanes }` records, in input order.
 
-#### `ClassSchedule(props, props, props, props, props, props, props, props, props, props)`
+#### `ClassSchedule(props)`
 
 Weekly class-schedule grid. Renders a 7-column (or 5-column when
 `showWeekendCols` is `false`) timetable with hour rows down the left
@@ -150,15 +150,15 @@ function ClassSchedule({
 ```
 
 - `props` — Component props.
-- `props` — .events - Events to render.
-- `props` — .weekStartsOn - First day-of-week (`0` Sun, `1` Mon).
-- `props` — .dayHours - Visible hour range `[start, end]`.
-- `props` — .cellHeight - Pixel height per hour row.
-- `props` — .showWeekendCols - Hide Sat + Sun when `false`.
-- `props` — .locale - Locale for weekday names.
-- `props` — .onEventClick - Click handler for event tiles.
-- `props` — .onSlotClick - Click handler for empty grid cells.
-- `props` — .className - Extra classes for the root container.
+- `props.events` — Events to render.
+- `props.weekStartsOn` — First day-of-week (`0` Sun, `1` Mon).
+- `props.dayHours` — Visible hour range `[start, end]`.
+- `props.cellHeight` — Pixel height per hour row.
+- `props.showWeekendCols` — Hide Sat + Sun when `false`.
+- `props.locale` — Locale for weekday names.
+- `props.onEventClick` — Click handler for event tiles.
+- `props.onSlotClick` — Click handler for empty grid cells.
+- `props.className` — Extra classes for the root container.
 
 **Returns:** The rendered schedule grid.
 

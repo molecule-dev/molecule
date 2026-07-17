@@ -30,8 +30,7 @@ const result = await gradeResponses({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-quiz-generation @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
-npm install -D @types/express
+npm install @molecule/api-ai-quiz-generation @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation
 ```
 
 ## API
@@ -140,8 +139,6 @@ Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-middleware-validation` ^1.0.0
-- `express` ^5.0.0
-- `zod` ^4.0.0
 - `@molecule/api-ai` ^1.0.0
 
 ### Runtime Dependencies
@@ -151,8 +148,6 @@ Peer dependencies:
 - `@molecule/api-database`
 - `@molecule/api-i18n`
 - `@molecule/api-middleware-validation`
-- `express`
-- `zod`
 
 Requires a bonded `ai` chat provider (`@molecule/api-ai`) — both functions
 throw if none is bonded.

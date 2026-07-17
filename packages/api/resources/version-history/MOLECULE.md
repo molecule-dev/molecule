@@ -54,7 +54,7 @@ await createVersion({
 
 ## Installation
 ```bash
-npm install @molecule/api-resource-version-history @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
+npm install @molecule/api-resource-version-history @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource-version-history @molecule/api-logger @molecule/api-resource zod
 ```
 
 ## API
@@ -685,6 +685,7 @@ Peer dependencies:
 
 - `@molecule/api-database`
 - `@molecule/api-i18n`
+- `@molecule/api-locales-resource-version-history`
 - `@molecule/api-logger`
 - `@molecule/api-resource`
 - `zod`

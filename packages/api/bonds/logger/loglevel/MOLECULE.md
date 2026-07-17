@@ -52,7 +52,7 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent';
 
 ### Functions
 
-#### `createLogger(options, options, options)`
+#### `createLogger(options)`
 
 Creates a named loglevel logger that implements the `Logger` interface.
 
@@ -70,8 +70,8 @@ function createLogger(options?: { level?: LogLevel; name?: string; }): Logger
 ```
 
 - `options` — Logger configuration.
-- `options` — .level - The minimum log level. Defaults to pass-through (`'trace'`).
-- `options` — .name - The logger name (used to create a named loglevel instance).
+- `options.level` — The minimum log level. Defaults to pass-through (`'trace'`).
+- `options.name` — The logger name (used to create a named loglevel instance).
 
 **Returns:** A `Logger` backed by loglevel.
 

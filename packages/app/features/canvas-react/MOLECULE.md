@@ -533,7 +533,7 @@ function screenToCanvas(point: Point, viewport: CanvasViewport): Point
 
 **Returns:** The same point expressed in canvas-space.
 
-#### `useCanvasSelection(options, options, options, options)`
+#### `useCanvasSelection(options)`
 
 Manage a selection set of canvas item ids with idiomatic helpers.
 Pure JS state — no DOM coupling, no domain assumptions.
@@ -546,13 +546,13 @@ function useCanvasSelection(options?: { initial?: readonly CanvasItemId[]; value
 ```
 
 - `options` — Hook options.
-- `options` — .initial - Initial selection set (default empty).
-- `options` — .value - External selection (controlled mode).
-- `options` — .onChange - External setter (controlled mode).
+- `options.initial` — Initial selection set (default empty).
+- `options.value` — External selection (controlled mode).
+- `options.onChange` — External setter (controlled mode).
 
 **Returns:** The selection set + helpers.
 
-#### `useCanvasViewport(options, options, options, options, options)`
+#### `useCanvasViewport(options)`
 
 Manage canvas viewport state with optional clamping limits. May be
 used controlled (pass `value` + `onChange`) or uncontrolled (omit
@@ -563,10 +563,10 @@ function useCanvasViewport(options?: { initial?: CanvasViewport; limits?: Viewpo
 ```
 
 - `options` — Hook options.
-- `options` — .initial - Initial viewport (default `{ x: 0, y: 0, zoom: 1 }`).
-- `options` — .limits - Optional clamping limits applied on every update.
-- `options` — .value - External viewport state (controlled mode).
-- `options` — .onChange - External setter (controlled mode).
+- `options.initial` — Initial viewport (default `{ x: 0, y: 0, zoom: 1 }`).
+- `options.limits` — Optional clamping limits applied on every update.
+- `options.value` — External viewport state (controlled mode).
+- `options.onChange` — External setter (controlled mode).
 
 **Returns:** The viewport state + helpers (`panBy`, `zoomBy`, `reset`).
 

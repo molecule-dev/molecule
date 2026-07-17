@@ -606,7 +606,7 @@ function setProvider(provider: I18nProvider): void
 
 - `provider` — The i18n provider implementation to bond.
 
-#### `t(key, values, options, options, options)`
+#### `t(key, values, options)`
 
 Translates a key using the bonded i18n provider, with optional
 interpolation values and pluralization.
@@ -618,8 +618,8 @@ function t(key: string, values?: InterpolationValues, options?: { defaultValue?:
 - `key` — Dot-delimited translation key (e.g. `'auth.login.title'`).
 - `values` — Interpolation values to substitute into the translation.
 - `options` — Translation options including `defaultValue` and `count` for pluralization.
-- `options` — .defaultValue - Fallback string if the key is not found.
-- `options` — .count - Count value for pluralization.
+- `options.defaultValue` — Fallback string if the key is not found.
+- `options.count` — Count value for pluralization.
 
 **Returns:** The translated string, or the `defaultValue` / key if not found.
 

@@ -340,7 +340,7 @@ type ImageQuality = number
 
 ### Functions
 
-#### `capturePreview(options, options)`
+#### `capturePreview(options)`
 
 Capture a still frame from the active camera preview.
 
@@ -349,7 +349,7 @@ function capturePreview(options?: { quality?: ImageQuality; }): Promise<Photo>
 ```
 
 - `options` — Capture options including image quality.
-- `options` — .quality - The image quality for the captured frame.
+- `options.quality` — The image quality for the captured frame.
 
 **Returns:** The captured Photo from the preview stream.
 

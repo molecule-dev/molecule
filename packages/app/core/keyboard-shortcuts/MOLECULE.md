@@ -25,7 +25,7 @@ const unregister = shortcuts.register({
 
 ## Installation
 ```bash
-npm install @molecule/app-keyboard-shortcuts
+npm install @molecule/app-keyboard-shortcuts @molecule/app-bond
 ```
 
 ## API
@@ -196,6 +196,10 @@ function setProvider(provider: KeyboardShortcutsProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - **Wire with THIS package's `setProvider()` or `bond('keyboard-shortcuts', …)`**
   (e.g. the `provider` export of `@molecule/app-keyboard-shortcuts-hotkeys`) once at

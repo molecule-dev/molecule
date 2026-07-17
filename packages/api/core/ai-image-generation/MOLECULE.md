@@ -32,7 +32,7 @@ const { images } = await requireProvider().generate({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-image-generation
+npm install @molecule/api-ai-image-generation @molecule/api-bond
 ```
 
 ## API
@@ -331,6 +331,10 @@ function setProvider(provider: AIImageGenerationProvider): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 - **Wire it at startup with `setProvider(...)` — or the equivalent
   `bond('ai-image-generation', provider)`.** This core routes through the shared

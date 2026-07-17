@@ -1592,7 +1592,7 @@ function provideTheme(provider: ThemeProvider): EnvironmentProviders
 
 **Returns:** Environment providers
 
-#### `t(key, values, options, options, options)`
+#### `t(key, values, options)`
 
 Translate a key using the current locale.
 
@@ -1608,8 +1608,8 @@ function t(key: string, values?: InterpolationValues, options?: { defaultValue?:
 - `key` — Translation key
 - `values` — Interpolation values
 - `options` — Options (defaultValue, count).
-- `options` — .defaultValue - Fallback string when no translation is found.
-- `options` — .count - Pluralization count.
+- `options.defaultValue` — Fallback string when no translation is found.
+- `options.count` — Pluralization count.
 
 **Returns:** Translated string
 

@@ -26,7 +26,7 @@ playButton.onclick = () => player.play() // user gesture — autoplay is blocked
 
 ## Installation
 ```bash
-npm install @molecule/app-audio
+npm install @molecule/app-audio @molecule/app-bond
 ```
 
 ## API
@@ -205,6 +205,10 @@ function setProvider(provider: AudioProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - **Wire it with THIS package's `setProvider()` or `bond('audio', …)`.** `setProvider()`
   delegates into the shared `@molecule/app-bond` registry, so both write the same slot;

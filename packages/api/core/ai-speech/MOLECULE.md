@@ -36,7 +36,7 @@ if (speech.transcribe) {
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-speech
+npm install @molecule/api-ai-speech @molecule/api-bond
 ```
 
 ## API
@@ -435,6 +435,10 @@ function setProvider(provider: AISpeechProvider): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 - **Wire it at startup with `setProvider(...)` — or the equivalent
   `bond('ai-speech', provider)`.** This core routes through the shared

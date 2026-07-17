@@ -29,7 +29,7 @@ await setKeepScreenOn(true) // prevent sleep during the flow
 
 ## Installation
 ```bash
-npm install @molecule/app-brightness @molecule/app-i18n
+npm install @molecule/app-brightness @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -399,6 +399,7 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/app-bond`
 - `@molecule/app-i18n`
 
 - **Wire with `setProvider()` or `bond('brightness', provider)`** — this core delegates to the

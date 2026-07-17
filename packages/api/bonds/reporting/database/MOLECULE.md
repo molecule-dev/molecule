@@ -137,7 +137,10 @@ interface DatabaseReportProvider extends ReportProvider {
    * @param options - Due-ness predicate and evaluation instant overrides.
    * @returns The delivered / skipped / failed schedule ids.
    */
-  runDueReports(deliver: DeliverReport, options?: RunDueReportsOptions): Promise<RunDueReportsResult>
+  runDueReports(
+    deliver: DeliverReport,
+    options?: RunDueReportsOptions,
+  ): Promise<RunDueReportsResult>
 }
 ```
 

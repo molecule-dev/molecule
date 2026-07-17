@@ -90,7 +90,7 @@ interface ThreadTreeProps {
 
 ### Functions
 
-#### `ThreadTree(props, props, props, props, props, props, props, props)`
+#### `ThreadTree(props)`
 
 Recursive nested-comment tree with per-node collapse / expand,
 depth-based indentation, and reply / upvote slots. Apps own the data;
@@ -117,13 +117,13 @@ function ThreadTree({
 ```
 
 - `props` — Component props.
-- `props` — .comments - Top-level comments (each may carry `children`).
-- `props` — .onReply - Reply-button handler.
-- `props` — .onUpvote - Upvote-button handler.
-- `props` — .onCollapse - Optional handler called on collapse / expand.
-- `props` — .defaultCollapsedDepth - Depth at which nodes auto-collapse (default 4).
-- `props` — .className - Extra classes appended to the outer wrapper.
-- `props` — .dataMolId - `data-mol-id` selector for AI-agent interaction.
+- `props.comments` — Top-level comments (each may carry `children`).
+- `props.onReply` — Reply-button handler.
+- `props.onUpvote` — Upvote-button handler.
+- `props.onCollapse` — Optional handler called on collapse / expand.
+- `props.defaultCollapsedDepth` — Depth at which nodes auto-collapse (default 4).
+- `props.className` — Extra classes appended to the outer wrapper.
+- `props.dataMolId` — `data-mol-id` selector for AI-agent interaction.
 
 **Returns:** The rendered tree element.
 

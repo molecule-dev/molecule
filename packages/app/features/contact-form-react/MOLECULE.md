@@ -114,3 +114,7 @@ successful submit with no user feedback. If `onSubmit` throws, the thrown
 `Error.message` is shown verbatim below the form — throw translated,
 user-safe messages. Placeholders/buttons use `contactForm.*` i18n keys
 (companion bond: `@molecule/app-locales-contact-form`).
+
+## Translations
+
+Translation strings are provided by `@molecule/app-locales-contact-form`.

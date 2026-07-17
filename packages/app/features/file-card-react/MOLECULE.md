@@ -169,7 +169,7 @@ function bytes(value: number): string
 
 **Returns:** Formatted size string.
 
-#### `FileCard(props, props, props, props, props, props, props, props, props, props)`
+#### `FileCard(props)`
 
 File representation card — icon (or thumbnail), filename, formatted size,
 relative modified date, and optional trailing actions slot. Used by
@@ -202,19 +202,19 @@ function FileCard({
 ```
 
 - `props` — Component props.
-- `props` — .file - File summary to render.
-- `props` — .selected - Selected highlight state.
-- `props` — .onClick - Body click handler.
-- `props` — .onContextMenu - Right-click handler.
-- `props` — .layout - `'grid'` (default) or `'row'`.
-- `props` — .actions - Trailing action slot (button row, kebab menu).
-- `props` — .now - Reference "now" for relative-time formatting.
-- `props` — .className - Extra root classes.
-- `props` — .dataMolId - Override the root `data-mol-id`.
+- `props.file` — File summary to render.
+- `props.selected` — Selected highlight state.
+- `props.onClick` — Body click handler.
+- `props.onContextMenu` — Right-click handler.
+- `props.layout` — `'grid'` (default) or `'row'`.
+- `props.actions` — Trailing action slot (button row, kebab menu).
+- `props.now` — Reference "now" for relative-time formatting.
+- `props.className` — Extra root classes.
+- `props.dataMolId` — Override the root `data-mol-id`.
 
 **Returns:** The file card element.
 
-#### `FileIcon(props, props, props, props)`
+#### `FileIcon(props)`
 
 Icon glyph for a file kind. Stroke-currentColor SVG so it inherits the
 surrounding text color (no ClassMap colors needed).
@@ -224,9 +224,9 @@ function FileIcon({ kind, size = 24, ariaLabel }: FileIconProps): JSX.Element
 ```
 
 - `props` — Component props.
-- `props` — .kind - File kind.
-- `props` — .size - Pixel size (default 24).
-- `props` — .ariaLabel - Optional aria-label; when omitted the icon is decorative.
+- `props.kind` — File kind.
+- `props.size` — Pixel size (default 24).
+- `props.ariaLabel` — Optional aria-label; when omitted the icon is decorative.
 
 **Returns:** The SVG icon element.
 

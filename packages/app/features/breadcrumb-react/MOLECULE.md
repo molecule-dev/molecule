@@ -29,7 +29,7 @@ const navigate = useNavigate()
 
 ## Installation
 ```bash
-npm install @molecule/app-breadcrumb-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router-dom
+npm install @molecule/app-breadcrumb-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
 ```
 
@@ -114,7 +114,6 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
-- `react-router-dom`
 
 Without `onNavigate`, crumbs render as plain `<a href>` (full page
 load in SPAs) — pass `onNavigate={(to) => navigate(to)}` to stay

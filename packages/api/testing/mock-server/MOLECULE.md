@@ -499,7 +499,7 @@ function getAppDataPool(fixturesDir: string, appType: string): AppDataPool | und
 
 **Returns:** The loaded pool, or undefined if directory missing/empty
 
-#### `getResponseBody(state, method, fixture, fixture, fixture, fixture, fixture)`
+#### `getResponseBody(state, method, fixture)`
 
 Get the response body for a given state, using the endpoint fixture data.
 
@@ -510,10 +510,10 @@ function getResponseBody(state: ResponseState, method: HttpMethod, fixture: { su
 - `state` — The response state
 - `method` — The HTTP method
 - `fixture` — The fixture data containing success, empty, and error responses
-- `fixture` — .successResponse
-- `fixture` — .emptyResponse
-- `fixture` — .errorResponse
-- `fixture` — .errorResponse.error
+- `fixture.successResponse` — *
+- `fixture.emptyResponse` — *
+- `fixture.errorResponse` — *
+- `fixture.errorResponse.error` — *
 
 **Returns:** The response body, or null for 204 responses
 

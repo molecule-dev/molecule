@@ -98,7 +98,7 @@ router.delete('/render/jobs/:id', (req, res, next) => {
 
 ## Installation
 ```bash
-npm install @molecule/api-video-render @molecule/api-queue fluent-ffmpeg
+npm install @molecule/api-video-render @molecule/api-queue
 ```
 
 ## API
@@ -800,7 +800,6 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/api-queue`
-- `fluent-ffmpeg`
 
 **Security model.** The argv passed to ffmpeg is built by
 {@link buildFfmpegArgs} — a pure function that validates every field on

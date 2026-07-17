@@ -35,8 +35,8 @@ import { EmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
 
 ## Installation
 ```bash
-npm install @molecule/app-embeddable-chat-widget @molecule/app-i18n @molecule/app-message-bubble-react @molecule/app-react @molecule/app-typing-indicator-react @molecule/app-ui @molecule/app-ui-react react
-npm install -D @types/react
+npm install @molecule/app-embeddable-chat-widget @molecule/app-i18n @molecule/app-react react react-dom
+npm install -D @types/react @types/react-dom
 ```
 
 ## API
@@ -328,12 +328,9 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-i18n`
-- `@molecule/app-message-bubble-react`
 - `@molecule/app-react`
-- `@molecule/app-typing-indicator-react`
-- `@molecule/app-ui`
-- `@molecule/app-ui-react`
 - `react`
+- `react-dom`
 
 **True drop-in — no provider wiring required.** The widget renders with
 sensible English defaults and fully inlined styling when no molecule

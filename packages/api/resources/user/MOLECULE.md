@@ -172,7 +172,7 @@ function createRequestHandlerMap(createRequestHandler: (handler: Handler) => (re
 
 **Returns:** A `UserRequestHandlerMap` of handler names to Express middleware.
 
-#### `createResource(options, options, options)`
+#### `createResource(options)`
 
 Creates a user resource definition with optional OAuth servers and plan keys.
 
@@ -181,12 +181,12 @@ function createResource(options?: { oauthServers?: OAuthServers; planKeys?: Plan
 ```
 
 - `options` — Optional configuration.
-- `options` — .oauthServers - Tuple of allowed OAuth server names (e.g. `['google', 'github']`). Constrains the `oauthServer` schema field.
-- `options` — .planKeys - Tuple of allowed plan key strings (e.g. `['free', 'pro']`). Constrains the `planKey` schema field.
+- `options.oauthServers` — Tuple of allowed OAuth server names (e.g. `['google', 'github']`). Constrains the `oauthServer` schema field.
+- `options.planKeys` — Tuple of allowed plan key strings (e.g. `['free', 'pro']`). Constrains the `planKey` schema field.
 
 **Returns:** A `Resource` with name `'User'`, table `'users'`, and a Zod schema reflecting the options.
 
-#### `createSchema(options, options, options)`
+#### `createSchema(options)`
 
 Creates a full schema for user props.
 
@@ -197,8 +197,8 @@ function createSchema(options?: { oauthServers?: OAuthServers; planKeys?: PlanKe
 ```
 
 - `options` — Optional configuration.
-- `options` — .oauthServers - Tuple of allowed OAuth server names. Constrains `oauthServer` to a Zod enum.
-- `options` — .planKeys - Tuple of allowed plan key strings. Constrains `planKey` to a Zod enum.
+- `options.oauthServers` — Tuple of allowed OAuth server names. Constrains `oauthServer` to a Zod enum.
+- `options.planKeys` — Tuple of allowed plan key strings. Constrains `planKey` to a Zod enum.
 
 **Returns:** A Zod object schema extending `basePropsSchema` with user-specific fields (username, email, OAuth, plan).
 

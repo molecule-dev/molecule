@@ -27,7 +27,8 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-audio-howler @molecule/app-audio
+npm install @molecule/app-audio-howler @molecule/app-audio howler
+npm install -D @types/howler
 ```
 
 ## API
@@ -132,6 +133,7 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-audio`
+- `howler`
 
 - **Browsers block autoplay.** `autoplay: true` or `play()` outside a user
   gesture is ignored until the user interacts with the page — start playback

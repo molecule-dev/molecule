@@ -446,7 +446,7 @@ function createAccountLink(params: CreateAccountLinkParams): Promise<CreateAccou
 
 **Returns:** The hosted onboarding/update URL and its expiry (Unix timestamp, seconds).
 
-#### `createCheckoutSession(options, options, options, options, options, options, options)`
+#### `createCheckoutSession(options)`
 
 Creates a Stripe Checkout session for a new subscription.
 
@@ -455,12 +455,12 @@ function createCheckoutSession(options: { priceId: string; successUrl: string; c
 ```
 
 - `options` — Checkout configuration.
-- `options` — .priceId - The Stripe Price ID for the subscription line item.
-- `options` — .successUrl - URL to redirect to after successful payment.
-- `options` — .cancelUrl - URL to redirect to if the user cancels.
-- `options` — .customerId - Optional existing Stripe Customer ID.
-- `options` — .metadata - Optional key-value metadata to attach to the session.
-- `options` — .idempotencyKey - Optional idempotency key for safe request retries.
+- `options.priceId` — The Stripe Price ID for the subscription line item.
+- `options.successUrl` — URL to redirect to after successful payment.
+- `options.cancelUrl` — URL to redirect to if the user cancels.
+- `options.customerId` — Optional existing Stripe Customer ID.
+- `options.metadata` — Optional key-value metadata to attach to the session.
+- `options.idempotencyKey` — Optional idempotency key for safe request retries.
 
 **Returns:** The checkout session ID and URL.
 
@@ -490,7 +490,7 @@ function createPayout(params: CreatePayoutParams): Promise<CreatePayoutResult>
 
 **Returns:** The created payout.
 
-#### `createSetupIntent(options, options, options, options)`
+#### `createSetupIntent(options)`
 
 Creates a Stripe SetupIntent for the saved-card flow.
 
@@ -503,9 +503,9 @@ function createSetupIntent(options: { customerId?: string; metadata?: Record<str
 ```
 
 - `options` — SetupIntent creation options.
-- `options` — .customerId - Optional existing Stripe customer ID (`cus_...`).
-- `options` — .metadata - Optional metadata to attach to the SetupIntent.
-- `options` — .idempotencyKey - Optional idempotency key for safe retries.
+- `options.customerId` — Optional existing Stripe customer ID (`cus_...`).
+- `options.metadata` — Optional metadata to attach to the SetupIntent.
+- `options.idempotencyKey` — Optional idempotency key for safe retries.
 
 **Returns:** The SetupIntent ID, client secret, and customer ID.
 
@@ -626,7 +626,7 @@ function processConnectWebhook(headers: Record<string, string | string[] | undef
 
 **Returns:** The verified, normalized Connect webhook event.
 
-#### `reportUsageOverage(options, options, options, options, options, options, options, options, options)`
+#### `reportUsageOverage(options)`
 
 Reports a usage-based OVERAGE charge to Stripe as a one-off invoice item
 against an existing customer (and, when given, attached to the open invoice
@@ -654,14 +654,14 @@ function reportUsageOverage(options: { customerId: string; amountCents: number; 
 ```
 
 - `options` — Overage reporting options.
-- `options` — .customerId - The Stripe customer to bill (`cus_...`).
-- `options` — .amountCents - The overage amount in cents (must be `> 0`).
-- `options` — .currency - ISO currency (defaults to `usd`).
-- `options` — .priceId - The metered/overage Price id this reports against;
-- `options` — .subscriptionId - Optional subscription to attach the item to
-- `options` — .description - Human-readable line description.
-- `options` — .metadata - Extra reconciliation metadata (e.g. period).
-- `options` — .idempotencyKey - REQUIRED stable key (see IDEMPOTENCY above).
+- `options.customerId` — The Stripe customer to bill (`cus_...`).
+- `options.amountCents` — The overage amount in cents (must be `> 0`).
+- `options.currency` — ISO currency (defaults to `usd`).
+- `options.priceId` — The metered/overage Price id this reports against;
+- `options.subscriptionId` — Optional subscription to attach the item to
+- `options.description` — Human-readable line description.
+- `options.metadata` — Extra reconciliation metadata (e.g. period).
+- `options.idempotencyKey` — REQUIRED stable key (see IDEMPOTENCY above).
 
 **Returns:** The created invoice item id + the amount actually reported.
 

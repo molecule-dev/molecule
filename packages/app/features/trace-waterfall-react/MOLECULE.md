@@ -187,7 +187,7 @@ function serviceColor(service: string): string
 
 **Returns:** A hex color string suitable for an inline `style.background`.
 
-#### `TraceWaterfall(props, props, props, props, props, props)`
+#### `TraceWaterfall(props)`
 
 Datadog/Jaeger-style distributed-trace waterfall. Renders each span as
 a horizontal bar positioned by `startTime`, scaled to total trace
@@ -214,11 +214,11 @@ function TraceWaterfall({
 ```
 
 - `props` — Component props.
-- `props` — .spans - Flat list of spans.
-- `props` — .rootSpanId - Optional focus span id.
-- `props` — .onSpanClick - Optional row-click callback.
-- `props` — .emptyState - Optional fallback when `spans` is empty.
-- `props` — .className - Extra classes for the root.
+- `props.spans` — Flat list of spans.
+- `props.rootSpanId` — Optional focus span id.
+- `props.onSpanClick` — Optional row-click callback.
+- `props.emptyState` — Optional fallback when `spans` is empty.
+- `props.className` — Extra classes for the root.
 
 **Returns:** The waterfall element tree.
 

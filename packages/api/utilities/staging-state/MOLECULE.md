@@ -97,7 +97,7 @@ function addEnvironment(projectPath: string, record: StagingEnvironmentRecord): 
 - `projectPath` — Absolute path to the project root.
 - `record` — The environment record to add or update.
 
-#### `allocatePort(projectPath, portRange, portRange, portRange)`
+#### `allocatePort(projectPath, portRange)`
 
 Allocates a set of non-colliding ports for a new staging environment.
 Each environment needs three ports: API, App, and DB. Ports are allocated
@@ -109,8 +109,8 @@ function allocatePort(projectPath: string, portRange: { start: number; end: numb
 
 - `projectPath` — Absolute path to the project root.
 - `portRange` — The port range to allocate from.
-- `portRange` — .start - First port in the range (inclusive).
-- `portRange` — .end - Last port in the range (inclusive).
+- `portRange.start` — First port in the range (inclusive).
+- `portRange.end` — Last port in the range (inclusive).
 
 **Returns:** An object with allocated `api`, `app`, and `db` ports.
 

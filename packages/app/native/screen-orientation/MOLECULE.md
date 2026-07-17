@@ -38,7 +38,7 @@ function reactToRotation(cb: (o: string) => void): () => void {
 
 ## Installation
 ```bash
-npm install @molecule/app-screen-orientation @molecule/app-i18n
+npm install @molecule/app-screen-orientation @molecule/app-bond @molecule/app-i18n
 ```
 
 ## API
@@ -434,6 +434,7 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/app-bond`
 - `@molecule/app-i18n`
 
 - **Every accessor THROWS until `setProvider()` is called** — **no

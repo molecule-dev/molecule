@@ -33,8 +33,7 @@ const { answer, sources } = await answerQuestion({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-rag-qa @molecule/api-ai @molecule/api-ai-embeddings @molecule/api-ai-vector-store @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
-npm install -D @types/express
+npm install @molecule/api-ai-rag-qa @molecule/api-ai @molecule/api-ai-embeddings @molecule/api-ai-vector-store @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation
 ```
 
 ## API
@@ -150,8 +149,6 @@ Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-middleware-validation` ^1.0.0
-- `express` ^5.0.0
-- `zod` ^4.0.0
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-ai-embeddings` ^1.0.0
 - `@molecule/api-ai-vector-store` ^1.0.0
@@ -165,8 +162,6 @@ Peer dependencies:
 - `@molecule/api-database`
 - `@molecule/api-i18n`
 - `@molecule/api-middleware-validation`
-- `express`
-- `zod`
 
 Wiring — the three composed cores use TWO different mechanisms:
 - `@molecule/api-ai-embeddings` and `@molecule/api-ai-vector-store` each

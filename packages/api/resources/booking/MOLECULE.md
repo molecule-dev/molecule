@@ -347,7 +347,8 @@ const BOOKING_STATUSES: readonly BookingStatus[]
 
 #### `i18nRegistered`
 
-Whether i18n registration has been attempted.
+Whether i18n registration has been attempted. Always `true`; this module is
+a placeholder for symmetry with locale-bonded resources.
 
 ```typescript
 const i18nRegistered: true

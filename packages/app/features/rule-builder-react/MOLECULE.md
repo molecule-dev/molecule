@@ -330,7 +330,7 @@ function replaceById(tree: Rule, targetId: string, replacement: Rule): Rule
 
 **Returns:** New tree with the replacement applied.
 
-#### `RuleBuilder(props, props, props, props, props)`
+#### `RuleBuilder(props)`
 
 Visual rule / predicate builder. The rendered tree is a recursive
 `RuleGroup` of `RuleLeaf` predicates joined by `AND` or `OR`. The
@@ -342,10 +342,10 @@ function RuleBuilder({ schema, rules, onChange, className }: RuleBuilderProps): 
 ```
 
 - `props` — Component props.
-- `props` — .schema
-- `props` — .rules
-- `props` — .onChange
-- `props` — .className
+- `props.schema` — *
+- `props.rules` — *
+- `props.onChange` — *
+- `props.className` — *
 
 **Returns:** The rendered rule builder.
 

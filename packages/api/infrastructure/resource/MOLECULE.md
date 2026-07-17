@@ -240,7 +240,7 @@ type MoleculeRequestHandler = (
 
 ### Functions
 
-#### `create(resource, resource, resource, resource)`
+#### `create(resource)`
 
 Creates a handler to create a resource.
 
@@ -270,9 +270,9 @@ function create({
 ```
 
 - `resource` — The resource descriptor.
-- `resource` — .name - Human-readable resource name used in error messages (e.g. `'User'`).
-- `resource` — .tableName - Database table to insert the new row into.
-- `resource` — .schema - Zod schema to validate the incoming props against.
+- `resource.name` — Human-readable resource name used in error messages (e.g. `'User'`).
+- `resource.tableName` — Database table to insert the new row into.
+- `resource.schema` — Zod schema to validate the incoming props against.
 
 **Returns:** A curried async function that accepts `{ props, id? }` and returns a `{ statusCode, body }` response.
 
@@ -291,7 +291,7 @@ function createRequestHandler(handler: Handler): (req: MoleculeRequest, res: Mol
 
 **Returns:** An Express-compatible middleware function `(req, res, next) => void`.
 
-#### `del(resource, resource, resource)`
+#### `del(resource)`
 
 Creates a handler to delete a resource by its `id`.
 
@@ -322,12 +322,12 @@ function del({
 ```
 
 - `resource` — The resource descriptor.
-- `resource` — .name - Human-readable resource name used in error messages (e.g. `'User'`).
-- `resource` — .tableName - Database table to delete the row from.
+- `resource.name` — Human-readable resource name used in error messages (e.g. `'User'`).
+- `resource.tableName` — Database table to delete the row from.
 
 **Returns:** A curried async function that accepts `{ id }` and returns a `{ statusCode, body }` response.
 
-#### `query(resource, resource)`
+#### `query(resource)`
 
 Creates a request handler to be used to query resources.
 
@@ -340,11 +340,11 @@ function query({
 ```
 
 - `resource` — The resource descriptor.
-- `resource` — .tableName - Database table to query resources from.
+- `resource.tableName` — Database table to query resources from.
 
 **Returns:** A curried async handler that accepts a `MoleculeRequest` (with query params for pagination/sorting) and returns a `{ statusCode, body }` response.
 
-#### `read(resource, resource)`
+#### `read(resource)`
 
 Creates a handler to read a resource by its `id`.
 
@@ -372,7 +372,7 @@ function read({
 ```
 
 - `resource` — The resource descriptor.
-- `resource` — .tableName - Database table to query the resource from.
+- `resource.tableName` — Database table to query the resource from.
 
 **Returns:** A curried async function that accepts `{ id, props? }` and returns a `{ statusCode, body }` response.
 
@@ -405,7 +405,7 @@ function respondError(res: MoleculeResponse, error: unknown, fallback: ErrorFall
 - `error` — The caught error.
 - `fallback` — Status/message/errorKey to use when `error` isn't a tagged error.
 
-#### `update(resource, resource, resource, resource)`
+#### `update(resource)`
 
 Creates a handler to update a resource by its `id` and some `props`.
 
@@ -436,9 +436,9 @@ function update({
 ```
 
 - `resource` — The resource descriptor.
-- `resource` — .name - Human-readable resource name used in error messages (e.g. `'User'`).
-- `resource` — .tableName - Database table to update the row in.
-- `resource` — .schema - Zod schema to validate the incoming props against.
+- `resource.name` — Human-readable resource name used in error messages (e.g. `'User'`).
+- `resource.tableName` — Database table to update the row in.
+- `resource.schema` — Zod schema to validate the incoming props against.
 
 **Returns:** A curried async function that accepts `{ id, props }` and returns a `{ statusCode, body }` response.
 

@@ -31,7 +31,7 @@ await assistant.sendMessage('Why is this invoice overdue?', config, (event) => {
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-assistant
+npm install @molecule/app-ai-assistant @molecule/app-bond
 ```
 
 ## API
@@ -316,6 +316,10 @@ function setProvider(provider: AIAssistantProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - **Wire it with THIS package's `setProvider()` or `bond('ai-assistant', …)`.**
   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so

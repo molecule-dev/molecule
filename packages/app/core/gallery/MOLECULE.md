@@ -27,7 +27,7 @@ gallery.open(0)   // then render your overlay from getCurrentIndex()
 
 ## Installation
 ```bash
-npm install @molecule/app-gallery
+npm install @molecule/app-gallery @molecule/app-bond
 ```
 
 ## API
@@ -206,6 +206,10 @@ function setProvider(provider: GalleryProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - **The instance is headless — `open()` displays nothing by itself.** Your app
   renders the lightbox overlay (image, prev/next, close, counter) with

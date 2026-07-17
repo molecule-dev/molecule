@@ -283,7 +283,7 @@ function createLogger(nameOrConfig: string | LoggerConfig, config?: LoggerConfig
 
 **Returns:** A new named logger instance.
 
-#### `createRemoteTransport(options, options, options, options, options, options)`
+#### `createRemoteTransport(options)`
 
 Creates a remote logging transport that batches log entries and
 sends them to a remote endpoint via HTTP POST.
@@ -293,11 +293,11 @@ function createRemoteTransport(options: { url: string; minLevel?: LogLevel; batc
 ```
 
 - `options` — Transport configuration.
-- `options` — .url - The remote endpoint URL to POST log batches to.
-- `options` — .minLevel - Minimum log level to send (default: `'warn'`).
-- `options` — .batchSize - Number of entries to buffer before flushing (default: 10).
-- `options` — .flushInterval - Milliseconds between automatic flushes (default: 5000).
-- `options` — .headers - Additional HTTP headers for the POST request.
+- `options.url` — The remote endpoint URL to POST log batches to.
+- `options.minLevel` — Minimum log level to send (default: `'warn'`).
+- `options.batchSize` — Number of entries to buffer before flushing (default: 10).
+- `options.flushInterval` — Milliseconds between automatic flushes (default: 5000).
+- `options.headers` — Additional HTTP headers for the POST request.
 
 **Returns:** A `LogTransport` function that buffers and sends entries.
 

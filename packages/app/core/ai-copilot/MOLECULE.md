@@ -32,7 +32,7 @@ await copilot.getSuggestions(
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-copilot
+npm install @molecule/app-ai-copilot @molecule/app-bond
 ```
 
 ## API
@@ -241,6 +241,10 @@ function setProvider(provider: AICopilotProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - **Wire it with THIS package's `setProvider()` or `bond('ai-copilot', …)`.**
   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so

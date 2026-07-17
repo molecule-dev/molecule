@@ -37,7 +37,7 @@ const hits = await store.query({
 
 ## Installation
 ```bash
-npm install @molecule/api-ai-vector-store
+npm install @molecule/api-ai-vector-store @molecule/api-bond
 ```
 
 ## API
@@ -327,6 +327,10 @@ function setProvider(provider: AIVectorStoreProvider): void
 
 Peer dependencies:
 - `@molecule/api-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/api-bond`
 
 - **Wire it at startup with `setProvider(...)` — or the equivalent
   `bond('ai-vector-store', provider)`.** This core routes through the shared

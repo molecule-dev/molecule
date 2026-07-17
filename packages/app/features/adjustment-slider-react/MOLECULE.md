@@ -93,7 +93,7 @@ type AdjustmentSliderFormatter = (value: number) => string
 
 ### Functions
 
-#### `AdjustmentSlider(props, props, props, props, props, props, props, props, props, props, props, props, props)`
+#### `AdjustmentSlider(props)`
 
 Bipolar (zero-center) adjustment slider — a labelled `<input type="range">`
 tuned for photo-editor / DAW / animation parameter controls (brightness,
@@ -129,18 +129,18 @@ function AdjustmentSlider({
 ```
 
 - `props` — Component props.
-- `props` — .label - Visible control label.
-- `props` — .value - Current numeric value.
-- `props` — .onChange - Called whenever the value changes.
-- `props` — .min - Lower bound (default `-100`).
-- `props` — .max - Upper bound (default `100`).
-- `props` — .step - Step increment (default `1`).
-- `props` — .bipolar - Bipolar / zero-center mode (default `true`).
-- `props` — .unit - Optional unit suffix appended to the default formatter.
-- `props` — .format - Optional custom value formatter.
-- `props` — .onReset - Optional reset handler (overrides default reset).
-- `props` — .className - Optional extra classes for the outer container.
-- `props` — .dataMolId - Optional `data-mol-id` for the outer container.
+- `props.label` — Visible control label.
+- `props.value` — Current numeric value.
+- `props.onChange` — Called whenever the value changes.
+- `props.min` — Lower bound (default `-100`).
+- `props.max` — Upper bound (default `100`).
+- `props.step` — Step increment (default `1`).
+- `props.bipolar` — Bipolar / zero-center mode (default `true`).
+- `props.unit` — Optional unit suffix appended to the default formatter.
+- `props.format` — Optional custom value formatter.
+- `props.onReset` — Optional reset handler (overrides default reset).
+- `props.className` — Optional extra classes for the outer container.
+- `props.dataMolId` — Optional `data-mol-id` for the outer container.
 
 **Returns:** The rendered adjustment slider.
 

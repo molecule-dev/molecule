@@ -31,7 +31,7 @@ const images = await generator.generate(
 
 ## Installation
 ```bash
-npm install @molecule/app-ai-image-generator
+npm install @molecule/app-ai-image-generator @molecule/app-bond
 ```
 
 ## API
@@ -255,6 +255,10 @@ function setProvider(provider: AIImageGeneratorProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - **Wire it with THIS package's `setProvider()` or
   `bond('ai-image-generator', …)`.** `setProvider()` delegates into the shared

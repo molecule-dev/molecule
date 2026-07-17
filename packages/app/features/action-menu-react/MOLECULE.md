@@ -51,7 +51,11 @@ interface ActionMenuItem {
   href?: string
   /** When true, rendered in a disabled state. */
   disabled?: boolean
-  /** Marks the item as destructive. Currently rendered with semibold weight only (no error-color accent). */
+  /**
+   * Marks the item as destructive. Rendered in the theme's error color
+   * (`cm.textError`) with semibold weight, so it reads as red in both light
+   * and dark themes.
+   */
   destructive?: boolean
   /** Insert a divider below this item. */
   divider?: boolean
@@ -59,6 +63,8 @@ interface ActionMenuItem {
 ```
 
 #### `ActionMenuProps`
+
+Props for the {@link ActionMenu} component.
 
 ```typescript
 interface ActionMenuProps {

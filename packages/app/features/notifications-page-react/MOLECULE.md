@@ -140,7 +140,7 @@ type NotificationsPageTypeIconMap = Readonly<Record<string, string>>
 
 ### Functions
 
-#### `NotificationsPage(props, props, props, props, props, props, props)`
+#### `NotificationsPage(props)`
 
 Drop-in `/notifications` page used by every flagship app.
 
@@ -166,12 +166,12 @@ function NotificationsPage({
 ```
 
 - `props` — Configuration props.
-- `props` — .pageSize - Items per page (default 20).
-- `props` — .endpoint - Override the `GET /notifications` URL.
-- `props` — .markAllReadEndpoint - Override the `POST /notifications/read-all` URL.
-- `props` — .typeIcons - Optional `type → material-symbol` overrides.
-- `props` — .className - Extra classes appended to the outer wrapper.
-- `props` — .dataMolId - `data-mol-id` selector for AI-agent interaction.
+- `props.pageSize` — Items per page (default 20).
+- `props.endpoint` — Override the `GET /notifications` URL.
+- `props.markAllReadEndpoint` — Override the `POST /notifications/read-all` URL.
+- `props.typeIcons` — Optional `type → material-symbol` overrides.
+- `props.className` — Extra classes appended to the outer wrapper.
+- `props.dataMolId` — `data-mol-id` selector for AI-agent interaction.
 
 **Returns:** The rendered page element.
 

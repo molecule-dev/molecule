@@ -37,7 +37,7 @@ declare function navigate(to: string): void
 
 ## Installation
 ```bash
-npm install @molecule/app-nav-chrome-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router-dom
+npm install @molecule/app-nav-chrome-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
 ```
 
@@ -256,7 +256,6 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
-- `react-router-dom`
 
 Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
 

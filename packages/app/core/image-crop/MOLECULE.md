@@ -29,7 +29,7 @@ canvas.toBlob((blob) => uploadAvatar(blob))
 
 ## Installation
 ```bash
-npm install @molecule/app-image-crop
+npm install @molecule/app-image-crop @molecule/app-bond
 ```
 
 ## API
@@ -247,6 +247,10 @@ function setProvider(provider: ImageCropProvider): void
 
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
+
+### Runtime Dependencies
+
+- `@molecule/app-bond`
 
 - **The instance is headless — no crop UI mounts anywhere.** Render the image,
   crop-box overlay, and handles yourself (styled via `getClassMap()`/`cm.*`) and

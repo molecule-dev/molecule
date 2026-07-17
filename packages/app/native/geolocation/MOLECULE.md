@@ -255,7 +255,7 @@ type PositionCallback = (position: Position) => void
 
 ### Functions
 
-#### `calculateDistance(from, from, from, to, to, to)`
+#### `calculateDistance(from, to)`
 
 Calculates the distance between two geographic coordinates.
 
@@ -264,11 +264,11 @@ function calculateDistance(from: { latitude: number; longitude: number; }, to: {
 ```
 
 - `from` — The starting coordinate.
-- `from` — .latitude - The starting latitude in decimal degrees.
-- `from` — .longitude - The starting longitude in decimal degrees.
+- `from.latitude` — The starting latitude in decimal degrees.
+- `from.longitude` — The starting longitude in decimal degrees.
 - `to` — The destination coordinate.
-- `to` — .latitude - The destination latitude in decimal degrees.
-- `to` — .longitude - The destination longitude in decimal degrees.
+- `to.latitude` — The destination latitude in decimal degrees.
+- `to.longitude` — The destination longitude in decimal degrees.
 
 **Returns:** The distance in meters between the two coordinates.
 
@@ -338,7 +338,7 @@ function hasProvider(): boolean
 
 **Returns:** Whether a geolocation provider is currently registered.
 
-#### `haversineDistance(from, from, from, to, to, to)`
+#### `haversineDistance(from, to)`
 
 Calculates the distance between two coordinates using the Haversine formula.
 
@@ -347,11 +347,11 @@ function haversineDistance(from: { latitude: number; longitude: number; }, to: {
 ```
 
 - `from` — The starting coordinate.
-- `from` — .latitude - The starting latitude in decimal degrees.
-- `from` — .longitude - The starting longitude in decimal degrees.
+- `from.latitude` — The starting latitude in decimal degrees.
+- `from.longitude` — The starting longitude in decimal degrees.
 - `to` — The destination coordinate.
-- `to` — .latitude - The destination latitude in decimal degrees.
-- `to` — .longitude - The destination longitude in decimal degrees.
+- `to.latitude` — The destination latitude in decimal degrees.
+- `to.longitude` — The destination longitude in decimal degrees.
 
 **Returns:** The distance in meters between the two coordinates.
 

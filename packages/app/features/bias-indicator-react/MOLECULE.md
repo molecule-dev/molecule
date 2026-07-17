@@ -80,7 +80,7 @@ type ReliabilityTier = 'high' | 'medium' | 'low' | 'disputed'
 
 ### Functions
 
-#### `BiasIndicator(props, props, props, props, props, props, props)`
+#### `BiasIndicator(props)`
 
 Political-bias / source-credibility indicator for news article
 headers. Renders a horizontal `-1..+1` scale with a coloured marker
@@ -105,12 +105,12 @@ function BiasIndicator({
 ```
 
 - `props` — Component props.
-- `props` — .bias - Bias scalar (-1 far left … +1 far right).
-- `props` — .reliability - Optional 0..1 reliability score.
-- `props` — .compact - Render only the coloured dot.
-- `props` — .sourceLabel - Optional source caption.
-- `props` — .className - Extra classes.
-- `props` — .dataMolId - `data-mol-id` for AI / E2E selectors.
+- `props.bias` — Bias scalar (-1 far left … +1 far right).
+- `props.reliability` — Optional 0..1 reliability score.
+- `props.compact` — Render only the coloured dot.
+- `props.sourceLabel` — Optional source caption.
+- `props.className` — Extra classes.
+- `props.dataMolId` — `data-mol-id` for AI / E2E selectors.
 
 **Returns:** The rendered indicator.
 
