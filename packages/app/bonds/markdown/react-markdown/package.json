@@ -30,12 +30,22 @@
     "directory": "packages/app/bonds/markdown/react-markdown"
   },
   "peerDependencies": {
-    "@molecule/app-markdown": "^1.0.0"
+    "@molecule/app-markdown": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "@molecule/app-markdown": "1.0.0",
     "@types/node": "25.9.2",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "typescript": "6.0.3",
     "vitest": "4.1.8"
+  },
+  "dependencies": {
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1"
   }
 }

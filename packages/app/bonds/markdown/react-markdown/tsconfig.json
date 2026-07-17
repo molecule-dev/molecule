@@ -3,6 +3,7 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "declaration": true,
     "declarationMap": true,
     "outDir": "./dist",
@@ -11,7 +12,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "jsx": "react-jsx",
+    "types": []
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "src/**/__tests__/**"]
