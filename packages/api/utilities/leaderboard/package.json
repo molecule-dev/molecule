@@ -27,7 +27,9 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@types/better-sqlite3": "7.6.13",
     "@types/node": "25.9.2",
+    "better-sqlite3": "12.10.0",
     "typescript": "6.0.3",
     "vitest": "4.1.8"
   },

@@ -41,13 +41,23 @@
  *
  * @remarks
  * Table prerequisites: the service helpers read/write `leaderboard_events`
- * and `leaderboard_rollups`. The DDL ships as .sql files under the package's
- * `__setup__` directory. An mlcl-scaffolded API replays those .sql files
- * automatically on migrate; anywhere else run the file once against your
- * database — nothing at runtime creates the tables. The shipped DDL is
- * PostgreSQL dialect (`gen_random_uuid()`, `TIMESTAMPTZ`, a partial index);
- * adapt column types/defaults for SQLite or MySQL — the service itself is
- * dialect-agnostic (abstract DataStore calls only).
+ * and `leaderboard_rollups`. The DDL ships as a .sql file under the package's
+ * `__setup__` directory. An mlcl-scaffolded API replays it automatically on
+ * migrate; anywhere else run the file once against your database — nothing at
+ * runtime creates the tables.
+ *
+ * The DDL is portable, standard SQL and runs UNCHANGED on PostgreSQL and
+ * SQLite — it uses no dialect-only functions: row ids come from the
+ * `@molecule/api-database` DataStore's `create()` (which generates a UUID when
+ * the caller omits one, so the `id` columns need no DB-side
+ * `gen_random_uuid()`), and timestamp defaults use the standard
+ * `CURRENT_TIMESTAMP` rather than Postgres's `now()`. The `UUID`/`TIMESTAMPTZ`
+ * type names and the partial index are PostgreSQL-native and accepted by
+ * SQLite's type affinity; MySQL's stricter parser has them normalised
+ * automatically by the `@molecule/api-database-mysql` bond at migrate time
+ * (`UUID`→`CHAR(36)`, `TIMESTAMPTZ`→`TIMESTAMP`, the partial-index predicate
+ * dropped). So the service is genuinely dialect-agnostic across all three
+ * official database bonds — no manual DDL porting required.
  *
  * A `@molecule/api-database` bond must be wired at startup before calling
  * the service helpers; the pure engine (`computeLeaderboard`) needs no
