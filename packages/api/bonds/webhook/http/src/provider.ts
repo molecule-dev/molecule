@@ -67,7 +67,10 @@ export function createProvider(config: HttpWebhookConfig = {}): WebhookProvider 
     string,
     WebhookRegistration & { retryCount: number; headers: Record<string, string> }
   >()
-  const deliveries = new Map<string, WebhookDelivery>()
+  // Internally track each attempt's stable delivery key (the x-webhook-delivery-id
+  // the receiver dedups on) alongside the public delivery record, so a manual
+  // retry() re-sends under the ORIGINAL delivery's id rather than a fresh one.
+  const deliveries = new Map<string, WebhookDelivery & { deliveryKey: string }>()
 
   /**
    * Delivers a payload to a single webhook endpoint.
@@ -81,6 +84,7 @@ export function createProvider(config: HttpWebhookConfig = {}): WebhookProvider 
     registration: WebhookRegistration & { retryCount: number; headers: Record<string, string> },
     event: string,
     payload: unknown,
+    deliveryKey: string,
   ): Promise<WebhookDeliveryResult> {
     const deliveryId = randomUUID()
     const body = JSON.stringify(payload)
@@ -89,6 +93,12 @@ export function createProvider(config: HttpWebhookConfig = {}): WebhookProvider 
     const headers: Record<string, string> = {
       'content-type': 'application/json',
       'x-webhook-event': event,
+      // STABLE across the automatic retries of one logical delivery. Delivery is
+      // at-least-once — a lost 2xx response triggers a retry the receiver cannot
+      // distinguish from a new event, and the HMAC signature is no help (identical
+      // payloads sign identically), so receivers MUST dedup on this id. Distinct
+      // from the per-attempt `deliveryId` used only for this app's delivery log.
+      'x-webhook-delivery-id': deliveryKey,
       [signatureHeader]: signature,
       ...registration.headers,
     }
@@ -119,6 +129,7 @@ export function createProvider(config: HttpWebhookConfig = {}): WebhookProvider 
 
     deliveries.set(deliveryId, {
       id: deliveryId,
+      deliveryKey,
       webhookId: registration.id,
       event,
       payload,
@@ -150,11 +161,15 @@ export function createProvider(config: HttpWebhookConfig = {}): WebhookProvider 
     event: string,
     payload: unknown,
   ): Promise<WebhookDeliveryResult> {
-    let result = await deliver(registration, event, payload)
+    // One idempotency key per logical delivery, STABLE across every retry
+    // attempt, so the receiver can dedup at-least-once redeliveries (sent as the
+    // x-webhook-delivery-id header).
+    const deliveryKey = randomUUID()
+    let result = await deliver(registration, event, payload, deliveryKey)
 
     for (let attempt = 0; attempt < registration.retryCount && !result.success; attempt += 1) {
       await delay(defaultRetryDelay)
-      result = await deliver(registration, event, payload)
+      result = await deliver(registration, event, payload, deliveryKey)
     }
 
     return result
@@ -243,7 +258,9 @@ export function createProvider(config: HttpWebhookConfig = {}): WebhookProvider 
         throw new Error(`Webhook "${original.webhookId}" no longer exists.`)
       }
 
-      return deliver(registration, original.event, original.payload)
+      // Re-send under the ORIGINAL delivery's stable id so the receiver dedups
+      // this against the first attempt (at-least-once), not as a new event.
+      return deliver(registration, original.event, original.payload, original.deliveryKey)
     },
   }
 

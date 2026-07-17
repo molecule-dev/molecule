@@ -18,6 +18,12 @@
  *   each payload with {@link WebhookRegistration.secret} (from {@link WebhookOptions.secret},
  *   auto-generated if omitted). Give that secret to the receiver so they can check the HMAC
  *   header; an unverified webhook on the receiving end is spoofable.
+ * - **Delivery is AT-LEAST-ONCE — receivers must dedup on the delivery id.** Failed
+ *   deliveries are retried, and a receiver that processed an event but whose 2xx response was
+ *   lost gets the retry as an indistinguishable duplicate. The HMAC signature is NO help here
+ *   (identical payloads sign identically). Each delivery carries a stable id header
+ *   (`x-webhook-delivery-id` on the HTTP bond) that is the SAME across all retries of one
+ *   logical delivery and unique per new event — receivers dedup on it (process each id once).
  * - **Scope registrations to their owner.** Persist the returned {@link WebhookRegistration}
  *   id with the owner's `user_id` and scope list/delete by it — an unscoped list/delete is
  *   an IDOR.
@@ -50,7 +56,8 @@
  *   `read_activity` tool (filter type 'webhook'); never mock the dispatch or
  *   modify production code to expose the payload.
  * - [ ] The captured delivery carries the signature header (derived from the
- *   registration's secret) and an event payload free of secrets/unrelated PII.
+ *   registration's secret), a stable delivery-id header the receiver can dedup
+ *   on (at-least-once), and an event payload free of secrets/unrelated PII.
  * - [ ] A registration targeting a private/link-local/metadata destination
  *   (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.
  *

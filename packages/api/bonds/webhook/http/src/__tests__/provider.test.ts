@@ -209,6 +209,36 @@ describe('@molecule/api-webhook-http', () => {
       expect(results[0].success).toBe(false)
       expect(mockFetch).toHaveBeenCalledTimes(2) // initial + 1 retry
     })
+
+    it('sends a stable x-webhook-delivery-id across retries, unique per dispatch', async () => {
+      const p = createProvider({ retryCount: 2, retryDelay: 0 })
+      await p.register('https://example.com/hook', ['event.a'])
+
+      // One logical delivery, 3 attempts (fail, fail, succeed).
+      mockFetch
+        .mockRejectedValueOnce(new Error('fail'))
+        .mockRejectedValueOnce(new Error('fail'))
+        .mockResolvedValueOnce(new Response('OK', { status: 200 }))
+      await p.dispatch('event.a', { n: 1 })
+
+      const idsFirst = mockFetch.mock.calls.map(
+        (c: unknown[]) =>
+          (c[1] as { headers: Record<string, string> }).headers['x-webhook-delivery-id'],
+      )
+      expect(idsFirst).toHaveLength(3)
+      // All retries of ONE logical delivery carry ONE id — receivers dedup on it.
+      expect(new Set(idsFirst).size).toBe(1)
+      expect(idsFirst[0]).toBeTruthy()
+
+      // A genuinely new dispatch gets a DIFFERENT id (never deduped away as a retry).
+      mockFetch.mockResolvedValueOnce(new Response('OK', { status: 200 }))
+      await p.dispatch('event.a', { n: 2 })
+      const idSecond = (mockFetch.mock.calls[3][1] as { headers: Record<string, string> }).headers[
+        'x-webhook-delivery-id'
+      ]
+      expect(idSecond).toBeTruthy()
+      expect(idSecond).not.toBe(idsFirst[0])
+    })
   })
 
   describe('getDeliveryLog', () => {
