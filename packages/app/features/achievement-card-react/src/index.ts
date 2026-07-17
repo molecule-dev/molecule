@@ -18,8 +18,11 @@
  * ```
  *
  * @remarks
- * The "Earned"/"Locked" state labels are currently English-only (not
- * i18n-routed) — no override prop exists yet.
+ * The "Earned"/"Locked" state labels flow through `t()` with English
+ * `defaultValue` fallbacks under the `achievementCard.*` keys, so a wired
+ * locale bond (or the host app's own locale) can translate them. Each is also
+ * overridable per-instance via the `earnedLabel` / `lockedLabel` props
+ * (prop > `t()` > default).
  *
  * @module
  */

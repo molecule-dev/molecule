@@ -52,8 +52,19 @@ interface AmountInputProps {
   onTypeChange?: (type: AmountType) => void
   /** Type options to show in the toggle. Defaults to `['income', 'expense']`. */
   typeOptions?: AmountType[]
+  /**
+   * Optional per-type label overrides. A value provided for a type wins over
+   * the translated / `defaultValue` label (prop > `t()` > default), letting a
+   * consumer relabel the toggle without wiring a locale bond.
+   */
+  typeLabels?: Partial<Record<AmountType, string>>
   /** Currency symbol or label rendered to the left of the input. Defaults to `'$'`. */
   currencySymbol?: string
+  /**
+   * Accessible label for the numeric input. Overrides the translated /
+   * `defaultValue` `'Amount'` (prop > `t()` > default).
+   */
+  ariaLabel?: string
   /** Input size. */
   size?: 'md' | 'lg' | 'xl'
   /** Extra classes. */
@@ -86,7 +97,9 @@ function AmountInput({
   type,
   onTypeChange,
   typeOptions = ['income', 'expense'],
+  typeLabels,
   currencySymbol = '$',
+  ariaLabel,
   size = 'lg',
   className,
 }: AmountInputProps): ReactElement<unknown, string | JSXElementConstructor<any>>
@@ -122,7 +135,9 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 
-The type-toggle labels ("Income" / "Expense" / "Transfer" / "Other") and
-the input's aria-label are currently built-in English strings with no
-override prop — for localized apps, hide the toggle (omit `onTypeChange`)
-and render your own, or contribute the i18n fix.
+All user-facing text flows through `t()` with English `defaultValue`
+fallbacks under the `amountInput.*` keys, so a wired locale bond (or the
+host app's own locale) can translate the type-toggle labels and the input's
+accessible name. Both are also overridable per-instance without a bond: the
+`typeLabels` prop relabels the toggle and `ariaLabel` sets the input's
+accessible name (prop > `t()` > default).

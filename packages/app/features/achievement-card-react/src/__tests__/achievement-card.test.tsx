@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -39,6 +41,12 @@ const { AchievementCard } = await import('../AchievementCard.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 const icon = createElement('span', { 'data-icon': '' })
+
+afterEach(() => {
+  // Reset the global i18n singleton to a clean English provider so a locale
+  // override registered in one test can't bleed into the next.
+  setProvider(createSimpleI18nProvider('en'))
+})
 
 describe('AchievementCard', () => {
   it('renders the name inside an <h3>', () => {
@@ -94,5 +102,56 @@ describe('AchievementCard', () => {
   it('forwards className onto the Card', () => {
     const markup = html(createElement(AchievementCard, { name: 'X', icon, className: 'ac-cls' }))
     expect(markup).toContain('ac-cls')
+  })
+
+  it('renders the default "Earned" label via t() defaultValue', () => {
+    const markup = html(
+      createElement(AchievementCard, { name: 'X', icon, earned: true, earnedAt: 'Jan 1' }),
+    )
+    expect(markup).toContain('Earned')
+  })
+
+  it('lets earnedLabel / lockedLabel props override the status labels (prop wins)', () => {
+    const earnedMarkup = html(
+      createElement(AchievementCard, {
+        name: 'X',
+        icon,
+        earned: true,
+        earnedAt: 'Jan 1',
+        earnedLabel: 'Unlocked',
+      }),
+    )
+    expect(earnedMarkup).toContain('Unlocked')
+    expect(earnedMarkup).not.toContain('Earned')
+
+    const lockedMarkup = html(
+      createElement(AchievementCard, { name: 'X', icon, lockedLabel: 'Not yet' }),
+    )
+    expect(lockedMarkup).toContain('Not yet')
+    expect(lockedMarkup).not.toContain('Locked')
+  })
+
+  it('lets a locale bond override the status labels', () => {
+    setProvider(
+      createSimpleI18nProvider('en', [
+        {
+          code: 'en',
+          name: 'English',
+          translations: {
+            'achievementCard.earned': 'Obtenido',
+            'achievementCard.locked': 'Bloqueado',
+          },
+        },
+      ]),
+    )
+    const earnedMarkup = html(
+      createElement(AchievementCard, { name: 'X', icon, earned: true, earnedAt: 'Jan 1' }),
+    )
+    expect(earnedMarkup).toContain('Obtenido')
+    expect(earnedMarkup).not.toContain('Earned')
+
+    const lockedMarkup = html(createElement(AchievementCard, { name: 'X', icon }))
+    expect(lockedMarkup).toContain('Bloqueado')
+    expect(lockedMarkup).not.toContain('Locked')
   })
 })

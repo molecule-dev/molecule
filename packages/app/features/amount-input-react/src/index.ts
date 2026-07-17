@@ -24,10 +24,12 @@
  * ```
  *
  * @remarks
- * The type-toggle labels ("Income" / "Expense" / "Transfer" / "Other") and
- * the input's aria-label are currently built-in English strings with no
- * override prop — for localized apps, hide the toggle (omit `onTypeChange`)
- * and render your own, or contribute the i18n fix.
+ * All user-facing text flows through `t()` with English `defaultValue`
+ * fallbacks under the `amountInput.*` keys, so a wired locale bond (or the
+ * host app's own locale) can translate the type-toggle labels and the input's
+ * accessible name. Both are also overridable per-instance without a bond: the
+ * `typeLabels` prop relabels the toggle and `ariaLabel` sets the input's
+ * accessible name (prop > `t()` > default).
  *
  * @module
  */

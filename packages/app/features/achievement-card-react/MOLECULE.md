@@ -46,6 +46,16 @@ interface AchievementCardProps {
   earned?: boolean
   /** Earned-at display. */
   earnedAt?: ReactNode
+  /**
+   * Label shown before `earnedAt` on earned achievements. Overrides the
+   * translated / `defaultValue` `'Earned'` (prop > `t()` > default).
+   */
+  earnedLabel?: string
+  /**
+   * Label shown on locked achievements (not earned, no progress). Overrides
+   * the translated / `defaultValue` `'Locked'` (prop > `t()` > default).
+   */
+  lockedLabel?: string
   /** Optional progress data (for in-progress achievements). */
   progress?: { value: number; max: number }
   /** Optional rarity / tier label ("Legendary", "Common"). */
@@ -69,6 +79,8 @@ function AchievementCard({
   icon,
   earned,
   earnedAt,
+  earnedLabel,
+  lockedLabel,
   progress,
   tier,
   className,
@@ -94,5 +106,8 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 
-The "Earned"/"Locked" state labels are currently English-only (not
-i18n-routed) — no override prop exists yet.
+The "Earned"/"Locked" state labels flow through `t()` with English
+`defaultValue` fallbacks under the `achievementCard.*` keys, so a wired
+locale bond (or the host app's own locale) can translate them. Each is also
+overridable per-instance via the `earnedLabel` / `lockedLabel` props
+(prop > `t()` > default).

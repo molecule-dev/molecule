@@ -1,5 +1,6 @@
 import type { ChangeEvent, ReactElement } from 'react'
 
+import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
@@ -19,14 +20,26 @@ export interface AmountInputProps {
   onTypeChange?: (type: AmountType) => void
   /** Type options to show in the toggle. Defaults to `['income', 'expense']`. */
   typeOptions?: AmountType[]
+  /**
+   * Optional per-type label overrides. A value provided for a type wins over
+   * the translated / `defaultValue` label (prop > `t()` > default), letting a
+   * consumer relabel the toggle without wiring a locale bond.
+   */
+  typeLabels?: Partial<Record<AmountType, string>>
   /** Currency symbol or label rendered to the left of the input. Defaults to `'$'`. */
   currencySymbol?: string
+  /**
+   * Accessible label for the numeric input. Overrides the translated /
+   * `defaultValue` `'Amount'` (prop > `t()` > default).
+   */
+  ariaLabel?: string
   /** Input size. */
   size?: 'md' | 'lg' | 'xl'
   /** Extra classes. */
   className?: string
 }
 
+/** English fallback labels for each amount type — keyed to `amountInput.type.*`. */
 const TYPE_LABEL: Record<AmountType, string> = {
   income: 'Income',
   expense: 'Expense',
@@ -46,11 +59,14 @@ export function AmountInput({
   type,
   onTypeChange,
   typeOptions = ['income', 'expense'],
+  typeLabels,
   currencySymbol = '$',
+  ariaLabel,
   size = 'lg',
   className,
 }: AmountInputProps): ReactElement {
   const cm = getClassMap()
+  const amountLabel = ariaLabel ?? t('amountInput.ariaLabel', undefined, { defaultValue: 'Amount' })
   /**
    * Parses the raw input value and fires onAmountChange with a number or empty string.
    * @param e
@@ -79,7 +95,8 @@ export function AmountInput({
               size="sm"
               onClick={() => onTypeChange(opt)}
             >
-              {TYPE_LABEL[opt]}
+              {typeLabels?.[opt] ??
+                t(`amountInput.type.${opt}`, undefined, { defaultValue: TYPE_LABEL[opt] })}
             </Button>
           ))}
         </div>
@@ -92,7 +109,7 @@ export function AmountInput({
           value={amount === '' ? '' : String(amount)}
           onChange={handleChange}
           placeholder="0"
-          aria-label="Amount"
+          aria-label={amountLabel}
           className={cm.cn(fontClass, cm.fontWeight('bold'))}
           style={{ border: 'none', outline: 'none', background: 'transparent', flex: 1 }}
         />
