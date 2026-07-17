@@ -356,6 +356,18 @@ export async function createShareLink(input: CreateShareLinkInput): Promise<Shar
 }
 
 /**
+ * Fetches a single public share link by its ID. Used by the revoke handler to
+ * resolve a link's `(resourceType, resourceId)` before authorizing the caller
+ * against THAT resource — the link mirror of {@link getShareById} for grants.
+ *
+ * @param id - The share-link ID.
+ * @returns The link, or `null` if not found.
+ */
+export async function getShareLinkById(id: string): Promise<ShareLink | null> {
+  return findOne<ShareLink>(LINKS_TABLE, [{ field: 'id', operator: '=', value: id }])
+}
+
+/**
  * Revokes a public share link by ID. Idempotent — sets `revokedAt` if not
  * already set.
  *

@@ -8,7 +8,8 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { revokeShareLink } from '../service.js'
+import { canAdministerResource } from '../authorizers/index.js'
+import { getShareLinkById, revokeShareLink } from '../service.js'
 
 /**
  * Revokes a public share link by ID. Idempotent.
@@ -31,6 +32,30 @@ export async function revokeLink(req: MoleculeRequest, res: MoleculeResponse): P
     res.status(400).json({
       error: t('share.error.missingId', undefined, { defaultValue: 'Share ID is required' }),
       errorKey: 'share.error.missingId',
+    })
+    return
+  }
+
+  // Resolve the link first to learn which resource it exposes, then assert the
+  // caller administers THAT resource (default DENY). This blocks an attacker
+  // from revoking a link on a resource they don't administer by its id.
+  const existing = await getShareLinkById(id)
+  if (!existing) {
+    res.status(404).json({
+      error: t('share.error.linkNotFound', undefined, {
+        defaultValue: 'Share link not found',
+      }),
+      errorKey: 'share.error.linkNotFound',
+    })
+    return
+  }
+
+  if (!(await canAdministerResource(existing.resourceType, existing.resourceId, userId))) {
+    res.status(403).json({
+      error: t('share.error.forbidden', undefined, {
+        defaultValue: 'You are not allowed to manage shares on this resource',
+      }),
+      errorKey: 'share.error.forbidden',
     })
     return
   }

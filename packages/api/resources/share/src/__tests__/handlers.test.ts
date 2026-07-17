@@ -41,6 +41,8 @@ import { read } from '../handlers/read.js'
 import { resolveLink } from '../handlers/resolveLink.js'
 import { revokeLink } from '../handlers/revokeLink.js'
 import { update } from '../handlers/update.js'
+import { requestHandlerMap } from '../requestHandlerMap.js'
+import { routes } from '../routes.js'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mockReq(overrides: Record<string, unknown> = {}): any {
@@ -404,7 +406,34 @@ describe('@molecule/api-resource-share — handlers', () => {
       expect(res.status).toHaveBeenCalledWith(400)
     })
 
-    it('creates a link and returns 201 with slug', async () => {
+    it('returns 403 when no ownership authorizer is registered (unauthorized mint)', async () => {
+      // Default-DENY: minting a public link is the same privilege as a direct
+      // grant. An authenticated user posting a link for a resource they do not
+      // administer MUST be refused, never reaching the DB.
+      const req = mockReq({ body: { resourceType: 'doc', resourceId: 'd1', role: 'viewer' } })
+      const res = mockRes()
+      await createLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('returns 403 when the caller does not administer the resource', async () => {
+      const seen: Array<[string, string, string]> = []
+      setShareAdminAuthorizer((resourceType, resourceId, userId) => {
+        seen.push([resourceType, resourceId, userId])
+        return false
+      })
+      const req = mockReq({ body: { resourceType: 'doc', resourceId: 'd1', role: 'viewer' } })
+      const res = mockRes()
+      await createLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      // Authorized against the resource in the (validated) body, with the caller id.
+      expect(seen).toEqual([['doc', 'd1', 'user-1']])
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('creates a link and returns 201 with slug when the authorizer allows', async () => {
+      setShareAdminAuthorizer(() => true)
       const created = { id: 'l1', slug: 'abc', role: 'viewer' }
       mockCreate.mockResolvedValue({ data: created, affected: 1 })
       const req = mockReq({
@@ -490,8 +519,42 @@ describe('@molecule/api-resource-share — handlers', () => {
       expect(res.status).toHaveBeenCalledWith(404)
     })
 
-    it('revokes a link', async () => {
-      mockFindOne.mockResolvedValue({ id: 'l1', revokedAt: null })
+    it('returns 403 when no ownership authorizer is registered (unauthorized revoke)', async () => {
+      // Default-DENY: the link is resolved to learn its resource, then the
+      // caller must administer THAT resource. Without a registered authorizer
+      // the revoke MUST be refused, never touching the DB write.
+      mockFindOne.mockResolvedValue({ id: 'l1', resourceType: 'doc', resourceId: 'd1' })
+      const req = mockReq({ params: { id: 'l1' } })
+      const res = mockRes()
+      await revokeLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it("returns 403 when the caller does not administer the link's resource", async () => {
+      const seen: Array<[string, string, string]> = []
+      setShareAdminAuthorizer((resourceType, resourceId, userId) => {
+        seen.push([resourceType, resourceId, userId])
+        return false
+      })
+      mockFindOne.mockResolvedValue({ id: 'l1', resourceType: 'doc', resourceId: 'd1' })
+      const req = mockReq({ params: { id: 'l1' } })
+      const res = mockRes()
+      await revokeLink(req, res)
+      expect(res.status).toHaveBeenCalledWith(403)
+      // Authorized against the link's OWN resource, not anything from the body.
+      expect(seen).toEqual([['doc', 'd1', 'user-1']])
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('revokes a link when the authorizer allows', async () => {
+      setShareAdminAuthorizer(() => true)
+      mockFindOne.mockResolvedValue({
+        id: 'l1',
+        resourceType: 'doc',
+        resourceId: 'd1',
+        revokedAt: null,
+      })
       mockUpdateById.mockResolvedValue({
         data: { id: 'l1', revokedAt: '2026-05-01T00:00:00.000Z' },
         affected: 1,
@@ -528,6 +591,52 @@ describe('@molecule/api-resource-share — handlers', () => {
       const res = mockRes({ locals: {} })
       await resolveLink(req, res)
       expect(res.status).toHaveBeenCalledWith(404)
+    })
+  })
+
+  // The auto-mount surface is a security boundary: the injector mounts EXACTLY
+  // the routes in `routes`, wiring each to its `requestHandlerMap` entry. The
+  // five mutating handlers must never appear in either — they carry no inherent
+  // ownership knowledge and are mounted by consumers behind their own gate.
+  describe('auto-mount surface (routes + requestHandlerMap)', () => {
+    const AUTO_MOUNT_HANDLERS = ['list', 'read', 'listLinks', 'resolveLink']
+    const MUTATING_HANDLERS = ['create', 'update', 'del', 'createLink', 'revokeLink']
+
+    it('requestHandlerMap exposes EXACTLY the four documented read/resolve handlers', () => {
+      expect(Object.keys(requestHandlerMap).sort()).toEqual([...AUTO_MOUNT_HANDLERS].sort())
+    })
+
+    it('requestHandlerMap contains none of the five mutating handlers', () => {
+      for (const name of MUTATING_HANDLERS) {
+        expect(requestHandlerMap).not.toHaveProperty(name)
+      }
+    })
+
+    it('routes reference exactly the four auto-mount handlers, each backed by the map', () => {
+      const routeHandlers = routes.map((r) => r.handler)
+      expect([...routeHandlers].sort()).toEqual([...AUTO_MOUNT_HANDLERS].sort())
+      for (const r of routes) {
+        expect(Object.keys(requestHandlerMap)).toContain(r.handler)
+      }
+    })
+
+    it('no route mounts a mutating handler', () => {
+      const routeHandlers = new Set(routes.map((r) => r.handler))
+      for (const name of MUTATING_HANDLERS) {
+        expect(routeHandlers.has(name)).toBe(false)
+      }
+    })
+
+    it('only resolveLink is public; every other route requires authentication', () => {
+      for (const r of routes) {
+        const middlewares = (r as { middlewares?: readonly string[] }).middlewares ?? []
+        if (r.handler === 'resolveLink') {
+          // The slug is the credential — no `authenticate` gate.
+          expect(middlewares).not.toContain('authenticate')
+        } else {
+          expect(middlewares).toContain('authenticate')
+        }
+      }
     })
   })
 })

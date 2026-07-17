@@ -26,6 +26,7 @@ import {
   generateSlug,
   getEffectiveRole,
   getPrincipalRole,
+  getShareLinkById,
   grantShare,
   isExpired,
   listShareLinks,
@@ -305,6 +306,21 @@ describe('@molecule/api-resource-share — service', () => {
       mockFindMany.mockResolvedValue([{ id: 'l1' }])
       const result = await listShareLinks('doc', 'd1')
       expect(result).toEqual([{ id: 'l1' }])
+    })
+
+    it('getShareLinkById returns the link by id', async () => {
+      const link = { id: 'l1', resourceType: 'doc', resourceId: 'd1' }
+      mockFindOne.mockResolvedValue(link)
+      const result = await getShareLinkById('l1')
+      expect(mockFindOne).toHaveBeenCalledWith('resource-share-links', [
+        { field: 'id', operator: '=', value: 'l1' },
+      ])
+      expect(result).toBe(link)
+    })
+
+    it('getShareLinkById returns null when not found', async () => {
+      mockFindOne.mockResolvedValue(null)
+      expect(await getShareLinkById('l-missing')).toBeNull()
     })
 
     it('revokeShareLink returns null when missing', async () => {

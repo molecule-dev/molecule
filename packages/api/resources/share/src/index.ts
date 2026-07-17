@@ -43,14 +43,15 @@
  *
  * Two things enforce this:
  *
- * 1. **`create`/`update`/`del` are NOT in `routes` or `requestHandlerMap`** —
- *    only the read-only `list`/`read`/`listLinks` and the public-link routes
- *    auto-mount. Note `list` (full ACL) and `listLinks` (share-link slugs)
- *    disclose manage-level data, so even though they auto-mount they self-enforce
- *    the SAME default-DENY ownership gate (`canAdministerResource`) as the
- *    mutating handlers — only `read` (the caller's OWN effective role) is an
- *    ungated read primitive. Mount the mutating handlers explicitly behind your
- *    own ownership check,
+ * 1. **None of the five mutating handlers (`create`/`update`/`del` grants,
+ *    `createLink`/`revokeLink` public links) are in `routes` or
+ *    `requestHandlerMap`** — only the read-only `list`/`read`/`listLinks` and
+ *    the public `resolveLink` route auto-mount. Note `list` (full ACL) and
+ *    `listLinks` (share-link slugs) disclose manage-level data, so even though
+ *    they auto-mount they self-enforce the SAME default-DENY ownership gate
+ *    (`canAdministerResource`) as the mutating handlers — only `read` (the
+ *    caller's OWN effective role) is an ungated read primitive. Mount the
+ *    mutating handlers explicitly behind your own ownership check,
  *    with the resource identity fixed by the server (never trusted from the
  *    request body):
  *
@@ -64,7 +65,8 @@
  *
  * 2. **Defense in depth: the handlers themselves DENY by default.** They call
  *    a registerable ownership authorizer before any mutation; until an app
- *    registers one, every grant/update/revoke returns 403:
+ *    registers one, every mutation — grant/update/revoke AND public-link
+ *    mint/revoke — returns 403:
  *
  *    ```typescript
  *    import { setShareAdminAuthorizer } from '@molecule/api-resource-share'
@@ -73,8 +75,10 @@
  *    )
  *    ```
  *
- * `update`/`del` resolve the share row first to learn its
- * `(resourceType, resourceId)` and authorize the caller against THAT resource.
+ * `update`/`del` (and `revokeLink`) resolve the stored row first to learn its
+ * `(resourceType, resourceId)` and authorize the caller against THAT resource;
+ * `create`/`createLink` authorize against the resource identity in the
+ * (validated) request body.
  *
  * Tables: `src/__setup__/resource-shares.sql` and
  * `src/__setup__/resource-share-links.sql` create `resource-shares` and

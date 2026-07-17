@@ -8,6 +8,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { canAdministerResource } from '../authorizers/index.js'
 import { createShareLink } from '../service.js'
 import { createShareLinkSchema } from '../validation.js'
 
@@ -31,6 +32,20 @@ export async function createLink(req: MoleculeRequest, res: MoleculeResponse): P
   if (!parsed.success) {
     const errors = parsed.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')
     res.status(400).json({ error: errors, errorKey: 'share.error.validationFailed' })
+    return
+  }
+
+  // Resource-ownership gate (default DENY): minting a public link expands a
+  // resource's exposure exactly like a direct grant, so only a caller who
+  // administers the target resource may create one. Without this, any
+  // authenticated user could mint a link to ANY resource.
+  if (!(await canAdministerResource(parsed.data.resourceType, parsed.data.resourceId, userId))) {
+    res.status(403).json({
+      error: t('share.error.forbidden', undefined, {
+        defaultValue: 'You are not allowed to manage shares on this resource',
+      }),
+      errorKey: 'share.error.forbidden',
+    })
     return
   }
 

@@ -375,6 +375,20 @@ function getShareById(id: string): Promise<Share | null>
 
 **Returns:** The share, or `null` if not found.
 
+#### `getShareLinkById(id)`
+
+Fetches a single public share link by its ID. Used by the revoke handler to
+resolve a link's `(resourceType, resourceId)` before authorizing the caller
+against THAT resource — the link mirror of {@link getShareById} for grants.
+
+```typescript
+function getShareLinkById(id: string): Promise<ShareLink | null>
+```
+
+- `id` — The share-link ID.
+
+**Returns:** The link, or `null` if not found.
+
 #### `grantShare(input)`
 
 Grants a share to a principal. If a grant already exists for the same
@@ -657,15 +671,19 @@ const grantShareSchema: z.ZodObject<{ resourceType: z.ZodString; resourceId: z.Z
 #### `requestHandlerMap`
 
 Handler map for the auto-mountable resource-share routes (see `routes.ts`).
+It contains EXACTLY the four routes those `routes` mount — the read-only
+`list`/`read`/`listLinks` plus the public `resolveLink` — and nothing else.
 
-SECURITY: the mutating `create` / `update` / `del` grant handlers are
-deliberately absent — they are NOT part of the auto-mount surface because
-the share table cannot know who owns an arbitrary resource. Import them
-directly from `@molecule/api-resource-share` and mount them behind your own
-resource-ownership gate (plus a `setShareAdminAuthorizer` registration).
+SECURITY: all five mutating handlers — the `create` / `update` / `del` grant
+handlers AND the `createLink` / `revokeLink` public-link handlers — are
+deliberately absent, because the share table cannot know who owns an
+arbitrary resource, so none of them may be auto-mounted. Import them directly
+from `@molecule/api-resource-share` and mount each behind your own
+resource-ownership gate (plus a `setShareAdminAuthorizer` registration; the
+handlers also default-DENY on their own until one is registered).
 
 ```typescript
-const requestHandlerMap: { readonly list: typeof list; readonly read: typeof read; readonly createLink: typeof createLink; readonly listLinks: typeof listLinks; readonly revokeLink: typeof revokeLink; readonly resolveLink: typeof resolveLink; }
+const requestHandlerMap: { readonly list: typeof list; readonly read: typeof read; readonly listLinks: typeof listLinks; readonly resolveLink: typeof resolveLink; }
 ```
 
 #### `routes`
@@ -722,14 +740,15 @@ share table has no inherent knowledge of who *owns* an arbitrary
 
 Two things enforce this:
 
-1. **`create`/`update`/`del` are NOT in `routes` or `requestHandlerMap`** —
-   only the read-only `list`/`read`/`listLinks` and the public-link routes
-   auto-mount. Note `list` (full ACL) and `listLinks` (share-link slugs)
-   disclose manage-level data, so even though they auto-mount they self-enforce
-   the SAME default-DENY ownership gate (`canAdministerResource`) as the
-   mutating handlers — only `read` (the caller's OWN effective role) is an
-   ungated read primitive. Mount the mutating handlers explicitly behind your
-   own ownership check,
+1. **None of the five mutating handlers (`create`/`update`/`del` grants,
+   `createLink`/`revokeLink` public links) are in `routes` or
+   `requestHandlerMap`** — only the read-only `list`/`read`/`listLinks` and
+   the public `resolveLink` route auto-mount. Note `list` (full ACL) and
+   `listLinks` (share-link slugs) disclose manage-level data, so even though
+   they auto-mount they self-enforce the SAME default-DENY ownership gate
+   (`canAdministerResource`) as the mutating handlers — only `read` (the
+   caller's OWN effective role) is an ungated read primitive. Mount the
+   mutating handlers explicitly behind your own ownership check,
    with the resource identity fixed by the server (never trusted from the
    request body):
 
@@ -743,7 +762,8 @@ Two things enforce this:
 
 2. **Defense in depth: the handlers themselves DENY by default.** They call
    a registerable ownership authorizer before any mutation; until an app
-   registers one, every grant/update/revoke returns 403:
+   registers one, every mutation — grant/update/revoke AND public-link
+   mint/revoke — returns 403:
 
    ```typescript
    import { setShareAdminAuthorizer } from '@molecule/api-resource-share'
@@ -752,8 +772,10 @@ Two things enforce this:
    )
    ```
 
-`update`/`del` resolve the share row first to learn its
-`(resourceType, resourceId)` and authorize the caller against THAT resource.
+`update`/`del` (and `revokeLink`) resolve the stored row first to learn its
+`(resourceType, resourceId)` and authorize the caller against THAT resource;
+`create`/`createLink` authorize against the resource identity in the
+(validated) request body.
 
 Tables: `src/__setup__/resource-shares.sql` and
 `src/__setup__/resource-share-links.sql` create `resource-shares` and
