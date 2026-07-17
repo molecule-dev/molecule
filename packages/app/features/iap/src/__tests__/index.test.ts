@@ -197,6 +197,17 @@ describe('@molecule/app-iap', () => {
         expect(provider.isAvailable()).toBe(false)
         expect(provider.getPlatform()).toBe('web')
       })
+
+      it('should warn (once, actionably) when it falls back to the no-op provider', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        getProvider()
+        expect(warn).toHaveBeenCalledTimes(1)
+        expect(warn.mock.calls[0][0]).toContain('No IAP provider bonded')
+        // once bonded, subsequent gets do NOT re-warn
+        getProvider()
+        expect(warn).toHaveBeenCalledTimes(1)
+        warn.mockRestore()
+      })
     })
   })
 

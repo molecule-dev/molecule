@@ -26,11 +26,20 @@ export const setProvider = (provider: IAPProvider): void => {
 }
 
 /**
- * Gets the current IAP provider. Falls back to a no-op provider if none has been bonded.
+ * Gets the current IAP provider. Falls back to a no-op provider if none has been
+ * bonded — on web this is correct (no store exists), but on iOS/Android a missing
+ * real provider means every `order()` reports unavailable. The fallback warns when
+ * it engages so the omission is visible rather than a silent failure.
  * @returns The active IAP provider instance.
  */
 export const getProvider = (): IAPProvider => {
   if (!isBonded(BOND_TYPE)) {
+    console.warn(
+      '[@molecule/app-iap] No IAP provider bonded — using the no-op provider, so ' +
+        'purchases report unavailable and order() always fails. No store provider ' +
+        'ships with the fleet: implement the IAPProvider interface (StoreKit 2 / ' +
+        'Play Billing / cordova-plugin-purchase) and call setProvider() at startup.',
+    )
     bond(BOND_TYPE, createNoopIAPProvider())
   }
   return bondGet<IAPProvider>(BOND_TYPE)!

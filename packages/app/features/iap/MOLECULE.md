@@ -535,7 +535,10 @@ function getErrorMessage(error: unknown, t?: ((key: string, values?: Record<stri
 
 #### `getProvider()`
 
-Gets the current IAP provider. Falls back to a no-op provider if none has been bonded.
+Gets the current IAP provider. Falls back to a no-op provider if none has been
+bonded — on web this is correct (no store exists), but on iOS/Android a missing
+real provider means every `order()` reports unavailable. The fallback warns when
+it engages so the omission is visible rather than a silent failure.
 
 ```typescript
 function getProvider(): IAPProvider
