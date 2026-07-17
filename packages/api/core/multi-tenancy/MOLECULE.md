@@ -2,9 +2,9 @@
 
 Multi-tenancy core interface for molecule.dev.
 
-Provides the `TenancyProvider` interface for multi-tenant data isolation
-including tenant lifecycle management, context switching, and middleware
-integration. Bond a concrete provider (e.g. `@molecule/api-multi-tenancy-schema`)
+Provides the `TenancyProvider` interface — tenant lifecycle (create/delete/
+list), request-scoped active-tenant context, and header-resolution
+middleware. Bond a concrete provider (e.g. `@molecule/api-multi-tenancy-schema`)
 at startup via `setProvider()`.
 
 ## Quick Start
@@ -330,6 +330,14 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 
+- **Data isolation is the application's responsibility, not the provider's.**
+  A provider supplies the tenant CONTEXT (which tenant the current request
+  belongs to) plus secure header resolution; the app must scope its own
+  queries by the active tenant — filter every read/write by a `tenant_id`
+  column derived from `getTenant()`. A provider MAY additionally enforce
+  isolation at the data layer, but the shipped `@molecule/api-multi-tenancy-schema`
+  bond does NOT — it is a context tracker, so the isolation checkboxes below
+  are only satisfied once YOUR queries are tenant-scoped.
 **Tenant resolution is security-critical — the tenant header is attacker-controlled.**
 Any caller can send `x-tenant-id: <victim-tenant>`, so a header-named tenant must never
 be honored on trust. Configure `resolveAuthorizedTenantIds` so the middleware rejects
@@ -354,9 +362,11 @@ be honored on trust. Configure `resolveAuthorizedTenantIds` so the middleware re
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual tenant screens/flows, and check every box off
-one by one. This package exists for ISOLATION, so the security boxes are NOT
-optional — a box you can't check is a tenant-isolation bug to fix, never a
-skip:
+one by one. These boxes describe the tenant isolation your APP must achieve
+using the tenant context this package provides (the package gives you the
+active-tenant context + secure header handling; you scope the data). A box
+you can't check is a bug in your query-scoping or a missing authorizer
+wiring, to fix — never a skip:
 - [ ] Cross-tenant invisibility: create records while signed in as tenant A,
   then sign in as tenant B — none of A's data is visible or reachable
   anywhere B can look (lists, detail pages, search results, and
