@@ -180,6 +180,7 @@ by one. A box you can't check is an integration bug to fix — not a skip:
   `read_activity` tool (filter type 'webhook'); never mock the dispatch or
   modify production code to expose the payload.
 - [ ] The captured delivery carries the signature header (derived from the
-  registration's secret) and an event payload free of secrets/unrelated PII.
+  registration's secret), a stable delivery-id header the receiver can dedup
+  on (at-least-once), and an event payload free of secrets/unrelated PII.
 - [ ] A registration targeting a private/link-local/metadata destination
   (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.
