@@ -48,7 +48,10 @@ function resetMocks(): void {
   mockClient.query.mockReset()
   mockClient.release.mockReset()
   mockPool.connect.mockReset().mockResolvedValue(mockClient)
-  mockPool.query.mockReset()
+  // Default: the collections registry is empty, so createCollection's idempotency
+  // pre-check (getCollectionMeta → pool.query) finds no existing collection and
+  // proceeds. Tests that need an existing collection override this.
+  mockPool.query.mockReset().mockResolvedValue({ rows: [] })
   mockPool.end.mockReset()
 }
 
@@ -203,6 +206,43 @@ describe('PgvectorProvider', () => {
         (c: unknown[]) => (c[0] as string).trim().split('\n')[0],
       )
       expect(calls).toContain('ROLLBACK')
+    })
+
+    it('is idempotent — no-op when the collection already exists with the same dimension', async () => {
+      const provider = createProvider({ connectionString: 'postgresql://localhost/test' })
+      mockClient.query.mockResolvedValue({ rows: [] })
+      // Registry reports the collection already exists at dimension 1536.
+      mockPool.query.mockResolvedValue({
+        rows: [{ name: 'documents', dimension: 1536, metric: 'cosine' }],
+      })
+
+      await provider.createCollection({ name: 'documents', dimension: 1536 })
+
+      // The mutating transaction must be skipped entirely — re-creating an
+      // existing collection at the same dimension is a no-op (prod restart safety).
+      const clientSql = mockClient.query.mock.calls.map((c: unknown[]) => String(c[0]))
+      expect(clientSql.some((s) => s.includes('BEGIN'))).toBe(false)
+      expect(clientSql.some((s) => s.includes('INSERT INTO') && s.includes('collections'))).toBe(
+        false,
+      )
+      expect(
+        clientSql.some((s) => s.includes('CREATE TABLE') && s.includes('mol_vectors_documents')),
+      ).toBe(false)
+    })
+
+    it('throws when the collection exists with a different dimension', async () => {
+      const provider = createProvider({ connectionString: 'postgresql://localhost/test' })
+      mockClient.query.mockResolvedValue({ rows: [] })
+      mockPool.query.mockResolvedValue({
+        rows: [{ name: 'documents', dimension: 768, metric: 'cosine' }],
+      })
+
+      await expect(
+        provider.createCollection({ name: 'documents', dimension: 1536 }),
+      ).rejects.toThrow(/dimension/)
+
+      const clientSql = mockClient.query.mock.calls.map((c: unknown[]) => String(c[0]))
+      expect(clientSql.some((s) => s.includes('BEGIN'))).toBe(false)
     })
   })
 

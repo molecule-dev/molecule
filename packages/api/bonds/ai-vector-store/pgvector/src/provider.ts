@@ -238,11 +238,32 @@ class PgvectorProvider implements AIVectorStoreProvider {
    * Create a new collection backed by a PostgreSQL table with a vector column
    * and HNSW index for fast similarity search.
    *
+   * Idempotent (matching the memory provider's contract): re-creating a
+   * collection that already exists with the SAME dimension is a no-op.
+   *
    * @param params - Collection creation parameters.
-   * @throws {Error} if the collection already exists.
+   * @throws {Error} if the collection already exists with a DIFFERENT dimension.
    */
   async createCollection(params: CreateCollectionParams): Promise<void> {
     await this.ensureInitialized()
+
+    // Idempotent, matching the memory provider's documented contract: a
+    // collection that already exists with the SAME dimension is a no-op (so
+    // calling createCollection at startup is safe on every boot), and only a
+    // genuine dimension CONFLICT throws. Without this the registry INSERT (no
+    // ON CONFLICT) + CREATE TABLE (no IF NOT EXISTS) threw a duplicate-key /
+    // relation-exists error on the second call — so an app that worked in dev
+    // (memory store) crashed in prod (pgvector) on the next restart.
+    const existing = await this.getCollectionMeta(params.name)
+    if (existing) {
+      if (Number(existing.dimension) !== params.dimension) {
+        throw new Error(
+          `Collection "${params.name}" already exists with dimension ${existing.dimension}, not ${params.dimension}`,
+        )
+      }
+      return
+    }
+
     const metric = params.metric ?? this.defaultMetric
     const table = this.collectionTable(params.name)
 
