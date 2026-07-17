@@ -145,4 +145,38 @@ describe('unwrapSingle', () => {
     // "single object" semantics returns the outer `data` field as-is.
     expect(unwrapSingle({ data: { data: { id: 5 } } })).toEqual({ data: { id: 5 } })
   })
+
+  it('does NOT peel a resource that has its own `data` object field', () => {
+    // An HttpResponse wrapping a resource `{ id, title, data: {…} }`. The `data`
+    // field belongs to the resource — only a PURE `{ data: T }` envelope (one
+    // key) is a double-wrap. Peeling here would silently drop id + title.
+    const httpResponse = {
+      data: { id: 7, title: 'Post', data: { theme: 'dark' } },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/x' },
+    }
+    expect(unwrapSingle(httpResponse)).toEqual({
+      id: 7,
+      title: 'Post',
+      data: { theme: 'dark' },
+    })
+  })
+})
+
+describe('unwrapList — resource with its own `data` array field', () => {
+  it('does NOT peel a resource whose own `data` field is an array', () => {
+    // Not a pure `{ data: T[] }` envelope (>1 key) → must not return the
+    // resource's own `data` array; a single resource passed to a list unwrap
+    // yields [].
+    const httpResponse = {
+      data: { id: 7, tags: ['a'], data: [1, 2, 3] },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/x' },
+    }
+    expect(unwrapList(httpResponse)).toEqual([])
+  })
 })

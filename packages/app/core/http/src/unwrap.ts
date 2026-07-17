@@ -49,6 +49,11 @@ export function unwrapList<T>(res: unknown): T[] {
       isHttpResponseLike(res) &&
       inner &&
       typeof inner === 'object' &&
+      // Only a PURE single-key `{ data: T[] }` envelope is a double-wrap to peel.
+      // A resource that legitimately carries its own `data` array field
+      // (`{ id, …, data: [...] }`) has >1 key — peeling it would return the
+      // resource's own array and drop the surrounding fields.
+      Object.keys(inner as object).length === 1 &&
       'data' in inner &&
       Array.isArray((inner as { data: unknown }).data)
     ) {
@@ -111,6 +116,11 @@ export function unwrapSingle<T>(res: unknown): T | null {
         // shaped `{ data: { data: ... } }` keep their existing semantics.
         if (
           isHttpResponseLike(res) &&
+          // Only a PURE single-key `{ data: T }` envelope is a double-wrap to
+          // peel. A resource that legitimately carries its own `data` object
+          // field (`{ id, …, data: {…} }`) has >1 key — peeling it would drop
+          // id and the sibling fields, silently corrupting the resource.
+          Object.keys(innerObj).length === 1 &&
           'data' in innerObj &&
           innerObj.data !== null &&
           innerObj.data !== undefined &&
