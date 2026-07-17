@@ -8,13 +8,19 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { resolveStreakConfig } from '../config-registry.js'
 import { recordActivity } from '../service.js'
-import type { StreakConfig } from '../types.js'
 
 /**
  * Records an activity event for the authenticated user under the
- * `:activityKind` route param. Optional body fields override default
- * config (`reset_after_hours`, `freezes_per_period`, `when` ISO).
+ * `:activityKind` route param.
+ *
+ * Server-authoritative by design: the request body is NOT read. The streak
+ * config (reset window, freeze cap) is resolved on the SERVER
+ * ({@link resolveStreakConfig}) and the event timestamp is the server clock —
+ * so a client can only signal "I did this activity now", never the resulting
+ * streak count/longest or the levers (`reset_after_hours`, `freezes_per_period`,
+ * `when`) that would let it inflate its own streak.
  *
  * @param req - Express-compatible request.
  * @param res - Express-compatible response.
@@ -40,31 +46,11 @@ export async function record(req: MoleculeRequest, res: MoleculeResponse): Promi
     return
   }
 
-  const body = (req.body ?? {}) as {
-    reset_after_hours?: number
-    freezes_per_period?: number
-    when?: string
-  }
-
-  const config: StreakConfig = {
-    activity_kind: activityKind,
-    reset_after_hours: body.reset_after_hours,
-    freezes_per_period: body.freezes_per_period,
-  }
-
-  const when = body.when ? new Date(body.when) : new Date()
-  if (Number.isNaN(when.getTime())) {
-    res.status(400).json({
-      error: t('streak.error.invalidWhen', undefined, {
-        defaultValue: 'Invalid `when` timestamp',
-      }),
-      errorKey: 'streak.error.invalidWhen',
-    })
-    return
-  }
-
   try {
-    const result = await recordActivity(userId, config, when)
+    const config = await resolveStreakConfig({ activityKind, userId })
+    // Server clock — never a client-supplied `when`. A forged timestamp is the
+    // primary streak-inflation vector (stage many "days" in one request burst).
+    const result = await recordActivity(userId, config, new Date())
     res.status(200).json(result)
   } catch (error) {
     logger.error('Failed to record streak activity', { userId, activityKind, error })

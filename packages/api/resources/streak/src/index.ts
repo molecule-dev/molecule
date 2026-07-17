@@ -28,14 +28,21 @@
  * (401 fail-closed) and NEVER from the body or path, so streaks are always
  * scoped to the caller.
  *
- * The stock HTTP handlers accept the streak config (`reset_after_hours`,
- * `freezes_per_period`, `when`) from the REQUEST BODY — a client can inflate
- * its own streak. That only affects the caller's own data, but if streaks are
- * tier-gated, competitive (leaderboards), or reward-bearing, do not mount the
- * stock `record`/`freeze` routes as-is: call `recordActivity`/`consumeFreeze`
- * from your own handler with server-fixed config (derive `freezes_per_period`
- * from the user's plan). `computeStreakUpdate` is a pure function — test
- * streak logic without a database.
+ * Server-authoritative by design: the stock HTTP handlers (`record`/`freeze`)
+ * read NO streak levers from the request body. The event timestamp is the
+ * server clock and the config (`reset_after_hours`, `freezes_per_period`) is
+ * resolved on the server via {@link resolveStreakConfig} — so a client can only
+ * signal "I did the activity now", never the resulting `current_streak` /
+ * `longest_streak` or the levers that would let it inflate them (a forged
+ * `when`, a widened window, or an unbounded freeze cap are all ignored). To
+ * grant non-default windows or tier-gated freezes, register a resolver at
+ * startup with {@link setStreakConfigResolver} — e.g. derive
+ * `freezes_per_period` from the caller's plan; with no resolver the cap is `0`
+ * (freezes off) and the window is 24h. The `recordActivity` / `consumeFreeze`
+ * service functions still take an explicit config (and `recordActivity` an
+ * explicit `when`) for trusted server callers (cron, backfill, your own
+ * handler). `computeStreakUpdate` is a pure function — test streak logic
+ * without a database.
  *
  * Tables: `src/__setup__/streaks.sql` creates `streaks` (unique per
  * `(user_id, activity_kind)`). An mlcl-scaffolded API replays
@@ -46,9 +53,12 @@
  * Streak-math checklist — drive the real streak endpoints/UI (live preview,
  * no mocks), adapt each item to this app's actual activity kinds + screens,
  * and check every box off one by one. A box you can't check is a streak-math
- * bug to fix — not a skip. To exercise multi-day behavior without waiting real
- * days, pass an explicit `when` ISO timestamp in the `record` body (the built-in
- * lever, not a mock) and read `current_streak`/`longest_streak` back via `read`:
+ * bug to fix — not a skip. The stock `record` endpoint timestamps events with
+ * the SERVER clock (it deliberately ignores any client `when`), so to exercise
+ * multi-day behavior without waiting real days, drive the trusted service —
+ * call `recordActivity(userId, config, when)` with an explicit `when` (or unit
+ * test the pure `computeStreakUpdate`) — and read `current_streak` /
+ * `longest_streak` back via `read`:
  * - [ ] Consecutive periods INCREMENT by exactly one: a first-ever record starts
  *   `current_streak` at 1; each later activity 24-48h after the last (one
  *   `reset_after_hours` window, default 24h) bumps it 1 -> 2 -> 3. `current_streak`
@@ -74,15 +84,18 @@
  *   by `(user_id, activity_kind)` where `user_id` comes ONLY from
  *   `res.locals.session.userId` (401 fail-closed), never the body or `:activityKind`
  *   path, so no caller can read or grow another user's streak. `current_streak` /
- *   `longest_streak` are computed from real recorded activity, never client-set —
- *   but the stock `record` route DOES accept `reset_after_hours` /
- *   `freezes_per_period` from the body, letting a client inflate its OWN streak;
- *   for competitive or reward-bearing streaks confirm the app fixes that config
- *   server-side.
+ *   `longest_streak` are computed from real recorded activity, never client-set:
+ *   the stock `record` / `freeze` routes read NO streak levers from the body —
+ *   the event time is the server clock and the config (`reset_after_hours`,
+ *   `freezes_per_period`) comes from the server-side {@link resolveStreakConfig}
+ *   (register via {@link setStreakConfigResolver}; default window 24h, freeze
+ *   cap 0). Confirm a body claiming an inflated count/window/freeze-cap is
+ *   ignored and the server-computed value wins.
  */
 
 export * from './browser-guard.js'
 export * from './authorizers/index.js'
+export * from './config-registry.js'
 export * from './engine.js'
 export * from './handlers/index.js'
 export * from './requestHandlerMap.js'

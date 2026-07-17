@@ -8,13 +8,19 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { resolveStreakConfig } from '../config-registry.js'
 import { consumeFreeze } from '../service.js'
-import type { StreakConfig } from '../types.js'
 
 /**
  * Consumes one freeze for the authenticated user's streak, when the
- * configured cap allows. Returns the updated state and a
+ * server-resolved config allows. Returns the updated state and a
  * `freezeConsumed` flag.
+ *
+ * Server-authoritative: the freeze cap (`freezes_per_period`) is resolved on
+ * the SERVER ({@link resolveStreakConfig}), never read from the request body —
+ * a client cannot raise its own cap to burn unlimited freezes. With no resolver
+ * registered the cap defaults to `0`, so this endpoint is a no-op until the app
+ * explicitly grants freezes.
  *
  * @param req - Express-compatible request.
  * @param res - Express-compatible response.
@@ -40,18 +46,8 @@ export async function freeze(req: MoleculeRequest, res: MoleculeResponse): Promi
     return
   }
 
-  const body = (req.body ?? {}) as {
-    reset_after_hours?: number
-    freezes_per_period?: number
-  }
-
-  const config: StreakConfig = {
-    activity_kind: activityKind,
-    reset_after_hours: body.reset_after_hours,
-    freezes_per_period: body.freezes_per_period ?? 1,
-  }
-
   try {
+    const config = await resolveStreakConfig({ activityKind, userId })
     const result = await consumeFreeze(userId, config)
     res.status(200).json(result)
   } catch (error) {
