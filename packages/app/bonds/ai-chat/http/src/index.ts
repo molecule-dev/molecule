@@ -13,14 +13,16 @@
  * Server contract (all on the ONE `config.endpoint` route): POST
  * `{ message, model?, attachments?, resume?, suppressUserMessage?,
  * automatic?, userInitiated? }` → SSE `data: <ChatStreamEvent JSON>` lines;
- * GET → `{ messages, streaming?, mode? }` (extra fields are optional — omit
- * them in a simple backend); DELETE → clear history. Two conventions beyond
+ * GET → `{ messages, streaming? }` plus any app-specific top-level fields (this
+ * bond only reads `messages` + `streaming`; every other field rides through in
+ * `provider.lastMeta` — e.g. an app that persists an agent `mode` reads it back as
+ * `provider.lastMeta?.mode`); DELETE → clear history. Two conventions beyond
  * that route: a POST answered `409` means "conversation locked, still
  * streaming" — this bond retries automatically (up to 10 tries, 500 ms
  * doubling backoff) so return 409 rather than erroring; and Stop/unload
  * aborts POST to `<endpoint>-abort` (suffix on the pathname, query kept)
  * with `{ conversationId?, userInitiated? }` via sendBeacon.
- * `abortOnServer()`, `isServerStreaming`, and `lastMode` are extensions on
+ * `abortOnServer()`, `isServerStreaming`, and `lastMeta` are extensions on
  * `HttpChatProvider` beyond the core `ChatProvider` type. `loadHistory()`
  * returns `[]` on HTTP errors but REJECTS on network failure; wrap it.
  *

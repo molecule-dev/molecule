@@ -839,8 +839,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
         if (!mountedRef.current) return
 
         // Restore mode from server (persisted in conversation.aiContext.mode).
-        // Idempotent + cheap, so do it regardless of store state.
-        const serverMode = (provider as { lastMode?: 'plan' | 'execute' }).lastMode
+        // Idempotent + cheap, so do it regardless of store state. The http bond
+        // surfaces app-specific GET fields generically via `lastMeta` (it no
+        // longer names the plan/execute vocabulary — molecule anti-pattern 14).
+        const serverMode = (provider as { lastMeta?: Record<string, unknown> }).lastMeta?.mode as
+          | 'plan'
+          | 'execute'
+          | undefined
         if (serverMode && serverMode !== 'execute') {
           setMode(serverMode)
           onModeChange?.(serverMode)

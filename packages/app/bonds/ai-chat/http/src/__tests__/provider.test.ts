@@ -370,6 +370,78 @@ describe('@molecule/app-ai-chat-http', () => {
     })
   })
 
+  describe('loadHistory — generic server metadata (lastMeta, no baked-in app concepts)', () => {
+    it('captures every extra top-level GET field into lastMeta without naming any of them', async () => {
+      // The server may return app-specific top-level fields (an agent `mode`, a feature
+      // flag, anything). This shared bond understands only `messages` + `streaming`; the
+      // rest rides through generically — it hardcodes NO consumer concept (Anti-Pattern 14).
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          messages: [{ id: 'm1', role: 'user', content: 'hi', timestamp: 1 }],
+          streaming: true,
+          mode: 'plan',
+          somethingAppSpecific: { nested: true },
+        }),
+      })
+
+      const provider = new HttpChatProvider()
+      await provider.loadHistory(defaultConfig)
+
+      // `streaming` is the one non-message field the bond understands (transport-level).
+      expect(provider.isServerStreaming).toBe(true)
+      // Everything else — including the app's `mode` — is carried through verbatim, so a
+      // consuming app (e.g. molecule.dev) restores its mode via `provider.lastMeta?.mode`.
+      expect(provider.lastMeta).toEqual({ mode: 'plan', somethingAppSpecific: { nested: true } })
+      // `messages` + `streaming` are NOT leaked into the generic bag.
+      expect(provider.lastMeta).not.toHaveProperty('messages')
+      expect(provider.lastMeta).not.toHaveProperty('streaming')
+    })
+
+    it('defaults lastMeta to an empty object and isServerStreaming to false when absent', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          messages: [{ id: 'm1', role: 'user', content: 'hi', timestamp: 1 }],
+        }),
+      })
+
+      const provider = new HttpChatProvider()
+      await provider.loadHistory(defaultConfig)
+
+      expect(provider.isServerStreaming).toBe(false)
+      expect(provider.lastMeta).toEqual({})
+    })
+
+    it('round-trips app-specific message metadata (commitRecord) generically, un-named by the bond', async () => {
+      // The bond does not enumerate `commitRecord` (or any app-specific message field) —
+      // it passes persisted message metadata through verbatim, so it survives a reload.
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          messages: [
+            {
+              id: 'a1',
+              role: 'assistant',
+              content: 'done',
+              timestamp: 1,
+              commitRecord: { message: 'feat: x', files: ['a.ts'], hash: 'abc123' },
+            },
+          ],
+        }),
+      })
+
+      const provider = new HttpChatProvider()
+      const messages = await provider.loadHistory(defaultConfig)
+
+      expect(messages[0].commitRecord).toEqual({
+        message: 'feat: x',
+        files: ['a.ts'],
+        hash: 'abc123',
+      })
+    })
+  })
+
   describe('createProvider', () => {
     it('should return an HttpChatProvider instance', () => {
       const provider = createProvider()

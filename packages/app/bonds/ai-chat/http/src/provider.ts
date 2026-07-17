@@ -36,10 +36,15 @@ export class HttpChatProvider implements ChatProvider {
   isServerStreaming = false
 
   /**
-   * The mode reported by the server on the last `loadHistory` call.
-   * Used to restore plan/execute mode after a page refresh.
+   * Extra top-level fields the server returned on the last `loadHistory` GET,
+   * beyond `messages` and `streaming` — carried through verbatim so this shared
+   * bond stays agnostic to any consuming app's vocabulary (Anti-Pattern 14).
+   *
+   * The bond names NO app-specific concept here. A consuming app reads whatever
+   * it persisted from this bag, e.g. molecule.dev restores its agent mode via
+   * `provider.lastMeta?.mode` (the value its server puts on the GET response).
    */
-  lastMode: 'plan' | 'execute' = 'execute'
+  lastMeta: Record<string, unknown> = {}
 
   /** Maximum number of retries for HTTP 409 (server-side lock not yet released). */
   private static readonly CONFLICT_MAX_RETRIES = 10
@@ -302,14 +307,18 @@ export class HttpChatProvider implements ChatProvider {
 
     if (!response.ok) return []
 
-    const data = (await response.json()) as {
+    // Generic parse: `messages` + `streaming` are the only fields this shared
+    // bond understands; every OTHER top-level field is app-specific and rides
+    // through untouched in `lastMeta` (Anti-Pattern 14 — no baked-in `mode` or
+    // any other consumer concept here).
+    const { messages, streaming, ...meta } = (await response.json()) as {
       messages?: Record<string, unknown>[]
       streaming?: boolean
-      mode?: 'plan' | 'execute'
+      [key: string]: unknown
     }
-    this.isServerStreaming = data.streaming ?? false
-    this.lastMode = data.mode ?? 'execute'
-    return (data.messages ?? []).map((m, i) => {
+    this.isServerStreaming = streaming ?? false
+    this.lastMeta = meta
+    return (messages ?? []).map((m, i) => {
       // Backend stores timestamps as ISO strings; frontend needs numbers
       const raw = m.timestamp
       const timestamp =
@@ -338,30 +347,29 @@ export class HttpChatProvider implements ChatProvider {
         }
       }
 
+      // Everything the server persisted on the message rides through VERBATIM, except
+      // the three fields this bond has to reconstruct (`timestamp` ISO→number,
+      // `toolCalls` status derivation, `blocks` legacy rebuild). That keeps every other
+      // persisted field — the generic `cardEvent`/`attachments`/`aborted`/`author` AND any
+      // app-specific message metadata a consumer stored (e.g. molecule.dev's `commitRecord`,
+      // `loopLimitReached`, `automatic`) — round-tripping so a reloaded transcript matches
+      // the live one, WITHOUT this shared bond naming any consumer's concept (Anti-Pattern
+      // 14). Reconstructed keys are excluded from the spread so the raw values can't
+      // override the derived ones.
+      const { timestamp: _ts, toolCalls: _tc, blocks: _bl, ...persisted } = m
+
+      // Boundary assertion: `persisted` is untyped JSON (`Record<string, unknown>`) the
+      // server round-tripped from `ChatMessage`; the explicit keys below re-establish the
+      // typed shape. (Same deserialization boundary as the per-field `as` casts above.)
       return {
+        ...persisted,
         id: (m.id as string) ?? `msg-${i}`,
         role: m.role as ChatMessage['role'],
         content: (m.content as string) ?? '',
         timestamp,
         blocks,
         toolCalls,
-        // Inline transcript cards (model / mode / skills / custom notices) are persisted as
-        // `role:'system'` messages carrying the raw CardEvent — pass it through so a reloaded
-        // transcript renders the SAME cards the live stream did (live === stored). The app
-        // (ChatPanel) builds the card's copy/actions from `cardEvent` at render time.
-        ...(m.cardEvent ? { cardEvent: m.cardEvent as ChatMessage['cardEvent'] } : {}),
-        commitRecord: m.commitRecord as ChatMessage['commitRecord'],
-        attachments: m.attachments as ChatMessage['attachments'],
-        // Carry the persisted message-level flags back so a reloaded transcript matches
-        // the live one (these were silently dropped): `aborted` → the "Response stopped"
-        // badge; `automatic` → the distinct auto-sent style (an auto-fix message must NOT
-        // render as an ordinary user bubble); `author` → who sent it (multi-user);
-        // `loopLimitReached` → the loop-limit recovery card with its action buttons.
-        ...(m.aborted ? { aborted: true } : {}),
-        ...(m.automatic ? { automatic: true } : {}),
-        ...(m.author ? { author: m.author as ChatMessage['author'] } : {}),
-        ...(typeof m.loopLimitReached === 'number' ? { loopLimitReached: m.loopLimitReached } : {}),
-      }
+      } as ChatMessage
     })
   }
 }
