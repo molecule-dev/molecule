@@ -18,7 +18,14 @@ import type {
   WorkflowProvider,
 } from '@molecule/api-workflow'
 
-import type { WorkflowEventRow, WorkflowInstanceRow, WorkflowRow } from './types.js'
+import { getAction, getGuard, getHook, WorkflowGuardRejectedError } from './registry.js'
+import type {
+  WorkflowActionFn,
+  WorkflowContext,
+  WorkflowEventRow,
+  WorkflowInstanceRow,
+  WorkflowRow,
+} from './types.js'
 
 /**
  * Deserializes a raw JSON/JSONB column value returned by the bonded DataStore.
@@ -96,6 +103,58 @@ function toWorkflowEvent(row: WorkflowEventRow): WorkflowEvent {
     }
   }
   return event
+}
+
+/**
+ * Resolves a transition `action` identifier to its registered handler.
+ *
+ * A referenced-but-unregistered action is a misconfiguration: it throws so the
+ * side-effect is never silently dropped. An absent identifier resolves to
+ * `undefined` (no action to run).
+ *
+ * @param key - The transition's `action` identifier, if any.
+ * @returns The registered handler, or `undefined` when no identifier is set.
+ * @throws {Error} If `key` is set but no handler is registered for it.
+ */
+function resolveAction(key: string | undefined): WorkflowActionFn | undefined {
+  if (!key) return undefined
+  const fn = getAction(key)
+  if (!fn) {
+    throw new Error(
+      t('workflow.error.actionNotRegistered', undefined, {
+        defaultValue: `Action handler '${key}' is referenced by this transition but no handler is registered. Register it with registerAction('${key}', fn).`,
+      }),
+    )
+  }
+  return fn
+}
+
+/**
+ * Resolves a state `onEnter` / `onExit` identifier to its registered handler.
+ *
+ * A referenced-but-unregistered hook is a misconfiguration: it throws so the
+ * side-effect is never silently dropped. An absent identifier resolves to
+ * `undefined` (no hook to run).
+ *
+ * @param kind - Which hook is being resolved (`onEnter` or `onExit`), for the error message.
+ * @param key - The state's hook identifier, if any.
+ * @returns The registered handler, or `undefined` when no identifier is set.
+ * @throws {Error} If `key` is set but no handler is registered for it.
+ */
+function resolveHook(
+  kind: 'onEnter' | 'onExit',
+  key: string | undefined,
+): WorkflowActionFn | undefined {
+  if (!key) return undefined
+  const fn = getHook(key)
+  if (!fn) {
+    throw new Error(
+      t('workflow.error.hookNotRegistered', undefined, {
+        defaultValue: `${kind} hook '${key}' is referenced by this state but no handler is registered. Register it with registerHook('${key}', fn).`,
+      }),
+    )
+  }
+  return fn
 }
 
 /**
@@ -201,12 +260,53 @@ export const provider: WorkflowProvider = {
     const toState = transitionDef.target
 
     const existingData = parseMaybeJson<Record<string, unknown>>(instanceRow.data)
-    const mergedData = data ? { ...existingData, ...data } : existingData
+    const context: WorkflowContext = {
+      instanceId,
+      workflowId: instanceRow.workflowId,
+      action,
+      fromState,
+      toState,
+      // A fresh, mutable copy so handlers can safely add/change fields; the
+      // final value is what gets persisted below.
+      data: data ? { ...existingData, ...data } : { ...existingData },
+      workflow: toWorkflow(workflowRow),
+    }
+
+    // 1. Guard — evaluate BEFORE allowing the transition. A referenced-but-
+    //    unregistered guard is a misconfiguration (reported, not passed); a
+    //    guard returning falsy blocks the transition (reported, never dropped).
+    if (transitionDef.guard) {
+      const guardFn = getGuard(transitionDef.guard)
+      if (!guardFn) {
+        throw new Error(
+          t('workflow.error.guardNotRegistered', undefined, {
+            defaultValue: `Guard '${transitionDef.guard}' is referenced by this transition but no handler is registered. Register it with registerGuard('${transitionDef.guard}', fn).`,
+          }),
+        )
+      }
+      const allowed = await guardFn(context)
+      if (!allowed) {
+        throw new WorkflowGuardRejectedError(instanceId, action, transitionDef.guard)
+      }
+    }
+
+    // 2. Resolve every side-effect handler up front, so a missing one throws
+    //    BEFORE any hook fires or the instance is persisted (no partial run).
+    const targetState: StateDefinition | undefined = states[toState]
+    const onExitFn = resolveHook('onExit', currentState.onExit)
+    const actionFn = resolveAction(transitionDef.action)
+    const onEnterFn = resolveHook('onEnter', targetState?.onEnter)
+
+    // 3. Invoke in order: onExit (leaving) → action (transition) → onEnter (entering).
+    if (onExitFn) await onExitFn(context)
+    if (actionFn) await actionFn(context)
+    if (onEnterFn) await onEnterFn(context)
+
     const now = new Date().toISOString()
 
     await updateById('workflow_instances', instanceId, {
       state: toState,
-      data: JSON.stringify(mergedData),
+      data: JSON.stringify(context.data),
       updatedAt: now,
     })
 
@@ -222,7 +322,7 @@ export const provider: WorkflowProvider = {
       id: instanceRow.id,
       workflowId: instanceRow.workflowId,
       state: toState,
-      data: mergedData,
+      data: context.data,
       createdAt: instanceRow.createdAt,
       updatedAt: now,
     }

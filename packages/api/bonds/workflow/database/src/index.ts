@@ -8,9 +8,15 @@
  * @example
  * ```typescript
  * import { setProvider } from '@molecule/api-workflow'
- * import { provider } from '@molecule/api-workflow-database'
+ * import { provider, registerGuard, registerHook } from '@molecule/api-workflow-database'
  *
  * setProvider(provider)
+ *
+ * // Gate + react to transitions by KEY (definition strings are never eval'd):
+ * registerGuard('isPaid', (ctx) => ctx.data.paid === true)
+ * registerHook('sendReceipt', async (ctx) => {
+ *   await emailReceipt(ctx.instanceId)
+ * })
  * ```
  *
  * @remarks
@@ -19,10 +25,17 @@
  *   `workflow_events`); molecule scaffolds replay the `.sql` files under
  *   `__setup__` on `migrate`, but adding this bond to an existing app means
  *   applying that DDL yourself first. The shipped DDL is PostgreSQL dialect.
- * - `guard` / `onEnter` / `onExit` identifiers in workflow definitions are
- *   DECLARATIVE ONLY here — this bond stores them but never evaluates or
- *   executes them. Enforce preconditions and side-effects in your handler
- *   around `transition()`.
+ * - `guard` / `action` / `onEnter` / `onExit` in workflow definitions are
+ *   string IDENTIFIERS that `transition()` EVALUATES against a pluggable
+ *   handler registry — they are keys, never executable strings (no `eval`).
+ *   Register named handlers at startup with `registerGuard`, `registerAction`,
+ *   and `registerHook`. On a transition, `transition()` first runs the guard
+ *   (a falsy result BLOCKS the transition with a `WorkflowGuardRejectedError`),
+ *   then on success invokes `onExit` → `action` → `onEnter` in that order,
+ *   threading a mutable {@link WorkflowContext} whose `data` is persisted. A
+ *   referenced identifier with no registered handler is a misconfiguration and
+ *   throws — it is never silently skipped. A definition with no guard/action/
+ *   hook identifiers transitions exactly as before.
  * - `transition()` is read-then-write with no lock or transaction: serialize
  *   concurrent transitions per instance yourself when a double-fire matters,
  *   and authorize server-side — nothing is user-scoped.
@@ -32,4 +45,5 @@
 
 export * from './browser-guard.js'
 export * from './provider.js'
+export * from './registry.js'
 export * from './types.js'

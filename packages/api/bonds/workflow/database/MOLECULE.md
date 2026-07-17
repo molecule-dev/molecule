@@ -10,9 +10,15 @@ startup with `setProvider(provider)` from `@molecule/api-workflow`.
 
 ```typescript
 import { setProvider } from '@molecule/api-workflow'
-import { provider } from '@molecule/api-workflow-database'
+import { provider, registerGuard, registerHook } from '@molecule/api-workflow-database'
 
 setProvider(provider)
+
+// Gate + react to transitions by KEY (definition strings are never eval'd):
+registerGuard('isPaid', (ctx) => ctx.data.paid === true)
+registerHook('sendReceipt', async (ctx) => {
+  await emailReceipt(ctx.instanceId)
+})
 ```
 
 ## Type
@@ -26,6 +32,37 @@ npm install @molecule/api-workflow-database @molecule/api-database @molecule/api
 ## API
 
 ### Interfaces
+
+#### `WorkflowContext`
+
+Execution context threaded through a guard, transition action, and state
+hooks during a single `transition()`. Handlers may READ every field; only
+`data` is mutable — an action/hook may add or change fields and the final
+value is what gets persisted to the instance. Guards should treat `data` as
+read-only (mutations before a guard blocks the transition are discarded).
+
+```typescript
+interface WorkflowContext {
+  /** The instance being transitioned. */
+  instanceId: string
+  /** The id of the workflow definition the instance belongs to. */
+  workflowId: string
+  /** The action name that triggered this transition. */
+  action: string
+  /** The state the instance is leaving. */
+  fromState: string
+  /** The state the instance is entering. */
+  toState: string
+  /**
+   * The instance's merged data (existing instance data ∪ this transition's
+   * `data`). Mutable: actions/hooks may add or change fields and the final
+   * value is persisted.
+   */
+  data: Record<string, unknown>
+  /** The full workflow definition (all states + metadata). */
+  workflow: Workflow
+}
+```
 
 #### `WorkflowEventRow`
 
@@ -43,8 +80,12 @@ interface WorkflowEventRow {
   fromState: string
   /** The state after the transition. */
   toState: string
-  /** JSON-serialized data snapshot, or null. */
-  data: string | null
+  /**
+   * The data snapshot, from a nullable JSONB column, or null. Returned ALREADY
+   * PARSED (an object) on Postgres/MySQL but as a JSON string on SQLite — read
+   * it through `parseMaybeJson`, never a bare `JSON.parse`.
+   */
+  data: string | Record<string, unknown> | null
   /** Event timestamp. */
   createdAt: string
 }
@@ -62,8 +103,12 @@ interface WorkflowInstanceRow {
   workflowId: string
   /** Current state of the instance. */
   state: string
-  /** JSON-serialized instance data. */
-  data: string
+  /**
+   * The instance data, from a JSONB column. Returned ALREADY PARSED (an
+   * object) on Postgres/MySQL but as a JSON string on SQLite — read it through
+   * `parseMaybeJson`, never a bare `JSON.parse`.
+   */
+  data: string | Record<string, unknown>
   /** Creation timestamp. */
   createdAt: string
   /** Last modification timestamp. */
@@ -81,8 +126,12 @@ interface WorkflowRow {
   id: string
   /** Human-readable workflow name. */
   name: string
-  /** JSON-serialized states definition. */
-  states: string
+  /**
+   * The states definition, from a JSONB column. The bonded DataStore returns
+   * this ALREADY PARSED (an object) on Postgres/MySQL but as a JSON string on
+   * SQLite — read it through `parseMaybeJson`, never a bare `JSON.parse`.
+   */
+  states: string | Record<string, unknown>
   /** The initial state for new instances. */
   initialState: string
   /** Creation timestamp. */
@@ -91,6 +140,161 @@ interface WorkflowRow {
   updatedAt: string
 }
 ```
+
+### Types
+
+#### `WorkflowActionFn`
+
+A side-effect handler for a transition `action` or a state `onEnter` /
+`onExit` hook. Registered by key via `registerAction` / `registerHook`. May
+mutate `context.data`; a thrown error aborts the transition before it is
+persisted.
+
+```typescript
+type WorkflowActionFn = (context: WorkflowContext) => void | Promise<void>
+```
+
+#### `WorkflowGuardFn`
+
+A guard predicate gating a transition. Registered by key via `registerGuard`
+and referenced by a transition's `guard` identifier. Returning a falsy value
+BLOCKS the transition (reported by `transition()` as a
+`WorkflowGuardRejectedError`).
+
+```typescript
+type WorkflowGuardFn = (context: WorkflowContext) => boolean | Promise<boolean>
+```
+
+### Classes
+
+#### `WorkflowGuardRejectedError`
+
+Thrown by `transition()` when a registered guard returns a falsy value and
+blocks the transition. Distinct from a generic transition error so callers
+can react to a *denied* transition (e.g. respond 403) rather than treat it
+as a server fault. Carries the instance, action, and guard that produced it.
+
+### Functions
+
+#### `clearWorkflowHandlers()`
+
+Clears every registered guard, action, and hook. Primarily for tests and
+for re-configuring handlers from a clean slate.
+
+```typescript
+function clearWorkflowHandlers(): void
+```
+
+#### `getAction(key)`
+
+Looks up a registered transition action handler.
+
+```typescript
+function getAction(key: string): WorkflowActionFn | undefined
+```
+
+- `key` — The action identifier.
+
+**Returns:** The registered handler, or `undefined` if none is registered.
+
+#### `getGuard(key)`
+
+Looks up a registered guard predicate.
+
+```typescript
+function getGuard(key: string): WorkflowGuardFn | undefined
+```
+
+- `key` — The guard identifier.
+
+**Returns:** The registered predicate, or `undefined` if none is registered.
+
+#### `getHook(key)`
+
+Looks up a registered state hook handler.
+
+```typescript
+function getHook(key: string): WorkflowActionFn | undefined
+```
+
+- `key` — The hook identifier.
+
+**Returns:** The registered handler, or `undefined` if none is registered.
+
+#### `hasAction(key)`
+
+Reports whether a transition action is registered under `key`.
+
+```typescript
+function hasAction(key: string): boolean
+```
+
+- `key` — The action identifier.
+
+**Returns:** `true` if an action handler is registered.
+
+#### `hasGuard(key)`
+
+Reports whether a guard is registered under `key`.
+
+```typescript
+function hasGuard(key: string): boolean
+```
+
+- `key` — The guard identifier.
+
+**Returns:** `true` if a guard is registered.
+
+#### `hasHook(key)`
+
+Reports whether a state hook is registered under `key`.
+
+```typescript
+function hasHook(key: string): boolean
+```
+
+- `key` — The hook identifier.
+
+**Returns:** `true` if a hook handler is registered.
+
+#### `registerAction(key, fn)`
+
+Registers a transition action handler under `key`. A transition whose
+`action` identifier matches `key` runs this handler during the transition.
+Re-registering the same key replaces the previous handler.
+
+```typescript
+function registerAction(key: string, fn: WorkflowActionFn): void
+```
+
+- `key` — The action identifier used in workflow definitions.
+- `fn` — The side-effect handler to run during the transition.
+
+#### `registerGuard(key, fn)`
+
+Registers a guard predicate under `key`. A transition whose `guard`
+identifier matches `key` runs this predicate; a falsy result blocks the
+transition. Re-registering the same key replaces the previous predicate.
+
+```typescript
+function registerGuard(key: string, fn: WorkflowGuardFn): void
+```
+
+- `key` — The guard identifier used in workflow definitions.
+- `fn` — The predicate deciding whether the transition may proceed.
+
+#### `registerHook(key, fn)`
+
+Registers a state hook handler under `key`. A state whose `onEnter` or
+`onExit` identifier matches `key` runs this handler when entered/exited.
+Re-registering the same key replaces the previous handler.
+
+```typescript
+function registerHook(key: string, fn: WorkflowActionFn): void
+```
+
+- `key` — The hook identifier used in workflow definitions.
+- `fn` — The side-effect handler to run on state enter/exit.
 
 ### Constants
 
@@ -140,10 +344,17 @@ Peer dependencies:
   `workflow_events`); molecule scaffolds replay the `.sql` files under
   `__setup__` on `migrate`, but adding this bond to an existing app means
   applying that DDL yourself first. The shipped DDL is PostgreSQL dialect.
-- `guard` / `onEnter` / `onExit` identifiers in workflow definitions are
-  DECLARATIVE ONLY here — this bond stores them but never evaluates or
-  executes them. Enforce preconditions and side-effects in your handler
-  around `transition()`.
+- `guard` / `action` / `onEnter` / `onExit` in workflow definitions are
+  string IDENTIFIERS that `transition()` EVALUATES against a pluggable
+  handler registry — they are keys, never executable strings (no `eval`).
+  Register named handlers at startup with `registerGuard`, `registerAction`,
+  and `registerHook`. On a transition, `transition()` first runs the guard
+  (a falsy result BLOCKS the transition with a `WorkflowGuardRejectedError`),
+  then on success invokes `onExit` → `action` → `onEnter` in that order,
+  threading a mutable {@link WorkflowContext} whose `data` is persisted. A
+  referenced identifier with no registered handler is a misconfiguration and
+  throws — it is never silently skipped. A definition with no guard/action/
+  hook identifiers transitions exactly as before.
 - `transition()` is read-then-write with no lock or transaction: serialize
   concurrent transitions per instance yourself when a double-fire matters,
   and authorize server-side — nothing is user-scoped.

@@ -19,6 +19,13 @@ vi.mock('@molecule/api-i18n', () => ({
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { provider } from '../provider.js'
+import {
+  clearWorkflowHandlers,
+  registerAction,
+  registerGuard,
+  registerHook,
+  WorkflowGuardRejectedError,
+} from '../registry.js'
 
 const STATES_JSON = JSON.stringify({
   pending: { transitions: { confirm: { target: 'confirmed' }, cancel: { target: 'cancelled' } } },
@@ -64,6 +71,7 @@ const INSTANCE_ROW_PARSED = {
 describe('@molecule/api-workflow-database provider', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    clearWorkflowHandlers()
   })
 
   it('should have name "database"', () => {
@@ -272,6 +280,172 @@ describe('@molecule/api-workflow-database provider', () => {
       await expect(provider.transition('inst-1', 'confirm')).rejects.toThrow(
         "State 'unknown-state' not found in workflow definition",
       )
+    })
+  })
+
+  // guard / action / onEnter / onExit are string IDENTIFIERS in the definition;
+  // transition() evaluates them against the pluggable handler registry. These
+  // prove: a failing guard blocks + reports the transition (no write); a passing
+  // guard receives the context; onExit → action → onEnter fire in that order via
+  // the registry; action mutations persist; and a referenced-but-unregistered
+  // handler is reported, never silently skipped.
+  describe('transition guard/action/hook evaluation', () => {
+    const HOOKED_STATES = JSON.stringify({
+      pending: {
+        transitions: {
+          confirm: { target: 'confirmed', guard: 'canConfirm', action: 'recordConfirm' },
+        },
+        onExit: 'leavePending',
+      },
+      confirmed: { transitions: {}, onEnter: 'enterConfirmed', final: true },
+    })
+    const HOOKED_WORKFLOW_ROW = { ...WORKFLOW_ROW, states: HOOKED_STATES }
+
+    it('runs a passing guard with the transition context and allows the transition', async () => {
+      const guard = vi.fn(() => true)
+      registerGuard('canConfirm', guard)
+      registerHook('leavePending', vi.fn())
+      registerAction('recordConfirm', vi.fn())
+      registerHook('enterConfirmed', vi.fn())
+      mockFindById.mockResolvedValueOnce(INSTANCE_ROW).mockResolvedValueOnce(HOOKED_WORKFLOW_ROW)
+      mockUpdateById.mockResolvedValueOnce({})
+      mockCreate.mockResolvedValueOnce({ data: {} })
+
+      const result = await provider.transition('inst-1', 'confirm', { paid: true })
+
+      expect(guard).toHaveBeenCalledTimes(1)
+      expect(guard).toHaveBeenCalledWith(
+        expect.objectContaining({
+          instanceId: 'inst-1',
+          workflowId: 'wf-1',
+          action: 'confirm',
+          fromState: 'pending',
+          toState: 'confirmed',
+          data: expect.objectContaining({ orderId: '123', paid: true }),
+        }),
+      )
+      expect(result.state).toBe('confirmed')
+      expect(mockUpdateById).toHaveBeenCalledWith(
+        'workflow_instances',
+        'inst-1',
+        expect.objectContaining({ state: 'confirmed' }),
+      )
+    })
+
+    it('blocks and reports the transition when the guard returns false, writing nothing', async () => {
+      const onExit = vi.fn()
+      const action = vi.fn()
+      const onEnter = vi.fn()
+      registerGuard('canConfirm', () => false)
+      registerHook('leavePending', onExit)
+      registerAction('recordConfirm', action)
+      registerHook('enterConfirmed', onEnter)
+      mockFindById.mockResolvedValueOnce(INSTANCE_ROW).mockResolvedValueOnce(HOOKED_WORKFLOW_ROW)
+
+      const error = await provider.transition('inst-1', 'confirm').catch((e: unknown) => e)
+
+      expect(error).toBeInstanceOf(WorkflowGuardRejectedError)
+      expect(error).toMatchObject({ instanceId: 'inst-1', action: 'confirm', guard: 'canConfirm' })
+      // A blocked transition is reported, never silently applied: no side-effects,
+      // no state update, no event recorded.
+      expect(onExit).not.toHaveBeenCalled()
+      expect(action).not.toHaveBeenCalled()
+      expect(onEnter).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('awaits an async guard and blocks on a falsy resolution', async () => {
+      registerGuard('canConfirm', () => Promise.resolve(false))
+      registerHook('leavePending', vi.fn())
+      registerAction('recordConfirm', vi.fn())
+      registerHook('enterConfirmed', vi.fn())
+      mockFindById.mockResolvedValueOnce(INSTANCE_ROW).mockResolvedValueOnce(HOOKED_WORKFLOW_ROW)
+
+      await expect(provider.transition('inst-1', 'confirm')).rejects.toBeInstanceOf(
+        WorkflowGuardRejectedError,
+      )
+      expect(mockUpdateById).not.toHaveBeenCalled()
+    })
+
+    it('invokes onExit → action → onEnter in order on a successful transition', async () => {
+      const calls: string[] = []
+      registerGuard('canConfirm', () => true)
+      registerHook('leavePending', () => {
+        calls.push('onExit')
+      })
+      registerAction('recordConfirm', () => {
+        calls.push('action')
+      })
+      registerHook('enterConfirmed', () => {
+        calls.push('onEnter')
+      })
+      mockFindById.mockResolvedValueOnce(INSTANCE_ROW).mockResolvedValueOnce(HOOKED_WORKFLOW_ROW)
+      mockUpdateById.mockResolvedValueOnce({})
+      mockCreate.mockResolvedValueOnce({ data: {} })
+
+      await provider.transition('inst-1', 'confirm')
+
+      expect(calls).toEqual(['onExit', 'action', 'onEnter'])
+    })
+
+    it('persists data mutated by an action handler', async () => {
+      const states = JSON.stringify({
+        pending: { transitions: { confirm: { target: 'confirmed', action: 'recordConfirm' } } },
+        confirmed: { transitions: {}, final: true },
+      })
+      registerAction('recordConfirm', (ctx) => {
+        ctx.data.confirmedAt = '2024-02-02T00:00:00Z'
+      })
+      mockFindById
+        .mockResolvedValueOnce(INSTANCE_ROW)
+        .mockResolvedValueOnce({ ...WORKFLOW_ROW, states })
+      mockUpdateById.mockResolvedValueOnce({})
+      mockCreate.mockResolvedValueOnce({ data: {} })
+
+      const result = await provider.transition('inst-1', 'confirm')
+
+      expect(result.data.confirmedAt).toBe('2024-02-02T00:00:00Z')
+      expect(mockUpdateById).toHaveBeenCalledWith(
+        'workflow_instances',
+        'inst-1',
+        expect.objectContaining({
+          data: JSON.stringify({ orderId: '123', confirmedAt: '2024-02-02T00:00:00Z' }),
+        }),
+      )
+    })
+
+    it('throws when a referenced guard has no registered handler (never silently allowed)', async () => {
+      // canConfirm is NOT registered.
+      mockFindById.mockResolvedValueOnce(INSTANCE_ROW).mockResolvedValueOnce(HOOKED_WORKFLOW_ROW)
+
+      await expect(provider.transition('inst-1', 'confirm')).rejects.toThrow(/Guard 'canConfirm'/)
+      expect(mockUpdateById).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('resolves all hooks up front so a missing onEnter never half-runs onExit/action', async () => {
+      const onExit = vi.fn()
+      const action = vi.fn()
+      registerHook('leavePending', onExit)
+      registerAction('recordConfirm', action)
+      // enterConfirmed is NOT registered.
+      const states = JSON.stringify({
+        pending: {
+          transitions: { confirm: { target: 'confirmed', action: 'recordConfirm' } },
+          onExit: 'leavePending',
+        },
+        confirmed: { transitions: {}, onEnter: 'enterConfirmed', final: true },
+      })
+      mockFindById
+        .mockResolvedValueOnce(INSTANCE_ROW)
+        .mockResolvedValueOnce({ ...WORKFLOW_ROW, states })
+
+      await expect(provider.transition('inst-1', 'confirm')).rejects.toThrow(/enterConfirmed/)
+      expect(onExit).not.toHaveBeenCalled()
+      expect(action).not.toHaveBeenCalled()
+      expect(mockUpdateById).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
     })
   })
 

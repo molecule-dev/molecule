@@ -1,10 +1,62 @@
 /**
  * Database workflow provider types.
  *
- * Internal database row types used by the database-backed workflow provider.
+ * Internal database row types plus the guard/action/hook evaluation contracts
+ * used by the database-backed workflow provider.
  *
  * @module
  */
+
+import type { Workflow } from '@molecule/api-workflow'
+
+/**
+ * Execution context threaded through a guard, transition action, and state
+ * hooks during a single `transition()`. Handlers may READ every field; only
+ * `data` is mutable — an action/hook may add or change fields and the final
+ * value is what gets persisted to the instance. Guards should treat `data` as
+ * read-only (mutations before a guard blocks the transition are discarded).
+ */
+export interface WorkflowContext {
+  /** The instance being transitioned. */
+  instanceId: string
+  /** The id of the workflow definition the instance belongs to. */
+  workflowId: string
+  /** The action name that triggered this transition. */
+  action: string
+  /** The state the instance is leaving. */
+  fromState: string
+  /** The state the instance is entering. */
+  toState: string
+  /**
+   * The instance's merged data (existing instance data ∪ this transition's
+   * `data`). Mutable: actions/hooks may add or change fields and the final
+   * value is persisted.
+   */
+  data: Record<string, unknown>
+  /** The full workflow definition (all states + metadata). */
+  workflow: Workflow
+}
+
+/**
+ * A guard predicate gating a transition. Registered by key via `registerGuard`
+ * and referenced by a transition's `guard` identifier. Returning a falsy value
+ * BLOCKS the transition (reported by `transition()` as a
+ * `WorkflowGuardRejectedError`).
+ *
+ * @param context - The transition context.
+ * @returns `true` to allow the transition, a falsy value to block it.
+ */
+export type WorkflowGuardFn = (context: WorkflowContext) => boolean | Promise<boolean>
+
+/**
+ * A side-effect handler for a transition `action` or a state `onEnter` /
+ * `onExit` hook. Registered by key via `registerAction` / `registerHook`. May
+ * mutate `context.data`; a thrown error aborts the transition before it is
+ * persisted.
+ *
+ * @param context - The transition context.
+ */
+export type WorkflowActionFn = (context: WorkflowContext) => void | Promise<void>
 
 /**
  * Database row for a persisted workflow definition.
