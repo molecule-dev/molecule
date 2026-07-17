@@ -205,13 +205,19 @@ function setProvider(provider: StepperProvider): void
 
 ## Injection Notes
 
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-bond` ^1.0.0
+
 - **The instance is HEADLESS state, not UI.** `createStepper` returns a step
   state machine — nothing appears on screen. The app renders the step
   indicator and content itself, re-rendering from `onStepChange` /
   `getActiveStep()`; style via `getClassMap()` from `@molecule/app-ui` and
   run every label through `t('key', values, { defaultValue })`.
-- **Wire the bond at startup** — {@link requireProvider} throws until
-  `setProvider` has been called.
+- **Wire it with THIS package's `setProvider()` or `bond('stepper', …)`.**
+  `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
+  both write the same slot; {@link requireProvider} throws until one has run.
 - Call `destroy()` when the owning screen unmounts.
 
 ## E2E Tests

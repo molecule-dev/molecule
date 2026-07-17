@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { bond, reset } from '@molecule/app-bond'
+
 import type { TreeInstance, TreeNode, TreeOptions, TreeViewProvider } from '../index.js'
 import { getProvider, hasProvider, requireProvider, setProvider } from '../index.js'
 
 describe('@molecule/app-tree-view', () => {
   beforeEach(() => {
-    setProvider(null as unknown as TreeViewProvider)
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -120,6 +122,29 @@ describe('@molecule/app-tree-view', () => {
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
       expect(hasProvider()).toBe(true)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it('reflects a bond("tree-view", p) made via @molecule/app-bond', () => {
+      // The exact bug this migration fixes: bond() on the shared registry must be
+      // observable through the core's own accessors.
+      const mockProvider: TreeViewProvider = {
+        name: 'test-bond',
+        createTree: <T>() => ({
+          getData: () => [] as TreeNode<T>[],
+          setData: () => {},
+          expandNode: () => {},
+          collapseNode: () => {},
+          expandAll: () => {},
+          collapseAll: () => {},
+          selectNode: () => {},
+          getSelectedNodes: () => [] as TreeNode<T>[],
+          destroy: () => {},
+        }),
+      }
+      bond('tree-view', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
     })
   })

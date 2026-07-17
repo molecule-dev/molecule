@@ -1,15 +1,19 @@
 /**
- * Tree view provider singleton.
+ * Tree view provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call `setProvider()` during setup.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('tree-view', provider)`, so wiring via this package's `setProvider()`
+ * and via `bond('tree-view', …)` write the SAME registry slot — use either.
  * Application code calls `getProvider()` / `requireProvider()` at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { TreeViewProvider } from './types.js'
 
-let _provider: TreeViewProvider | null = null
+const BOND_TYPE = 'tree-view'
 
 /**
  * Registers a tree view provider as the active singleton.
@@ -17,7 +21,7 @@ let _provider: TreeViewProvider | null = null
  * @param provider - The tree view provider implementation to bond.
  */
 export function setProvider(provider: TreeViewProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +30,7 @@ export function setProvider(provider: TreeViewProvider): void {
  * @returns The active tree view provider, or `null`.
  */
 export function getProvider(): TreeViewProvider | null {
-  return _provider
+  return get<TreeViewProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +39,7 @@ export function getProvider(): TreeViewProvider | null {
  * @returns `true` if a tree view provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +49,8 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): TreeViewProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error('TreeView provider not configured. Bond a tree-view provider first.')
   }
-  return _provider
+  return requireSingleton<TreeViewProvider>(BOND_TYPE)
 }

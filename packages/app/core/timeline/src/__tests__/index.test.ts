@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { bond, reset } from '@molecule/app-bond'
+
 import type { TimelineInstance, TimelineItem, TimelineOptions, TimelineProvider } from '../index.js'
 import { getProvider, hasProvider, requireProvider, setProvider } from '../index.js'
 
 describe('@molecule/app-timeline', () => {
   beforeEach(() => {
-    setProvider(null as unknown as TimelineProvider)
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -97,6 +99,25 @@ describe('@molecule/app-timeline', () => {
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
       expect(hasProvider()).toBe(true)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it('reflects a bond("timeline", p) made via @molecule/app-bond', () => {
+      // The exact bug this migration fixes: bond() on the shared registry must be
+      // observable through the core's own accessors.
+      const mockProvider: TimelineProvider = {
+        name: 'test-bond',
+        createTimeline: () => ({
+          setItems: () => {},
+          addItem: () => {},
+          removeItem: () => true,
+          getItems: () => [],
+          destroy: () => {},
+        }),
+      }
+      bond('timeline', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
     })
   })

@@ -1,15 +1,19 @@
 /**
- * Timeline provider singleton.
+ * Timeline provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call `setProvider()` during setup.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('timeline', provider)`, so wiring via this package's `setProvider()` and
+ * via `bond('timeline', …)` write the SAME registry slot — use either.
  * Application code calls `getProvider()` / `requireProvider()` at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { TimelineProvider } from './types.js'
 
-let _provider: TimelineProvider | null = null
+const BOND_TYPE = 'timeline'
 
 /**
  * Registers a timeline provider as the active singleton.
@@ -17,7 +21,7 @@ let _provider: TimelineProvider | null = null
  * @param provider - The timeline provider implementation to bond.
  */
 export function setProvider(provider: TimelineProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +30,7 @@ export function setProvider(provider: TimelineProvider): void {
  * @returns The active timeline provider, or `null`.
  */
 export function getProvider(): TimelineProvider | null {
-  return _provider
+  return get<TimelineProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +39,7 @@ export function getProvider(): TimelineProvider | null {
  * @returns `true` if a timeline provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +49,8 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): TimelineProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error('Timeline provider not configured. Bond a timeline provider first.')
   }
-  return _provider
+  return requireSingleton<TimelineProvider>(BOND_TYPE)
 }

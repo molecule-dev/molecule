@@ -1,15 +1,19 @@
 /**
- * Stepper provider singleton.
+ * Stepper provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call `setProvider()` during setup.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('stepper', provider)`, so wiring via this package's `setProvider()` and
+ * via `bond('stepper', …)` write the SAME registry slot — use either.
  * Application code calls `getProvider()` / `requireProvider()` at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { StepperProvider } from './types.js'
 
-let _provider: StepperProvider | null = null
+const BOND_TYPE = 'stepper'
 
 /**
  * Registers a stepper provider as the active singleton.
@@ -17,7 +21,7 @@ let _provider: StepperProvider | null = null
  * @param provider - The stepper provider implementation to bond.
  */
 export function setProvider(provider: StepperProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +30,7 @@ export function setProvider(provider: StepperProvider): void {
  * @returns The active stepper provider, or `null`.
  */
 export function getProvider(): StepperProvider | null {
-  return _provider
+  return get<StepperProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +39,7 @@ export function getProvider(): StepperProvider | null {
  * @returns `true` if a stepper provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +49,8 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): StepperProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error('Stepper provider not configured. Bond a stepper provider first.')
   }
-  return _provider
+  return requireSingleton<StepperProvider>(BOND_TYPE)
 }

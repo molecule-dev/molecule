@@ -36,8 +36,9 @@
  * - Step `title`/`content` are UI text — source them via
  *   `t('key', values, { defaultValue })`, and style the rendered tour UI with
  *   `getClassMap()` from `@molecule/app-ui`.
- * - **Wire the bond at startup** — {@link requireProvider} throws until
- *   `setProvider` has been called.
+ * - **Wire it with THIS package's `setProvider()` or `bond('tour', …)`.**
+ *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
+ *   both write the same slot; {@link requireProvider} throws until one has run.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

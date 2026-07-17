@@ -28,8 +28,9 @@
  *   screen. The app renders the nodes itself, re-rendering after state calls;
  *   style via `getClassMap()` from `@molecule/app-ui` and run node labels that
  *   are UI text through `t('key', values, { defaultValue })`.
- * - **Wire the bond at startup** — {@link requireProvider} throws until
- *   `setProvider` has been called.
+ * - **Wire it with THIS package's `setProvider()` or `bond('tree-view', …)`.**
+ *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
+ *   both write the same slot; {@link requireProvider} throws until one has run.
  * - `onDrop` only fires when `draggable: true`; `multiSelect` and
  *   `showCheckboxes` default to `false`.
  * - Call `destroy()` when the owning screen unmounts.

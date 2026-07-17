@@ -1,15 +1,19 @@
 /**
- * Tour provider singleton.
+ * Tour provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call `setProvider()` during setup.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('tour', provider)`, so wiring via this package's `setProvider()` and
+ * via `bond('tour', …)` write the SAME registry slot — use either.
  * Application code calls `getProvider()` / `requireProvider()` at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { TourProvider } from './types.js'
 
-let _provider: TourProvider | null = null
+const BOND_TYPE = 'tour'
 
 /**
  * Registers a tour provider as the active singleton.
@@ -17,7 +21,7 @@ let _provider: TourProvider | null = null
  * @param provider - The tour provider implementation to bond.
  */
 export function setProvider(provider: TourProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +30,7 @@ export function setProvider(provider: TourProvider): void {
  * @returns The active tour provider, or `null`.
  */
 export function getProvider(): TourProvider | null {
-  return _provider
+  return get<TourProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +39,7 @@ export function getProvider(): TourProvider | null {
  * @returns `true` if a tour provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +49,8 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): TourProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error('Tour provider not configured. Bond a tour provider first.')
   }
-  return _provider
+  return requireSingleton<TourProvider>(BOND_TYPE)
 }

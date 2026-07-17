@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { bond, reset } from '@molecule/app-bond'
+
 import type { Step, StepperInstance, StepperOptions, StepperProvider } from '../index.js'
 import { getProvider, hasProvider, requireProvider, setProvider } from '../index.js'
 
 describe('@molecule/app-stepper', () => {
   beforeEach(() => {
-    setProvider(null as unknown as StepperProvider)
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -98,6 +100,27 @@ describe('@molecule/app-stepper', () => {
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
       expect(hasProvider()).toBe(true)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it('reflects a bond("stepper", p) made via @molecule/app-bond', () => {
+      // The exact bug this migration fixes: bond() on the shared registry must be
+      // observable through the core's own accessors.
+      const mockProvider: StepperProvider = {
+        name: 'test-bond',
+        createStepper: () => ({
+          next: () => {},
+          previous: () => {},
+          goTo: () => {},
+          getActiveStep: () => 0,
+          isComplete: () => false,
+          validate: () => true,
+          destroy: () => {},
+        }),
+      }
+      bond('stepper', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
     })
   })
