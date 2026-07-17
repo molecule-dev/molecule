@@ -235,6 +235,45 @@ describe('chat()', () => {
     ])
   })
 
+  it('mid-stream error chunk yields partial text then a real error and NO done', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: ' + JSON.stringify({ choices: [{ delta: { content: 'partial' } }] }),
+        'data: ' +
+          JSON.stringify({
+            error: {
+              message: 'Rate limit reached',
+              type: 'rate_limit_error',
+              code: 'rate_limit_exceeded',
+            },
+          }),
+      ]),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const events: Array<{ type: string; content?: string; message?: string; errorKey?: string }> =
+      []
+    for await (const e of provider.chat({ messages: [{ role: 'user', content: 'h' }] })) {
+      events.push(e as (typeof events)[number])
+    }
+
+    // Partial content produced before the error is preserved.
+    expect(events.filter((e) => e.type === 'text')).toEqual([{ type: 'text', content: 'partial' }])
+
+    // The mid-stream error surfaces as a real error event (not silently dropped).
+    const err = events.find((e) => e.type === 'error')
+    expect(err).toEqual({
+      type: 'error',
+      message: 'AI rate limit exceeded. Please try again shortly.',
+      errorKey: 'ai.error.apiError',
+    })
+
+    // The truncated turn must NOT be reported as a successful completion.
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+    // The stream stops at the error — it is the last event emitted.
+    expect(events[events.length - 1].type).toBe('error')
+  })
+
   it('tool_use with parsed JSON arguments', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

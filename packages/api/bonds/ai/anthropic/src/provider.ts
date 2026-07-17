@@ -442,6 +442,13 @@ class AnthropicAIProvider implements AIProvider {
         for (const event of this.processSSELines(lines, state)) {
           yielded = true
           yield event
+          // A mid-stream provider error (Anthropic sends `overloaded_error` as an
+          // SSE `error` event AFTER a 200 OK during high load) means the turn was
+          // truncated. Stop here and do NOT fall through to the trailing `done` —
+          // a `done` reports the truncated turn to the consumer as a successful
+          // completion, so the caller's overload/retry recovery never fires.
+          // Mirrors the HTTP-level error path (yield error; return).
+          if (event.type === 'error') return
         }
         // We received data from the API but it produced no ChatEvent — e.g. a
         // `ping` or an empty/keepalive event. (Tool-input chunks now yield a
@@ -454,7 +461,10 @@ class AnthropicAIProvider implements AIProvider {
 
       // Flush any remaining data in the buffer after EOF
       if (buffer.trim()) {
-        yield* this.processSSELines(buffer.split('\n'), state)
+        for (const event of this.processSSELines(buffer.split('\n'), state)) {
+          yield event
+          if (event.type === 'error') return
+        }
       }
 
       // Emit any tool call still pending after stream ends (safety net for missing content_block_stop)
@@ -590,6 +600,28 @@ class AnthropicAIProvider implements AIProvider {
           if (usage) {
             yield { type: 'usage', usage: snapshotUsage(state) }
           }
+        } else if (eventType === 'error') {
+          // Anthropic can emit an `error` SSE event MID-STREAM (after a 200 OK) —
+          // most commonly `overloaded_error` during high load, the streaming
+          // analogue of an HTTP 529. It matches no content branch above, so
+          // without this it was silently dropped and the stream fell through to a
+          // misleading `done` — a truncated turn reported as a successful
+          // completion. Surface it as a real `error` event (mapped to the same
+          // actionable messages as the HTTP-level path) so the consumer's overload
+          // handling fires instead. Also satisfies the no-silent-swallow rule.
+          const streamError = event.error as { type?: string; message?: string } | undefined
+          const errorType = streamError?.type ?? ''
+          logger.error('Anthropic streaming error event', {
+            errorType,
+            message: streamError?.message,
+          })
+          const clientMessage =
+            errorType === 'overloaded_error'
+              ? 'AI service is temporarily overloaded. Please try again in a moment.'
+              : errorType === 'rate_limit_error'
+                ? 'AI rate limit exceeded. Please try again shortly.'
+                : 'AI service error. Please try again.'
+          yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
         }
       } catch (error) {
         logger.debug('Skipping malformed SSE JSON line', { json, error })

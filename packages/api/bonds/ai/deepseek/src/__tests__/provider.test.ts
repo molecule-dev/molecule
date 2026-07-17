@@ -238,6 +238,33 @@ describe('chat() — streaming', () => {
       cacheReadInputTokens: 40,
     })
   })
+
+  it('surfaces a mid-stream error chunk as an error event and does NOT emit a misleading done', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: {"choices":[{"delta":{"content":"partial"}}]}',
+        'data: {"error":{"message":"Rate limit reached","type":"rate_limit_error","code":"rate_limit_exceeded"}}',
+      ]),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({ messages: [{ role: 'user', content: 'go' }] }),
+    )
+    const text = events
+      .filter((e) => e.type === 'text')
+      .map((e) => (e as { content: string }).content)
+      .join('')
+    expect(text).toBe('partial')
+    const err = events.find((e) => e.type === 'error') as
+      | { message: string; errorKey: string }
+      | undefined
+    expect(err).toBeDefined()
+    expect(err?.message).toBe('AI rate limit exceeded. Please try again shortly.')
+    expect(err?.errorKey).toBe('ai.error.apiError')
+    // A truncated turn must NOT be reported as a successful completion.
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+    expect(events[events.length - 1].type).toBe('error')
+  })
 })
 
 describe('chat() — errors', () => {

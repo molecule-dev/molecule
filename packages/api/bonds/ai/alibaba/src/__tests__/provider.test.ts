@@ -237,6 +237,45 @@ describe('chat()', () => {
     ])
   })
 
+  it('surfaces a MID-STREAM error chunk as an `error` event (not a silent drop + misleading `done`)', async () => {
+    // DashScope's OpenAI-compatible mode can emit `data: {"error": {...}}`
+    // mid-stream (a rate-limit/overload during high load). The chunk has no
+    // `choices`, so without explicit handling it was silently dropped and the
+    // stream fell through to a misleading `done` — the truncated turn read as a
+    // success and the caller's overload/retry recovery never fired.
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: ' + JSON.stringify({ choices: [{ delta: { content: 'partial' } }] }),
+        'data: ' +
+          JSON.stringify({
+            error: {
+              message: 'Rate limit reached',
+              type: 'rate_limit_error',
+              code: 'rate_limit_exceeded',
+            },
+          }),
+      ]),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const events: Array<{ type: string; content?: string; message?: string; errorKey?: string }> =
+      []
+    for await (const e of provider.chat({ messages: [{ role: 'user', content: 'h' }] })) {
+      events.push(e as (typeof events)[number])
+    }
+
+    // The partial text before the error still streamed…
+    expect(events.find((e) => e.type === 'text' && e.content === 'partial')).toBeDefined()
+    // …then a real error event with the rate-limit message.
+    const errorEvent = events.find((e) => e.type === 'error')
+    expect(errorEvent).toBeDefined()
+    expect(errorEvent!.message).toBe('AI rate limit exceeded. Please try again shortly.')
+    expect(errorEvent!.errorKey).toBe('ai.error.apiError')
+    // Critically: NO misleading `done` after the error, and the error is last.
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+    expect(events[events.length - 1].type).toBe('error')
+  })
+
   it('401 → "configuration error" without leaking API key', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

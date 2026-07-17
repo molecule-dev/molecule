@@ -209,6 +209,46 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
     expect(events.find((e) => e.type === 'text')).toMatchObject({ content: 'answer' })
   })
 
+  it('surfaces a mid-stream Gemini error chunk as an error event and STOPS (no misleading done)', async () => {
+    // Regression: Gemini can deliver a mid-stream error chunk shaped
+    // { error: { code, message, status } } (e.g. RESOURCE_EXHAUSTED during high
+    // load). It has no `candidates`, so it used to match no branch and be
+    // silently dropped — the stream fell through to a `done` and reported the
+    // truncated turn as a successful completion, so the consumer's overload/
+    // retry recovery never fired.
+    mockFetch.mockResolvedValue(
+      streamRaw([
+        sse({ candidates: [{ content: { role: 'model', parts: [{ text: 'partial' }] } }] }),
+        sse({
+          error: {
+            code: 429,
+            message: 'Resource has been exhausted',
+            status: 'RESOURCE_EXHAUSTED',
+          },
+        }),
+        // A trailing content chunk that must NOT be reached once the error stops the stream.
+        sse({ candidates: [{ content: { role: 'model', parts: [{ text: 'unreachable' }] } }] }),
+      ]),
+    )
+
+    const events = await collectEvents(provider.chat(minimalParams))
+
+    // Any partial content already streamed is preserved.
+    expect(events.find((e) => e.type === 'text')).toMatchObject({ content: 'partial' })
+    // The error is surfaced with the rate-limit message + shared errorKey.
+    const errorEvt = events.find((e) => e.type === 'error')!
+    expect(errorEvt).toMatchObject({
+      type: 'error',
+      message: 'AI rate limit exceeded. Please try again shortly.',
+      errorKey: 'ai.error.apiError',
+    })
+    // No misleading `done` after the error, and no content from the trailing chunk.
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+    expect(events.some((e) => e.type === 'text' && e.content === 'unreachable')).toBe(false)
+    // The error is the LAST event.
+    expect(events[events.length - 1].type).toBe('error')
+  })
+
   it('targets the streaming endpoint with alt=sse and the key in the query', async () => {
     mockFetch.mockResolvedValue(emptyStream())
     await collectEvents(provider.chat(minimalParams))

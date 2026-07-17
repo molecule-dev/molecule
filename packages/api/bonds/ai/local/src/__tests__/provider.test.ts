@@ -370,6 +370,31 @@ describe('chat() — streaming response parsing', () => {
     )
     expect(events.filter((e) => e.type === 'text')).toEqual([{ type: 'text', content: 'ok' }])
   })
+
+  it('yields partial text then a real error event (no misleading done) on a mid-stream error chunk', async () => {
+    // A `data: {"error": {...}}` chunk mid-stream means the turn was truncated.
+    // The parser must surface a real error event AND stop — never fall through
+    // to a `done` that reports the truncated turn as a successful completion.
+    fetchMock().mockResolvedValue(
+      sseResponse([
+        'data: {"choices":[{"delta":{"content":"partial"}}]}',
+        'data: {"error":{"message":"Rate limit reached","type":"rate_limit_error","code":"rate_limit_exceeded"}}',
+        'data: [DONE]',
+      ]),
+    )
+    const { events, thrown } = await collect(
+      createProvider().chat({ messages: [{ role: 'user', content: 'x' }] }),
+    )
+    expect(thrown).toBeUndefined()
+    expect(events).toContainEqual({ type: 'text', content: 'partial' })
+    const err = events.find((e) => e.type === 'error') as
+      | { type: 'error'; message: string; errorKey?: string }
+      | undefined
+    expect(err?.message).toBe('AI rate limit exceeded. Please try again shortly.')
+    expect(err?.errorKey).toBe('ai.error.apiError')
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+    expect(events.at(-1)).toEqual(err)
+  })
 })
 
 describe('chat() — HTTP error handling (emits error EVENT + returns gracefully, no throw)', () => {

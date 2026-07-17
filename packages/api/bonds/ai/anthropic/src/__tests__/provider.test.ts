@@ -775,6 +775,63 @@ describe('AnthropicAIProvider — tool-input streaming events', () => {
     // The input chunks must NOT have degraded into silent keep_alives.
     expect(events.some((e) => e.type === 'keep_alive')).toBe(false)
   })
+
+  it('surfaces a MID-STREAM `overloaded_error` event as an `error` (not a silent drop + misleading `done`)', async () => {
+    // Anthropic sends `overloaded_error` as an SSE `error` event AFTER the 200 OK
+    // during high load — the streaming analogue of an HTTP 529. It must NOT be
+    // swallowed: a truncated turn reported as a successful `done` would look
+    // complete to the executor and skip the overload/retry recovery.
+    mockFetch.mockResolvedValue(
+      streamResponse([
+        { type: 'message_start', message: { usage: { input_tokens: 10 } } },
+        { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'partial' } },
+        { type: 'error', error: { type: 'overloaded_error', message: 'Overloaded' } },
+      ]),
+    )
+
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+
+    // The partial text before the error still streamed…
+    expect(events.find((e) => e.type === 'text')).toMatchObject({
+      type: 'text',
+      content: 'partial',
+    })
+
+    // …then a real error event is yielded with the overload-specific message.
+    const errorEvent = events.find((e) => e.type === 'error')
+    expect(errorEvent).toBeDefined()
+    expect(errorEvent!.message).toBe(
+      'AI service is temporarily overloaded. Please try again in a moment.',
+    )
+    expect(errorEvent!.errorKey).toBe('ai.error.apiError')
+
+    // Critically: NO misleading `done` after the error — otherwise the truncated
+    // turn reads as a successful completion and recovery never fires.
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+    // The error is the LAST event.
+    expect(events[events.length - 1].type).toBe('error')
+  })
+
+  it('a generic mid-stream `error` event (no overloaded/rate-limit type) yields the generic actionable message', async () => {
+    mockFetch.mockResolvedValue(
+      streamResponse([
+        { type: 'message_start', message: { usage: { input_tokens: 10 } } },
+        { type: 'error', error: { type: 'api_error', message: 'Internal server error' } },
+      ]),
+    )
+
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+
+    const errorEvent = events.find((e) => e.type === 'error')
+    expect(errorEvent).toBeDefined()
+    expect(errorEvent!.message).toBe('AI service error. Please try again.')
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+  })
 })
 
 describe('secret registration', () => {

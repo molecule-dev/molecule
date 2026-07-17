@@ -425,6 +425,7 @@ class MoonshotAIProvider implements AIProvider {
         for (const event of this.processSSELines(lines, pendingTools, state)) {
           yieldedContent = true
           yield event
+          if (event.type === 'error') return
         }
 
         // Signal liveness when the API sends data but no content events were produced
@@ -437,7 +438,10 @@ class MoonshotAIProvider implements AIProvider {
 
       // Flush any remaining data in the buffer after EOF
       if (buffer.trim()) {
-        yield* this.processSSELines(buffer.split('\n'), pendingTools, state)
+        for (const event of this.processSSELines(buffer.split('\n'), pendingTools, state)) {
+          yield event
+          if (event.type === 'error') return
+        }
       }
 
       // Emit any tool calls still pending after stream ends (safety net for missing finish_reason)
@@ -490,6 +494,31 @@ class MoonshotAIProvider implements AIProvider {
 
       try {
         const event = JSON.parse(json) as Record<string, unknown>
+
+        // A mid-stream error arrives as a `data: {"error": {...}}` chunk (no
+        // `choices`) — most importantly rate-limit/overload during high load.
+        // Without this it matches no branch below and is silently dropped, so the
+        // stream falls through to a misleading `done` and the truncated turn reads
+        // as a successful completion. Surface it as a real error event (also
+        // satisfies the no-silent-swallow rule).
+        const streamError = event.error as
+          | { message?: string; type?: string; code?: string }
+          | undefined
+        if (streamError) {
+          const detail = `${streamError.code ?? streamError.type ?? ''} ${streamError.message ?? ''}`
+          logger.error('Moonshot streaming error event', {
+            type: streamError.type,
+            code: streamError.code,
+            message: streamError.message,
+          })
+          const clientMessage = /overload|capacity|503|529/i.test(detail)
+            ? 'AI service is temporarily overloaded. Please try again in a moment.'
+            : /rate.?limit|429|quota/i.test(detail)
+              ? 'AI rate limit exceeded. Please try again shortly.'
+              : 'AI service error. Please try again.'
+          yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
+          continue
+        }
 
         // Usage info (may appear in the final chunk)
         const usage = event.usage as

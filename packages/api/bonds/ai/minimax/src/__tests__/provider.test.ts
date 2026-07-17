@@ -256,6 +256,50 @@ describe('chat()', () => {
     ])
   })
 
+  it('streaming: a mid-stream error chunk yields partial text then a real error, no done', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: ' + JSON.stringify({ choices: [{ delta: { content: 'partial' } }] }),
+        'data: ' +
+          JSON.stringify({
+            error: {
+              message: 'Rate limit reached',
+              type: 'rate_limit_error',
+              code: 'rate_limit_exceeded',
+            },
+          }),
+        'data: [DONE]',
+      ]),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const events: Array<{ type: string; content?: string; message?: string; errorKey?: string }> =
+      []
+    for await (const e of provider.chat({ messages: [{ role: 'user', content: 'h' }] })) {
+      events.push(e as (typeof events)[number])
+    }
+
+    // Partial content before the error is preserved.
+    const text = events
+      .filter((e) => e.type === 'text')
+      .map((e) => e.content)
+      .join('')
+    expect(text).toContain('partial')
+
+    // The dropped error is surfaced as a real error event with the rate-limit copy.
+    const err = events.find((e) => e.type === 'error')
+    expect(err).toEqual({
+      type: 'error',
+      message: 'AI rate limit exceeded. Please try again shortly.',
+      errorKey: 'ai.error.apiError',
+    })
+
+    // The truncated turn must NOT report as a successful completion.
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+    // And the error must be the terminal event.
+    expect(events[events.length - 1]).toBe(err)
+  })
+
   it('401 → "configuration error" without leaking upstream API key', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

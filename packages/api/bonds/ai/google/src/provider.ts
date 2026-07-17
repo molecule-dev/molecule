@@ -467,6 +467,12 @@ class GoogleAIProvider implements AIProvider {
         for (const event of this.processSSELines(lines, state)) {
           yielded = true
           yield event
+          // A mid-stream error (overload/rate-limit during high load, sent as a
+          // `data: {"error": {...}}` chunk) means the turn was truncated. Stop
+          // here and do NOT fall through to the trailing `done`, which would
+          // report the truncated turn as a successful completion and skip the
+          // consumer's overload/retry recovery.
+          if (event.type === 'error') return
         }
         // We received data from the API but it produced no ChatEvent — e.g. an
         // SSE comment/ping or an empty chunk. The connection is still alive, so
@@ -477,7 +483,10 @@ class GoogleAIProvider implements AIProvider {
 
       // Flush any remaining data in the buffer after EOF.
       if (buffer.trim()) {
-        yield* this.processSSELines(buffer.split('\n'), state)
+        for (const event of this.processSSELines(buffer.split('\n'), state)) {
+          yield event
+          if (event.type === 'error') return
+        }
       }
     } catch (error) {
       // A deliberate client abort / request timeout is not a provider failure:
@@ -516,6 +525,31 @@ class GoogleAIProvider implements AIProvider {
 
       try {
         const chunk = JSON.parse(json) as Record<string, unknown>
+        // Gemini can deliver a mid-stream error chunk shaped
+        // { error: { code, message, status } } (e.g. status "UNAVAILABLE" /
+        // "RESOURCE_EXHAUSTED" during high load) — it has no `candidates`, so
+        // without this it is silently dropped and the stream falls through to a
+        // misleading `done`, reporting a truncated turn as a successful
+        // completion. Surface it as a real error event (also satisfies the
+        // no-silent-swallow rule).
+        const streamError = chunk.error as
+          | { code?: number; message?: string; status?: string }
+          | undefined
+        if (streamError) {
+          const detail = `${streamError.status ?? ''} ${streamError.code ?? ''} ${streamError.message ?? ''}`
+          logger.error('Google AI streaming error event', {
+            code: streamError.code,
+            status: streamError.status,
+            message: streamError.message,
+          })
+          const clientMessage = /unavailable|overload|capacity|503|529/i.test(detail)
+            ? 'AI service is temporarily overloaded. Please try again in a moment.'
+            : /resource_exhausted|rate.?limit|429|quota/i.test(detail)
+              ? 'AI rate limit exceeded. Please try again shortly.'
+              : 'AI service error. Please try again.'
+          yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
+          continue
+        }
         const candidates = chunk.candidates as Array<Record<string, unknown>> | undefined
         for (const candidate of candidates ?? []) {
           const content = candidate.content as
