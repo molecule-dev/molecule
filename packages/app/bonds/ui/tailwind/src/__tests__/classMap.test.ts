@@ -599,6 +599,9 @@ describe('base.css @source inline safelist renders every cm.* dynamic value', ()
       ...HEIGHT.map((v) => classMap.h(v)),
       ...HEIGHT.map((v) => classMap.minH(v)),
       ...MAXW.map((v) => classMap.maxW(v)),
+      // cm.gridRows(rows) → grid-rows-{rows}; Tailwind's default grid-rows range is
+      // 1-6, which is exactly what the safelist covers.
+      ...[1, 2, 3, 4, 5, 6].map((v) => classMap.gridRows(v)),
     ]
       // Some resolvers (cm.stack) return a MULTI-class string — check each class.
       .flatMap((s) => s.split(/\s+/))
