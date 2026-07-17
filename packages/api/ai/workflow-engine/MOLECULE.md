@@ -18,7 +18,6 @@ const engine = createWorkflowEngine({
     'webhook.received': async (ctx) => ctx.payload,
   },
   actions: {
-    'http.post': async ({ url, body }) => fetch(String(url), { method: 'POST', body: JSON.stringify(body) }),
     'slack.message': async ({ channel, text }) => slackClient.chat.postMessage({ channel, text }),
   },
 })
@@ -28,6 +27,8 @@ const run = await engine.execute({
   triggerInput: { payload: req.body },
   steps: [
     { type: 'condition', expression: '$.event === "purchase"' },
+    // Native HTTP step — routed through the swappable `@molecule/api-http` core:
+    { type: 'http', method: 'POST', url: 'https://hooks.example.com/${$.id}', body: { amount: '${$.amount}' }, output: 'webhook' },
     { type: 'action', action: 'slack.message', params: { channel: '#sales', text: 'New sale: ${$.amount}' } },
   ],
 })
@@ -107,6 +108,45 @@ Configuration passed to `createWorkflowEngine` — trigger and action handler ma
 interface EngineOptions {
   triggers: Record<string, (ctx: Record<string, unknown>) => Promise<unknown> | unknown>
   actions: Record<string, (params: Record<string, unknown>) => Promise<unknown> | unknown>
+  /**
+   * Custom condition evaluator. When provided it fully replaces the built-in
+   * evaluators — neither the safe interpreter nor `new Function` is used. Plug
+   * in your own hardened/sandboxed expression engine here.
+   */
+  conditionEvaluator?: ConditionEvaluator
+  /**
+   * Opt in to evaluating `condition` expressions as full, UNSANDBOXED JavaScript
+   * via `new Function`. SECURITY: only enable for workflow definitions authored by
+   * TRUSTED developers/admins — never end-user input. Ignored when
+   * `conditionEvaluator` is supplied. Defaults to `false`, i.e. the safe,
+   * non-`new Function` interpreter ({@link safeEvaluateCondition}) is used.
+   */
+  allowUnsafeConditionEval?: boolean
+}
+```
+
+#### `HttpStep`
+
+A step that performs an outbound HTTP request via the swappable
+`@molecule/api-http` core (never a hardcoded fetch/axios). `${$.path}`
+templates in `url`, `headers`, `params`, and `body` are resolved against
+context before the request is sent.
+
+```typescript
+interface HttpStep {
+  type: 'http'
+  /** Request URL (supports `${$.path}` templates). */
+  url: string
+  /** HTTP method; defaults to `GET`. */
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS'
+  /** Request headers (values support `${$.path}` templates). */
+  headers?: Record<string, string>
+  /** Query parameters (values support `${$.path}` templates). */
+  params?: Record<string, string | number | boolean | undefined>
+  /** Request body — objects are JSON-encoded by the http core (supports templates). */
+  body?: unknown
+  /** Where to write `{ status, statusText, headers, data }` into the context. */
+  output?: string
 }
 ```
 
@@ -152,12 +192,21 @@ interface WorkflowRun {
 
 ### Types
 
+#### `ConditionEvaluator`
+
+Signature for a pluggable condition evaluator. Return `true` to let the run
+continue past the `condition` step, `false` to short-circuit it.
+
+```typescript
+type ConditionEvaluator = (expression: string, context: Record<string, unknown>) => boolean
+```
+
 #### `WorkflowStep`
 
 Discriminated union of all step types that a workflow definition may contain.
 
 ```typescript
-type WorkflowStep = ConditionStep | ActionStep | DelayStep | AIPromptStep
+type WorkflowStep = ConditionStep | ActionStep | DelayStep | AIPromptStep | HttpStep
 ```
 
 #### `WorkflowStepType`
@@ -178,6 +227,42 @@ Creates a `WorkflowEngine` instance wired with the provided trigger and action h
 function createWorkflowEngine(opts: EngineOptions): WorkflowEngine
 ```
 
+#### `safeEvaluateCondition(expression, context)`
+
+Safely evaluates a workflow condition expression WITHOUT `new Function`/`eval`.
+
+Supports member access against the context (`$.a.b`, `$.list[0]`), comparisons,
+boolean logic, unary `!`/`-`, grouping, and literals. Function calls,
+assignments, and arbitrary JavaScript are unsupported — such an expression is
+unparseable and evaluates to `false` rather than executing. An unparseable or
+throwing expression counts as a non-matching condition.
+
+```typescript
+function safeEvaluateCondition(expression: string, context: Record<string, unknown>): boolean
+```
+
+- `expression` — The condition expression to evaluate.
+- `context` — The workflow context (bound to `$`).
+
+**Returns:** `true` if the expression is truthy, otherwise `false`.
+
+#### `unsafeEvaluateCondition(expression, context)`
+
+UNSAFE: evaluates a workflow condition expression as full, unsandboxed
+JavaScript via `new Function`. This is arbitrary code execution in the API
+process — only run expressions authored by TRUSTED developers/admins, NEVER
+end-user input. Opt in explicitly via `EngineOptions.allowUnsafeConditionEval`;
+it is never the default. A throwing or unparseable expression counts as `false`.
+
+```typescript
+function unsafeEvaluateCondition(expression: string, context: Record<string, unknown>): boolean
+```
+
+- `expression` — The condition expression to evaluate as JavaScript.
+- `context` — The workflow context (bound to `$`).
+
+**Returns:** `true` if the expression is truthy, otherwise `false`.
+
 ## Injection Notes
 
 ### Requirements
@@ -190,6 +275,7 @@ Peer dependencies:
 - `express` ^5.0.0
 - `zod` ^4.0.0
 - `@molecule/api-ai` ^1.0.0
+- `@molecule/api-http` ^1.0.0
 
 ### Runtime Dependencies
 
@@ -201,17 +287,28 @@ Peer dependencies:
 - `express`
 - `zod`
 
-SECURITY: `condition` steps evaluate `expression` with `new Function` in the
-API process — full, unsandboxed JavaScript with no allowlist. Treat workflow
-definitions as TRUSTED code (authored by developers/admins). Never execute
-definitions assembled from end-user input without your own sandboxing. An
-expression that throws or fails to parse counts as `false` — the run
-short-circuits with `ok: true` (a skipped run, not a failure).
+SECURITY — `condition` step evaluation is SAFE BY DEFAULT. Expressions are run
+through a small built-in interpreter ({@link safeEvaluateCondition}) that
+supports member access, comparisons, boolean logic and literals but does NOT
+use `new Function`/`eval`, cannot call functions or assign, and blocks
+`__proto__`/`constructor`/`prototype` — so a malicious expression cannot
+execute arbitrary code. Full unsandboxed JavaScript (`new Function`) is
+OPT-IN only via `EngineOptions.allowUnsafeConditionEval: true` — enable it
+ONLY for workflow definitions authored by TRUSTED developers/admins, never
+from end-user input. You may also supply your own `EngineOptions.conditionEvaluator`
+(e.g. a hardened sandbox), which replaces both built-ins. An expression that
+throws or fails to parse counts as `false` — the run short-circuits with
+`ok: true` (a skipped run, not a failure).
 
-The `'http'` member of `WorkflowStepType` is a reserved discriminant with NO
-executor: an `{ type: 'http' }` step is silently skipped (it does not even
-appear in `trace`). Make HTTP calls via a registered action instead — see
-the `http.post` action in the example.
+`'http'` steps ARE executed: the request is sent through the swappable
+`@molecule/api-http` core (bond `@molecule/api-http-axios` etc. to change the
+client — the engine hardcodes no HTTP library). `${$.path}` templates in
+`url`/`headers`/`params`/`body` are resolved against context, the
+`{ status, statusText, headers, data }` response is written to `output`, and a
+trace entry is recorded. A non-2xx response (the http core throws an
+`HttpError`) yields an `errored` trace entry and halts the run — never a
+silent skip. Registering an `http.*` action still works too, if you want a
+fully custom HTTP path. SSRF caution: validate any user-influenced `url`.
 
 Only `ai_prompt` steps need a bonded `ai` provider (`@molecule/api-ai`);
 with none bonded that step errors and the run returns `ok: false` with the

@@ -16,7 +16,6 @@
  *     'webhook.received': async (ctx) => ctx.payload,
  *   },
  *   actions: {
- *     'http.post': async ({ url, body }) => fetch(String(url), { method: 'POST', body: JSON.stringify(body) }),
  *     'slack.message': async ({ channel, text }) => slackClient.chat.postMessage({ channel, text }),
  *   },
  * })
@@ -26,23 +25,36 @@
  *   triggerInput: { payload: req.body },
  *   steps: [
  *     { type: 'condition', expression: '$.event === "purchase"' },
+ *     // Native HTTP step — routed through the swappable `@molecule/api-http` core:
+ *     { type: 'http', method: 'POST', url: 'https://hooks.example.com/${$.id}', body: { amount: '${$.amount}' }, output: 'webhook' },
  *     { type: 'action', action: 'slack.message', params: { channel: '#sales', text: 'New sale: ${$.amount}' } },
  *   ],
  * })
  * ```
  *
  * @remarks
- * SECURITY: `condition` steps evaluate `expression` with `new Function` in the
- * API process — full, unsandboxed JavaScript with no allowlist. Treat workflow
- * definitions as TRUSTED code (authored by developers/admins). Never execute
- * definitions assembled from end-user input without your own sandboxing. An
- * expression that throws or fails to parse counts as `false` — the run
- * short-circuits with `ok: true` (a skipped run, not a failure).
+ * SECURITY — `condition` step evaluation is SAFE BY DEFAULT. Expressions are run
+ * through a small built-in interpreter ({@link safeEvaluateCondition}) that
+ * supports member access, comparisons, boolean logic and literals but does NOT
+ * use `new Function`/`eval`, cannot call functions or assign, and blocks
+ * `__proto__`/`constructor`/`prototype` — so a malicious expression cannot
+ * execute arbitrary code. Full unsandboxed JavaScript (`new Function`) is
+ * OPT-IN only via `EngineOptions.allowUnsafeConditionEval: true` — enable it
+ * ONLY for workflow definitions authored by TRUSTED developers/admins, never
+ * from end-user input. You may also supply your own `EngineOptions.conditionEvaluator`
+ * (e.g. a hardened sandbox), which replaces both built-ins. An expression that
+ * throws or fails to parse counts as `false` — the run short-circuits with
+ * `ok: true` (a skipped run, not a failure).
  *
- * The `'http'` member of `WorkflowStepType` is a reserved discriminant with NO
- * executor: an `{ type: 'http' }` step is silently skipped (it does not even
- * appear in `trace`). Make HTTP calls via a registered action instead — see
- * the `http.post` action in the example.
+ * `'http'` steps ARE executed: the request is sent through the swappable
+ * `@molecule/api-http` core (bond `@molecule/api-http-axios` etc. to change the
+ * client — the engine hardcodes no HTTP library). `${$.path}` templates in
+ * `url`/`headers`/`params`/`body` are resolved against context, the
+ * `{ status, statusText, headers, data }` response is written to `output`, and a
+ * trace entry is recorded. A non-2xx response (the http core throws an
+ * `HttpError`) yields an `errored` trace entry and halts the run — never a
+ * silent skip. Registering an `http.*` action still works too, if you want a
+ * fully custom HTTP path. SSRF caution: validate any user-influenced `url`.
  *
  * Only `ai_prompt` steps need a bonded `ai` provider (`@molecule/api-ai`);
  * with none bonded that step errors and the run returns `ok: false` with the
@@ -52,8 +64,17 @@
  */
 
 import { hasProvider as hasAI, requireProvider as requireAI } from '@molecule/api-ai'
+import type { HttpRequestOptions } from '@molecule/api-http'
+import { request as httpRequest } from '@molecule/api-http'
+
+import {
+  type ConditionEvaluator,
+  safeEvaluateCondition,
+  unsafeEvaluateCondition,
+} from './safe-evaluator.js'
 
 export * from './browser-guard.js'
+export * from './safe-evaluator.js'
 
 /** Union of all supported step type discriminants. */
 export type WorkflowStepType = 'condition' | 'action' | 'delay' | 'http' | 'ai_prompt'
@@ -91,8 +112,30 @@ export interface AIPromptStep {
   output: string
 }
 
+/**
+ * A step that performs an outbound HTTP request via the swappable
+ * `@molecule/api-http` core (never a hardcoded fetch/axios). `${$.path}`
+ * templates in `url`, `headers`, `params`, and `body` are resolved against
+ * context before the request is sent.
+ */
+export interface HttpStep {
+  type: 'http'
+  /** Request URL (supports `${$.path}` templates). */
+  url: string
+  /** HTTP method; defaults to `GET`. */
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS'
+  /** Request headers (values support `${$.path}` templates). */
+  headers?: Record<string, string>
+  /** Query parameters (values support `${$.path}` templates). */
+  params?: Record<string, string | number | boolean | undefined>
+  /** Request body — objects are JSON-encoded by the http core (supports templates). */
+  body?: unknown
+  /** Where to write `{ status, statusText, headers, data }` into the context. */
+  output?: string
+}
+
 /** Discriminated union of all step types that a workflow definition may contain. */
-export type WorkflowStep = ConditionStep | ActionStep | DelayStep | AIPromptStep
+export type WorkflowStep = ConditionStep | ActionStep | DelayStep | AIPromptStep | HttpStep
 
 /** Describes a complete workflow: which trigger fires it and what steps to run. */
 export interface WorkflowDefinition {
@@ -123,17 +166,20 @@ export interface WorkflowEngine {
 export interface EngineOptions {
   triggers: Record<string, (ctx: Record<string, unknown>) => Promise<unknown> | unknown>
   actions: Record<string, (params: Record<string, unknown>) => Promise<unknown> | unknown>
-}
-
-/** Evaluates a JS expression string against the workflow context, returning false on syntax or runtime errors. */
-function evaluateExpression(expr: string, ctx: Record<string, unknown>): boolean {
-  try {
-    const fn = new Function('$', `return (${expr})`)
-    return Boolean(fn(ctx))
-  } catch (_error) {
-    // An unparseable or throwing expression counts as a non-matching condition — safe to suppress.
-    return false
-  }
+  /**
+   * Custom condition evaluator. When provided it fully replaces the built-in
+   * evaluators — neither the safe interpreter nor `new Function` is used. Plug
+   * in your own hardened/sandboxed expression engine here.
+   */
+  conditionEvaluator?: ConditionEvaluator
+  /**
+   * Opt in to evaluating `condition` expressions as full, UNSANDBOXED JavaScript
+   * via `new Function`. SECURITY: only enable for workflow definitions authored by
+   * TRUSTED developers/admins — never end-user input. Ignored when
+   * `conditionEvaluator` is supplied. Defaults to `false`, i.e. the safe,
+   * non-`new Function` interpreter ({@link safeEvaluateCondition}) is used.
+   */
+  allowUnsafeConditionEval?: boolean
 }
 
 /** Recursively replaces `${$.path}` placeholders in strings (and nested structures) with values from context. */
@@ -173,6 +219,12 @@ function setContextPath(ctx: Record<string, unknown>, path: string, value: unkno
 
 /** Creates a `WorkflowEngine` instance wired with the provided trigger and action handlers. */
 export function createWorkflowEngine(opts: EngineOptions): WorkflowEngine {
+  // Resolve the condition evaluator ONCE: an explicit custom evaluator wins;
+  // otherwise `new Function` only when explicitly opted into; safe by default.
+  const evaluateCondition: ConditionEvaluator =
+    opts.conditionEvaluator ??
+    (opts.allowUnsafeConditionEval ? unsafeEvaluateCondition : safeEvaluateCondition)
+
   return {
     async execute(def) {
       const triggerFn = opts.triggers[def.trigger]
@@ -216,7 +268,7 @@ export function createWorkflowEngine(opts: EngineOptions): WorkflowEngine {
         const step = def.steps[i]
         try {
           if (step.type === 'condition') {
-            const ok = evaluateExpression(step.expression, ctx)
+            const ok = evaluateCondition(step.expression, ctx)
             trace.push({ index: i, type: step.type, outcome: ok ? 'executed' : 'skipped' })
             if (!ok) return { ok: true, context: ctx, trace }
           } else if (step.type === 'delay') {
@@ -228,6 +280,30 @@ export function createWorkflowEngine(opts: EngineOptions): WorkflowEngine {
             const params = resolveTemplates(step.params ?? {}, ctx) as Record<string, unknown>
             const result = await action(params)
             if (step.output) setContextPath(ctx, step.output, result)
+            trace.push({ index: i, type: step.type, outcome: 'executed' })
+          } else if (step.type === 'http') {
+            const url = resolveTemplates(step.url, ctx) as string
+            const options: HttpRequestOptions = { method: step.method ?? 'GET' }
+            if (step.headers) {
+              options.headers = resolveTemplates(step.headers, ctx) as Record<string, string>
+            }
+            if (step.params) {
+              options.params = resolveTemplates(step.params, ctx) as HttpRequestOptions['params']
+            }
+            if (step.body !== undefined) {
+              options.body = resolveTemplates(step.body, ctx)
+            }
+            // Non-2xx responses throw an HttpError here → caught below → `errored`
+            // trace entry (never a silent skip).
+            const res = await httpRequest(url, options)
+            if (step.output) {
+              setContextPath(ctx, step.output, {
+                status: res.status,
+                statusText: res.statusText,
+                headers: res.headers,
+                data: res.data,
+              })
+            }
             trace.push({ index: i, type: step.type, outcome: 'executed' })
           } else if (step.type === 'ai_prompt') {
             if (!hasAI()) throw new Error('No AI provider bonded — ai_prompt step requires one')
@@ -242,6 +318,13 @@ export function createWorkflowEngine(opts: EngineOptions): WorkflowEngine {
             }
             setContextPath(ctx, step.output, answer)
             trace.push({ index: i, type: step.type, outcome: 'executed' })
+          } else {
+            // Exhaustiveness guard: every WorkflowStepType MUST have an executor.
+            // `never` makes an unhandled type a compile error; the runtime throw
+            // means an out-of-union step (e.g. via a cast) errors explicitly and
+            // is recorded in the trace — never silently dropped.
+            const unhandled: never = step
+            throw new Error(`Unsupported step type: ${(unhandled as { type: string }).type}`)
           }
         } catch (err) {
           trace.push({

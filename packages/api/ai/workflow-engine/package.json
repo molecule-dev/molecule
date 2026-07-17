@@ -28,6 +28,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@molecule/api-http": "1.0.0",
     "@types/express": "5.0.6",
     "@types/node": "25.9.2",
     "express": "5.2.1",
@@ -42,6 +43,7 @@
     "@molecule/api-middleware-validation": "^1.0.0",
     "express": "^5.0.0",
     "zod": "^4.0.0",
-    "@molecule/api-ai": "^1.0.0"
+    "@molecule/api-ai": "^1.0.0",
+    "@molecule/api-http": "^1.0.0"
   }
 }
