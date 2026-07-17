@@ -110,9 +110,12 @@ export function Stepper({
             <button
               key={s.id}
               type="button"
+              data-mol-id={`stepper-step-${s.id}`}
               onClick={st === 'completed' && onStepClick ? () => onStepClick(s.id, i) : undefined}
               aria-current={st === 'current' ? 'step' : undefined}
-              disabled={!onStepClick || st === 'pending'}
+              // Doc contract: in `cards` only completed steps are clickable,
+              // every other step renders disabled.
+              disabled={!onStepClick || st !== 'completed'}
               className={cm.cn(cm.flex1, cm.sp('p', 3), cm.stack(1 as const))}
             >
               <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>
@@ -147,7 +150,11 @@ export function Stepper({
           >
             <button
               type="button"
+              data-mol-id={`stepper-step-${s.id}`}
+              // Doc contract: in `dots` the handler fires for ANY step.
+              // With no handler the dot is a non-interactive indicator.
               onClick={onStepClick ? () => onStepClick(s.id, i) : undefined}
+              disabled={!onStepClick}
               aria-current={st === 'current' ? 'step' : undefined}
               className={cm.cn(
                 cm.w(8),
