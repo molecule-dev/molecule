@@ -372,6 +372,184 @@ describe('createBillingRoutes', () => {
     })
   })
 
+  describe('GET /billing/tiers', () => {
+    it('is public (no auth) and returns one derived entry per TierDef', async () => {
+      const router = createBillingRoutes({ tiers, provider: buildProvider() })
+      const app = buildApp(router, null)
+
+      const res = await request<{
+        data: Array<{
+          key: string
+          name: string
+          prices: Array<{ period: string; price: string; stripePriceId: string | null }>
+          limits: Record<string, unknown>
+        }>
+      }>(app, 'GET', '/billing/tiers')
+
+      expect(res.status).toBe(200)
+      expect(res.body.data.map((tier) => tier.key)).toEqual(['free', 'pro_monthly', 'pro_yearly'])
+      // Every entry carries the frontend-required fields.
+      for (const entry of res.body.data) {
+        expect(typeof entry.name).toBe('string')
+        expect(Array.isArray(entry.prices)).toBe(true)
+        expect(entry.limits).toBeDefined()
+      }
+    })
+
+    it('derives period, display price, and stripePriceId from each TierDef', async () => {
+      const router = createBillingRoutes({ tiers, provider: buildProvider() })
+      const app = buildApp(router)
+
+      const res = await request<{
+        data: Array<{
+          key: string
+          prices: Array<{ period: string; price: string; stripePriceId: string | null }>
+        }>
+      }>(app, 'GET', '/billing/tiers')
+
+      const byKey = Object.fromEntries(res.body.data.map((tier) => [tier.key, tier]))
+      expect(byKey.free.prices).toEqual([{ period: 'month', price: '$0', stripePriceId: null }])
+      expect(byKey.pro_monthly.prices).toEqual([
+        { period: 'month', price: '$12/mo', stripePriceId: 'price_pro_monthly' },
+      ])
+      expect(byKey.pro_yearly.prices).toEqual([
+        { period: 'year', price: '$120/yr', stripePriceId: 'price_pro_yearly' },
+      ])
+    })
+
+    it('honors a custom formatPrice on the derive path', async () => {
+      const formatPrice = vi.fn(
+        (amountMinor: number, period: 'month' | 'year') => `${amountMinor}${period[0]}`,
+      )
+      const router = createBillingRoutes({ tiers, provider: buildProvider(), formatPrice })
+      const app = buildApp(router)
+
+      const res = await request<{ data: Array<{ key: string; prices: Array<{ price: string }> }> }>(
+        app,
+        'GET',
+        '/billing/tiers',
+      )
+
+      const proMonthly = res.body.data.find((tier) => tier.key === 'pro_monthly')
+      expect(proMonthly?.prices[0].price).toBe('1200m')
+      expect(formatPrice).toHaveBeenCalled()
+    })
+
+    it('serves options.getPricingTiers() verbatim when supplied', async () => {
+      const rich = [
+        {
+          key: 'free',
+          name: 'Free',
+          prices: [{ period: 'month' as const, price: '$0', stripePriceId: null }],
+          limits: { maxProjects: 1 },
+        },
+        {
+          key: 'pro',
+          name: 'Pro',
+          perSeat: true,
+          prices: [
+            { period: 'month' as const, price: '$19/mo', stripePriceId: 'price_month' },
+            {
+              period: 'year' as const,
+              price: '$190/yr',
+              stripePriceId: 'price_year',
+              savings: '2 months free',
+            },
+          ],
+          limits: { maxProjects: 999 },
+        },
+      ]
+      const router = createBillingRoutes<{ maxProjects: number }>({
+        tiers: defineTiers([{ id: 'free', name: 'Free', features: [] }]),
+        provider: buildProvider(),
+        getPricingTiers: () => rich,
+      })
+      const app = buildApp(router)
+
+      const res = await request<{ data: typeof rich }>(app, 'GET', '/billing/tiers')
+      expect(res.status).toBe(200)
+      expect(res.body.data).toEqual(rich)
+    })
+  })
+
+  describe('GET /billing/status', () => {
+    it('returns 401 when no session is present', async () => {
+      const router = createBillingRoutes({ tiers, provider: buildProvider() })
+      const app = buildApp(router, null)
+
+      const res = await request<{ code: string }>(app, 'GET', '/billing/status')
+      expect(res.status).toBe(401)
+      expect(res.body.code).toBe('auth.unauthorized')
+    })
+
+    it('returns the default (first/free) tier snapshot when no resolveStatus is configured', async () => {
+      const router = createBillingRoutes({ tiers, provider: buildProvider() })
+      const app = buildApp(router)
+
+      const res = await request<{
+        planKey: string
+        category: string
+        name: string
+        limits: Record<string, unknown>
+        isFree: boolean
+      }>(app, 'GET', '/billing/status')
+
+      expect(res.status).toBe(200)
+      expect(res.body).toEqual({
+        planKey: 'free',
+        category: 'free',
+        name: 'Free',
+        limits: {},
+        isFree: true,
+      })
+    })
+
+    it('uses resolveStatus for the authenticated user when supplied', async () => {
+      const resolveStatus = vi.fn().mockResolvedValue({
+        planKey: 'pro_monthly',
+        category: 'pro',
+        name: 'Pro Monthly',
+        limits: { maxProjects: 999 },
+        isFree: false,
+      })
+      const router = createBillingRoutes({ tiers, provider: buildProvider(), resolveStatus })
+      const app = buildApp(router)
+
+      const res = await request<{ planKey: string; category: string; isFree: boolean }>(
+        app,
+        'GET',
+        '/billing/status',
+      )
+
+      expect(res.status).toBe(200)
+      expect(res.body.planKey).toBe('pro_monthly')
+      expect(res.body.category).toBe('pro')
+      expect(res.body.isFree).toBe(false)
+      expect(resolveStatus).toHaveBeenCalledWith('user_42', expect.anything(), expect.anything())
+    })
+
+    it('falls back to the default snapshot when resolveStatus returns null', async () => {
+      const resolveStatus = vi.fn().mockResolvedValue(null)
+      const router = createBillingRoutes({ tiers, provider: buildProvider(), resolveStatus })
+      const app = buildApp(router)
+
+      const res = await request<{ planKey: string; isFree: boolean }>(app, 'GET', '/billing/status')
+      expect(res.status).toBe(200)
+      expect(res.body.planKey).toBe('free')
+      expect(res.body.isFree).toBe(true)
+    })
+
+    it('returns 502 when resolveStatus throws', async () => {
+      const resolveStatus = vi.fn().mockRejectedValue(new Error('boom'))
+      const router = createBillingRoutes({ tiers, provider: buildProvider(), resolveStatus })
+      const app = buildApp(router)
+
+      const res = await request<{ code: string }>(app, 'GET', '/billing/status')
+      expect(res.status).toBe(502)
+      expect(res.body.code).toBe('billing.statusFailed')
+    })
+  })
+
   describe('provider resolution', () => {
     it('uses the bonded payments provider when none is injected', async () => {
       const cancelSubscription = vi.fn().mockResolvedValue(true)

@@ -2,9 +2,13 @@
 
 Drop-in `/billing/*` Express routes + `defineTiers()` helper for molecule.dev.
 
-Replaces the near-identical `routes/billing.ts` boilerplate every paid
-flagship currently ships. Wires to `@molecule/api-payments-stripe` (or any
-compatible `PaymentProvider` + `createPortalSession`) via the bond system.
+Serves the COMPLETE `/billing/*` contract `@molecule/app-billing-react`
+consumes — `GET /tiers`, `GET /status`, `POST /checkout`, `POST /cancel`
+(plus an optional `POST /portal`) — so `<PricingPage />`,
+`<BillingStatusBadge />`, `usePricingTiers()`, and `useBillingStatus()` work
+against it with no gaps. Replaces the near-identical `routes/billing.ts`
+boilerplate every paid flagship ships. Wires to `@molecule/api-payments-stripe`
+(or any compatible `PaymentProvider` + `createPortalSession`) via the bond system.
 
 ## Quick Start
 
@@ -22,7 +26,7 @@ const tiers = defineTiers([
   },
 ])
 
-// mount under /api so the app-side fetches to /api/billing/* line up
+// Mount under /api/billing so the app-side fetches to /api/billing/* line up.
 app.use('/api/billing', createBillingRoutes({ tiers }))
 ```
 
@@ -98,10 +102,57 @@ interface BillingRoutesOptions<
    */
   resolveUserId?: AuthResolver
   /**
+   * Optional override that returns the public pricing table in the frontend's
+   * `PricingTierEntry` shape. When omitted, `GET /tiers` derives one entry per
+   * configured `TierDef`. Supply this to serve a richer catalogue (multiple
+   * period variants per tier, `savings` tags, `perSeat`) — it is also the hook
+   * `@molecule/api-bonds-default-express` uses to delegate its `/tiers` here.
+   */
+  getPricingTiers?: () => ReadonlyArray<PricingTierEntry<TLimits>>
+  /**
+   * Optional formatter turning a `TierDef` price (smallest currency unit) into
+   * the display string `GET /tiers` emits. Defaults to a USD formatter
+   * (`$12/mo`, `$120/yr`, `$0`). Only used by the derive path — ignored when
+   * `getPricingTiers` is supplied.
+   */
+  formatPrice?: PriceFormatter
+  /**
+   * Resolves the authenticated user's current billing status for `GET /status`.
+   * Injectable so the routes stay decoupled from any specific entitlements
+   * store. When omitted (or when it returns `null`), `GET /status` returns the
+   * default (first / free) tier snapshot for any authenticated user.
+   */
+  resolveStatus?: BillingStatusResolver<TLimits>
+  /**
    * Optional override for `SubscriptionUpdateResult` shape used in tests.
    * @internal
    */
   __subscriptionUpdateResult?: SubscriptionUpdateResult
+}
+```
+
+#### `BillingStatusResponse`
+
+Snapshot of the signed-in user's current billing state, returned by
+`GET /status`.
+
+Mirrors `@molecule/app-billing-react`'s `BillingStatus` — the same shape
+`@molecule/api-bonds-default-express`'s `createBillingRouter` emits from
+`@molecule/api-entitlements`'s `getEffectiveTier`, so the two are drop-in
+interchangeable for the frontend.
+
+```typescript
+interface BillingStatusResponse<TLimits = unknown> {
+  /** The user's `users.planKey` (`'free'`, `'stripeMonthly'`, etc.). */
+  planKey: string
+  /** Tier category — `'free'`, `'pro'`, `'team'`, or any app-defined extension. */
+  category: string
+  /** Display name (matches the active tier's `PricingTierEntry.name`). */
+  name: string
+  /** Tier-specific limits the user is currently entitled to. */
+  limits: TLimits
+  /** True when the user is on the default (free) tier. */
+  isFree: boolean
 }
 ```
 
@@ -115,6 +166,69 @@ interface PortalSessionResult {
   id: string
   /** The URL to redirect the user to. */
   url: string
+}
+```
+
+#### `PricingPrice`
+
+One billing-period price row in the public pricing table.
+
+Mirrors `@molecule/app-billing-react`'s `PricingTierPrice` — the shape the
+`<PricingPage />` / `usePricingTiers()` frontend consumes verbatim. Kept as a
+local re-declaration because API packages must not import `@molecule/app-*`
+(cross-stack boundary), so the contract is asserted structurally on both sides.
+
+```typescript
+interface PricingPrice {
+  /** Billing cadence. */
+  period: 'month' | 'year'
+  /** Display string (e.g. `'$19/mo'`, `'$190/yr'`, `'$0'`). */
+  price: string
+  /**
+   * Stripe Price ID used as the checkout line item. `null` for the free tier
+   * (and during local dev when the price-id env vars are unset).
+   */
+  stripePriceId: string | null
+  /** Optional savings tag on yearly variants (e.g. `'2 months free'`). */
+  savings?: string
+}
+```
+
+#### `PricingTierEntry`
+
+One row of the public pricing table returned by `GET /tiers`.
+
+Mirrors `@molecule/app-billing-react`'s `PricingTierEntry`. When the derive
+path is used, each `TierDef` maps to exactly one entry with a single price
+(the `TierDef` model treats each billing period as its own tier). Supply
+`getPricingTiers` in the options to serve a richer catalogue instead.
+
+```typescript
+interface PricingTierEntry<TLimits = unknown> {
+  /** Stable slug used as the row key (matches the source `TierDef.id`). */
+  key: string
+  /** Display name shown in the page heading and CTA. */
+  name: string
+  /** Price variants for the tier. Presentation order. */
+  prices: PricingPrice[]
+  /** Tier-specific limits rendered on the comparison row. */
+  limits: TLimits
+  /** Whether the tier is billed per seat (rendered as a footnote). */
+  perSeat?: boolean
+}
+```
+
+#### `PricingTiersResponse`
+
+Response envelope for `GET /tiers`.
+
+Mirrors `@molecule/app-billing-react`'s `PricingTiersResponse` — the frontend
+reads `data` directly, so the envelope key must be `data`.
+
+```typescript
+interface PricingTiersResponse<TLimits = unknown> {
+  /** Tiers ordered as declared (typically free → pro → team). */
+  data: PricingTierEntry<TLimits>[]
 }
 ```
 
@@ -174,13 +288,51 @@ Result of resolving the authenticated user from a request.
 type AuthResolver = (req: unknown, res: unknown) => string | null | Promise<string | null>
 ```
 
+#### `BillingStatusResolver`
+
+Resolves the authenticated user's current billing status for `GET /status`.
+
+Kept injectable so this package stays decoupled from any specific
+entitlements / tier store: flagship apps pass a resolver backed by
+`@molecule/api-entitlements`'s `getEffectiveTier`. Returning `null` (or not
+supplying a resolver at all) makes `GET /status` fall back to the default
+(first / free) tier snapshot derived from the configured tiers.
+
+```typescript
+type BillingStatusResolver<TLimits = unknown> = (
+  userId: string,
+  req: unknown,
+  res: unknown,
+) => BillingStatusResponse<TLimits> | null | Promise<BillingStatusResponse<TLimits> | null>
+```
+
+#### `PriceFormatter`
+
+Formats a price expressed in the smallest currency unit (e.g. cents) into
+the display string `GET /tiers` emits for a `PricingPrice`.
+
+```typescript
+type PriceFormatter = (amountMinor: number, period: 'month' | 'year') => string
+```
+
 ### Functions
 
 #### `createBillingRoutes(options)`
 
-Creates a drop-in Express `Router` exposing the standard billing routes.
+Creates a drop-in Express `Router` exposing the standard billing routes —
+the exact `/billing/*` contract `@molecule/app-billing-react`
+(`usePricingTiers` / `useBillingStatus` / `<PricingPage />` /
+`<BillingStatusBadge />`) consumes.
 
 Mounted routes:
+- `GET /tiers` — public pricing table. Returns
+  `{ data: PricingTierEntry[] }`. Derives one entry per configured `TierDef`
+  by default, or serves `options.getPricingTiers()` verbatim when supplied.
+  No auth.
+- `GET /status` — the signed-in user's current tier snapshot
+  `{ planKey, category, name, limits, isFree }`. Returns 401 when
+  unauthenticated. Uses `options.resolveStatus` when supplied; otherwise
+  returns the default (first / free) tier snapshot.
 - `POST /checkout` — body `{ priceId: string }`. Calls
   `provider.updateSubscription({ userId, newProductId: priceId })`. Returns
   `{ checkoutUrl }` for new subscriptions or `{ updated, subscription }`
@@ -192,14 +344,16 @@ Mounted routes:
   `{ url }`. Returns 501 if the bonded provider does not implement portal
   sessions.
 
-The router is NOT mounted under any prefix — callers wire it via
-`app.use('/billing', createBillingRoutes(...))`.
+The router is NOT mounted under any prefix — callers wire it under `/billing`
+so the app-facing paths are `/api/billing/*`, e.g.
+`app.use('/api/billing', createBillingRoutes(...))`. (The scaffolded Vite dev
+proxy forwards `/api` without rewriting, so the mount must include it.)
 
 ```typescript
 function createBillingRoutes(options: BillingRoutesOptions<TLimits>): ExpressRouter
 ```
 
-- `options` — Tier accessors plus optional provider/auth overrides.
+- `options` — Tier accessors plus optional provider/auth/pricing/status overrides.
 
 **Returns:** An Express `Router` ready to be mounted.
 
@@ -255,13 +409,14 @@ Peer dependencies:
 
 - The package looks up `bond('payments', 'stripe')` by default; pass
   `provider` or `providerName` to override.
-- Routes served: `POST /checkout`, `POST /cancel`, `POST /portal` — and
-  nothing else. The React pricing/billing components
-  (`@molecule/app-billing-react`) also expect `GET /api/billing/tiers` and
-  `GET /api/billing/status`; either add those two reads yourself (serve
-  `tiers.getPricingTiers()` and your subscription lookup), or use the
-  entitlements-integrated `createBillingRouter` from
-  `@molecule/api-bonds-default-express`, which serves all four paths.
+- Routes served: `GET /tiers`, `GET /status`, `POST /checkout`,
+  `POST /cancel`, `POST /portal`. `GET /tiers` returns
+  `{ data: PricingTierEntry[] }` — derived one-per-`TierDef` by default, or
+  `options.getPricingTiers()` verbatim for a richer catalogue. `GET /status`
+  returns `{ planKey, category, name, limits, isFree }` — pass
+  `options.resolveStatus` (e.g. backed by `@molecule/api-entitlements`'s
+  `getEffectiveTier`) to report the user's real plan; without it the default
+  free-tier snapshot is returned for any authenticated user.
 - Mount so the resulting app-facing paths are `/api/billing/...` — the
   scaffolded Vite dev proxy forwards `/api` WITHOUT rewriting.
 - Naming: `@molecule/api-entitlements` exports a DIFFERENT `defineTiers`

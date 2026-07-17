@@ -1,11 +1,13 @@
 /**
  * Express billing routes for molecule.dev.
  *
- * Mounts `POST /billing/checkout`, `POST /billing/cancel`, and
- * `POST /billing/portal` against the bonded `payments` provider (Stripe by
- * default). Each route is authenticated via the supplied `resolveUserId`
- * resolver and validates that requested price IDs come from the configured
- * tier set.
+ * Mounts the full `/billing/*` contract `@molecule/app-billing-react` expects:
+ * `GET /tiers`, `GET /status`, `POST /checkout`, `POST /cancel`, and
+ * `POST /portal`. The writes (checkout/cancel/portal) run against the bonded
+ * `payments` provider (Stripe by default); the reads (tiers/status) serve the
+ * configured tiers and the resolved user status. Authenticated routes use the
+ * supplied `resolveUserId` resolver, and checkout validates that requested
+ * price IDs come from the configured tier set.
  *
  * Error bodies follow the `BillingErrorBody` shape — `{ code, message }` with
  * stable English fallbacks. Apps that need localization can wrap the router
@@ -24,10 +26,66 @@ import { type Request, type Response, type Router as ExpressRouter, Router } fro
 import { get as bondGet } from '@molecule/api-bond'
 import { logger } from '@molecule/api-logger'
 
-import type { BillingErrorBody, BillingProvider, BillingRoutesOptions } from './types.js'
+import type {
+  BillingErrorBody,
+  BillingProvider,
+  BillingRoutesOptions,
+  BillingStatusResponse,
+  PriceFormatter,
+  PricingTierEntry,
+  PricingTiersResponse,
+  TierDef,
+} from './types.js'
 
 /** Default bond name used when `options.providerName` is not supplied. */
 const DEFAULT_PROVIDER_NAME = 'stripe'
+
+/**
+ * Default price formatter — renders a smallest-currency-unit amount as a USD
+ * display string with a per-period suffix. Free ($0) prices drop the suffix.
+ * Apps in other currencies/locales pass `formatPrice` to override.
+ *
+ * @param amountMinor - Price in the smallest currency unit (e.g. `1200` = $12.00).
+ * @param period - The billing cadence the amount is for.
+ * @returns A display string (e.g. `'$12/mo'`, `'$120/yr'`, `'$0'`).
+ */
+const defaultFormatPrice: PriceFormatter = (amountMinor, period): string => {
+  const major = amountMinor / 100
+  const amount = Number.isInteger(major) ? `$${major}` : `$${major.toFixed(2)}`
+  if (amountMinor === 0) return amount
+  return period === 'year' ? `${amount}/yr` : `${amount}/mo`
+}
+
+/**
+ * Maps one `TierDef` to the frontend `PricingTierEntry` shape. The `TierDef`
+ * model treats each billing period as its own tier, so each maps to a single
+ * price row: the period is `'year'` only when `priceYearly` is set and
+ * `priceMonthly` is not, otherwise `'month'`.
+ *
+ * @param tier - The source tier definition.
+ * @param formatPrice - Formatter for the display price string.
+ * @returns The frontend-shaped pricing entry.
+ */
+const tierDefToPricingEntry = <TLimits extends Record<string, unknown>>(
+  tier: TierDef<TLimits>,
+  formatPrice: PriceFormatter,
+): PricingTierEntry<TLimits> => {
+  const period: 'month' | 'year' =
+    tier.priceYearly != null && tier.priceMonthly == null ? 'year' : 'month'
+  const amountMinor = (period === 'year' ? tier.priceYearly : tier.priceMonthly) ?? 0
+  return {
+    key: tier.id,
+    name: tier.name,
+    prices: [
+      {
+        period,
+        price: formatPrice(amountMinor, period),
+        stripePriceId: tier.stripePriceId ?? null,
+      },
+    ],
+    limits: (tier.limits ?? {}) as TLimits,
+  }
+}
 
 /**
  * Default user-id resolver — reads `res.locals.session.userId`. This matches
@@ -72,9 +130,20 @@ const resolveProvider = <TLimits extends Record<string, unknown>>(
 }
 
 /**
- * Creates a drop-in Express `Router` exposing the standard billing routes.
+ * Creates a drop-in Express `Router` exposing the standard billing routes —
+ * the exact `/billing/*` contract `@molecule/app-billing-react`
+ * (`usePricingTiers` / `useBillingStatus` / `<PricingPage />` /
+ * `<BillingStatusBadge />`) consumes.
  *
  * Mounted routes:
+ * - `GET /tiers` — public pricing table. Returns
+ *   `{ data: PricingTierEntry[] }`. Derives one entry per configured `TierDef`
+ *   by default, or serves `options.getPricingTiers()` verbatim when supplied.
+ *   No auth.
+ * - `GET /status` — the signed-in user's current tier snapshot
+ *   `{ planKey, category, name, limits, isFree }`. Returns 401 when
+ *   unauthenticated. Uses `options.resolveStatus` when supplied; otherwise
+ *   returns the default (first / free) tier snapshot.
  * - `POST /checkout` — body `{ priceId: string }`. Calls
  *   `provider.updateSubscription({ userId, newProductId: priceId })`. Returns
  *   `{ checkoutUrl }` for new subscriptions or `{ updated, subscription }`
@@ -86,10 +155,12 @@ const resolveProvider = <TLimits extends Record<string, unknown>>(
  *   `{ url }`. Returns 501 if the bonded provider does not implement portal
  *   sessions.
  *
- * The router is NOT mounted under any prefix — callers wire it via
- * `app.use('/billing', createBillingRoutes(...))`.
+ * The router is NOT mounted under any prefix — callers wire it under `/billing`
+ * so the app-facing paths are `/api/billing/*`, e.g.
+ * `app.use('/api/billing', createBillingRoutes(...))`. (The scaffolded Vite dev
+ * proxy forwards `/api` without rewriting, so the mount must include it.)
  *
- * @param options - Tier accessors plus optional provider/auth overrides.
+ * @param options - Tier accessors plus optional provider/auth/pricing/status overrides.
  * @returns An Express `Router` ready to be mounted.
  */
 export const createBillingRoutes = <
@@ -239,6 +310,67 @@ export const createBillingRoutes = <
         'Could not create customer-portal session. Try again later.',
       )
     }
+  })
+
+  /** Builds the `GET /tiers` response — either the injected pricing table or one derived per `TierDef`. */
+  const buildTiersResponse = (): PricingTiersResponse<TLimits> => {
+    if (options.getPricingTiers) {
+      return { data: [...options.getPricingTiers()] }
+    }
+    const formatPrice = options.formatPrice ?? defaultFormatPrice
+    return {
+      data: tiers.getPricingTiers().map((tier) => tierDefToPricingEntry(tier, formatPrice)),
+    }
+  }
+
+  /**
+   * Default `GET /status` snapshot when no `resolveStatus` is configured — the
+   * first (cheapest / free) declared tier, reported as the free tier. Apps wire
+   * `resolveStatus` to report the user's real plan.
+   */
+  const defaultStatusSnapshot = (): BillingStatusResponse<TLimits> => {
+    const first = tiers.getPricingTiers()[0]
+    return {
+      planKey: first?.id ?? 'free',
+      category: 'free',
+      name: first?.name ?? 'Free',
+      limits: (first?.limits ?? {}) as TLimits,
+      isFree: true,
+    }
+  }
+
+  router.get('/tiers', (_req: Request, res: Response): void => {
+    res.json(buildTiersResponse())
+  })
+
+  router.get('/status', async (req: Request, res: Response): Promise<void> => {
+    const userId = await resolveUserId(req, res)
+    if (!userId) {
+      sendError(res, 401, 'auth.unauthorized', 'Authentication required.')
+      return
+    }
+
+    if (options.resolveStatus) {
+      try {
+        const status = await options.resolveStatus(userId, req, res)
+        if (status) {
+          res.json(status)
+          return
+        }
+        // Resolver returned null → fall through to the default snapshot.
+      } catch (error) {
+        logger.warn('billing.status: resolveStatus failed', { error })
+        sendError(
+          res,
+          502,
+          'billing.statusFailed',
+          'Could not load billing status. Try again later.',
+        )
+        return
+      }
+    }
+
+    res.json(defaultStatusSnapshot())
   })
 
   return router
