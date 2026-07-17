@@ -1,3 +1,7 @@
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { describe, expect, it } from 'vitest'
 
 import type { UIClassMap } from '@molecule/app-ui'
@@ -536,5 +540,57 @@ describe('classMap', () => {
         expect(cls.startsWith('pointer-coarse:'), `${cls} must be coarse-pointer scoped`).toBe(true)
       }
     })
+  })
+})
+
+describe('base.css @source inline safelist covers the cm.* value ranges', () => {
+  // The two-arg cm.sp(side, scale) / cm.stack(scale) / cm.textSize / cm.fontWeight
+  // emit the value DIRECTLY (e.g. cm.sp('p', 24) -> "p-24"). A dynamic class only
+  // renders if Tailwind's JIT sees it — hence the @source inline safelist. If a
+  // value the TYPE admits is missing from the safelist, the call type-checks but
+  // renders NOTHING. This locks the safelist to the full value ranges so it can't
+  // silently drift behind SpacingScale / TextScale / FontWeightScale again.
+  const baseCss = readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'base.css'),
+    'utf8',
+  )
+  const safelist = [...baseCss.matchAll(/@source inline\("([^"]*)"\)/g)].map((m) => m[1]).join('\n')
+  // A value is safelisted if it appears delimited by a brace/comma/dash on the left
+  // and a non-alphanumeric on the right — covers both {a,b,c} lists and the
+  // standalone font-extrabold line, and won't match `base` inside `baseline` or
+  // `bold` inside `semibold`.
+  const isSafelisted = (v: string) =>
+    new RegExp(`[{,\\-]${v.replace('.', '\\.')}(?![a-z0-9])`).test(safelist)
+
+  // Mirror SpacingScale / TextScale / FontWeightScale in @molecule/app-ui.
+  const SPACING = [
+    '0',
+    '0.5',
+    '1',
+    '1.5',
+    '2',
+    '2.5',
+    '3',
+    '4',
+    '5',
+    '6',
+    '8',
+    '10',
+    '12',
+    '16',
+    '20',
+    '24',
+  ]
+  const TEXT = ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl']
+  const FONT = ['normal', 'medium', 'semibold', 'bold', 'extrabold']
+
+  it('safelists every SpacingScale value (drives cm.sp / cm.stack)', () => {
+    for (const v of SPACING) expect(isSafelisted(v), `SpacingScale ${v} not safelisted`).toBe(true)
+  })
+  it('safelists every TextScale value (drives cm.textSize)', () => {
+    for (const v of TEXT) expect(isSafelisted(v), `TextScale ${v} not safelisted`).toBe(true)
+  })
+  it('safelists every FontWeightScale value (drives cm.fontWeight)', () => {
+    for (const v of FONT) expect(isSafelisted(v), `FontWeightScale ${v} not safelisted`).toBe(true)
   })
 })

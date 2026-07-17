@@ -32,6 +32,17 @@
 /* cm.fontWeight(weight) → font-{weight} */
 @source inline("font-{normal,medium,semibold,bold}");
 
+/* Full-range fills. The cm.* value TYPES admit more than the base rows above —
+ * SpacingScale also has 0.5/1.5/2.5/20/24, TextScale goes to 5xl/6xl, and
+ * FontWeightScale includes extrabold — and the two-arg cm.sp(side, scale),
+ * cm.stack(scale), cm.textSize, and cm.fontWeight emit the value DIRECTLY. Without
+ * these, a type-valid, styling-skill-documented call like cm.sp('p', 24),
+ * cm.textSize('6xl'), or cm.fontWeight('extrabold') produces a class Tailwind
+ * never generates and renders NOTHING. Separate lines so they only ADD. */
+@source inline("{p,px,py,pt,pb,pl,pr,m,mx,my,mt,mb,ml,mr,gap}-{0.5,1.5,2.5,20,24}");
+@source inline("text-{5xl,6xl}");
+@source inline("font-extrabold");
+
 /* cm.w(value) → w-{value} */
 @source inline("w-{full,auto,screen,1/2,1/3,2/3,1/4,3/4}");
 
