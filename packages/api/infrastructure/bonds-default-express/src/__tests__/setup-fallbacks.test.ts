@@ -9,7 +9,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { wired } = vi.hoisted(() => ({
+const { wired, logInfo } = vi.hoisted(() => ({
   wired: {
     emails: [] as unknown[],
     uploads: [] as unknown[],
@@ -19,11 +19,14 @@ const { wired } = vi.hoisted(() => ({
     geo: [] as unknown[],
     queue: [] as unknown[],
   },
+  // Stable spy so tests can assert the boot-time dev-fallback log. setup.ts
+  // captures `getLogger()` once at import, so the returned object must reuse it.
+  logInfo: vi.fn(),
 }))
 
 vi.mock('@molecule/api-bond', () => ({
   bond: vi.fn(),
-  getLogger: () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }),
+  getLogger: () => ({ info: logInfo, warn: vi.fn(), error: vi.fn(), debug: vi.fn() }),
 }))
 vi.mock('@molecule/api-emails', () => ({
   setTransport: (p: unknown) => wired.emails.push(p),
@@ -129,6 +132,7 @@ beforeEach(() => {
   }
   process.env.NODE_ENV = 'development'
   for (const list of Object.values(wired)) list.length = 0
+  logInfo.mockClear()
 })
 
 afterEach(() => {
@@ -240,4 +244,124 @@ describe('zero-credential dev fallbacks', () => {
     await setup.setupQueueRedis()
     expect(kind(wired.queue)).toBe('queue-redis')
   })
+})
+
+/**
+ * Every silent dev fallback must announce itself at boot: one `logger.info`
+ * line naming the category, the zero-credential package wired instead, the
+ * missing env, and the fact that it's a development default that production
+ * needs configured. Each fallback setup is exercised with creds absent (logs),
+ * creds present (no fallback → no log), and in production (credentialed
+ * provider wired regardless → no log).
+ */
+describe('dev-fallback boot logging', () => {
+  interface FallbackCase {
+    label: string
+    run: () => void | Promise<void>
+    category: string
+    fallback: string
+    /** Substring of the missing-env token the message must name. */
+    env: string
+    /** Credentials that, when present, suppress the fallback (and its log). */
+    creds: Record<string, string>
+  }
+
+  const cases: FallbackCase[] = [
+    {
+      label: 'emails',
+      run: () => setup.setupEmailsMailgun(),
+      category: 'emails',
+      fallback: '@molecule/api-emails-capture',
+      env: 'MAILGUN_API_KEY',
+      creds: { MAILGUN_API_KEY: 'k', MAILGUN_DOMAIN: 'd' },
+    },
+    {
+      label: 'search',
+      run: () => setup.setupSearchMeilisearch(),
+      category: 'search',
+      fallback: '@molecule/api-search-postgres',
+      env: 'MEILISEARCH_URL',
+      creds: { MEILISEARCH_URL: 'http://localhost:7700' },
+    },
+    {
+      label: 'uploads',
+      run: () => setup.setupUploadsS3(),
+      category: 'uploads',
+      fallback: '@molecule/api-uploads-filesystem',
+      env: 'AWS',
+      creds: { AWS_ACCESS_KEY_ID: 'a', AWS_SECRET_ACCESS_KEY: 's', AWS_S3_BUCKET: 'b' },
+    },
+    {
+      label: 'push-notifications',
+      run: () => setup.setupPushNotificationsWebPush(),
+      category: 'push-notifications',
+      fallback: '@molecule/api-push-capture',
+      env: 'VAPID',
+      creds: { VAPID_PUBLIC_KEY: 'pub', VAPID_PRIVATE_KEY: 'priv' },
+    },
+    {
+      label: 'geolocation (mapbox)',
+      run: () => setup.setupGeolocationMapbox(),
+      category: 'geolocation',
+      fallback: '@molecule/api-geolocation-nominatim',
+      env: 'MAPBOX_ACCESS_TOKEN',
+      creds: { MAPBOX_ACCESS_TOKEN: 't' },
+    },
+    {
+      label: 'geolocation (google)',
+      run: () => setup.setupGeolocationGoogle(),
+      category: 'geolocation',
+      fallback: '@molecule/api-geolocation-nominatim',
+      env: 'GOOGLE_MAPS_API_KEY',
+      creds: { GOOGLE_MAPS_API_KEY: 'g' },
+    },
+    {
+      label: 'cache',
+      run: () => setup.setupCacheRedis(),
+      category: 'cache',
+      fallback: '@molecule/api-cache-memory',
+      env: 'REDIS_URL',
+      creds: { REDIS_URL: 'redis://localhost:6379' },
+    },
+    {
+      label: 'queue',
+      run: () => setup.setupQueueRedis(),
+      category: 'queue',
+      fallback: '@molecule/api-queue-memory',
+      env: 'REDIS_URL',
+      creds: { REDIS_URL: 'redis://localhost:6379' },
+    },
+  ]
+
+  it.each(cases)(
+    '$label: logs one info line naming the category, the dev fallback, the missing env, and dev-vs-production',
+    async ({ run, category, fallback, env }) => {
+      await run()
+      expect(logInfo).toHaveBeenCalledTimes(1)
+      const msg = logInfo.mock.calls[0]![0] as string
+      expect(msg).toContain(category)
+      expect(msg).toContain(fallback)
+      expect(msg).toContain(env)
+      expect(msg).toMatch(/development/i)
+      expect(msg).toMatch(/production/i)
+    },
+  )
+
+  it.each(cases)(
+    '$label: logs no fallback line when the credential env is present',
+    async ({ run, creds }) => {
+      for (const [key, value] of Object.entries(creds)) process.env[key] = value
+      await run()
+      expect(logInfo).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each(cases)(
+    '$label: logs no fallback line in production (credentialed provider wired regardless)',
+    async ({ run }) => {
+      process.env.NODE_ENV = 'production'
+      await run()
+      expect(logInfo).not.toHaveBeenCalled()
+    },
+  )
 })
