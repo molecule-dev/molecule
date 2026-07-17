@@ -57,6 +57,16 @@
 
 /* cm.gridRows(n) → grid-rows-{n} */
 @source inline("grid-rows-{1,2,3,4,5,6}");
+
+/* Full-range fills (continued). Same drift for the sizing methods: WidthValue has
+ * 'fit', HeightValue / MinHeight admit the 1/2..3/4 fractions, and MaxWidthScale
+ * goes to 7xl + screen-2xl — and cm.w / cm.h / cm.minH / cm.maxW emit the value
+ * directly, so cm.maxW('7xl') / cm.h('1/2') / cm.w('fit') render nothing without
+ * these. Additive lines; the base rows above are untouched. */
+@source inline("w-fit");
+@source inline("h-{1/2,1/3,2/3,1/4,3/4}");
+@source inline("min-h-{auto,1/2,1/3,2/3,1/4,3/4}");
+@source inline("max-w-{3xl,4xl,5xl,6xl,7xl,screen-2xl}");
 /* cm.flex({ direction, align, justify, wrap }) variants — referenced via runtime
  * function calls inside @molecule/app-sidebar-layout-react and other shared
  * packages, so Tailwind's static scanner cannot detect them in this app's source. */
