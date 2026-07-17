@@ -1,9 +1,0 @@
-import type { TrackLaneTranslations } from './types.js'
-
-/** TrackLane translations for ne. */
-export const ne: Partial<TrackLaneTranslations> = {
-  'trackLane.aria.lane': 'ट्र्याक लेन',
-  'trackLane.aria.resize': 'क्लिपको आकार बदल्नुहोस्',
-  'trackLane.aria.clip':
-    'क्लिप<x> {{लेबल}}</x> बाट सुरु हुँदै<x> {{सुरुवात समय}}</x> को लागि<x> {{अवधि}}</x> को',
-}

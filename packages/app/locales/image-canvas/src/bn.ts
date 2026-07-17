@@ -1,8 +1,0 @@
-import type { ImageCanvasTranslations } from './types.js'
-
-/** ImageCanvas translations for bn. */
-export const bn: Partial<ImageCanvasTranslations> = {
-  'imageCanvas.aria.region': 'ছবির ক্যানভাস',
-  'imageCanvas.aria.canvas': 'প্যান করতে ড্র্যাগ করুন, জুম করতে স্ক্রোল করুন',
-  'imageCanvas.error': 'ছবিটি লোড হতে পারেনি।',
-}

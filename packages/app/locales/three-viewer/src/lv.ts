@@ -1,8 +1,0 @@
-import type { ThreeViewerTranslations } from './types.js'
-
-/** ThreeViewer translations for lv. */
-export const lv: Partial<ThreeViewerTranslations> = {
-  'threeViewer.aria.canvas': '3D modeļu skatītājs',
-  'threeViewer.loading': 'Notiek 3D modeļa ielāde…',
-  'threeViewer.error': 'Neizdevās ielādēt 3D modeli.',
-}
