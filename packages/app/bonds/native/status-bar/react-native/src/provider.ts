@@ -73,6 +73,24 @@ function toRNAnimation(animation?: StatusBarAnimation): string {
 }
 
 /**
+ * Resolves the runtime platform, defaulting to 'android' when react-native is
+ * unavailable (tests / non-RN environments).
+ * @returns The current platform identifier.
+ */
+async function getRuntimePlatform(): Promise<'ios' | 'android' | 'web'> {
+  try {
+    const { Platform } = await import('react-native')
+    const os = Platform.OS
+    if (os === 'ios' || os === 'android' || os === 'web') return os
+    return 'android'
+  } catch (_error) {
+    // react-native is not installed here; 'android' keeps capability detection
+    // functional without throwing.
+    return 'android'
+  }
+}
+
+/**
  * Creates a React Native status bar provider backed by react-native StatusBar.
  *
  * @param config - Optional provider configuration.
@@ -155,12 +173,17 @@ export function createReactNativeStatusBarProvider(
     },
 
     async getCapabilities(): Promise<StatusBarCapabilities> {
+      // `setBackgroundColor` and `setTranslucent` (overlay) are Android-only RN
+      // StatusBar APIs — silent no-ops on iOS — so report them per-platform
+      // instead of over-claiming `true` everywhere. Style, visibility, and
+      // animation work on both platforms.
+      const isAndroid = (await getRuntimePlatform()) === 'android'
       return {
         supported: true,
-        canSetBackgroundColor: true,
+        canSetBackgroundColor: isAndroid,
         canSetStyle: true,
         canSetVisibility: true,
-        canSetOverlay: true,
+        canSetOverlay: isAndroid,
         supportsAnimation: true,
       }
     },

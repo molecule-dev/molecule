@@ -21,4 +21,10 @@ declare module 'react-native' {
   }
 
   export const StatusBar: StatusBarStatic
+
+  /** Platform detection utilities. */
+  export const Platform: {
+    /** The current platform identifier. */
+    OS: 'ios' | 'android' | 'web' | 'windows' | 'macos'
+  }
 }

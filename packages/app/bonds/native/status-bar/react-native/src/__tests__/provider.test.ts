@@ -11,14 +11,15 @@ vi.mock('@molecule/app-i18n', () => ({
   ),
 }))
 
-const { mockSetBarStyle, mockSetBackgroundColor, mockSetHidden, mockSetTranslucent } = vi.hoisted(
-  () => ({
+const { mockSetBarStyle, mockSetBackgroundColor, mockSetHidden, mockSetTranslucent, mockPlatform } =
+  vi.hoisted(() => ({
     mockSetBarStyle: vi.fn(),
     mockSetBackgroundColor: vi.fn(),
     mockSetHidden: vi.fn(),
     mockSetTranslucent: vi.fn(),
-  }),
-)
+    // Mutable so individual tests can drive per-platform behavior.
+    mockPlatform: { OS: 'android' as 'ios' | 'android' | 'web' },
+  }))
 
 vi.mock('react-native', () => ({
   StatusBar: {
@@ -28,6 +29,7 @@ vi.mock('react-native', () => ({
     setTranslucent: mockSetTranslucent,
     currentHeight: 44,
   },
+  Platform: mockPlatform,
 }))
 
 vi.mock('@molecule/app-status-bar', () => ({}))
@@ -225,7 +227,21 @@ describe('@molecule/app-status-bar-react-native', () => {
     })
 
     describe('getCapabilities', () => {
-      it('should return full capabilities', async () => {
+      it('reports background-color/overlay as unsupported on iOS (Android-only no-op APIs)', async () => {
+        mockPlatform.OS = 'ios'
+        const caps = await p.getCapabilities()
+        expect(caps).toEqual({
+          supported: true,
+          canSetBackgroundColor: false,
+          canSetStyle: true,
+          canSetVisibility: true,
+          canSetOverlay: false,
+          supportsAnimation: true,
+        })
+      })
+
+      it('reports background-color/overlay as supported on Android', async () => {
+        mockPlatform.OS = 'android'
         const caps = await p.getCapabilities()
         expect(caps).toEqual({
           supported: true,

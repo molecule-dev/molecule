@@ -18,6 +18,10 @@
  * - **Android-only surfaces:** `setBackgroundColor()` and `setOverlaysWebView()`
  *   (translucency) are Android APIs — silent no-ops on iOS. Style (`light`/`dark`)
  *   and visibility work on both platforms.
+ * - **`getCapabilities()` reports per-platform truthfully:** `canSetBackgroundColor`
+ *   and `canSetOverlay` are `false` on iOS (the Android-only no-op APIs above) and
+ *   `true` on Android, so callers can feature-detect instead of trusting a blanket
+ *   `true`.
  * - **`getHeight()` returns 0 on iOS** (`StatusBar.currentHeight` is Android-only) —
  *   use safe-area insets for layout, not this value.
  * - `getState()` reflects what THIS provider last set (locally tracked), not values
