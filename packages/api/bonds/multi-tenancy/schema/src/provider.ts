@@ -1,10 +1,20 @@
 /**
- * Schema-based implementation of `TenancyProvider`.
+ * Request-scoped tenant-context implementation of `TenancyProvider`.
  *
- * Uses in-memory storage for tenant records and **request-scoped**
- * `AsyncLocalStorage` for the active tenant context. Each tenant is logically
- * mapped to a database schema via a configurable prefix (`tenant_{id}`).
- * Provides middleware that resolves the tenant from a configurable HTTP header.
+ * Provides three things: (1) a **request-scoped** active-tenant context via
+ * `node:async_hooks` `AsyncLocalStorage`, (2) an in-process tenant registry
+ * (`createTenant`/`deleteTenant`/`listTenants`, backed by a per-process `Map`),
+ * and (3) secure-by-default middleware that resolves the tenant from a
+ * configurable HTTP header (`x-tenant-id` by default).
+ *
+ * **This provider does NO database work.** It creates/selects no schema and
+ * scopes no queries — it only tracks *which* tenant the current request belongs
+ * to. Enforcing per-tenant DATA isolation is the application's responsibility:
+ * read `getTenant()` in your data layer and filter every query by it (e.g. a
+ * `tenant_id` column). The package name refers to the intended schema-per-tenant
+ * *strategy*; the actual schema DDL / `search_path` scoping is not implemented
+ * here — it would require a Postgres-only, request-pinned connection that the
+ * DB-agnostic `DataStore` contract does not currently expose.
  *
  * @remarks
  * **Tenant context is request-scoped, never a module global.** The active
@@ -99,10 +109,14 @@ const toTenantIdList = (result: string | string[] | null | undefined): string[] 
 }
 
 /**
- * Creates a schema-based multi-tenancy provider.
+ * Creates a multi-tenancy provider: request-scoped tenant context, an in-process
+ * tenant registry, and secure-by-default header-resolution middleware. It
+ * performs no database work and does not scope queries — the application must
+ * isolate tenant data itself from `getTenant()` (see the module docs).
  *
  * @param config - Provider configuration.
- * @returns A `TenancyProvider` using schema-based tenant isolation.
+ * @returns A `TenancyProvider` providing request-scoped tenant context (it does
+ *   NOT isolate data by itself).
  */
 export const createProvider = (config: SchemaConfig = {}): TenancyProvider => {
   const {
@@ -242,7 +256,9 @@ export const createProvider = (config: SchemaConfig = {}): TenancyProvider => {
 let _provider: TenancyProvider | null = null
 
 /**
- * Default schema-based multi-tenancy provider instance.
+ * Default multi-tenancy provider instance — request-scoped tenant context, an
+ * in-process tenant registry, and secure header middleware. Does no database
+ * schema work; the application isolates its own data from `getTenant()`.
  *
  * Lazily initializes on first property access with default configuration.
  */

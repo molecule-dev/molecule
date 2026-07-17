@@ -1,11 +1,13 @@
 /**
- * Schema-based multi-tenancy provider for molecule.dev.
+ * Multi-tenancy provider for molecule.dev (`@molecule/api-multi-tenancy-schema`).
  *
- * Implements the `TenancyProvider` interface with request-scoped tenant
- * context and header-based tenant resolution (`x-tenant-id` by default).
- * Tenant records live in an in-process registry; the provider does NOT
- * create or select database schemas — see the remarks for what "schema"
- * does and does not mean here.
+ * Implements the `TenancyProvider` interface as a request-scoped tenant-context
+ * tracker: an active-tenant context (`AsyncLocalStorage`), an in-process tenant
+ * registry, and header-based tenant resolution (`x-tenant-id` by default).
+ * Despite the package name it does NOT create or select database schemas and
+ * does NOT scope queries — it provides tenant CONTEXT, not data isolation. The
+ * application must isolate its own data from `getTenant()`; see the remarks for
+ * what "schema" does and does not mean here.
  *
  * @remarks
  * **Security model — read before mounting the middleware.**
@@ -30,9 +32,37 @@
  *    lost on restart (the middleware then 404s every header tenant until
  *    they are re-created) and are NOT shared across instances. No database
  *    schema is created or selected, and queries are NOT scoped for you:
- *    derive per-tenant scoping in your own data layer from `getTenant()`
- *    (e.g. a `tenant_id` column filter or your own schema switching). The
- *    `schemaPrefix` config option is currently reserved and has no effect.
+ *    enforcing per-tenant DATA isolation is the application's job — read
+ *    `getTenant()` in your data layer and filter every query by it (e.g. a
+ *    `tenant_id` column). The package name refers to the *intended*
+ *    schema-per-tenant strategy; the actual schema DDL / `search_path`
+ *    scoping is not implemented here (there is no `schemaPrefix` option —
+ *    it would only mislead), so treat this bond as a tenant-context tracker,
+ *    not a data-isolation boundary.
+ *
+ * @e2e
+ * Integration checklist — this bond provides the tenant *context* + a secure
+ * header middleware; it does NOT isolate data, so the app must scope its own
+ * queries. Drive the real UI (live preview, no mocks) and check every box:
+ * - [ ] Secure header handling: with `resolveAuthorizedTenantIds` wired, a
+ *   request carrying a spoofed `x-tenant-id` for a tenant the authenticated
+ *   caller is NOT a member of is rejected (403) and never activates that
+ *   tenant; the same call with the caller's own tenant succeeds.
+ * - [ ] Request-scoped context: inside a request `getTenant()` returns that
+ *   request's tenant across `await`s, and two concurrent requests never see
+ *   each other's tenant (no bleed).
+ * - [ ] App-enforced data isolation (THIS bond does not do it for you): every
+ *   read/write path filters by `getTenant()` (e.g. a `tenant_id` column).
+ *   Create records as tenant A, then as tenant B confirm none of A's data is
+ *   visible or reachable anywhere B can look (lists, detail, search, exports),
+ *   and vice-versa. A box you can't check is an isolation bug in YOUR data
+ *   layer to fix, never a skip.
+ * - [ ] No IDOR across the boundary: as tenant B, hitting a record id that
+ *   belongs to A returns 403/404, never A's data — your handlers re-check
+ *   tenant membership server-side on every access, not just at list time.
+ * - [ ] Registry lifecycle: `createTenant`/`listTenants`/`deleteTenant` reflect
+ *   the in-process registry; tenants are per-process and lost on restart, so
+ *   back them with a persistent store before relying on them in production.
  *
  * @module
  * @example
@@ -47,7 +77,6 @@
  * // `req.user` is populated by your auth middleware mounted earlier in the chain.
  * const secureProvider = createProvider({
  *   tenantHeader: 'x-org-id',
- *   schemaPrefix: 'org_',
  *   resolveAuthorizedTenantIds: (req) => {
  *     const user = req.user as { tenantIds?: string[] } | undefined
  *     return user?.tenantIds ?? []
@@ -55,6 +84,11 @@
  * })
  * setProvider(secureProvider)
  * // app.use(authMiddleware, getTenantMiddleware())
+ *
+ * // ISOLATION IS YOUR JOB: this bond only tracks the active tenant. In your
+ * // data layer, scope every query by getTenant() — e.g.:
+ * //   import { getTenant } from '@molecule/api-multi-tenancy'
+ * //   store.findMany('records', { where: { tenantId: getTenant() } })
  * ```
  */
 

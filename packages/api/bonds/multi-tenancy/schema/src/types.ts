@@ -1,5 +1,5 @@
 /**
- * Schema-based multi-tenancy provider configuration.
+ * Configuration for the multi-tenancy provider (`@molecule/api-multi-tenancy-schema`).
  *
  * @module
  */
@@ -20,7 +20,12 @@ export type AuthorizedTenantResolver = (
 ) => string | string[] | null | undefined | Promise<string | string[] | null | undefined>
 
 /**
- * Configuration options for the schema-based multi-tenancy provider.
+ * Configuration options for the multi-tenancy provider.
+ *
+ * NOTE: this provider tracks tenant *context* only — it does no database work
+ * and does not scope queries. There is intentionally no `schemaPrefix` option,
+ * because no schema is ever created or selected; per-tenant DATA isolation is
+ * the application's responsibility (filter queries by `getTenant()`).
  */
 export interface SchemaConfig {
   /**
@@ -30,16 +35,6 @@ export interface SchemaConfig {
    * @default 'x-tenant-id'
    */
   tenantHeader?: string
-
-  /**
-   * RESERVED — currently unused. Intended schema-name prefix for a future
-   * schema-per-tenant integration (`{schemaPrefix}{tenantId}`); today the
-   * provider performs no schema creation, selection, or query scoping, and
-   * setting this has no effect.
-   *
-   * @default 'tenant_'
-   */
-  schemaPrefix?: string
 
   /**
    * Default tenant ID to use when no tenant is resolved from the request.

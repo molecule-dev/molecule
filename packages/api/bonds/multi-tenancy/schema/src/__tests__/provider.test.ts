@@ -406,6 +406,70 @@ describe('schema-based multi-tenancy provider', () => {
     })
   })
 
+  // Guards the honest re-scope of this bond (docs audit L150): it is a tenant
+  // CONTEXT tracker + in-process registry + secure header middleware — it does
+  // NO database work and provides NO data isolation. These tests pin that truth
+  // so the old "schema isolation" claim can never quietly creep back.
+  describe('honest scope: tenant context tracker, not data isolation', () => {
+    const mockRes = () => {
+      const res: Record<string, unknown> = {}
+      res['status'] = vi.fn().mockReturnValue(res)
+      res['json'] = vi.fn().mockReturnValue(res)
+      return res as { status: ReturnType<typeof vi.fn>; json: ReturnType<typeof vi.fn> }
+    }
+
+    it('runs its full lifecycle with NO database bond configured (does zero DB work)', async () => {
+      // No @molecule/api-database pool is ever bonded in this suite; the provider
+      // still creates/lists/deletes tenants and scopes a request. If it did real
+      // schema work it would require (and fail without) a database pool.
+      const p = createProvider({ allowUnauthorizedTenantHeader: true })
+      const tenant = await p.createTenant({ name: 'No DB Needed' })
+      expect(await p.listTenants()).toHaveLength(1)
+
+      const middleware = p.getTenantMiddleware()
+      let seen: string | null = null
+      const next = vi.fn(() => {
+        seen = p.getTenant()
+      })
+      await middleware({ headers: { 'x-tenant-id': tenant.id } }, mockRes() as never, next)
+      expect(seen).toBe(tenant.id)
+
+      await p.deleteTenant(tenant.id)
+      expect(await p.listTenants()).toHaveLength(0)
+    })
+
+    it('keeps the tenant registry per-process and unshared between provider instances', async () => {
+      // A real schema/DB-backed store would be shared across instances; an
+      // in-process Map is not. This documents that tenants are ephemeral and
+      // NOT a persistent isolation boundary.
+      const a = createProvider()
+      const b = createProvider()
+
+      await a.createTenant({ name: 'Only in A' })
+
+      expect(await a.listTenants()).toHaveLength(1)
+      expect(await b.listTenants()).toHaveLength(0)
+    })
+
+    it('activates the tenant id verbatim — no schema name or prefix is derived', async () => {
+      // The context value is the raw tenant id, proving it is a plain context
+      // marker the app reads (getTenant()) rather than a `{prefix}{id}` schema.
+      const p = createProvider({ allowUnauthorizedTenantHeader: true })
+      const tenant = await p.createTenant({ name: 'Verbatim Inc' })
+      const middleware = p.getTenantMiddleware()
+      let seen: string | null = null
+      const next = vi.fn(() => {
+        seen = p.getTenant()
+      })
+
+      await middleware({ headers: { 'x-tenant-id': tenant.id } }, mockRes() as never, next)
+
+      expect(seen).toBe(tenant.id)
+      expect(seen).not.toMatch(/^tenant_/)
+      expect(seen).not.toContain('.')
+    })
+  })
+
   describe('provider export', () => {
     it('should export a lazy provider instance', async () => {
       const { provider: lazyProvider } = await import('../provider.js')

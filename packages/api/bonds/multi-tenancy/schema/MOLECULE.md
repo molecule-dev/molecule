@@ -1,12 +1,14 @@
 # @molecule/api-multi-tenancy-schema
 
-Schema-based multi-tenancy provider for molecule.dev.
+Multi-tenancy provider for molecule.dev (`@molecule/api-multi-tenancy-schema`).
 
-Implements the `TenancyProvider` interface with request-scoped tenant
-context and header-based tenant resolution (`x-tenant-id` by default).
-Tenant records live in an in-process registry; the provider does NOT
-create or select database schemas — see the remarks for what "schema"
-does and does not mean here.
+Implements the `TenancyProvider` interface as a request-scoped tenant-context
+tracker: an active-tenant context (`AsyncLocalStorage`), an in-process tenant
+registry, and header-based tenant resolution (`x-tenant-id` by default).
+Despite the package name it does NOT create or select database schemas and
+does NOT scope queries — it provides tenant CONTEXT, not data isolation. The
+application must isolate its own data from `getTenant()`; see the remarks for
+what "schema" does and does not mean here.
 
 ## Quick Start
 
@@ -21,7 +23,6 @@ setProvider(provider)
 // `req.user` is populated by your auth middleware mounted earlier in the chain.
 const secureProvider = createProvider({
   tenantHeader: 'x-org-id',
-  schemaPrefix: 'org_',
   resolveAuthorizedTenantIds: (req) => {
     const user = req.user as { tenantIds?: string[] } | undefined
     return user?.tenantIds ?? []
@@ -29,6 +30,11 @@ const secureProvider = createProvider({
 })
 setProvider(secureProvider)
 // app.use(authMiddleware, getTenantMiddleware())
+
+// ISOLATION IS YOUR JOB: this bond only tracks the active tenant. In your
+// data layer, scope every query by getTenant() — e.g.:
+//   import { getTenant } from '@molecule/api-multi-tenancy'
+//   store.findMany('records', { where: { tenantId: getTenant() } })
 ```
 
 ## Type
@@ -45,7 +51,12 @@ npm install @molecule/api-multi-tenancy-schema @molecule/api-multi-tenancy
 
 #### `SchemaConfig`
 
-Configuration options for the schema-based multi-tenancy provider.
+Configuration options for the multi-tenancy provider.
+
+NOTE: this provider tracks tenant *context* only — it does no database work
+and does not scope queries. There is intentionally no `schemaPrefix` option,
+because no schema is ever created or selected; per-tenant DATA isolation is
+the application's responsibility (filter queries by `getTenant()`).
 
 ```typescript
 interface SchemaConfig {
@@ -56,16 +67,6 @@ interface SchemaConfig {
    * @default 'x-tenant-id'
    */
   tenantHeader?: string
-
-  /**
-   * RESERVED — currently unused. Intended schema-name prefix for a future
-   * schema-per-tenant integration (`{schemaPrefix}{tenantId}`); today the
-   * provider performs no schema creation, selection, or query scoping, and
-   * setting this has no effect.
-   *
-   * @default 'tenant_'
-   */
-  schemaPrefix?: string
 
   /**
    * Default tenant ID to use when no tenant is resolved from the request.
@@ -122,7 +123,10 @@ type AuthorizedTenantResolver = (
 
 #### `createProvider(config)`
 
-Creates a schema-based multi-tenancy provider.
+Creates a multi-tenancy provider: request-scoped tenant context, an in-process
+tenant registry, and secure-by-default header-resolution middleware. It
+performs no database work and does not scope queries — the application must
+isolate tenant data itself from `getTenant()` (see the module docs).
 
 ```typescript
 function createProvider(config?: SchemaConfig): TenancyProvider
@@ -130,7 +134,8 @@ function createProvider(config?: SchemaConfig): TenancyProvider
 
 - `config` — Provider configuration.
 
-**Returns:** A `TenancyProvider` using schema-based tenant isolation.
+**Returns:** A `TenancyProvider` providing request-scoped tenant context (it does
+ *   NOT isolate data by itself).
 
 #### `runWithTenant(tenantId, fn)`
 
@@ -151,7 +156,9 @@ function runWithTenant(tenantId: string, fn: () => T): T
 
 #### `provider`
 
-Default schema-based multi-tenancy provider instance.
+Default multi-tenancy provider instance — request-scoped tenant context, an
+in-process tenant registry, and secure header middleware. Does no database
+schema work; the application isolates its own data from `getTenant()`.
 
 Lazily initializes on first property access with default configuration.
 
@@ -208,41 +215,35 @@ Peer dependencies:
    lost on restart (the middleware then 404s every header tenant until
    they are re-created) and are NOT shared across instances. No database
    schema is created or selected, and queries are NOT scoped for you:
-   derive per-tenant scoping in your own data layer from `getTenant()`
-   (e.g. a `tenant_id` column filter or your own schema switching). The
-   `schemaPrefix` config option is currently reserved and has no effect.
+   enforcing per-tenant DATA isolation is the application's job — read
+   `getTenant()` in your data layer and filter every query by it (e.g. a
+   `tenant_id` column). The package name refers to the *intended*
+   schema-per-tenant strategy; the actual schema DDL / `search_path`
+   scoping is not implemented here (there is no `schemaPrefix` option —
+   it would only mislead), so treat this bond as a tenant-context tracker,
+   not a data-isolation boundary.
 
 ## E2E Tests
 
-Integration checklist — drive the real UI (live preview, no mocks), adapt
-each item to this app's actual tenant screens/flows, and check every box off
-one by one. This package exists for ISOLATION, so the security boxes are NOT
-optional — a box you can't check is a tenant-isolation bug to fix, never a
-skip:
-- [ ] Cross-tenant invisibility: create records while signed in as tenant A,
-  then sign in as tenant B — none of A's data is visible or reachable
-  anywhere B can look (lists, detail pages, search results, and
-  exports/downloads are ALL scoped to the current tenant). Reverse the roles
-  (B's data, viewed as A) and confirm neither tenant ever sees the other's.
-- [ ] No IDOR across the tenant boundary: while signed in as tenant B, take a
-  real record id that belongs to tenant A (guess/increment one, or copy it
-  from A's session) and hit its detail/edit/delete/API route directly. The
-  server REFUSES with 403/404 and never returns A's data — the id existing is
-  not enough; tenant membership is re-checked server-side on every access.
-- [ ] Tenant context is derived SERVER-SIDE from the authenticated
-  session/subdomain, never trusted from the client. Sending a spoofed tenant
-  header (default `x-tenant-id`) or tenant body/query param for a tenant the
-  caller doesn't belong to does NOT switch tenants — the request is rejected
-  (403), never silently honored (this is what `resolveAuthorizedTenantIds`
-  enforces). The same call with no header resolves the caller's own tenant,
-  not a global or leaked one.
-- [ ] Membership is enforced both ways: a user can act only on the tenant(s)
-  they belong to; attempting to join, read, or write a tenant they aren't a
-  member of is refused, and revoking a user's membership immediately cuts off
-  their access to that tenant's data.
-- [ ] Per-tenant config/branding/limits apply to the correct tenant only —
-  tenant A's settings (name, `metadata`, theme, quotas) render for A and
-  never leak into B; changing A's config leaves B's untouched.
-- [ ] Shared/global resources (if any) are clearly separated from
-  tenant-scoped ones: platform-wide data is intentionally visible across
-  tenants, and nothing tenant-scoped is accidentally exposed as global.
+Integration checklist — this bond provides the tenant *context* + a secure
+header middleware; it does NOT isolate data, so the app must scope its own
+queries. Drive the real UI (live preview, no mocks) and check every box:
+- [ ] Secure header handling: with `resolveAuthorizedTenantIds` wired, a
+  request carrying a spoofed `x-tenant-id` for a tenant the authenticated
+  caller is NOT a member of is rejected (403) and never activates that
+  tenant; the same call with the caller's own tenant succeeds.
+- [ ] Request-scoped context: inside a request `getTenant()` returns that
+  request's tenant across `await`s, and two concurrent requests never see
+  each other's tenant (no bleed).
+- [ ] App-enforced data isolation (THIS bond does not do it for you): every
+  read/write path filters by `getTenant()` (e.g. a `tenant_id` column).
+  Create records as tenant A, then as tenant B confirm none of A's data is
+  visible or reachable anywhere B can look (lists, detail, search, exports),
+  and vice-versa. A box you can't check is an isolation bug in YOUR data
+  layer to fix, never a skip.
+- [ ] No IDOR across the boundary: as tenant B, hitting a record id that
+  belongs to A returns 403/404, never A's data — your handlers re-check
+  tenant membership server-side on every access, not just at list time.
+- [ ] Registry lifecycle: `createTenant`/`listTenants`/`deleteTenant` reflect
+  the in-process registry; tenants are per-process and lost on restart, so
+  back them with a persistent store before relying on them in production.
