@@ -9,10 +9,10 @@ with HNSW indexing for similarity search.
 
 ```typescript
 import { setProvider, requireProvider } from '@molecule/api-ai-vector-store'
-import { createProvider } from '@molecule/api-ai-vector-store-chroma'
+import { provider } from '@molecule/api-ai-vector-store-chroma'
 
-// This bond exports NO `provider` const — wire the factory:
-setProvider(createProvider({ host: 'localhost', port: 8000 }))
+setProvider(provider) // at startup — lazy; connects to the ChromaDB server on first use
+// or pass explicit config: setProvider(createProvider({ host: 'localhost', port: 8000 }))
 ```
 
 ## Type
@@ -66,8 +66,31 @@ function createProvider(config?: ChromaConfig): AIVectorStoreProvider
 
 **Returns:** An `AIVectorStoreProvider` backed by ChromaDB.
 
+### Constants
+
+#### `provider`
+
+The provider implementation.
+
+```typescript
+const provider: AIVectorStoreProvider
+```
+
 ## Core Interface
 Implements `@molecule/api-ai-vector-store` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-ai-vector-store'
+import { provider } from '@molecule/api-ai-vector-store-chroma'
+
+export function setupAiVectorStoreChroma(): void {
+  setProvider(provider)
+}
+```
 
 ## Injection Notes
 
@@ -90,8 +113,9 @@ Peer dependencies:
   (default `http://localhost:8000`; run `chroma run` or the official docker image),
   or ChromaDB Cloud with `CHROMA_API_KEY` set (optional env fallback for
   `config.apiKey`) plus `ssl`/`tenant`/`database` config. There is no embedded mode.
-- **Wiring**: no lazy `provider` export — `setProvider(createProvider(config?))`;
-  for a zero-dependency store (tests/dev) use `@molecule/api-ai-vector-store-memory`.
+- **Wiring**: bond the lazy `provider` export once — `setProvider(provider)` — or
+  `setProvider(createProvider(config?))` to pass explicit config; for a
+  zero-dependency store (tests/dev) use `@molecule/api-ai-vector-store-memory`.
 
 ## E2E Tests
 

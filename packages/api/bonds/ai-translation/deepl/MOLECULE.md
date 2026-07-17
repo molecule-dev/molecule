@@ -10,10 +10,9 @@ large inputs (50 texts per request, DeepL's limit).
 
 ```typescript
 import { setProvider, requireProvider } from '@molecule/api-ai-translation'
-import { createProvider } from '@molecule/api-ai-translation-deepl'
+import { provider } from '@molecule/api-ai-translation-deepl'
 
-// This bond exports NO `provider` const — wire the factory (reads DEEPL_API_KEY):
-setProvider(createProvider())
+setProvider(provider) // at startup — lazy; reads DEEPL_API_KEY on first use
 
 const { translations } = await requireProvider().translate({
   text: 'Hello, world!',
@@ -78,8 +77,29 @@ Secret definitions required by the DeepL translation bond.
 const aiTranslationDeeplSecretDefinitions: SecretDefinition[]
 ```
 
+#### `provider`
+
+The provider implementation.
+
+```typescript
+const provider: AITranslationProvider
+```
+
 ## Core Interface
 Implements `@molecule/api-ai-translation` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-ai-translation'
+import { provider } from '@molecule/api-ai-translation-deepl'
+
+export function setupAiTranslationDeepl(): void {
+  setProvider(provider)
+}
+```
 
 ## Injection Notes
 
@@ -101,8 +121,9 @@ Peer dependencies:
 - `@molecule/api-ai-translation`
 - `@molecule/api-secrets`
 
-- **Wiring**: no lazy `provider` export — call `setProvider(createProvider(config?))`.
-  Use the core's `setProvider`, NOT `bond('ai-translation', …)`.
+- **Wiring**: bond the lazy `provider` export once — `setProvider(provider)` — or
+  `setProvider(createProvider(config?))` to pass explicit config. Use the core's
+  `setProvider`, NOT `bond('ai-translation', …)`.
 - Config: `DEEPL_API_KEY` (required; free keys end in `:fx` and auto-route to
   `https://api-free.deepl.com`, pro keys to `https://api.deepl.com`); `DEEPL_BASE_URL`
   (optional) overrides the endpoint outright — it deliberately wins over the key-shape

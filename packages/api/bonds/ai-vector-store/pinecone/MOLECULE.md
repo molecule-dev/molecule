@@ -9,10 +9,10 @@ similarity search, metadata filtering, and batch upsert operations.
 
 ```typescript
 import { setProvider, requireProvider } from '@molecule/api-ai-vector-store'
-import { createProvider } from '@molecule/api-ai-vector-store-pinecone'
+import { provider } from '@molecule/api-ai-vector-store-pinecone'
 
-// This bond exports NO `provider` const — wire the factory (reads PINECONE_API_KEY):
-setProvider(createProvider())
+setProvider(provider) // at startup — lazy; reads PINECONE_API_KEY on first use
+// or pass explicit config: setProvider(createProvider({ apiKey }))
 ```
 
 ## Type
@@ -62,8 +62,31 @@ function createProvider(config?: PineconeConfig): AIVectorStoreProvider
 
 **Returns:** An `AIVectorStoreProvider` backed by Pinecone.
 
+### Constants
+
+#### `provider`
+
+The provider implementation.
+
+```typescript
+const provider: AIVectorStoreProvider
+```
+
 ## Core Interface
 Implements `@molecule/api-ai-vector-store` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-ai-vector-store'
+import { provider } from '@molecule/api-ai-vector-store-pinecone'
+
+export function setupAiVectorStorePinecone(): void {
+  setProvider(provider)
+}
+```
 
 ## Injection Notes
 
@@ -85,7 +108,8 @@ Peer dependencies:
 - `@pinecone-database/pinecone`
 
 - Config: `PINECONE_API_KEY` (required, SERVER-side only) — the Pinecone SDK throws at
-  `createProvider()` time when it is missing.
+  construction time when it is missing. The exported `provider` is a lazy proxy, so this
+  fires on first use, NOT at import time; `createProvider()` throws eagerly.
 - **Collections are serverless indexes created on demand** (name prefix `mol-`) in
   `config.cloud`/`config.region` (defaults `aws`/`us-east-1` — set these for other
   regions; existing indexes are never moved). With `waitUntilReady` (default `true`)

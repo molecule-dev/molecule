@@ -7,10 +7,9 @@
  * @example
  * ```typescript
  * import { setProvider, requireProvider } from '@molecule/api-ai-speech'
- * import { createProvider } from '@molecule/api-ai-speech-openai'
+ * import { provider } from '@molecule/api-ai-speech-openai'
  *
- * // This bond exports NO `provider` const — wire the factory (reads OPENAI_API_KEY):
- * setProvider(createProvider())
+ * setProvider(provider) // at startup — lazy; reads OPENAI_API_KEY on first use
  *
  * const speech = requireProvider()
  * const { audio, contentType } = await speech.synthesize({ input: 'Hello!', voice: 'alloy' })
@@ -18,9 +17,9 @@
  * ```
  *
  * @remarks
- * - **Wiring**: unlike sibling bonds there is no lazy `provider` export — call
- *   `setProvider(createProvider(config?))`. Use the core's `setProvider`, NOT
- *   `bond('ai-speech', …)` (the core keeps its own singleton).
+ * - **Wiring**: bond the lazy `provider` export once — `setProvider(provider)` — or
+ *   `setProvider(createProvider(config?))` to pass explicit config. Use the core's
+ *   `setProvider`, NOT `bond('ai-speech', …)` (the core keeps its own singleton).
  * - **Subset**: implements `synthesize`, `transcribe`, and `translate`. It does NOT
  *   implement `synthesizeSpeech`/`synthesizeStream`/`listVoices` — feature-detect per
  *   the core; pick `@molecule/api-ai-speech-elevenlabs` for streaming TTS/voice lists.

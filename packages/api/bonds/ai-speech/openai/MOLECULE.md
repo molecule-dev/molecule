@@ -9,10 +9,9 @@ source language and direct speech-to-English translation.
 
 ```typescript
 import { setProvider, requireProvider } from '@molecule/api-ai-speech'
-import { createProvider } from '@molecule/api-ai-speech-openai'
+import { provider } from '@molecule/api-ai-speech-openai'
 
-// This bond exports NO `provider` const — wire the factory (reads OPENAI_API_KEY):
-setProvider(createProvider())
+setProvider(provider) // at startup — lazy; reads OPENAI_API_KEY on first use
 
 const speech = requireProvider()
 const { audio, contentType } = await speech.synthesize({ input: 'Hello!', voice: 'alloy' })
@@ -78,8 +77,29 @@ Secret definitions required by the OpenAI speech bond.
 const aiSpeechOpenaiSecretDefinitions: SecretDefinition[]
 ```
 
+#### `provider`
+
+The provider implementation.
+
+```typescript
+const provider: AISpeechProvider
+```
+
 ## Core Interface
 Implements `@molecule/api-ai-speech` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-ai-speech'
+import { provider } from '@molecule/api-ai-speech-openai'
+
+export function setupAiSpeechOpenai(): void {
+  setProvider(provider)
+}
+```
 
 ## Injection Notes
 
@@ -101,9 +121,9 @@ Peer dependencies:
 - `@molecule/api-ai-speech`
 - `@molecule/api-secrets`
 
-- **Wiring**: unlike sibling bonds there is no lazy `provider` export — call
-  `setProvider(createProvider(config?))`. Use the core's `setProvider`, NOT
-  `bond('ai-speech', …)` (the core keeps its own singleton).
+- **Wiring**: bond the lazy `provider` export once — `setProvider(provider)` — or
+  `setProvider(createProvider(config?))` to pass explicit config. Use the core's
+  `setProvider`, NOT `bond('ai-speech', …)` (the core keeps its own singleton).
 - **Subset**: implements `synthesize`, `transcribe`, and `translate`. It does NOT
   implement `synthesizeSpeech`/`synthesizeStream`/`listVoices` — feature-detect per
   the core; pick `@molecule/api-ai-speech-elevenlabs` for streaming TTS/voice lists.

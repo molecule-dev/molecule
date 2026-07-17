@@ -31,7 +31,9 @@ vi.mock('@pinecone-database/pinecone', () => ({
   },
 }))
 
-import { createProvider } from '../provider.js'
+import type { AIVectorStoreProvider } from '@molecule/api-ai-vector-store'
+
+import { createProvider, provider as lazyProvider } from '../provider.js'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -614,5 +616,30 @@ describe('PineconeProvider', () => {
       const collections = await provider.listCollections()
       expect(collections).toEqual(['alpha'])
     })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Lazy `provider` singleton export (fleet-convention typed provider const)
+// ---------------------------------------------------------------------------
+
+describe('provider — lazy singleton export', () => {
+  it('is exported and typed as the core AIVectorStoreProvider', () => {
+    const typed: AIVectorStoreProvider = lazyProvider
+    expect(typed).toBe(lazyProvider)
+  })
+
+  it('does not construct at import time (referencing the const without config never throws)', () => {
+    // The module was imported at the top of this file with no key/config set, and
+    // loading did not throw — the Proxy defers construction to the first property access.
+    expect(typeof lazyProvider).toBe('object')
+    expect(lazyProvider).not.toBeNull()
+  })
+
+  it('wires to the real provider implementation on first use', () => {
+    // Accessing a member triggers lazy construction and forwards to the real instance.
+    expect(lazyProvider.name).toBe('pinecone')
+    expect(typeof lazyProvider.query).toBe('function')
+    expect(typeof lazyProvider.upsert).toBe('function')
   })
 })

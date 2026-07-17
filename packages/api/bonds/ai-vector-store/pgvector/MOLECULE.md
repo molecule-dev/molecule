@@ -9,10 +9,10 @@ Stores each molecule collection as its own Postgres table (default prefix
 
 ```typescript
 import { setProvider, requireProvider } from '@molecule/api-ai-vector-store'
-import { createProvider } from '@molecule/api-ai-vector-store-pgvector'
+import { provider } from '@molecule/api-ai-vector-store-pgvector'
 
-// This bond exports NO `provider` const — wire the factory (reads DATABASE_URL):
-setProvider(createProvider())
+setProvider(provider) // at startup — lazy; reads DATABASE_URL / opens its pool on first use
+// or pass explicit config: setProvider(createProvider({ connectionString }))
 ```
 
 ## Type
@@ -76,8 +76,31 @@ function createProvider(config?: PgvectorConfig): PgvectorProvider
 
 **Returns:** An `AIVectorStoreProvider` backed by PostgreSQL with pgvector.
 
+### Constants
+
+#### `provider`
+
+The provider implementation.
+
+```typescript
+const provider: AIVectorStoreProvider
+```
+
 ## Core Interface
 Implements `@molecule/api-ai-vector-store` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/api-ai-vector-store'
+import { provider } from '@molecule/api-ai-vector-store-pgvector'
+
+export function setupAiVectorStorePgvector(): void {
+  setProvider(provider)
+}
+```
 
 ## Injection Notes
 

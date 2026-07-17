@@ -7,10 +7,10 @@
  * @example
  * ```typescript
  * import { setProvider, requireProvider } from '@molecule/api-ai-vector-store'
- * import { createProvider } from '@molecule/api-ai-vector-store-pgvector'
+ * import { provider } from '@molecule/api-ai-vector-store-pgvector'
  *
- * // This bond exports NO `provider` const — wire the factory (reads DATABASE_URL):
- * setProvider(createProvider())
+ * setProvider(provider) // at startup — lazy; reads DATABASE_URL / opens its pool on first use
+ * // or pass explicit config: setProvider(createProvider({ connectionString }))
  * ```
  *
  * @remarks

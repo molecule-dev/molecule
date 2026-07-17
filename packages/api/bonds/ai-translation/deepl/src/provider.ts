@@ -343,3 +343,20 @@ class DeeplTranslationProvider implements AITranslationProvider {
 export function createProvider(config?: DeeplConfig): AITranslationProvider {
   return new DeeplTranslationProvider(config)
 }
+
+/** Lazily-initialized provider singleton. Defers creation until first use so that env vars / secrets are resolved. */
+let _provider: AITranslationProvider | null = null
+/**
+ * The provider implementation.
+ */
+export const provider: AITranslationProvider = new Proxy({} as AITranslationProvider, {
+  get(_, prop, receiver) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.get(_provider, prop, receiver)
+  },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.set(_provider, prop, value)
+  },
+})

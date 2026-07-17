@@ -346,3 +346,20 @@ class PineconeProvider implements AIVectorStoreProvider {
 export function createProvider(config?: PineconeConfig): AIVectorStoreProvider {
   return new PineconeProvider(config)
 }
+
+/** Lazily-initialized provider singleton. Defers creation until first use so that env vars / secrets are resolved (the Pinecone SDK constructor throws on a missing key, so importing the const must not construct it). */
+let _provider: AIVectorStoreProvider | null = null
+/**
+ * The provider implementation.
+ */
+export const provider: AIVectorStoreProvider = new Proxy({} as AIVectorStoreProvider, {
+  get(_, prop, receiver) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.get(_provider, prop, receiver)
+  },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.set(_provider, prop, value)
+  },
+})

@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createProvider } from '../provider.js'
+import type { AITranslationProvider } from '@molecule/api-ai-translation'
+
+import { createProvider, provider as lazyProvider } from '../provider.js'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -652,5 +654,30 @@ describe('secret registration', () => {
     await import('../index.js')
     const { getSecretDefinition } = await import('@molecule/api-secrets')
     expect(getSecretDefinition('DEEPL_API_KEY')).toBeDefined()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Lazy `provider` singleton export (fleet-convention typed provider const)
+// ---------------------------------------------------------------------------
+
+describe('provider — lazy singleton export', () => {
+  it('is exported and typed as the core AITranslationProvider', () => {
+    const typed: AITranslationProvider = lazyProvider
+    expect(typed).toBe(lazyProvider)
+  })
+
+  it('does not construct at import time (referencing the const without config never throws)', () => {
+    // The module was imported at the top of this file with no key/config set, and
+    // loading did not throw — the Proxy defers construction to the first property access.
+    expect(typeof lazyProvider).toBe('object')
+    expect(lazyProvider).not.toBeNull()
+  })
+
+  it('wires to the real provider implementation on first use', () => {
+    // Accessing a member triggers lazy construction and forwards to the real instance.
+    expect(lazyProvider.name).toBe('deepl')
+    expect(typeof lazyProvider.translate).toBe('function')
+    expect(typeof lazyProvider.getSupportedLanguages).toBe('function')
   })
 })
