@@ -784,6 +784,19 @@ On the CLIENT, the bearer token is held IN MEMORY only — a `localStorage` copy
 XSS-exfiltratable and is forbidden. The session is restored after a reload via the
 httpOnly cookie + `GET /users/me`; don't persist the token yourself.
 
+**Client-facing endpoints** (mounted under the app's `/api` prefix → `/api/users/...`).
+The auth CLIENT (`useAuth()` → `login` / `register` / `logout` / `refresh`) already wraps
+login / signup / logout — do NOT hand-roll those against the raw routes. The rest have NO
+client method; call them with raw `http.*`. Use these EXACT paths — a weak model guesses
+`/api/auth/*` or `/api/user` (singular), and neither exists:
+- `POST   /api/users/forgot-password` — request a reset email (body `{ email }`)
+- `POST   /api/users/reset-password` — confirm with the emailed token (body `{ token, password }`)
+- `PATCH  /api/users/:id` — update profile fields (name, username, email, bio); NOT `PUT /api/user`
+- `PATCH  /api/users/:id/password` — change password · `DELETE /api/users/:id` — delete account
+- `PATCH  /api/users/:id/plan` — update the subscription plan
+- `GET    /api/users/me` — the current user (session restore) · `GET /api/users/:id` — read one
+The full, authoritative route list is the `routes` export (see `routes.ts`).
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt
