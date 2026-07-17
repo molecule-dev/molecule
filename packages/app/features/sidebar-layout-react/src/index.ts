@@ -31,17 +31,22 @@
  * - Router required: calls `useLocation()` and renders `<Outlet />` — it
  *   throws outside a react-router `<Router>`, and the main area stays empty
  *   unless it is a layout route with child routes.
- * - Styling caveat: beyond ClassMap tokens this component hardcodes
- *   Tailwind + Material-3 utility classes (`w-60`, `bg-surface`,
- *   `border-outline-variant`, `bg-primary-container`, hover variants, …).
- *   The host app's Tailwind build must scan this package's dist (an
- *   `@source` line) or the shell renders unstyled; non-Tailwind ClassMap
- *   bonds cannot restyle these parts. `sidebarWidthClass` is likewise a raw
- *   Tailwind width utility.
+ * - Fully ClassMap-driven: every layout/surface/border/text/state class is
+ *   resolved through `getClassMap()` (`cm.pageShell`, `cm.page`, `cm.surface`,
+ *   `cm.borderR`, `cm.bgPrimarySubtle`/`cm.textPrimary` for the active item,
+ *   `cm.textMuted`/`cm.link` for the rest, …), so swapping the ClassMap bond
+ *   restyles the whole shell — no raw Tailwind/Material-3 utility class is
+ *   baked in. The sidebar WIDTH is the one "specific value" a styling-agnostic
+ *   ClassMap can't express, so it is applied via inline style: use the
+ *   stack-agnostic `sidebarWidth` prop (`'sm'`|`'md'`|`'lg'`|pixel `number`),
+ *   NOT a Tailwind width utility. The old `sidebarWidthClass` prop is
+ *   `@deprecated` — still accepted, but its `w-<n>` value is parsed to pixels
+ *   (never re-emitted as a class).
  * - `icon` values are Material Symbols ligature names rendered with the
- *   `material-symbols-outlined` class — without the Material Symbols font
- *   loaded, the raw icon NAME shows as text. Omit `icon` when the font is
- *   not shipped.
+ *   `material-symbols-outlined` font class — the one documented icon-font
+ *   exception (a font ligature the consumer supplies as data, not a hardcoded
+ *   chrome glyph). Without the Material Symbols font loaded, the raw icon NAME
+ *   shows as text — omit `icon` when the font is not shipped.
  * - Active-nav highlighting picks the longest prefix-match of the current
  *   path; same-path clicks get a `#top` fragment appended (same behavior as
  *   `@molecule/app-safe-link-react`).
