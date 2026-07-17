@@ -803,14 +803,19 @@ Peer dependencies:
 - `@molecule/app-bond`
 - `@molecule/app-i18n`
 
-The ONLY shipped provider is the built-in native HTML5 one — no
-Video.js / Plyr / Vidstack bond packages exist. To use another library,
-implement the `VideoProvider` interface yourself and wire it with
-`setProvider()` (registered on the app bond registry under 'video').
+Two shipped providers: the built-in native HTML5 one (default) and
+**`@molecule/app-video-hls`**. For HLS (`.m3u8`) streaming that works in
+EVERY browser (adaptive bitrate; the native provider only plays HLS in
+Safari), bond it: `import { provider } from '@molecule/app-video-hls';
+setProvider(provider)` at startup. For other libraries (Video.js / Plyr /
+Vidstack) or MPEG-DASH, implement the `VideoProvider` interface yourself and
+wire it with `setProvider()` (registered on the app bond registry under
+'video').
 
 Native-provider limits a weak integrator must know: MP4/WebM/Ogg only
-(`supportsHls()` / `supportsDash()` return false — no HLS outside
-Safari's native support, no DASH); `controls` is effectively boolean —
+(`supportsHls()` / `supportsDash()` return false — no HLS outside Safari's
+native support unless you bond `@molecule/app-video-hls`, no DASH);
+`controls` is effectively boolean —
 passing a `ControlsConfig` object just enables the browser's native
 controls and every granular toggle, `seekTime` and `playbackRates` are
 ignored; `fluid`, `fill`, `aspectRatio`, `language`, `keyboard`,
