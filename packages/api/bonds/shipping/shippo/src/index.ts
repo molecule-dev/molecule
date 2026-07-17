@@ -18,8 +18,11 @@
  * setProvider(provider)
  *
  * // Then anywhere in your app:
- * import { getRates, createLabel, trackPackage } from '@molecule/api-shipping'
- * const rates = await getRates({ from, to, parcels: [{ length, width, height, weight }] })
+ * import { createShipment, createLabel, trackPackage } from '@molecule/api-shipping'
+ * const { shipmentId, rates } = await createShipment({
+ *   from, to, parcels: [{ length, width, height, weight }],
+ * })
+ * const label = await createLabel(shipmentId, rates[0])
  * ```
  *
  * @remarks
@@ -40,8 +43,10 @@
  * to `'in'`/`'lb'` when unspecified — metric parcels MUST set them or dimensions are
  * interpreted as inches/pounds.
  *
- * `createLabel(shipmentId, rate)` ignores `shipmentId` (Shippo buys by `rateId`
- * alone — pass any string); there is no separate quote-id to persist.
+ * `createLabel(shipmentId, rate)` ignores `shipmentId` — Shippo's transaction API
+ * buys by `rateId` alone. The id still comes from the core `createShipment(shipment)`
+ * → `{ shipmentId, rates }` path (the same one EasyPost's buy endpoint requires), so
+ * callers wire the flow identically regardless of the bonded provider.
  */
 
 export * from './browser-guard.js'

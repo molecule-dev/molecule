@@ -17,8 +17,11 @@ import { provider } from '@molecule/api-shipping-shippo'
 setProvider(provider)
 
 // Then anywhere in your app:
-import { getRates, createLabel, trackPackage } from '@molecule/api-shipping'
-const rates = await getRates({ from, to, parcels: [{ length, width, height, weight }] })
+import { createShipment, createLabel, trackPackage } from '@molecule/api-shipping'
+const { shipmentId, rates } = await createShipment({
+  from, to, parcels: [{ length, width, height, weight }],
+})
+const label = await createLabel(shipmentId, rates[0])
 ```
 
 ## Type
@@ -75,9 +78,9 @@ interface Parcel {
     height: number;
     /** Parcel weight. */
     weight: number;
-    /** Linear unit for length, width, and height. */
+    /** Linear unit for length, width, and height. Defaults to `'in'` when omitted (all bonds agree). */
     distanceUnit?: 'in' | 'cm';
-    /** Mass unit for weight. */
+    /** Mass unit for weight. Defaults to `'lb'` when omitted (all bonds agree). */
     massUnit?: 'lb' | 'oz' | 'kg' | 'g';
 }
 ```
@@ -168,7 +171,26 @@ interface ShippingProvider {
      */
     listSupportedCarriers(): Promise<string[]>;
     /**
-     * Requests rate quotes for a shipment.
+     * Creates a shipment and returns its provider-assigned id together with the
+     * rate quotes for it. This is the primary quoting path: the returned
+     * `shipmentId` is the handle {@link createLabel} needs to purchase a label, so
+     * callers who intend to buy a label should use this (not {@link getRates}) and
+     * persist the id alongside the chosen {@link ShippingRate}.
+     *
+     * Every provider assigns a shipment an id when it is created (EasyPost's
+     * `POST /shipments`, Shippo's `POST /shipments/`), so both bonds return the id
+     * and rates natively in a single round-trip — no bond-specific quote helper.
+     *
+     * @param shipment - The shipment to create and rate.
+     * @returns The created shipment's id and its available rates.
+     */
+    createShipment(shipment: Shipment): Promise<ShipmentQuote>;
+    /**
+     * Requests rate quotes for a shipment, discarding the shipment id.
+     *
+     * Convenience over {@link createShipment} for display-only flows that quote
+     * rates without (yet) purchasing. To buy a label you also need the
+     * `shipmentId` — call {@link createShipment} and keep both.
      *
      * @param shipment - The shipment to rate.
      * @returns Array of available rates.
@@ -177,8 +199,10 @@ interface ShippingProvider {
     /**
      * Purchases a shipping label for the given rate.
      *
-     * @param shipmentId - Provider-assigned shipment identifier returned from a prior rate quote.
-     * @param rate - The rate selected for purchase.
+     * @param shipmentId - Provider-assigned shipment identifier from a prior
+     *   {@link createShipment} call.
+     * @param rate - The rate selected for purchase (one of the
+     *   {@link ShipmentQuote.rates} returned alongside `shipmentId`).
      * @returns The purchased label.
      */
     createLabel(shipmentId: string, rate: ShippingRate): Promise<ShippingLabel>;
@@ -266,37 +290,54 @@ type TrackingStatusCode = 'pre_transit' | 'in_transit' | 'out_for_delivery' | 'd
 
 ### Functions
 
-#### `createLabel(shipmentId, rate)`
+#### `createLabel(_shipmentId, rate)`
 
 Purchases a shipping label for a previously-quoted rate.
 
 Shippo buys labels via `POST /transactions` referencing the rate's
-`object_id` directly — there is no per-shipment "buy" endpoint. The
-`shipmentId` argument is accepted to satisfy the
-`ShippingProvider` interface but is not used by Shippo.
+`object_id` directly — there is no per-shipment "buy" endpoint — so the
+`shipmentId` from {@link createShipment} is accepted to satisfy the core
+`ShippingProvider` contract but is not needed by Shippo's transaction API.
+This is a genuine provider difference (EasyPost's buy endpoint needs the
+shipment id; Shippo's does not), not a per-bond workaround: both bonds obtain
+the id from the same core `createShipment` path.
 
 ```typescript
 function createLabel(_shipmentId: string, rate: ShippingRate): Promise<ShippingLabel>
 ```
 
-- `shipmentId` — Shipment identifier (ignored by Shippo; rate ID is sufficient).
+- `_shipmentId` — Shipment identifier from {@link createShipment} (unused
 - `rate` — The rate selected for purchase. Must include `rateId`.
 
 **Returns:** The purchased label normalized to `ShippingLabel`.
 
-#### `getRates(shipment)`
+#### `createShipment(shipment)`
 
-Requests rate quotes for a shipment. Creates a Shippo shipment via
-`POST /shipments` and normalizes the returned rates.
-
-Shippo embeds rates inline in the shipment response — there is no
-separate "fetch rates" call. Each rate's `object_id` becomes the
-`rateId` consumed by {@link createLabel}.
+Creates a Shippo shipment via `POST /shipments/` and returns its
+`object_id` together with the normalized rates. Shippo embeds rates inline
+in the shipment response — there is no separate "fetch rates" call — and
+assigns the shipment an `object_id` on creation, so both the id and the rates
+come back in one round-trip, matching the core `createShipment` contract that
+`@molecule/api-shipping-easypost` also satisfies natively. Each rate's
+`object_id` becomes the `rateId` consumed by {@link createLabel}.
 
 Every parcel in `shipment.parcels` is sent — Shippo's `parcels` field is an
 array (a multi-piece shipment), so none are dropped. Carrier limits still
 apply (e.g. USPS does not support multi-piece and the carrier returns the
 error; UPS allows up to 50).
+
+```typescript
+function createShipment(shipment: Shipment): Promise<ShipmentQuote>
+```
+
+- `shipment` — Normalized shipment payload.
+
+**Returns:** The Shippo shipment id and its normalized rates.
+
+#### `getRates(shipment)`
+
+Requests rate quotes for a shipment, discarding the Shippo shipment id.
+Convenience over {@link createShipment} for display-only flows.
 
 ```typescript
 function getRates(shipment: Shipment): Promise<ShippingRate[]>
@@ -419,8 +460,10 @@ Parcel units: `Parcel.distanceUnit`/`massUnit` are honored per parcel and defaul
 to `'in'`/`'lb'` when unspecified — metric parcels MUST set them or dimensions are
 interpreted as inches/pounds.
 
-`createLabel(shipmentId, rate)` ignores `shipmentId` (Shippo buys by `rateId`
-alone — pass any string); there is no separate quote-id to persist.
+`createLabel(shipmentId, rate)` ignores `shipmentId` — Shippo's transaction API
+buys by `rateId` alone. The id still comes from the core `createShipment(shipment)`
+→ `{ shipmentId, rates }` path (the same one EasyPost's buy endpoint requires), so
+callers wire the flow identically regardless of the bonded provider.
 
 ## E2E Tests
 

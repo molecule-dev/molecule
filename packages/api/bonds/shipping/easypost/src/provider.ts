@@ -23,6 +23,7 @@ import type {
   MonetaryAmount,
   Parcel,
   Shipment,
+  ShipmentQuote,
   ShippingAddress,
   ShippingLabel,
   ShippingProvider,
@@ -463,30 +464,15 @@ export const listSupportedCarriers = async (): Promise<string[]> => {
 }
 
 /**
- * Requests rate quotes for a shipment. Creates an EasyPost shipment via
- * `POST /shipments` and normalizes the returned rates. The EasyPost
- * shipment `id` is required to subsequently buy a label — callers
- * should preserve it from `getRatesDetailed` (or supply their own
- * shipment ID via the underlying API) when calling {@link createLabel}.
+ * Creates an EasyPost shipment via `POST /shipments` and returns its
+ * shipment `id` together with the normalized rates. The `shipmentId` is the
+ * handle {@link createLabel} needs to buy a label (`POST /shipments/:id/buy`),
+ * so use this (not {@link getRates}) when you intend to purchase — one
+ * round-trip yields both pieces, matching the core `createShipment` contract
+ * that `@molecule/api-shipping-shippo` also satisfies natively.
  *
  * @param shipment - Normalized shipment payload.
- * @returns Array of normalized shipping rates.
- * @throws {Error} If the shipment contains no parcels, or more than one (an
- *   EasyPost shipment accepts exactly one parcel — this bond never silently
- *   drops the extras).
- */
-export const getRates = async (shipment: Shipment): Promise<ShippingRate[]> => {
-  const detailed = await getRatesDetailed(shipment)
-  return detailed.rates
-}
-
-/**
- * Like {@link getRates}, but additionally returns the EasyPost shipment
- * ID needed to purchase a label via {@link createLabel}. EasyPost-specific
- * — call this when you need both pieces in one round-trip.
- *
- * @param shipment - Normalized shipment payload.
- * @returns Object with `shipmentId` (EasyPost shipment ID) and `rates`.
+ * @returns The EasyPost shipment id and its normalized rates.
  * @throws {Error} If the shipment contains no parcels, or more than one. An
  *   EasyPost shipment carries exactly one parcel (its API has a single `parcel`
  *   field, not an array), so rather than silently drop `parcels[1..n]` — cargo
@@ -494,11 +480,9 @@ export const getRates = async (shipment: Shipment): Promise<ShippingRate[]> => {
  *   shipment, or use `@molecule/api-shipping-shippo`, which quotes multi-piece
  *   shipments.
  */
-export const getRatesDetailed = async (
-  shipment: Shipment,
-): Promise<{ shipmentId: string; rates: ShippingRate[] }> => {
+export const createShipment = async (shipment: Shipment): Promise<ShipmentQuote> => {
   if (shipment.parcels.length === 0) {
-    throw new Error('getRates requires at least one parcel.')
+    throw new Error('createShipment requires at least one parcel.')
   }
   if (shipment.parcels.length > 1) {
     throw new Error(
@@ -526,10 +510,26 @@ export const getRatesDetailed = async (
 }
 
 /**
+ * Requests rate quotes for a shipment, discarding the EasyPost shipment id.
+ * Convenience over {@link createShipment} for display-only flows; to buy a
+ * label you also need the `shipmentId`, so call {@link createShipment} instead.
+ *
+ * @param shipment - Normalized shipment payload.
+ * @returns Array of normalized shipping rates.
+ * @throws {Error} If the shipment contains no parcels, or more than one (an
+ *   EasyPost shipment accepts exactly one parcel — this bond never silently
+ *   drops the extras).
+ */
+export const getRates = async (shipment: Shipment): Promise<ShippingRate[]> => {
+  const { rates } = await createShipment(shipment)
+  return rates
+}
+
+/**
  * Purchases a shipping label for a previously-quoted rate.
  *
  * @param shipmentId - EasyPost shipment ID returned from a prior
- *   `/shipments` call.
+ *   {@link createShipment} call.
  * @param rate - The rate selected for purchase. Must include `rateId`.
  * @returns The purchased label normalized to `ShippingLabel`.
  * @throws {Error} If `rate.rateId` is missing or the API call fails.
@@ -602,6 +602,7 @@ export const trackPackage = async (
  */
 export const provider: ShippingProvider = {
   listSupportedCarriers,
+  createShipment,
   getRates,
   createLabel,
   voidLabel,

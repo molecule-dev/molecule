@@ -16,8 +16,11 @@ import { provider } from '@molecule/api-shipping-easypost'
 setProvider(provider)
 
 // Then anywhere in your app:
-import { getRates, createLabel, trackPackage } from '@molecule/api-shipping'
-const rates = await getRates({ from, to, parcels: [{ length, width, height, weight }] })
+import { createShipment, createLabel, trackPackage } from '@molecule/api-shipping'
+const { shipmentId, rates } = await createShipment({
+  from, to, parcels: [{ length, width, height, weight }],
+})
+const label = await createLabel(shipmentId, rates[0])
 ```
 
 ## Type
@@ -74,9 +77,9 @@ interface Parcel {
     height: number;
     /** Parcel weight. */
     weight: number;
-    /** Linear unit for length, width, and height. */
+    /** Linear unit for length, width, and height. Defaults to `'in'` when omitted (all bonds agree). */
     distanceUnit?: 'in' | 'cm';
-    /** Mass unit for weight. */
+    /** Mass unit for weight. Defaults to `'lb'` when omitted (all bonds agree). */
     massUnit?: 'lb' | 'oz' | 'kg' | 'g';
 }
 ```
@@ -167,7 +170,26 @@ interface ShippingProvider {
      */
     listSupportedCarriers(): Promise<string[]>;
     /**
-     * Requests rate quotes for a shipment.
+     * Creates a shipment and returns its provider-assigned id together with the
+     * rate quotes for it. This is the primary quoting path: the returned
+     * `shipmentId` is the handle {@link createLabel} needs to purchase a label, so
+     * callers who intend to buy a label should use this (not {@link getRates}) and
+     * persist the id alongside the chosen {@link ShippingRate}.
+     *
+     * Every provider assigns a shipment an id when it is created (EasyPost's
+     * `POST /shipments`, Shippo's `POST /shipments/`), so both bonds return the id
+     * and rates natively in a single round-trip — no bond-specific quote helper.
+     *
+     * @param shipment - The shipment to create and rate.
+     * @returns The created shipment's id and its available rates.
+     */
+    createShipment(shipment: Shipment): Promise<ShipmentQuote>;
+    /**
+     * Requests rate quotes for a shipment, discarding the shipment id.
+     *
+     * Convenience over {@link createShipment} for display-only flows that quote
+     * rates without (yet) purchasing. To buy a label you also need the
+     * `shipmentId` — call {@link createShipment} and keep both.
      *
      * @param shipment - The shipment to rate.
      * @returns Array of available rates.
@@ -176,8 +198,10 @@ interface ShippingProvider {
     /**
      * Purchases a shipping label for the given rate.
      *
-     * @param shipmentId - Provider-assigned shipment identifier returned from a prior rate quote.
-     * @param rate - The rate selected for purchase.
+     * @param shipmentId - Provider-assigned shipment identifier from a prior
+     *   {@link createShipment} call.
+     * @param rate - The rate selected for purchase (one of the
+     *   {@link ShipmentQuote.rates} returned alongside `shipmentId`).
      * @returns The purchased label.
      */
     createLabel(shipmentId: string, rate: ShippingRate): Promise<ShippingLabel>;
@@ -278,13 +302,28 @@ function createLabel(shipmentId: string, rate: ShippingRate): Promise<ShippingLa
 
 **Returns:** The purchased label normalized to `ShippingLabel`.
 
+#### `createShipment(shipment)`
+
+Creates an EasyPost shipment via `POST /shipments` and returns its
+shipment `id` together with the normalized rates. The `shipmentId` is the
+handle {@link createLabel} needs to buy a label (`POST /shipments/:id/buy`),
+so use this (not {@link getRates}) when you intend to purchase — one
+round-trip yields both pieces, matching the core `createShipment` contract
+that `@molecule/api-shipping-shippo` also satisfies natively.
+
+```typescript
+function createShipment(shipment: Shipment): Promise<ShipmentQuote>
+```
+
+- `shipment` — Normalized shipment payload.
+
+**Returns:** The EasyPost shipment id and its normalized rates.
+
 #### `getRates(shipment)`
 
-Requests rate quotes for a shipment. Creates an EasyPost shipment via
-`POST /shipments` and normalizes the returned rates. The EasyPost
-shipment `id` is required to subsequently buy a label — callers
-should preserve it from `getRatesDetailed` (or supply their own
-shipment ID via the underlying API) when calling {@link createLabel}.
+Requests rate quotes for a shipment, discarding the EasyPost shipment id.
+Convenience over {@link createShipment} for display-only flows; to buy a
+label you also need the `shipmentId`, so call {@link createShipment} instead.
 
 ```typescript
 function getRates(shipment: Shipment): Promise<ShippingRate[]>
@@ -293,20 +332,6 @@ function getRates(shipment: Shipment): Promise<ShippingRate[]>
 - `shipment` — Normalized shipment payload.
 
 **Returns:** Array of normalized shipping rates.
-
-#### `getRatesDetailed(shipment)`
-
-Like {@link getRates}, but additionally returns the EasyPost shipment
-ID needed to purchase a label via {@link createLabel}. EasyPost-specific
-— call this when you need both pieces in one round-trip.
-
-```typescript
-function getRatesDetailed(shipment: Shipment): Promise<{ shipmentId: string; rates: ShippingRate[]; }>
-```
-
-- `shipment` — Normalized shipment payload.
-
-**Returns:** Object with `shipmentId` (EasyPost shipment ID) and `rates`.
 
 #### `listSupportedCarriers()`
 
@@ -404,8 +429,8 @@ Peer dependencies:
   error if unset). Optionally `EASYPOST_API_URL` to override the base URL
   (sandbox / proxy).
 - **`createLabel(shipmentId, rate)` needs the EasyPost shipment id from the SAME
-  quote.** Use this bond's `getRatesDetailed(shipment)` → `{ shipmentId, rates }`
-  and persist BOTH between quote and purchase; plain `getRates()` discards the id.
+  quote.** Use the core `createShipment(shipment)` → `{ shipmentId, rates }` and
+  persist BOTH between quote and purchase; plain `getRates()` discards the id.
 - **One parcel per shipment.** An EasyPost shipment carries exactly one parcel
   (its API has a single `parcel` field, not an array), so passing
   `parcels.length > 1` THROWS rather than silently dropping the extras — send

@@ -24,6 +24,7 @@ import type {
   MonetaryAmount,
   Parcel,
   Shipment,
+  ShipmentQuote,
   ShippingAddress,
   ShippingLabel,
   ShippingProvider,
@@ -409,12 +410,13 @@ export const listSupportedCarriers = async (): Promise<string[]> => {
 }
 
 /**
- * Requests rate quotes for a shipment. Creates a Shippo shipment via
- * `POST /shipments` and normalizes the returned rates.
- *
- * Shippo embeds rates inline in the shipment response — there is no
- * separate "fetch rates" call. Each rate's `object_id` becomes the
- * `rateId` consumed by {@link createLabel}.
+ * Creates a Shippo shipment via `POST /shipments/` and returns its
+ * `object_id` together with the normalized rates. Shippo embeds rates inline
+ * in the shipment response — there is no separate "fetch rates" call — and
+ * assigns the shipment an `object_id` on creation, so both the id and the rates
+ * come back in one round-trip, matching the core `createShipment` contract that
+ * `@molecule/api-shipping-easypost` also satisfies natively. Each rate's
+ * `object_id` becomes the `rateId` consumed by {@link createLabel}.
  *
  * Every parcel in `shipment.parcels` is sent — Shippo's `parcels` field is an
  * array (a multi-piece shipment), so none are dropped. Carrier limits still
@@ -422,12 +424,12 @@ export const listSupportedCarriers = async (): Promise<string[]> => {
  * error; UPS allows up to 50).
  *
  * @param shipment - Normalized shipment payload.
- * @returns Array of normalized shipping rates.
+ * @returns The Shippo shipment id and its normalized rates.
  * @throws {Error} If the shipment contains no parcels.
  */
-export const getRates = async (shipment: Shipment): Promise<ShippingRate[]> => {
+export const createShipment = async (shipment: Shipment): Promise<ShipmentQuote> => {
   if (shipment.parcels.length === 0) {
-    throw new Error('getRates requires at least one parcel.')
+    throw new Error('createShipment requires at least one parcel.')
   }
   const body = {
     address_from: toShippoAddress(shipment.from),
@@ -439,18 +441,38 @@ export const getRates = async (shipment: Shipment): Promise<ShippingRate[]> => {
     method: 'POST',
     body: JSON.stringify(body),
   })
-  return (result.rates ?? []).map(toShippingRate)
+  return {
+    shipmentId: result.object_id,
+    rates: (result.rates ?? []).map(toShippingRate),
+  }
+}
+
+/**
+ * Requests rate quotes for a shipment, discarding the Shippo shipment id.
+ * Convenience over {@link createShipment} for display-only flows.
+ *
+ * @param shipment - Normalized shipment payload.
+ * @returns Array of normalized shipping rates.
+ * @throws {Error} If the shipment contains no parcels.
+ */
+export const getRates = async (shipment: Shipment): Promise<ShippingRate[]> => {
+  const { rates } = await createShipment(shipment)
+  return rates
 }
 
 /**
  * Purchases a shipping label for a previously-quoted rate.
  *
  * Shippo buys labels via `POST /transactions` referencing the rate's
- * `object_id` directly — there is no per-shipment "buy" endpoint. The
- * `shipmentId` argument is accepted to satisfy the
- * `ShippingProvider` interface but is not used by Shippo.
+ * `object_id` directly — there is no per-shipment "buy" endpoint — so the
+ * `shipmentId` from {@link createShipment} is accepted to satisfy the core
+ * `ShippingProvider` contract but is not needed by Shippo's transaction API.
+ * This is a genuine provider difference (EasyPost's buy endpoint needs the
+ * shipment id; Shippo's does not), not a per-bond workaround: both bonds obtain
+ * the id from the same core `createShipment` path.
  *
- * @param shipmentId - Shipment identifier (ignored by Shippo; rate ID is sufficient).
+ * @param _shipmentId - Shipment identifier from {@link createShipment} (unused
+ *   by Shippo; the rate's `rateId` is the purchase handle).
  * @param rate - The rate selected for purchase. Must include `rateId`.
  * @returns The purchased label normalized to `ShippingLabel`.
  * @throws {Error} If `rate.rateId` is missing or the API call fails or the
@@ -533,6 +555,7 @@ export const trackPackage = async (
  */
 export const provider: ShippingProvider = {
   listSupportedCarriers,
+  createShipment,
   getRates,
   createLabel,
   voidLabel,

@@ -9,27 +9,29 @@ label voiding, and package tracking.
 ## Quick Start
 
 ```typescript
-import { setProvider, getRates, createLabel, trackPackage } from '@molecule/api-shipping'
+import { setProvider, createShipment, createLabel, trackPackage } from '@molecule/api-shipping'
 import { provider } from '@molecule/api-shipping-easypost' // or '@molecule/api-shipping-shippo'
 
 // Bond a provider at startup
 setProvider(provider)
 
-// 1. Quote rates — keep the returned ShippingRate objects intact (they carry rateId).
-const rates = await getRates({
+// 1. Create the shipment: this quotes rates AND returns the shipment id a label
+// purchase needs. Keep the returned ShippingRate objects intact (they carry rateId).
+const { shipmentId, rates } = await createShipment({
   from: { street1: '...', city: '...', postalCode: '...', country: 'US' },
   to: { street1: '...', city: '...', postalCode: '...', country: 'US' },
   parcels: [{ length: 10, width: 6, height: 4, weight: 2 }],
 })
 
-// 2. Purchase a label for a QUOTED rate. The first argument is the provider-assigned
-// shipment id from the SAME quote step (see @remarks — some bonds ignore it, others
-// expose it via a bond-specific quote helper); the rate MUST be one returned by
-// getRates — bonds reject a hand-built rate without rateId.
+// 2. Purchase a label for a QUOTED rate using the shipment id from step 1. The rate
+// MUST be one returned by createShipment — bonds reject a hand-built rate without rateId.
 const label = await createLabel(shipmentId, rates[0])
 
 // 3. Track using values from the purchased label.
 const status = await trackPackage(label.carrier, label.trackingNumber)
+
+// (getRates(shipment) is a display-only convenience returning just the rates — no
+// shipmentId — for flows that quote without purchasing.)
 ```
 
 ## Type
@@ -124,6 +126,31 @@ interface Shipment {
 }
 ```
 
+#### `ShipmentQuote`
+
+The result of creating a shipment: the provider-assigned shipment handle
+plus the rate quotes returned for it.
+
+A shipment must exist before a label can be purchased — every provider
+assigns the shipment an id when it is created, and
+{@link ShippingProvider.createLabel} needs that id.
+{@link ShippingProvider.createShipment} returns both the id and the rates in
+one round-trip, so the caller never has to reconstruct or re-create the
+shipment just to obtain the id needed to buy a label.
+
+```typescript
+interface ShipmentQuote {
+  /**
+   * Provider-assigned shipment identifier. Pass this to
+   * {@link ShippingProvider.createLabel} to purchase a label for one of `rates`.
+   */
+  shipmentId: string
+
+  /** Rate quotes returned by the carrier(s) for this shipment. */
+  rates: ShippingRate[]
+}
+```
+
 #### `ShippingAddress`
 
 A postal address used as the origin or destination of a shipment.
@@ -206,7 +233,27 @@ interface ShippingProvider {
   listSupportedCarriers(): Promise<string[]>
 
   /**
-   * Requests rate quotes for a shipment.
+   * Creates a shipment and returns its provider-assigned id together with the
+   * rate quotes for it. This is the primary quoting path: the returned
+   * `shipmentId` is the handle {@link createLabel} needs to purchase a label, so
+   * callers who intend to buy a label should use this (not {@link getRates}) and
+   * persist the id alongside the chosen {@link ShippingRate}.
+   *
+   * Every provider assigns a shipment an id when it is created (EasyPost's
+   * `POST /shipments`, Shippo's `POST /shipments/`), so both bonds return the id
+   * and rates natively in a single round-trip — no bond-specific quote helper.
+   *
+   * @param shipment - The shipment to create and rate.
+   * @returns The created shipment's id and its available rates.
+   */
+  createShipment(shipment: Shipment): Promise<ShipmentQuote>
+
+  /**
+   * Requests rate quotes for a shipment, discarding the shipment id.
+   *
+   * Convenience over {@link createShipment} for display-only flows that quote
+   * rates without (yet) purchasing. To buy a label you also need the
+   * `shipmentId` — call {@link createShipment} and keep both.
    *
    * @param shipment - The shipment to rate.
    * @returns Array of available rates.
@@ -216,8 +263,10 @@ interface ShippingProvider {
   /**
    * Purchases a shipping label for the given rate.
    *
-   * @param shipmentId - Provider-assigned shipment identifier returned from a prior rate quote.
-   * @param rate - The rate selected for purchase.
+   * @param shipmentId - Provider-assigned shipment identifier from a prior
+   *   {@link createShipment} call.
+   * @param rate - The rate selected for purchase (one of the
+   *   {@link ShipmentQuote.rates} returned alongside `shipmentId`).
    * @returns The purchased label.
    */
   createLabel(shipmentId: string, rate: ShippingRate): Promise<ShippingLabel>
@@ -339,6 +388,21 @@ function createLabel(shipmentId: string, rate: ShippingRate): Promise<ShippingLa
 
 **Returns:** The purchased label.
 
+#### `createShipment(shipment)`
+
+Creates a shipment using the bonded provider, returning its provider-assigned
+id together with the rate quotes for it. Use this (not {@link getRates}) when
+you intend to purchase a label — {@link createLabel} needs the returned
+`shipmentId`.
+
+```typescript
+function createShipment(shipment: Shipment): Promise<ShipmentQuote>
+```
+
+- `shipment` — The shipment to create and rate.
+
+**Returns:** The created shipment's id and its available rates.
+
 #### `getProvider()`
 
 Retrieves the bonded shipping provider, throwing if none is configured.
@@ -351,7 +415,9 @@ function getProvider(): ShippingProvider
 
 #### `getRates(shipment)`
 
-Requests rate quotes for a shipment using the bonded provider.
+Requests rate quotes for a shipment using the bonded provider, discarding the
+shipment id. Convenience over {@link createShipment} for display-only flows;
+to buy a label use {@link createShipment} and keep the `shipmentId` too.
 
 ```typescript
 function getRates(shipment: Shipment): Promise<ShippingRate[]>
@@ -437,15 +503,17 @@ Peer dependencies:
 - `@molecule/api-bond`
 - `@molecule/api-i18n`
 
-- **`createLabel` consumes the EXACT rate object returned by `getRates`** — its `rateId`
-  is the provider's purchase handle and every bond rejects a rate without it. Persist the
-  chosen {@link ShippingRate} (not a reconstruction of carrier/service/amount) between the
-  quote step and the purchase step.
-- **The `shipmentId` argument is provider-assigned during the quote — the core API does
-  not produce it.** Bonds whose purchase API only needs the rate ignore it (pass any
-  string); bonds that require it expose a quote variant returning
-  `{ shipmentId, rates }` — check the bonded provider's docs before wiring the purchase
-  flow, and store the shipment id alongside the quoted rates.
+- **`createShipment` returns the `shipmentId` that `createLabel` needs.** The shipment id
+  is provider-assigned when the shipment is created, and every bond returns it alongside
+  the rates in one round-trip (`{ shipmentId, rates }`) — no bond-specific quote helper.
+  Persist the id with the chosen rate between the quote step and the purchase step.
+- **`createLabel` consumes the EXACT rate object returned by `createShipment`** — its
+  `rateId` is the provider's purchase handle and every bond rejects a rate without it.
+  Persist the chosen {@link ShippingRate} (not a reconstruction of carrier/service/amount),
+  not just its fields.
+- **`getRates(shipment)` is a display-only convenience** returning just the rates (no
+  `shipmentId`). Do not use it as the first step of a purchase flow — you would have no id
+  to pass to `createLabel`; use `createShipment` instead.
 - Label purchases cost real money outside the provider's TEST mode — use test API keys in
   development, and re-quote before purchase (rate quotes expire).
 - Addresses and parcels are user input: validate server-side (`country` is ISO 3166-1

@@ -344,7 +344,7 @@ describe('EasyPost Shipping Provider', () => {
     })
 
     it('throws — never silently drops cargo — when more than one parcel is supplied', async () => {
-      const { getRates, getRatesDetailed } = await import('../provider.js')
+      const { getRates, createShipment } = await import('../provider.js')
       const multiParcel: Shipment = {
         ...validShipment,
         parcels: [
@@ -354,18 +354,31 @@ describe('EasyPost Shipping Provider', () => {
       }
 
       await expect(getRates(multiParcel)).rejects.toThrow(/single parcel per shipment; got 2/)
-      await expect(getRatesDetailed(multiParcel)).rejects.toThrow(/single parcel/)
+      await expect(createShipment(multiParcel)).rejects.toThrow(/single parcel/)
       expect(fetchMock).not.toHaveBeenCalled()
     })
   })
 
-  describe('getRatesDetailed', () => {
-    it('returns shipment ID alongside rates', async () => {
+  describe('createShipment', () => {
+    it('POSTs to /shipments and returns the shipment ID alongside rates', async () => {
       fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
-      const { getRatesDetailed } = await import('../provider.js')
-      const result = await getRatesDetailed(validShipment)
+      const { createShipment } = await import('../provider.js')
+      const result = await createShipment(validShipment)
+
+      const [url, init] = fetchMock.mock.calls[0]!
+      expect(url).toBe('https://api.easypost.com/v2/shipments')
+      expect((init as RequestInit).method).toBe('POST')
       expect(result.shipmentId).toBe('shp_abc123')
       expect(result.rates).toHaveLength(2)
+      expect(result.rates[0]).toMatchObject({ carrier: 'usps', rateId: 'rate_1' })
+    })
+
+    it('throws when no parcels are supplied', async () => {
+      const { createShipment } = await import('../provider.js')
+      await expect(createShipment({ ...validShipment, parcels: [] })).rejects.toThrow(
+        /at least one parcel/,
+      )
+      expect(fetchMock).not.toHaveBeenCalled()
     })
   })
 
@@ -396,6 +409,28 @@ describe('EasyPost Shipping Provider', () => {
         service: 'Priority',
         amount: { amount: '7.30', currency: 'USD' },
       })
+    })
+
+    it('buys with the shipmentId + rate returned by createShipment (end-to-end)', async () => {
+      // Step 1: createShipment returns the real EasyPost shipment id.
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
+      // Step 2: the buy call resolves the bought shipment.
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(200, mockBoughtShipment))
+      const { createShipment, createLabel } = await import('../provider.js')
+
+      const { shipmentId, rates } = await createShipment(validShipment)
+      const label = await createLabel(shipmentId, rates[0]!)
+
+      // The buy URL must carry the real shipment id from createShipment — proving
+      // the core path (not a caller-invented id) drives the purchase.
+      expect(fetchMock.mock.calls[1]![0]).toBe(
+        'https://api.easypost.com/v2/shipments/shp_abc123/buy',
+      )
+      expect(JSON.parse((fetchMock.mock.calls[1]![1] as RequestInit).body as string)).toEqual({
+        rate: { id: 'rate_1' },
+      })
+      expect(label.id).toBe('shp_abc123')
+      expect(label.trackingNumber).toBe('9400111899223197428490')
     })
 
     it('throws when rate.rateId is missing', async () => {
@@ -544,6 +579,7 @@ describe('EasyPost Shipping Provider', () => {
     it('exports a typed provider object with every required method', async () => {
       const { provider } = await import('../provider.js')
       expect(typeof provider.listSupportedCarriers).toBe('function')
+      expect(typeof provider.createShipment).toBe('function')
       expect(typeof provider.getRates).toBe('function')
       expect(typeof provider.createLabel).toBe('function')
       expect(typeof provider.voidLabel).toBe('function')
@@ -554,8 +590,8 @@ describe('EasyPost Shipping Provider', () => {
       const exports = await import('../index.js')
       expect(exports.provider).toBeDefined()
       expect(exports.listSupportedCarriers).toBeDefined()
+      expect(exports.createShipment).toBeDefined()
       expect(exports.getRates).toBeDefined()
-      expect(exports.getRatesDetailed).toBeDefined()
       expect(exports.createLabel).toBeDefined()
       expect(exports.voidLabel).toBeDefined()
       expect(exports.trackPackage).toBeDefined()

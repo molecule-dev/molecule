@@ -361,6 +361,29 @@ describe('Shippo Shipping Provider', () => {
     })
   })
 
+  describe('createShipment', () => {
+    it('POSTs to /shipments/ and returns the shipment ID alongside rates', async () => {
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
+      const { createShipment } = await import('../provider.js')
+      const result = await createShipment(validShipment)
+
+      const [url, init] = fetchMock.mock.calls[0]!
+      expect(url).toBe('https://api.goshippo.com/shipments/')
+      expect((init as RequestInit).method).toBe('POST')
+      expect(result.shipmentId).toBe('shp_abc123')
+      expect(result.rates).toHaveLength(2)
+      expect(result.rates[0]).toMatchObject({ carrier: 'usps', rateId: 'rate_1' })
+    })
+
+    it('throws when no parcels are supplied', async () => {
+      const { createShipment } = await import('../provider.js')
+      await expect(createShipment({ ...validShipment, parcels: [] })).rejects.toThrow(
+        /at least one parcel/,
+      )
+      expect(fetchMock).not.toHaveBeenCalled()
+    })
+  })
+
   describe('createLabel', () => {
     it('POSTs to /transactions/ with rate ID and returns normalized label', async () => {
       fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockTransactionSuccess))
@@ -392,6 +415,30 @@ describe('Shippo Shipping Provider', () => {
         service: 'Priority Mail',
         amount: { amount: '7.30', currency: 'USD' },
       })
+    })
+
+    it('buys with the rate returned by createShipment (end-to-end)', async () => {
+      // Step 1: createShipment returns the Shippo shipment id + rates.
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockShipmentResponse))
+      // Step 2: the transaction resolves the label.
+      fetchMock.mockResolvedValueOnce(makeFetchResponse(201, mockTransactionSuccess))
+      const { createShipment, createLabel } = await import('../provider.js')
+
+      const { shipmentId, rates } = await createShipment(validShipment)
+      expect(shipmentId).toBe('shp_abc123')
+      const label = await createLabel(shipmentId, rates[0]!)
+
+      // Shippo buys by the rate's object_id via /transactions/ (the shipmentId is
+      // not needed by Shippo's transaction API) — the same rate object flows
+      // through unchanged.
+      expect(fetchMock.mock.calls[1]![0]).toBe('https://api.goshippo.com/transactions/')
+      expect(JSON.parse((fetchMock.mock.calls[1]![1] as RequestInit).body as string)).toEqual({
+        rate: 'rate_1',
+        label_file_type: 'PDF',
+        async: false,
+      })
+      expect(label.id).toBe('txn_xyz789')
+      expect(label.trackingNumber).toBe('9400111899223197428490')
     })
 
     it('throws when rate.rateId is missing', async () => {
@@ -585,6 +632,7 @@ describe('Shippo Shipping Provider', () => {
     it('exports a typed provider object with every required method', async () => {
       const { provider } = await import('../provider.js')
       expect(typeof provider.listSupportedCarriers).toBe('function')
+      expect(typeof provider.createShipment).toBe('function')
       expect(typeof provider.getRates).toBe('function')
       expect(typeof provider.createLabel).toBe('function')
       expect(typeof provider.voidLabel).toBe('function')
@@ -595,6 +643,7 @@ describe('Shippo Shipping Provider', () => {
       const exports = await import('../index.js')
       expect(exports.provider).toBeDefined()
       expect(exports.listSupportedCarriers).toBeDefined()
+      expect(exports.createShipment).toBeDefined()
       expect(exports.getRates).toBeDefined()
       expect(exports.createLabel).toBeDefined()
       expect(exports.voidLabel).toBeDefined()

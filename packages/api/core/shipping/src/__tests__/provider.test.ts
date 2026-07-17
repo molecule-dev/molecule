@@ -5,6 +5,7 @@ import type * as ShippingModule from '../shipping.js'
 import type {
   Parcel,
   Shipment,
+  ShipmentQuote,
   ShippingAddress,
   ShippingLabel,
   ShippingProvider,
@@ -17,6 +18,7 @@ let setProvider: typeof ProviderModule.setProvider
 let getProvider: typeof ProviderModule.getProvider
 let hasProvider: typeof ProviderModule.hasProvider
 let listSupportedCarriers: typeof ShippingModule.listSupportedCarriers
+let createShipment: typeof ShippingModule.createShipment
 let getRates: typeof ShippingModule.getRates
 let createLabel: typeof ShippingModule.createLabel
 let voidLabel: typeof ShippingModule.voidLabel
@@ -65,6 +67,7 @@ describe('shipping provider', () => {
     getProvider = providerModule.getProvider
     hasProvider = providerModule.hasProvider
     listSupportedCarriers = shippingModule.listSupportedCarriers
+    createShipment = shippingModule.createShipment
     getRates = shippingModule.getRates
     createLabel = shippingModule.createLabel
     voidLabel = shippingModule.voidLabel
@@ -109,6 +112,60 @@ describe('shipping provider', () => {
       const res = await listSupportedCarriers()
       expect(res).toBe(carriers)
       expect(mockProvider.listSupportedCarriers).toHaveBeenCalledOnce()
+    })
+  })
+
+  describe('createShipment', () => {
+    it('should throw when no provider is set', async () => {
+      await expect(createShipment(sampleShipment())).rejects.toThrow(
+        'Shipping provider not configured',
+      )
+    })
+
+    it('should delegate to provider and surface the shipmentId with rates', async () => {
+      const shipment = sampleShipment()
+      const quote: ShipmentQuote = {
+        shipmentId: 'shp_core_1',
+        rates: [
+          sampleRate(),
+          sampleRate({ carrier: 'ups', service: 'Ground', rateId: 'rate_ups' }),
+        ],
+      }
+      const mockProvider = createMockProvider({
+        createShipment: vi.fn().mockResolvedValue(quote),
+      })
+      setProvider(mockProvider)
+
+      const res = await createShipment(shipment)
+      expect(res).toBe(quote)
+      expect(res.shipmentId).toBe('shp_core_1')
+      expect(res.rates).toHaveLength(2)
+      expect(mockProvider.createShipment).toHaveBeenCalledWith(shipment)
+    })
+
+    it('should feed its shipmentId + rate straight into createLabel (end-to-end)', async () => {
+      const shipment = sampleShipment()
+      const quote: ShipmentQuote = { shipmentId: 'shp_core_2', rates: [sampleRate()] }
+      const label: ShippingLabel = {
+        id: 'lbl_core',
+        trackingNumber: 'TRK_CORE',
+        labelUrl: 'https://example.com/labels/lbl_core.pdf',
+        carrier: 'usps',
+        service: 'Priority',
+        amount: quote.rates[0]!.amount,
+      }
+      const createLabelMock = vi.fn().mockResolvedValue(label)
+      const mockProvider = createMockProvider({
+        createShipment: vi.fn().mockResolvedValue(quote),
+        createLabel: createLabelMock,
+      })
+      setProvider(mockProvider)
+
+      const { shipmentId, rates } = await createShipment(shipment)
+      const purchased = await createLabel(shipmentId, rates[0]!)
+
+      expect(purchased).toBe(label)
+      expect(createLabelMock).toHaveBeenCalledWith('shp_core_2', rates[0])
     })
   })
 
@@ -243,6 +300,12 @@ describe('shipping types', () => {
     expect(rate.amount.currency).toBe('USD')
   })
 
+  it('should export ShipmentQuote type carrying shipmentId + rates', () => {
+    const quote: ShipmentQuote = { shipmentId: 'shp_1', rates: [sampleRate()] }
+    expect(quote.shipmentId).toBe('shp_1')
+    expect(quote.rates[0]?.rateId).toBe('rate_abc')
+  })
+
   it('should export ShippingLabel type', () => {
     const label: ShippingLabel = {
       id: 'lbl_1',
@@ -273,6 +336,7 @@ describe('shipping types', () => {
   it('should export ShippingProvider type', () => {
     const provider: ShippingProvider = createMockProvider()
     expect(typeof provider.listSupportedCarriers).toBe('function')
+    expect(typeof provider.createShipment).toBe('function')
     expect(typeof provider.getRates).toBe('function')
     expect(typeof provider.createLabel).toBe('function')
     expect(typeof provider.voidLabel).toBe('function')
@@ -283,6 +347,10 @@ describe('shipping types', () => {
 function createMockProvider(overrides?: Partial<ShippingProvider>): ShippingProvider {
   return {
     listSupportedCarriers: vi.fn().mockResolvedValue(['usps']),
+    createShipment: vi.fn().mockResolvedValue({
+      shipmentId: 'shp_1',
+      rates: [],
+    } satisfies ShipmentQuote),
     getRates: vi.fn().mockResolvedValue([]),
     createLabel: vi.fn().mockResolvedValue({
       id: 'lbl_1',

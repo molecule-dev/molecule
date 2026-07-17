@@ -5,7 +5,13 @@
  */
 
 import { getProvider } from './provider.js'
-import type { Shipment, ShippingLabel, ShippingRate, TrackingStatus } from './types.js'
+import type {
+  Shipment,
+  ShipmentQuote,
+  ShippingLabel,
+  ShippingRate,
+  TrackingStatus,
+} from './types.js'
 
 /**
  * Lists carriers supported by the bonded provider.
@@ -18,7 +24,23 @@ export const listSupportedCarriers = async (): Promise<string[]> => {
 }
 
 /**
- * Requests rate quotes for a shipment using the bonded provider.
+ * Creates a shipment using the bonded provider, returning its provider-assigned
+ * id together with the rate quotes for it. Use this (not {@link getRates}) when
+ * you intend to purchase a label — {@link createLabel} needs the returned
+ * `shipmentId`.
+ *
+ * @param shipment - The shipment to create and rate.
+ * @returns The created shipment's id and its available rates.
+ * @throws {Error} If no shipping provider has been bonded.
+ */
+export const createShipment = async (shipment: Shipment): Promise<ShipmentQuote> => {
+  return getProvider().createShipment(shipment)
+}
+
+/**
+ * Requests rate quotes for a shipment using the bonded provider, discarding the
+ * shipment id. Convenience over {@link createShipment} for display-only flows;
+ * to buy a label use {@link createShipment} and keep the `shipmentId` too.
  *
  * @param shipment - The shipment to rate.
  * @returns Array of available rates.

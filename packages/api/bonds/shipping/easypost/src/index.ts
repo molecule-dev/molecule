@@ -17,8 +17,11 @@
  * setProvider(provider)
  *
  * // Then anywhere in your app:
- * import { getRates, createLabel, trackPackage } from '@molecule/api-shipping'
- * const rates = await getRates({ from, to, parcels: [{ length, width, height, weight }] })
+ * import { createShipment, createLabel, trackPackage } from '@molecule/api-shipping'
+ * const { shipmentId, rates } = await createShipment({
+ *   from, to, parcels: [{ length, width, height, weight }],
+ * })
+ * const label = await createLabel(shipmentId, rates[0])
  * ```
  *
  * @remarks
@@ -26,8 +29,8 @@
  *   error if unset). Optionally `EASYPOST_API_URL` to override the base URL
  *   (sandbox / proxy).
  * - **`createLabel(shipmentId, rate)` needs the EasyPost shipment id from the SAME
- *   quote.** Use this bond's `getRatesDetailed(shipment)` → `{ shipmentId, rates }`
- *   and persist BOTH between quote and purchase; plain `getRates()` discards the id.
+ *   quote.** Use the core `createShipment(shipment)` → `{ shipmentId, rates }` and
+ *   persist BOTH between quote and purchase; plain `getRates()` discards the id.
  * - **One parcel per shipment.** An EasyPost shipment carries exactly one parcel
  *   (its API has a single `parcel` field, not an array), so passing
  *   `parcels.length > 1` THROWS rather than silently dropping the extras — send

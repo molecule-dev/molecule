@@ -131,6 +131,28 @@ export interface ShippingRate {
 }
 
 /**
+ * The result of creating a shipment: the provider-assigned shipment handle
+ * plus the rate quotes returned for it.
+ *
+ * A shipment must exist before a label can be purchased — every provider
+ * assigns the shipment an id when it is created, and
+ * {@link ShippingProvider.createLabel} needs that id.
+ * {@link ShippingProvider.createShipment} returns both the id and the rates in
+ * one round-trip, so the caller never has to reconstruct or re-create the
+ * shipment just to obtain the id needed to buy a label.
+ */
+export interface ShipmentQuote {
+  /**
+   * Provider-assigned shipment identifier. Pass this to
+   * {@link ShippingProvider.createLabel} to purchase a label for one of `rates`.
+   */
+  shipmentId: string
+
+  /** Rate quotes returned by the carrier(s) for this shipment. */
+  rates: ShippingRate[]
+}
+
+/**
  * A purchased shipping label.
  */
 export interface ShippingLabel {
@@ -219,7 +241,27 @@ export interface ShippingProvider {
   listSupportedCarriers(): Promise<string[]>
 
   /**
-   * Requests rate quotes for a shipment.
+   * Creates a shipment and returns its provider-assigned id together with the
+   * rate quotes for it. This is the primary quoting path: the returned
+   * `shipmentId` is the handle {@link createLabel} needs to purchase a label, so
+   * callers who intend to buy a label should use this (not {@link getRates}) and
+   * persist the id alongside the chosen {@link ShippingRate}.
+   *
+   * Every provider assigns a shipment an id when it is created (EasyPost's
+   * `POST /shipments`, Shippo's `POST /shipments/`), so both bonds return the id
+   * and rates natively in a single round-trip — no bond-specific quote helper.
+   *
+   * @param shipment - The shipment to create and rate.
+   * @returns The created shipment's id and its available rates.
+   */
+  createShipment(shipment: Shipment): Promise<ShipmentQuote>
+
+  /**
+   * Requests rate quotes for a shipment, discarding the shipment id.
+   *
+   * Convenience over {@link createShipment} for display-only flows that quote
+   * rates without (yet) purchasing. To buy a label you also need the
+   * `shipmentId` — call {@link createShipment} and keep both.
    *
    * @param shipment - The shipment to rate.
    * @returns Array of available rates.
@@ -229,8 +271,10 @@ export interface ShippingProvider {
   /**
    * Purchases a shipping label for the given rate.
    *
-   * @param shipmentId - Provider-assigned shipment identifier returned from a prior rate quote.
-   * @param rate - The rate selected for purchase.
+   * @param shipmentId - Provider-assigned shipment identifier from a prior
+   *   {@link createShipment} call.
+   * @param rate - The rate selected for purchase (one of the
+   *   {@link ShipmentQuote.rates} returned alongside `shipmentId`).
    * @returns The purchased label.
    */
   createLabel(shipmentId: string, rate: ShippingRate): Promise<ShippingLabel>
