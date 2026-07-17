@@ -17,10 +17,14 @@
  *   the default `provider` is created at import time and captures the token then. If
  *   the token arrives later (e.g. loaded from a `.env` file afterwards), wire
  *   `createDopplerProvider({ token })` yourself instead of using `provider`.
- * - **Falls back to `process.env` on ANY Doppler failure** (missing/invalid token,
- *   network, non-2xx) with only a logged warning — reads keep resolving from the
- *   environment, so a broken Doppler config degrades SILENTLY. Call
- *   `provider.isAvailable()` at boot to verify Doppler is actually being used.
+ * - **Read-failure policy is configurable and NEVER silent.** On ANY Doppler read
+ *   failure (missing/invalid token, network, non-2xx) the error is logged at `error`
+ *   severity, then `fallbackToEnv` decides: `true` (**default**) returns the
+ *   `process.env` value — resilient, but that value may be STALE or WRONG relative to
+ *   Doppler; `false` RE-THROWS so callers get a hard failure instead of a possibly-wrong
+ *   secret. Set via the `fallbackToEnv` option or the `DOPPLER_FALLBACK_TO_ENV` env var
+ *   (`false`/`0`/`no`/`off` to disable). Either way a broken Doppler config is visible in
+ *   the logs — call `provider.isAvailable()` at boot to confirm Doppler is actually used.
  * - A SERVICE token scopes itself; a PERSONAL token additionally requires the
  *   `project` and `config` options on `createDopplerProvider()`.
  * - **`delete()` sets the secret to an empty string** — Doppler's API has no delete;

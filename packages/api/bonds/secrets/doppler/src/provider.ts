@@ -48,17 +48,50 @@ export interface DopplerProviderOptions {
    * @default 60000 (1 minute)
    */
   cacheTtl?: number
+
+  /**
+   * When a Doppler fetch fails (missing/invalid token, network, non-2xx), whether
+   * to fall back to `process.env` for reads (`get`/`getMany`).
+   *
+   * - `true` (**default**) — return the `process.env` value. Resilient (env is a
+   *   legitimate secondary source, e.g. after `syncToEnv`), but the returned value
+   *   may be STALE or WRONG relative to Doppler. The fallback is always logged at
+   *   `error` severity so an outage/misconfig is visible — never silent.
+   * - `false` — do NOT fall back; RE-THROW the Doppler error so callers get an
+   *   explicit, hard failure instead of a possibly-wrong secret. Use this where a
+   *   stale/wrong secret is worse than a hard failure.
+   *
+   * Defaults from the `DOPPLER_FALLBACK_TO_ENV` env var (set to `false`/`0`/`no`/`off`
+   * to disable) when unset here, else `true`.
+   */
+  fallbackToEnv?: boolean
+}
+
+/**
+ * Resolves the effective `fallbackToEnv` policy from an explicit option, then the
+ * `DOPPLER_FALLBACK_TO_ENV` env var, defaulting to `true`.
+ *
+ * @param option - Explicit `fallbackToEnv` from provider options, if any.
+ * @returns Whether reads should fall back to `process.env` on a Doppler failure.
+ */
+function resolveFallbackToEnv(option?: boolean): boolean {
+  if (typeof option === 'boolean') return option
+  const env = process.env.DOPPLER_FALLBACK_TO_ENV
+  if (env === undefined) return true
+  return !/^(false|0|no|off)$/i.test(env)
 }
 
 /**
  * Creates a Doppler secrets provider that fetches secrets from the Doppler API.
- * Caches secrets for the configured TTL. Falls back to `process.env` on API failure.
- * @param options - Doppler connection options (token, project, config, cache TTL). Falls back to `DOPPLER_TOKEN` env var.
+ * Caches secrets for the configured TTL. On a fetch failure, reads either fall
+ * back to `process.env` (logged at `error` — default) or re-throw, per `fallbackToEnv`.
+ * @param options - Doppler connection options (token, project, config, cache TTL, fallbackToEnv). Falls back to `DOPPLER_TOKEN` env var.
  * @returns A `SecretsProvider` with get/set/delete/syncToEnv backed by Doppler.
  */
 export function createDopplerProvider(options: DopplerProviderOptions = {}): SecretsProvider {
   const token = options.token ?? process.env.DOPPLER_TOKEN
   const cacheTtl = options.cacheTtl ?? 60000
+  const fallbackToEnv = resolveFallbackToEnv(options.fallbackToEnv)
 
   let secretsCache: Record<string, string> | null = null
   let cacheTime = 0
@@ -126,8 +159,21 @@ export function createDopplerProvider(options: DopplerProviderOptions = {}): Sec
         const secrets = await fetchSecrets()
         return secrets[key]
       } catch (error) {
-        // Fall back to process.env if Doppler fails
-        logger.warn('Doppler get() failed, falling back to process.env:', error)
+        if (!fallbackToEnv) {
+          // Fail closed: never serve a possibly-stale/wrong env value as if it
+          // were the vault value. Log loudly and re-throw so the caller knows.
+          logger.error(
+            `Doppler get('${key}') failed and fallbackToEnv is disabled; re-throwing (no process.env fallback).`,
+            { error },
+          )
+          throw error
+        }
+        // Fall back to process.env — NOT silent: the returned value may be stale
+        // or wrong relative to Doppler, so surface the failure at error severity.
+        logger.error(
+          `Doppler get('${key}') failed; falling back to process.env (value may be stale or wrong).`,
+          { error },
+        )
         return process.env[key]
       }
     },
@@ -141,8 +187,18 @@ export function createDopplerProvider(options: DopplerProviderOptions = {}): Sec
         }
         return result
       } catch (error) {
-        // Fall back to process.env
-        logger.warn('Doppler getMany() failed, falling back to process.env:', error)
+        if (!fallbackToEnv) {
+          logger.error(
+            `Doppler getMany([${keys.join(', ')}]) failed and fallbackToEnv is disabled; re-throwing (no process.env fallback).`,
+            { error },
+          )
+          throw error
+        }
+        // Fall back to process.env — logged, not silent (see get()).
+        logger.error(
+          `Doppler getMany([${keys.join(', ')}]) failed; falling back to process.env (values may be stale or wrong).`,
+          { error },
+        )
         const result: Record<string, string | undefined> = {}
         for (const key of keys) {
           result[key] = process.env[key]

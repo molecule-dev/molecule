@@ -55,6 +55,23 @@ interface DopplerProviderOptions {
    * @default 60000 (1 minute)
    */
   cacheTtl?: number
+
+  /**
+   * When a Doppler fetch fails (missing/invalid token, network, non-2xx), whether
+   * to fall back to `process.env` for reads (`get`/`getMany`).
+   *
+   * - `true` (**default**) — return the `process.env` value. Resilient (env is a
+   *   legitimate secondary source, e.g. after `syncToEnv`), but the returned value
+   *   may be STALE or WRONG relative to Doppler. The fallback is always logged at
+   *   `error` severity so an outage/misconfig is visible — never silent.
+   * - `false` — do NOT fall back; RE-THROW the Doppler error so callers get an
+   *   explicit, hard failure instead of a possibly-wrong secret. Use this where a
+   *   stale/wrong secret is worse than a hard failure.
+   *
+   * Defaults from the `DOPPLER_FALLBACK_TO_ENV` env var (set to `false`/`0`/`no`/`off`
+   * to disable) when unset here, else `true`.
+   */
+  fallbackToEnv?: boolean
 }
 ```
 
@@ -63,13 +80,14 @@ interface DopplerProviderOptions {
 #### `createDopplerProvider(options)`
 
 Creates a Doppler secrets provider that fetches secrets from the Doppler API.
-Caches secrets for the configured TTL. Falls back to `process.env` on API failure.
+Caches secrets for the configured TTL. On a fetch failure, reads either fall
+back to `process.env` (logged at `error` — default) or re-throw, per `fallbackToEnv`.
 
 ```typescript
 function createDopplerProvider(options?: DopplerProviderOptions): SecretsProvider
 ```
 
-- `options` — Doppler connection options (token, project, config, cache TTL). Falls back to `DOPPLER_TOKEN` env var.
+- `options` — Doppler connection options (token, project, config, cache TTL, fallbackToEnv). Falls back to `DOPPLER_TOKEN` env var.
 
 **Returns:** A `SecretsProvider` with get/set/delete/syncToEnv backed by Doppler.
 
@@ -133,10 +151,14 @@ Peer dependencies:
   the default `provider` is created at import time and captures the token then. If
   the token arrives later (e.g. loaded from a `.env` file afterwards), wire
   `createDopplerProvider({ token })` yourself instead of using `provider`.
-- **Falls back to `process.env` on ANY Doppler failure** (missing/invalid token,
-  network, non-2xx) with only a logged warning — reads keep resolving from the
-  environment, so a broken Doppler config degrades SILENTLY. Call
-  `provider.isAvailable()` at boot to verify Doppler is actually being used.
+- **Read-failure policy is configurable and NEVER silent.** On ANY Doppler read
+  failure (missing/invalid token, network, non-2xx) the error is logged at `error`
+  severity, then `fallbackToEnv` decides: `true` (**default**) returns the
+  `process.env` value — resilient, but that value may be STALE or WRONG relative to
+  Doppler; `false` RE-THROWS so callers get a hard failure instead of a possibly-wrong
+  secret. Set via the `fallbackToEnv` option or the `DOPPLER_FALLBACK_TO_ENV` env var
+  (`false`/`0`/`no`/`off` to disable). Either way a broken Doppler config is visible in
+  the logs — call `provider.isAvailable()` at boot to confirm Doppler is actually used.
 - A SERVICE token scopes itself; a PERSONAL token additionally requires the
   `project` and `config` options on `createDopplerProvider()`.
 - **`delete()` sets the secret to an empty string** — Doppler's API has no delete;

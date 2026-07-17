@@ -17,9 +17,13 @@
 
 import { Redis } from 'ioredis'
 
+import { getLogger } from '@molecule/api-bond'
 import type { RateLimitOptions, RateLimitProvider, RateLimitResult } from '@molecule/api-rate-limit'
 
-import type { RedisRateLimitOptions } from './types.js'
+import type { RedisFailMode, RedisRateLimitOptions } from './types.js'
+
+/** Bonded logger (falls back to console) for surfacing backend degradation. */
+const logger = getLogger()
 
 /**
  * Atomic sliding-window consume script.
@@ -76,6 +80,28 @@ const DEFAULT_MAX = 100
 const DEFAULT_KEY_PREFIX = 'rl:'
 
 /**
+ * Default behavior when Redis is unreachable. `'open'` (admit) — a rate limiter
+ * is an availability control; failing closed on a transient blip would deny all
+ * legitimate traffic (a worse outage than briefly un-throttled traffic). The
+ * error is always logged either way, and `'closed'` is available for
+ * abuse-sensitive endpoints. See {@link RedisRateLimitOptions.failMode}.
+ */
+const DEFAULT_FAIL_MODE: RedisFailMode = 'open'
+
+/**
+ * Resolves the effective {@link RedisFailMode} from an explicit option, then the
+ * `REDIS_RATE_LIMIT_FAIL_MODE` env var, defaulting to {@link DEFAULT_FAIL_MODE}.
+ * Only the exact string `'closed'` selects fail-closed; anything else is `'open'`.
+ *
+ * @param option - Explicit `failMode` from provider options, if any.
+ * @returns The effective fail mode.
+ */
+const resolveFailMode = (option?: RedisFailMode): RedisFailMode => {
+  if (option === 'open' || option === 'closed') return option
+  return process.env.REDIS_RATE_LIMIT_FAIL_MODE === 'closed' ? 'closed' : DEFAULT_FAIL_MODE
+}
+
+/**
  * Creates a Redis-backed rate-limit provider implementing the sliding-window
  * algorithm. Reads `REDIS_URL`, `REDIS_HOST`, `REDIS_PORT`, and `REDIS_PASSWORD`
  * from environment variables when explicit options are not provided.
@@ -89,6 +115,7 @@ export const createProvider = (redisOptions?: RedisRateLimitOptions): RateLimitP
   const port = redisOptions?.port ?? parseInt(process.env.REDIS_PORT ?? '6379', 10)
   const password = redisOptions?.password ?? process.env.REDIS_PASSWORD
   const redisKeyPrefix = redisOptions?.keyPrefix ?? DEFAULT_KEY_PREFIX
+  const failMode = resolveFailMode(redisOptions?.failMode)
 
   const client = url
     ? new Redis(url, { keyPrefix: redisKeyPrefix })
@@ -135,10 +162,47 @@ export const createProvider = (redisOptions?: RedisRateLimitOptions): RateLimitP
     pipeline.zcard(fullKey)
     const results = await pipeline.exec()
 
-    if (!results || !results[1]) return 0
+    // A null/short pipeline reply or a per-command error means Redis is
+    // unreachable/failing — do NOT silently treat it as an empty window (that
+    // is the fail-open-without-a-signal bug). Throw so the caller logs it and
+    // applies the configured failMode.
+    if (!results || !results[1]) {
+      throw new Error('Redis pipeline returned no results (connection error)')
+    }
     const [err, count] = results[1]
-    if (err) return 0
+    if (err) {
+      throw err instanceof Error ? err : new Error(String(err))
+    }
     return count as number
+  }
+
+  /**
+   * Builds the result to return when a Redis backend error prevents a real
+   * limit decision, honoring {@link failMode}: `'open'` admits (empty window),
+   * `'closed'` denies (full window → 429).
+   *
+   * @param now - Current timestamp in milliseconds.
+   * @returns A `RateLimitResult` reflecting the configured fail mode.
+   */
+  const failResult = (now: number): RateLimitResult => {
+    return failMode === 'closed' ? buildResult(config.max, false, now) : buildResult(0, true, now)
+  }
+
+  /**
+   * Logs a Redis backend error at `error` severity so the degradation is never
+   * silent, naming the operation, key, and the chosen fail behavior.
+   *
+   * @param operation - The provider operation that failed (`check`/`consume`/`getRemaining`).
+   * @param key - The rate-limit bucket key involved.
+   * @param error - The underlying Redis error.
+   */
+  const logBackendError = (operation: string, key: string, error: unknown): void => {
+    logger.error(
+      `[api-rate-limit-redis] Redis error during ${operation}(${key}); ` +
+        `failing ${failMode} (request ${failMode === 'closed' ? 'DENIED' : 'ADMITTED'}). ` +
+        'Rate limiting is degraded until Redis recovers.',
+      { error },
+    )
   }
 
   /**
@@ -170,9 +234,14 @@ export const createProvider = (redisOptions?: RedisRateLimitOptions): RateLimitP
     async check(key: string): Promise<RateLimitResult> {
       const fullKey = resolveKey(key)
       const now = Date.now()
-      const count = await countInWindow(fullKey, now)
-      const allowed = count < config.max
-      return buildResult(count, allowed, now)
+      try {
+        const count = await countInWindow(fullKey, now)
+        const allowed = count < config.max
+        return buildResult(count, allowed, now)
+      } catch (error) {
+        logBackendError('check', key, error)
+        return failResult(now)
+      }
     },
 
     async consume(key: string, cost = 1): Promise<RateLimitResult> {
@@ -190,28 +259,35 @@ export const createProvider = (redisOptions?: RedisRateLimitOptions): RateLimitP
       // server-side Lua script. This eliminates the check-then-act race that a
       // separate read (countInWindow) + write (pipeline) suffered under
       // concurrency, which let N concurrent requests all read count=0 and pass.
-      const reply = await client.eval(
-        CONSUME_SCRIPT,
-        1,
-        fullKey,
-        String(windowStart),
-        String(now),
-        String(config.max),
-        String(cost),
-        String(config.windowMs),
-        ...members,
-      )
+      try {
+        const reply = await client.eval(
+          CONSUME_SCRIPT,
+          1,
+          fullKey,
+          String(windowStart),
+          String(now),
+          String(config.max),
+          String(cost),
+          String(config.windowMs),
+          ...members,
+        )
 
-      // Reply shape: [allowed (1|0), resultingCount]. Parse defensively — a Redis
-      // reply is untyped, and a connection/script error should fail open (allow)
-      // to match the read-paths' resilience rather than hard-blocking traffic.
-      if (!Array.isArray(reply)) {
-        return buildResult(cost, true, now)
+        // Reply shape: [allowed (1|0), resultingCount]. A non-array reply means
+        // the script/connection misbehaved — treat it as a backend error rather
+        // than silently admitting (the old fail-open-without-a-signal bug).
+        if (!Array.isArray(reply)) {
+          throw new Error(`Unexpected Redis EVAL reply shape: ${JSON.stringify(reply)}`)
+        }
+        const allowed = Number(reply[0]) === 1
+        const count = Number(reply[1] ?? 0)
+
+        return buildResult(count, allowed, now)
+      } catch (error) {
+        // Redis is unreachable or the script failed. Log loudly, then apply the
+        // configured failMode (default 'open' → admit) — never a silent admit.
+        logBackendError('consume', key, error)
+        return failResult(now)
       }
-      const allowed = Number(reply[0]) === 1
-      const count = Number(reply[1] ?? 0)
-
-      return buildResult(count, allowed, now)
     },
 
     async reset(key: string): Promise<void> {
@@ -222,8 +298,14 @@ export const createProvider = (redisOptions?: RedisRateLimitOptions): RateLimitP
     async getRemaining(key: string): Promise<number> {
       const fullKey = resolveKey(key)
       const now = Date.now()
-      const count = await countInWindow(fullKey, now)
-      return Math.max(0, config.max - count)
+      try {
+        const count = await countInWindow(fullKey, now)
+        return Math.max(0, config.max - count)
+      } catch (error) {
+        logBackendError('getRemaining', key, error)
+        // Fail-open reports a full budget; fail-closed reports none.
+        return failMode === 'closed' ? 0 : config.max
+      }
     },
 
     configure(options: RateLimitOptions): void {

@@ -19,12 +19,14 @@ describe('@molecule/api-secrets-doppler', () => {
     // Clean up any test env vars
     delete process.env.__TEST_DOPPLER_KEY__
     delete process.env.DOPPLER_TOKEN
+    delete process.env.DOPPLER_FALLBACK_TO_ENV
   })
 
   afterEach(() => {
     vi.unstubAllGlobals()
     delete process.env.__TEST_DOPPLER_KEY__
     delete process.env.DOPPLER_TOKEN
+    delete process.env.DOPPLER_FALLBACK_TO_ENV
   })
 
   describe('createDopplerProvider', () => {
@@ -450,6 +452,85 @@ describe('@molecule/api-secrets-doppler', () => {
       expect(warnSpy).toHaveBeenCalled()
 
       warnSpy.mockRestore()
+    })
+  })
+
+  describe('fallbackToEnv policy', () => {
+    it('logs at error severity when falling back to process.env (default true, not silent)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      process.env.__TEST_DOPPLER_KEY__ = 'fallback-value'
+      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+
+      const provider = createDopplerProvider({ token: 'dp.st.test' })
+      const result = await provider.get('__TEST_DOPPLER_KEY__')
+
+      expect(result).toBe('fallback-value')
+      expect(errorSpy).toHaveBeenCalled()
+      // The actual error object must be included in the log (Rule 14).
+      const loggedArgs = errorSpy.mock.calls[0]
+      expect(loggedArgs.some((a) => a && typeof a === 'object' && 'error' in a)).toBe(true)
+      errorSpy.mockRestore()
+    })
+
+    it('re-throws and does NOT read process.env when fallbackToEnv is false', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      process.env.__TEST_DOPPLER_KEY__ = 'should-not-be-returned'
+      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+
+      const provider = createDopplerProvider({ token: 'dp.st.test', fallbackToEnv: false })
+
+      await expect(provider.get('__TEST_DOPPLER_KEY__')).rejects.toThrow('Network error')
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
+    })
+
+    it('getMany re-throws when fallbackToEnv is false (no silent env fallback)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockFetch.mockRejectedValueOnce(new Error('API error'))
+
+      const provider = createDopplerProvider({ token: 'dp.st.test', fallbackToEnv: false })
+
+      await expect(provider.getMany(['A', 'B'])).rejects.toThrow('API error')
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
+    })
+
+    it('getMany logs and falls back to process.env when fallbackToEnv is true', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      process.env.__TEST_DOPPLER_KEY__ = 'env-fallback'
+      mockFetch.mockRejectedValueOnce(new Error('API error'))
+
+      const provider = createDopplerProvider({ token: 'dp.st.test', fallbackToEnv: true })
+      const result = await provider.getMany(['__TEST_DOPPLER_KEY__', 'MISSING'])
+
+      expect(result.__TEST_DOPPLER_KEY__).toBe('env-fallback')
+      expect(result.MISSING).toBeUndefined()
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
+    })
+
+    it('DOPPLER_FALLBACK_TO_ENV=false disables the env fallback (re-throws)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      process.env.DOPPLER_FALLBACK_TO_ENV = 'false'
+      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+
+      const provider = createDopplerProvider({ token: 'dp.st.test' })
+
+      await expect(provider.get('ANY_KEY')).rejects.toThrow('Network error')
+      errorSpy.mockRestore()
+    })
+
+    it('explicit fallbackToEnv option overrides DOPPLER_FALLBACK_TO_ENV env', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      process.env.DOPPLER_FALLBACK_TO_ENV = 'false'
+      process.env.__TEST_DOPPLER_KEY__ = 'env-wins'
+      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+
+      const provider = createDopplerProvider({ token: 'dp.st.test', fallbackToEnv: true })
+      const result = await provider.get('__TEST_DOPPLER_KEY__')
+
+      expect(result).toBe('env-wins')
+      errorSpy.mockRestore()
     })
   })
 

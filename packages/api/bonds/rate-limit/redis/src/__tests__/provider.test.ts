@@ -307,7 +307,8 @@ describe('@molecule/api-rate-limit-redis', () => {
       expect(args[7]).toBe('60000')
     })
 
-    it('fails open when the script reply is malformed', async () => {
+    it('treats a malformed reply as a backend error: logs and applies failMode (default open)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const { createProvider } = await import('../provider.js')
       const provider = createProvider()
       provider.configure({ windowMs: 60_000, max: 10 })
@@ -316,8 +317,10 @@ describe('@molecule/api-rate-limit-redis', () => {
 
       const result = await provider.consume('test-key')
 
-      // Consistent with the read paths' resilience: allow rather than hard-block.
+      // Default failMode is 'open' → admit — but NEVER silently: it must log.
       expect(result.allowed).toBe(true)
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
     })
 
     it('does not overshoot the limit under concurrent requests (atomicity)', async () => {
@@ -496,6 +499,127 @@ describe('@molecule/api-rate-limit-redis', () => {
 
       expect(result.allowed).toBe(true)
       expect(result.remaining).toBe(10)
+    })
+  })
+
+  describe('failMode (Redis backend errors)', () => {
+    it('consume fails OPEN by default and logs the error when Redis errors', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider() // default failMode 'open'
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      mockEval.mockRejectedValueOnce(new Error('ECONNREFUSED'))
+
+      const result = await provider.consume('login:1.2.3.4')
+
+      // Admitted (availability preferred) — but the degradation is logged loudly.
+      expect(result.allowed).toBe(true)
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
+    })
+
+    it('consume fails CLOSED (deny) when failMode is "closed" and logs the error', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ failMode: 'closed' })
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      mockEval.mockRejectedValueOnce(new Error('ECONNREFUSED'))
+
+      const result = await provider.consume('login:1.2.3.4')
+
+      expect(result.allowed).toBe(false)
+      expect(result.remaining).toBe(0)
+      expect(result.retryAfter).toBeGreaterThan(0)
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
+    })
+
+    it('consume fails CLOSED on a malformed reply too (not a silent admit)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ failMode: 'closed' })
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      mockEval.mockResolvedValueOnce(null)
+
+      const result = await provider.consume('test-key')
+
+      expect(result.allowed).toBe(false)
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
+    })
+
+    it('check fails OPEN by default and logs when the pipeline errors', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      mockPipelineInstance.exec.mockResolvedValueOnce(null)
+
+      const result = await provider.check('test-key')
+
+      expect(result.allowed).toBe(true)
+      expect(result.remaining).toBe(10)
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
+    })
+
+    it('check fails CLOSED (deny) when failMode is "closed" and logs on a per-command error', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ failMode: 'closed' })
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      mockPipelineInstance.exec.mockResolvedValueOnce([
+        [null, 0],
+        [new Error('Redis error'), null],
+      ])
+
+      const result = await provider.check('test-key')
+
+      expect(result.allowed).toBe(false)
+      expect(result.remaining).toBe(0)
+      expect(result.retryAfter).toBeGreaterThan(0)
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
+    })
+
+    it('getRemaining honors failMode on a backend error (open=full budget, closed=0)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const { createProvider } = await import('../provider.js')
+
+      const open = createProvider()
+      open.configure({ windowMs: 60_000, max: 10 })
+      mockPipelineInstance.exec.mockResolvedValueOnce(null)
+      expect(await open.getRemaining('k')).toBe(10)
+
+      const closed = createProvider({ failMode: 'closed' })
+      closed.configure({ windowMs: 60_000, max: 10 })
+      mockPipelineInstance.exec.mockResolvedValueOnce(null)
+      expect(await closed.getRemaining('k')).toBe(0)
+
+      expect(errorSpy).toHaveBeenCalledTimes(2)
+      errorSpy.mockRestore()
+    })
+
+    it('resolves failMode from REDIS_RATE_LIMIT_FAIL_MODE env when no option is given', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      process.env.REDIS_RATE_LIMIT_FAIL_MODE = 'closed'
+
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      mockEval.mockRejectedValueOnce(new Error('down'))
+
+      const result = await provider.consume('k')
+
+      expect(result.allowed).toBe(false)
+      expect(errorSpy).toHaveBeenCalled()
+      errorSpy.mockRestore()
     })
   })
 
