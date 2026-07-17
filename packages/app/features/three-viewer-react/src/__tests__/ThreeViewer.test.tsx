@@ -462,6 +462,90 @@ describe('<ThreeViewer>', () => {
     expect(rendererInstances[0].dispose).toHaveBeenCalledTimes(1)
   })
 
+  it('does not tear down WebGL or reload the model when only callback/array identities change', () => {
+    // The real-world case: a parent passes inline callbacks + a fresh
+    // `[x,y,z]` array literal, so every parent re-render hands ThreeViewer
+    // brand-new prop identities. The heavy setup must NOT re-run.
+    const { rerender } = render(
+      <Wrap>
+        <ThreeViewer
+          src="/models/x.glb"
+          onLoad={() => {}}
+          onError={() => {}}
+          cameraTarget={[0, 0, 0]}
+          autoRotate={false}
+        />
+      </Wrap>,
+    )
+    expect(loaderInstances.length).toBe(1)
+    expect(loaderInstances[0].load).toHaveBeenCalledTimes(1)
+    expect(rendererInstances.length).toBe(1)
+    expect(controlsInstances.length).toBe(1)
+
+    // Several re-renders, each with NEW inline identities (new arrows, new
+    // array literal) but the SAME model URL.
+    for (let i = 0; i < 3; i++) {
+      rerender(
+        <Wrap>
+          <ThreeViewer
+            src="/models/x.glb"
+            onLoad={() => {}}
+            onError={() => {}}
+            cameraTarget={[0, 0, 0]}
+            autoRotate={false}
+          />
+        </Wrap>,
+      )
+    }
+
+    // Heavy setup ran exactly once: one loader, model fetched once, renderer
+    // never re-created and never disposed.
+    expect(loaderInstances.length).toBe(1)
+    expect(loaderInstances[0].load).toHaveBeenCalledTimes(1)
+    expect(rendererInstances.length).toBe(1)
+    expect(controlsInstances.length).toBe(1)
+    expect(rendererInstances[0].dispose).not.toHaveBeenCalled()
+    expect(controlsInstances[0].dispose).not.toHaveBeenCalled()
+
+    // Changing the model URL DOES rebuild + re-download once.
+    rerender(
+      <Wrap>
+        <ThreeViewer
+          src="/models/y.glb"
+          onLoad={() => {}}
+          onError={() => {}}
+          cameraTarget={[0, 0, 0]}
+          autoRotate={false}
+        />
+      </Wrap>,
+    )
+    expect(loaderInstances.length).toBe(2)
+    expect(loaderInstances[1].load).toHaveBeenCalledTimes(1)
+    expect(rendererInstances.length).toBe(2)
+    expect(rendererInstances[0].dispose).toHaveBeenCalledTimes(1)
+  })
+
+  it('applies a live autoRotate change without recreating the renderer', () => {
+    const { rerender } = render(
+      <Wrap>
+        <ThreeViewer src="/models/x.glb" autoRotate={false} />
+      </Wrap>,
+    )
+    expect(controlsInstances[0].autoRotate).toBe(false)
+    expect(rendererInstances.length).toBe(1)
+
+    rerender(
+      <Wrap>
+        <ThreeViewer src="/models/x.glb" autoRotate />
+      </Wrap>,
+    )
+    // Same renderer/controls instance, flag flipped in place.
+    expect(rendererInstances.length).toBe(1)
+    expect(controlsInstances.length).toBe(1)
+    expect(controlsInstances[0].autoRotate).toBe(true)
+    expect(rendererInstances[0].dispose).not.toHaveBeenCalled()
+  })
+
   it('accepts and applies the autoRotate prop on orbit controls', () => {
     render(
       <Wrap>

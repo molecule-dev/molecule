@@ -11,15 +11,18 @@ cleanup on unmount — plus the `resolveFormat()` and
 ## Quick Start
 
 ```tsx
-import { useCallback } from 'react'
-
 import { ThreeViewer } from '@molecule/app-three-viewer-react'
 
 function ModelPage() {
-  const handleLoad = useCallback(() => console.log('loaded'), [])
+  // Inline callbacks/arrays are safe — they do not tear down WebGL.
   return (
     <div style={{ height: 480 }}>
-      <ThreeViewer src="/models/duck.glb" lighting="studio" autoRotate onLoad={handleLoad} />
+      <ThreeViewer
+        src="/models/duck.glb"
+        lighting="studio"
+        autoRotate
+        onLoad={() => console.log('loaded')}
+      />
     </div>
   )
 }
@@ -123,7 +126,14 @@ function resolveFormat(src: string, explicit?: ThreeViewerFormat): ThreeViewerFo
 Supports GLTF/GLB, OBJ, and STL inputs, orbit controls, and a small set of
 lighting presets. The camera auto-fits to the model's bounding box on
 load. All three.js GPU resources (geometry, materials, textures, the
-renderer itself) are disposed on unmount or when `src`/`format` changes.
+renderer itself) are disposed on unmount or when the model source
+(`src`/`format`) or scene structure (`lighting`/`background`) changes.
+
+The heavy setup (renderer creation + model download) depends ONLY on those
+inputs; `onLoad`, `onError`, `cameraTarget`, and `autoRotate` are routed
+through refs, so passing them inline (fresh arrows / `[x,y,z]` literals) does
+NOT tear down the WebGL context or re-download the model on a parent
+re-render.
 
 ```typescript
 function ThreeViewer(props: ThreeViewerProps): JSX.Element
@@ -154,11 +164,14 @@ Peer dependencies:
 - Ships a REAL pinned `three` dependency — a substantial bundle-size
   add. Lazy-load the importing route/component (`React.lazy` / dynamic
   import) so non-3D pages do not pay for it.
-- The scene effect re-initializes whenever ANY prop identity changes —
-  including `onLoad`, `onError`, and the `cameraTarget` array. Pass
-  stable references (`useCallback`, memoized arrays); inline arrows or
-  fresh `[x,y,z]` literals tear down the WebGL context and re-download
-  the model on every parent re-render.
+- The heavy setup effect (renderer creation + model download) depends
+  ONLY on `src`/`format` (and `lighting`/`background`, which restructure
+  the scene). `onLoad`, `onError`, `cameraTarget`, and `autoRotate` are
+  routed through refs + light sync effects, so passing them inline (fresh
+  arrows / `[x,y,z]` literals) does NOT tear down the WebGL context or
+  re-download the model on a parent re-render. Changing `src`/`format`
+  reloads the model; changing `cameraTarget`'s value re-aims the camera
+  in place.
 - The wrapper is `width/height: 100%` with `min-height: 240px` — give
   the PARENT an explicit height or the canvas collapses to 240px.
 - Requires WebGL in a real browser: do not render during SSR and do

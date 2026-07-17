@@ -253,7 +253,14 @@ function loadModel(src: string, format: ThreeViewerFormat): Promise<Object3D> {
  * Supports GLTF/GLB, OBJ, and STL inputs, orbit controls, and a small set of
  * lighting presets. The camera auto-fits to the model's bounding box on
  * load. All three.js GPU resources (geometry, materials, textures, the
- * renderer itself) are disposed on unmount or when `src`/`format` changes.
+ * renderer itself) are disposed on unmount or when the model source
+ * (`src`/`format`) or scene structure (`lighting`/`background`) changes.
+ *
+ * The heavy setup (renderer creation + model download) depends ONLY on those
+ * inputs; `onLoad`, `onError`, `cameraTarget`, and `autoRotate` are routed
+ * through refs, so passing them inline (fresh arrows / `[x,y,z]` literals) does
+ * NOT tear down the WebGL context or re-download the model on a parent
+ * re-render.
  *
  * @param props - Component props.
  * @returns The rendered viewer.
@@ -277,6 +284,58 @@ export function ThreeViewer(props: ThreeViewerProps): JSX.Element {
   const [loading, setLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
+  // Latest callback + option props kept in refs so the heavy setup effect below
+  // depends only on what genuinely forces a rebuild (the model source + scene
+  // structure) and never on inline arrows / fresh `[x,y,z]` literals — those get
+  // a new identity on every parent render. Routing them through refs stops an
+  // unrelated parent re-render from tearing down the WebGL context and
+  // re-downloading the model.
+  const onLoadRef = useRef(onLoad)
+  const onErrorRef = useRef(onError)
+  const cameraTargetRef = useRef(cameraTarget)
+  const autoRotateRef = useRef(autoRotate)
+
+  // Live handles to the running three.js objects so the cheap prop-sync effects
+  // can update them in place — no teardown.
+  const cameraRef = useRef<PerspectiveCamera | null>(null)
+  const controlsRef = useRef<OrbitControls | null>(null)
+  const modelRef = useRef<Object3D | null>(null)
+
+  // Cheap sync: keep the callback refs current. Never touches the renderer, so a
+  // parent re-render with new inline `onLoad`/`onError` does not rebuild WebGL.
+  useEffect(() => {
+    onLoadRef.current = onLoad
+    onErrorRef.current = onError
+  }, [onLoad, onError])
+
+  // Cheap sync: `autoRotate` toggles a live control flag in place.
+  useEffect(() => {
+    autoRotateRef.current = autoRotate
+    if (controlsRef.current) {
+      controlsRef.current.autoRotate = autoRotate
+    }
+  }, [autoRotate])
+
+  // Cheap sync: keep the `cameraTarget` ref current on every identity change so
+  // the next model load / re-fit reads the latest value.
+  useEffect(() => {
+    cameraTargetRef.current = cameraTarget
+  }, [cameraTarget])
+
+  // Cheap sync: re-aim the camera when the target VALUE changes (identity churn
+  // from inline literals is ignored via the joined-value key) — no model reload.
+  const cameraTargetKey = cameraTarget ? cameraTarget.join(',') : ''
+  useEffect(() => {
+    const camera = cameraRef.current
+    const controls = controlsRef.current
+    const model = modelRef.current
+    if (camera && controls && model) {
+      fitCameraToObject(model, camera, controls, cameraTargetRef.current)
+    }
+  }, [cameraTargetKey])
+
+  // Heavy setup + teardown: creates the renderer/scene and downloads the model.
+  // Re-runs ONLY when the model source or scene structure changes.
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
@@ -299,7 +358,9 @@ export function ThreeViewer(props: ThreeViewerProps): JSX.Element {
 
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
-    controls.autoRotate = autoRotate
+    controls.autoRotate = autoRotateRef.current
+    cameraRef.current = camera
+    controlsRef.current = controls
 
     const lights = applyLighting(scene, lighting)
 
@@ -340,18 +401,19 @@ export function ThreeViewer(props: ThreeViewerProps): JSX.Element {
           return
         }
         model = obj
+        modelRef.current = obj
         scene.add(obj)
-        fitCameraToObject(obj, camera, controls, cameraTarget)
+        fitCameraToObject(obj, camera, controls, cameraTargetRef.current)
         animate()
         setLoading(false)
-        onLoad?.()
+        onLoadRef.current?.()
       })
       .catch((err: unknown) => {
         if (disposed) return
         const e = err instanceof Error ? err : new Error(String(err))
         setErrorMsg(e.message)
         setLoading(false)
-        onError?.(e)
+        onErrorRef.current?.(e)
       })
 
     return () => {
@@ -370,8 +432,11 @@ export function ThreeViewer(props: ThreeViewerProps): JSX.Element {
       if (renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement)
       }
+      cameraRef.current = null
+      controlsRef.current = null
+      modelRef.current = null
     }
-  }, [src, format, lighting, background, autoRotate, cameraTarget, onLoad, onError])
+  }, [src, format, lighting, background])
 
   const overlayStyle = {
     position: 'absolute' as const,
