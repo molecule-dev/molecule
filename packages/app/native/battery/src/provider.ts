@@ -1,8 +1,13 @@
 /**
  * `@molecule/app-battery`
- * Provider management for battery module
+ * Provider wiring for the battery module.
+ *
+ * Delegates to the shared `@molecule/app-bond` registry under the `'battery'`
+ * category, so `setProvider(provider)` and `bond('battery', provider)` write
+ * the same slot — either bonds the provider.
  */
 
+import { bond, get, isBonded } from '@molecule/app-bond'
 import { t } from '@molecule/app-i18n'
 
 import type {
@@ -16,14 +21,14 @@ import type {
 // Provider Management
 // ============================================================================
 
-let currentProvider: BatteryProvider | null = null
+const BOND_TYPE = 'battery'
 
 /**
  * Set the battery provider
  * @param provider - BatteryProvider implementation
  */
 export function setProvider(provider: BatteryProvider): void {
-  currentProvider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -32,7 +37,7 @@ export function setProvider(provider: BatteryProvider): void {
  * @returns The active battery provider instance.
  */
 export function getProvider(): BatteryProvider {
-  if (!currentProvider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error(
       t('battery.error.noProvider', undefined, {
         defaultValue:
@@ -40,7 +45,7 @@ export function getProvider(): BatteryProvider {
       }),
     )
   }
-  return currentProvider
+  return get<BatteryProvider>(BOND_TYPE)!
 }
 
 /**
@@ -48,7 +53,7 @@ export function getProvider(): BatteryProvider {
  * @returns Whether a battery provider has been registered.
  */
 export function hasProvider(): boolean {
-  return currentProvider !== null
+  return isBonded(BOND_TYPE)
 }
 
 // ============================================================================

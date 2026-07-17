@@ -26,8 +26,8 @@
  * ```
  *
  * @remarks
- * - **Wire with `setProvider()`, NOT `bond()`** — this core keeps a module-local provider
- *   reference; `bond('bluetooth', provider)` is silently ignored.
+ * - **Wire with `setProvider()` or `bond('bluetooth', provider)`** — this core delegates to the
+ *   shared `@molecule/app-bond` registry, so both write the same slot.
  * - **No prebuilt provider bond exists for this interface yet** — implement
  *   `BluetoothProvider` yourself. Ignore any runtime error text suggesting a `-capacitor`
  *   package; none ships.

@@ -1,20 +1,25 @@
 /**
  * `@molecule/app-brightness`
- * Provider management for screen brightness
+ * Provider wiring for screen brightness.
+ *
+ * Delegates to the shared `@molecule/app-bond` registry under the `'brightness'`
+ * category, so `setProvider(provider)` and `bond('brightness', provider)` write
+ * the same slot — either bonds the provider.
  */
 
+import { bond, get, isBonded } from '@molecule/app-bond'
 import { t } from '@molecule/app-i18n'
 
 import type { BrightnessProvider } from './types.js'
 
-let currentProvider: BrightnessProvider | null = null
+const BOND_TYPE = 'brightness'
 
 /**
  * Set the brightness provider.
  * @param provider - BrightnessProvider implementation to register.
  */
 export function setProvider(provider: BrightnessProvider): void {
-  currentProvider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -23,7 +28,7 @@ export function setProvider(provider: BrightnessProvider): void {
  * @returns The active BrightnessProvider instance.
  */
 export function getProvider(): BrightnessProvider {
-  if (!currentProvider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error(
       t('brightness.error.noProvider', undefined, {
         defaultValue:
@@ -31,7 +36,7 @@ export function getProvider(): BrightnessProvider {
       }),
     )
   }
-  return currentProvider
+  return get<BrightnessProvider>(BOND_TYPE)!
 }
 
 /**
@@ -39,5 +44,5 @@ export function getProvider(): BrightnessProvider {
  * @returns Whether a BrightnessProvider has been set via setProvider.
  */
 export function hasProvider(): boolean {
-  return currentProvider !== null
+  return isBonded(BOND_TYPE)
 }

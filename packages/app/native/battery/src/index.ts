@@ -26,9 +26,9 @@
  * ```
  *
  * @remarks
- * - **Wire with `setProvider()`, NOT `bond()`** — this core keeps a module-local provider
- *   reference; `bond('battery', provider)` is silently ignored and every call still throws
- *   "No provider set".
+ * - **Wire with `setProvider()` or `bond('battery', provider)`** — this core delegates to the
+ *   shared `@molecule/app-bond` registry, so both write the same slot; the core's own
+ *   `setProvider()` is always correct.
  * - **No prebuilt provider bond exists for this interface yet** — implement `BatteryProvider`
  *   yourself. Ignore any runtime error text suggesting a `-capacitor` package; none ships.
  * - Web support is narrow: `navigator.getBattery()` exists only in Chromium browsers. Gate the

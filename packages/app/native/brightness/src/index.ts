@@ -23,8 +23,8 @@
  * ```
  *
  * @remarks
- * - **Wire with `setProvider()`, NOT `bond()`** — this core keeps a module-local provider
- *   reference; `bond('brightness', provider)` is silently ignored.
+ * - **Wire with `setProvider()` or `bond('brightness', provider)`** — this core delegates to the
+ *   shared `@molecule/app-bond` registry, so both write the same slot.
  * - **No prebuilt provider bond exists for this interface yet.** Ignore any runtime error text
  *   suggesting a `-capacitor` package; none ships.
  * - **Browsers cannot set physical screen brightness.** On web the only implementable slice is

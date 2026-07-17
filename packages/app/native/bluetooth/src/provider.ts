@@ -1,9 +1,14 @@
 /**
- * Bluetooth provider management for molecule.dev.
+ * Bluetooth provider wiring for molecule.dev.
+ *
+ * Delegates to the shared `@molecule/app-bond` registry under the `'bluetooth'`
+ * category, so `setProvider(provider)` and `bond('bluetooth', provider)` write
+ * the same slot — either bonds the provider.
  *
  * @module
  */
 
+import { bond, get, isBonded } from '@molecule/app-bond'
 import { t } from '@molecule/app-i18n'
 
 import type {
@@ -19,14 +24,14 @@ import type {
   WriteOptions,
 } from './types.js'
 
-let currentProvider: BluetoothProvider | null = null
+const BOND_TYPE = 'bluetooth'
 
 /**
  * Set the Bluetooth provider.
  * @param provider - BluetoothProvider implementation to register.
  */
 export function setProvider(provider: BluetoothProvider): void {
-  currentProvider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -35,7 +40,7 @@ export function setProvider(provider: BluetoothProvider): void {
  * @returns The active BluetoothProvider instance.
  */
 export function getProvider(): BluetoothProvider {
-  if (!currentProvider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error(
       t('bluetooth.error.noProvider', undefined, {
         defaultValue:
@@ -43,7 +48,7 @@ export function getProvider(): BluetoothProvider {
       }),
     )
   }
-  return currentProvider
+  return get<BluetoothProvider>(BOND_TYPE)!
 }
 
 /**
@@ -51,7 +56,7 @@ export function getProvider(): BluetoothProvider {
  * @returns Whether a BluetoothProvider has been set via setProvider.
  */
 export function hasProvider(): boolean {
-  return currentProvider !== null
+  return isBonded(BOND_TYPE)
 }
 
 // ============================================================================
