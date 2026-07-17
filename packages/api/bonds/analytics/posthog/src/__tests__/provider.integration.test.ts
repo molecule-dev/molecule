@@ -16,6 +16,7 @@
 
 import { createServer, type IncomingMessage, type Server } from 'node:http'
 import { gunzipSync } from 'node:zlib'
+
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const ORIGINAL_KEY = process.env.POSTHOG_API_KEY

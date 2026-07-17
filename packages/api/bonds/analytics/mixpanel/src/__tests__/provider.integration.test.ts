@@ -15,6 +15,7 @@
  */
 
 import { createServer, type Server } from 'node:http'
+
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const ORIGINAL_TOKEN = process.env.MIXPANEL_TOKEN
