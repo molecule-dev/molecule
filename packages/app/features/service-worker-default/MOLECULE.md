@@ -3,11 +3,12 @@
 `@molecule/app-service-worker-default` — drop-in Workbox service-worker
 setup.
 
-Exports `setupDefaultServiceWorker(worker, manifest)` and the
-`PrecacheEntry` type. Wires: precache manifest, app-shell navigation
-fallback to `/index.html`, a same-origin PNG image cache
-(StaleWhileRevalidate, max 50 entries), `clientsClaim()`, and a
-SKIP_WAITING message handler.
+Exports `setupDefaultServiceWorker(worker, manifest, options?)`, the
+`PrecacheEntry` type, and `DEFAULT_IMAGE_EXTENSIONS`. Wires: precache
+manifest, app-shell navigation fallback (base-path aware — derived from
+`self.registration.scope`, overridable), a same-origin image cache for all
+common web formats (png/jpg/jpeg/webp/avif/gif/svg/ico, StaleWhileRevalidate,
+max 50 entries), `clientsClaim()`, and a SKIP_WAITING message handler.
 
 ## Quick Start
 
@@ -34,6 +35,36 @@ npm install @molecule/app-service-worker-default workbox-core workbox-expiration
 
 ## API
 
+### Interfaces
+
+#### `DefaultServiceWorkerOptions`
+
+Options for {@link setupDefaultServiceWorker}. All fields are optional —
+sensible defaults derive the base path from the SW registration scope and
+cache all common web image formats.
+
+```typescript
+interface DefaultServiceWorkerOptions {
+  /**
+   * The precached URL the app-shell navigation fallback resolves to.
+   *
+   * Defaults to `index.html` resolved against `self.registration.scope`, so an
+   * app built with a non-root Vite `base` (e.g. served under `/app/`) falls
+   * back to the correct `/app/index.html` — NOT a hardcoded `/index.html`,
+   * which would 404/mis-route under a sub-path. Pass an explicit value to
+   * override (must match a URL present in the precache manifest).
+   */
+  navigationFallback?: string
+  /**
+   * File extensions (lower-case, no leading dot) the image cache matches.
+   * Defaults to {@link DEFAULT_IMAGE_EXTENSIONS}.
+   */
+  imageExtensions?: readonly string[]
+  /** Max entries retained by the image cache. Defaults to `50`. */
+  imageCacheMaxEntries?: number
+}
+```
+
 ### Types
 
 #### `PrecacheEntry`
@@ -46,10 +77,10 @@ type PrecacheEntry = { url: string; revision: string | null }
 
 ### Functions
 
-#### `setupDefaultServiceWorker(worker, manifest)`
+#### `setupDefaultServiceWorker(worker, manifest, options)`
 
-Wires the default service worker — precache manifest, app-shell
-navigation routing, same-origin PNG image cache with
+Wires the default service worker — precache manifest, base-aware app-shell
+navigation routing, a same-origin multi-format image cache with
 StaleWhileRevalidate, and a SKIP_WAITING message handler.
 
 Must be called from the app's `src/service-worker.ts` so the
@@ -59,7 +90,23 @@ reference inside the SW file (the tool scans the SW source for
 the token at build time). See the package-level example.
 
 ```typescript
-function setupDefaultServiceWorker(worker: ServiceWorkerGlobalScope, manifest: PrecacheEntry[]): void
+function setupDefaultServiceWorker(worker: ServiceWorkerGlobalScope, manifest: PrecacheEntry[], options?: DefaultServiceWorkerOptions): void
+```
+
+- `worker` — The service-worker global scope (`self`).
+- `manifest` — The precache manifest (`self.__WB_MANIFEST`).
+- `options` — Optional overrides — see {@link DefaultServiceWorkerOptions}.
+
+### Constants
+
+#### `DEFAULT_IMAGE_EXTENSIONS`
+
+Common web image extensions the default image cache matches (lower-case,
+without the leading dot). Covers the raster + vector formats a modern app
+actually ships — not just `.png`.
+
+```typescript
+const DEFAULT_IMAGE_EXTENSIONS: readonly string[]
 ```
 
 ## Injection Notes
@@ -92,9 +139,12 @@ Peer dependencies:
 - All five `workbox-*` packages are peerDependencies — install
   `workbox-core`, `workbox-expiration`, `workbox-precaching`,
   `workbox-routing`, `workbox-strategies` in the app.
-- Navigation fallback is hardcoded to `/index.html` — apps served under a
-  sub-path (build `base` other than `/`) need their own handler.
-- The image cache matches same-origin `.png` requests ONLY; jpg/svg/webp
-  are not cached — register additional routes for other formats.
+- Navigation fallback is base-path aware: by default it resolves `index.html`
+  against `self.registration.scope`, so an app built with a non-root Vite
+  `base` (e.g. served under `/app/`) falls back to `/app/index.html`
+  automatically. Override via `options.navigationFallback` when needed.
+- The image cache matches same-origin requests for all common web image
+  formats (png/jpg/jpeg/webp/avif/gif/svg/ico) case-insensitively. Narrow or
+  widen the set via `options.imageExtensions`.
 - Navigations to paths starting with `/_` or containing a file extension
   bypass the app-shell fallback.
