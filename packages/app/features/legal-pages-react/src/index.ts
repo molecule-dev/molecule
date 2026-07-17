@@ -22,6 +22,11 @@
  *   a `<Link>`) and wired auth state from `@molecule/app-react` — without an auth
  *   provider it shows a spinner forever (`state.initialized` never flips). The
  *   rest of the package is router-free.
+ * - **Name collision:** `PlanUpdatedPage` is also exported by
+ *   `@molecule/app-pricing-page-react` (the pricing-page-flavored success page), and a
+ *   standalone `<PlanUpdated>` lives in `@molecule/app-plan-updated-page-react`. THIS
+ *   package's `<PlanUpdatedPage>` is the legal-pages-kit confirmation page — import it
+ *   from `@molecule/app-legal-pages-react` when you use this kit's other pages.
  * - `ContentPageShell`'s hero reads `var(--mol-color-primary)` and
  *   `var(--mol-color-background)` with no fallback, and uses Tailwind theme
  *   utilities (`font-display`, `bg-background`, `border-outline-variant`) — the

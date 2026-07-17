@@ -28,7 +28,9 @@
  * "View receipt" link uses `planUpdated.viewReceipt` from the companion bond
  * `@molecule/app-locales-plan-updated-page` and always navigates to
  * `/billing` — ensure that route exists. For the pricing-page-integrated
- * variant see `PlanUpdatedPage` in `@molecule/app-pricing-page-react`.
+ * variant see `PlanUpdatedPage` in `@molecule/app-pricing-page-react` (a
+ * same-named `PlanUpdatedPage` is also exported by
+ * `@molecule/app-legal-pages-react`) — import the one whose kit you are using.
  *
  * @module
  */

@@ -51,8 +51,17 @@
  *   `PanelClose`/`usePanelClose` available) — there is no `renderPanel` prop.
  * - **`Icon` names are kebab-case `IconName`s from `@molecule/app-icons`** — an unknown name is
  *   a runtime error, not a blank. Extend via `CustomIconNames` augmentation, never raw SVG.
- * - This package's `EmptyState` (icon/title/description/action props) is distinct from any
- *   feature-package EmptyState — import it from `@molecule/app-ui-react` explicitly.
+ * - **Name collisions with feature packages** — several feature packages export a
+ *   same-named component; import from the package whose props/behavior you want:
+ *   - `EmptyState` — also `@molecule/app-empty-state-react` (adds an icon badge,
+ *     per-brand `className`/`dataMolId`, and a companion `<CtaCard>`). THIS one is the
+ *     primitive icon/title/description/action variant.
+ *   - `PageHeader` — also `@molecule/app-page-chrome-react` (adds `subtitle`, `icon`,
+ *     `meta`, `emphasis` + a `<HeroSection>`). THIS one takes
+ *     `title`/`description`/`actions`/`breadcrumbs`.
+ *   - `Pagination` — the low-level page-window control (no "showing X of Y" text, no
+ *     page-size selector); for those use `<PaginationBar>` from
+ *     `@molecule/app-pagination-bar-react`.
  *
  * A11y contracts worth knowing before you debug "it doesn't look like it's
  * doing anything" on these components:

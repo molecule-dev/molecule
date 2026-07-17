@@ -432,6 +432,15 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 
+**Name collision:** `PricingPage` is also exported by
+`@molecule/app-pricing-page-react` (a tier-card grid with a monthly/yearly
+toggle driven by `usePricingTiers()`). THIS package's `<PricingPage>` is the
+entitlements-kit table with a `renderLimits` prop + compound
+`<LimitsList>`/`<LimitsItem>` and a built-in `<BillingStatusBadge>` — import
+from `@molecule/app-billing-react` when you are wiring
+`@molecule/api-entitlements`. If you import both packages, alias one to avoid
+the clash.
+
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt

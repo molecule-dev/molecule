@@ -21,8 +21,10 @@ own different `PricingPage` (compound LimitsList/LimitsItem layout); import
 from the package whose API you are using. The default checkout redirects
 with `window.location.assign(checkoutUrl)` — pass `onCheckout` to route
 through an SPA router or a non-Stripe flow. `<PlanUpdatedPage />` here is
-the pricing-page-flavored success page; a standalone alternative is
-`@molecule/app-plan-updated-page-react`.
+the pricing-page-flavored success page; `@molecule/app-legal-pages-react`
+also exports a same-named `PlanUpdatedPage`, and a standalone `<PlanUpdated>`
+lives in `@molecule/app-plan-updated-page-react` — import the one whose kit
+you are using.
 
 ## Quick Start
 
