@@ -37,5 +37,8 @@
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
     "vitest": "4.1.8"
+  },
+  "dependencies": {
+    "photoswipe": "5.4.4"
   }
 }

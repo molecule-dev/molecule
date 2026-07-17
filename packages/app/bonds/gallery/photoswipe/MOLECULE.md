@@ -1,17 +1,26 @@
 # @molecule/app-gallery-photoswipe
 
-Gallery provider for `@molecule/app-gallery` — headless, in-memory
-navigation state (current index, open/close/next/previous/goTo). Despite
-the name, this bond does NOT bundle or call the PhotoSwipe library (no
-dependency) and renders no lightbox UI of its own.
+PhotoSwipe v5 gallery provider for `@molecule/app-gallery`.
+
+Drives the real PhotoSwipe lightbox: `open()` constructs a `PhotoSwipe`
+instance from the core `GalleryItem[]` (mapped to PhotoSwipe slides) and calls
+`.init()` to actually display it; `close()` and navigation delegate to the
+live instance. This is a real, rendering provider — not headless state.
 
 ## Quick Start
 
 ```typescript
+// REQUIRED — also `import 'photoswipe/style.css'` in your app entry (see @remarks)
 import { provider } from '@molecule/app-gallery-photoswipe'
-import { setProvider } from '@molecule/app-gallery'
+import { setProvider, requireProvider } from '@molecule/app-gallery'
 
-setProvider(provider)   // once, at app startup (bonds.ts)
+setProvider(provider)                // once, at app startup (bonds.ts)
+
+const gallery = requireProvider().createGallery({
+  items: [{ src: '/photos/1.jpg', width: 1200, height: 800, alt: 'Sunset' }],
+  zoomable: true,
+})
+gallery.open(0)                      // opens the PhotoSwipe lightbox at item 0
 ```
 
 ## Type
@@ -19,7 +28,7 @@ setProvider(provider)   // once, at app startup (bonds.ts)
 
 ## Installation
 ```bash
-npm install @molecule/app-gallery-photoswipe @molecule/app-gallery
+npm install @molecule/app-gallery-photoswipe @molecule/app-gallery photoswipe
 ```
 
 ## API
@@ -42,17 +51,20 @@ interface PhotoSwipeConfig {
 
 ### Functions
 
-#### `createProvider(_config)`
+#### `createProvider(config)`
 
 Creates a PhotoSwipe-based gallery provider.
 
+Per-gallery `GalleryOptions` (`zoomable`, `showCounter`) override the
+provider-level `PhotoSwipeConfig`; both default to PhotoSwipe's own defaults.
+
 ```typescript
-function createProvider(_config?: PhotoSwipeConfig): GalleryProvider
+function createProvider(config?: PhotoSwipeConfig): GalleryProvider
 ```
 
-- `_config` — Optional provider configuration.
+- `config` — Optional provider-level configuration.
 
-**Returns:** A configured GalleryProvider.
+**Returns:** A configured GalleryProvider backed by PhotoSwipe v5.
 
 ### Constants
 
@@ -90,18 +102,26 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-gallery`
+- `photoswipe`
 
-- **State-only: `open()` displays nothing.** Your app renders the lightbox
-  overlay (image, prev/next, close, counter) with `getClassMap()`/`cm.*` and
-  `t('key', values, { defaultValue })` labels, and re-reads
-  `getCurrentIndex()` after each navigation call (there are no change events).
-- **Configuration is currently inert** — `createProvider()` ignores
-  `PhotoSwipeConfig` (`zoomable`, `showCounter`), and of `GalleryOptions`
-  only `items`, `startIndex`, and `onClose` are honored (`zoomable`,
-  `showCounter`, `showThumbnails` do nothing). Don't gate UI behavior on them.
-- **Wire with `setProvider()` from `@molecule/app-gallery`** — the core keeps
-  a module-local singleton; a generic `bond('gallery', …)` silently no-ops
-  and `requireProvider()` throws.
+- **Import PhotoSwipe's stylesheet yourself** — this package does not:
+  `import 'photoswipe/style.css'` (aka `photoswipe/dist/photoswipe.css`).
+  Without it the lightbox opens unstyled/invisible.
+- **Browser-only.** `open()` runs `new PhotoSwipe(...).init()`, which needs a
+  live DOM — construct/open galleries in a client-only effect, never during SSR.
+- **`open()` renders the real lightbox** (unlike a headless provider). Each
+  `GalleryItem` maps to a PhotoSwipe slide — `src`, `width`, `height`, `alt`;
+  `thumbnail` → `msrc` (low-res placeholder); `caption` carried through — opened
+  at `startIndex`/the given index. `getCurrentIndex()` follows PhotoSwipe's own
+  navigation (arrows/swipe/keyboard) via its `change` event.
+- **`GalleryOptions` drive PhotoSwipe:** `onClose` fires on the lightbox `close`
+  event; `zoomable` → PhotoSwipe's `zoom` button, `showCounter` → its `counter`
+  (per-gallery options override the provider-level `PhotoSwipeConfig`; both
+  default on). `showThumbnails` has no effect — PhotoSwipe core has no thumbnail
+  strip (it needs a separate plugin).
+- **Wire with `setProvider()` from `@molecule/app-gallery`** — the core keeps a
+  module-local singleton; a generic `bond('gallery', …)` silently no-ops and
+  `requireProvider()` throws.
 
 ## E2E Tests
 
