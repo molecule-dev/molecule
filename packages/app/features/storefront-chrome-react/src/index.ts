@@ -38,7 +38,7 @@
  *           { to: '/cart', icon: 'shopping_cart', ariaLabel: 'Cart', badgeCount: cartCount },
  *         ]}
  *         isAuthenticated={isAuthenticated}
- *         profileImageUrl={avatarUrl ?? '/avatar-placeholder.svg'}
+ *         profileImageUrl={avatarUrl}
  *         authedMenu={[{ to: '/settings', label: 'My Account' }, { to: '/orders', label: 'Orders' }]}
  *         unauthedMenu={[{ to: '/login', label: 'Sign in' }, { to: '/signup', label: 'Create account' }]}
  *         onSignOut={onSignOut}
@@ -56,11 +56,14 @@
  * - `NavActionSpec.icon` is a Material Symbols LIGATURE name
  *   (`'shopping_cart'`): load the "Material Symbols Outlined" font in
  *   the host app or the nav shows raw words instead of icons.
- * - The profile dropdown — including the signed-out `unauthedMenu` —
- *   renders ONLY when `profileImageUrl` is truthy. For signed-out users
- *   pass a placeholder avatar URL, or no menu appears at all.
- * - `signOutLabel` and `profileImageAlt` default to English strings;
- *   pass translated values (no companion locale bond ships).
+ * - The account/sign-in menu (`authedMenu` when signed in, else
+ *   `unauthedMenu`) ALWAYS renders and is reachable regardless of
+ *   `profileImageUrl`. The avatar image is an optional enhancement: with
+ *   no URL the trigger shows `profileInitials`, else a default avatar
+ *   icon — reachability is never gated on the image.
+ * - `signOutLabel`, `profileImageAlt` and `accountMenuLabel` default to
+ *   English strings; pass translated values (no companion locale bond
+ *   ships).
  * - Styling is the flagship palette hardcoded with raw utilities
  *   (`bg-white dark:bg-slate-900`, slate-900 footer, GREEN link-hover
  *   accents, `max-w-[1280px]`), not ClassMap tokens: it will not follow

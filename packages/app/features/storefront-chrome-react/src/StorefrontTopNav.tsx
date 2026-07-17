@@ -24,13 +24,20 @@ export interface StorefrontTopNavProps {
   actions?: NavActionSpec[]
   isAuthenticated: boolean
   /**
-   * Avatar image URL. The profile dropdown — including the signed-out
-   * `unauthedMenu` — renders ONLY when this is truthy; pass a placeholder
-   * avatar URL for signed-out users or no menu appears at all.
+   * Avatar image URL. OPTIONAL enhancement only — the account/sign-in
+   * menu always renders so it is reachable without one. When absent the
+   * trigger falls back to `profileInitials`, else a default avatar icon.
    */
   profileImageUrl?: string
+  /**
+   * Uppercase initials shown in the avatar when no `profileImageUrl` is
+   * given (e.g. "JD"). Falls back to a default avatar icon when omitted.
+   */
+  profileInitials?: string
   /** Avatar alt text. Defaults to English "User profile" — pass a translated string. */
   profileImageAlt?: string
+  /** Accessible name for the account-menu trigger. Defaults to English "Account menu". */
+  accountMenuLabel?: string
   authedMenu?: ProfileMenuItem[]
   unauthedMenu?: ProfileMenuItem[]
   onSignOut?: () => void
@@ -47,7 +54,9 @@ export function StorefrontTopNav({
   actions = [],
   isAuthenticated,
   profileImageUrl,
+  profileInitials,
   profileImageAlt = 'User profile',
+  accountMenuLabel = 'Account menu',
   authedMenu = [],
   unauthedMenu = [],
   onSignOut,
@@ -151,76 +160,95 @@ export function StorefrontTopNav({
             </Link>
           ))}
 
-          {profileImageUrl ? (
-            <div className={cm.cn('relative')} data-mol-id="profile-wrapper-01" ref={profileRef}>
-              <div
-                className={cm.cn(
-                  cm.w(8),
-                  cm.h(8),
-                  cm.roundedFull,
-                  cm.cursorPointer,
-                  'overflow-hidden border border-gray-200',
-                )}
-                data-mol-id="profile-trigger-01"
-                onClick={() => setProfileOpen((o) => !o)}
-              >
+          {/* The account/sign-in menu ALWAYS renders so it is reachable for
+              every user; the avatar image is an optional enhancement that
+              falls back to initials, then a default avatar icon. */}
+          <div className={cm.cn('relative')} data-mol-id="profile-wrapper-01" ref={profileRef}>
+            <button
+              type="button"
+              aria-label={accountMenuLabel}
+              aria-haspopup="menu"
+              aria-expanded={profileOpen}
+              className={cm.cn(
+                cm.w(8),
+                cm.h(8),
+                cm.roundedFull,
+                cm.cursorPointer,
+                cm.flex({ align: 'center', justify: 'center' }),
+                'overflow-hidden border border-gray-200',
+              )}
+              data-mol-id="profile-trigger-01"
+              onClick={() => setProfileOpen((o) => !o)}
+            >
+              {profileImageUrl ? (
                 <img
                   alt={profileImageAlt}
                   className={cm.cn(cm.w('full'), cm.h('full'), 'object-cover')}
                   src={profileImageUrl}
                 />
-              </div>
-              {profileOpen ? (
-                <div
-                  className={cm.cn(
-                    cm.sp('mt', 2),
-                    cm.sp('py', 1),
-                    cm.w(48),
-                    'absolute right-0 bg-white border border-gray-100 rounded-lg shadow-lg z-50',
-                  )}
-                  data-mol-id="profile-dropdown-01"
+              ) : profileInitials ? (
+                <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'), cm.textPrimary)}>
+                  {profileInitials}
+                </span>
+              ) : (
+                <span
+                  className={cm.cn('material-symbols-outlined', cm.textMuted)}
+                  data-icon="person"
                 >
-                  {(isAuthenticated ? authedMenu : unauthedMenu).map((item) => (
-                    <Link
-                      key={item.to}
+                  person
+                </span>
+              )}
+            </button>
+            {profileOpen ? (
+              <div
+                className={cm.cn(
+                  cm.sp('mt', 2),
+                  cm.sp('py', 1),
+                  cm.w(48),
+                  'absolute right-0 bg-white border border-gray-100 rounded-lg shadow-lg z-50',
+                )}
+                data-mol-id="profile-dropdown-01"
+              >
+                {(isAuthenticated ? authedMenu : unauthedMenu).map((item) => (
+                  <Link
+                    key={item.to}
+                    className={cm.cn(
+                      cm.sp('px', 4),
+                      cm.sp('py', 2),
+                      cm.textSize('sm'),
+                      'block text-gray-700 hover:bg-gray-50',
+                    )}
+                    data-mol-id={item.dataMolId}
+                    onClick={() => setProfileOpen(false)}
+                    to={item.to}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                {isAuthenticated && onSignOut ? (
+                  <>
+                    <hr className={cm.cn(cm.sp('my', 1), 'border-gray-100')} />
+                    <button
                       className={cm.cn(
                         cm.sp('px', 4),
                         cm.sp('py', 2),
                         cm.textSize('sm'),
-                        'block text-gray-700 hover:bg-gray-50',
+                        cm.w('full'),
+                        'block text-left text-gray-700 hover:bg-gray-50',
                       )}
-                      data-mol-id={item.dataMolId}
-                      onClick={() => setProfileOpen(false)}
-                      to={item.to}
+                      data-mol-id="profile-link-signout"
+                      onClick={() => {
+                        setProfileOpen(false)
+                        onSignOut()
+                      }}
                     >
-                      {item.label}
-                    </Link>
-                  ))}
-                  {isAuthenticated && onSignOut ? (
-                    <>
-                      <hr className={cm.cn(cm.sp('my', 1), 'border-gray-100')} />
-                      <button
-                        className={cm.cn(
-                          cm.sp('px', 4),
-                          cm.sp('py', 2),
-                          cm.textSize('sm'),
-                          cm.w('full'),
-                          'block text-left text-gray-700 hover:bg-gray-50',
-                        )}
-                        data-mol-id="profile-link-signout"
-                        onClick={() => {
-                          setProfileOpen(false)
-                          onSignOut()
-                        }}
-                      >
-                        {signOutLabel}
-                      </button>
-                    </>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          ) : null}
+                      {signOutLabel}
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
       </nav>
     </header>

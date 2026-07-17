@@ -40,7 +40,7 @@ function StorefrontShell({ cartCount, isAuthenticated, avatarUrl, onSignOut }: {
           { to: '/cart', icon: 'shopping_cart', ariaLabel: 'Cart', badgeCount: cartCount },
         ]}
         isAuthenticated={isAuthenticated}
-        profileImageUrl={avatarUrl ?? '/avatar-placeholder.svg'}
+        profileImageUrl={avatarUrl}
         authedMenu={[{ to: '/settings', label: 'My Account' }, { to: '/orders', label: 'Orders' }]}
         unauthedMenu={[{ to: '/login', label: 'Sign in' }, { to: '/signup', label: 'Create account' }]}
         onSignOut={onSignOut}
@@ -154,13 +154,20 @@ interface StorefrontTopNavProps {
   actions?: NavActionSpec[]
   isAuthenticated: boolean
   /**
-   * Avatar image URL. The profile dropdown — including the signed-out
-   * `unauthedMenu` — renders ONLY when this is truthy; pass a placeholder
-   * avatar URL for signed-out users or no menu appears at all.
+   * Avatar image URL. OPTIONAL enhancement only — the account/sign-in
+   * menu always renders so it is reachable without one. When absent the
+   * trigger falls back to `profileInitials`, else a default avatar icon.
    */
   profileImageUrl?: string
+  /**
+   * Uppercase initials shown in the avatar when no `profileImageUrl` is
+   * given (e.g. "JD"). Falls back to a default avatar icon when omitted.
+   */
+  profileInitials?: string
   /** Avatar alt text. Defaults to English "User profile" — pass a translated string. */
   profileImageAlt?: string
+  /** Accessible name for the account-menu trigger. Defaults to English "Account menu". */
+  accountMenuLabel?: string
   authedMenu?: ProfileMenuItem[]
   unauthedMenu?: ProfileMenuItem[]
   onSignOut?: () => void
@@ -215,7 +222,9 @@ function StorefrontFooter({
   actions = [],
   isAuthenticated,
   profileImageUrl,
+  profileInitials,
   profileImageAlt = 'User profile',
+  accountMenuLabel = 'Account menu',
   authedMenu = [],
   unauthedMenu = [],
   onSignOut,
@@ -233,7 +242,9 @@ function StorefrontTopNav({
   actions = [],
   isAuthenticated,
   profileImageUrl,
+  profileInitials,
   profileImageAlt = 'User profile',
+  accountMenuLabel = 'Account menu',
   authedMenu = [],
   unauthedMenu = [],
   onSignOut,
@@ -268,11 +279,14 @@ Peer dependencies:
 - `NavActionSpec.icon` is a Material Symbols LIGATURE name
   (`'shopping_cart'`): load the "Material Symbols Outlined" font in
   the host app or the nav shows raw words instead of icons.
-- The profile dropdown — including the signed-out `unauthedMenu` —
-  renders ONLY when `profileImageUrl` is truthy. For signed-out users
-  pass a placeholder avatar URL, or no menu appears at all.
-- `signOutLabel` and `profileImageAlt` default to English strings;
-  pass translated values (no companion locale bond ships).
+- The account/sign-in menu (`authedMenu` when signed in, else
+  `unauthedMenu`) ALWAYS renders and is reachable regardless of
+  `profileImageUrl`. The avatar image is an optional enhancement: with
+  no URL the trigger shows `profileInitials`, else a default avatar
+  icon — reachability is never gated on the image.
+- `signOutLabel`, `profileImageAlt` and `accountMenuLabel` default to
+  English strings; pass translated values (no companion locale bond
+  ships).
 - Styling is the flagship palette hardcoded with raw utilities
   (`bg-white dark:bg-slate-900`, slate-900 footer, GREEN link-hover
   accents, `max-w-[1280px]`), not ClassMap tokens: it will not follow
