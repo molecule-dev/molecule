@@ -12,16 +12,29 @@
 
 import { requireProvider as requireAI } from '@molecule/api-ai'
 import { create } from '@molecule/api-database'
+import { logger } from '@molecule/api-logger'
 
 import type {
   AuditLogRow,
+  ClassificationResult,
   ModerationCategory,
   ModerationDecision,
+  ModerationErrorAction,
   ModerationPolicy,
   ModerationScore,
 } from './types.js'
 
 const AUDIT_TABLE = 'moderation_audit_log'
+
+/**
+ * Behavior when the classifier fails and no real moderation signal exists.
+ * `'flag'` (route to human review) is the safe default: a moderation control
+ * must NOT silently allow un-moderated content on a transient classifier blip,
+ * yet a hard `'block'` on every failure would break legitimate flows. The error
+ * is always logged; `'allow'` (fail-open) and `'block'` (fail-closed) are
+ * explicit opt-ins. See {@link ModerationPolicy.onError}.
+ */
+const DEFAULT_ON_ERROR: ModerationErrorAction = 'flag'
 
 const CLASSIFY_PROMPT = `You are a content moderation classifier.
 
@@ -61,21 +74,68 @@ export const DEFAULT_POLICY: ModerationPolicy = {
   },
   action: 'flag',
   defaultAction: 'allow',
+  onError: 'flag',
 }
 
-/** Classify content using the bonded AI provider. */
-export async function classify(content: string): Promise<{
-  scores: ModerationScore[]
-  reasoning: string
-}> {
+/**
+ * Resolves the effective {@link ModerationErrorAction} from an explicit policy
+ * value, then the `MODERATION_ON_ERROR` env var, defaulting to
+ * {@link DEFAULT_ON_ERROR}. Only the exact strings `'allow'`/`'block'`/`'flag'`
+ * are honored; anything else falls through to the default.
+ *
+ * @param policy - The active moderation policy, if any.
+ * @returns The effective action to take on classifier failure.
+ */
+function resolveErrorAction(policy?: ModerationPolicy): ModerationErrorAction {
+  if (policy?.onError) return policy.onError
+  const env =
+    typeof process !== 'undefined' ? process.env?.MODERATION_ON_ERROR?.toLowerCase() : undefined
+  if (env === 'allow' || env === 'block' || env === 'flag') return env
+  return DEFAULT_ON_ERROR
+}
+
+/**
+ * Classify content using the bonded AI provider.
+ *
+ * On a provider error/timeout, an in-band `error` stream event, or malformed
+ * model output, this resolves to empty `scores` with `error` set — it does NOT
+ * throw and does NOT fabricate a benign result. `moderate()` routes that
+ * failure per `policy.onError`; direct callers MUST check `result.error` before
+ * trusting an empty-scores result (an empty result with no `error` means the
+ * model genuinely scored everything at 0).
+ *
+ * @param content - The content to classify.
+ * @returns The classification result — scores + reasoning, or `error` on failure.
+ */
+export async function classify(content: string): Promise<ClassificationResult> {
   const ai = requireAI()
   let raw = ''
-  for await (const event of ai.chat({
-    messages: [{ role: 'user', content: CLASSIFY_PROMPT.replace('{{CONTENT}}', content) }],
-    temperature: 0,
-  })) {
-    const e = event as { type: string; text?: string }
-    if (e.type === 'text') raw += e.text ?? ''
+  let streamError: Error | null = null
+  try {
+    for await (const event of ai.chat({
+      messages: [{ role: 'user', content: CLASSIFY_PROMPT.replace('{{CONTENT}}', content) }],
+      temperature: 0,
+    })) {
+      const e = event as { type: string; text?: string; message?: string }
+      if (e.type === 'text') raw += e.text ?? ''
+      else if (e.type === 'error') {
+        // In-band provider error — the classifier did not produce a usable
+        // signal. Capture it so the caller fails per policy, never silently.
+        streamError = new Error(e.message ?? 'AI provider returned an error event')
+      }
+    }
+  } catch (error) {
+    // The chat call/stream threw (connection error, timeout, aborted). Same as
+    // an in-band error: no usable signal — surface it, don't swallow it.
+    streamError = error instanceof Error ? error : new Error(String(error))
+  }
+
+  if (streamError) {
+    return {
+      scores: [],
+      reasoning: `classifier failed: ${streamError.message}`,
+      error: streamError,
+    }
   }
 
   try {
@@ -93,10 +153,15 @@ export async function classify(content: string): Promise<{
       score: Math.max(0, Math.min(1, Number(score) || 0)),
     }))
     return { scores, reasoning: parsed.reasoning ?? '' }
-  } catch (_error) {
-    // AI returned non-JSON or structurally invalid output; safe to ignore and
-    // fall back — the caller receives empty scores and a descriptive reasoning string.
-    return { scores: [], reasoning: 'classifier returned malformed JSON' }
+  } catch (error) {
+    // The model returned non-JSON or structurally invalid output — there is no
+    // usable moderation signal. Return empty scores WITH `error` set so the
+    // pipeline routes per policy.onError instead of treating this as an allow.
+    return {
+      scores: [],
+      reasoning: 'classifier returned malformed JSON',
+      error: error instanceof Error ? error : new Error('classifier returned malformed JSON'),
+    }
   }
 }
 
@@ -137,8 +202,32 @@ export async function moderate(opts: {
   /** Whether to write the audit log row. Defaults to true. */
   audit?: boolean
 }): Promise<ModerationDecision> {
-  const { scores, reasoning } = await classify(opts.content)
-  const decision = applyPolicy(scores, reasoning, opts.policy)
+  const policy = opts.policy ?? DEFAULT_POLICY
+  const result = await classify(opts.content)
+
+  let decision: ModerationDecision
+  if (result.error) {
+    // The classifier failed — there is NO real moderation signal. Route per
+    // policy.onError instead of silently allowing un-moderated content, and
+    // ALWAYS log the failure loudly (the real bug was swallowing it).
+    const onError = resolveErrorAction(policy)
+    logger.error(
+      `[api-ai-moderation-pipeline] classifier failed; applying onError='${onError}' ` +
+        `(content ${onError === 'block' ? 'BLOCKED' : onError === 'flag' ? 'FLAGGED for review' : 'ALLOWED un-moderated'}). ` +
+        'Moderation is degraded until the classifier recovers.',
+      { error: result.error },
+    )
+    decision = {
+      action: onError,
+      scores: result.scores,
+      reasoning: result.reasoning,
+      matched_category: null,
+      flagged: onError !== 'allow',
+      errored: true,
+    }
+  } else {
+    decision = applyPolicy(result.scores, result.reasoning, policy)
+  }
 
   if (opts.audit !== false) {
     try {
@@ -152,10 +241,16 @@ export async function moderate(opts: {
         resource_type: opts.resource?.type ?? null,
         resource_id: opts.resource?.id ?? null,
       } as Partial<AuditLogRow>)
-    } catch (_error) {
-      // Audit is best-effort: a DB write failure must not block the moderation
-      // decision returned to the caller. The pipeline still functions correctly
-      // without the audit row.
+    } catch (error) {
+      // Audit is best-effort — a DB write failure must not block the moderation
+      // decision returned to the caller — but it must NEVER be silently dropped:
+      // an unwritten audit row is a lost compliance/security record, so warn
+      // with the error (the decision itself still stands).
+      logger.warn(
+        `[api-ai-moderation-pipeline] audit-log write to '${AUDIT_TABLE}' failed; ` +
+          'the moderation decision still stands but no audit row was recorded.',
+        { error },
+      )
     }
   }
 

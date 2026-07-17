@@ -1,7 +1,14 @@
-const { mockCreate, mockRequireAI, mockChat } = vi.hoisted(() => ({
+const { mockCreate, mockRequireAI, mockChat, mockLogger } = vi.hoisted(() => ({
   mockCreate: vi.fn(),
   mockRequireAI: vi.fn(),
   mockChat: vi.fn(),
+  mockLogger: {
+    trace: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
 }))
 
 vi.mock('@molecule/api-database', () => ({
@@ -12,7 +19,11 @@ vi.mock('@molecule/api-ai', () => ({
   requireProvider: mockRequireAI,
 }))
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+vi.mock('@molecule/api-logger', () => ({
+  logger: mockLogger,
+}))
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { applyPolicy, classify, DEFAULT_POLICY, moderate } from '../pipeline.js'
 import type { ModerationCategory, ModerationPolicy, ModerationScore } from '../types.js'
@@ -26,9 +37,33 @@ function streamChunks(chunks: string[]) {
   }
 }
 
+/** Build a chat stream that yields an in-band {type:'error'} event. */
+function streamError(message: string) {
+  return {
+    async *[Symbol.asyncIterator]() {
+      yield { type: 'error', message }
+    },
+  }
+}
+
+/** Build a chat stream whose iterator rejects (provider crash/timeout). */
+function throwingStream(error: Error) {
+  return {
+    [Symbol.asyncIterator]() {
+      return {
+        next: () => Promise.reject(error),
+      }
+    },
+  }
+}
+
 beforeEach(() => {
   vi.resetAllMocks()
   mockRequireAI.mockReturnValue({ chat: mockChat })
+})
+
+afterEach(() => {
+  delete process.env.MODERATION_ON_ERROR
 })
 
 describe('DEFAULT_POLICY', () => {
@@ -50,6 +85,10 @@ describe('DEFAULT_POLICY', () => {
   it('action=flag and defaultAction=allow', () => {
     expect(DEFAULT_POLICY.action).toBe('flag')
     expect(DEFAULT_POLICY.defaultAction).toBe('allow')
+  })
+
+  it('onError defaults to flag (fail-safe: never a silent allow)', () => {
+    expect(DEFAULT_POLICY.onError).toBe('flag')
   })
 })
 
@@ -110,11 +149,36 @@ describe('classify', () => {
     expect(byCat.harassment).toBe(0)
   })
 
-  it('returns empty scores + diagnostic when the model returns garbage', async () => {
+  it('returns empty scores + diagnostic + error when the model returns garbage', async () => {
     mockChat.mockReturnValue(streamChunks(['not json at all']))
     const out = await classify('x')
     expect(out.scores).toEqual([])
     expect(out.reasoning).toBe('classifier returned malformed JSON')
+    // The failure must be SIGNALLED (not a benign empty result) so the pipeline
+    // can fail safe instead of silently allowing un-moderated content.
+    expect(out.error).toBeInstanceOf(Error)
+  })
+
+  it('surfaces an in-band provider error event as result.error', async () => {
+    mockChat.mockReturnValue(streamError('rate limited'))
+    const out = await classify('x')
+    expect(out.scores).toEqual([])
+    expect(out.error).toBeInstanceOf(Error)
+    expect(out.error?.message).toContain('rate limited')
+  })
+
+  it('surfaces a thrown/timed-out stream as result.error (no throw, no fabricated result)', async () => {
+    mockChat.mockReturnValue(throwingStream(new Error('connection reset')))
+    const out = await classify('x')
+    expect(out.scores).toEqual([])
+    expect(out.error).toBeInstanceOf(Error)
+    expect(out.error?.message).toContain('connection reset')
+  })
+
+  it('sets no error on a successful classification', async () => {
+    mockChat.mockReturnValue(streamChunks(['{"scores":{"hate":0.1},"reasoning":"ok"}']))
+    const out = await classify('x')
+    expect(out.error).toBeUndefined()
   })
 
   it('ignores non-text events in the stream', async () => {
@@ -266,12 +330,19 @@ describe('moderate (end-to-end pipeline)', () => {
     expect(mockCreate).not.toHaveBeenCalled()
   })
 
-  it('swallows audit-write errors (best-effort logging)', async () => {
+  it('logs (does NOT silently drop) an audit-write failure, decision still returned', async () => {
     arrangeClassifier({ hate: 0.9 })
-    mockCreate.mockRejectedValue(new Error('audit log down'))
+    const auditError = new Error('audit log down')
+    mockCreate.mockRejectedValue(auditError)
     // Should NOT throw — decision still returned
     const decision = await moderate({ content: 'x' })
     expect(decision.action).toBe('flag') // pipeline survived
+    // The failed audit write must be LOGGED with the error, never swallowed.
+    expect(mockLogger.warn).toHaveBeenCalledTimes(1)
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('audit-log write'),
+      expect.objectContaining({ error: auditError }),
+    )
   })
 
   it('end-to-end below-threshold path → allow + no flag', async () => {
@@ -298,5 +369,91 @@ describe('moderate (end-to-end pipeline)', () => {
     arrangeClassifier({})
     await moderate({ content: 'x' })
     expect(mockCreate.mock.calls[0][1].owner_id).toBeNull()
+  })
+})
+
+describe('moderate — classifier-failure routing (fail-safe, not fail-open)', () => {
+  /** Arrange a classifier that fails via malformed model output. */
+  function arrangeMalformed() {
+    mockChat.mockReturnValue(streamChunks(['this is not json']))
+  }
+
+  it('DEFAULT policy FLAGS (never silently allows) on classifier failure + logs the error', async () => {
+    arrangeMalformed()
+    const decision = await moderate({ content: 'x', audit: false })
+    expect(decision.action).toBe('flag')
+    expect(decision.flagged).toBe(true)
+    expect(decision.errored).toBe(true)
+    // The failure is logged loudly with the bound error — the real bug was
+    // swallowing it and letting content sail through as an allow.
+    expect(mockLogger.error).toHaveBeenCalledTimes(1)
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      expect.stringContaining('classifier failed'),
+      expect.objectContaining({ error: expect.any(Error) }),
+    )
+  })
+
+  it('routes an in-band provider error event the same way (flag + log)', async () => {
+    mockChat.mockReturnValue(streamError('provider 503'))
+    const decision = await moderate({ content: 'x', audit: false })
+    expect(decision.action).toBe('flag')
+    expect(decision.errored).toBe(true)
+    expect(mockLogger.error).toHaveBeenCalledTimes(1)
+  })
+
+  it('policy.onError:"block" fails closed on classifier failure', async () => {
+    arrangeMalformed()
+    const policy: ModerationPolicy = { ...DEFAULT_POLICY, onError: 'block' }
+    const decision = await moderate({ content: 'x', policy, audit: false })
+    expect(decision.action).toBe('block')
+    expect(decision.flagged).toBe(true)
+    expect(decision.errored).toBe(true)
+    expect(mockLogger.error).toHaveBeenCalledTimes(1)
+  })
+
+  it('policy.onError:"allow" is an EXPLICIT opt-in to fail-open — still logs the error', async () => {
+    arrangeMalformed()
+    const policy: ModerationPolicy = { ...DEFAULT_POLICY, onError: 'allow' }
+    const decision = await moderate({ content: 'x', policy, audit: false })
+    expect(decision.action).toBe('allow')
+    expect(decision.flagged).toBe(false)
+    expect(decision.errored).toBe(true)
+    // Even a deliberate fail-open must LOG the classifier failure — the error is
+    // never silently swallowed regardless of the chosen mode.
+    expect(mockLogger.error).toHaveBeenCalledTimes(1)
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      expect.stringContaining('ALLOWED un-moderated'),
+      expect.objectContaining({ error: expect.any(Error) }),
+    )
+  })
+
+  it('MODERATION_ON_ERROR env var applies when the policy omits onError', async () => {
+    arrangeMalformed()
+    process.env.MODERATION_ON_ERROR = 'block'
+    // A policy WITHOUT onError set — so the env var is consulted.
+    const policy: ModerationPolicy = { thresholds: { hate: 0.7 }, action: 'flag' }
+    const decision = await moderate({ content: 'x', policy, audit: false })
+    expect(decision.action).toBe('block')
+    expect(decision.errored).toBe(true)
+  })
+
+  it('an explicit policy.onError beats the env var', async () => {
+    arrangeMalformed()
+    process.env.MODERATION_ON_ERROR = 'allow'
+    const policy: ModerationPolicy = { thresholds: { hate: 0.7 }, action: 'flag', onError: 'block' }
+    const decision = await moderate({ content: 'x', policy, audit: false })
+    expect(decision.action).toBe('block')
+  })
+
+  it('still writes an audit row recording the errored decision', async () => {
+    arrangeMalformed()
+    mockCreate.mockResolvedValue({ data: { id: 'a' } })
+    await moderate({ content: 'bad', ownerId: 'u1' })
+    expect(mockCreate).toHaveBeenCalledTimes(1)
+    const row = mockCreate.mock.calls[0][1]
+    expect(row.decision).toBe('flag') // DEFAULT onError
+    // The audit trail records WHY (the classifier-failure diagnostic), so a
+    // fail-safe flag is distinguishable from a genuine one in the log.
+    expect(row.reasoning).toContain('malformed JSON')
   })
 })

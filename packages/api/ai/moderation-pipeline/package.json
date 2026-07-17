@@ -29,6 +29,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@molecule/api-logger": "1.0.0",
     "@types/express": "5.0.6",
     "@types/node": "25.9.2",
     "express": "5.2.1",
@@ -40,6 +41,7 @@
     "@molecule/api-bonds-default-express": "^1.0.0",
     "@molecule/api-database": "^1.0.0",
     "@molecule/api-i18n": "^1.0.0",
+    "@molecule/api-logger": "^1.0.0",
     "@molecule/api-middleware-validation": "^1.0.0",
     "express": "^5.0.0",
     "zod": "^4.0.0",
