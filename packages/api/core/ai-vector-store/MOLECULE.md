@@ -74,7 +74,15 @@ interface AIVectorStoreProvider {
   /**
    * Create a new collection/namespace for storing vectors.
    *
+   * Idempotent: re-creating a collection that already exists with the SAME
+   * dimension is a no-op, so callers can safely call this at startup on every
+   * boot. Only a genuine dimension CONFLICT (same name, different dimension)
+   * throws. Providers MUST implement this contract so an app that works against
+   * one bond (e.g. the in-memory store in dev) behaves identically against
+   * another (e.g. pgvector in prod) instead of crashing on the second boot.
+   *
    * @param params - Collection creation parameters.
+   * @throws {Error} if a collection with the same name exists at a different dimension.
    */
   createCollection(params: CreateCollectionParams): Promise<void>
 
