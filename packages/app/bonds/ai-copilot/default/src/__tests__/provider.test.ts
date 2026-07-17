@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createProvider, DefaultCopilotProvider } from '../provider.js'
+import type { AICopilotProvider } from '@molecule/app-ai-copilot'
+
+import { createProvider, DefaultCopilotProvider, provider as lazyProvider } from '../provider.js'
 
 vi.mock('@molecule/app-i18n', () => ({
   t: vi.fn(
@@ -410,5 +412,32 @@ describe('@molecule/app-ai-copilot-default', () => {
 
       await expect(provider.rejectSuggestion(suggestion, config)).resolves.toBeUndefined()
     })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Lazy `provider` singleton export (fleet-convention typed provider const)
+// ---------------------------------------------------------------------------
+
+describe('provider — lazy singleton export', () => {
+  it('is exported and typed as the core AICopilotProvider', () => {
+    const typed: AICopilotProvider = lazyProvider
+    expect(typed).toBe(lazyProvider)
+  })
+
+  it('does not construct at import time (referencing the const never throws)', () => {
+    // The module was imported at the top of this file with no config, and loading
+    // did not throw — the Proxy defers construction to the first property access.
+    expect(typeof lazyProvider).toBe('object')
+    expect(lazyProvider).not.toBeNull()
+  })
+
+  it('wires to the real DefaultCopilotProvider implementation on first use', () => {
+    // Accessing a member triggers lazy construction and forwards to the real instance.
+    expect(lazyProvider.name).toBe('default')
+    expect(typeof lazyProvider.getSuggestions).toBe('function')
+    expect(typeof lazyProvider.acceptSuggestion).toBe('function')
+    expect(typeof lazyProvider.rejectSuggestion).toBe('function')
+    expect(typeof lazyProvider.abort).toBe('function')
   })
 })

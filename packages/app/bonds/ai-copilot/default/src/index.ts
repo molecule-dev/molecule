@@ -5,11 +5,9 @@
  * @example
  * ```typescript
  * import { setProvider } from '@molecule/app-ai-copilot'
- * import { createProvider } from '@molecule/app-ai-copilot-default'
+ * import { provider } from '@molecule/app-ai-copilot-default'
  *
- * // There is NO pre-instantiated `provider` export in this package —
- * // wire the factory result:
- * setProvider(createProvider()) // at startup; same-origin base URL
+ * setProvider(provider) // at startup — lazy; same-origin base URL, no config needed
  * // setProvider(createProvider({ baseUrl, headers })) to customize
  * ```
  *

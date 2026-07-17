@@ -5,11 +5,10 @@
  * @example
  * ```typescript
  * import { setProvider } from '@molecule/app-ai-voice'
- * import { createProvider } from '@molecule/app-ai-voice-default'
+ * import { provider } from '@molecule/app-ai-voice-default'
  *
- * // There is NO pre-instantiated `provider` export in this package —
- * // wire the factory result:
- * setProvider(createProvider()) // at startup
+ * setProvider(provider) // at startup — lazy; no config needed
+ * // setProvider(createProvider({ ... })) to pass default recognition/synthesis options
  * ```
  *
  * @remarks

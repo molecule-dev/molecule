@@ -366,3 +366,25 @@ export class DefaultVoiceProvider implements AIVoiceProvider {
 export function createProvider(config?: DefaultVoiceConfig): DefaultVoiceProvider {
   return new DefaultVoiceProvider(config)
 }
+
+/** Lazily-initialized provider singleton. Defers creation until first use so importing this module never touches the browser Web Speech API. */
+let _provider: AIVoiceProvider | null = null
+/**
+ * The provider implementation — the fleet-standard typed `provider` const.
+ *
+ * Wire it once at startup: `setProvider(provider)` from `@molecule/app-ai-voice`.
+ * It is a lazy proxy: construction is deferred to the first property access, so
+ * importing this module never throws and needs no config up front. Use
+ * `createProvider(config)` instead when you need default recognition/synthesis options.
+ */
+export const provider: AIVoiceProvider = new Proxy({} as AIVoiceProvider, {
+  get(_, prop, receiver) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.get(_provider, prop, receiver)
+  },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.set(_provider, prop, value)
+  },
+})

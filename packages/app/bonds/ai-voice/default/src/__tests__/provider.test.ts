@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createProvider, DefaultVoiceProvider } from '../provider.js'
+import type { AIVoiceProvider } from '@molecule/app-ai-voice'
+
+import { createProvider, DefaultVoiceProvider, provider as lazyProvider } from '../provider.js'
 
 // --- Mock SpeechRecognition ---
 
@@ -691,5 +693,33 @@ describe('DefaultVoiceProvider', () => {
 
       provider.dispose()
     })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Lazy `provider` singleton export (fleet-convention typed provider const)
+// ---------------------------------------------------------------------------
+
+describe('provider — lazy singleton export', () => {
+  it('is exported and typed as the core AIVoiceProvider', () => {
+    const typed: AIVoiceProvider = lazyProvider
+    expect(typed).toBe(lazyProvider)
+  })
+
+  it('does not construct at import time (referencing the const never throws)', () => {
+    // The module was imported at the top of this file with no config, and loading
+    // did not throw — the Proxy defers construction to the first property access.
+    expect(typeof lazyProvider).toBe('object')
+    expect(lazyProvider).not.toBeNull()
+  })
+
+  it('wires to the real DefaultVoiceProvider implementation on first use', () => {
+    // Accessing a member triggers lazy construction and forwards to the real instance.
+    expect(lazyProvider.name).toBe('default')
+    expect(typeof lazyProvider.startListening).toBe('function')
+    expect(typeof lazyProvider.speak).toBe('function')
+    expect(typeof lazyProvider.getState).toBe('function')
+    expect(typeof lazyProvider.isSupported).toBe('function')
+    expect(typeof lazyProvider.dispose).toBe('function')
   })
 })

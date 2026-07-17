@@ -7,11 +7,9 @@ suggestions from YOUR backend.
 
 ```typescript
 import { setProvider } from '@molecule/app-ai-copilot'
-import { createProvider } from '@molecule/app-ai-copilot-default'
+import { provider } from '@molecule/app-ai-copilot-default'
 
-// There is NO pre-instantiated `provider` export in this package —
-// wire the factory result:
-setProvider(createProvider()) // at startup; same-origin base URL
+setProvider(provider) // at startup — lazy; same-origin base URL, no config needed
 // setProvider(createProvider({ baseUrl, headers })) to customize
 ```
 
@@ -61,8 +59,36 @@ function createProvider(config?: DefaultCopilotConfig): DefaultCopilotProvider
 
 **Returns:** A new DefaultCopilotProvider.
 
+### Constants
+
+#### `provider`
+
+The provider implementation — the fleet-standard typed `provider` const.
+
+Wire it once at startup: `setProvider(provider)` from `@molecule/app-ai-copilot`.
+It is a lazy proxy: construction is deferred to the first property access, so
+importing this module never throws and needs no config up front. Use
+`createProvider(config)` instead when you need to pass a base URL or headers.
+
+```typescript
+const provider: AICopilotProvider
+```
+
 ## Core Interface
 Implements `@molecule/app-ai-copilot` interface.
+
+## Bond Wiring
+
+Setup function to register this provider with the core interface:
+
+```typescript
+import { setProvider } from '@molecule/app-ai-copilot'
+import { provider } from '@molecule/app-ai-copilot-default'
+
+export function setupAiCopilotDefault(): void {
+  setProvider(provider)
+}
+```
 
 ## Injection Notes
 

@@ -246,3 +246,25 @@ export class DefaultCopilotProvider implements AICopilotProvider {
 export function createProvider(config?: DefaultCopilotConfig): DefaultCopilotProvider {
   return new DefaultCopilotProvider(config)
 }
+
+/** Lazily-initialized provider singleton. Defers creation until first use so importing this module never runs provider setup. */
+let _provider: AICopilotProvider | null = null
+/**
+ * The provider implementation — the fleet-standard typed `provider` const.
+ *
+ * Wire it once at startup: `setProvider(provider)` from `@molecule/app-ai-copilot`.
+ * It is a lazy proxy: construction is deferred to the first property access, so
+ * importing this module never throws and needs no config up front. Use
+ * `createProvider(config)` instead when you need to pass a base URL or headers.
+ */
+export const provider: AICopilotProvider = new Proxy({} as AICopilotProvider, {
+  get(_, prop, receiver) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.get(_provider, prop, receiver)
+  },
+  // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
+  set(_, prop, value) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.set(_provider, prop, value)
+  },
+})
