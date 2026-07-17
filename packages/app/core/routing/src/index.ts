@@ -18,6 +18,29 @@
  *   history, server logs, and the `Referer` header — deliver a reset/verify token as a
  *   one-time link you validate server-side, and don't persist it client-side afterward.
  *
+ * @example
+ * ```ts
+ * import { createBrowserRouter, setRouter, navigate, getParams, getQuery } from '@molecule/app-routing'
+ *
+ * // Wire the router ONCE at app startup (before any navigate/getParams call):
+ * setRouter(
+ *   createBrowserRouter({
+ *     routes: [
+ *       { path: '/', name: 'home' },
+ *       { path: '/projects/:id', name: 'project', requiresAuth: true },
+ *     ],
+ *   }),
+ * )
+ *
+ * // Navigate in-app (SPA — no full reload). `replace` skips a history entry.
+ * navigate('/projects/42')
+ * navigate('/login', { replace: true, state: { from: '/projects/42' } })
+ *
+ * // Read the current route's params + query string anywhere:
+ * const { id } = getParams<{ id: string }>() // '42' on /projects/:id
+ * const query = getQuery() // { sort: 'recent' } on ?sort=recent
+ * ```
+ *
  * @module
  */
 

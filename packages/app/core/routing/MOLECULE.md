@@ -5,6 +5,30 @@ Client-side routing interface for molecule.dev.
 Provides a unified routing API that works across different
 routing libraries (React Router, Next.js, Vue Router, etc.).
 
+## Quick Start
+
+```ts
+import { createBrowserRouter, setRouter, navigate, getParams, getQuery } from '@molecule/app-routing'
+
+// Wire the router ONCE at app startup (before any navigate/getParams call):
+setRouter(
+  createBrowserRouter({
+    routes: [
+      { path: '/', name: 'home' },
+      { path: '/projects/:id', name: 'project', requiresAuth: true },
+    ],
+  }),
+)
+
+// Navigate in-app (SPA — no full reload). `replace` skips a history entry.
+navigate('/projects/42')
+navigate('/login', { replace: true, state: { from: '/projects/42' } })
+
+// Read the current route's params + query string anywhere:
+const { id } = getParams<{ id: string }>() // '42' on /projects/:id
+const query = getQuery() // { sort: 'recent' } on ?sort=recent
+```
+
 ## Type
 `core`
 

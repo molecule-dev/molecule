@@ -2,6 +2,22 @@
 
 Payment resource with subscription plan management.
 
+## Quick Start
+
+```ts
+import { registerPlans, stripeMonthly, stripeYearly } from '@molecule/api-resource-payment'
+
+// Register your plan catalogue at startup. The keys are YOUR plan ids; the ready-made
+// Plan objects carry the env-configured Stripe price/product ids (also register the
+// apple and google plan exports when you support those providers):
+registerPlans({ monthly: stripeMonthly, yearly: stripeYearly })
+
+// Then grant a plan ONLY after a SERVER-VERIFIED payment — never from a client field.
+// The full verify → record (replay-guarded) → resolve → grant flow lives in the scaffolded
+// user `verifyPayment` handler; verify receipts against @molecule/api-payments and store
+// them with `paymentRecordService.store` (it THROWS on a replayed transactionId — reject).
+```
+
 ## Type
 `resource`
 
