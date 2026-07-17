@@ -1,19 +1,23 @@
 # @molecule/app-image-crop-cropperjs
 
-Image-crop provider for `@molecule/app-image-crop` — headless, in-memory
-crop-region state (rect, rotation, zoom). Despite the name, this bond does
-NOT use the Cropper.js library (no dependency), and it does not produce
-pixel output: **`getCroppedCanvas()` returns a non-functional placeholder
-object, not a real `<canvas>`** — calling `.toBlob()`/`.toDataURL()` on the
-result throws.
+Cropper.js image-crop provider for `@molecule/app-image-crop` — a REAL
+implementation backed by cropperjs v1. `createCropper({ src })` mounts a live
+`Cropper` on an image element and every instance method delegates to the
+corresponding cropperjs call, so `getCroppedCanvas()` returns the actual
+cropped `<canvas>` (call `.toBlob()` / `.toDataURL()` on it to export) — not a
+placeholder object.
 
 ## Quick Start
 
 ```typescript
 import { provider } from '@molecule/app-image-crop-cropperjs'
-import { setProvider } from '@molecule/app-image-crop'
+import { setProvider, requireProvider } from '@molecule/app-image-crop'
 
 setProvider(provider)   // once, at app startup (bonds.ts)
+
+const cropper = requireProvider().createCropper({ src: '/avatar.jpg', aspectRatio: 1 })
+const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 })
+canvas.toBlob((blob) => uploadAvatar(blob), 'image/png')
 ```
 
 ## Type
@@ -30,31 +34,43 @@ npm install @molecule/app-image-crop-cropperjs @molecule/app-image-crop
 
 #### `CropperjsConfig`
 
-Provider-specific configuration options.
+Provider-level defaults applied to every cropper created by the provider.
+
+These map onto cropperjs constructor options. Per-cropper `CropperOptions`
+(e.g. `guides`) take precedence over the matching field here.
 
 ```typescript
 interface CropperjsConfig {
-  /** Whether to show guides by default. Defaults to `true`. */
+  /**
+   * Whether to show the dashed crop guide lines by default. Overridden per-cropper
+   * by `CropperOptions.guides`. Defaults to `true`.
+   */
   guides?: boolean
 
-  /** Whether to show the crop box background. Defaults to `true`. */
+  /** Whether to render the checkerboard background behind the image. Defaults to `true`. */
   background?: boolean
+
+  /**
+   * cropperjs view mode (0-3) constraining the crop box relative to the canvas /
+   * container. `1` restricts the crop box within the canvas. Defaults to `1`.
+   */
+  viewMode?: 0 | 1 | 2 | 3
 }
 ```
 
 ### Functions
 
-#### `createProvider(_config)`
+#### `createProvider(config)`
 
 Creates a Cropper.js-based image crop provider.
 
 ```typescript
-function createProvider(_config?: CropperjsConfig): ImageCropProvider
+function createProvider(config?: CropperjsConfig): ImageCropProvider
 ```
 
-- `_config` — Optional provider configuration.
+- `config` — Optional provider-level defaults (`guides`, `background`, `viewMode`).
 
-**Returns:** A configured ImageCropProvider.
+**Returns:** A configured `ImageCropProvider` backed by real cropperjs instances.
 
 ### Constants
 
@@ -65,6 +81,10 @@ Default Cropper.js provider instance.
 ```typescript
 const provider: ImageCropProvider
 ```
+
+### Namespaces
+
+#### `Cropper`
 
 ## Core Interface
 Implements `@molecule/app-image-crop` interface.
@@ -93,19 +113,29 @@ Peer dependencies:
 
 - `@molecule/app-image-crop`
 
-- **Do NOT build an export/upload flow on `getCroppedCanvas()`** — with this
-  bond it returns `{}` cast to `HTMLCanvasElement`. Produce the cropped
-  pixels in app code instead: read `getCropData()` and draw the region with
-  `canvas.getContext('2d').drawImage(img, x, y, width, height, 0, 0, w, h)`,
-  then `canvas.toBlob(...)` — and verify the result renders before shipping.
-- **Headless: no crop UI mounts anywhere.** Render the image, crop-box
-  overlay, and handles yourself (ClassMap + `t()`), feeding gestures into
-  `setCropData()` / `rotate()` / `zoom()`.
-- `createProvider()` ignores its configuration — `CropperjsConfig.guides` /
-  `background` are currently inert.
-- **Wire with `setProvider()` from `@molecule/app-image-crop`** — the core
-  keeps a module-local singleton; a generic `bond('image-crop', …)` silently
-  no-ops and `requireProvider()` throws.
+- **Import cropperjs's stylesheet yourself** — this package does NOT:
+  `import 'cropperjs/dist/cropper.css'`. Without it the crop box, handles, and
+  drag guides render unstyled (an invisible/broken cropper), the same way Quill
+  needs its theme CSS.
+- **Browser-only.** `createCropper()` calls `document.createElement('img')` and
+  `new Cropper(...)`; construct it in a client-only effect under SSR.
+- **cropperjs initializes on the image's `load` event.** Reading `getCropData()`
+  or `getCroppedCanvas()` before the source has loaded returns empty/degenerate
+  data — drive them after load, or set the region explicitly with `setCropData()`
+  in natural-image coordinates first.
+- **`circular` is a UI concern, not a pixel op.** cropperjs has no circular
+  pixel output; for a round avatar, style the crop box round in CSS
+  (`.cropper-view-box, .cropper-face { border-radius: 50% }`) and draw the
+  returned canvas into a rounded canvas before upload.
+- **`OutputOptions.quality` applies at encode time**, not to canvas generation —
+  pass it to `canvas.toBlob(cb, 'image/jpeg', quality)` / `toDataURL(type, quality)`.
+- Provider defaults (`guides`, `background`, `viewMode`) come from
+  `createProvider(config)`; per-cropper `CropperOptions.guides` wins over the
+  config default. `maxWidth`/`maxHeight` are enforced on output (cropperjs has no
+  max-crop-box constructor option).
+- **Wire with `setProvider()` from `@molecule/app-image-crop`** — the core keeps a
+  module-local singleton; a generic `bond('image-crop', …)` silently no-ops and
+  `requireProvider()` throws.
 
 ## E2E Tests
 

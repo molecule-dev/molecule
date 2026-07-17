@@ -1,8 +1,15 @@
 /**
- * Cropper.js-compatible image crop provider implementation.
+ * Cropper.js image crop provider implementation.
+ *
+ * Wraps cropperjs v1 (`new Cropper(imageElement, options)`) behind the molecule
+ * `ImageCropProvider` / `CropperInstance` contract. Every instance method
+ * delegates to the corresponding real cropperjs call, so `getCroppedCanvas()`
+ * returns the actual cropped `<canvas>` — not a placeholder.
  *
  * @module
  */
+
+import Cropper from 'cropperjs'
 
 import type {
   CropData,
@@ -15,64 +22,126 @@ import type {
 import type { CropperjsConfig } from './types.js'
 
 /**
+ * Maps the core `CropperOptions` (plus provider-level config defaults) onto the
+ * cropperjs constructor `Options`. `aspectRatio` / `minCropBoxWidth` /
+ * `minCropBoxHeight` are only set when provided so cropperjs keeps its own
+ * free-form / unconstrained defaults otherwise. (Max crop size has no
+ * constructor equivalent in cropperjs — it is enforced on output via
+ * `getCroppedCanvas`; see `toGetCroppedCanvasOptions`.)
+ *
+ * @param options - The core cropper options for this instance.
+ * @param config - Provider-level defaults from `createProvider`.
+ * @returns cropperjs constructor options.
+ */
+const toCropperOptions = (
+  options: CropperOptions,
+  config: CropperjsConfig,
+): Cropper.Options<HTMLImageElement> => {
+  const cropperOptions: Cropper.Options<HTMLImageElement> = {
+    viewMode: config.viewMode ?? 1,
+    guides: options.guides ?? config.guides ?? true,
+    background: config.background ?? true,
+    autoCrop: true,
+  }
+  if (options.aspectRatio !== undefined) {
+    cropperOptions.aspectRatio = options.aspectRatio
+  }
+  if (options.minWidth !== undefined) {
+    cropperOptions.minCropBoxWidth = options.minWidth
+  }
+  if (options.minHeight !== undefined) {
+    cropperOptions.minCropBoxHeight = options.minHeight
+  }
+  return cropperOptions
+}
+
+/**
+ * Maps the core `OutputOptions` and the cropper's min/max size constraints onto
+ * cropperjs `getCroppedCanvas` options. `quality` is intentionally NOT mapped:
+ * it is an encode-time setting for `canvas.toBlob`/`toDataURL`, not a
+ * canvas-generation parameter.
+ *
+ * @param options - The core cropper options (for min/max size constraints).
+ * @param output - Optional per-call output options.
+ * @returns cropperjs `getCroppedCanvas` options.
+ */
+const toGetCroppedCanvasOptions = (
+  options: CropperOptions,
+  output: OutputOptions | undefined,
+): Cropper.GetCroppedCanvasOptions => {
+  const canvasOptions: Cropper.GetCroppedCanvasOptions = {}
+  if (output?.width !== undefined) {
+    canvasOptions.width = output.width
+  }
+  if (output?.height !== undefined) {
+    canvasOptions.height = output.height
+  }
+  if (output?.fillColor !== undefined) {
+    canvasOptions.fillColor = output.fillColor
+  }
+  if (options.minWidth !== undefined) {
+    canvasOptions.minWidth = options.minWidth
+  }
+  if (options.minHeight !== undefined) {
+    canvasOptions.minHeight = options.minHeight
+  }
+  if (options.maxWidth !== undefined) {
+    canvasOptions.maxWidth = options.maxWidth
+  }
+  if (options.maxHeight !== undefined) {
+    canvasOptions.maxHeight = options.maxHeight
+  }
+  return canvasOptions
+}
+
+/**
  * Creates a Cropper.js-based image crop provider.
  *
- * @param _config - Optional provider configuration.
- * @returns A configured ImageCropProvider.
+ * @param config - Optional provider-level defaults (`guides`, `background`, `viewMode`).
+ * @returns A configured `ImageCropProvider` backed by real cropperjs instances.
  */
-export function createProvider(_config?: CropperjsConfig): ImageCropProvider {
+export function createProvider(config: CropperjsConfig = {}): ImageCropProvider {
   return {
     name: 'cropperjs',
 
     createCropper(options: CropperOptions): CropperInstance {
-      let cropData: CropData = {
-        x: 0,
-        y: 0,
-        width: options.minWidth ?? 100,
-        height: options.minHeight ?? 100,
-        rotate: 0,
-        scaleX: 1,
-        scaleY: 1,
-      }
+      // cropperjs mounts on an <img>; the core contract only gives us `src`, so
+      // we create the image element here. cropperjs initializes on the image's
+      // `load` event — read crop data / export after load (or set the region
+      // explicitly via setCropData first).
+      const image = document.createElement('img')
+      image.src = options.src
+
+      const cropper = new Cropper(image, toCropperOptions(options, config))
 
       return {
-        getCroppedCanvas(_outputOptions?: OutputOptions): HTMLCanvasElement {
-          // In a real implementation, this would create and return a canvas
-          // For the interface conformance, we return a placeholder
-          return {} as HTMLCanvasElement
+        getCroppedCanvas(outputOptions?: OutputOptions): HTMLCanvasElement {
+          return cropper.getCroppedCanvas(toGetCroppedCanvasOptions(options, outputOptions))
         },
 
         getCropData(): CropData {
-          return { ...cropData }
+          return cropper.getData()
         },
 
         setCropData(data: CropData): void {
-          cropData = { ...data }
+          cropper.setData(data)
         },
 
         reset(): void {
-          cropData = {
-            x: 0,
-            y: 0,
-            width: options.minWidth ?? 100,
-            height: options.minHeight ?? 100,
-            rotate: 0,
-            scaleX: 1,
-            scaleY: 1,
-          }
+          cropper.reset()
         },
 
         rotate(degrees: number): void {
-          cropData.rotate = (cropData.rotate + degrees) % 360
+          cropper.rotate(degrees)
         },
 
         zoom(ratio: number): void {
-          cropData.scaleX = Math.max(0.1, cropData.scaleX + ratio)
-          cropData.scaleY = Math.max(0.1, cropData.scaleY + ratio)
+          cropper.zoom(ratio)
         },
 
         destroy(): void {
-          // Clean up resources
+          cropper.destroy()
+          image.remove()
         },
       }
     },
