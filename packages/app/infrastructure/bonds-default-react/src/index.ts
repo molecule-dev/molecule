@@ -51,7 +51,8 @@
  *   separate ASYNC setups — `setupAppRealtimeSocketio`,
  *   `setupAppKeyboardShortcutsHotkeys`, `setupAppCommandPaletteCmdk`,
  *   `setupAppCodeEditorMonaco`, `setupAppVirtualScrollTanstack`,
- *   `setupAppDragDropDndkit` — and MUST be awaited inside `setupProviders`
+ *   `setupAppDragDropDndkit`, `setupAppChartsChartjs`, `setupAppMapsLeaflet`,
+ *   `setupAppVideoHls` — and MUST be awaited inside `setupProviders`
  *   (make it async). `bootstrapApp` awaits `setupProviders()` before mounting
  *   so bonded providers exist by a component's first effect; a fire-and-forget
  *   async setup races the mount and intermittently loses.

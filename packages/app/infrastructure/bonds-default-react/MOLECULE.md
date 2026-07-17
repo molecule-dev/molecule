@@ -160,6 +160,15 @@ Replaces 9 individual setupX() calls in per-app `bonds/index.ts`.
 function setupAllDefaultBonds(): void
 ```
 
+#### `setupAppChartsChartjs()`
+
+Wires `@molecule/app-charts-chartjs` (Chart.js) to `@molecule/app-charts` — real
+line/bar/pie/etc. charts instead of the core's placeholder panel.
+
+```typescript
+function setupAppChartsChartjs(): Promise<void>
+```
+
 #### `setupAppCodeEditorMonaco()`
 
 Wires `@molecule/app-code-editor-monaco` to `@molecule/app-code-editor`.
@@ -206,6 +215,17 @@ Wires `@molecule/app-keyboard-shortcuts-hotkeys` to `@molecule/app-keyboard-shor
 
 ```typescript
 function setupAppKeyboardShortcutsHotkeys(): Promise<void>
+```
+
+#### `setupAppMapsLeaflet()`
+
+Wires `@molecule/app-maps-leaflet` (Leaflet + OpenStreetMap, no API key) to
+`@molecule/app-maps` — a real slippy map instead of the core's grey placeholder.
+REQUIRES `import 'leaflet/dist/leaflet.css'` once in the app entry (the scaffolded
+`bonds/app-maps-leaflet.ts` does this); without it tiles + markers mis-position.
+
+```typescript
+function setupAppMapsLeaflet(): Promise<void>
 ```
 
 #### `setupAppRealtimeSocketio()`
@@ -260,6 +280,14 @@ Wires `@molecule/app-ui-tailwind` `classMap` to `@molecule/app-ui`.
 function setupAppUiTailwind(): void
 ```
 
+#### `setupAppVideoHls()`
+
+Wires `@molecule/app-video-hls` (hls.js — HLS streaming everywhere) to `@molecule/app-video`.
+
+```typescript
+function setupAppVideoHls(): Promise<void>
+```
+
 #### `setupAppVirtualScrollTanstack()`
 
 Wires `@molecule/app-virtual-scroll-tanstack` to `@molecule/app-virtual-scroll`.
@@ -273,10 +301,24 @@ function setupAppVirtualScrollTanstack(): Promise<void>
 ### Requirements
 
 Peer dependencies:
+- `@molecule/app-auth` ^1.0.0
+- `@molecule/app-charts-chartjs` 1.0.0
+- `@molecule/app-code-editor` ^1.0.0
+- `@molecule/app-code-editor-monaco` ^1.0.0
+- `@molecule/app-command-palette` ^1.0.0
+- `@molecule/app-command-palette-cmdk` ^1.0.0
+- `@molecule/app-drag-drop` ^1.0.0
+- `@molecule/app-drag-drop-dndkit` ^1.0.0
 - `@molecule/app-fonts` ^1.0.0
 - `@molecule/app-fonts-arimo` ^1.0.0
+- `@molecule/app-http` ^1.0.0
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-icons-molecule` ^1.0.0
+- `@molecule/app-keyboard-shortcuts` ^1.0.0
+- `@molecule/app-keyboard-shortcuts-hotkeys` ^1.0.0
+- `@molecule/app-maps-leaflet` 1.0.0
+- `@molecule/app-realtime` ^1.0.0
+- `@molecule/app-realtime-socketio` ^1.0.0
 - `@molecule/app-routing` ^1.0.0
 - `@molecule/app-routing-react-router` ^1.0.0
 - `@molecule/app-storage` ^1.0.0
@@ -286,22 +328,11 @@ Peer dependencies:
 - `@molecule/app-theme-css-variables` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-tailwind` ^1.0.0
-- `@molecule/app-auth` ^1.0.0
-- `react` ^18.0.0 || ^19.0.0
-- `react-dom` ^18.0.0 || ^19.0.0
-- `@molecule/app-http` ^1.0.0
-- `@molecule/app-realtime` ^1.0.0
-- `@molecule/app-realtime-socketio` ^1.0.0
-- `@molecule/app-keyboard-shortcuts` ^1.0.0
-- `@molecule/app-keyboard-shortcuts-hotkeys` ^1.0.0
-- `@molecule/app-command-palette` ^1.0.0
-- `@molecule/app-command-palette-cmdk` ^1.0.0
-- `@molecule/app-code-editor` ^1.0.0
-- `@molecule/app-code-editor-monaco` ^1.0.0
+- `@molecule/app-video-hls` 1.0.0
 - `@molecule/app-virtual-scroll` ^1.0.0
 - `@molecule/app-virtual-scroll-tanstack` ^1.0.0
-- `@molecule/app-drag-drop` ^1.0.0
-- `@molecule/app-drag-drop-dndkit` ^1.0.0
+- `react` ^18.0.0 || ^19.0.0
+- `react-dom` ^18.0.0 || ^19.0.0
 
 ### Runtime Dependencies
 
@@ -339,7 +370,8 @@ Peer dependencies:
   separate ASYNC setups — `setupAppRealtimeSocketio`,
   `setupAppKeyboardShortcutsHotkeys`, `setupAppCommandPaletteCmdk`,
   `setupAppCodeEditorMonaco`, `setupAppVirtualScrollTanstack`,
-  `setupAppDragDropDndkit` — and MUST be awaited inside `setupProviders`
+  `setupAppDragDropDndkit`, `setupAppChartsChartjs`, `setupAppMapsLeaflet`,
+  `setupAppVideoHls` — and MUST be awaited inside `setupProviders`
   (make it async). `bootstrapApp` awaits `setupProviders()` before mounting
   so bonded providers exist by a component's first effect; a fire-and-forget
   async setup races the mount and intermittently loses.

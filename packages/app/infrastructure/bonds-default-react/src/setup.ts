@@ -150,6 +150,41 @@ export async function setupAppDragDropDndkit(): Promise<void> {
 }
 
 /**
+ * Wires `@molecule/app-charts-chartjs` (Chart.js) to `@molecule/app-charts` — real
+ * line/bar/pie/etc. charts instead of the core's placeholder panel.
+ */
+export async function setupAppChartsChartjs(): Promise<void> {
+  const [{ setProvider: setCharts }, { provider }] = await Promise.all([
+    import('@molecule/app-charts'),
+    import('@molecule/app-charts-chartjs'),
+  ])
+  setCharts(provider)
+}
+
+/**
+ * Wires `@molecule/app-maps-leaflet` (Leaflet + OpenStreetMap, no API key) to
+ * `@molecule/app-maps` — a real slippy map instead of the core's grey placeholder.
+ * REQUIRES `import 'leaflet/dist/leaflet.css'` once in the app entry (the scaffolded
+ * `bonds/app-maps-leaflet.ts` does this); without it tiles + markers mis-position.
+ */
+export async function setupAppMapsLeaflet(): Promise<void> {
+  const [{ setProvider: setMaps }, { provider }] = await Promise.all([
+    import('@molecule/app-maps'),
+    import('@molecule/app-maps-leaflet'),
+  ])
+  setMaps(provider)
+}
+
+/** Wires `@molecule/app-video-hls` (hls.js — HLS streaming everywhere) to `@molecule/app-video`. */
+export async function setupAppVideoHls(): Promise<void> {
+  const [{ setProvider: setVideo }, { provider }] = await Promise.all([
+    import('@molecule/app-video'),
+    import('@molecule/app-video-hls'),
+  ])
+  setVideo(provider)
+}
+
+/**
  * Wires all 7 universal app-side bonds in one call — fonts, routing,
  * storage, styling, theme, UI ClassMap, icons (in that order). Auth
  * + i18n stay per-app because they need app-specific config.

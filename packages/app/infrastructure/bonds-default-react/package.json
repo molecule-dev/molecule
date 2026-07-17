@@ -27,13 +27,24 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "25.9.2",
-    "typescript": "6.0.3",
-    "vitest": "4.1.8",
+    "@molecule/app-auth": "1.0.0",
+    "@molecule/app-charts-chartjs": "1.0.0",
+    "@molecule/app-code-editor": "1.0.0",
+    "@molecule/app-code-editor-monaco": "1.0.0",
+    "@molecule/app-command-palette": "1.0.0",
+    "@molecule/app-command-palette-cmdk": "1.0.0",
+    "@molecule/app-drag-drop": "1.0.0",
+    "@molecule/app-drag-drop-dndkit": "1.0.0",
     "@molecule/app-fonts": "1.0.0",
     "@molecule/app-fonts-arimo": "1.0.0",
+    "@molecule/app-http": "1.0.0",
     "@molecule/app-icons": "1.0.0",
     "@molecule/app-icons-molecule": "1.0.0",
+    "@molecule/app-keyboard-shortcuts": "1.0.0",
+    "@molecule/app-keyboard-shortcuts-hotkeys": "1.0.0",
+    "@molecule/app-maps-leaflet": "1.0.0",
+    "@molecule/app-realtime": "1.0.0",
+    "@molecule/app-realtime-socketio": "1.0.0",
     "@molecule/app-routing": "1.0.0",
     "@molecule/app-routing-react-router": "1.0.0",
     "@molecule/app-storage": "1.0.0",
@@ -42,31 +53,37 @@
     "@molecule/app-theme-css-variables": "1.0.0",
     "@molecule/app-ui": "1.0.0",
     "@molecule/app-ui-tailwind": "1.0.0",
-    "happy-dom": "20.10.1",
-    "@molecule/app-auth": "1.0.0",
-    "@types/react": "19.2.17",
-    "@types/react-dom": "19.2.3",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
-    "@molecule/app-http": "1.0.0",
-    "@molecule/app-realtime": "1.0.0",
-    "@molecule/app-realtime-socketio": "1.0.0",
-    "@molecule/app-keyboard-shortcuts": "1.0.0",
-    "@molecule/app-keyboard-shortcuts-hotkeys": "1.0.0",
-    "@molecule/app-command-palette": "1.0.0",
-    "@molecule/app-command-palette-cmdk": "1.0.0",
-    "@molecule/app-code-editor": "1.0.0",
-    "@molecule/app-code-editor-monaco": "1.0.0",
+    "@molecule/app-video-hls": "1.0.0",
     "@molecule/app-virtual-scroll": "1.0.0",
     "@molecule/app-virtual-scroll-tanstack": "1.0.0",
-    "@molecule/app-drag-drop": "1.0.0",
-    "@molecule/app-drag-drop-dndkit": "1.0.0"
+    "@types/node": "25.9.2",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "happy-dom": "20.10.1",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
   },
   "peerDependencies": {
+    "@molecule/app-auth": "^1.0.0",
+    "@molecule/app-charts-chartjs": "1.0.0",
+    "@molecule/app-code-editor": "^1.0.0",
+    "@molecule/app-code-editor-monaco": "^1.0.0",
+    "@molecule/app-command-palette": "^1.0.0",
+    "@molecule/app-command-palette-cmdk": "^1.0.0",
+    "@molecule/app-drag-drop": "^1.0.0",
+    "@molecule/app-drag-drop-dndkit": "^1.0.0",
     "@molecule/app-fonts": "^1.0.0",
     "@molecule/app-fonts-arimo": "^1.0.0",
+    "@molecule/app-http": "^1.0.0",
     "@molecule/app-icons": "^1.0.0",
     "@molecule/app-icons-molecule": "^1.0.0",
+    "@molecule/app-keyboard-shortcuts": "^1.0.0",
+    "@molecule/app-keyboard-shortcuts-hotkeys": "^1.0.0",
+    "@molecule/app-maps-leaflet": "1.0.0",
+    "@molecule/app-realtime": "^1.0.0",
+    "@molecule/app-realtime-socketio": "^1.0.0",
     "@molecule/app-routing": "^1.0.0",
     "@molecule/app-routing-react-router": "^1.0.0",
     "@molecule/app-storage": "^1.0.0",
@@ -76,40 +93,14 @@
     "@molecule/app-theme-css-variables": "^1.0.0",
     "@molecule/app-ui": "^1.0.0",
     "@molecule/app-ui-tailwind": "^1.0.0",
-    "@molecule/app-auth": "^1.0.0",
-    "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0",
-    "@molecule/app-http": "^1.0.0",
-    "@molecule/app-realtime": "^1.0.0",
-    "@molecule/app-realtime-socketio": "^1.0.0",
-    "@molecule/app-keyboard-shortcuts": "^1.0.0",
-    "@molecule/app-keyboard-shortcuts-hotkeys": "^1.0.0",
-    "@molecule/app-command-palette": "^1.0.0",
-    "@molecule/app-command-palette-cmdk": "^1.0.0",
-    "@molecule/app-code-editor": "^1.0.0",
-    "@molecule/app-code-editor-monaco": "^1.0.0",
+    "@molecule/app-video-hls": "1.0.0",
     "@molecule/app-virtual-scroll": "^1.0.0",
     "@molecule/app-virtual-scroll-tanstack": "^1.0.0",
-    "@molecule/app-drag-drop": "^1.0.0",
-    "@molecule/app-drag-drop-dndkit": "^1.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/app-realtime": {
-      "optional": true
-    },
-    "@molecule/app-realtime-socketio": {
-      "optional": true
-    },
-    "@molecule/app-keyboard-shortcuts": {
-      "optional": true
-    },
-    "@molecule/app-keyboard-shortcuts-hotkeys": {
-      "optional": true
-    },
-    "@molecule/app-command-palette": {
-      "optional": true
-    },
-    "@molecule/app-command-palette-cmdk": {
+    "@molecule/app-charts-chartjs": {
       "optional": true
     },
     "@molecule/app-code-editor": {
@@ -118,16 +109,40 @@
     "@molecule/app-code-editor-monaco": {
       "optional": true
     },
-    "@molecule/app-virtual-scroll": {
+    "@molecule/app-command-palette": {
       "optional": true
     },
-    "@molecule/app-virtual-scroll-tanstack": {
+    "@molecule/app-command-palette-cmdk": {
       "optional": true
     },
     "@molecule/app-drag-drop": {
       "optional": true
     },
     "@molecule/app-drag-drop-dndkit": {
+      "optional": true
+    },
+    "@molecule/app-keyboard-shortcuts": {
+      "optional": true
+    },
+    "@molecule/app-keyboard-shortcuts-hotkeys": {
+      "optional": true
+    },
+    "@molecule/app-maps-leaflet": {
+      "optional": true
+    },
+    "@molecule/app-realtime": {
+      "optional": true
+    },
+    "@molecule/app-realtime-socketio": {
+      "optional": true
+    },
+    "@molecule/app-video-hls": {
+      "optional": true
+    },
+    "@molecule/app-virtual-scroll": {
+      "optional": true
+    },
+    "@molecule/app-virtual-scroll-tanstack": {
       "optional": true
     }
   }
