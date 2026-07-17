@@ -252,9 +252,10 @@ Peer dependencies:
   than replaying stored ids.
 - Test keys only work against the TEST host (the default) and production
   keys only against production — `AMADEUS_USE_PRODUCTION=true` must match
-  the key type. NOTE: `@molecule/api-hotels-amadeus` shares the same
-  `AMADEUS_CLIENT_ID`/`AMADEUS_CLIENT_SECRET` but defaults to the
-  PRODUCTION host — when wiring both, align hosts explicitly.
+  the key type. `@molecule/api-hotels-amadeus` shares the same
+  `AMADEUS_CLIENT_ID`/`AMADEUS_CLIENT_SECRET` AND defaults to the same TEST
+  host, and reads the same `AMADEUS_USE_PRODUCTION` switch — so one env
+  setting flips both bonds together; no per-bond host alignment needed.
 - HTTP 429 throws `AmadeusRateLimitedError` carrying `retryAfter` seconds
   when the upstream provides it — back off; don't retry immediately.
 

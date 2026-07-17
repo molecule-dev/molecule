@@ -175,8 +175,8 @@ describe('amadeus hotels provider', () => {
         rooms: 1,
       })
 
-      // Token mint
-      expect(mock.mock.calls[0][0]).toBe('https://api.amadeus.com/v1/security/oauth2/token')
+      // Token mint (default host is the TEST sandbox, matching flights)
+      expect(mock.mock.calls[0][0]).toBe('https://test.api.amadeus.com/v1/security/oauth2/token')
       const tokenInit = mock.mock.calls[0][1] as { method?: string; body?: string }
       expect(tokenInit.method).toBe('POST')
       expect(tokenInit.body).toContain('grant_type=client_credentials')
@@ -662,6 +662,48 @@ describe('amadeus hotels provider', () => {
           checkOutDate: '2026-06-02',
         }),
       ).rejects.toThrow()
+    })
+  })
+
+  describe('base URL selection', () => {
+    /** Runs one getHotelOffers call and returns the ordered fetch URLs. */
+    const captureUrls = async (config: Parameters<typeof createProvider>[0]): Promise<string[]> => {
+      const mock = vi.fn()
+      mock.mockResolvedValueOnce(mockFetchResponse(tokenFixture))
+      mock.mockResolvedValueOnce(mockFetchResponse({ data: [] }))
+      vi.stubGlobal('fetch', mock)
+      await createProvider(config).getHotelOffers('MCLONGHM', {
+        checkInDate: '2026-06-01',
+        checkOutDate: '2026-06-02',
+      })
+      return mock.mock.calls.map((c) => c[0] as string)
+    }
+
+    it('should default to the TEST sandbox host (matching @molecule/api-flights-amadeus)', async () => {
+      const urls = await captureUrls({ clientId: 'test-id', clientSecret: 'test-secret' })
+      expect(urls[0]).toBe('https://test.api.amadeus.com/v1/security/oauth2/token')
+      expect(urls[1].startsWith('https://test.api.amadeus.com/')).toBe(true)
+    })
+
+    it('should route to the production host when useProduction is true', async () => {
+      const urls = await captureUrls({
+        clientId: 'test-id',
+        clientSecret: 'test-secret',
+        useProduction: true,
+      })
+      expect(urls[0]).toBe('https://api.amadeus.com/v1/security/oauth2/token')
+      expect(urls[1].startsWith('https://api.amadeus.com/')).toBe(true)
+    })
+
+    it('should let an explicit baseUrl override useProduction', async () => {
+      const urls = await captureUrls({
+        clientId: 'test-id',
+        clientSecret: 'test-secret',
+        useProduction: true,
+        baseUrl: 'https://example.test',
+      })
+      expect(urls[0]).toBe('https://example.test/v1/security/oauth2/token')
+      expect(urls[1].startsWith('https://example.test/')).toBe(true)
     })
   })
 })

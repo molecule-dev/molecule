@@ -57,8 +57,11 @@ import {
   UPSTREAM_ERROR,
 } from './types.js'
 
-/** Default Amadeus production endpoint base URL. */
-const DEFAULT_BASE_URL = 'https://api.amadeus.com'
+/** Default Amadeus Self-Service test (sandbox) base URL. */
+const DEFAULT_TEST_BASE_URL = 'https://test.api.amadeus.com'
+
+/** Default Amadeus production base URL. */
+const DEFAULT_PRODUCTION_BASE_URL = 'https://api.amadeus.com'
 
 /** Default request timeout in milliseconds. */
 const DEFAULT_TIMEOUT = 10_000
@@ -70,7 +73,7 @@ const DEFAULT_TOKEN_SKEW_SECONDS = 30
  * Maximum number of hotelIds the provider will batch into a single
  * `/v3/shopping/hotel-offers` call when fanning out a city-coded
  * search. Amadeus enforces a `hotelIds` length limit; 20 is a safe
- * default for the production tier.
+ * default on both the test and production tiers.
  */
 const HOTEL_IDS_BATCH_SIZE = 20
 
@@ -579,15 +582,35 @@ const chunk = <T>(items: T[], size: number): T[][] => {
 }
 
 /**
+ * Resolves the effective Amadeus base URL from config. An explicit
+ * `baseUrl` wins; otherwise `useProduction` selects the production host
+ * and the default is the Self-Service TEST sandbox — matching
+ * `@molecule/api-flights-amadeus` so flights + hotels wired with one
+ * shared key pair hit the SAME host by default (a token minted on one
+ * host 401s on the other).
+ *
+ * @param config - Provider configuration.
+ * @returns The base URL to call.
+ */
+const resolveBaseUrl = (config: AmadeusHotelsConfig): string => {
+  if (config.baseUrl) {
+    return config.baseUrl
+  }
+  return config.useProduction ? DEFAULT_PRODUCTION_BASE_URL : DEFAULT_TEST_BASE_URL
+}
+
+/**
  * Creates an Amadeus hotels provider.
  *
  * @param config - Provider configuration. Credentials may be supplied
  *   here directly or via the `AMADEUS_CLIENT_ID` and
- *   `AMADEUS_CLIENT_SECRET` environment variables.
+ *   `AMADEUS_CLIENT_SECRET` environment variables. Defaults to the
+ *   Self-Service TEST host; set `useProduction` (or `AMADEUS_USE_PRODUCTION`)
+ *   to route to production.
  * @returns A {@link HotelsProvider} backed by Amadeus.
  */
 export const createProvider = (config: AmadeusHotelsConfig = {}): HotelsProvider => {
-  const baseUrl = config.baseUrl ?? DEFAULT_BASE_URL
+  const baseUrl = resolveBaseUrl(config)
   const timeout = config.timeout ?? DEFAULT_TIMEOUT
   const skewSeconds = config.tokenSkewSeconds ?? DEFAULT_TOKEN_SKEW_SECONDS
   const tokenCache = createTokenCache(baseUrl, config, timeout, skewSeconds)
@@ -744,15 +767,20 @@ let _provider: HotelsProvider | null = null
 /**
  * The default provider implementation, lazily initialized on first use.
  *
- * Reads `AMADEUS_CLIENT_ID`, `AMADEUS_CLIENT_SECRET`, and (optional)
- * `AMADEUS_BASE_URL` from environment variables. Use {@link createProvider}
- * directly if you need to supply configuration programmatically.
+ * Reads `AMADEUS_CLIENT_ID`, `AMADEUS_CLIENT_SECRET`,
+ * `AMADEUS_USE_PRODUCTION`, and `AMADEUS_BASE_URL` from environment
+ * variables — the same set `@molecule/api-flights-amadeus` reads, so a
+ * single `AMADEUS_USE_PRODUCTION=true` flips BOTH bonds to production
+ * together. Defaults to the Self-Service TEST host. Use
+ * {@link createProvider} directly if you need to supply configuration
+ * programmatically.
  */
 export const provider: HotelsProvider = new Proxy({} as HotelsProvider, {
   get(_, prop, receiver) {
     if (!_provider) {
       _provider = createProvider({
         ...(process.env['AMADEUS_BASE_URL'] ? { baseUrl: process.env['AMADEUS_BASE_URL'] } : {}),
+        ...(process.env['AMADEUS_USE_PRODUCTION'] === 'true' ? { useProduction: true } : {}),
         ...(process.env['AMADEUS_CLIENT_ID'] ? { clientId: process.env['AMADEUS_CLIENT_ID'] } : {}),
         ...(process.env['AMADEUS_CLIENT_SECRET']
           ? { clientSecret: process.env['AMADEUS_CLIENT_SECRET'] }
@@ -766,6 +794,7 @@ export const provider: HotelsProvider = new Proxy({} as HotelsProvider, {
     if (!_provider) {
       _provider = createProvider({
         ...(process.env['AMADEUS_BASE_URL'] ? { baseUrl: process.env['AMADEUS_BASE_URL'] } : {}),
+        ...(process.env['AMADEUS_USE_PRODUCTION'] === 'true' ? { useProduction: true } : {}),
         ...(process.env['AMADEUS_CLIENT_ID'] ? { clientId: process.env['AMADEUS_CLIENT_ID'] } : {}),
         ...(process.env['AMADEUS_CLIENT_SECRET']
           ? { clientSecret: process.env['AMADEUS_CLIENT_SECRET'] }

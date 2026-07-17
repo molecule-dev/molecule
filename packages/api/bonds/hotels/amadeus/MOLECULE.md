@@ -51,6 +51,15 @@ therefore drive both `@molecule/api-flights-amadeus` and
 — there is no cross-bond shared cache, but the OAuth pattern is
 identical so credentials work interchangeably.
 
+Amadeus exposes a free Self-Service "test" environment at
+`https://test.api.amadeus.com` (sandbox data, generous rate limits) and a
+paid production environment at `https://api.amadeus.com`. This bond
+defaults to the TEST host — identical to `@molecule/api-flights-amadeus`
+— so flights + hotels wired with one key pair hit the same host and a
+token minted on one is accepted by the other. Set {@link useProduction}
+(or the `AMADEUS_USE_PRODUCTION=true` env var, which both bonds honor) to
+switch; a single env setting flips both together.
+
 ```typescript
 interface AmadeusHotelsConfig {
   /**
@@ -74,9 +83,20 @@ interface AmadeusHotelsConfig {
   clientSecret?: string
 
   /**
-   * Base URL override. Defaults to the Amadeus production host
-   * `'https://api.amadeus.com'`. Pass `'https://test.api.amadeus.com'`
-   * for the free sandbox tier, or any proxy URL for self-hosted setups.
+   * When `true`, routes requests to the production endpoint
+   * (`https://api.amadeus.com`). When `false` or omitted, uses the
+   * Self-Service test sandbox (`https://test.api.amadeus.com`). Falls back
+   * to the `AMADEUS_USE_PRODUCTION=true` env var, which
+   * `@molecule/api-flights-amadeus` reads too — so one env setting flips
+   * both bonds to production together.
+   */
+  useProduction?: boolean
+
+  /**
+   * Base URL override. Takes precedence over {@link useProduction}. When
+   * neither is set, defaults to the Self-Service test sandbox
+   * (`'https://test.api.amadeus.com'`). Pass `'https://api.amadeus.com'`
+   * for production, or any proxy URL for self-hosted setups.
    */
   baseUrl?: string
 
@@ -162,9 +182,13 @@ const MISSING_CREDENTIALS: "MISSING_CREDENTIALS"
 
 The default provider implementation, lazily initialized on first use.
 
-Reads `AMADEUS_CLIENT_ID`, `AMADEUS_CLIENT_SECRET`, and (optional)
-`AMADEUS_BASE_URL` from environment variables. Use {@link createProvider}
-directly if you need to supply configuration programmatically.
+Reads `AMADEUS_CLIENT_ID`, `AMADEUS_CLIENT_SECRET`,
+`AMADEUS_USE_PRODUCTION`, and `AMADEUS_BASE_URL` from environment
+variables — the same set `@molecule/api-flights-amadeus` reads, so a
+single `AMADEUS_USE_PRODUCTION=true` flips BOTH bonds to production
+together. Defaults to the Self-Service TEST host. Use
+{@link createProvider} directly if you need to supply configuration
+programmatically.
 
 ```typescript
 const provider: HotelsProvider
@@ -227,13 +251,15 @@ Peer dependencies:
 - `@molecule/api-hotels`
 - `@molecule/api-secrets`
 
-- **Defaults to the PRODUCTION host (`api.amadeus.com`)** — the opposite of
-  `@molecule/api-flights-amadeus`, which defaults to the TEST sandbox. This
-  bond has no `AMADEUS_USE_PRODUCTION` switch: with Self-Service TEST keys
-  set `AMADEUS_BASE_URL=https://test.api.amadeus.com` (or pass `baseUrl` to
-  `createProvider()`), otherwise every call fails auth (401). When wiring
-  flights + hotels together with one key pair, point both bonds at the SAME
-  host.
+- **Defaults to the TEST sandbox host (`test.api.amadeus.com`)** — identical
+  to `@molecule/api-flights-amadeus`. Amadeus issues Self-Service TEST keys
+  first (production needs approval), and a token is host-specific, so the
+  safe default is TEST. Set `AMADEUS_USE_PRODUCTION=true` (or
+  `useProduction`/`baseUrl` on `createProvider()`) to route to production.
+  Because BOTH the flights and hotels bonds read the same
+  `AMADEUS_USE_PRODUCTION` env var, one setting flips them together — so a
+  travel app wiring flights + hotels with one key pair never has one bond
+  401ing on the wrong host.
 - `bookHotel()` ALWAYS throws (see the core's remarks) — implement checkout
   on the vendor's hosted flow; search and priced offers are fully supported.
 

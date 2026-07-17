@@ -26,13 +26,15 @@
  * ```
  *
  * @remarks
- * - **Defaults to the PRODUCTION host (`api.amadeus.com`)** — the opposite of
- *   `@molecule/api-flights-amadeus`, which defaults to the TEST sandbox. This
- *   bond has no `AMADEUS_USE_PRODUCTION` switch: with Self-Service TEST keys
- *   set `AMADEUS_BASE_URL=https://test.api.amadeus.com` (or pass `baseUrl` to
- *   `createProvider()`), otherwise every call fails auth (401). When wiring
- *   flights + hotels together with one key pair, point both bonds at the SAME
- *   host.
+ * - **Defaults to the TEST sandbox host (`test.api.amadeus.com`)** — identical
+ *   to `@molecule/api-flights-amadeus`. Amadeus issues Self-Service TEST keys
+ *   first (production needs approval), and a token is host-specific, so the
+ *   safe default is TEST. Set `AMADEUS_USE_PRODUCTION=true` (or
+ *   `useProduction`/`baseUrl` on `createProvider()`) to route to production.
+ *   Because BOTH the flights and hotels bonds read the same
+ *   `AMADEUS_USE_PRODUCTION` env var, one setting flips them together — so a
+ *   travel app wiring flights + hotels with one key pair never has one bond
+ *   401ing on the wrong host.
  * - `bookHotel()` ALWAYS throws (see the core's remarks) — implement checkout
  *   on the vendor's hosted flow; search and priced offers are fully supported.
  *
