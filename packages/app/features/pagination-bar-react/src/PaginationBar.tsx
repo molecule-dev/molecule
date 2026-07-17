@@ -128,7 +128,7 @@ export function PaginationBar({
       {pageSizeOptions && onPageSizeChange && (
         <Select
           value={String(pageSize)}
-          onChange={(v) => onPageSizeChange(Number(v))}
+          onValueChange={(v) => onPageSizeChange(Number(v))}
           options={pageSizeOptions.map((n) => ({ value: String(n), label: String(n) }))}
           aria-label={t('pagination.pageSize', {}, { defaultValue: 'Page size' })}
         />

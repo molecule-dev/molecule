@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -38,6 +38,20 @@ vi.mock('@molecule/app-react', () => ({
   }),
 }))
 
+/**
+ * Props the last-rendered mock `<Select>` received. Captured so a test can
+ * drive a selection through the *same* handler contract the real
+ * `@molecule/app-ui-react` `<Select>` exposes (see {@link selectValue}), rather
+ * than a mock that swallows every handler and hides wiring bugs.
+ */
+interface CapturedSelectProps {
+  value?: string
+  options?: { value: string; label: string }[]
+  onValueChange?: (value: string) => void
+  onChange?: (event: unknown) => void
+}
+let lastSelectProps: CapturedSelectProps | null = null
+
 vi.mock('@molecule/app-ui-react', () => ({
   Button: ({
     children,
@@ -55,9 +69,30 @@ vi.mock('@molecule/app-ui-react', () => ({
       { 'data-button': '', disabled, 'aria-label': ariaLabel, 'aria-current': ariaCurrent },
       children,
     ),
-  Select: ({ ['aria-label']: ariaLabel }: { 'aria-label'?: string }) =>
-    createElement('select', { 'data-select': '', 'aria-label': ariaLabel }),
+  Select: ({
+    ['aria-label']: ariaLabel,
+    ...props
+  }: CapturedSelectProps & { 'aria-label'?: string }) => {
+    lastSelectProps = props
+    return createElement('select', { 'data-select': '', 'aria-label': ariaLabel })
+  },
 }))
+
+/**
+ * Reproduces the real `@molecule/app-ui-react` `<Select>` change dispatch
+ * (react-ui/src/components/Select.tsx `handleChange`): a user selection calls
+ * `onChange` with the raw DOM **event** and `onValueChange` with the typed
+ * string **value**. Whichever prop `PaginationBar` wired its numeric parser to
+ * therefore decides what `onPageSizeChange` receives — wiring the parser to
+ * `onChange` yields `Number(event) === NaN`.
+ * @param value - The option value the user selects (e.g. `'25'`).
+ */
+function selectValue(value: string): void {
+  if (!lastSelectProps) throw new Error('Select was never rendered')
+  const event = { target: { value } }
+  lastSelectProps.onChange?.(event)
+  lastSelectProps.onValueChange?.(value)
+}
 
 const { PaginationBar } = await import('../PaginationBar.js')
 
@@ -72,6 +107,10 @@ const base = {
 }
 
 describe('PaginationBar', () => {
+  beforeEach(() => {
+    lastSelectProps = null
+  })
+
   it('renders the "Showing X to Y of Z" summary', () => {
     const markup = html(createElement(PaginationBar, base))
     expect(markup).toContain('Showing 1 to 20 of 50 items')
@@ -114,6 +153,40 @@ describe('PaginationBar', () => {
     expect(withSel).toContain('data-select=""')
     const without = html(createElement(PaginationBar, base))
     expect(without).not.toContain('data-select')
+  })
+
+  it('passes the selected page size to onPageSizeChange as a number, not NaN', () => {
+    const onPageSizeChange = vi.fn()
+    html(
+      createElement(PaginationBar, {
+        ...base,
+        pageSizeOptions: [10, 25, 50],
+        onPageSizeChange,
+      }),
+    )
+    // Drive a real selection through the Select's change contract. The old
+    // wiring passed this parser to `onChange` (the DOM event), so it received
+    // `Number(event) === NaN`; the fix wires it to `onValueChange` (the string
+    // value), so it receives `Number('25') === 25`.
+    selectValue('25')
+    expect(onPageSizeChange).toHaveBeenCalledTimes(1)
+    expect(onPageSizeChange).toHaveBeenCalledWith(25)
+    expect(Number.isNaN(onPageSizeChange.mock.calls[0][0])).toBe(false)
+  })
+
+  it('renders one page-size option per entry in pageSizeOptions', () => {
+    html(
+      createElement(PaginationBar, {
+        ...base,
+        pageSizeOptions: [10, 25, 50],
+        onPageSizeChange: () => {},
+      }),
+    )
+    expect(lastSelectProps?.options).toEqual([
+      { value: '10', label: '10' },
+      { value: '25', label: '25' },
+      { value: '50', label: '50' },
+    ])
   })
 
   it('forwards className', () => {

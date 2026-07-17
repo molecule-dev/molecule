@@ -120,15 +120,12 @@ Peer dependencies:
 Companion locale bond: `@molecule/app-locales-pagination-bar` (keys
 `pagination.previous`, `pagination.next`, `pagination.pageSize`, plus your
 `showingKey`). The page-size `<Select>` is hidden unless BOTH
-`pageSizeOptions` and `onPageSizeChange` are supplied. KNOWN ISSUE: the
-page-size selector currently wires the `<Select>`'s `onChange` (which
-receives the DOM event) instead of `onValueChange`, so every selection
-calls `onPageSizeChange` with `NaN` and corrupts the paginator — until the
-tracked one-line code fix lands, omit `pageSizeOptions`/`onPageSizeChange`
-(hiding the selector) rather than relying on it. Requires the app-react
-i18n provider and a wired ClassMap bond. Distinct from
-`@molecule/app-ui-react`'s lower-level `<Pagination>` (page window only —
-no showing-text or size selector).
+`pageSizeOptions` and `onPageSizeChange` are supplied; when shown it wires
+the `<Select>`'s typed `onValueChange` and parses the selected value to a
+number, so `onPageSizeChange` always receives a real page size (e.g. `25`),
+never `NaN`. Requires the app-react i18n provider and a wired ClassMap bond.
+Distinct from `@molecule/app-ui-react`'s lower-level `<Pagination>` (page
+window only — no showing-text or size selector).
 
 ## Translations
 
