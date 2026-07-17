@@ -1,9 +1,8 @@
 # @molecule/app-keyboard-shortcuts-hotkeys
 
-Keyboard-shortcuts provider for `@molecule/app-keyboard-shortcuts` — an
-in-memory shortcut REGISTRY only. Despite the name, this bond does not use
-the hotkeys-js library (no dependency) and attaches NO key event listener:
-**registered handlers are never invoked by this bond.**
+Keyboard-shortcuts provider for `@molecule/app-keyboard-shortcuts`, backed by
+the `hotkeys-js` library. This bond attaches real global key listeners:
+**a registered `Shortcut.handler` fires on the actual keypress.**
 
 ## Quick Start
 
@@ -13,14 +12,13 @@ import { setProvider } from '@molecule/app-keyboard-shortcuts'
 
 setProvider(provider)   // once, at app startup (bonds.ts)
 
-// This bond only RECORDS shortcuts (for help overlays via getAll()).
-// The app must own dispatch itself:
-window.addEventListener('keydown', (e) => {
-  const combo = [e.ctrlKey && 'ctrl', e.shiftKey && 'shift', e.key.toLowerCase()]
-    .filter(Boolean).join('+')
-  const match = provider.getAll().find((s) => s.enabled && s.keys === combo)
-  // honor the input/textarea/contenteditable guard + preventDefault here
+const unregister = provider.register({
+  keys: 'ctrl+s',
+  handler: () => save(),   // fires on Ctrl+S; preventDefault is automatic
+  description: 'Save document',
 })
+// ...later, when the owning screen unmounts:
+unregister()
 ```
 
 ## Type
@@ -41,7 +39,11 @@ Provider-specific configuration options.
 
 ```typescript
 interface HotkeysConfig {
-  /** Default scope for shortcuts. Defaults to `'all'`. */
+  /**
+   * hotkeys-js scope assigned to shortcuts registered without their own
+   * `scope`, and set as the active scope when the provider is created. Defaults
+   * to `'all'` (shortcuts under `'all'` fire regardless of the active scope).
+   */
   defaultScope?: string
 
   /** Whether shortcuts are enabled initially. Defaults to `true`. */
@@ -53,7 +55,13 @@ interface HotkeysConfig {
 
 #### `createProvider(config)`
 
-Creates a hotkeys-based keyboard shortcuts provider.
+Creates a `hotkeys-js`-backed keyboard shortcuts provider.
+
+The returned provider binds every registered shortcut to `hotkeys-js`, so
+handlers fire on real key events (the bug this bond previously had was that it
+stored shortcuts in a Map but never attached a listener). hotkeys-js's default
+`filter` suppresses firing while an input/textarea/select/contenteditable is
+focused.
 
 ```typescript
 function createProvider(config?: HotkeysConfig): KeyboardShortcutsProvider
@@ -61,13 +69,13 @@ function createProvider(config?: HotkeysConfig): KeyboardShortcutsProvider
 
 - `config` — Optional provider configuration.
 
-**Returns:** A configured KeyboardShortcutsProvider.
+**Returns:** A configured KeyboardShortcutsProvider whose handlers fire on keypress.
 
 ### Constants
 
 #### `provider`
 
-Default hotkeys provider instance.
+Default hotkeys-js keyboard shortcuts provider instance.
 
 ```typescript
 const provider: KeyboardShortcutsProvider
@@ -100,13 +108,23 @@ Peer dependencies:
 
 - `@molecule/app-keyboard-shortcuts`
 
-- **This bond does NOT make shortcuts fire.** Nothing listens for `keydown`;
-  `Shortcut.handler`, `preventDefault`, and `scope` are stored but ignored,
-  and `isPressed()` always returns `false`. The app must own the keydown
-  listener, combo matching, `preventDefault`, and the
-  input/textarea/contenteditable guard — honoring `enable()`/`disable()` and
-  per-shortcut `enabled` from `getAll()`.
-- `HotkeysConfig.defaultScope` is currently INERT; only `enabled` is honored.
+- **Handlers fire for real.** `register()` binds via `hotkeys(combo, handler)`;
+  pressing the combo invokes `Shortcut.handler` with the real `KeyboardEvent`.
+  `event.preventDefault()` is called automatically unless
+  `Shortcut.preventDefault === false` — so a combo that collides with a browser
+  default (Ctrl+S, Ctrl+P) suppresses the browser action.
+- **Input guard is built in.** hotkeys-js's default `filter` does not fire while
+  an `input`/`textarea`/`select`/`contenteditable` is focused, so typing never
+  triggers shortcuts unless you opt in.
+- **Scopes.** A `Shortcut.scope` binds under that hotkeys-js scope and fires
+  only while that scope is active. Shortcuts with no `scope` bind under
+  `HotkeysConfig.defaultScope` (default `'all'`, which fires regardless of the
+  active scope). The active scope is set from `defaultScope` at provider
+  creation; the core interface exposes no runtime scope switch, so drive
+  scoping through `defaultScope` + per-shortcut `scope`.
+- `enable()`/`disable()` gate whether bound handlers run (the bindings stay
+  attached, just suppressed). `getAll()` reflects the resulting `enabled`
+  state; `isPressed(key)` reflects hotkeys-js's live key-state tracking.
 - **Wire with `setProvider()` from `@molecule/app-keyboard-shortcuts`** — the
   core keeps a module-local singleton; a generic
   `bond('keyboard-shortcuts', …)` silently no-ops.
