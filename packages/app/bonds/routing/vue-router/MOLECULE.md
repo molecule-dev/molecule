@@ -10,15 +10,12 @@ allowing you to use molecule's routing abstractions with Vue Router.
 ```vue
 <!-- App.vue (or a root-level component INSIDE the vue-router app) -->
 <script setup lang="ts">
-import { watch } from 'vue'
-import { setRouter } from '@molecule/app-routing'
-import { useLocation, useMoleculeRouter } from '@molecule/app-routing-vue-router'
+import { useLocation, useMoleculeRouterProvider } from '@molecule/app-routing-vue-router'
 
-// Builds the adapter from vue-router's useRouter()/useRoute() and keeps it fresh.
-const router = useMoleculeRouter()
-
-// Bond it so molecule packages using @molecule/app-routing share THIS router.
-watch(router, (r) => setRouter(r), { immediate: true })
+// Builds the adapter from vue-router's useRouter()/useRoute() AND bonds it, so
+// molecule packages using @molecule/app-routing share THIS router. No manual
+// setRouter watch needed.
+const router = useMoleculeRouterProvider()
 
 const location = useLocation()
 function goToProfile() {
@@ -495,6 +492,26 @@ function useMoleculeRouter(routes?: RouteDefinition[]): ComputedRef<Router>
 
 **Returns:** The molecule Router instance
 
+#### `useMoleculeRouterProvider(routes)`
+
+Composable that builds the molecule Router from Vue Router AND bonds it as the
+active singleton via `@molecule/app-routing`'s `setRouter`.
+
+Call this ONCE near the app root (e.g. in `App.vue`'s `setup`). It watches the
+adapter with `{ immediate: true }`, so `setRouter` runs synchronously in setup and
+re-runs whenever the route changes — meaning `@molecule/app-routing`'s
+`navigate()`/`getRouter()` drive the REAL Vue Router (not the core's auto-created
+fallback browser router) for the rest of the app. Returns the same reactive router
+ref so you can also use it locally.
+
+```typescript
+function useMoleculeRouterProvider(routes?: RouteDefinition[]): ComputedRef<Router>
+```
+
+- `routes` — Optional route definitions for molecule named routes.
+
+**Returns:** The reactive molecule Router ref (already bonded).
+
 #### `useNavigate()`
 
 Composable to get a navigate function.
@@ -597,10 +614,13 @@ Peer dependencies:
 - `vue`
 - `vue-router`
 
-- **The composables alone do NOT bond the router.** `useMoleculeRouter()` builds a
-  local adapter; without the `setRouter` watch shown above, other molecule packages
-  silently get `@molecule/app-routing`'s auto-created fallback browser router and
-  navigate with full-page reloads.
+- **Use `useMoleculeRouterProvider()` once near the app root to bond the router.**
+  It builds the adapter from `useRouter()`/`useRoute()` and calls
+  `@molecule/app-routing`'s `setRouter` in an `{ immediate: true }` watch, so other
+  molecule packages' `navigate()`/`getRouter()` drive the real Vue Router (SPA
+  navigation). `useMoleculeRouter()` (non-bonding) still exists for local use; if you
+  only ever call that, molecule packages silently get the core's auto-created
+  fallback browser router and navigate with full-page reloads.
 - **Do NOT wire the exported `provider` const** in a vue-router app — it is a
   no-hooks fallback (empty params, `window.location.href` navigation).
 - Composables must run inside a component tree that has the vue-router plugin

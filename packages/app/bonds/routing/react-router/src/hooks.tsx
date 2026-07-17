@@ -8,6 +8,7 @@ import React, { createContext, type ReactNode, useContext, useEffect, useMemo } 
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { t } from '@molecule/app-i18n'
+import { setRouter } from '@molecule/app-routing'
 
 import { createReactRouter } from './provider.js'
 import type { QueryParams, RouteDefinition, Router } from './types.js'
@@ -38,12 +39,20 @@ export interface MoleculeRouterProviderProps {
 }
 
 /**
- * Provider component that creates a molecule Router from React Router hooks.
+ * Provider component that creates a molecule Router from React Router hooks and
+ * bonds it as the active singleton via `@molecule/app-routing`'s `setRouter`.
+ *
+ * Bonding happens in an effect on mount (and again whenever the location/params
+ * change), so `@molecule/app-routing`'s `navigate()`/`getRouter()` drive THIS real
+ * React Router adapter — no manual `setRouter` wiring required. Mount it once inside
+ * `<BrowserRouter>`.
  *
  * @param root0 - The component props.
  * @param root0.children - Child components to render within the router context.
  * @param root0.routes - Optional route definitions for named routes.
- * @param root0.onRouterReady - Callback invoked when the router instance is ready.
+ * @param root0.onRouterReady - Optional extra callback invoked with the router after
+ *   it is bonded (e.g. to register guards). Bonding via `setRouter` happens
+ *   regardless of whether this is provided.
  * @returns The rendered provider wrapping children with the router context.
  * @example
  * ```tsx
@@ -51,6 +60,7 @@ export interface MoleculeRouterProviderProps {
  * import { MoleculeRouterProvider } from '@molecule/app-routing-react-router'
  *
  * function App() {
+ *   // Bonds automatically — molecule packages' navigate() now drive React Router.
  *   return (
  *     <BrowserRouter>
  *       <MoleculeRouterProvider>
@@ -92,6 +102,9 @@ export function MoleculeRouterProvider({
   )
 
   useEffect(() => {
+    // Bond THIS adapter so @molecule/app-routing's navigate()/getRouter() drive the
+    // real React Router instead of the core's auto-created fallback browser router.
+    setRouter(router)
     onRouterReady?.(router)
   }, [router, onRouterReady])
 

@@ -30,6 +30,7 @@
     "@molecule/app-i18n": "1.0.0",
     "@molecule/app-routing": "1.0.0",
     "@types/node": "25.9.2",
+    "@types/react": "19.2.17",
     "react": "19.2.7",
     "typescript": "6.0.3",
     "vitest": "4.1.8"

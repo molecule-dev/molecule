@@ -9,15 +9,15 @@ allowing you to use molecule's routing abstractions with React Router.
 
 ```tsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { setRouter } from '@molecule/app-routing'
 import { MoleculeRouterProvider } from '@molecule/app-routing-react-router'
 
 function App() {
-  // onRouterReady bonds the adapter so molecule packages using
-  // @molecule/app-routing's navigate()/getRouter() share THIS router.
+  // MoleculeRouterProvider bonds the adapter automatically (calls setRouter in an
+  // effect on mount), so @molecule/app-routing's navigate()/getRouter() drive THIS
+  // real React Router — no manual setRouter wiring needed.
   return (
     <BrowserRouter>
-      <MoleculeRouterProvider onRouterReady={setRouter}>
+      <MoleculeRouterProvider>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/users/:id" element={<UserProfile />} />
@@ -457,7 +457,13 @@ function matchPath(pattern: string, pathname: string, exact?: boolean): RouteMat
 
 #### `MoleculeRouterProvider(root0, root0, root0, root0)`
 
-Provider component that creates a molecule Router from React Router hooks.
+Provider component that creates a molecule Router from React Router hooks and
+bonds it as the active singleton via `@molecule/app-routing`'s `setRouter`.
+
+Bonding happens in an effect on mount (and again whenever the location/params
+change), so `@molecule/app-routing`'s `navigate()`/`getRouter()` drive THIS real
+React Router adapter — no manual `setRouter` wiring required. Mount it once inside
+`<BrowserRouter>`.
 
 ```typescript
 function MoleculeRouterProvider({
@@ -470,7 +476,7 @@ function MoleculeRouterProvider({
 - `root0` — The component props.
 - `root0` — .children - Child components to render within the router context.
 - `root0` — .routes - Optional route definitions for named routes.
-- `root0` — .onRouterReady - Callback invoked when the router instance is ready.
+- `root0` — .onRouterReady - Optional extra callback invoked with the router after
 
 **Returns:** The rendered provider wrapping children with the router context.
 
@@ -613,13 +619,12 @@ Peer dependencies:
 - `react`
 - `react-router-dom`
 
-- **`MoleculeRouterProvider` alone does NOT bond the router.** It only provides
-  React context for this package's hooks (`useMoleculeRouter`, …). Pass
-  `onRouterReady={setRouter}` (from `@molecule/app-routing`) — otherwise other
-  molecule packages silently get the core's auto-created fallback browser router
-  and navigate with full-page reloads.
+- **`MoleculeRouterProvider` bonds the router for you.** On mount it calls
+  `@molecule/app-routing`'s `setRouter` with the live adapter, so other molecule
+  packages' `navigate()`/`getRouter()` drive React Router (real SPA navigation) —
+  no manual wiring. Pass `onRouterReady` only if you also need the router instance
+  (e.g. to register guards); bonding happens either way.
 - **Do NOT wire the exported `provider` const** in a React Router app — it is a
   no-hooks fallback (empty params, `window.location.href` navigation). Use
   `MoleculeRouterProvider` (or `createReactRouter` with hook values) instead.
-- The adapter must live INSIDE `<BrowserRouter>` (it calls React Router hooks).
-- `setRouter` is exported by `@molecule/app-routing`, not by this package.
+- The provider must live INSIDE `<BrowserRouter>` (it calls React Router hooks).

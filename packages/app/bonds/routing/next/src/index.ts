@@ -11,44 +11,33 @@
  * ```tsx
  * 'use client'
  *
- * import { useEffect, useMemo } from 'react'
  * import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
- * import { setRouter } from '@molecule/app-routing'
- * import { createNextRouter } from '@molecule/app-routing-next'
+ * import { useMoleculeRouter } from '@molecule/app-routing-next'
  *
- * // Mount once near the root layout. Recreate + re-bond on every route change so
- * // location/params stay current.
+ * // Mount once near the root layout. useMoleculeRouter recreates + re-bonds on every
+ * // route change (via setRouter in an effect) so location/params stay current and
+ * // @molecule/app-routing's navigate() drives THIS App Router.
  * export function MoleculeRouterBridge({ children }: { children: React.ReactNode }) {
- *   const navigation = useRouter()
- *   const pathname = usePathname()
- *   const searchParams = useSearchParams()
- *   const params = useParams()
- *
- *   const router = useMemo(
- *     () =>
- *       createNextRouter({
- *         navigation,
- *         pathname,
- *         searchParams: Object.fromEntries(searchParams),
- *         params,
- *       }),
- *     [navigation, pathname, searchParams, params],
- *   )
- *
- *   useEffect(() => {
- *     setRouter(router)
- *   }, [router])
+ *   useMoleculeRouter({
+ *     navigation: useRouter(),
+ *     pathname: usePathname(),
+ *     searchParams: Object.fromEntries(useSearchParams()),
+ *     params: useParams(),
+ *   })
  *
  *   return children
  * }
  * ```
  *
  * @remarks
+ * - **Use `useMoleculeRouter(...)` to bond the router** from a `'use client'`
+ *   component near the root layout (the adapter cannot run in Server Components). It
+ *   calls `@molecule/app-routing`'s `setRouter` in an effect, so molecule packages'
+ *   `navigate()`/`getRouter()` drive the real App Router.
  * - **Do NOT wire the exported `provider` const in a Next app.** It is a no-hooks
  *   fallback: its location is frozen at import time, `getParams()` is always empty,
  *   and `navigate()` falls back to `window.location.href` — a full page reload that
- *   bypasses the App Router. Always build the router from `next/navigation` hooks as
- *   in the example (client component — the adapter cannot run in Server Components).
+ *   bypasses the App Router.
  * - **Forgotten wiring never errors.** `@molecule/app-routing`'s `getRouter()`
  *   auto-creates a plain browser router when nothing is bonded, so molecule packages
  *   keep "working" with full-page reloads — check wiring first when SPA navigation
@@ -63,6 +52,7 @@
  * @module
  */
 
+export * from './hooks.js'
 export * from './middleware.js'
 export * from './provider.js'
 export * from './types.js'

@@ -7,6 +7,8 @@
 import { computed, type ComputedRef, watch } from 'vue'
 import { useRoute, useRouter as useVueRouter } from 'vue-router'
 
+import { setRouter } from '@molecule/app-routing'
+
 import { createVueRouter } from './provider.js'
 import type { QueryParams, RouteDefinition, RouteLocation, RouteParams, Router } from './types.js'
 
@@ -41,6 +43,50 @@ export function useMoleculeRouter(routes?: RouteDefinition[]): ComputedRef<Route
       routes,
     }),
   )
+}
+
+/**
+ * Composable that builds the molecule Router from Vue Router AND bonds it as the
+ * active singleton via `@molecule/app-routing`'s `setRouter`.
+ *
+ * Call this ONCE near the app root (e.g. in `App.vue`'s `setup`). It watches the
+ * adapter with `{ immediate: true }`, so `setRouter` runs synchronously in setup and
+ * re-runs whenever the route changes — meaning `@molecule/app-routing`'s
+ * `navigate()`/`getRouter()` drive the REAL Vue Router (not the core's auto-created
+ * fallback browser router) for the rest of the app. Returns the same reactive router
+ * ref so you can also use it locally.
+ *
+ * @param routes - Optional route definitions for molecule named routes.
+ * @returns The reactive molecule Router ref (already bonded).
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ * import { useMoleculeRouterProvider } from '@molecule/app-routing-vue-router'
+ *
+ * // Bonds automatically — molecule packages' navigate() now drive Vue Router.
+ * const router = useMoleculeRouterProvider()
+ *
+ * function goToProfile() {
+ *   router.value.navigate('/profile')
+ * }
+ * </script>
+ * ```
+ */
+export function useMoleculeRouterProvider(routes?: RouteDefinition[]): ComputedRef<Router> {
+  const router = useMoleculeRouter(routes)
+
+  watch(
+    router,
+    (currentRouter) => {
+      // Bond THIS adapter so @molecule/app-routing's navigate()/getRouter() drive the
+      // real Vue Router instead of the core's auto-created fallback browser router.
+      setRouter(currentRouter)
+    },
+    { immediate: true },
+  )
+
+  return router
 }
 
 /**
