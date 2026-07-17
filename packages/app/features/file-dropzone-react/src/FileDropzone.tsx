@@ -111,6 +111,17 @@ export function FileDropzone({
         if (!disabled && e.dataTransfer?.files) dispatch(e.dataTransfer.files)
       }}
       onClick={() => !disabled && inputRef.current?.click()}
+      onKeyDown={(e) => {
+        // role="button" gets no native keyboard activation — wire Enter/Space
+        // to open the file dialog so keyboard users can browse (preventDefault
+        // stops Space from scrolling the page).
+        if (disabled) return
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault()
+          inputRef.current?.click()
+        }
+      }}
+      data-mol-id="file-dropzone"
       role="button"
       tabIndex={0}
       aria-disabled={disabled}

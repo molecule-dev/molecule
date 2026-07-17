@@ -41,7 +41,7 @@ vi.mock('@molecule/app-ui-react', () => ({
 }))
 
 const { FeatureFlagRow } = await import('../FeatureFlagRow.js')
-import type { FeatureFlag } from '../FeatureFlagRow.js'
+import type { FeatureFlag, FlagType } from '../FeatureFlagRow.js'
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
@@ -65,7 +65,22 @@ describe('FeatureFlagRow', () => {
 
   it('renders the flag type label', () => {
     const markup = html(createElement(FeatureFlagRow, { flag, onToggle: () => {} }))
-    expect(markup).toContain('percentage')
+    expect(markup).toContain('Percentage')
+  })
+
+  it('resolves a proper flagType.* label for every flag type', () => {
+    const cases: Array<[FlagType, string]> = [
+      ['boolean', 'Boolean'],
+      ['multivariate', 'Multivariate'],
+      ['percentage', 'Percentage'],
+      ['string', 'String'],
+    ]
+    for (const [type, label] of cases) {
+      const markup = html(
+        createElement(FeatureFlagRow, { flag: { ...flag, type }, onToggle: () => {} }),
+      )
+      expect(markup).toContain(label)
+    }
   })
 
   it('renders the description when present and omits it otherwise', () => {

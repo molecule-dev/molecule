@@ -35,6 +35,9 @@
  * browse" copy; the default copy translates via
  * `@molecule/app-locales-file-dropzone`.
  *
+ * The zone is a keyboard-activatable `role="button"` (`tabIndex={0}`):
+ * pressing Enter or Space opens the native file dialog, matching a click.
+ *
  * @module
  */
 

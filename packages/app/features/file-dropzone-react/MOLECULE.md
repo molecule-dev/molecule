@@ -114,6 +114,9 @@ Pass `children` to replace the default "Drop files here or click to
 browse" copy; the default copy translates via
 `@molecule/app-locales-file-dropzone`.
 
+The zone is a keyboard-activatable `role="button"` (`tabIndex={0}`):
+pressing Enter or Space opens the native file dialog, matching a click.
+
 ## Translations
 
 Translation strings are provided by `@molecule/app-locales-file-dropzone`.

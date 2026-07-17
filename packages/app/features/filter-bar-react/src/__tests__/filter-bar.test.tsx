@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -23,11 +23,17 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('@molecule/app-react', () => ({
-  useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
+// A spy `t` so tests can assert *which* key (and values) an aria-label routes
+// through, while still returning the English `defaultValue` for markup checks.
+const { tSpy } = vi.hoisted(() => ({
+  tSpy: vi.fn(
+    (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
       opts?.defaultValue ?? _key,
-  }),
+  ),
+}))
+
+vi.mock('@molecule/app-react', () => ({
+  useTranslation: () => ({ t: tSpy }),
 }))
 
 vi.mock('@molecule/app-ui-react', () => ({
@@ -62,6 +68,8 @@ import type { FilterField } from '../types.js'
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
 describe('FilterBar', () => {
+  beforeEach(() => tSpy.mockClear())
+
   it('renders a text input with the field label as aria-label', () => {
     const fields: FilterField[] = [{ id: 'q', type: 'text', label: 'Search' }]
     const markup = html(createElement(FilterBar, { fields, values: {}, onChange: () => {} }))
@@ -93,6 +101,34 @@ describe('FilterBar', () => {
     const markup = html(createElement(FilterBar, { fields, values: {}, onChange: () => {} }))
     expect(markup).toContain('aria-label="Created from"')
     expect(markup).toContain('aria-label="Created to"')
+  })
+
+  it('routes the date-range from/to aria-labels through t() with filterBar keys', () => {
+    const fields: FilterField[] = [{ id: 'created', type: 'date-range', label: 'Created' }]
+    html(createElement(FilterBar, { fields, values: {}, onChange: () => {} }))
+    expect(tSpy).toHaveBeenCalledWith(
+      'filterBar.from',
+      { label: 'Created' },
+      { defaultValue: 'Created from' },
+    )
+    expect(tSpy).toHaveBeenCalledWith(
+      'filterBar.to',
+      { label: 'Created' },
+      { defaultValue: 'Created to' },
+    )
+  })
+
+  it('styles the showLabels eyebrow from cm.* tokens, not a raw Tailwind literal', () => {
+    const fields: FilterField[] = [{ id: 'q', type: 'text', label: 'Search' }]
+    const labeled = html(
+      createElement(FilterBar, { fields, values: {}, onChange: () => {}, showLabels: true }),
+    )
+    // Eyebrow styling now comes from cm.uppercase / cm.trackingWide / cm.textMuted.
+    expect(labeled).toContain('trackingWide')
+    expect(labeled).toContain('textMuted')
+    // The old raw Tailwind literal must be gone.
+    expect(labeled).not.toContain('tracking-widest')
+    expect(labeled).not.toContain('text-on-surface-variant')
   })
 
   it('renders a clear button only when onClear is supplied', () => {

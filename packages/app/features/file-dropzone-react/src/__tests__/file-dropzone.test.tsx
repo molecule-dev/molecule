@@ -1,6 +1,7 @@
+import { cleanup, createEvent, fireEvent, render } from '@testing-library/react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -74,5 +75,64 @@ describe('FileDropzone', () => {
   it('forwards className', () => {
     const markup = html(createElement(FileDropzone, { onFiles: () => {}, className: 'fd-cls' }))
     expect(markup).toContain('fd-cls')
+  })
+})
+
+describe('FileDropzone (keyboard activation)', () => {
+  afterEach(() => cleanup())
+
+  /**
+   * Render the dropzone and return its interactive wrapper + hidden file input.
+   * @param props - Props to pass to `<FileDropzone>`.
+   */
+  function renderZone(props: Parameters<typeof FileDropzone>[0]): {
+    zone: HTMLElement
+    input: HTMLInputElement
+  } {
+    const { container } = render(createElement(FileDropzone, props))
+    const zone = container.querySelector<HTMLElement>('[data-mol-id="file-dropzone"]')
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]')
+    if (!zone || !input) throw new Error('dropzone or input not found')
+    return { zone, input }
+  }
+
+  it('is a keyboard-focusable button', () => {
+    const { zone } = renderZone({ onFiles: () => {} })
+    expect(zone.getAttribute('role')).toBe('button')
+    expect(zone.getAttribute('tabindex')).toBe('0')
+  })
+
+  it('opens the file dialog when Enter is pressed (and prevents default)', () => {
+    const { zone, input } = renderZone({ onFiles: () => {} })
+    const clickSpy = vi.spyOn(input, 'click').mockImplementation(() => {})
+    const event = createEvent.keyDown(zone, { key: 'Enter' })
+    fireEvent(zone, event)
+    expect(clickSpy).toHaveBeenCalledTimes(1)
+    expect(event.defaultPrevented).toBe(true)
+  })
+
+  it('opens the file dialog when Space is pressed (and prevents default)', () => {
+    const { zone, input } = renderZone({ onFiles: () => {} })
+    const clickSpy = vi.spyOn(input, 'click').mockImplementation(() => {})
+    const event = createEvent.keyDown(zone, { key: ' ' })
+    fireEvent(zone, event)
+    expect(clickSpy).toHaveBeenCalledTimes(1)
+    expect(event.defaultPrevented).toBe(true)
+  })
+
+  it('does not open on other keys', () => {
+    const { zone, input } = renderZone({ onFiles: () => {} })
+    const clickSpy = vi.spyOn(input, 'click').mockImplementation(() => {})
+    fireEvent.keyDown(zone, { key: 'Tab' })
+    fireEvent.keyDown(zone, { key: 'a' })
+    expect(clickSpy).not.toHaveBeenCalled()
+  })
+
+  it('does not open when disabled', () => {
+    const { zone, input } = renderZone({ onFiles: () => {}, disabled: true })
+    const clickSpy = vi.spyOn(input, 'click').mockImplementation(() => {})
+    fireEvent.keyDown(zone, { key: 'Enter' })
+    fireEvent.keyDown(zone, { key: ' ' })
+    expect(clickSpy).not.toHaveBeenCalled()
   })
 })

@@ -70,7 +70,9 @@ export function FilterBar({
           className={cm.cn(
             cm.textSize('xs'),
             cm.fontWeight('bold'),
-            'uppercase tracking-widest text-on-surface-variant',
+            cm.uppercase,
+            cm.trackingWide,
+            cm.textMuted,
           )}
         >
           {field.label}
@@ -144,14 +146,18 @@ export function FilterBar({
               type="date"
               value={range.from ?? ''}
               onChange={(e) => set(f.id, { ...range, from: (e.target as HTMLInputElement).value })}
-              aria-label={`${f.label} from`}
+              aria-label={t(
+                'filterBar.from',
+                { label: f.label },
+                { defaultValue: `${f.label} from` },
+              )}
             />
             <span>–</span>
             <Input
               type="date"
               value={range.to ?? ''}
               onChange={(e) => set(f.id, { ...range, to: (e.target as HTMLInputElement).value })}
-              aria-label={`${f.label} to`}
+              aria-label={t('filterBar.to', { label: f.label }, { defaultValue: `${f.label} to` })}
             />
           </span>,
         )

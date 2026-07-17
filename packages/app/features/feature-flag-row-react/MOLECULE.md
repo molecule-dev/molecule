@@ -137,7 +137,7 @@ other flag types the field is ignored. The row is presentation-only:
 `onToggle` receives `(flagKey, envId, next)` and the caller persists
 the change and re-renders with updated `flag` data.
 
-The type badge translates via `t('flagType.<type>')` with the raw
-type string as the English fallback (no locale bond currently ships
-`flagType.*` keys — add them to your app's locale resources for
-non-English UIs).
+The type badge translates via `t('flagType.<type>')` with a
+capitalized English label (`Boolean`, `Multivariate`, `Percentage`,
+`String`) as the fallback. No locale bond currently ships `flagType.*`
+keys — add them to your app's own locale resources for non-English UIs.

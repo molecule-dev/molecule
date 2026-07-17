@@ -37,6 +37,20 @@ export interface FeatureFlagRowProps {
 }
 
 /**
+ * Human-readable English fallback label for each flag type. Used as the
+ * `defaultValue` for the `t('flagType.<type>')` badge so every type renders a
+ * proper label out of the box. There is no dedicated `flagType` locale bond —
+ * apps translate by shipping `flagType.*` keys in their own locale resources
+ * (see the module `@remarks`).
+ */
+const FLAG_TYPE_LABELS: Record<FlagType, string> = {
+  boolean: 'Boolean',
+  multivariate: 'Multivariate',
+  percentage: 'Percentage',
+  string: 'String',
+}
+
+/**
  * Feature-flag list row with per-environment toggle + rollout-percentage
  * display. Use inside a grid or table to build a flags dashboard.
  * @param props - Component props (see {@link FeatureFlagRowProps}).
@@ -56,7 +70,7 @@ export function FeatureFlagRow({ flag, onToggle, className }: FeatureFlagRowProp
         <div className={cm.flex({ align: 'center', gap: 'sm' })}>
           <span className={cm.cn(cm.fontWeight('semibold'))}>{flag.name}</span>
           <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
-            {t(`flagType.${flag.type}`, {}, { defaultValue: flag.type })}
+            {t(`flagType.${flag.type}`, {}, { defaultValue: FLAG_TYPE_LABELS[flag.type] })}
           </span>
         </div>
         <span className={cm.cn(cm.textSize('xs'))}>{flag.key}</span>

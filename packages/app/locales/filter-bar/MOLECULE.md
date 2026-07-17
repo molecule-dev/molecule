@@ -4,7 +4,7 @@ Translations for @molecule/app-filter-bar-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-filter-bar-react` package which has 1 translation key.
+Provides translations for the `@molecule/app-filter-bar-react` package which has 3 translation keys.
 
 ## Languages
 
@@ -37,6 +37,8 @@ registerLocaleModule(locales)
 | Key | English |
 |-----|---------|
 | `filterBar.clear` | Clear filters |
+| `filterBar.from` | {{label}} from |
+| `filterBar.to` | {{label}} to |
 
 ## Metadata
 
