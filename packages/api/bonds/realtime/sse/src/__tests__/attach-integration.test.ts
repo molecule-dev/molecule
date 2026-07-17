@@ -237,4 +237,52 @@ describe('@molecule/api-realtime-sse — real port-binding + CORS-default contra
       warnSpy.mockRestore()
     }
   })
+
+  it('CONTRACT: coexists with a pre-existing request handler on a shared server (no ERR_HTTP_HEADERS_SENT)', async () => {
+    // Reproduces the Express case: `http.createServer(app)` installs a request
+    // handler that answers EVERY path (404 for unmatched). Before the dispatcher
+    // fix, attachHttpServer added a SECOND 'request' listener, so both responded
+    // to the SSE path — our writeHead then threw ERR_HTTP_HEADERS_SENT and crashed
+    // the process on request-end. The dispatcher must route our `path` to SSE and
+    // delegate every other path to the pre-existing handler.
+    const seen: string[] = []
+    const existingHandler = (req: http.IncomingMessage, res: http.ServerResponse): void => {
+      seen.push(req.url ?? '')
+      if (req.url?.startsWith('/health')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end('{"ok":true}')
+      } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' })
+        res.end('not found')
+      }
+    }
+    provider = createProvider({ deferAttach: true, path: '/api/realtime' })
+    server = http.createServer(existingHandler)
+    provider.attachHttpServer?.(server)
+    await new Promise<void>((resolve) => server?.listen(0, resolve))
+    const address = server.address()
+    const port = typeof address === 'object' && address ? address.port : 0
+
+    // The pre-existing handler still serves its own routes (delegation works).
+    const health = await fetch(`http://127.0.0.1:${String(port)}/health`)
+    expect(health.status).toBe(200)
+    expect(await health.json()).toEqual({ ok: true })
+
+    // The SSE path is served by SSE (200 / text/event-stream), NOT 404'd by the
+    // pre-existing handler, and the process does not crash on request-end.
+    const controller = new AbortController()
+    try {
+      const sse = await fetch(`http://127.0.0.1:${String(port)}/api/realtime?room=r`, {
+        headers: { Accept: 'text/event-stream' },
+        signal: controller.signal,
+      })
+      expect(sse.status).toBe(200)
+      expect(sse.headers.get('content-type')).toBe('text/event-stream')
+    } finally {
+      controller.abort()
+    }
+
+    // The pre-existing handler must NOT have been invoked for the SSE path.
+    expect(seen.some((url) => url.startsWith('/api/realtime'))).toBe(false)
+  })
 })

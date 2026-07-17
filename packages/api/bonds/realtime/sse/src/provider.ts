@@ -726,6 +726,15 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
   /** The server (own or given/attached) currently serving `handleRequest`. */
   let attachedServer: HttpServer | undefined
 
+  /**
+   * When attached to a SHARED server that already has `request` listeners (e.g.
+   * Express via `http.createServer(app)`), we replace them with a single
+   * dispatcher so exactly one responder handles each request. These hold the
+   * installed dispatcher + the displaced listeners so `close()` can restore them.
+   */
+  let sharedDispatcher: ((req: IncomingMessage, res: ServerResponse) => void) | undefined
+  let displacedListeners: Array<(req: IncomingMessage, res: ServerResponse) => void> = []
+
   /** Set once close() has run — makes shutdown idempotent. */
   let closed = false
 
@@ -742,7 +751,33 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
     if (attachedServer) return
     if (server) {
       attachedServer = server
-      server.on('request', handleRequest)
+      const existing = server.listeners('request') as Array<
+        (req: IncomingMessage, res: ServerResponse) => void
+      >
+      if (existing.length === 0) {
+        // Nothing else owns this server's requests (e.g. a bare
+        // `http.createServer()`) — attach directly.
+        server.on('request', handleRequest)
+      } else {
+        // SHARED server (e.g. Express via `http.createServer(app)`): it already
+        // has a request handler. Two independent 'request' listeners would BOTH
+        // try to respond — Express 404s our path, then our SSE `writeHead` hits
+        // ERR_HTTP_HEADERS_SENT and crashes the process on request-end. Install a
+        // single dispatcher: our `path` → `handleRequest`; everything else → the
+        // pre-existing handler(s). Exactly one responder per request.
+        displacedListeners = existing.slice()
+        server.removeAllListeners('request')
+        sharedDispatcher = (req, res): void => {
+          const pathname = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`)
+            .pathname
+          if (pathname === path) {
+            handleRequest(req, res)
+          } else {
+            for (const listener of displacedListeners) listener.call(server, req, res)
+          }
+        }
+        server.on('request', sharedDispatcher)
+      }
       return
     }
     ownServer = createServer(handleRequest)
@@ -955,7 +990,17 @@ export function createProvider(config: SseRealtimeConfig = {}): RealtimeProvider
       // and kept accepting clients after close()). A standalone `ownServer`
       // is fully closed below instead of just detached.
       if (attachedServer && attachedServer !== ownServer) {
-        attachedServer.off('request', handleRequest)
+        if (sharedDispatcher) {
+          // Remove our dispatcher and restore the server's original request
+          // handler(s), so a closed provider stops intercepting its path without
+          // knocking out the shared (Express) server.
+          attachedServer.removeListener('request', sharedDispatcher)
+          for (const listener of displacedListeners) attachedServer.on('request', listener)
+          sharedDispatcher = undefined
+          displacedListeners = []
+        } else {
+          attachedServer.off('request', handleRequest)
+        }
       }
 
       if (ownServer) {
