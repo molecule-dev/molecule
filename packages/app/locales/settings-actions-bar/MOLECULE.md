@@ -4,7 +4,7 @@ Translations for @molecule/app-settings-actions-bar-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-settings-actions-bar-react` package which has 3 translation keys.
+Provides translations for the `@molecule/app-settings-actions-bar-react` package which has 4 translation keys.
 
 ## Languages
 
@@ -39,6 +39,7 @@ registerLocaleModule(locales)
 | `settingsActions.cancel` | Cancel |
 | `settingsActions.saving` | Saving… |
 | `settingsActions.save` | Save changes |
+| `settingsActions.saved` | Saved {{at}} |
 
 ## Metadata
 

@@ -5,4 +5,5 @@ export const en: SettingsActionsBarTranslations = {
   'settingsActions.cancel': 'Cancel',
   'settingsActions.saving': 'Saving…',
   'settingsActions.save': 'Save changes',
+  'settingsActions.saved': 'Saved {{at}}',
 }

@@ -40,9 +40,9 @@
  * ```
  *
  * @remarks
- * - The sticky bar ships with NO background surface — page content scrolls
- *   visibly beneath it. Pass a surface class via `className` (e.g.
- *   `cm.surface`) whenever `sticky` is on.
+ * - The bar ships with an opaque theme surface (`cm.surface`) + top border
+ *   (`cm.borderT`), so when `sticky` is on, page content no longer shows
+ *   through it while scrolling. Pass `className` to layer on more styling.
  * - The "Saved …" time is English-shorthand ("3m ago"), computed once per
  *   render — it does not tick while mounted; re-render (or bump `savedAt`)
  *   to refresh it.

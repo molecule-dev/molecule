@@ -66,6 +66,11 @@ export function SettingsActionsBar({
   return (
     <div
       className={cm.cn(
+        // A real theme surface + top border so the (sticky) bar is opaque and
+        // page content no longer shows through it while scrolling. Both are
+        // theme tokens, never hardcoded colors, so light/dark stay correct.
+        cm.surface,
+        cm.borderT,
         cm.flex({ align: 'center', justify: 'between', gap: 'md', wrap: 'wrap' }),
         cm.sp('px', 4),
         cm.sp('py', 3),
@@ -80,7 +85,7 @@ export function SettingsActionsBar({
             {t(
               'settingsActions.saved',
               { at: formatRelativeShort(savedAt) },
-              { defaultValue: `Saved ${formatRelativeShort(savedAt)}` },
+              { defaultValue: 'Saved {{at}}' },
             )}
           </span>
         )}
