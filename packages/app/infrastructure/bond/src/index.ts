@@ -42,14 +42,13 @@
  *   `const cm = getClassMap()` or `const router = require('routing')` in a
  *   component file therefore runs pre-wiring and breaks the app at load.
  *   Call accessors inside components/functions, never at module top-level.
- * - **Not every core reads this registry.** These cores keep a module-local
- *   singleton instead, so `bond('<category>', p)` is a SILENT NO-OP for them —
- *   wire each with the core package's own `setProvider()`:
- *   ai-assistant, ai-copilot, ai-image-generator, ai-voice, audio,
- *   color-picker, date-range-picker, gallery, image-crop, keyboard-shortcuts,
- *   markdown, stepper, timeline, tour, tree-view (app/core), and battery,
- *   bluetooth, brightness, nfc, screen-orientation (app/native). When both
- *   APIs exist, the core's `setProvider()` is always correct.
+ * - **All cores now read this registry.** Every `@molecule/app-*` core routes
+ *   its `setProvider()`/`getProvider()` through this bond registry (the ai-*,
+ *   audio, color-picker, date-range-picker, gallery, image-crop,
+ *   keyboard-shortcuts, markdown, stepper, timeline, tour, tree-view,
+ *   battery, bluetooth, brightness, nfc, and screen-orientation cores were
+ *   migrated off their old module-local singletons), so `bond('<category>', p)`
+ *   and the core's own `setProvider()` write the same slot. Use either.
  * - **Re-bonding a category silently replaces the provider** (last bond wins).
  *   Call `configure({ strict: true })` to make double-bonding throw instead.
  *   `bond(type, null)` / `bond(type, undefined)` REMOVES the singleton for
