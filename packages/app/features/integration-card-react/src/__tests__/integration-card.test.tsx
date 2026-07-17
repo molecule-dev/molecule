@@ -1,7 +1,21 @@
 import type { ReactNode } from 'react'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Mutable translation dictionary so a test can simulate a locale override and
+// prove the status labels resolve through `t()` (a hardcoded string couldn't
+// change). Hoisted so the `vi.mock` factory below can reference it.
+const { i18nState } = vi.hoisted(() => ({ i18nState: { dict: {} as Record<string, string> } }))
+
+// `t(key, values, opts)` returns the dictionary translation when present,
+// otherwise echoes the inline `defaultValue` — the canonical English fallback.
+vi.mock('@molecule/app-react', () => ({
+  useTranslation: () => ({
+    t: (key: string, _values: unknown, opts?: { defaultValue?: string }) =>
+      i18nState.dict[key] ?? opts?.defaultValue ?? key,
+  }),
+}))
 
 vi.mock('@molecule/app-ui', () => ({
   getClassMap: () => {
@@ -43,6 +57,10 @@ const { IntegrationCard } = await import('../IntegrationCard.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
 
+beforeEach(() => {
+  i18nState.dict = {}
+})
+
 describe('IntegrationCard', () => {
   it('renders the title inside an <h3>', () => {
     const markup = html(createElement(IntegrationCard, { title: 'Slack' }))
@@ -62,7 +80,7 @@ describe('IntegrationCard', () => {
     expect(markup).toContain('data-icon=""')
   })
 
-  it('renders the status label for each status', () => {
+  it('renders the English defaultValue status label for each status', () => {
     expect(html(createElement(IntegrationCard, { title: 'S', status: 'connected' }))).toContain(
       'Connected',
     )
@@ -70,7 +88,35 @@ describe('IntegrationCard', () => {
       'Connecting',
     )
     expect(html(createElement(IntegrationCard, { title: 'S', status: 'error' }))).toContain('Error')
+    // `disconnected` is the default status.
+    expect(html(createElement(IntegrationCard, { title: 'S', status: 'disconnected' }))).toContain(
+      'Not connected',
+    )
     expect(html(createElement(IntegrationCard, { title: 'S' }))).toContain('Not connected')
+  })
+
+  it('routes every status label through t() — a locale override replaces the English default', () => {
+    // If the labels were hardcoded English, none of these overrides could win.
+    i18nState.dict = {
+      'integrationCard.status.connected': 'Conectado',
+      'integrationCard.status.pending': 'Conectando…',
+      'integrationCard.status.error': 'Erro',
+      'integrationCard.status.disconnected': 'Desconectado',
+    }
+    const connected = html(createElement(IntegrationCard, { title: 'S', status: 'connected' }))
+    expect(connected).toContain('Conectado')
+    expect(connected).not.toContain('Connected')
+
+    expect(html(createElement(IntegrationCard, { title: 'S', status: 'pending' }))).toContain(
+      'Conectando…',
+    )
+    expect(html(createElement(IntegrationCard, { title: 'S', status: 'error' }))).toContain('Erro')
+
+    const disconnected = html(
+      createElement(IntegrationCard, { title: 'S', status: 'disconnected' }),
+    )
+    expect(disconnected).toContain('Desconectado')
+    expect(disconnected).not.toContain('Not connected')
   })
 
   it('renders the action as a button (onClick) or anchor (href)', () => {

@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
@@ -93,13 +94,14 @@ export function IntegrationCard({
  */
 function StatusLabel({ status }: { status: IntegrationStatus }): JSX.Element {
   const cm = getClassMap()
+  const { t } = useTranslation()
   const label =
     status === 'connected'
-      ? 'Connected'
+      ? t('integrationCard.status.connected', {}, { defaultValue: 'Connected' })
       : status === 'pending'
-        ? 'Connecting…'
+        ? t('integrationCard.status.pending', {}, { defaultValue: 'Connecting…' })
         : status === 'error'
-          ? 'Error'
-          : 'Not connected'
+          ? t('integrationCard.status.error', {}, { defaultValue: 'Error' })
+          : t('integrationCard.status.disconnected', {}, { defaultValue: 'Not connected' })
   return <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'))}>{label}</span>
 }
