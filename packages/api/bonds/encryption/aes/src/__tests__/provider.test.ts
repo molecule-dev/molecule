@@ -2,15 +2,14 @@ import { randomBytes } from 'node:crypto'
 
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import type { EncryptionProvider } from '@molecule/api-encryption'
-
 import { createProvider } from '../provider.js'
+import type { AesEncryptionProvider } from '../types.js'
 
 /** Generates a random 256-bit hex key. */
 const generateKey = (): string => randomBytes(32).toString('hex')
 
 describe('AES-256-GCM encryption provider', () => {
-  let provider: EncryptionProvider
+  let provider: AesEncryptionProvider
   let testKey: string
 
   beforeEach(() => {
@@ -190,14 +189,162 @@ describe('AES-256-GCM encryption provider', () => {
       )
     })
 
-    it('should not decrypt old ciphertext with new key (different key material)', async () => {
+    it('should still decrypt pre-rotation ciphertext after rotating (transition-safe)', async () => {
       const oldCiphertext = await provider.encrypt('before-rotation')
+      expect(oldCiphertext.startsWith('v1:')).toBe(true)
 
       const newKey = generateKey()
       await provider.rotateKey(testKey, newKey)
 
-      // Old ciphertext was encrypted with old key — decryption with new key fails
-      await expect(provider.decrypt(oldCiphertext)).rejects.toThrow()
+      // The whole point: the keyring retains the old key, so ciphertext written
+      // before the rotation still decrypts to the original plaintext.
+      expect(await provider.decrypt(oldCiphertext)).toBe('before-rotation')
+    })
+
+    it('should still decrypt pre-rotation ciphertext that used an AAD context', async () => {
+      const context = 'record:99'
+      const oldCiphertext = await provider.encrypt('before-rotation', context)
+
+      await provider.rotateKey(testKey, generateKey())
+
+      expect(await provider.decrypt(oldCiphertext, context)).toBe('before-rotation')
+    })
+
+    it('should decrypt ciphertext across multiple rotations, each with its own key', async () => {
+      const ctV1 = await provider.encrypt('era-1')
+
+      const key2 = generateKey()
+      await provider.rotateKey(testKey, key2)
+      const ctV2 = await provider.encrypt('era-2')
+
+      const key3 = generateKey()
+      await provider.rotateKey(key2, key3)
+      const ctV3 = await provider.encrypt('era-3')
+
+      expect(ctV1.startsWith('v1:')).toBe(true)
+      expect(ctV2.startsWith('v2:')).toBe(true)
+      expect(ctV3.startsWith('v3:')).toBe(true)
+
+      // Every generation still decrypts with its own retained key.
+      expect(await provider.decrypt(ctV1)).toBe('era-1')
+      expect(await provider.decrypt(ctV2)).toBe('era-2')
+      expect(await provider.decrypt(ctV3)).toBe('era-3')
+    })
+
+    it('should encrypt new data with the new key after rotation', async () => {
+      const newKey = generateKey()
+      await provider.rotateKey(testKey, newKey)
+
+      const ciphertext = await provider.encrypt('after-rotation')
+      expect(ciphertext.startsWith('v2:')).toBe(true)
+
+      // A fresh provider holding only the NEW key can read post-rotation
+      // ciphertext (proving it was encrypted under the new key material)...
+      const newOnly = createProvider({ key: newKey, keyVersion: 2 })
+      expect(await newOnly.decrypt(ciphertext)).toBe('after-rotation')
+
+      // ...but cannot read pre-rotation ciphertext it never had the key for.
+      const oldCiphertext = 'v1:' + ciphertext.slice(3)
+      await expect(newOnly.decrypt(oldCiphertext)).rejects.toThrow()
+    })
+  })
+
+  describe('decrypt key-version selection', () => {
+    it('should fail cleanly on a ciphertext missing the v{n} version prefix', async () => {
+      // Structurally valid 4-part ciphertext but the first segment is not `v{n}`.
+      const valid = await provider.encrypt('data')
+      const noVersion = valid.replace(/^v\d+/, 'x9')
+
+      await expect(provider.decrypt(noVersion)).rejects.toThrow(
+        'missing or malformed key version prefix',
+      )
+    })
+
+    it('should fail cleanly (not silently wrong) on an unknown key version', async () => {
+      const ciphertext = await provider.encrypt('data')
+      const unknownVersion = ciphertext.replace(/^v\d+/, 'v42')
+
+      await expect(provider.decrypt(unknownVersion)).rejects.toThrow(
+        'No encryption key available for key version 42',
+      )
+    })
+
+    it('should seed prior keys so rotated ciphertext decrypts after reconstruction', async () => {
+      // Data at rest from before a rotation, encrypted under the v1 key.
+      const v1Only = createProvider({ key: testKey, keyVersion: 1 })
+      const atRestV1 = await v1Only.encrypt('data-at-rest')
+      expect(atRestV1.startsWith('v1:')).toBe(true)
+
+      const key2 = generateKey()
+
+      // A brand-new provider (fresh process, e.g. after a restart) that seeds
+      // the historical key can still read the v1 ciphertext.
+      const rebuilt = createProvider({
+        key: key2,
+        keyVersion: 2,
+        priorKeys: [{ version: 1, key: testKey }],
+      })
+      expect(await rebuilt.decrypt(atRestV1)).toBe('data-at-rest')
+
+      // Without the prior key, the same v1 ciphertext fails cleanly.
+      const noPrior = createProvider({ key: key2, keyVersion: 2 })
+      await expect(noPrior.decrypt(atRestV1)).rejects.toThrow(
+        'No encryption key available for key version 1',
+      )
+    })
+  })
+
+  describe('pruneKeyVersions', () => {
+    it('should retire old keys and leave later ciphertext undecryptable', async () => {
+      const ctV1 = await provider.encrypt('old-era')
+      const key2 = generateKey()
+      await provider.rotateKey(testKey, key2)
+
+      // Before prune, v1 still decrypts.
+      expect(await provider.decrypt(ctV1)).toBe('old-era')
+
+      const pruned = provider.pruneKeyVersions()
+      expect(pruned).toEqual([1])
+
+      // After prune, v1 fails cleanly; the current v2 key still works.
+      await expect(provider.decrypt(ctV1)).rejects.toThrow(
+        'No encryption key available for key version 1',
+      )
+      const ctV2 = await provider.encrypt('new-era')
+      expect(await provider.decrypt(ctV2)).toBe('new-era')
+    })
+
+    it('should never prune the current key version', async () => {
+      const key2 = generateKey()
+      await provider.rotateKey(testKey, key2)
+
+      // Asking to keep nothing must NOT drop the current version.
+      const pruned = provider.pruneKeyVersions([])
+      expect(pruned).toEqual([1])
+
+      const ciphertext = await provider.encrypt('still-works')
+      expect(await provider.decrypt(ciphertext)).toBe('still-works')
+    })
+
+    it('should retain explicitly-kept old versions during a staged migration', async () => {
+      const ctV1 = await provider.encrypt('gen-1')
+      const key2 = generateKey()
+      await provider.rotateKey(testKey, key2)
+      const ctV2 = await provider.encrypt('gen-2')
+      const key3 = generateKey()
+      await provider.rotateKey(key2, key3)
+
+      // Keep v1 explicitly; only v2 should be pruned (v3 is current, always kept).
+      const pruned = provider.pruneKeyVersions([1])
+      expect(pruned).toEqual([2])
+
+      // v1 retained, v2 gone, v3 (current) works.
+      expect(await provider.decrypt(ctV1)).toBe('gen-1')
+      await expect(provider.decrypt(ctV2)).rejects.toThrow(
+        'No encryption key available for key version 2',
+      )
+      const ctV3 = await provider.encrypt('gen-3')
+      expect(await provider.decrypt(ctV3)).toBe('gen-3')
     })
   })
 })

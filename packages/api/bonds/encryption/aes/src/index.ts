@@ -21,16 +21,22 @@
  * ```
  *
  * @remarks
- * - **`rotateKey()` does NOT keep old ciphertexts readable.** It swaps the
- *   single in-memory key; `decrypt()` always uses the CURRENT key and ignores
- *   the `v{n}` ciphertext prefix (informational only). After rotation,
- *   anything encrypted under the old key fails to decrypt ("Unsupported state
- *   or unable to authenticate data") — re-encrypt every stored ciphertext
- *   with the new key as part of the rotation, or don't rotate. (The core
- *   contract's "previously encrypted data can still be decrypted during a
- *   transition period" is not implemented by this bond.)
- * - Rotation state is per-process and in-memory: on restart the lazy
- *   `provider` re-reads `ENCRYPTION_KEY` and the key version resets.
+ * - **`rotateKey()` is transition-safe — it never orphans data.** Keys live in
+ *   a version-keyed keyring: `encrypt()` tags each ciphertext with the current
+ *   `v{n}`, `decrypt()` reads that tag and selects the matching key, and
+ *   `rotateKey(oldKey, newKey)` ADDS `newKey` at the next version while RETAINING
+ *   the prior key(s). So ciphertext written before a rotation still decrypts
+ *   afterward (the core contract's "previously encrypted data can still be
+ *   decrypted during a transition period"). Once you have re-encrypted the old
+ *   ciphertext under the new key, retire the old keys explicitly with
+ *   `pruneKeyVersions()` — rotation alone deliberately keeps them.
+ * - A ciphertext whose `v{n}` version is not in the keyring (unknown/pruned key)
+ *   fails cleanly with a descriptive error — never a silent wrong decrypt.
+ * - Rotation state is per-process and in-memory: the lazy `provider` singleton
+ *   starts a fresh keyring at version 1 from `ENCRYPTION_KEY` on each process,
+ *   so a rotation done in a prior process is not restored. For rotation that
+ *   survives restarts, build with `createProvider({ key, priorKeys })`, seeding
+ *   the historical `{ version, key }` entries from your secret store.
  * - `hash()`/`verify()` are plain unsalted SHA-256 — integrity checks only.
  *   NEVER use them for passwords; use `@molecule/api-password` with a bond
  *   like `@molecule/api-password-bcrypt`.
