@@ -110,14 +110,16 @@
  * everything in one process for dev/tests) before calling `renderVideo` —
  * without one, the call throws because no queue provider is bonded.
  *
- * **Runtime prerequisite: the `ffmpeg` binary.** The worker spawns the
- * literal command `ffmpeg` — it must be installed and on `PATH` in the
- * process that runs {@link processRenderJob} (there is no config option for
- * a custom binary path; to point at a bundled binary, wrap
- * {@link setFfmpegRunner} with your own spawn call). It is NOT bundled with
- * this package and NOT present in minimal containers — without it every job
- * fails at processing time with `spawn ffmpeg ENOENT` (surfaced as job
- * status `failed`).
+ * **Runtime prerequisite: the `ffmpeg` binary.** The worker spawns `ffmpeg`,
+ * which must be installed in the process that runs {@link processRenderJob}.
+ * The binary path is configurable — {@link setFfmpegBinaryPath} (or the
+ * `FFMPEG_PATH` env var) points at a bundled/custom binary, defaulting to
+ * `'ffmpeg'` on `$PATH`. ffmpeg is NOT bundled with this package and is NOT
+ * present in minimal containers (including the molecule.dev sandbox base
+ * image) — install it there. When it's missing, the job fails with a clear,
+ * actionable error naming the path and the fix (install ffmpeg or set
+ * `FFMPEG_PATH`), surfaced as job status `failed` — not a raw
+ * `spawn ffmpeg ENOENT`.
  *
  * **Job status is process-local by default.** The default {@link JobStore}
  * is an in-memory Map. If the queue worker runs in a separate process from

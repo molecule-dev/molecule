@@ -19,6 +19,7 @@
 
 import { buildFfmpegArgs } from './buildFfmpegArgs.js'
 import {
+  type FfmpegProcess,
   type FfmpegRunner,
   getFfmpegRunner as getDefaultFfmpegRunner,
   parseFfmpegProgressSeconds,
@@ -75,7 +76,19 @@ export async function processRenderJob(
     })
   }
 
-  const child = ffmpegRunner(argv)
+  let child: FfmpegProcess
+  try {
+    child = ffmpegRunner(argv)
+  } catch (err) {
+    // The default runner throws an actionable error when ffmpeg can't be
+    // spawned (e.g. binary missing); record it as a failure instead of
+    // letting it escape processRenderJob unhandled.
+    return jobStore.patch(message.jobId, {
+      status: 'failed',
+      error: err instanceof Error ? err.message : String(err),
+      finishedAt: new Date(),
+    })
+  }
 
   // Surface progress reports as fractional values clamped to [0, 1].
   const totalDuration = message.timeline.duration > 0 ? message.timeline.duration : 1

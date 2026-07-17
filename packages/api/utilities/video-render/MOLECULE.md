@@ -99,7 +99,6 @@ router.delete('/render/jobs/:id', (req, res, next) => {
 ## Installation
 ```bash
 npm install @molecule/api-video-render @molecule/api-queue fluent-ffmpeg
-npm install -D @types/fluent-ffmpeg
 ```
 
 ## API
@@ -603,8 +602,11 @@ function createMemoryJobStore(): JobStore
 
 #### `defaultFfmpegRunner(args)`
 
-Default runner — spawns the system `ffmpeg` binary directly, passing each
-argv element as a discrete argument (no shell interpretation).
+Default runner — spawns the configured `ffmpeg` binary directly
+({@link getFfmpegBinaryPath}), passing each argv element as a discrete
+argument (no shell interpretation). A missing binary surfaces as an
+actionable error via {@link toActionableSpawnError} — both when `spawn`
+throws synchronously and when the child emits `error` asynchronously.
 
 ```typescript
 function defaultFfmpegRunner(args: readonly string[]): FfmpegProcess
@@ -639,6 +641,18 @@ function generateJobId(): string
 ```
 
 **Returns:** A new job ID.
+
+#### `getFfmpegBinaryPath()`
+
+Resolve the ffmpeg binary path the default runner will spawn. Precedence:
+explicit override ({@link setFfmpegBinaryPath}) → `FFMPEG_PATH` env var →
+`'ffmpeg'` (resolved on `$PATH`).
+
+```typescript
+function getFfmpegBinaryPath(): string
+```
+
+**Returns:** The ffmpeg binary path/name to spawn.
 
 #### `getFfmpegRunner()`
 
@@ -724,6 +738,19 @@ function renderVideo(timeline: VideoTimeline, options: RenderVideoOptions): Prom
 
 **Returns:** A handle containing the new `jobId` and initial `status`.
 
+#### `setFfmpegBinaryPath(path)`
+
+Set (or clear) an explicit path to the ffmpeg binary used by
+{@link defaultFfmpegRunner}. Takes precedence over the `FFMPEG_PATH`
+environment variable. Pass `undefined` to clear the override and fall back
+to `FFMPEG_PATH` / `'ffmpeg'` again.
+
+```typescript
+function setFfmpegBinaryPath(path: string | undefined): void
+```
+
+- `path` — Absolute path to the ffmpeg binary, or `undefined` to reset.
+
 #### `setFfmpegRunner(runner)`
 
 Replace the active ffmpeg runner. Tests pass a stub; production code
@@ -746,6 +773,22 @@ function setJobStore(store: JobStore | undefined): void
 ```
 
 - `store` — The store implementation to use, or `undefined` to reset.
+
+#### `toActionableSpawnError(error, binaryPath)`
+
+Translate a spawn failure into an actionable {@link Error}. A raw
+`spawn ffmpeg ENOENT` says nothing about the fix; this rewrites it to name
+the resolved binary path and how to point at a real one. Non-`ENOENT`
+errors are returned unchanged.
+
+```typescript
+function toActionableSpawnError(error: unknown, binaryPath: string): Error
+```
+
+- `error` — The error thrown/emitted by `child_process.spawn`.
+- `binaryPath` — The binary path that failed to spawn.
+
+**Returns:** An {@link Error} with an actionable message (ENOENT) or the original.
 
 ## Injection Notes
 
@@ -776,14 +819,16 @@ Bond a real queue provider (e.g. `@molecule/api-queue-redis` or
 everything in one process for dev/tests) before calling `renderVideo` —
 without one, the call throws because no queue provider is bonded.
 
-**Runtime prerequisite: the `ffmpeg` binary.** The worker spawns the
-literal command `ffmpeg` — it must be installed and on `PATH` in the
-process that runs {@link processRenderJob} (there is no config option for
-a custom binary path; to point at a bundled binary, wrap
-{@link setFfmpegRunner} with your own spawn call). It is NOT bundled with
-this package and NOT present in minimal containers — without it every job
-fails at processing time with `spawn ffmpeg ENOENT` (surfaced as job
-status `failed`).
+**Runtime prerequisite: the `ffmpeg` binary.** The worker spawns `ffmpeg`,
+which must be installed in the process that runs {@link processRenderJob}.
+The binary path is configurable — {@link setFfmpegBinaryPath} (or the
+`FFMPEG_PATH` env var) points at a bundled/custom binary, defaulting to
+`'ffmpeg'` on `$PATH`. ffmpeg is NOT bundled with this package and is NOT
+present in minimal containers (including the molecule.dev sandbox base
+image) — install it there. When it's missing, the job fails with a clear,
+actionable error naming the path and the fix (install ffmpeg or set
+`FFMPEG_PATH`), surfaced as job status `failed` — not a raw
+`spawn ffmpeg ENOENT`.
 
 **Job status is process-local by default.** The default {@link JobStore}
 is an in-memory Map. If the queue worker runs in a separate process from
