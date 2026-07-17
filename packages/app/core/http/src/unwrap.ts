@@ -7,9 +7,12 @@
  * downstream code, eliminating the per-call `'data' in res ? ...` dance.
  *
  * Lifted out of the 59 apps that previously carried a local
- * `lib/unwrap.ts` copy. The two functions cover the only two response
- * shapes used by the molecule mock server and the typical resource
- * routes; richer envelopes (pagination metadata, etc.) are out of scope
+ * `lib/unwrap.ts` copy. The two functions cover the response shapes used
+ * by the molecule mock server and the typical resource routes — a bare
+ * value, a `{ data }` envelope, and (for lists) the RICH pagination
+ * envelope `{ data, total, limit, offset }` returned by the pre-built
+ * `@molecule/api-resource-*` list endpoints (comment, review,
+ * activity-feed, bookmark, …). Other bespoke envelopes are out of scope
  * — handle those in the caller.
  *
  * @module
@@ -25,6 +28,10 @@
  *   - `HttpResponse<{ data: T[] }>` (the response of an envelope-returning
  *     endpoint as it arrives from `@molecule/app-http`'s `HttpClient`) → the
  *     doubly-nested inner array
+ *   - `HttpResponse<{ data: T[], total, limit, offset }>` (a RICH pagination
+ *     envelope from a pre-built `@molecule/api-resource-*` list endpoint) → the
+ *     inner `data` array (the numeric `total`/`limit`/`offset` make the shape
+ *     unambiguous, so callers can pass the whole HttpResponse and still get the rows)
  *   - anything else → `[]`
  *
  * Callers commonly pass either the raw JSON body (e.g. from `fetch().then(r =>
@@ -59,8 +66,37 @@ export function unwrapList<T>(res: unknown): T[] {
     ) {
       return (inner as { data: T[] }).data
     }
+    // `HttpResponse<PaginatedResult<T>>` — the pre-built `@molecule/api-resource-*`
+    // list endpoints return a RICH pagination envelope `{ data: T[], total, limit,
+    // offset }`. It has >1 key so the pure-`{ data }` branch above skips it, but the
+    // shape is unambiguous: a `data` array alongside numeric `total`, `limit`, AND
+    // `offset` is a pagination result, not an application object. Restricted to the
+    // HttpResponse case so a plain body is never second-guessed.
+    if (isHttpResponseLike(res) && isPaginationEnvelope(inner)) {
+      return inner.data as T[]
+    }
   }
   return []
+}
+
+/**
+ * Recognise a RICH pagination envelope `{ data: T[], total, limit, offset }` — the
+ * shape the pre-built `@molecule/api-resource-*` list endpoints (`PaginatedResult`)
+ * return. All three metadata fields must be numbers alongside the `data` array, which
+ * makes the shape unambiguous versus an application object that merely owns a `data`
+ * array (that has no `total`/`limit`/`offset` numbers), so peeling here is safe.
+ */
+function isPaginationEnvelope(
+  v: unknown,
+): v is { data: unknown[]; total: number; limit: number; offset: number } {
+  return (
+    !!v &&
+    typeof v === 'object' &&
+    Array.isArray((v as { data?: unknown }).data) &&
+    typeof (v as { total?: unknown }).total === 'number' &&
+    typeof (v as { limit?: unknown }).limit === 'number' &&
+    typeof (v as { offset?: unknown }).offset === 'number'
+  )
 }
 
 /**

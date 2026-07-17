@@ -417,6 +417,10 @@ Accepts:
   - `HttpResponse<{ data: T[] }>` (the response of an envelope-returning
     endpoint as it arrives from `@molecule/app-http`'s `HttpClient`) → the
     doubly-nested inner array
+  - `HttpResponse<{ data: T[], total, limit, offset }>` (a RICH pagination
+    envelope from a pre-built `@molecule/api-resource-*` list endpoint) → the
+    inner `data` array (the numeric `total`/`limit`/`offset` make the shape
+    unambiguous, so callers can pass the whole HttpResponse and still get the rows)
   - anything else → `[]`
 
 Callers commonly pass either the raw JSON body (e.g. from `fetch().then(r =>

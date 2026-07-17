@@ -341,9 +341,10 @@ Peer dependencies:
 - `zod`
 
 - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
-  bare array — read the rows off `result.data` (server) / `res.data.data` (client, after the
-  HttpResponse wrapper). Treating the response as a bare array — or `unwrapList`, which only
-  peels a PURE single-key `{ data }` — yields an EMPTY list.
+  bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
+  from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
+  the rows come back; reading the response as a bare array — or `res.data` alone (which is
+  the envelope) — yields an EMPTY list.
 - **Migration required.** `src/__setup__/comments.sql` ships with this package
   and must exist in the target database before use (scaffolded apps apply it
   automatically; existing apps must apply it first).

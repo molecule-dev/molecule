@@ -57,9 +57,10 @@
  *
  * @remarks
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
- *   bare array — read the rows off `result.data` (server) / `res.data.data` (client, after the
- *   HttpResponse wrapper). Treating the response as a bare array — or `unwrapList`, which only
- *   peels a PURE single-key `{ data }` — yields an EMPTY list.
+ *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
+ *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
+ *   the rows come back; reading the response as a bare array — or `res.data` alone (which is
+ *   the envelope) — yields an EMPTY list.
  * Session-auth prerequisite: every route requires an authenticated session
  * (`authenticate`) — handlers read `res.locals.session.userId` and fail closed
  * with 401; mount behind your global auth middleware.

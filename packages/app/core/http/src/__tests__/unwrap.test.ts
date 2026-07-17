@@ -68,6 +68,44 @@ describe('unwrapList', () => {
     // layer must be left alone so existing semantics are preserved.
     expect(unwrapList({ data: { data: [1, 2, 3] } })).toEqual([])
   })
+
+  it('unwraps an HttpResponse wrapping a RICH pagination envelope', () => {
+    // The pre-built @molecule/api-resource-* list endpoints (comment, review,
+    // activity-feed, bookmark, …) return `{ data, total, limit, offset }`. After
+    // HttpClient it arrives as HttpResponse<PaginatedResult<T>>. This is the exact
+    // shape the app-patterns SKILL tells the executor to pass whole to unwrapList,
+    // so it MUST yield the rows (not [], the silent-empty-list bug it once did).
+    const httpResponse = {
+      data: { data: [{ id: 1 }, { id: 2 }], total: 42, limit: 20, offset: 0 },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/api/post/1/comments' },
+    }
+    expect(unwrapList<{ id: number }>(httpResponse)).toEqual([{ id: 1 }, { id: 2 }])
+  })
+
+  it('unwraps a raw pagination envelope body passed as res.data', () => {
+    // The other calling convention: caller passed the JSON body directly. Its
+    // `.data` is already the array, so it resolves through the bare-`{ data: [] }`
+    // branch — confirm both conventions return the rows.
+    expect(unwrapList<number>({ data: [7, 8, 9], total: 3, limit: 20, offset: 0 })).toEqual([
+      7, 8, 9,
+    ])
+  })
+
+  it('does NOT treat a partial pagination shape (missing offset) as an envelope', () => {
+    // The pagination branch requires ALL of total+limit+offset to be numbers, so a
+    // resource that coincidentally has `data` + some numeric fields is not peeled.
+    const httpResponse = {
+      data: { id: 7, data: [1, 2, 3], total: 5, limit: 10 },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/x' },
+    }
+    expect(unwrapList(httpResponse)).toEqual([])
+  })
 })
 
 describe('unwrapSingle', () => {
