@@ -1,15 +1,17 @@
 # @molecule/app-audio-howler
 
-STUB audio provider for `@molecule/app-audio` — state-only, NO SOUND.
+Howler.js audio provider for `@molecule/app-audio` — real, audible playback.
 
-Despite the package name, this bond does not yet load Howler.js or any
-audio backend: `play()`/`pause()`/`seek()` only mutate in-memory state,
-`getDuration()` is always 0, and `options.src` is never fetched. It
-satisfies the AudioProvider interface for tests and UI development, but
-an app that needs AUDIBLE playback must implement a real provider (e.g.
-wrap Howler or HTMLAudioElement) and wire that instead.
+Bonds Howler.js (`new Howl({ src: [...] })`) behind the core `AudioProvider`
+contract. Each player wraps a live `Howl`, so playback is genuinely audible
+and every read reflects real Howler state: `getDuration()` returns the loaded
+track's duration, `getCurrentTime()` reflects the real seek position,
+`isPlaying()`/`getVolume()` read Howler directly, and `onEnd`/`onProgress`
+are driven by Howler's own events.
 
-`HowlerConfig.html5` and `HowlerConfig.volume` are currently ignored.
+Core `AudioPlayerOptions` map onto Howler's constructor (`src` normalized to
+an array, plus `loop`/`autoplay`/`volume`); the provider-level `HowlerConfig`
+supplies the default `html5` backend and an optional global volume.
 
 ## Quick Start
 
@@ -17,7 +19,7 @@ wrap Howler or HTMLAudioElement) and wire that instead.
 import { provider } from '@molecule/app-audio-howler'
 import { setProvider } from '@molecule/app-audio'
 
-setProvider(provider) // state-only stub — see remarks
+setProvider(provider)
 ```
 
 ## Type
@@ -38,27 +40,61 @@ Provider-specific configuration options.
 
 ```typescript
 interface HowlerConfig {
-  /** Whether to use HTML5 Audio instead of Web Audio API. Defaults to `false`. */
+  /**
+   * Use HTML5 Audio instead of the Web Audio API as the default backend for
+   * every player this provider creates (maps to Howler's `html5` option — best
+   * for large/streamed files). Defaults to `false`.
+   */
   html5?: boolean
 
-  /** Global volume for all sounds. Defaults to `1.0`. */
+  /**
+   * Global volume applied to all sounds via Howler's global `Howler.volume(...)`
+   * when the provider is created (0.0 to 1.0). Left untouched when omitted.
+   */
   volume?: number
 }
 ```
 
 ### Functions
 
-#### `createProvider(_config)`
+#### `createHowlerPlayer(options, config)`
 
-Creates a Howler-based audio provider.
+Creates a real, audible audio player backed by a Howler `Howl` instance.
+
+The core `AudioPlayerOptions` are mapped onto Howler's constructor options
+(`src` normalized to an array, plus `loop`/`autoplay`/`volume`), and the
+provider-level {@link HowlerConfig} supplies the default `html5` backend.
+Event subscriptions are wired through Howler's `.on(...)` API: `onEnd` fires
+from the `end` event, and `onProgress` is driven by a `requestAnimationFrame`
+loop that runs while the sound is playing (plus one emit on `load`, so the
+real duration is reported as soon as metadata is available).
 
 ```typescript
-function createProvider(_config?: HowlerConfig): AudioProvider
+function createHowlerPlayer(options: AudioPlayerOptions, config?: HowlerConfig): AudioPlayerInstance
 ```
 
-- `_config` — Optional provider configuration.
+- `options` — Core audio player configuration (source, callbacks, etc.).
+- `config` — Provider-level Howler configuration.
 
-**Returns:** A configured AudioProvider.
+**Returns:** An `AudioPlayerInstance` whose reads reflect live Howler state.
+
+#### `createProvider(config)`
+
+Creates a Howler-backed audio provider that plays real, audible audio.
+
+`config.volume`, when provided, sets Howler's global volume for every sound;
+`config.html5` selects the HTML5 Audio backend (over Web Audio) as the
+default for the players this provider creates. Each `createPlayer()` builds a
+live `Howl` and returns an `AudioPlayerInstance` whose reads reflect real
+Howler state (see {@link createHowlerPlayer}).
+
+```typescript
+function createProvider(config?: HowlerConfig): AudioProvider
+```
+
+- `config` — Optional provider configuration.
+
+**Returns:** A configured `AudioProvider` backed by Howler.
 
 ### Constants
 
@@ -96,6 +132,15 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-audio`
+
+- **Browsers block autoplay.** `autoplay: true` or `play()` outside a user
+  gesture is ignored until the user interacts with the page — start playback
+  from a click/tap handler.
+- **`getDuration()` is 0 until metadata loads.** Read it in `onProgress` (it
+  emits once on Howler's `load` event) rather than synchronously right after
+  `createPlayer`.
+- **Call `destroy()` on unmount.** It stops the progress loop and calls
+  `Howl.unload()` to release buffers and detach listeners.
 
 ## E2E Tests
 

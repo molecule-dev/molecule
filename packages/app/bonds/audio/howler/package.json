@@ -35,8 +35,12 @@
   },
   "devDependencies": {
     "@molecule/app-audio": "1.0.0",
+    "@types/howler": "2.2.13",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
     "vitest": "4.1.8"
+  },
+  "dependencies": {
+    "howler": "2.2.4"
   }
 }
