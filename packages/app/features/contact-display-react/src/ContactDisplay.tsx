@@ -50,7 +50,7 @@ export function ContactDisplay({
         cm.flex({
           align: layout === 'card' ? 'start' : 'center',
           gap: isCompact ? 'sm' : 'md',
-          direction: direction === 'col' ? 'row' : 'row',
+          direction,
         }),
         onClick ? cm.cursorPointer : undefined,
         className,

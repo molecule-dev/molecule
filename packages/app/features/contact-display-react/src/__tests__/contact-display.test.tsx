@@ -14,6 +14,12 @@ vi.mock('@molecule/app-ui', () => ({
               .filter((c) => typeof c === 'string' && c.length > 0)
               .join(' ')
         }
+        // `flex` encodes its direction so tests can distinguish the card
+        // (column) layout from the row/compact (row) layouts.
+        if (prop === 'flex') {
+          return (opts?: { direction?: string }) =>
+            `flex${opts?.direction ? ` flex-${opts.direction}` : ''}`
+        }
         const token = String(prop)
         return (..._args: unknown[]) => token
       },
@@ -76,6 +82,22 @@ describe('ContactDisplay', () => {
     expect(clickable).toContain('cursorPointer')
     const plain = html(createElement(ContactDisplay, { contact }))
     expect(plain).not.toContain('cursorPointer')
+  })
+
+  it('lays the card layout out as a column and row/compact as a row', () => {
+    // Regression: the outer flex direction used to be `col ? 'row' : 'row'`
+    // (both branches 'row'), so the card layout never became a column.
+    const card = html(createElement(ContactDisplay, { contact, layout: 'card' }))
+    expect(card).toContain('flex-col')
+    expect(card).not.toContain('flex-row')
+
+    const row = html(createElement(ContactDisplay, { contact, layout: 'row' }))
+    expect(row).toContain('flex-row')
+    expect(row).not.toContain('flex-col')
+
+    const compact = html(createElement(ContactDisplay, { contact, layout: 'compact' }))
+    expect(compact).toContain('flex-row')
+    expect(compact).not.toContain('flex-col')
   })
 
   it('renders the actions slot and forwards className', () => {
