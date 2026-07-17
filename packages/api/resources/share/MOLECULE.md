@@ -730,6 +730,10 @@ Peer dependencies:
 - `@molecule/api-resource`
 - `zod`
 
+- **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
+  bare array — read the rows off `result.data` (server) / `res.data.data` (client, after the
+  HttpResponse wrapper). Treating the response as a bare array — or `unwrapList`, which only
+  peels a PURE single-key `{ data }` — yields an EMPTY list.
 SECURITY — the raw grant/update/revoke handlers DENY by default (every
 mutation returns 403 until an ownership authorizer is registered) and MUST
 be mounted behind a resource-ownership gate; never auto-mount them. The

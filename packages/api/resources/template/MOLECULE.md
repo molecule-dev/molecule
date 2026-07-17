@@ -553,6 +553,10 @@ Peer dependencies:
 - `@molecule/api-resource`
 - `zod`
 
+- **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
+  bare array — read the rows off `result.data` (server) / `res.data.data` (client, after the
+  HttpResponse wrapper). Treating the response as a bare array — or `unwrapList`, which only
+  peels a PURE single-key `{ data }` — yields an EMPTY list.
 Session-auth prerequisite: every route — including reads — requires an
 authenticated session; handlers read `res.locals.session.userId` and fail
 closed with 401, so mount behind your global auth middleware. Visibility is

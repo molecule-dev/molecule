@@ -18,6 +18,10 @@
  * ```
  *
  * @remarks
+ * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
+ *   bare array — read the rows off `result.data` (server) / `res.data.data` (client, after the
+ *   HttpResponse wrapper). Treating the response as a bare array — or `unwrapList`, which only
+ *   peels a PURE single-key `{ data }` — yields an EMPTY list.
  * Table: `src/__setup__/follows.sql` creates the single `follows` table. An
  * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
  * anywhere else run it once — nothing at runtime creates it.

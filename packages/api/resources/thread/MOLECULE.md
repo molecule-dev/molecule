@@ -533,6 +533,10 @@ Peer dependencies:
 - `@molecule/api-resource`
 - `zod`
 
+- **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
+  bare array — read the rows off `result.data` (server) / `res.data.data` (client, after the
+  HttpResponse wrapper). Treating the response as a bare array — or `unwrapList`, which only
+  peels a PURE single-key `{ data }` — yields an EMPTY list.
 SINGLE-USER BY DESIGN — a thread is PRIVATE to its creator. Every read and
 write, including `GET /threads/:threadId`, `GET /threads/:threadId/messages`,
 and POSTING a message, is authorized against `thread.creatorId === userId`;
