@@ -53,7 +53,9 @@
  * - **Re-bonding a category silently replaces the provider** (last bond wins).
  *   Call `configure({ strict: true })` to make double-bonding throw instead.
  *   `bond(type, null)` / `bond(type, undefined)` REMOVES the singleton for
- *   that category. `BondConfig.verbose` is currently INERT (no code reads it).
+ *   that category. `configure({ verbose: true })` logs each bond / unbond /
+ *   clear / reset to `console.debug` (prefixed `[app-bond]`) for wiring-order
+ *   tracing.
  * - `require` collides with CommonJS — import it renamed:
  *   `import { require as bondRequire } from '@molecule/app-bond'`.
  *

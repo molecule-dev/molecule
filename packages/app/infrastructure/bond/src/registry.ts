@@ -38,6 +38,19 @@ export const configure = (newConfig: Partial<BondConfig>): void => {
 }
 
 /**
+ * Emits a diagnostic bond/unbond log line via `console.debug`, but ONLY when
+ * `config.verbose` is enabled (`configure({ verbose: true })`). Kept internal
+ * and gated so normal operation stays silent.
+ *
+ * @param message - The diagnostic message describing the registry mutation.
+ */
+const logVerbose = (message: string): void => {
+  if (config.verbose) {
+    console.debug(`[app-bond] ${message}`)
+  }
+}
+
+/**
  * Registers a singleton provider for the given category. If `provider` is null/undefined,
  * the existing singleton for that category is removed instead. In strict mode, throws
  * if a provider is already bonded to the category.
@@ -47,13 +60,20 @@ export const configure = (newConfig: Partial<BondConfig>): void => {
  */
 export const bondSingleton = <T>(type: string, provider: T): void => {
   if (provider == null) {
-    registry.singletons.delete(type)
+    const existed = registry.singletons.delete(type)
+    logVerbose(
+      existed
+        ? `unbonded singleton '${type}' (null provider)`
+        : `bond('${type}', null) — no singleton to remove`,
+    )
     return
   }
   if (config.strict && registry.singletons.has(type)) {
     throw new Error(`Provider '${type}' is already bonded. Unbond first or disable strict mode.`)
   }
+  const replaced = registry.singletons.has(type)
   registry.singletons.set(type, provider)
+  logVerbose(replaced ? `re-bonded singleton '${type}' (replaced)` : `bonded singleton '${type}'`)
 }
 
 /**
@@ -100,7 +120,9 @@ export const bondNamed = <T>(type: string, name: string, provider: T): void => {
       `Provider '${type}:${name}' is already bonded. Unbond first or disable strict mode.`,
     )
   }
+  const replaced = providers.has(name)
   providers.set(name, provider)
+  logVerbose(replaced ? `re-bonded '${type}:${name}' (replaced)` : `bonded '${type}:${name}'`)
 }
 
 /**
@@ -150,7 +172,9 @@ export const requireNamed = <T>(type: string, name: string): T => {
  * @returns `true` if a provider was removed, `false` if none was bonded.
  */
 export const unbondSingleton = (type: string): boolean => {
-  return registry.singletons.delete(type)
+  const removed = registry.singletons.delete(type)
+  logVerbose(removed ? `unbonded singleton '${type}'` : `unbond('${type}') — nothing bonded`)
+  return removed
 }
 
 /**
@@ -161,7 +185,11 @@ export const unbondSingleton = (type: string): boolean => {
  * @returns `true` if the provider was removed, `false` if it was not found.
  */
 export const unbondNamed = (type: string, name: string): boolean => {
-  return registry.named.get(type)?.delete(name) ?? false
+  const removed = registry.named.get(type)?.delete(name) ?? false
+  logVerbose(
+    removed ? `unbonded '${type}:${name}'` : `unbond('${type}', '${name}') — nothing bonded`,
+  )
+  return removed
 }
 
 /**
@@ -172,6 +200,7 @@ export const unbondNamed = (type: string, name: string): boolean => {
 export const clearProviders = (type: string): void => {
   registry.singletons.delete(type)
   registry.named.delete(type)
+  logVerbose(`cleared all providers for '${type}'`)
 }
 
 /**
@@ -181,4 +210,5 @@ export const clearProviders = (type: string): void => {
 export const reset = (): void => {
   registry.singletons.clear()
   registry.named.clear()
+  logVerbose('reset — cleared all bonded providers')
 }

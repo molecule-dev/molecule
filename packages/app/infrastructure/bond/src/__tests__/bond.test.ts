@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { bond, get, getAll, isBonded, require as bondRequire, unbond, unbondAll } from '../bond.js'
 import { configure, reset } from '../registry.js'
@@ -253,5 +253,91 @@ describe('configure()', () => {
     configure({ verbose: true }) // strict should remain true
     bond('a', { v: 1 })
     expect(() => bond('a', { v: 2 })).toThrow(/already bonded/)
+  })
+})
+
+describe('verbose logging (BondConfig.verbose)', () => {
+  let debugSpy: ReturnType<typeof vi.spyOn>
+
+  beforeEach(() => {
+    debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    // Reset verbose BEFORE restoring the spy so the next test's top-level
+    // `reset()` (which runs before its spy is installed) doesn't emit a real
+    // console.debug line.
+    configure({ verbose: false })
+    debugSpy.mockRestore()
+  })
+
+  it('stays silent when verbose is false (default)', () => {
+    bond('state', { v: 1 })
+    bond('routing', 'react', { v: 1 })
+    unbond('state')
+    unbondAll('routing')
+    expect(debugSpy).not.toHaveBeenCalled()
+  })
+
+  it('logs a singleton bond when verbose is true', () => {
+    configure({ verbose: true })
+    bond('state', { v: 1 })
+    expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("bonded singleton 'state'"))
+  })
+
+  it('logs a re-bond (replacement) distinctly', () => {
+    configure({ verbose: true })
+    bond('state', { v: 1 })
+    debugSpy.mockClear()
+    bond('state', { v: 2 })
+    expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("re-bonded singleton 'state'"))
+  })
+
+  it('logs a named bond', () => {
+    configure({ verbose: true })
+    bond('routing', 'react', { v: 1 })
+    expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("bonded 'routing:react'"))
+  })
+
+  it('logs singleton and named unbonds', () => {
+    configure({ verbose: true })
+    bond('state', { v: 1 })
+    bond('routing', 'react', { v: 1 })
+    debugSpy.mockClear()
+    unbond('state')
+    unbond('routing', 'react')
+    expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("unbonded singleton 'state'"))
+    expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining("unbonded 'routing:react'"))
+  })
+
+  it('logs bonding null (singleton removal)', () => {
+    configure({ verbose: true })
+    bond('state', { v: 1 })
+    debugSpy.mockClear()
+    bond('state', null)
+    expect(debugSpy).toHaveBeenCalledWith(
+      expect.stringContaining("unbonded singleton 'state' (null provider)"),
+    )
+  })
+
+  it('logs unbondAll (clear) and reset', () => {
+    configure({ verbose: true })
+    bond('routing', 'react', { v: 1 })
+    debugSpy.mockClear()
+    unbondAll('routing')
+    expect(debugSpy).toHaveBeenCalledWith(
+      expect.stringContaining("cleared all providers for 'routing'"),
+    )
+    debugSpy.mockClear()
+    reset()
+    expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining('reset'))
+  })
+
+  it('every message carries the [app-bond] prefix', () => {
+    configure({ verbose: true })
+    bond('state', { v: 1 })
+    for (const call of debugSpy.mock.calls) {
+      expect(String(call[0])).toMatch(/^\[app-bond\]/)
+    }
   })
 })

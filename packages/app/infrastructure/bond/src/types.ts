@@ -52,7 +52,9 @@ export interface BondConfig {
   strict?: boolean
 
   /**
-   * When `true`, bond and unbond operations emit diagnostic log output.
+   * When `true`, every bond / unbond / clear / reset operation emits a
+   * diagnostic line via `console.debug` (prefixed `[app-bond]`). Useful for
+   * tracing wiring order at startup; leave `false` in production.
    * @default false
    */
   verbose?: boolean
