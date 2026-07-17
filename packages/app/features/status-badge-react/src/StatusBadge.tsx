@@ -18,15 +18,13 @@ export interface StatusBadgeProps {
    * Visual appearance variant.
    * - `'ui'` (default) — wraps `<Badge>` from `@molecule/app-ui-react` with
    *   ClassMap-driven coloring. Honors the active ClassMap bond's badge
-   *   styling and works with any theme. Prefer this variant.
-   * - `'uppercase-pill'` — raw utility pattern
-   *   (`text-[10px] font-black uppercase tracking-widest rounded-full`)
-   *   colored with Material-3 container-token utilities
-   *   (`bg-success-container text-on-success-container`, …). Those tokens
-   *   exist in NO current theme (flagship or minimal scaffold), so this
-   *   variant currently renders a colorless transparent pill everywhere.
-   *   Do not use it until its styling is migrated to ClassMap/theme-backed
-   *   tokens.
+   *   styling and works with any theme.
+   * - `'uppercase-pill'` — a compact uppercase pill that colors itself with
+   *   the SAME ClassMap `badge` tokens as the `'ui'` variant
+   *   (`cm.badge({ variant })` → real, theme-backed `bg-*` / `text-*`
+   *   utilities), then layers `cm.uppercase` + `cm.trackingWide` for the
+   *   uppercase treatment. Every kind is visibly colored in both light and
+   *   dark themes.
    */
   appearance?: 'ui' | 'uppercase-pill'
   /** Extra classes passed through to the rendered element. */
@@ -41,23 +39,15 @@ const KIND_TO_COLOR: Record<StatusKind, 'success' | 'warning' | 'error' | 'info'
   neutral: 'secondary',
 }
 
-const KIND_TO_PILL_CLASSES: Record<StatusKind, string> = {
-  success: 'bg-success-container text-on-success-container',
-  warning: 'bg-warning-container text-on-warning-container',
-  error: 'bg-error-container text-on-error-container',
-  info: 'bg-info-container text-on-info-container',
-  neutral: 'bg-surface-container-high text-on-surface-variant',
-}
-
 /**
  * Semantic status badge — maps status kinds to ClassMap color variants.
  * Use for "Open / Closed / Pending / Archived" row labels, deal stages,
  * ticket priorities, etc.
  *
- * Use the default `appearance="ui"` (ClassMap `<Badge>`-based, works with
- * any theme). The `'uppercase-pill'` variant relies on Material-3
- * container tokens that no current theme defines, so it renders without
- * color everywhere — avoid it until its styling is migrated.
+ * Both appearances resolve their color through the ClassMap `badge` tokens,
+ * so they stay theme-correct: `appearance="ui"` (default) renders the
+ * framework `<Badge>`, and `'uppercase-pill'` renders a compact uppercase
+ * pill with the same per-kind `bg-*` / `text-*` colors.
  *
  * @param props - Component props (see {@link StatusBadgeProps}).
  */
@@ -73,15 +63,13 @@ export function StatusBadge({
     return (
       <span
         className={cm.cn(
-          cm.flex({ align: 'center', gap: 'xs' }),
-          cm.sp('px', 3),
-          cm.sp('py', 1),
-          'text-[10px] font-black uppercase tracking-widest rounded-full',
-          KIND_TO_PILL_CLASSES[kind],
+          cm.badge({ variant: KIND_TO_COLOR[kind] }),
+          cm.uppercase,
+          cm.trackingWide,
           className,
         )}
       >
-        {icon}
+        {icon && <span className={cm.sp('mr', 1)}>{icon}</span>}
         {children}
       </span>
     )

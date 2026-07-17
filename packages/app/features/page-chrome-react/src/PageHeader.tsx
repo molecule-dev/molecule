@@ -17,15 +17,13 @@ export interface PageHeaderProps {
   /** Optional meta row rendered below the title/subtitle (status chips, timestamps, etc.). */
   meta?: ReactNode
   /**
-   * Title emphasis level.
-   * - `'normal'` (default) — 3xl bold, for general / reusable list-page
-   *   headers.
-   * - `'extrabold'` — intended as the larger `text-4xl font-extrabold
-   *   tracking-tight` dashboard treatment, but `font-extrabold` is a raw
-   *   class literal that appears in no `@source`-scanned dist, so default
-   *   Tailwind scaffolds never generate that utility — the title currently
-   *   renders at 4xl size with tight tracking at NORMAL font weight (the
-   *   `cm.fontWeight('extrabold')` code fix is tracked separately).
+   * Title emphasis level. Both values resolve their weight through
+   * `cm.fontWeight(...)`, so the class is a real, theme-scanned utility.
+   * - `'normal'` (default) — 3xl `cm.fontWeight('bold')`, for general /
+   *   reusable list-page headers.
+   * - `'extrabold'` — the larger 4xl `cm.fontWeight('extrabold')` dashboard
+   *   treatment (`font-extrabold` is safelisted by `@molecule/app-ui-tailwind`'s
+   *   base.css, so it always generates).
    */
   emphasis?: 'normal' | 'extrabold'
   /** `data-mol-id` for AI-agent selectors. */
@@ -56,7 +54,7 @@ export function PageHeader({
   const cm = getClassMap()
   const titleClass =
     emphasis === 'extrabold'
-      ? cm.cn(cm.textSize('4xl'), 'font-extrabold tracking-tight')
+      ? cm.cn(cm.textSize('4xl'), cm.fontWeight('extrabold'))
       : cm.cn(cm.textSize('3xl'), cm.fontWeight('bold'))
   return (
     <header data-mol-id={dataMolId} className={cm.cn(cm.stack(3), className)}>

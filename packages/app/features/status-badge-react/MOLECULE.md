@@ -55,15 +55,13 @@ interface StatusBadgeProps {
    * Visual appearance variant.
    * - `'ui'` (default) — wraps `<Badge>` from `@molecule/app-ui-react` with
    *   ClassMap-driven coloring. Honors the active ClassMap bond's badge
-   *   styling and works with any theme. Prefer this variant.
-   * - `'uppercase-pill'` — raw utility pattern
-   *   (`text-[10px] font-black uppercase tracking-widest rounded-full`)
-   *   colored with Material-3 container-token utilities
-   *   (`bg-success-container text-on-success-container`, …). Those tokens
-   *   exist in NO current theme (flagship or minimal scaffold), so this
-   *   variant currently renders a colorless transparent pill everywhere.
-   *   Do not use it until its styling is migrated to ClassMap/theme-backed
-   *   tokens.
+   *   styling and works with any theme.
+   * - `'uppercase-pill'` — a compact uppercase pill that colors itself with
+   *   the SAME ClassMap `badge` tokens as the `'ui'` variant
+   *   (`cm.badge({ variant })` → real, theme-backed `bg-*` / `text-*`
+   *   utilities), then layers `cm.uppercase` + `cm.trackingWide` for the
+   *   uppercase treatment. Every kind is visibly colored in both light and
+   *   dark themes.
    */
   appearance?: 'ui' | 'uppercase-pill'
   /** Extra classes passed through to the rendered element. */
@@ -106,10 +104,10 @@ Semantic status badge — maps status kinds to ClassMap color variants.
 Use for "Open / Closed / Pending / Archived" row labels, deal stages,
 ticket priorities, etc.
 
-Use the default `appearance="ui"` (ClassMap `<Badge>`-based, works with
-any theme). The `'uppercase-pill'` variant relies on Material-3
-container tokens that no current theme defines, so it renders without
-color everywhere — avoid it until its styling is migrated.
+Both appearances resolve their color through the ClassMap `badge` tokens,
+so they stay theme-correct: `appearance="ui"` (default) renders the
+framework `<Badge>`, and `'uppercase-pill'` renders a compact uppercase
+pill with the same per-kind `bg-*` / `text-*` colors.
 
 ```typescript
 function StatusBadge({
@@ -161,12 +159,11 @@ Peer dependencies:
 
 - Requires a wired ClassMap bond (e.g. `@molecule/app-ui-tailwind`) —
   `getClassMap()` throws before bonding.
-- Prefer the default `appearance="ui"`. The `'uppercase-pill'` variant
-  styles itself with Material-3 container-token utilities
-  (`bg-success-container`, `text-on-success-container`,
-  `text-[10px]`, …) that only produce CSS in apps whose Tailwind theme
-  defines those tokens AND whose CSS scans/safelists these literals —
-  in a default scaffold the pill renders with NO color at all.
+- Both `appearance` variants color through the ClassMap `badge` tokens
+  (`cm.badge({ variant })` → real `bg-*` / `text-*` theme utilities), so
+  the `'uppercase-pill'` variant is visibly colored per kind in every
+  theme — it just adds `cm.uppercase` + `cm.trackingWide` on top of the
+  same colors the `'ui'` variant uses.
 - `<StatusPill>` has no background surface of its own — only the dot
   is colored; add a surface via `className` if you need a filled pill.
   Its `neutral` dot uses `bg-outline`, which also needs a theme

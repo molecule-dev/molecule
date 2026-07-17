@@ -27,12 +27,11 @@
  * @remarks
  * - Requires a wired ClassMap bond (e.g. `@molecule/app-ui-tailwind`) —
  *   `getClassMap()` throws before bonding.
- * - Prefer the default `appearance="ui"`. The `'uppercase-pill'` variant
- *   styles itself with Material-3 container-token utilities
- *   (`bg-success-container`, `text-on-success-container`,
- *   `text-[10px]`, …) that only produce CSS in apps whose Tailwind theme
- *   defines those tokens AND whose CSS scans/safelists these literals —
- *   in a default scaffold the pill renders with NO color at all.
+ * - Both `appearance` variants color through the ClassMap `badge` tokens
+ *   (`cm.badge({ variant })` → real `bg-*` / `text-*` theme utilities), so
+ *   the `'uppercase-pill'` variant is visibly colored per kind in every
+ *   theme — it just adds `cm.uppercase` + `cm.trackingWide` on top of the
+ *   same colors the `'ui'` variant uses.
  * - `<StatusPill>` has no background surface of its own — only the dot
  *   is colored; add a surface via `className` if you need a filled pill.
  *   Its `neutral` dot uses `bg-outline`, which also needs a theme

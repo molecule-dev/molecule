@@ -14,6 +14,17 @@ vi.mock('@molecule/app-ui', () => ({
               .filter((c) => typeof c === 'string' && c.length > 0)
               .join(' ')
         }
+        // Mirror the real `@molecule/app-ui-tailwind` resolvers exactly:
+        // `cm.fontWeight(w)` → `font-${w}`, `cm.textSize(s)` → `text-${s}`.
+        // This is what makes the emphasis assertions meaningful — the weight
+        // utility is derived from the ARG, so `font-extrabold` can only appear
+        // when the code calls `cm.fontWeight('extrabold')`.
+        if (prop === 'fontWeight') {
+          return (w: string) => `font-${w}`
+        }
+        if (prop === 'textSize') {
+          return (s: string) => `text-${s}`
+        }
         const token = String(prop)
         return (..._args: unknown[]) => token
       },
@@ -108,10 +119,22 @@ describe('PageHeader', () => {
     expect(markup).not.toContain('data-meta')
   })
 
-  it('applies the extrabold emphasis class only when emphasis="extrabold"', () => {
+  // Regression for finding L110: the extrabold title used to emit a raw
+  // `font-extrabold tracking-tight` literal (unscanned → never generated).
+  // The weight must now route through `cm.fontWeight('extrabold')` (a real,
+  // safelisted utility) with no leftover raw `tracking-*` literal.
+  it('emphasis="extrabold" emits the 4xl extrabold weight via cm.fontWeight', () => {
     const extrabold = html(createElement(PageHeader, { title: 'T', emphasis: 'extrabold' }))
+    expect(extrabold).toContain('text-4xl')
     expect(extrabold).toContain('font-extrabold')
+    // The old raw `tracking-tight` literal is gone (no un-scanned utilities).
+    expect(extrabold).not.toContain('tracking-tight')
+  })
+
+  it('emphasis="normal" (default) emits the 3xl bold weight, never font-extrabold', () => {
     const normal = html(createElement(PageHeader, { title: 'T' }))
+    expect(normal).toContain('text-3xl')
+    expect(normal).toContain('font-bold')
     expect(normal).not.toContain('font-extrabold')
   })
 

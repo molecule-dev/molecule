@@ -15,6 +15,12 @@ vi.mock('@molecule/app-ui', () => ({
               .filter((c) => typeof c === 'string' && c.length > 0)
               .join(' ')
         }
+        // Mirror the real `@molecule/app-ui-tailwind` badge resolver: a
+        // `variant` maps to a real `bg-<color>` theme utility (never a
+        // nonexistent `bg-*-container` token).
+        if (prop === 'badge') {
+          return (opts?: { variant?: string }) => `badge bg-${opts?.variant ?? 'default'}`
+        }
         const token = String(prop)
         return (..._args: unknown[]) => token
       },
@@ -64,6 +70,26 @@ describe('StatusBadge', () => {
     expect(markup).not.toContain('data-badge')
     expect(markup).toContain('uppercase')
     expect(markup).toContain('Failed')
+  })
+
+  // Regression for finding L116: the pill used `bg-*-container` tokens that
+  // exist in no theme, so it rendered colorless. Every kind must now color
+  // through a real ClassMap `badge` token (never a `bg-*-container`).
+  it.each([
+    ['success', 'bg-success'],
+    ['warning', 'bg-warning'],
+    ['error', 'bg-error'],
+    ['info', 'bg-info'],
+    ['neutral', 'bg-secondary'],
+  ] as const)('colors the %s uppercase-pill with a real theme token', (kind, colorToken) => {
+    const markup = html(
+      createElement(StatusBadge, { kind, appearance: 'uppercase-pill', children: 'X' }),
+    )
+    // A real, non-empty color utility is emitted for this kind…
+    expect(markup).toContain(colorToken)
+    // …and never the dead Material-3 container tokens.
+    expect(markup).not.toContain('-container')
+    expect(markup).not.toMatch(/bg-[a-z]+-container/)
   })
 
   it('renders the leading icon', () => {
