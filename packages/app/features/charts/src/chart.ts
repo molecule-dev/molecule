@@ -67,10 +67,10 @@ export const createSimpleChartProvider = (options?: SimpleChartProviderOptions):
         hasWarnedNoRealChartProvider = true
         console.warn(
           '[@molecule/app-charts] No chart provider bonded — rendering a non-functional ' +
-            'placeholder, not a real chart. No chart provider ships with the fleet: implement ' +
-            'the ChartProvider interface (e.g. around Chart.js, Recharts, or D3) and wire it ' +
-            "with bond('charts', provider) (or setProvider(provider)) at startup, before any " +
-            'create*Chart call.',
+            'placeholder, not a real chart. Bond @molecule/app-charts-chartjs (Chart.js) at ' +
+            "startup: import { provider } from '@molecule/app-charts-chartjs'; setProvider(provider) " +
+            "(same as bond('charts', provider)) BEFORE any create*Chart call. Or implement the " +
+            'ChartProvider interface around another library.',
         )
       }
 

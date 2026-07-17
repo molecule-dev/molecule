@@ -870,14 +870,15 @@ Peer dependencies:
 is bonded, every `create*Chart` call paints a non-functional placeholder
 notice onto the canvas (e.g. "bar chart — placeholder" / "No chart provider
 bonded") and logs a one-time, actionable `console.warn` — it never silently
-pretends to render. No prebuilt `@molecule/app-charts-*` provider package
-exists — to ship real charts, implement the `ChartProvider` interface around
-your chart library (Chart.js / Recharts / D3) and wire it at startup with
-`bond('charts', provider)` (or `setProvider(provider)` — same thing) in
-`bonds.ts`, BEFORE any component calls `createChart`. All `create*Chart`
-calls then route through your provider unchanged. Do not import a chart
-library directly in screens/components — keep the library behind the
-provider so it stays swappable.
+pretends to render. For real charts, bond **`@molecule/app-charts-chartjs`**
+(Chart.js — line/bar/pie/doughnut/area/scatter/bubble/radar/polar) at startup:
+`import { provider } from '@molecule/app-charts-chartjs'` then
+`setProvider(provider)` (same as `bond('charts', provider)`) in `bonds.ts`,
+BEFORE any component calls `createChart`. All `create*Chart` calls then route
+through it unchanged. (To use a different library, implement the
+`ChartProvider` interface around it — but the Chart.js bond covers the common
+cases.) Do not import a chart library directly in screens/components — keep it
+behind the provider so it stays swappable.
 
 ## E2E Tests
 

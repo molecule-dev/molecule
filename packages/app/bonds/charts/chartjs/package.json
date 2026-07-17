@@ -1,0 +1,45 @@
+{
+  "name": "@molecule/app-charts-chartjs",
+  "version": "1.0.0",
+  "description": "Chart.js provider for @molecule/app-charts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "charts",
+    "chart.js",
+    "visualization"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "directory": "packages/app/bonds/charts/chartjs"
+  },
+  "peerDependencies": {
+    "@molecule/app-charts": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-charts": "1.0.0",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  },
+  "dependencies": {
+    "chart.js": "4.5.1"
+  }
+}
