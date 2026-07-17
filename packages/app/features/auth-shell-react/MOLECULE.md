@@ -362,18 +362,7 @@ function AuthFormStateProvider({
 
 **Returns:** The provider element.
 
-#### `AuthShell({
-  heading,
-  subheading,
-  children,
-  footer,
-  brand,
-  decoration,
-  backTo = '/',
-  showBackLink = true,
-  formStateStorage,
-  formStateKey,
-})`
+#### `AuthShell(props)`
 
 Convenience preset composing container, decoration, card, heading, footer, and back-link into a single component.
 
@@ -396,7 +385,7 @@ function AuthShell({
 }: AuthShellProps): JSX.Element
 ```
 
-#### `AuthShellBackLink({ to = '/', label })`
+#### `AuthShellBackLink(props)`
 
 Back-navigation link rendered below the card, defaulting to "Back to home" via i18n.
 
@@ -404,14 +393,7 @@ Back-navigation link rendered below the card, defaulting to "Back to home" via i
 function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps): JSX.Element
 ```
 
-#### `AuthShellCard({
-  children,
-  surfaceClassName,
-  className,
-  outerClassName,
-  dataMolId,
-  style,
-})`
+#### `AuthShellCard(props)`
 
 Centered glassmorphic card surface with fixed flex-column layout and configurable surface treatment.
 
@@ -426,12 +408,7 @@ function AuthShellCard({
 }: AuthShellCardProps): JSX.Element
 ```
 
-#### `AuthShellCardColumn({
-  children,
-  className,
-  as = 'section',
-  ...rest
-})`
+#### `AuthShellCardColumn(props)`
 
 Centered-flex section or main column for the form-card half of a split or stacked auth layout.
 
@@ -444,12 +421,7 @@ function AuthShellCardColumn({
 }: AuthShellCardColumnProps): JSX.Element
 ```
 
-#### `AuthShellContainer({
-  children,
-  style,
-  className,
-  layout = 'centered',
-})`
+#### `AuthShellContainer(props)`
 
 Full-screen container with centered-flex or column layout and optional background decoration support.
 
@@ -462,7 +434,7 @@ function AuthShellContainer({
 }: AuthShellContainerProps): JSX.Element
 ```
 
-#### `AuthShellDecoration({ children })`
+#### `AuthShellDecoration(props)`
 
 Absolute-positioned background decoration layer — orbs, mesh gradients,
 radial glows. Children render inside a `pointer-events-none absolute
@@ -472,7 +444,7 @@ inset-0 -z-10 overflow-hidden` wrapper.
 function AuthShellDecoration({ children }: { children: ReactNode; }): JSX.Element
 ```
 
-#### `AuthShellFooter({ children })`
+#### `AuthShellFooter(props)`
 
 Footer inside the card — small text with a top border.
 
@@ -480,13 +452,7 @@ Footer inside the card — small text with a top border.
 function AuthShellFooter({ children }: { children: ReactNode; }): JSX.Element
 ```
 
-#### `AuthShellHeading({
-  heading,
-  subheading,
-  eyebrow,
-  headingClassName,
-  headingStyle,
-})`
+#### `AuthShellHeading(props)`
 
 Centered heading block with optional eyebrow tag, h1 title, and subheading paragraph.
 
@@ -500,7 +466,7 @@ function AuthShellHeading({
 }: AuthShellHeadingProps): JSX.Element
 ```
 
-#### `AuthShellPanel({ children, className, ...rest })`
+#### `AuthShellPanel(props)`
 
 Decorative aside that collapses on mobile (hidden lg:flex) for the brand-panel half of a split auth layout.
 
@@ -508,7 +474,7 @@ Decorative aside that collapses on mobile (hidden lg:flex) for the brand-panel h
 function AuthShellPanel({ children, className, ...rest }: AuthShellPanelProps): JSX.Element
 ```
 
-#### `AuthShellSplit({ children, className, ...rest })`
+#### `AuthShellSplit(props)`
 
 Outer min-h-screen flex-col frame for the two-column brand-panel + card auth layout.
 
@@ -516,11 +482,7 @@ Outer min-h-screen flex-col frame for the two-column brand-panel + card auth lay
 function AuthShellSplit({ children, className, ...rest }: AuthShellSplitProps): JSX.Element
 ```
 
-#### `AuthShellSplitRow({
-  children,
-  className,
-  ...rest
-})`
+#### `AuthShellSplitRow(props)`
 
 Vertically-filling flex-1 row inside AuthShellSplit that holds the brand panel and card column.
 

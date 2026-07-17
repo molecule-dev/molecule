@@ -108,22 +108,7 @@ type WeatherAlertLevel = 'watch' | 'warning' | 'emergency'
 
 ### Functions
 
-#### `WeatherCard({
-  locationName,
-  region,
-  temperature,
-  condition,
-  conditionIcon = 'partly_cloudy_day',
-  alertLevel,
-  alertLabel,
-  updatedLabel,
-  unit = '°F',
-  eyebrow,
-  trace,
-  feelsLikeLabel,
-  highLowLabel,
-  className,
-})`
+#### `WeatherCard(props)`
 
 Atmospheric current-conditions hero.
 

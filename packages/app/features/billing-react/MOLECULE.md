@@ -323,7 +323,7 @@ function BillingStatusBadge(props: BillingStatusBadgeProps): ReactElement<unknow
 
 **Returns:** The rendered status badge.
 
-#### `LimitsItem({ children, included = true })`
+#### `LimitsItem(props)`
 
 Single row in a tier's feature list — a check (or em-dash) icon
 followed by the row label. Use inside `<LimitsList>`.
@@ -332,7 +332,7 @@ followed by the row label. Use inside `<LimitsList>`.
 function LimitsItem({ children, included = true }: LimitsItemProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-#### `LimitsList({ children })`
+#### `LimitsList(props)`
 
 Container for a tier's feature list. Apps use this in their
 `renderLimits` prop with `<LimitsItem>` children to get the polished

@@ -152,12 +152,7 @@ type PackageLocaleBond = Record<string, unknown>
 
 ### Functions
 
-#### `setupI18nDefault({
-  enUi,
-  lazyLoadUi,
-  packageLocales,
-  supportedLocales,
-})`
+#### `setupI18nDefault(props)`
 
 Wire the molecule i18n provider with the fleet's 80-language list
 plus a default English bootstrap, then persist the user's locale

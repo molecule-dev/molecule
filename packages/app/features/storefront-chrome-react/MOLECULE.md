@@ -179,11 +179,7 @@ interface StorefrontTopNavProps {
 
 ### Functions
 
-#### `StorefrontAnnouncementBar({
-  message,
-  cta,
-  className,
-})`
+#### `StorefrontAnnouncementBar(props)`
 
 Storefront announcement / promo bar.
 
@@ -195,13 +191,7 @@ function StorefrontAnnouncementBar({
 }: StorefrontAnnouncementBarProps): JSX.Element
 ```
 
-#### `StorefrontFooter({
-  brand,
-  tagline,
-  columns = [],
-  copyright,
-  className,
-})`
+#### `StorefrontFooter(props)`
 
 Storefront footer with brand block + columns + copyright.
 
@@ -215,22 +205,7 @@ function StorefrontFooter({
 }: StorefrontFooterProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
-#### `StorefrontTopNav({
-  brand,
-  brandTo = '/',
-  links = [],
-  actions = [],
-  isAuthenticated,
-  profileImageUrl,
-  profileInitials,
-  profileImageAlt = 'User profile',
-  accountMenuLabel = 'Account menu',
-  authedMenu = [],
-  unauthedMenu = [],
-  onSignOut,
-  signOutLabel = 'Sign Out',
-  className,
-})`
+#### `StorefrontTopNav(props)`
 
 Storefront top navigation bar.
 

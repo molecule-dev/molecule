@@ -76,16 +76,7 @@ interface AppFooterProps {
 
 ### Functions
 
-#### `AppFooter({
-  appName,
-  aboutHref,
-  legalMode = 'modal',
-  loadContent,
-  privacyTo = '/privacy',
-  termsTo = '/terms',
-  className,
-  dataMolId,
-})`
+#### `AppFooter(props)`
 
 App-shell footer — About link, Privacy/Terms modals, language picker, version.
 

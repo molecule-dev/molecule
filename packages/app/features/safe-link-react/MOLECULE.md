@@ -32,11 +32,7 @@ npm install -D @types/react
 
 ### Functions
 
-#### `SafeLink({
-  to,
-  children,
-  ...rest
-})`
+#### `SafeLink(props)`
 
 `<SafeLink>` renders a react-router `Link`, but if its destination
 matches the current path it appends a `#top` fragment so clicking

@@ -118,20 +118,7 @@ interface TesterMessage {
 
 ### Functions
 
-#### `ChatbotTester({
-  messages,
-  loading,
-  onSend,
-  bots,
-  botId,
-  onBotChange,
-  error,
-  emptyState,
-  botPickerLabel = 'Test bot',
-  inputPlaceholder,
-  sendLabel,
-  className,
-})`
+#### `ChatbotTester(props)`
 
 Full chatbot tester sandbox.
 
@@ -152,14 +139,7 @@ function ChatbotTester({
 }: ChatbotTesterProps): JSX.Element
 ```
 
-#### `ChatbotTesterInput({
-  value,
-  onChange,
-  onSend,
-  loading,
-  placeholder = 'Type a message…',
-  sendLabel = 'Send',
-})`
+#### `ChatbotTesterInput(props)`
 
 Message composer + send button.
 
@@ -174,11 +154,7 @@ function ChatbotTesterInput({
 }: ChatbotTesterInputProps): JSX.Element
 ```
 
-#### `ChatbotTesterMessages({
-  messages,
-  loading,
-  emptyState,
-})`
+#### `ChatbotTesterMessages(props)`
 
 Scrollable transcript pane.
 

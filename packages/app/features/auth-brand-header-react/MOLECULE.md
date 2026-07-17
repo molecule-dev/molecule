@@ -125,16 +125,7 @@ interface AuthBrandHeaderWordmarkProps {
 
 ### Functions
 
-#### `AuthBrandHeader({
-  children,
-  className,
-  appName,
-  tagline,
-  icon,
-  chipGradient,
-  chipShape,
-  wordmarkColor,
-})`
+#### `AuthBrandHeader(props)`
 
 Centered auth-page brand header supporting both composable children and preset mode.
 
@@ -151,11 +142,7 @@ function AuthBrandHeader({
 }: AuthBrandHeaderProps): JSX.Element
 ```
 
-#### `AuthBrandHeaderChip({
-  icon,
-  chipGradient,
-  chipShape = 'round',
-})`
+#### `AuthBrandHeaderChip(props)`
 
 Renders the gradient material-symbols chip shown above the wordmark.
 
@@ -167,10 +154,7 @@ function AuthBrandHeaderChip({
 }: AuthBrandHeaderChipProps): JSX.Element
 ```
 
-#### `AuthBrandHeaderTagline({
-  children,
-  className,
-})`
+#### `AuthBrandHeaderTagline(props)`
 
 Renders the tagline `<p>` with a muted style and optional extra classes.
 
@@ -181,11 +165,7 @@ function AuthBrandHeaderTagline({
 }: AuthBrandHeaderTaglineProps): JSX.Element
 ```
 
-#### `AuthBrandHeaderWordmark({
-  children,
-  color,
-  className,
-})`
+#### `AuthBrandHeaderWordmark(props)`
 
 Renders the wordmark `<h1>` with optional inline color and extra classes.
 

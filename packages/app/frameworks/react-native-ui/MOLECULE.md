@@ -947,7 +947,7 @@ interface TooltipProps extends HTMLElementProps {
 
 ### Functions
 
-#### `Accordion(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Accordion(props)`
 
 Renders an Accordion component.
 
@@ -964,19 +964,19 @@ function Accordion({
 }: AccordionProps<string>): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .items - Accordion items array.
-- `root0` — .multiple - Whether multiple items can be open.
-- `root0` — .defaultValue - Initial open value.
-- `root0` — .value - Controlled open value.
-- `root0` — .onChange - Change handler.
-- `root0` — .collapsible - Whether items collapse.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.items` — Accordion items array.
+- `props.multiple` — Whether multiple items can be open.
+- `props.defaultValue` — Initial open value.
+- `props.value` — Controlled open value.
+- `props.onChange` — Change handler.
+- `props.collapsible` — Whether items collapse.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Accordion element.
 
-#### `Alert(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Alert(props)`
 
 Renders an Alert component.
 
@@ -994,20 +994,20 @@ function Alert({
 }: AlertProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Alert body content.
-- `root0` — .title - Alert title text.
-- `root0` — .variant - Visual variant.
-- `root0` — .status - Status type.
-- `root0` — .icon - Leading icon element.
-- `root0` — .dismissible - Whether dismissible.
-- `root0` — .onDismiss - Dismiss handler.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.children` — Alert body content.
+- `props.title` — Alert title text.
+- `props.variant` — Visual variant.
+- `props.status` — Status type.
+- `props.icon` — Leading icon element.
+- `props.dismissible` — Whether dismissible.
+- `props.onDismiss` — Dismiss handler.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Alert element.
 
-#### `Avatar(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Avatar(props)`
 
 Renders an Avatar component.
 
@@ -1024,19 +1024,19 @@ function Avatar({
 }: AvatarProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .src - Image source URL.
-- `root0` — .alt - Alt text for image.
-- `root0` — .name - Display name for initials.
-- `root0` — .fallback - Fallback element when image unavailable.
-- `root0` — .size - Avatar size.
-- `root0` — .rounded - Whether rounded (circular).
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.src` — Image source URL.
+- `props.alt` — Alt text for image.
+- `props.name` — Display name for initials.
+- `props.fallback` — Fallback element when image unavailable.
+- `props.size` — Avatar size.
+- `props.rounded` — Whether rounded (circular).
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Avatar element.
 
-#### `Badge(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Badge(props)`
 
 Renders a Badge component.
 
@@ -1052,18 +1052,18 @@ function Badge({
 }: BadgeProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Badge content.
-- `root0` — .color - Badge color.
-- `root0` — .variant - Visual variant style.
-- `root0` — .size - Badge size.
-- `root0` — .rounded - Whether rounded.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.children` — Badge content.
+- `props.color` — Badge color.
+- `props.variant` — Visual variant style.
+- `props.size` — Badge size.
+- `props.rounded` — Whether rounded.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Badge element.
 
-#### `Button(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Button(props)`
 
 Renders a Button component.
 
@@ -1085,24 +1085,24 @@ function Button({
 }: ButtonProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Button content.
-- `root0` — .variant - Visual variant.
-- `root0` — .color - Color theme.
-- `root0` — .size - Button size.
-- `root0` — .loading - Whether loading.
-- `root0` — .loadingText - Text while loading.
-- `root0` — .fullWidth - Whether full width.
-- `root0` — .leftIcon - Left icon element.
-- `root0` — .rightIcon - Right icon element.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
-- `root0` — .disabled - Whether disabled.
-- `root0` — .onClick - Click handler.
+- `props` — Component props.
+- `props.children` — Button content.
+- `props.variant` — Visual variant.
+- `props.color` — Color theme.
+- `props.size` — Button size.
+- `props.loading` — Whether loading.
+- `props.loadingText` — Text while loading.
+- `props.fullWidth` — Whether full width.
+- `props.leftIcon` — Left icon element.
+- `props.rightIcon` — Right icon element.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
+- `props.disabled` — Whether disabled.
+- `props.onClick` — Click handler.
 
 **Returns:** The rendered Button element.
 
-#### `Card(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Card(props)`
 
 Renders a Card component.
 
@@ -1119,19 +1119,19 @@ function Card({
 }: CardProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Card content.
-- `root0` — .variant - Visual variant.
-- `root0` — .padding - Padding size.
-- `root0` — .interactive - Whether interactive.
-- `root0` — .className - CSS class name override.
-- `root0` — .style - Inline style object.
-- `root0` — .testId - Test identifier.
-- `root0` — .onClick - Click handler.
+- `props` — Component props.
+- `props.children` — Card content.
+- `props.variant` — Visual variant.
+- `props.padding` — Padding size.
+- `props.interactive` — Whether interactive.
+- `props.className` — CSS class name override.
+- `props.style` — Inline style object.
+- `props.testId` — Test identifier.
+- `props.onClick` — Click handler.
 
 **Returns:** The rendered Card element.
 
-#### `CardContent(root0, root0, root0)`
+#### `CardContent(props)`
 
 Renders a CardContent component.
 
@@ -1142,13 +1142,13 @@ function CardContent({
 }: { children: unknown; className?: string; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Body content.
-- `root0` — .className - CSS class name override.
+- `props` — Component props.
+- `props.children` — Body content.
+- `props.className` — CSS class name override.
 
 **Returns:** The rendered CardContent element.
 
-#### `CardDescription(root0, root0, root0)`
+#### `CardDescription(props)`
 
 Renders a CardDescription component.
 
@@ -1159,13 +1159,13 @@ function CardDescription({
 }: { children: unknown; className?: string; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Description content.
-- `root0` — .className - CSS class name override.
+- `props` — Component props.
+- `props.children` — Description content.
+- `props.className` — CSS class name override.
 
 **Returns:** The rendered CardDescription element.
 
-#### `CardFooter(root0, root0, root0)`
+#### `CardFooter(props)`
 
 Renders a CardFooter component.
 
@@ -1176,13 +1176,13 @@ function CardFooter({
 }: { children: unknown; className?: string; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Footer content.
-- `root0` — .className - CSS class name override.
+- `props` — Component props.
+- `props.children` — Footer content.
+- `props.className` — CSS class name override.
 
 **Returns:** The rendered CardFooter element.
 
-#### `CardHeader(root0, root0, root0)`
+#### `CardHeader(props)`
 
 Renders a CardHeader component.
 
@@ -1193,13 +1193,13 @@ function CardHeader({
 }: { children: unknown; className?: string; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Header content.
-- `root0` — .className - CSS class name override.
+- `props` — Component props.
+- `props.children` — Header content.
+- `props.className` — CSS class name override.
 
 **Returns:** The rendered CardHeader element.
 
-#### `CardTitle(root0, root0, root0)`
+#### `CardTitle(props)`
 
 Renders a CardTitle component.
 
@@ -1210,13 +1210,13 @@ function CardTitle({
 }: { children: unknown; className?: string; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Title content.
-- `root0` — .className - CSS class name override.
+- `props` — Component props.
+- `props.children` — Title content.
+- `props.className` — CSS class name override.
 
 **Returns:** The rendered CardTitle element.
 
-#### `Checkbox(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Checkbox(props)`
 
 Renders a Checkbox component.
 
@@ -1233,19 +1233,19 @@ function Checkbox({
 }: CheckboxProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .label - Checkbox label text.
-- `root0` — .checked - Whether checked.
-- `root0` — .indeterminate - Whether indeterminate.
-- `root0` — .onChange - Change handler.
-- `root0` — .error - Error message.
-- `root0` — .disabled - Whether disabled.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.label` — Checkbox label text.
+- `props.checked` — Whether checked.
+- `props.indeterminate` — Whether indeterminate.
+- `props.onChange` — Change handler.
+- `props.error` — Error message.
+- `props.disabled` — Whether disabled.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Checkbox element.
 
-#### `Container(root0, root0, root0, root0, root0, root0, root0)`
+#### `Container(props)`
 
 Renders a Container component.
 
@@ -1260,17 +1260,17 @@ function Container({
 }: ContainerProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Container content.
-- `root0` — .maxWidth - Maximum width constraint.
-- `root0` — .centered - Whether centered.
-- `root0` — .className - CSS class name override.
-- `root0` — .style - Inline style object.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.children` — Container content.
+- `props.maxWidth` — Maximum width constraint.
+- `props.centered` — Whether centered.
+- `props.className` — CSS class name override.
+- `props.style` — Inline style object.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Container element.
 
-#### `Dropdown(root0, root0, root0, root0, root0, root0)`
+#### `Dropdown(props)`
 
 Renders a Dropdown component.
 
@@ -1284,16 +1284,16 @@ function Dropdown({
 }: DropdownProps<string>): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .trigger - Trigger element.
-- `root0` — .items - Menu items array.
-- `root0` — .onSelect - Item selection handler.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.trigger` — Trigger element.
+- `props.items` — Menu items array.
+- `props.onSelect` — Item selection handler.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Dropdown element.
 
-#### `DropdownLabel(root0, root0)`
+#### `DropdownLabel(props)`
 
 Renders a DropdownLabel component.
 
@@ -1301,8 +1301,8 @@ Renders a DropdownLabel component.
 function DropdownLabel({ children }: { children: unknown; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Label content.
+- `props` — Component props.
+- `props.children` — Label content.
 
 **Returns:** The rendered DropdownLabel element.
 
@@ -1316,7 +1316,7 @@ function DropdownSeparator(): React.JSX.Element
 
 **Returns:** The rendered DropdownSeparator element.
 
-#### `Flex(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Flex(props)`
 
 Renders a Flex component.
 
@@ -1335,21 +1335,21 @@ function Flex({
 }: FlexProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Flex content.
-- `root0` — .direction - Flex direction.
-- `root0` — .justify - Justify content.
-- `root0` — .align - Align items.
-- `root0` — .wrap - Flex wrap behavior.
-- `root0` — .gap - Gap between items.
-- `root0` — .className - CSS class name override.
-- `root0` — .style - Inline style object.
-- `root0` — .testId - Test identifier.
-- `root0` — .onClick - Click handler.
+- `props` — Component props.
+- `props.children` — Flex content.
+- `props.direction` — Flex direction.
+- `props.justify` — Justify content.
+- `props.align` — Align items.
+- `props.wrap` — Flex wrap behavior.
+- `props.gap` — Gap between items.
+- `props.className` — CSS class name override.
+- `props.style` — Inline style object.
+- `props.testId` — Test identifier.
+- `props.onClick` — Click handler.
 
 **Returns:** The rendered Flex element.
 
-#### `Form(root0, root0, root0, root0, root0)`
+#### `Form(props)`
 
 Renders a Form component.
 
@@ -1360,15 +1360,15 @@ that provides consistent spacing.
 function Form({ children, onSubmit: _onSubmit, className, testId }: FormProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Form content.
-- `root0` — .onSubmit - Submit handler (unused in RN).
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.children` — Form content.
+- `props.onSubmit` — Submit handler (unused in RN).
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Form element.
 
-#### `FormField(root0, root0, root0, root0, root0, root0, root0)`
+#### `FormField(props)`
 
 Renders a FormField component.
 
@@ -1383,17 +1383,17 @@ function FormField({
 }: FormFieldProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Field input content.
-- `root0` — .label - Field label text.
-- `root0` — .error - Error message.
-- `root0` — .hint - Hint text.
-- `root0` — .required - Whether required.
-- `root0` — .className - CSS class name override.
+- `props` — Component props.
+- `props.children` — Field input content.
+- `props.label` — Field label text.
+- `props.error` — Error message.
+- `props.hint` — Hint text.
+- `props.required` — Whether required.
+- `props.className` — CSS class name override.
 
 **Returns:** The rendered FormField element.
 
-#### `Grid(root0, root0, root0, root0, root0, root0, root0)`
+#### `Grid(props)`
 
 Renders a Grid component.
 
@@ -1401,17 +1401,17 @@ Renders a Grid component.
 function Grid({ children, columns, gap, className, style, testId }: GridProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Grid content.
-- `root0` — .columns - Number of columns.
-- `root0` — .gap - Gap between items.
-- `root0` — .className - CSS class name override.
-- `root0` — .style - Inline style object.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.children` — Grid content.
+- `props.columns` — Number of columns.
+- `props.gap` — Gap between items.
+- `props.className` — CSS class name override.
+- `props.style` — Inline style object.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Grid element.
 
-#### `Label(root0, root0, root0, root0)`
+#### `Label(props)`
 
 Renders a Label component.
 
@@ -1419,14 +1419,14 @@ Renders a Label component.
 function Label({ children, required, className }: LabelProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Label content.
-- `root0` — .required - Whether required.
-- `root0` — .className - CSS class name override.
+- `props` — Component props.
+- `props.children` — Label content.
+- `props.required` — Whether required.
+- `props.className` — CSS class name override.
 
 **Returns:** The rendered Label element.
 
-#### `Modal(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Modal(props)`
 
 Renders a Modal component.
 
@@ -1443,19 +1443,19 @@ function Modal({
 }: ModalProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Modal body content.
-- `root0` — .open - Whether open.
-- `root0` — .onClose - Close handler.
-- `root0` — .title - Modal title text.
-- `root0` — .size - Modal size.
-- `root0` — .footer - Footer content.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.children` — Modal body content.
+- `props.open` — Whether open.
+- `props.onClose` — Close handler.
+- `props.title` — Modal title text.
+- `props.size` — Modal size.
+- `props.footer` — Footer content.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Modal element.
 
-#### `Pagination(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Pagination(props)`
 
 Renders a Pagination component.
 
@@ -1473,20 +1473,20 @@ function Pagination({
 }: PaginationProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .page - Current page number.
-- `root0` — .totalPages - Total number of pages.
-- `root0` — .onChange - Page change handler.
-- `root0` — .siblings - Visible sibling pages.
-- `root0` — .boundaries - Boundary page count.
-- `root0` — .size - Pagination size.
-- `root0` — .showFirstLast - Show first/last buttons.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.page` — Current page number.
+- `props.totalPages` — Total number of pages.
+- `props.onChange` — Page change handler.
+- `props.siblings` — Visible sibling pages.
+- `props.boundaries` — Boundary page count.
+- `props.size` — Pagination size.
+- `props.showFirstLast` — Show first/last buttons.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Pagination element.
 
-#### `Progress(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Progress(props)`
 
 Renders a Progress component.
 
@@ -1504,20 +1504,20 @@ function Progress({
 }: ProgressProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .value - Current progress value.
-- `root0` — .max - Maximum progress value.
-- `root0` — .label - Progress label text.
-- `root0` — .showValue - Whether to show value.
-- `root0` — .color - Progress bar color.
-- `root0` — .size - Progress bar size.
-- `root0` — .indeterminate - Whether indeterminate.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.value` — Current progress value.
+- `props.max` — Maximum progress value.
+- `props.label` — Progress label text.
+- `props.showValue` — Whether to show value.
+- `props.color` — Progress bar color.
+- `props.size` — Progress bar size.
+- `props.indeterminate` — Whether indeterminate.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Progress element.
 
-#### `RadioGroup(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `RadioGroup(props)`
 
 Renders a RadioGroup component.
 
@@ -1535,20 +1535,20 @@ function RadioGroup({
 }: RadioGroupProps<string>): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .label - Group label text.
-- `root0` — .options - Radio options array.
-- `root0` — .value - Selected value.
-- `root0` — .onChange - Change handler.
-- `root0` — .direction - Layout direction.
-- `root0` — .error - Error message.
-- `root0` — .disabled - Whether disabled.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.label` — Group label text.
+- `props.options` — Radio options array.
+- `props.value` — Selected value.
+- `props.onChange` — Change handler.
+- `props.direction` — Layout direction.
+- `props.error` — Error message.
+- `props.disabled` — Whether disabled.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered RadioGroup element.
 
-#### `Select(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Select(props)`
 
 Renders a Select component.
 
@@ -1569,23 +1569,23 @@ function Select({
 }: SelectProps<string>): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .label - Select label text.
-- `root0` — .options - Select options array.
-- `root0` — .value - Selected value.
-- `root0` — .onChange - Change handler.
-- `root0` — .placeholder - Placeholder text.
-- `root0` — .error - Error message.
-- `root0` — .hint - Hint text.
-- `root0` — .size - Select size.
-- `root0` — .disabled - Whether disabled.
-- `root0` — .required - Whether required.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.label` — Select label text.
+- `props.options` — Select options array.
+- `props.value` — Selected value.
+- `props.onChange` — Change handler.
+- `props.placeholder` — Placeholder text.
+- `props.error` — Error message.
+- `props.hint` — Hint text.
+- `props.size` — Select size.
+- `props.disabled` — Whether disabled.
+- `props.required` — Whether required.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Select element.
 
-#### `Separator(root0, root0, root0, root0, root0)`
+#### `Separator(props)`
 
 Renders a Separator component.
 
@@ -1598,15 +1598,15 @@ function Separator({
 }: SeparatorProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .orientation - Horizontal or vertical.
-- `root0` — .decorative - Whether purely decorative.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.orientation` — Horizontal or vertical.
+- `props.decorative` — Whether purely decorative.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Separator element.
 
-#### `Skeleton(root0, root0, root0, root0, root0, root0, root0)`
+#### `Skeleton(props)`
 
 Renders a Skeleton component.
 
@@ -1621,17 +1621,17 @@ function Skeleton({
 }: SkeletonProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .width - Skeleton width.
-- `root0` — .height - Skeleton height.
-- `root0` — .circle - Whether circular.
-- `root0` — .animation - Animation type.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.width` — Skeleton width.
+- `props.height` — Skeleton height.
+- `props.circle` — Whether circular.
+- `props.animation` — Animation type.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Skeleton element.
 
-#### `SkeletonCircle(root0, root0, root0, root0)`
+#### `SkeletonCircle(props)`
 
 Renders a SkeletonCircle component.
 
@@ -1639,14 +1639,14 @@ Renders a SkeletonCircle component.
 function SkeletonCircle({ size = 40, className, testId }: { size?: number; className?: string; testId?: string; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .size - Circle diameter.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.size` — Circle diameter.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered SkeletonCircle element.
 
-#### `SkeletonText(root0, root0, root0, root0)`
+#### `SkeletonText(props)`
 
 Renders a SkeletonText component.
 
@@ -1654,14 +1654,14 @@ Renders a SkeletonText component.
 function SkeletonText({ lines = 3, className, testId }: { lines?: number; className?: string; testId?: string; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .lines - Number of text lines.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.lines` — Number of text lines.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered SkeletonText element.
 
-#### `Spacer(root0, root0, root0, root0, root0, root0)`
+#### `Spacer(props)`
 
 Renders a Spacer component.
 
@@ -1675,16 +1675,16 @@ function Spacer({
 }: SpacerProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .size - Spacer size.
-- `root0` — .horizontal - Whether horizontal.
-- `root0` — .className - CSS class name override.
-- `root0` — .style - Inline style object.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.size` — Spacer size.
+- `props.horizontal` — Whether horizontal.
+- `props.className` — CSS class name override.
+- `props.style` — Inline style object.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Spacer element.
 
-#### `Spinner(root0, root0, root0, root0)`
+#### `Spinner(props)`
 
 Renders a Spinner component.
 
@@ -1692,14 +1692,14 @@ Renders a Spinner component.
 function Spinner({ size = 'md', className, testId }: SpinnerProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .size - Spinner size.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.size` — Spinner size.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Spinner element.
 
-#### `Switch(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Switch(props)`
 
 Renders a Switch component.
 
@@ -1715,18 +1715,18 @@ function Switch({
 }: SwitchProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .label - Switch label text.
-- `root0` — .checked - Whether checked.
-- `root0` — .onChange - Change handler.
-- `root0` — .size - Switch size (unused in RN).
-- `root0` — .disabled - Whether disabled.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.label` — Switch label text.
+- `props.checked` — Whether checked.
+- `props.onChange` — Change handler.
+- `props.size` — Switch size (unused in RN).
+- `props.disabled` — Whether disabled.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Switch element.
 
-#### `Table(root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Table(props)`
 
 Renders a Table component.
 
@@ -1748,24 +1748,24 @@ function Table({
 }: TableProps<Record<string, unknown>>): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .columns - Column definitions.
-- `root0` — .data - Table row data.
-- `root0` — .rowKey - Row key accessor.
-- `root0` — .onRowClick - Row click handler.
-- `root0` — .striped - Whether striped rows.
-- `root0` — .bordered - Whether bordered.
-- `root0` — .hoverable - Whether rows hoverable.
-- `root0` — .loading - Whether loading.
-- `root0` — .emptyContent - Empty state message.
-- `root0` — .sort - Active sort state.
-- `root0` — .onSort - Sort handler.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.columns` — Column definitions.
+- `props.data` — Table row data.
+- `props.rowKey` — Row key accessor.
+- `props.onRowClick` — Row click handler.
+- `props.striped` — Whether striped rows.
+- `props.bordered` — Whether bordered.
+- `props.hoverable` — Whether rows hoverable.
+- `props.loading` — Whether loading.
+- `props.emptyContent` — Empty state message.
+- `props.sort` — Active sort state.
+- `props.onSort` — Sort handler.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Table element.
 
-#### `Tabs(root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Tabs(props)`
 
 Renders a Tabs component.
 
@@ -1781,18 +1781,18 @@ function Tabs({
 }: TabsProps<string>): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .items - Tab items array.
-- `root0` — .value - Controlled active tab.
-- `root0` — .defaultValue - Default active tab.
-- `root0` — .onChange - Tab change handler.
-- `root0` — .fitted - Whether tabs fill width.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.items` — Tab items array.
+- `props.value` — Controlled active tab.
+- `props.defaultValue` — Default active tab.
+- `props.onChange` — Tab change handler.
+- `props.fitted` — Whether tabs fill width.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Tabs element.
 
-#### `Toast(root0, root0, root0, root0, root0, root0, root0, root0, root0)`
+#### `Toast(props)`
 
 Renders a Toast component.
 
@@ -1809,19 +1809,19 @@ function Toast({
 }: ToastProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .title - Toast title text.
-- `root0` — .description - Toast description text.
-- `root0` — .status - Status type.
-- `root0` — .duration - Auto-dismiss duration (ms).
-- `root0` — .dismissible - Whether dismissible.
-- `root0` — .onDismiss - Dismiss handler.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.title` — Toast title text.
+- `props.description` — Toast description text.
+- `props.status` — Status type.
+- `props.duration` — Auto-dismiss duration (ms).
+- `props.dismissible` — Whether dismissible.
+- `props.onDismiss` — Dismiss handler.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Toast element.
 
-#### `ToastContainer(root0, root0, root0)`
+#### `ToastContainer(props)`
 
 Renders a ToastContainer component.
 
@@ -1829,13 +1829,13 @@ Renders a ToastContainer component.
 function ToastContainer({ children, position = 'bottom-right' }: { children: React.ReactNode; position?: "top" | "top-right" | "top-left" | "bottom" | "bottom-right" | "bottom-left"; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Toast elements.
-- `root0` — .position - Screen position.
+- `props` — Component props.
+- `props.children` — Toast elements.
+- `props.position` — Screen position.
 
 **Returns:** The rendered ToastContainer element.
 
-#### `ToastProvider(root0, root0, root0)`
+#### `ToastProvider(props)`
 
 Renders a ToastProvider component.
 
@@ -1843,13 +1843,13 @@ Renders a ToastProvider component.
 function ToastProvider({ children, position = 'bottom-right' }: { children: React.ReactNode; position?: "top" | "top-right" | "top-left" | "bottom" | "bottom-right" | "bottom-left"; }): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - App content.
-- `root0` — .position - Toast position.
+- `props` — Component props.
+- `props.children` — App content.
+- `props.position` — Toast position.
 
 **Returns:** The rendered ToastProvider element.
 
-#### `Tooltip(root0, root0, root0, root0, root0)`
+#### `Tooltip(props)`
 
 Renders a Tooltip component.
 
@@ -1857,11 +1857,11 @@ Renders a Tooltip component.
 function Tooltip({ children, content, className, testId }: TooltipProps): React.JSX.Element
 ```
 
-- `root0` — Component props.
-- `root0` — .children - Trigger element.
-- `root0` — .content - Tooltip content.
-- `root0` — .className - CSS class name override.
-- `root0` — .testId - Test identifier.
+- `props` — Component props.
+- `props.children` — Trigger element.
+- `props.content` — Tooltip content.
+- `props.className` — CSS class name override.
+- `props.testId` — Test identifier.
 
 **Returns:** The rendered Tooltip element.
 

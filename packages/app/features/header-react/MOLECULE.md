@@ -34,7 +34,7 @@ function Shell() {
 
 ## Installation
 ```bash
-npm install @molecule/app-header-react @molecule/app-ui @molecule/app-ui-react react react-router-dom
+npm install @molecule/app-header-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router-dom
 npm install -D @types/react
 ```
 
@@ -84,18 +84,7 @@ interface AppHeaderProps {
 
 ### Functions
 
-#### `AppHeader({
-  appName,
-  logoSrc = '/logo.svg',
-  logoSize = 30,
-  brandTo = '/',
-  userMenu,
-  themeToggle = DEFAULT_THEME_TOGGLE,
-  extraActions,
-  fixed = true,
-  className,
-  dataMolId,
-})`
+#### `AppHeader(props)`
 
 Sticky top app-shell header — logo + appName on the left, slotted actions
 on the right. All visual styling routes through ClassMap tokens
@@ -130,6 +119,7 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/app-react`
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`

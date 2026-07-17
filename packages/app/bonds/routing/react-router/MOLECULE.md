@@ -455,7 +455,7 @@ function matchPath(pattern: string, pathname: string, exact?: boolean): RouteMat
 
 **Returns:** A `RouteMatch` with extracted params, or `null` if no match.
 
-#### `MoleculeRouterProvider(root0, root0, root0, root0)`
+#### `MoleculeRouterProvider(props)`
 
 Provider component that creates a molecule Router from React Router hooks and
 bonds it as the active singleton via `@molecule/app-routing`'s `setRouter`.
@@ -466,17 +466,10 @@ React Router adapter — no manual `setRouter` wiring required. Mount it once in
 `<BrowserRouter>`.
 
 ```typescript
-function MoleculeRouterProvider({
-  children,
-  routes = [],
-  onRouterReady,
-}: MoleculeRouterProviderProps): React.JSX.Element
+function MoleculeRouterProvider(props: MoleculeRouterProviderProps): React.JSX.Element
 ```
 
-- `root0` — The component props.
-- `root0` — .children - Child components to render within the router context.
-- `root0` — .routes - Optional route definitions for named routes.
-- `root0` — .onRouterReady - Optional extra callback invoked with the router after
+- `props` — The provider props (see {@link MoleculeRouterProviderProps}):
 
 **Returns:** The rendered provider wrapping children with the router context.
 

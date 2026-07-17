@@ -1898,17 +1898,7 @@ function PanelCloseProvider({ close, children }: PanelCloseProviderProps): JSX.E
 
 **Returns:** The children wrapped in the close-context provider.
 
-#### `SidebarUserCard({
-  children,
-  name,
-  secondaryLine,
-  avatarUrl,
-  ariaLabelKey = 'sidebarUserCard.open',
-  ariaLabelDefault = 'Open account menu',
-  dataMolId = 'sidebar-user-card',
-  className,
-  ...rest
-})`
+#### `SidebarUserCard(props)`
 
 Sidebar-resident user-account card: avatar + name + status line, opens
 the app's settings drawer on click.
@@ -1968,7 +1958,7 @@ function ThemeToggle({
 
 - `props` — {@link ThemeToggleProps}
 
-#### `ToastProvider(root0, root0, root0)`
+#### `ToastProvider(props)`
 
 Provider component that manages global toast state.
 
@@ -1979,9 +1969,9 @@ function ToastProvider({
 }: ToastProviderProps): React.JSX.Element
 ```
 
-- `root0` — The component props.
-- `root0` — .children - The child elements to render within the provider.
-- `root0` — .position - The default position for toasts.
+- `props` — The component props.
+- `props.children` — The child elements to render within the provider.
+- `props.position` — The default position for toasts.
 
 **Returns:** The rendered provider with toast container.
 
@@ -1998,16 +1988,7 @@ function usePanelClose(): () => void
 
 **Returns:** A function that closes the enclosing drawer, or a no-op.
 
-#### `UserMenu({
-  children,
-  ariaLabelKey = 'userMenu.open',
-  ariaLabelDefault = 'Open user menu',
-  triggerIcon = 'user',
-  triggerIconSize = 20,
-  dataMolId = 'user-menu',
-  className,
-  disabled,
-})`
+#### `UserMenu(props)`
 
 Avatar-style trigger that opens the app's settings panel in a drawer.
 

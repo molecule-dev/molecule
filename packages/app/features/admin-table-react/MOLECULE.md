@@ -132,22 +132,7 @@ interface AdminTableRowActionsProps<T> {
 
 ### Functions
 
-#### `AdminTable({
-  rows,
-  columns,
-  rowKey,
-  loading,
-  skeletonRowCount = 8,
-  onRowClick,
-  bulkSelect,
-  selectedIds = [],
-  onSelectedIdsChange,
-  rowActions,
-  rowActionsAriaLabel,
-  footer,
-  className,
-  tbodyDataMolId,
-})`
+#### `AdminTable(props)`
 
 Admin-style data table.
 
@@ -170,11 +155,7 @@ function AdminTable({
 }: AdminTableProps<T>): JSX.Element
 ```
 
-#### `AdminTableRowActions({
-  row,
-  actions,
-  ariaLabel,
-})`
+#### `AdminTableRowActions(props)`
 
 Three-dots row actions menu.
 

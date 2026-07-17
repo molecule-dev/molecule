@@ -94,11 +94,7 @@ interface SegmentedControlProps<T extends string> {
 
 ### Functions
 
-#### `FacetedSearchBar({
-  children,
-  topOffsetPx = 64,
-  className,
-})`
+#### `FacetedSearchBar(props)`
 
 Sticky filter-bar container.
 
@@ -110,15 +106,7 @@ function FacetedSearchBar({
 }: FacetedSearchBarProps): JSX.Element
 ```
 
-#### `FilterPill({
-  label,
-  active,
-  children,
-  hideChevron,
-  leadingIcon,
-  panelAlign = 'left',
-  dataMolId,
-})`
+#### `FilterPill(props)`
 
 Pill button + dropdown panel.
 
@@ -134,12 +122,7 @@ function FilterPill({
 }: FilterPillProps): JSX.Element
 ```
 
-#### `SegmentedControl({
-  options,
-  value,
-  onChange,
-  className,
-})`
+#### `SegmentedControl(props)`
 
 Pill segmented control.
 

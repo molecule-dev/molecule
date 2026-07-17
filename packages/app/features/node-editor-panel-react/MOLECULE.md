@@ -142,14 +142,7 @@ interface NodeEditorToggleProps {
 
 ### Functions
 
-#### `NodeEditorPanel({
-  title,
-  children,
-  footer,
-  onClose,
-  closeAriaLabel = 'Close panel',
-  widthClass,
-})`
+#### `NodeEditorPanel(props)`
 
 Properties panel chrome.
 
@@ -164,11 +157,7 @@ function NodeEditorPanel({
 }: NodeEditorPanelProps): JSX.Element
 ```
 
-#### `NodeEditorRadioGroup({
-  options,
-  value,
-  onChange,
-})`
+#### `NodeEditorRadioGroup(props)`
 
 Radio list.
 
@@ -180,12 +169,7 @@ function NodeEditorRadioGroup({
 }: NodeEditorRadioGroupProps<T>): JSX.Element
 ```
 
-#### `NodeEditorSection({
-  label,
-  children,
-  trailing,
-  gap = 3,
-})`
+#### `NodeEditorSection(props)`
 
 Labeled section.
 
@@ -198,15 +182,7 @@ function NodeEditorSection({
 }: NodeEditorSectionProps): JSX.Element
 ```
 
-#### `NodeEditorSlider({
-  label,
-  value,
-  onChange,
-  min = 0,
-  max = 1,
-  step = 0.1,
-  valueDisplay,
-})`
+#### `NodeEditorSlider(props)`
 
 Range slider section.
 
@@ -222,14 +198,7 @@ function NodeEditorSlider({
 }: NodeEditorSliderProps): JSX.Element
 ```
 
-#### `NodeEditorToggle({
-  title,
-  subtitle,
-  icon,
-  checked,
-  onChange,
-  ariaLabel,
-})`
+#### `NodeEditorToggle(props)`
 
 Toggle row.
 

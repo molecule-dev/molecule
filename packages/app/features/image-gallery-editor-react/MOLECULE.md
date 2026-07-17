@@ -35,7 +35,7 @@ function GalleryEditor() {
 
 ## Installation
 ```bash
-npm install @molecule/app-image-gallery-editor-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
+npm install @molecule/app-image-gallery-editor-react @molecule/app-icons @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
 ```
 
@@ -73,19 +73,7 @@ interface ImageGalleryEditorProps {
 
 ### Functions
 
-#### `ImageGalleryEditor({
-  slots,
-  onChange,
-  onPickFiles,
-  maxImages = 24,
-  header,
-  counter,
-  dropZoneTitle = 'Drag and drop assets here',
-  dropZoneHint = 'or click to browse local files',
-  confirmRemoveMessage = 'Remove this image?',
-  statusMessage,
-  emptySlotIcon = 'image',
-})`
+#### `ImageGalleryEditor(props)`
 
 Editable image gallery primitive.
 
@@ -118,6 +106,7 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/app-icons`
 - `@molecule/app-react`
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`

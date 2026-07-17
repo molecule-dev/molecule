@@ -91,15 +91,7 @@ interface TimelineKindTone {
 
 ### Functions
 
-#### `ActivityTimeline({
-  events,
-  toneByKind,
-  defaultTone,
-  rowWrapper,
-  header,
-  footer,
-  className,
-})`
+#### `ActivityTimeline(props)`
 
 Stack events vertically with a connector line and per-kind dot
 markers. Compose with `header`/`footer` slots or pass `rowWrapper` to
@@ -117,7 +109,7 @@ function ActivityTimeline({
 }: ActivityTimelineProps): JSX.Element
 ```
 
-#### `ActivityTimelineDot({ tone, className })`
+#### `ActivityTimelineDot(props)`
 
 Dot + icon marker.
 
@@ -125,11 +117,7 @@ Dot + icon marker.
 function ActivityTimelineDot({ tone, className }: ActivityTimelineDotProps): JSX.Element
 ```
 
-#### `ActivityTimelineRow({
-  event,
-  tone,
-  wrapper,
-})`
+#### `ActivityTimelineRow(props)`
 
 A single timeline row.
 

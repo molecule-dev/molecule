@@ -47,12 +47,11 @@ export interface MoleculeRouterProviderProps {
  * React Router adapter — no manual `setRouter` wiring required. Mount it once inside
  * `<BrowserRouter>`.
  *
- * @param root0 - The component props.
- * @param root0.children - Child components to render within the router context.
- * @param root0.routes - Optional route definitions for named routes.
- * @param root0.onRouterReady - Optional extra callback invoked with the router after
- *   it is bonded (e.g. to register guards). Bonding via `setRouter` happens
- *   regardless of whether this is provided.
+ * @param props - The provider props (see {@link MoleculeRouterProviderProps}):
+ *   `children` (rendered inside the router context), `routes` (optional named-route
+ *   definitions), and `onRouterReady` (optional callback invoked with the router
+ *   after it is bonded, e.g. to register guards — bonding via `setRouter` happens
+ *   regardless).
  * @returns The rendered provider wrapping children with the router context.
  * @example
  * ```tsx
@@ -74,11 +73,8 @@ export interface MoleculeRouterProviderProps {
  * }
  * ```
  */
-export function MoleculeRouterProvider({
-  children,
-  routes = [],
-  onRouterReady,
-}: MoleculeRouterProviderProps): React.JSX.Element {
+export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): React.JSX.Element {
+  const { children, routes = [], onRouterReady } = props
   const navigate = useNavigate()
   const location = useLocation()
   const params = useParams()

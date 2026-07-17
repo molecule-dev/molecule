@@ -206,10 +206,7 @@ provider bonded, setup fails gracefully with an inline message.
 function AuthSection(): JSX.Element | null
 ```
 
-#### `BillingSection({
-  plan = 'Free',
-  upgradeTo = '/settings',
-}?)`
+#### `BillingSection(props?)`
 
 Billing section — current plan + Upgrade button.
 
@@ -230,9 +227,7 @@ function BillingSection({
 }?: { plan?: string; upgradeTo?: string; }): JSX.Element
 ```
 
-#### `DevicesSection({
-  renderRowIcon,
-}?)`
+#### `DevicesSection(props?)`
 
 Devices section — lists the user's registered devices and lets them
 revoke (sign out) any device other than the one they're currently using.
@@ -255,7 +250,7 @@ function DevicesSection({
 }?: { renderRowIcon?: (device: Device) => ReactNode; }): JSX.Element
 ```
 
-#### `disablePushOnCurrentDevice(deps, deps, deps)`
+#### `disablePushOnCurrentDevice(deps)`
 
 Disables push: unsubscribes the browser (best-effort — a dev build without
 a service worker has nothing to unsubscribe) and ALWAYS clears the server
@@ -266,12 +261,12 @@ function disablePushOnCurrentDevice(deps: { http: PushToggleHttp; unregister: ()
 ```
 
 - `deps` — The http client + push action from `usePush()`.
-- `deps` — .http - Authenticated http client (`useHttpClient()`).
-- `deps` — .unregister - `usePush().unregister`.
+- `deps.http` — Authenticated http client (`useHttpClient()`).
+- `deps.unregister` — `usePush().unregister`.
 
 **Returns:** `{ ok: true }` or a typed failure (server state not cleared).
 
-#### `enablePushOnCurrentDevice(deps, deps, deps, deps)`
+#### `enablePushOnCurrentDevice(deps)`
 
 Runs the full enable chain: browser permission → runtime VAPID public key
 (`GET /api/devices/push/public-key`) → `register({ vapidPublicKey })` →
@@ -285,9 +280,9 @@ function enablePushOnCurrentDevice(deps: { http: PushToggleHttp; requestPermissi
 ```
 
 - `deps` — The http client + push actions from `usePush()`.
-- `deps` — .http - Authenticated http client (`useHttpClient()`).
-- `deps` — .requestPermission - `usePush().requestPermission`.
-- `deps` — .register - `usePush().register`.
+- `deps.http` — Authenticated http client (`useHttpClient()`).
+- `deps.requestPermission` — `usePush().requestPermission`.
+- `deps.register` — `usePush().register`.
 
 **Returns:** `{ ok: true }` or a typed failure.
 
@@ -348,10 +343,7 @@ function readCurrentDevicePushEnabled(http: PushToggleHttp): Promise<boolean>
 
 **Returns:** `true` when the current device has a stored subscription.
 
-#### `SettingsContainer({
-  onClose,
-  children,
-})`
+#### `SettingsContainer(props)`
 
 Outer settings-panel layout: padded vertical stack that hosts the
 section sub-components. Publishes `onClose` to descendants via
