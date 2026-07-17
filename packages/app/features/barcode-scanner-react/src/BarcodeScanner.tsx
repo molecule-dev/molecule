@@ -8,7 +8,9 @@ import { getClassMap } from '@molecule/app-ui'
  * Supported barcode/symbology formats. Mirrors the W3C Shape Detection
  * `BarcodeFormat` enum so values can be passed straight through to the
  * native `BarcodeDetector` constructor when present. The
- * `@zxing/library` fallback ignores this list and decodes all symbologies.
+ * `@zxing/library` fallback maps this list onto zxing's
+ * `DecodeHintType.POSSIBLE_FORMATS` hint (see {@link buildZxingHints}),
+ * so the fallback reader is constrained to the same symbologies.
  */
 export type BarcodeFormat =
   | 'aztec'
@@ -74,9 +76,12 @@ export interface BarcodeScannerProps {
   /** Fired when camera acquisition or detection fails. */
   onError?: (error: BarcodeScannerError) => void
   /**
-   * When `true`, keeps scanning after each detection (deduped on the
-   * decoded value). When `false` (default), stops the camera and the
-   * detection loop on the first successful scan.
+   * When `true`, keeps scanning after each detection. Identical
+   * consecutive reads are deduped only for a cooldown window
+   * (`dedupeMs`) — after that window the SAME code can be scanned and
+   * re-emitted again (e.g. adding two of the same item on purpose), and
+   * a DIFFERENT code always emits immediately. When `false` (default),
+   * stops the camera and the detection loop on the first successful scan.
    */
   continuous?: boolean
   /**
@@ -85,6 +90,14 @@ export interface BarcodeScannerProps {
    * CPU cost.
    */
   scanIntervalMs?: number
+  /**
+   * Dedupe cooldown, in milliseconds. After a value is emitted, the
+   * SAME value is suppressed for this long before it may be emitted
+   * again (a different value is never suppressed). Prevents one physical
+   * scan from firing `onScan` on every frame while still allowing a
+   * deliberate re-scan of the same code. Defaults to `1500` (1.5s).
+   */
+  dedupeMs?: number
   /** Pixel width hint passed as the camera constraint. Defaults to 640. */
   width?: number
   /** Pixel height hint passed as the camera constraint. Defaults to 480. */
@@ -119,11 +132,16 @@ let detectorCtorOverride: BarcodeDetectorConstructor | null | undefined = undefi
 let zxingLoaderOverride: ZxingLoader | null | undefined = undefined
 
 /**
- * Loader function returning a `@zxing/library`-compatible reader.
- * Indirection lets us pin to a small subset of the surface area we
- * actually depend on and lets tests stub the fallback path.
+ * Loader function returning a `@zxing/library`-compatible reader,
+ * constrained to the requested `formats`. Indirection lets us pin to a
+ * small subset of the surface area we actually depend on and lets tests
+ * stub the fallback path.
+ *
+ * @param formats - The symbologies the reader should be constrained to,
+ *   mapped onto zxing's `POSSIBLE_FORMATS` hint by the real loader.
+ * @returns A promise for the reader.
  */
-export type ZxingLoader = () => Promise<ZxingReader>
+export type ZxingLoader = (formats: BarcodeFormat[]) => Promise<ZxingReader>
 
 /** Minimal subset of `BrowserMultiFormatReader` we depend on. */
 export interface ZxingReader {
@@ -183,25 +201,81 @@ function resolveDetectorCtor(): BarcodeDetectorConstructor | null {
 }
 
 /**
+ * Mapping from the W3C `BarcodeFormat` string values this component
+ * accepts to the corresponding `@zxing/library` `BarcodeFormat` enum
+ * member NAMES. Used to translate the `formats` prop into zxing's
+ * `POSSIBLE_FORMATS` decode hint so the fallback reader is constrained
+ * to exactly the requested symbologies.
+ */
+const W3C_TO_ZXING_FORMAT: Record<BarcodeFormat, string> = {
+  aztec: 'AZTEC',
+  codabar: 'CODABAR',
+  code_39: 'CODE_39',
+  code_93: 'CODE_93',
+  code_128: 'CODE_128',
+  data_matrix: 'DATA_MATRIX',
+  ean_8: 'EAN_8',
+  ean_13: 'EAN_13',
+  itf: 'ITF',
+  pdf417: 'PDF_417',
+  qr_code: 'QR_CODE',
+  upc_a: 'UPC_A',
+  upc_e: 'UPC_E',
+}
+
+/**
+ * Translate the requested W3C barcode `formats` into a `@zxing/library`
+ * decode-hint map keyed by `DecodeHintType.POSSIBLE_FORMATS`, so the
+ * fallback reader is constrained to (and optimized for) exactly those
+ * symbologies instead of decoding every format it knows.
+ *
+ * The zxing enum objects are passed in rather than imported at module
+ * scope so the heavy `@zxing/library` bundle stays lazily loaded — it is
+ * only pulled in on the fallback path.
+ *
+ * @param formats - The requested W3C symbologies.
+ * @param zxingBarcodeFormat - zxing's `BarcodeFormat` enum object.
+ * @param decodeHintType - zxing's `DecodeHintType` enum object.
+ * @returns A hint map for the reader constructor, or `null` when no
+ *   requested format maps to a known zxing format (caller passes no
+ *   hints, leaving the reader unconstrained).
+ */
+export function buildZxingHints(
+  formats: BarcodeFormat[],
+  zxingBarcodeFormat: Record<string, number>,
+  decodeHintType: Record<string, number>,
+): Map<number, number[]> | null {
+  const zxingFormats = formats
+    .map((format) => zxingBarcodeFormat[W3C_TO_ZXING_FORMAT[format]])
+    .filter((value): value is number => typeof value === 'number')
+  if (zxingFormats.length === 0) return null
+  return new Map<number, number[]>([[decodeHintType.POSSIBLE_FORMATS, zxingFormats]])
+}
+
+/**
  * Resolve the active fallback loader. Tests inject a stub via
  * `__setZxingLoaderOverride`; production callers get a real dynamic
- * import of `@zxing/library`'s `BrowserMultiFormatReader`.
+ * import of `@zxing/library`'s `BrowserMultiFormatReader`, constructed
+ * with a `POSSIBLE_FORMATS` hint derived from the requested `formats`.
  *
  * @returns A loader function or `null` when forced unavailable.
  */
 function resolveZxingLoader(): ZxingLoader | null {
   if (zxingLoaderOverride === null) return null
   if (zxingLoaderOverride !== undefined) return zxingLoaderOverride
-  return async () => {
+  return async (formats: BarcodeFormat[]) => {
     const mod = (await import('@zxing/library')) as unknown as {
-      BrowserMultiFormatReader: new () => {
+      BrowserMultiFormatReader: new (hints?: Map<number, number[]>) => {
         decodeFromVideoElement(video: HTMLVideoElement | string): Promise<{
           getText(): string
         }>
         reset(): void
       }
+      BarcodeFormat: Record<string, number>
+      DecodeHintType: Record<string, number>
     }
-    const reader = new mod.BrowserMultiFormatReader()
+    const hints = buildZxingHints(formats, mod.BarcodeFormat, mod.DecodeHintType)
+    const reader = new mod.BrowserMultiFormatReader(hints ?? undefined)
     return {
       async decodeOnceFromVideoElement(video: HTMLVideoElement) {
         const r = await reader.decodeFromVideoElement(video)
@@ -257,6 +331,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
     onError,
     continuous = false,
     scanIntervalMs = 200,
+    dedupeMs = 1500,
     width = 640,
     height = 480,
     className,
@@ -273,6 +348,9 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
   const streamRef = useRef<MediaStream | null>(null)
   const cancelledRef = useRef<boolean>(false)
   const lastValueRef = useRef<string | null>(null)
+  // Timestamp (ms) of the last emitted value, used with `dedupeMs` to
+  // bound how long an identical value stays suppressed.
+  const lastValueAtRef = useRef<number>(0)
 
   const [status, setStatus] = useState<'idle' | 'starting' | 'scanning' | 'stopped' | 'error'>(
     'idle',
@@ -284,12 +362,19 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
   // strobe the device permission UI in some browsers.
   const onScanRef = useRef(onScan)
   const onErrorRef = useRef(onError)
+  // Keep the dedupe window in a ref so changing it doesn't tear down and
+  // re-acquire the camera (which would strobe the permission UI) — the
+  // scan loop reads the latest value directly.
+  const dedupeMsRef = useRef(dedupeMs)
   useEffect(() => {
     onScanRef.current = onScan
   }, [onScan])
   useEffect(() => {
     onErrorRef.current = onError
   }, [onError])
+  useEffect(() => {
+    dedupeMsRef.current = dedupeMs
+  }, [dedupeMs])
 
   useEffect(() => {
     cancelledRef.current = false
@@ -351,14 +436,24 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
     }
 
     /**
-     * Deliver a scan, dedupe consecutive identical reads, and stop
-     * the loop if `continuous` is `false`.
+     * Deliver a scan and stop the loop if `continuous` is `false`.
+     *
+     * Dedupe is time-bounded: an identical value is suppressed only
+     * while it is within the `dedupeMs` cooldown of its last emission,
+     * so the SAME code can be deliberately re-scanned after the window
+     * (a different value is never suppressed). Without this bound a
+     * repeat scan of the same code in continuous mode would be dropped
+     * forever.
      *
      * @param result - The decoded result.
      */
     const handleResult = (result: BarcodeScanResult): void => {
-      if (lastValueRef.current === result.value) return
+      const now = Date.now()
+      const isDuplicate =
+        lastValueRef.current === result.value && now - lastValueAtRef.current < dedupeMsRef.current
+      if (isDuplicate) return
       lastValueRef.current = result.value
+      lastValueAtRef.current = now
       onScanRef.current(result)
       if (!continuous) {
         setStatus('stopped')
@@ -483,7 +578,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element {
         return
       }
       try {
-        zxingReader = await loader()
+        zxingReader = await loader(formatList)
       } catch (cause) {
         dispatchError('fallback_unavailable', cause)
         return

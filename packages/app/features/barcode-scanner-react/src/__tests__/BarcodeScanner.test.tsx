@@ -15,9 +15,74 @@ import {
   BarcodeScanner,
   type BarcodeScannerError,
   type BarcodeScanResult,
+  buildZxingHints,
   DEFAULT_FORMATS,
   type ZxingReader,
 } from '../BarcodeScanner.js'
+
+/**
+ * Shared spy + fake reader for the mocked `@zxing/library`. `vi.hoisted`
+ * runs before the `vi.mock` factory (which is itself hoisted above the
+ * imports), so the mock can reference these.
+ */
+const zxingMock = vi.hoisted(() => {
+  const ctorSpy = vi.fn<[Map<number, number[]> | undefined], void>()
+  const decodeSpy = vi.fn<[], Promise<{ getText(): string }>>()
+  return { ctorSpy, decodeSpy }
+})
+
+// Mock the real dynamic-import fallback path. Enum values mirror the
+// actual `@zxing/library` numeric enums (UPC_A=14, EAN_13=7,
+// QR_CODE=11, POSSIBLE_FORMATS=2) so the test asserts the true mapping.
+vi.mock('@zxing/library', () => {
+  /**
+   * Stand-in for `BrowserMultiFormatReader` that records the hints it was
+   * constructed with and delegates decoding to a shared spy.
+   */
+  class MockReader {
+    /**
+     * Record the decode hints the component built from the requested formats.
+     *
+     * @param hints - The POSSIBLE_FORMATS hint map (or undefined).
+     */
+    constructor(hints?: Map<number, number[]>) {
+      zxingMock.ctorSpy(hints)
+    }
+    /**
+     * Delegate decoding to the shared spy.
+     *
+     * @returns The mocked decode result.
+     */
+    async decodeFromVideoElement(): Promise<{ getText(): string }> {
+      return zxingMock.decodeSpy()
+    }
+    /**
+     * No-op teardown for the mock reader.
+     */
+    reset(): void {
+      // no-op teardown for the mock reader
+    }
+  }
+  return {
+    BrowserMultiFormatReader: MockReader,
+    BarcodeFormat: {
+      AZTEC: 0,
+      CODABAR: 1,
+      CODE_39: 2,
+      CODE_93: 3,
+      CODE_128: 4,
+      DATA_MATRIX: 5,
+      EAN_8: 6,
+      EAN_13: 7,
+      ITF: 8,
+      PDF_417: 10,
+      QR_CODE: 11,
+      UPC_A: 14,
+      UPC_E: 15,
+    },
+    DecodeHintType: { POSSIBLE_FORMATS: 2 },
+  }
+})
 
 /**
  * Build a UIClassMap stub via Proxy: `cn(...)` joins truthy strings,
@@ -94,6 +159,9 @@ function installGetUserMedia(
 
 beforeEach(() => {
   setClassMap(buildStubClassMap())
+  zxingMock.ctorSpy.mockReset()
+  zxingMock.decodeSpy.mockReset()
+  zxingMock.decodeSpy.mockResolvedValue({ getText: () => 'MOCKED' })
   // Stub out HTMLMediaElement.play — jsdom doesn't implement it.
   Object.defineProperty(HTMLMediaElement.prototype, 'play', {
     configurable: true,
@@ -117,6 +185,42 @@ afterEach(() => {
 describe('DEFAULT_FORMATS', () => {
   it('covers the four most common retail / logistics codes', () => {
     expect(DEFAULT_FORMATS).toEqual(['ean_13', 'upc_a', 'code_128', 'qr_code'])
+  })
+})
+
+describe('buildZxingHints', () => {
+  // Mirror of the real @zxing/library enums.
+  const BF: Record<string, number> = {
+    AZTEC: 0,
+    CODABAR: 1,
+    CODE_39: 2,
+    CODE_93: 3,
+    CODE_128: 4,
+    DATA_MATRIX: 5,
+    EAN_8: 6,
+    EAN_13: 7,
+    ITF: 8,
+    PDF_417: 10,
+    QR_CODE: 11,
+    UPC_A: 14,
+    UPC_E: 15,
+  }
+  const DHT: Record<string, number> = { POSSIBLE_FORMATS: 2 }
+
+  it('maps requested W3C formats onto the POSSIBLE_FORMATS hint', () => {
+    const hints = buildZxingHints(['upc_a', 'ean_13'], BF, DHT)
+    expect(hints).not.toBeNull()
+    // Keyed by DecodeHintType.POSSIBLE_FORMATS (2), value = zxing enums.
+    expect(hints?.get(DHT.POSSIBLE_FORMATS)).toEqual([BF.UPC_A, BF.EAN_13])
+  })
+
+  it('maps the full W3C format set correctly (e.g. pdf417 → PDF_417)', () => {
+    const hints = buildZxingHints(['pdf417', 'qr_code', 'code_128'], BF, DHT)
+    expect(hints?.get(2)).toEqual([BF.PDF_417, BF.QR_CODE, BF.CODE_128])
+  })
+
+  it('returns null when no requested format maps (reader left unconstrained)', () => {
+    expect(buildZxingHints([], BF, DHT)).toBeNull()
   })
 })
 
@@ -381,6 +485,95 @@ describe('<BarcodeScanner> — fallback path', () => {
     )
     await waitFor(() => expect(onError).toHaveBeenCalled())
     expect(onError.mock.calls[0][0].code).toBe('fallback_unavailable')
+  })
+
+  it('passes the requested formats to zxing as POSSIBLE_FORMATS hints', async () => {
+    const { stream } = createFakeStream()
+    installGetUserMedia(() => Promise.resolve(stream))
+    __setBarcodeDetectorOverride(null) // force the fallback path
+    __setZxingLoaderOverride(undefined) // use the REAL loader → mocked @zxing/library
+
+    const onScan = vi.fn<[BarcodeScanResult], void>()
+    render(
+      <Wrap>
+        <BarcodeScanner onScan={onScan} formats={['upc_a', 'ean_13']} scanIntervalMs={1} />
+      </Wrap>,
+    )
+
+    await waitFor(() => expect(zxingMock.ctorSpy).toHaveBeenCalled())
+    const hints = zxingMock.ctorSpy.mock.calls[0][0]
+    expect(hints).toBeInstanceOf(Map)
+    // DecodeHintType.POSSIBLE_FORMATS = 2 → [BarcodeFormat.UPC_A(14), EAN_13(7)]
+    expect(hints?.get(2)).toEqual([14, 7])
+    await waitFor(() => expect(onScan).toHaveBeenCalledWith({ format: 'unknown', value: 'MOCKED' }))
+  })
+})
+
+describe('<BarcodeScanner> — time-bounded dedupe', () => {
+  it('re-emits the SAME code after the dedupe window elapses (continuous)', async () => {
+    const { stream } = createFakeStream()
+    installGetUserMedia(() => Promise.resolve(stream))
+
+    // Detector always finds the same code, frame after frame.
+    const detectMock = vi
+      .fn<[unknown], Promise<Array<{ rawValue: string; format: string }>>>()
+      .mockResolvedValue([{ rawValue: 'SAME', format: 'qr_code' }])
+
+    /**
+     * Fake BarcodeDetector that always returns the same code.
+     */
+    class FakeDetector {
+      detect = detectMock
+    }
+    __setBarcodeDetectorOverride(FakeDetector as unknown as never)
+
+    const onScan = vi.fn<[BarcodeScanResult], void>()
+    render(
+      <Wrap>
+        {/* Tiny window so a repeat re-emits quickly; 1ms poll keeps ticking. */}
+        <BarcodeScanner onScan={onScan} continuous scanIntervalMs={1} dedupeMs={20} />
+      </Wrap>,
+    )
+
+    // First emission is immediate; a second emission of the SAME value can
+    // only happen because the dedupe window elapsed and reset suppression.
+    await waitFor(() => expect(onScan).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(onScan.mock.calls.length).toBeGreaterThanOrEqual(2), {
+      timeout: 2000,
+    })
+    expect(onScan.mock.calls[0][0].value).toBe('SAME')
+    expect(onScan.mock.calls[1][0].value).toBe('SAME')
+  })
+
+  it('suppresses the SAME code within the dedupe window and emits a DIFFERENT code immediately', async () => {
+    const { stream } = createFakeStream()
+    installGetUserMedia(() => Promise.resolve(stream))
+
+    const detectMock = vi
+      .fn<[unknown], Promise<Array<{ rawValue: string; format: string }>>>()
+      .mockResolvedValueOnce([{ rawValue: 'A', format: 'qr_code' }])
+      .mockResolvedValueOnce([{ rawValue: 'A', format: 'qr_code' }]) // suppressed (within window)
+      .mockResolvedValueOnce([{ rawValue: 'B', format: 'qr_code' }]) // different → immediate
+      .mockResolvedValue([])
+
+    /**
+     * Fake BarcodeDetector driven by the queued mock.
+     */
+    class FakeDetector {
+      detect = detectMock
+    }
+    __setBarcodeDetectorOverride(FakeDetector as unknown as never)
+
+    const onScan = vi.fn<[BarcodeScanResult], void>()
+    render(
+      <Wrap>
+        {/* Huge window so the repeat A is definitely still suppressed. */}
+        <BarcodeScanner onScan={onScan} continuous scanIntervalMs={1} dedupeMs={100000} />
+      </Wrap>,
+    )
+
+    await waitFor(() => expect(onScan).toHaveBeenCalledTimes(2))
+    expect(onScan.mock.calls.map((c) => c[0].value)).toEqual(['A', 'B'])
   })
 })
 

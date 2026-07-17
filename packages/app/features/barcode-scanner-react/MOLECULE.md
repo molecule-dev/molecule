@@ -9,9 +9,10 @@ Safari / Firefox. Designed for warehouse-fulfillment, inventory-
 management, and grocery-delivery flagship apps.
 
 Exports `<BarcodeScanner>`, the `BarcodeFormat` / `BarcodeScanResult`
-/ `BarcodeScannerError` shapes, the `DEFAULT_FORMATS` constant, and
-the `__setBarcodeDetectorOverride` / `__setZxingLoaderOverride`
-test injection points.
+/ `BarcodeScannerError` shapes, the `DEFAULT_FORMATS` constant, the
+`buildZxingHints` helper (W3C formats → zxing `POSSIBLE_FORMATS`
+hint), and the `__setBarcodeDetectorOverride` /
+`__setZxingLoaderOverride` test injection points.
 
 ## Quick Start
 
@@ -74,9 +75,12 @@ interface BarcodeScannerProps {
   /** Fired when camera acquisition or detection fails. */
   onError?: (error: BarcodeScannerError) => void
   /**
-   * When `true`, keeps scanning after each detection (deduped on the
-   * decoded value). When `false` (default), stops the camera and the
-   * detection loop on the first successful scan.
+   * When `true`, keeps scanning after each detection. Identical
+   * consecutive reads are deduped only for a cooldown window
+   * (`dedupeMs`) — after that window the SAME code can be scanned and
+   * re-emitted again (e.g. adding two of the same item on purpose), and
+   * a DIFFERENT code always emits immediately. When `false` (default),
+   * stops the camera and the detection loop on the first successful scan.
    */
   continuous?: boolean
   /**
@@ -85,6 +89,14 @@ interface BarcodeScannerProps {
    * CPU cost.
    */
   scanIntervalMs?: number
+  /**
+   * Dedupe cooldown, in milliseconds. After a value is emitted, the
+   * SAME value is suppressed for this long before it may be emitted
+   * again (a different value is never suppressed). Prevents one physical
+   * scan from firing `onScan` on every frame while still allowing a
+   * deliberate re-scan of the same code. Defaults to `1500` (1.5s).
+   */
+  dedupeMs?: number
   /** Pixel width hint passed as the camera constraint. Defaults to 640. */
   width?: number
   /** Pixel height hint passed as the camera constraint. Defaults to 480. */
@@ -131,7 +143,9 @@ interface ZxingReader {
 Supported barcode/symbology formats. Mirrors the W3C Shape Detection
 `BarcodeFormat` enum so values can be passed straight through to the
 native `BarcodeDetector` constructor when present. The
-`@zxing/library` fallback ignores this list and decodes all symbologies.
+`@zxing/library` fallback maps this list onto zxing's
+`DecodeHintType.POSSIBLE_FORMATS` hint (see {@link buildZxingHints}),
+so the fallback reader is constrained to the same symbologies.
 
 ```typescript
 type BarcodeFormat =
@@ -171,12 +185,13 @@ type BarcodeScannerErrorCode =
 
 #### `ZxingLoader`
 
-Loader function returning a `@zxing/library`-compatible reader.
-Indirection lets us pin to a small subset of the surface area we
-actually depend on and lets tests stub the fallback path.
+Loader function returning a `@zxing/library`-compatible reader,
+constrained to the requested `formats`. Indirection lets us pin to a
+small subset of the surface area we actually depend on and lets tests
+stub the fallback path.
 
 ```typescript
-type ZxingLoader = () => Promise<ZxingReader>
+type ZxingLoader = (formats: BarcodeFormat[]) => Promise<ZxingReader>
 ```
 
 ### Functions
@@ -229,6 +244,29 @@ function BarcodeScanner(props: BarcodeScannerProps): JSX.Element
 
 **Returns:** The scanner element.
 
+#### `buildZxingHints(formats, zxingBarcodeFormat, decodeHintType)`
+
+Translate the requested W3C barcode `formats` into a `@zxing/library`
+decode-hint map keyed by `DecodeHintType.POSSIBLE_FORMATS`, so the
+fallback reader is constrained to (and optimized for) exactly those
+symbologies instead of decoding every format it knows.
+
+The zxing enum objects are passed in rather than imported at module
+scope so the heavy `@zxing/library` bundle stays lazily loaded — it is
+only pulled in on the fallback path.
+
+```typescript
+function buildZxingHints(formats: BarcodeFormat[], zxingBarcodeFormat: Record<string, number>, decodeHintType: Record<string, number>): Map<number, number[]> | null
+```
+
+- `formats` — The requested W3C symbologies.
+- `zxingBarcodeFormat` — zxing's `BarcodeFormat` enum object.
+- `decodeHintType` — zxing's `DecodeHintType` enum object.
+
+**Returns:** A hint map for the reader constructor, or `null` when no
+ *   requested format maps to a known zxing format (caller passes no
+ *   hints, leaving the reader unconstrained).
+
 ### Constants
 
 #### `DEFAULT_FORMATS`
@@ -261,16 +299,19 @@ component stays on its localized error overlay and fires `onError`
 with `'unsupported'` / `'permission_denied'`; there is nothing to
 retry until the context or permission changes.
 
-The `formats` prop constrains only the native `BarcodeDetector` path.
-The `@zxing/library` fallback (Safari / Firefox) decodes ALL
-symbologies regardless of `formats`, and reports `format: 'unknown'`
-in its results — filter on `result.value` shape if the symbology
-matters cross-browser.
+The `formats` prop constrains BOTH detection paths: the native
+`BarcodeDetector` gets them directly, and the `@zxing/library`
+fallback (Safari / Firefox) maps them onto zxing's
+`POSSIBLE_FORMATS` decode hint so it too scans only the requested
+symbologies. The fallback still reports `format: 'unknown'` in its
+results — filter on `result.value` shape if the symbology matters
+cross-browser.
 
-Consecutive identical values are deduped: the same barcode will not
-fire `onScan` twice in a row, even with `continuous`. Remount the
-component (e.g. via a React `key`) to re-arm scanning for a value
-that was already delivered.
+Identical values are deduped for a cooldown window (`dedupeMs`,
+default 1.5s), not forever: in `continuous` mode the SAME code can be
+re-scanned and re-emitted once the window elapses (e.g. adding two of
+the same item on purpose), and a DIFFERENT code always emits
+immediately. Set `dedupeMs` to tune the window.
 
 All user-visible text routes through the companion locale bond
 `@molecule/app-locales-feature-barcode-scanner`. Styling

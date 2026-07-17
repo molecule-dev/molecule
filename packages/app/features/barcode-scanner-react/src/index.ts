@@ -8,9 +8,10 @@
  * management, and grocery-delivery flagship apps.
  *
  * Exports `<BarcodeScanner>`, the `BarcodeFormat` / `BarcodeScanResult`
- * / `BarcodeScannerError` shapes, the `DEFAULT_FORMATS` constant, and
- * the `__setBarcodeDetectorOverride` / `__setZxingLoaderOverride`
- * test injection points.
+ * / `BarcodeScannerError` shapes, the `DEFAULT_FORMATS` constant, the
+ * `buildZxingHints` helper (W3C formats → zxing `POSSIBLE_FORMATS`
+ * hint), and the `__setBarcodeDetectorOverride` /
+ * `__setZxingLoaderOverride` test injection points.
  *
  * @example
  * ```tsx
@@ -34,16 +35,19 @@
  * with `'unsupported'` / `'permission_denied'`; there is nothing to
  * retry until the context or permission changes.
  *
- * The `formats` prop constrains only the native `BarcodeDetector` path.
- * The `@zxing/library` fallback (Safari / Firefox) decodes ALL
- * symbologies regardless of `formats`, and reports `format: 'unknown'`
- * in its results — filter on `result.value` shape if the symbology
- * matters cross-browser.
+ * The `formats` prop constrains BOTH detection paths: the native
+ * `BarcodeDetector` gets them directly, and the `@zxing/library`
+ * fallback (Safari / Firefox) maps them onto zxing's
+ * `POSSIBLE_FORMATS` decode hint so it too scans only the requested
+ * symbologies. The fallback still reports `format: 'unknown'` in its
+ * results — filter on `result.value` shape if the symbology matters
+ * cross-browser.
  *
- * Consecutive identical values are deduped: the same barcode will not
- * fire `onScan` twice in a row, even with `continuous`. Remount the
- * component (e.g. via a React `key`) to re-arm scanning for a value
- * that was already delivered.
+ * Identical values are deduped for a cooldown window (`dedupeMs`,
+ * default 1.5s), not forever: in `continuous` mode the SAME code can be
+ * re-scanned and re-emitted once the window elapses (e.g. adding two of
+ * the same item on purpose), and a DIFFERENT code always emits
+ * immediately. Set `dedupeMs` to tune the window.
  *
  * All user-visible text routes through the companion locale bond
  * `@molecule/app-locales-feature-barcode-scanner`. Styling
