@@ -22,11 +22,108 @@ export interface EmojiReactionsProps {
   onAdd?: (emoji: string) => void
   /** Optional wrapper class. */
   className?: string
-  /** Optional render override for the count display (e.g. avatar list). */
+  /**
+   * Optional custom tooltip content shown on hover / focus of a reaction chip
+   * (e.g. an avatar list of who reacted). When provided, it replaces the
+   * default "{count} reactions" title. Returning a nullish value falls back to
+   * the default title for that chip.
+   */
   renderTooltip?: (r: EmojiReaction) => ReactNode
 }
 
 const DEFAULT_PICKS = ['👍', '❤️', '🎉', '😄', '😢', '🙏']
+
+/** Resolved ClassMap instance (what `getClassMap()` returns). */
+type ClassMap = ReturnType<typeof getClassMap>
+/** Translate function (what `useTranslation()` exposes as `t`). */
+type TranslateFn = ReturnType<typeof useTranslation>['t']
+
+/**
+ * A single toggle chip for one reaction. Owns its own hover/focus state so it
+ * can reveal a custom tooltip (when `renderTooltip` is supplied) without a
+ * shared parent listener.
+ *
+ * @param props - Chip props.
+ * @param props.reaction - The reaction to render.
+ * @param props.cm - Resolved ClassMap.
+ * @param props.t - Translate function for the default title.
+ * @param props.onToggle - Toggle callback.
+ * @param props.renderTooltip - Optional custom tooltip content.
+ * @returns The reaction chip element.
+ */
+function ReactionChip({
+  reaction,
+  cm,
+  t,
+  onToggle,
+  renderTooltip,
+}: {
+  reaction: EmojiReaction
+  cm: ClassMap
+  t: TranslateFn
+  onToggle?: (emoji: string) => void
+  renderTooltip?: (r: EmojiReaction) => ReactNode
+}): JSX.Element {
+  const [tipOpen, setTipOpen] = useState(false)
+  const tip = renderTooltip?.(reaction)
+  const hasTip = tip != null && tip !== false
+  const tipId = hasTip ? `emoji-reaction-tip-${reaction.emoji}` : undefined
+  const defaultTitle = t(
+    'reactions.count',
+    { count: reaction.count },
+    { defaultValue: '{{count}} reactions' },
+  )
+  return (
+    <span className={cm.position('relative')} style={{ display: 'inline-block' }}>
+      <button
+        type="button"
+        data-mol-id="emoji-reaction"
+        onClick={() => onToggle?.(reaction.emoji)}
+        onMouseEnter={() => setTipOpen(true)}
+        onMouseLeave={() => setTipOpen(false)}
+        onFocus={() => setTipOpen(true)}
+        onBlur={() => setTipOpen(false)}
+        aria-pressed={reaction.reactedByMe}
+        aria-describedby={tipId}
+        // Suppress the native title only when a richer tooltip is rendered.
+        title={hasTip ? undefined : defaultTitle}
+        className={cm.cn(
+          cm.flex({ align: 'center', gap: 'xs' }),
+          cm.sp('px', 2),
+          cm.sp('py', 1),
+          cm.textSize('xs'),
+          cm.roundedFull,
+        )}
+        style={
+          reaction.reactedByMe
+            ? { outline: '1px solid currentColor', outlineOffset: -1 }
+            : undefined
+        }
+      >
+        <span aria-hidden>{reaction.emoji}</span>
+        <span>{reaction.count}</span>
+      </button>
+      {hasTip && (
+        <span
+          role="tooltip"
+          id={tipId}
+          className={cm.cn(cm.tooltip(), cm.position('absolute'))}
+          // Kept in the DOM for accessibility (aria-describedby) and revealed on
+          // hover/focus; positioned above the chip.
+          style={{
+            bottom: 'calc(100% + 4px)',
+            left: 0,
+            pointerEvents: 'none',
+            opacity: tipOpen ? 1 : 0,
+            visibility: tipOpen ? 'visible' : 'hidden',
+          }}
+        >
+          {tip}
+        </span>
+      )}
+    </span>
+  )
+}
 
 /**
  * Generic emoji reaction bar — chip per existing reaction + an add
@@ -49,31 +146,20 @@ export function EmojiReactions({
   return (
     <div className={cm.cn(cm.flex({ align: 'center', gap: 'xs', wrap: 'wrap' }), className)}>
       {reactions.map((r) => (
-        <button
+        <ReactionChip
           key={r.emoji}
-          type="button"
-          onClick={() => onToggle?.(r.emoji)}
-          aria-pressed={r.reactedByMe}
-          title={renderTooltip ? undefined : `${r.count} reactions`}
-          className={cm.cn(
-            cm.flex({ align: 'center', gap: 'xs' }),
-            cm.sp('px', 2),
-            cm.sp('py', 1),
-            cm.textSize('xs'),
-            cm.roundedFull,
-          )}
-          style={
-            r.reactedByMe ? { outline: '1px solid currentColor', outlineOffset: -1 } : undefined
-          }
-        >
-          <span aria-hidden>{r.emoji}</span>
-          <span>{r.count}</span>
-        </button>
+          reaction={r}
+          cm={cm}
+          t={t}
+          onToggle={onToggle}
+          renderTooltip={renderTooltip}
+        />
       ))}
       {onAdd && (
         <span className={cm.position('relative')} style={{ display: 'inline-block' }}>
           <button
             type="button"
+            data-mol-id="emoji-reaction-add"
             onClick={() => setPickerOpen((x) => !x)}
             aria-label={t('reactions.add', {}, { defaultValue: 'Add reaction' })}
             className={cm.cn(cm.sp('px', 2), cm.sp('py', 1), cm.textSize('xs'))}
@@ -101,6 +187,7 @@ export function EmojiReactions({
                 <button
                   key={emoji}
                   type="button"
+                  data-mol-id="emoji-reaction-pick"
                   onClick={() => {
                     onAdd(emoji)
                     setPickerOpen(false)

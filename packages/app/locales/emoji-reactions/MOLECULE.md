@@ -4,7 +4,7 @@ Translations for @molecule/app-emoji-reactions-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-emoji-reactions-react` package which has 1 translation key.
+Provides translations for the `@molecule/app-emoji-reactions-react` package which has 2 translation keys.
 
 ## Languages
 
@@ -37,6 +37,7 @@ registerLocaleModule(locales)
 | Key | English |
 |-----|---------|
 | `reactions.add` | Add reaction |
+| `reactions.count` | {{count}} reactions |
 
 ## Metadata
 
