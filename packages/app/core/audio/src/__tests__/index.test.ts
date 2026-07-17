@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { bond, reset } from '@molecule/app-bond'
+
 import type { AudioPlayerInstance, AudioPlayerOptions, AudioProvider } from '../index.js'
 import { getProvider, hasProvider, requireProvider, setProvider } from '../index.js'
 
 describe('@molecule/app-audio', () => {
   beforeEach(() => {
-    setProvider(null as unknown as AudioProvider)
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -104,6 +106,30 @@ describe('@molecule/app-audio', () => {
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
       expect(hasProvider()).toBe(true)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it('reflects a bond("audio", p) made via @molecule/app-bond', () => {
+      // The exact bug this migration fixes: bond() on the shared registry must be
+      // observable through the core's own accessors.
+      const mockProvider: AudioProvider = {
+        name: 'test-bond',
+        createPlayer: () => ({
+          play: () => {},
+          pause: () => {},
+          stop: () => {},
+          seek: () => {},
+          setVolume: () => {},
+          getVolume: () => 1.0,
+          getDuration: () => 0,
+          getCurrentTime: () => 0,
+          isPlaying: () => false,
+          destroy: () => {},
+        }),
+      }
+      bond('audio', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
     })
   })

@@ -161,6 +161,11 @@ function setProvider(provider: MarkdownProvider): void
 
 ## Injection Notes
 
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-bond` ^1.0.0
+
 - **Wire a bond at startup** — {@link requireProvider} throws until
   `setProvider(provider)` has been called.
 - **`sanitize` defaults to `true` and is the XSS gate.** The result is an

@@ -251,10 +251,15 @@ function setProvider(provider: AIImageGeneratorProvider): void
 
 ## Injection Notes
 
-- **Wire it with THIS package's `setProvider()` — NOT
-  `bond('ai-image-generator', …)`.** This core keeps its own local singleton
-  and does not read the `@molecule/app-bond` registry; `requireProvider()`
-  throws until `setProvider()` has run.
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-bond` ^1.0.0
+
+- **Wire it with THIS package's `setProvider()` or
+  `bond('ai-image-generator', …)`.** `setProvider()` delegates into the shared
+  `@molecule/app-bond` registry, so both write the same slot;
+  `requireProvider()` throws until one has run.
 - **Generation goes through YOUR backend** (`config.endpoint`), which calls
   the image model server-side (see `@molecule/api-ai-image-generation`) — the
   vendor key never reaches the browser.

@@ -1,15 +1,19 @@
 /**
- * AICopilot provider singleton.
+ * AICopilot provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call set() during setup.
- * Application code calls get()/require() at runtime.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('ai-copilot', provider)`, so wiring via this package's `setProvider()`
+ * and via `bond('ai-copilot', …)` write the SAME registry slot — use either.
+ * Application code calls `getProvider()` / `requireProvider()` at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { AICopilotProvider } from './types.js'
 
-let _provider: AICopilotProvider | null = null
+const BOND_TYPE = 'ai-copilot'
 
 /**
  * Registers the active copilot provider.
@@ -17,7 +21,7 @@ let _provider: AICopilotProvider | null = null
  * @param provider - The provider instance to register.
  */
 export function setProvider(provider: AICopilotProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +30,7 @@ export function setProvider(provider: AICopilotProvider): void {
  * @returns The registered provider or null.
  */
 export function getProvider(): AICopilotProvider | null {
-  return _provider
+  return get<AICopilotProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +39,7 @@ export function getProvider(): AICopilotProvider | null {
  * @returns `true` if a provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +49,8 @@ export function hasProvider(): boolean {
  * @throws {Error} When no provider has been bonded.
  */
 export function requireProvider(): AICopilotProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error('AICopilot provider not configured. Bond an ai-copilot provider first.')
   }
-  return _provider
+  return requireSingleton<AICopilotProvider>(BOND_TYPE)
 }

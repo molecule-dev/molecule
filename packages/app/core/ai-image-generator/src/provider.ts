@@ -1,15 +1,20 @@
 /**
- * AIImageGenerator provider singleton.
+ * AIImageGenerator provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call `setProvider()` during setup.
- * Application code calls `getProvider()` / `requireProvider()` at runtime.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('ai-image-generator', provider)`, so wiring via this package's
+ * `setProvider()` and via `bond('ai-image-generator', …)` write the SAME
+ * registry slot — use either. Application code calls `getProvider()` /
+ * `requireProvider()` at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { AIImageGeneratorProvider } from './types.js'
 
-let _provider: AIImageGeneratorProvider | null = null
+const BOND_TYPE = 'ai-image-generator'
 
 /**
  * Registers the active image generator provider.
@@ -17,7 +22,7 @@ let _provider: AIImageGeneratorProvider | null = null
  * @param provider - The provider implementation to bond.
  */
 export function setProvider(provider: AIImageGeneratorProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +31,7 @@ export function setProvider(provider: AIImageGeneratorProvider): void {
  * @returns The active provider or `null`.
  */
 export function getProvider(): AIImageGeneratorProvider | null {
-  return _provider
+  return get<AIImageGeneratorProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +40,7 @@ export function getProvider(): AIImageGeneratorProvider | null {
  * @returns `true` if a provider is configured.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,10 +50,10 @@ export function hasProvider(): boolean {
  * @throws {Error} If no provider has been bonded.
  */
 export function requireProvider(): AIImageGeneratorProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error(
       'AIImageGenerator provider not configured. Bond an ai-image-generator provider first.',
     )
   }
-  return _provider
+  return requireSingleton<AIImageGeneratorProvider>(BOND_TYPE)
 }

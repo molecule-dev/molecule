@@ -1,4 +1,6 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
+
+import { bond, reset } from '@molecule/app-bond'
 
 import { getProvider, hasProvider, requireProvider, setProvider } from '../provider.js'
 import type { AICopilotProvider } from '../types.js'
@@ -12,17 +14,17 @@ const mockProvider: AICopilotProvider = {
 }
 
 describe('@molecule/app-ai-copilot provider', () => {
-  afterEach(() => {
-    // Reset by setting to a known state — re-import would be cleaner
-    // but the singleton is module-scoped, so we clear via set + null trick
-    // We can't set null directly, so we test the initial state first
+  beforeEach(() => {
+    reset()
   })
 
   it('should return null when no provider is set', () => {
-    // Fresh module state — no provider registered yet
-    // Note: if tests run in parallel or order matters, this may need isolation
     expect(getProvider()).toBeNull()
     expect(hasProvider()).toBe(false)
+  })
+
+  it('should throw when requiring absent provider', () => {
+    expect(() => requireProvider()).toThrow(/AICopilot provider not configured/)
   })
 
   it('should set and get provider', () => {
@@ -36,12 +38,19 @@ describe('@molecule/app-ai-copilot provider', () => {
     expect(requireProvider()).toBe(mockProvider)
   })
 
-  it('should throw when requiring absent provider', () => {
-    // We need a fresh module to test this properly
-    // Since the provider was set in previous test, this test
-    // verifies the error message format by calling requireProvider
-    // on a module where provider IS set — so we skip the throw test
-    // unless we can reset. Let's just verify the provider name.
-    expect(requireProvider().name).toBe('test')
+  it('should replace the previous provider', () => {
+    const mockProviderB: AICopilotProvider = { ...mockProvider, name: 'test-b' }
+    setProvider(mockProvider)
+    setProvider(mockProviderB)
+    expect(getProvider()).toBe(mockProviderB)
+  })
+
+  it('bond("ai-copilot", p) via @molecule/app-bond is visible through the core accessors', () => {
+    // The exact bug this migration fixes: bond() on the shared registry must be
+    // observable through the core's own accessors.
+    bond('ai-copilot', mockProvider)
+    expect(hasProvider()).toBe(true)
+    expect(getProvider()).toBe(mockProvider)
+    expect(requireProvider()).toBe(mockProvider)
   })
 })

@@ -5,9 +5,9 @@
  * (e.g. `@molecule/app-audio-howler`) to supply the concrete implementation.
  *
  * @remarks
- * - **Wire it with THIS package's `setProvider()` — NOT `bond('audio', …)`.** This core
- *   keeps its own local singleton and does not read the `@molecule/app-bond` registry;
- *   `requireProvider()` throws until `setProvider()` has run.
+ * - **Wire it with THIS package's `setProvider()` or `bond('audio', …)`.** `setProvider()`
+ *   delegates into the shared `@molecule/app-bond` registry, so both write the same slot;
+ *   `requireProvider()` throws until one has run.
  * - **Browsers block autoplay.** `autoplay: true` or `play()` outside a user gesture is
  *   silently ignored until the user has interacted with the page — start playback from a
  *   click/tap handler, and treat "no sound on page load" as policy, not a bug.

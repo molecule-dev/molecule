@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { bond, get, reset } from '@molecule/app-bond'
+
 import type { MarkdownOptions, MarkdownProvider, RenderedMarkdown, TocEntry } from '../index.js'
 import { getProvider, hasProvider, requireProvider, setProvider } from '../index.js'
 
 describe('@molecule/app-markdown', () => {
   beforeEach(() => {
-    // Reset provider between tests
-    setProvider(null as unknown as MarkdownProvider)
+    // Reset the shared @molecule/app-bond registry between tests
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -120,6 +122,30 @@ describe('@molecule/app-markdown', () => {
       expect(getProvider()?.name).toBe('provider-1')
       setProvider(provider2)
       expect(getProvider()?.name).toBe('provider-2')
+    })
+  })
+
+  describe('app-bond registry integration', () => {
+    it('exposes a provider bonded via bond("markdown", p) through the core accessors', () => {
+      // The exact bug: a provider written to the SHARED @molecule/app-bond
+      // registry must be visible through the core's own getProvider/hasProvider.
+      const mockProvider: MarkdownProvider = {
+        name: 'shared-registry',
+        render: () => ({ html: '' }),
+      }
+      bond('markdown', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it("core setProvider() writes the shared registry slot bond('markdown') reads", () => {
+      const mockProvider: MarkdownProvider = {
+        name: 'via-setProvider',
+        render: () => ({ html: '' }),
+      }
+      setProvider(mockProvider)
+      expect(get<MarkdownProvider>('markdown')).toBe(mockProvider)
     })
   })
 

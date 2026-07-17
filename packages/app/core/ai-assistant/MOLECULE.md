@@ -312,10 +312,14 @@ function setProvider(provider: AIAssistantProvider): void
 
 ## Injection Notes
 
-- **Wire it with THIS package's `setProvider()` — NOT `bond('ai-assistant', …)`.**
-  This core keeps its own local singleton and does not read the
-  `@molecule/app-bond` registry; `requireProvider()` throws until
-  `setProvider()` has run.
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-bond` ^1.0.0
+
+- **Wire it with THIS package's `setProvider()` or `bond('ai-assistant', …)`.**
+  `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
+  both write the same slot; `requireProvider()` throws until one has run.
 - **Messages go through YOUR backend, never an AI vendor directly.** The bundled
   bond (`@molecule/app-ai-assistant-default`) POSTs
   `{ message, systemContext?, context? }` to `config.endpoint` and reads an SSE

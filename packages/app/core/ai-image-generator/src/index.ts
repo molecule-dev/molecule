@@ -7,10 +7,10 @@
  * previously generated images; `abort()` cancels an in-flight generation.
  *
  * @remarks
- * - **Wire it with THIS package's `setProvider()` — NOT
- *   `bond('ai-image-generator', …)`.** This core keeps its own local singleton
- *   and does not read the `@molecule/app-bond` registry; `requireProvider()`
- *   throws until `setProvider()` has run.
+ * - **Wire it with THIS package's `setProvider()` or
+ *   `bond('ai-image-generator', …)`.** `setProvider()` delegates into the shared
+ *   `@molecule/app-bond` registry, so both write the same slot;
+ *   `requireProvider()` throws until one has run.
  * - **Generation goes through YOUR backend** (`config.endpoint`), which calls
  *   the image model server-side (see `@molecule/api-ai-image-generation`) — the
  *   vendor key never reaches the browser.

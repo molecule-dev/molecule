@@ -1,15 +1,20 @@
 /**
- * Markdown provider singleton.
+ * Markdown provider wiring.
  *
- * Bond packages call `setProvider()` during setup.
- * Application code calls `getProvider()` / `requireProvider()` at runtime.
+ * Delegates to the shared `@molecule/app-bond` registry under the `'markdown'`
+ * category, so `setProvider(provider)` and `bond('markdown', provider)` write
+ * the same slot — either bonds the provider. Bond packages call `setProvider()`
+ * during setup; application code calls `getProvider()` / `requireProvider()` at
+ * runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded } from '@molecule/app-bond'
+
 import type { MarkdownProvider } from './types.js'
 
-let _provider: MarkdownProvider | null = null
+const BOND_TYPE = 'markdown'
 
 /**
  * Registers a markdown provider as the active singleton.
@@ -17,7 +22,7 @@ let _provider: MarkdownProvider | null = null
  * @param provider - The markdown provider implementation to bond.
  */
 export function setProvider(provider: MarkdownProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +31,7 @@ export function setProvider(provider: MarkdownProvider): void {
  * @returns The active markdown provider, or `null`.
  */
 export function getProvider(): MarkdownProvider | null {
-  return _provider
+  return get<MarkdownProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +40,7 @@ export function getProvider(): MarkdownProvider | null {
  * @returns `true` if a markdown provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +50,9 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): MarkdownProvider {
-  if (!_provider) {
+  const provider = get<MarkdownProvider>(BOND_TYPE)
+  if (!provider) {
     throw new Error('Markdown provider not configured. Bond a markdown provider first.')
   }
-  return _provider
+  return provider
 }

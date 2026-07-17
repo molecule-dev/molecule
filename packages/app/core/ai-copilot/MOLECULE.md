@@ -237,10 +237,14 @@ function setProvider(provider: AICopilotProvider): void
 
 ## Injection Notes
 
-- **Wire it with THIS package's `setProvider()` — NOT `bond('ai-copilot', …)`.**
-  This core keeps its own local singleton and does not read the
-  `@molecule/app-bond` registry; `requireProvider()` throws until
-  `setProvider()` has run.
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-bond` ^1.0.0
+
+- **Wire it with THIS package's `setProvider()` or `bond('ai-copilot', …)`.**
+  `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
+  both write the same slot; `requireProvider()` throws until one has run.
 - **Suggestions come from YOUR backend** (`config.endpoint`), which calls the
   AI provider server-side (see `@molecule/api-ai`) — no vendor key in the
   browser.

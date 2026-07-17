@@ -1,15 +1,19 @@
 /**
- * AIAssistant provider singleton.
+ * AIAssistant provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call set() during setup.
- * Application code calls get()/require() at runtime.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('ai-assistant', provider)`, so wiring via this package's `setProvider()`
+ * and via `bond('ai-assistant', …)` write the SAME registry slot — use either.
+ * Application code calls `getProvider()` / `requireProvider()` at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { AIAssistantProvider } from './types.js'
 
-let _provider: AIAssistantProvider | null = null
+const BOND_TYPE = 'ai-assistant'
 
 /**
  * Register the active AI assistant provider.
@@ -17,7 +21,7 @@ let _provider: AIAssistantProvider | null = null
  * @param provider - The provider instance to register
  */
 export function setProvider(provider: AIAssistantProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +30,7 @@ export function setProvider(provider: AIAssistantProvider): void {
  * @returns The current provider or null
  */
 export function getProvider(): AIAssistantProvider | null {
-  return _provider
+  return get<AIAssistantProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +39,7 @@ export function getProvider(): AIAssistantProvider | null {
  * @returns True if a provider is available
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +49,8 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been registered
  */
 export function requireProvider(): AIAssistantProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error('AIAssistant provider not configured. Bond a ai-assistant provider first.')
   }
-  return _provider
+  return requireSingleton<AIAssistantProvider>(BOND_TYPE)
 }

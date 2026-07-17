@@ -8,10 +8,9 @@
  * feature-detect.
  *
  * @remarks
- * - **Wire it with THIS package's `setProvider()` — NOT `bond('ai-voice', …)`.**
- *   This core keeps its own local singleton and does not read the
- *   `@molecule/app-bond` registry; `requireProvider()` throws until
- *   `setProvider()` has run.
+ * - **Wire it with THIS package's `setProvider()` or `bond('ai-voice', …)`.**
+ *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
+ *   both write the same slot; `requireProvider()` throws until one has run.
  * - **Feature-detect BEFORE showing voice UI.** The bundled bond
  *   (`@molecule/app-ai-voice-default`) uses the browser-native Web Speech APIs:
  *   recognition is missing in several browsers, requires a secure context

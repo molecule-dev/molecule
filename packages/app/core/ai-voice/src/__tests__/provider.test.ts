@@ -1,23 +1,15 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
-import type * as ProviderModule from '../provider.js'
+import { bond, reset } from '@molecule/app-bond'
+
+import { getProvider, hasProvider, requireProvider, setProvider } from '../provider.js'
 import type { AIVoiceProvider } from '../types.js'
-
-let setProvider: typeof ProviderModule.setProvider
-let getProvider: typeof ProviderModule.getProvider
-let hasProvider: typeof ProviderModule.hasProvider
-let requireProvider: typeof ProviderModule.requireProvider
 
 const stub = (name = 'mock'): AIVoiceProvider => ({ name }) as AIVoiceProvider
 
 describe('ai-voice provider singleton', () => {
-  beforeEach(async () => {
-    vi.resetModules()
-    const mod = await import('../provider.js')
-    setProvider = mod.setProvider
-    getProvider = mod.getProvider
-    hasProvider = mod.hasProvider
-    requireProvider = mod.requireProvider
+  beforeEach(() => {
+    reset()
   })
 
   it('starts with no provider bonded', () => {
@@ -48,5 +40,15 @@ describe('ai-voice provider singleton', () => {
     setProvider(a)
     setProvider(b)
     expect(getProvider()).toBe(b)
+  })
+
+  it('bond("ai-voice", p) via @molecule/app-bond is visible through the core accessors', () => {
+    // The exact bug this migration fixes: bond() on the shared registry must be
+    // observable through the core's own accessors.
+    const p = stub()
+    bond('ai-voice', p)
+    expect(hasProvider()).toBe(true)
+    expect(getProvider()).toBe(p)
+    expect(requireProvider()).toBe(p)
   })
 })
