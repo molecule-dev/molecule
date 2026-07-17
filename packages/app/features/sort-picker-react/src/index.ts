@@ -7,8 +7,8 @@
  * multiple filter fields.
  *
  * Props: `value`, `onChange(value)`, `options` (`{ value, label }[]`),
- * `label`, `labelPosition` (`'inline' | 'above'`, default inline),
- * `className`.
+ * `label`, `ariaLabel`, `labelPosition` (`'inline' | 'above'`, default
+ * inline), `className`.
  *
  * @example
  * ```tsx
@@ -35,9 +35,13 @@
  * @remarks
  * - Must render inside the app's i18n provider and with a ClassMap bond
  *   wired (`useTranslation()` / `getClassMap()` throw otherwise).
- * - Option labels are string-coerced before being handed to the native
- *   `<Select>` — pass plain strings, NOT JSX (JSX renders as
- *   "[object Object]").
+ * - `SortOption.label` is a plain `string` — a native `<select>`/`<option>`
+ *   can only display text, so it is rendered as the option's text child
+ *   (never `String()`-coerced, so it never renders "[object Object]").
+ * - The outer `label` prop is a `ReactNode` rendered as JSX children, so
+ *   icons/styled elements display as nodes. When `label` is a non-string
+ *   node, pass `ariaLabel` to name the select (a node cannot be an
+ *   `aria-label`).
  * - The default "Sort by" label uses the `sort.label` i18n key; pass
  *   `label` to override.
  *

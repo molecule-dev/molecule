@@ -8,8 +8,8 @@ Exports `<SortPicker>` — single-select wrapper around `<Select>` from
 multiple filter fields.
 
 Props: `value`, `onChange(value)`, `options` (`{ value, label }[]`),
-`label`, `labelPosition` (`'inline' | 'above'`, default inline),
-`className`.
+`label`, `ariaLabel`, `labelPosition` (`'inline' | 'above'`, default
+inline), `className`.
 
 ## Quick Start
 
@@ -55,11 +55,13 @@ A single option entry for the SortPicker select list.
 interface SortOption<T extends string = string> {
   value: T
   /**
-   * Option label. Typed `ReactNode` but string-coerced before being
-   * passed to the native `<Select>` — pass a plain string; JSX renders
-   * as "[object Object]".
+   * Option label. A native `<select>`/`<option>` can only display text,
+   * so this is a plain `string` — it is rendered as the option's text
+   * child (never `String()`-coerced). For a rich label above/beside the
+   * control, use the {@link SortPickerProps.label} prop, which accepts a
+   * `ReactNode`.
    */
-  label: ReactNode
+  label: string
 }
 ```
 
@@ -72,8 +74,21 @@ interface SortPickerProps<T extends string = string> {
   value: T
   onChange: (value: T) => void
   options: SortOption<T>[]
-  /** Optional label rendered above or to the left of the select. */
+  /**
+   * Optional label rendered above or to the left of the select. Rendered
+   * as JSX children, so a `ReactNode` (icon + text, styled element, …)
+   * displays as nodes — it is never stringified. When you pass a
+   * non-string node, also pass {@link SortPickerProps.ariaLabel} to give
+   * the select an accessible name.
+   */
   label?: ReactNode
+  /**
+   * Accessible name for the underlying `<select>`. Defaults to `label`
+   * when it is a plain string, otherwise the translated "Sort by". Pass
+   * this whenever `label` is a non-string `ReactNode` (a node cannot be
+   * used as an `aria-label` attribute value).
+   */
+  ariaLabel?: string
   /** Where to render the label. Defaults to `'inline'`. */
   labelPosition?: 'inline' | 'above'
   /** Extra classes. */
@@ -96,6 +111,7 @@ function SortPicker({
   onChange,
   options,
   label,
+  ariaLabel,
   labelPosition = 'inline',
   className,
 }: SortPickerProps<T>): ReactElement<unknown, string | JSXElementConstructor<any>>
@@ -122,9 +138,13 @@ Peer dependencies:
 
 - Must render inside the app's i18n provider and with a ClassMap bond
   wired (`useTranslation()` / `getClassMap()` throw otherwise).
-- Option labels are string-coerced before being handed to the native
-  `<Select>` — pass plain strings, NOT JSX (JSX renders as
-  "[object Object]").
+- `SortOption.label` is a plain `string` — a native `<select>`/`<option>`
+  can only display text, so it is rendered as the option's text child
+  (never `String()`-coerced, so it never renders "[object Object]").
+- The outer `label` prop is a `ReactNode` rendered as JSX children, so
+  icons/styled elements display as nodes. When `label` is a non-string
+  node, pass `ariaLabel` to name the select (a node cannot be an
+  `aria-label`).
 - The default "Sort by" label uses the `sort.label` i18n key; pass
   `label` to override.
 

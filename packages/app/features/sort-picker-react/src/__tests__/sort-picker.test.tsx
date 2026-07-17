@@ -30,8 +30,22 @@ vi.mock('@molecule/app-react', () => ({
 }))
 
 vi.mock('@molecule/app-ui-react', () => ({
-  Select: ({ value, ['aria-label']: ariaLabel }: { value?: string; 'aria-label'?: string }) =>
-    createElement('select', { 'data-select': '', 'data-value': value, 'aria-label': ariaLabel }),
+  Select: ({
+    value,
+    options,
+    ['aria-label']: ariaLabel,
+  }: {
+    value?: string
+    options?: { value: string; label: unknown }[]
+    'aria-label'?: string
+  }) =>
+    createElement(
+      'select',
+      { 'data-select': '', 'data-value': value, 'aria-label': ariaLabel },
+      (options ?? []).map((o) =>
+        createElement('option', { key: o.value, value: o.value }, o.label as never),
+      ),
+    ),
 }))
 
 const { SortPicker } = await import('../SortPicker.js')
@@ -88,5 +102,54 @@ describe('SortPicker', () => {
       }),
     )
     expect(markup).toContain('sp-cls')
+  })
+
+  it('renders a ReactNode label as JSX nodes, never "[object Object]"', () => {
+    const markup = html(
+      createElement(SortPicker, {
+        value: 'recent',
+        onChange: () => {},
+        options,
+        // a non-string node — the classic String(node) => "[object Object]" trap
+        label: createElement('strong', { 'data-testid': 'rich-label' }, 'Sort results'),
+      }),
+    )
+    expect(markup).toContain('<strong')
+    expect(markup).toContain('Sort results')
+    expect(markup).not.toContain('[object Object]')
+  })
+
+  it('uses the ariaLabel prop for the select accessible name when label is a node', () => {
+    const markup = html(
+      createElement(SortPicker, {
+        value: 'recent',
+        onChange: () => {},
+        options,
+        label: createElement('strong', null, 'Sort'),
+        ariaLabel: 'Sort the results',
+      }),
+    )
+    expect(markup).toContain('aria-label="Sort the results"')
+    expect(markup).not.toContain('[object Object]')
+  })
+
+  it('falls back to the default label string for aria-label (not a stringified node)', () => {
+    const markup = html(
+      createElement(SortPicker, {
+        value: 'recent',
+        onChange: () => {},
+        options,
+        label: createElement('em', null, 'Order'),
+      }),
+    )
+    expect(markup).toContain('aria-label="Sort by"')
+    expect(markup).not.toContain('[object Object]')
+  })
+
+  it('renders each option label as option text (no coercion artifacts)', () => {
+    const markup = html(createElement(SortPicker, { value: 'recent', onChange: () => {}, options }))
+    expect(markup).toContain('Most recent')
+    expect(markup).toContain('Most popular')
+    expect(markup).not.toContain('[object Object]')
   })
 })
