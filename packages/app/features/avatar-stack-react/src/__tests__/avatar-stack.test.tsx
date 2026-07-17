@@ -64,6 +64,23 @@ describe('AvatarStack', () => {
     expect(markup).not.toContain('aria-label="+')
   })
 
+  it('overlaps avatars with a valid negative left margin, skipping the first', () => {
+    // Regression: overlap used `cm.sp('ml', -2 as 0)`, which emitted the
+    // invalid Tailwind class `ml--2`, so avatars never actually overlapped.
+    const markup = html(createElement(AvatarStack, { people: people.slice(0, 3) }))
+    // 3 avatars → 2 overlaps: the first sits flush, each later one pulls left.
+    expect(markup.split('margin-left:-0.5rem').length - 1).toBe(2)
+    // the invalid class must never appear
+    expect(markup).not.toContain('ml--2')
+  })
+
+  it('overlaps the "+N" chip onto the stack too', () => {
+    const markup = html(createElement(AvatarStack, { people, max: 4 }))
+    // 4 avatars (3 overlaps) + 1 overflow chip overlap = 4 negative margins.
+    expect(markup.split('margin-left:-0.5rem').length - 1).toBe(4)
+    expect(markup).not.toContain('ml--2')
+  })
+
   it('forwards className', () => {
     const markup = html(
       createElement(AvatarStack, { people: people.slice(0, 2), className: 'stack-cls' }),
