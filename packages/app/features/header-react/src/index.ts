@@ -30,10 +30,13 @@
  * @remarks
  * - Must render inside a `react-router-dom` router — the brand link is a
  *   `<Link>` and throws outside a Router context.
- * - The DEFAULT `themeToggle` slot is `<ThemeToggle />`, which calls
- *   `useTheme()` and `useTranslation()` — BOTH throw without
- *   `@molecule/app-react`'s `ThemeProvider` + `I18nProvider`. In a host
- *   without those providers pass `themeToggle={null}`.
+ * - The DEFAULT `themeToggle` slot renders `<ThemeToggle />` (which calls
+ *   `useTheme()` + `useTranslation()`) ONLY when `@molecule/app-react`'s
+ *   `ThemeProvider` + `I18nProvider` are both mounted above the header — it
+ *   probes their contexts first. Without those providers the toggle is
+ *   silently OMITTED instead of throwing, so `<AppHeader appName="…" />`
+ *   renders out of the box; it lights up automatically once they are wired.
+ *   Pass `themeToggle={null}` to force-hide it, or your own node to override.
  * - `fixed` defaults to `true` (`cm.headerFixed` positions the header fixed):
  *   give the page content a matching top offset (flagships get it from
  *   `<AppShellLayout>`), or pass `fixed={false}` for an in-flow header.

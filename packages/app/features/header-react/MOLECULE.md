@@ -59,8 +59,13 @@ interface AppHeaderProps {
   /** Slot for the right-side user menu — typically `<UserMenu />` from `@molecule/app-ui-react`. */
   userMenu?: ReactNode
   /**
-   * Theme toggle slot. Defaults to `<ThemeToggle />` from `@molecule/app-ui-react`.
-   * Pass `null` to hide it, or your own component (e.g. an icon-bonded variant) to override.
+   * Theme toggle slot. Defaults to a resilient wrapper around
+   * `<ThemeToggle />` (from `@molecule/app-ui-react`) that renders the toggle
+   * ONLY when `@molecule/app-react`'s `ThemeProvider` + `I18nProvider` are both
+   * mounted above the header, and omits it (never throws) when they are not —
+   * so the header renders out of the box even before theme/i18n are wired.
+   * Pass `null` to force-hide it, or your own component (e.g. an icon-bonded
+   * variant) to override.
    */
   themeToggle?: ReactNode
   /** Optional extra actions rendered between the theme toggle and the user menu. */
@@ -117,6 +122,7 @@ function AppHeader({
 ### Requirements
 
 Peer dependencies:
+- `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
@@ -131,10 +137,13 @@ Peer dependencies:
 
 - Must render inside a `react-router-dom` router — the brand link is a
   `<Link>` and throws outside a Router context.
-- The DEFAULT `themeToggle` slot is `<ThemeToggle />`, which calls
-  `useTheme()` and `useTranslation()` — BOTH throw without
-  `@molecule/app-react`'s `ThemeProvider` + `I18nProvider`. In a host
-  without those providers pass `themeToggle={null}`.
+- The DEFAULT `themeToggle` slot renders `<ThemeToggle />` (which calls
+  `useTheme()` + `useTranslation()`) ONLY when `@molecule/app-react`'s
+  `ThemeProvider` + `I18nProvider` are both mounted above the header — it
+  probes their contexts first. Without those providers the toggle is
+  silently OMITTED instead of throwing, so `<AppHeader appName="…" />`
+  renders out of the box; it lights up automatically once they are wired.
+  Pass `themeToggle={null}` to force-hide it, or your own node to override.
 - `fixed` defaults to `true` (`cm.headerFixed` positions the header fixed):
   give the page content a matching top offset (flagships get it from
   `<AppShellLayout>`), or pass `fixed={false}` for an in-flow header.

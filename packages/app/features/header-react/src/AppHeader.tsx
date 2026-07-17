@@ -1,6 +1,8 @@
 import type { ReactElement, ReactNode } from 'react'
+import { useContext } from 'react'
 import { Link } from 'react-router-dom'
 
+import { I18nContext, ThemeContext } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, ThemeToggle } from '@molecule/app-ui-react'
 
@@ -17,8 +19,13 @@ export interface AppHeaderProps {
   /** Slot for the right-side user menu — typically `<UserMenu />` from `@molecule/app-ui-react`. */
   userMenu?: ReactNode
   /**
-   * Theme toggle slot. Defaults to `<ThemeToggle />` from `@molecule/app-ui-react`.
-   * Pass `null` to hide it, or your own component (e.g. an icon-bonded variant) to override.
+   * Theme toggle slot. Defaults to a resilient wrapper around
+   * `<ThemeToggle />` (from `@molecule/app-ui-react`) that renders the toggle
+   * ONLY when `@molecule/app-react`'s `ThemeProvider` + `I18nProvider` are both
+   * mounted above the header, and omits it (never throws) when they are not —
+   * so the header renders out of the box even before theme/i18n are wired.
+   * Pass `null` to force-hide it, or your own component (e.g. an icon-bonded
+   * variant) to override.
    */
   themeToggle?: ReactNode
   /** Optional extra actions rendered between the theme toggle and the user menu. */
@@ -34,8 +41,29 @@ export interface AppHeaderProps {
   dataMolId?: string
 }
 
+/**
+ * Resilient default for the {@link AppHeader} `themeToggle` slot.
+ *
+ * `<ThemeToggle />` reads `useTheme()` + `useTranslation()`, both of which
+ * THROW when `@molecule/app-react`'s `ThemeProvider` / `I18nProvider` are not
+ * mounted above them. This wrapper probes those contexts with `useContext`
+ * — which returns `null` (rather than throwing) when a provider is absent —
+ * and renders the real toggle only when BOTH are present. Without them the
+ * slot is silently omitted, so `<AppHeader appName="…" />` renders out of the
+ * box even before an app has wired theme/i18n. Once both providers exist, the
+ * toggle appears automatically with no extra prop.
+ */
+function DefaultThemeToggle(): ReactElement | null {
+  const themeProvider = useContext(ThemeContext)
+  const i18nProvider = useContext(I18nContext)
+  if (!themeProvider || !i18nProvider) {
+    return null
+  }
+  return <ThemeToggle />
+}
+
 /** Default theme-toggle node used when the `themeToggle` prop is omitted. */
-const DEFAULT_THEME_TOGGLE = <ThemeToggle />
+const DEFAULT_THEME_TOGGLE = <DefaultThemeToggle />
 
 /**
  * Sticky top app-shell header — logo + appName on the left, slotted actions
