@@ -31,8 +31,9 @@
  *   canvas into the page or upload-and-render it; an empty/blank result means the
  *   bonded provider does not implement canvas output, which is an integration bug
  *   to fix, not to skip.
- * - **Wire with `setProvider()` from THIS package, not `bond('image-crop', …)`** —
- *   the singleton is module-local; `requireProvider()` throws otherwise.
+ * - **Wire with THIS package's `setProvider()` or `bond('image-crop', …)`** —
+ *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so both
+ *   write the same slot; `requireProvider()` throws until one has run.
  * - Upload the result as a Blob (`canvas.toBlob`) through your upload path; the
  *   server must re-validate the file (type/size) — client cropping is UX, not a
  *   boundary.

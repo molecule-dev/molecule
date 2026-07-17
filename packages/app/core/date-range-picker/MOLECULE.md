@@ -209,12 +209,18 @@ function setProvider(provider: DateRangePickerProvider): void
 
 ## Injection Notes
 
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-bond` ^1.0.0
+
 - **The instance is headless — it renders no calendar.** Render your own
   calendar/preset UI (styled via `getClassMap()`/`cm.*`, all labels through
   `t('key', values, { defaultValue })`) and drive the instance; `onChange` fires
   with a `{ startDate, endDate }` range.
-- **Wire with `setProvider()` from THIS package, not `bond('date-range-picker', …)`**
-  — the singleton is module-local and `requireProvider()` throws otherwise.
+- **Wire with THIS package's `setProvider()` or `bond('date-range-picker', …)`** —
+  `setProvider()` delegates into the shared `@molecule/app-bond` registry, so both
+  write the same slot; `requireProvider()` throws until one has run.
 - Format displayed dates with the i18n layer (`formatDate` from
   `@molecule/app-i18n`), never `toLocaleDateString` with a hardcoded locale.
 - Send API-bound dates as ISO strings; the server must re-validate the range

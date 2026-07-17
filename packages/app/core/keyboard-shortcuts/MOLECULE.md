@@ -192,10 +192,15 @@ function setProvider(provider: KeyboardShortcutsProvider): void
 
 ## Injection Notes
 
-- **Wire with `setProvider()` from THIS package** (e.g. the `provider` export of
-  `@molecule/app-keyboard-shortcuts-hotkeys`) once at startup —
-  `requireProvider()` throws otherwise, and a generic `bond('…')` registration is
-  not seen by this module-local singleton.
+### Requirements
+
+Peer dependencies:
+- `@molecule/app-bond` ^1.0.0
+
+- **Wire with THIS package's `setProvider()` or `bond('keyboard-shortcuts', …)`**
+  (e.g. the `provider` export of `@molecule/app-keyboard-shortcuts-hotkeys`) once at
+  startup — `setProvider()` delegates into the shared `@molecule/app-bond` registry,
+  so both write the same slot; `requireProvider()` throws until one has run.
 - **The bonded provider owns the actual key event binding** (global
   `keydown`/`keyup` listeners, combo matching, `preventDefault` per the
   `Shortcut.preventDefault` flag, and not firing while an

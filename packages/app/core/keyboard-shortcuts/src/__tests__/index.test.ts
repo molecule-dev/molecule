@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { bond, reset } from '@molecule/app-bond'
+
 import type { KeyboardShortcutsProvider, RegisteredShortcut, Shortcut } from '../index.js'
 import { getProvider, hasProvider, requireProvider, setProvider } from '../index.js'
 
 describe('@molecule/app-keyboard-shortcuts', () => {
   beforeEach(() => {
-    setProvider(null as unknown as KeyboardShortcutsProvider)
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -99,6 +101,26 @@ describe('@molecule/app-keyboard-shortcuts', () => {
         disable: () => {},
       }
       setProvider(mockProvider)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it('reflects a bond("keyboard-shortcuts", p) made via @molecule/app-bond', () => {
+      // The exact bug this migration fixes: bond() on the shared registry must be
+      // observable through the core's own accessors.
+      const mockProvider: KeyboardShortcutsProvider = {
+        name: 'test-bond',
+        register: () => () => {},
+        registerMany: () => () => {},
+        unregister: () => {},
+        unregisterAll: () => {},
+        getAll: () => [],
+        isPressed: () => false,
+        enable: () => {},
+        disable: () => {},
+      }
+      bond('keyboard-shortcuts', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
     })
   })

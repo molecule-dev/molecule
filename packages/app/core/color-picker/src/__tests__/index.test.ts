@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { bond, reset } from '@molecule/app-bond'
+
 import type { ColorPickerInstance, ColorPickerOptions, ColorPickerProvider } from '../index.js'
 import { getProvider, hasProvider, requireProvider, setProvider } from '../index.js'
 
 describe('@molecule/app-color-picker', () => {
   beforeEach(() => {
-    setProvider(null as unknown as ColorPickerProvider)
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -99,6 +101,25 @@ describe('@molecule/app-color-picker', () => {
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
       expect(hasProvider()).toBe(true)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it('reflects a bond("color-picker", p) made via @molecule/app-bond', () => {
+      // The exact bug this migration fixes: bond() on the shared registry must be
+      // observable through the core's own accessors.
+      const mockProvider: ColorPickerProvider = {
+        name: 'test-bond',
+        createPicker: () => ({
+          getValue: () => '#000000',
+          setValue: () => {},
+          getFormat: () => 'hex',
+          setFormat: () => {},
+          destroy: () => {},
+        }),
+      }
+      bond('color-picker', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
     })
   })

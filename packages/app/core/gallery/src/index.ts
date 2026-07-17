@@ -26,8 +26,9 @@
  *   `getClassMap()`/`cm.*` and `t('key', values, { defaultValue })` for labels, and
  *   drives it via `open/close/next/previous/goTo`, re-reading `getCurrentIndex()`
  *   after each call (there is no change-subscription API).
- * - **Wire with `setProvider()` from THIS package, not `bond('gallery', …)`** — the
- *   singleton is module-local; `requireProvider()` throws otherwise.
+ * - **Wire with THIS package's `setProvider()` or `bond('gallery', …)`** —
+ *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so both
+ *   write the same slot; `requireProvider()` throws until one has run.
  * - Provide real `width`/`height` per item (they drive layout/zoom math) and an
  *   `alt` for accessibility — empty alt text fails the a11y bar.
  *

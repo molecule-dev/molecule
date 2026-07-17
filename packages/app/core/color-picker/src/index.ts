@@ -27,9 +27,9 @@
  *   render your own swatches/inputs (styled via `getClassMap()`/`cm.*`, labels via
  *   `t('key', values, { defaultValue })`) and call the instance methods; `onChange`
  *   fires when the value changes.
- * - **Wire with `setProvider()` from THIS package, not `bond('color-picker', …)`.**
- *   The singleton is module-local; a generic app-bond registration is not seen and
- *   `requireProvider()` will still throw.
+ * - **Wire with THIS package's `setProvider()` or `bond('color-picker', …)`.**
+ *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so both
+ *   write the same slot; `requireProvider()` throws until one has run.
  * - Treat the emitted color as an app data value — do not hardcode it into CSS or
  *   theme files; persist it and apply through your theme/branding layer.
  *

@@ -1,15 +1,20 @@
 /**
- * Date range picker provider singleton.
+ * Date range picker provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call `setProvider()` during setup.
- * Application code calls `getProvider()` / `requireProvider()` at runtime.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('date-range-picker', provider)`, so wiring via this package's
+ * `setProvider()` and via `bond('date-range-picker', …)` write the SAME registry
+ * slot — use either. Application code calls `getProvider()` / `requireProvider()`
+ * at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { DateRangePickerProvider } from './types.js'
 
-let _provider: DateRangePickerProvider | null = null
+const BOND_TYPE = 'date-range-picker'
 
 /**
  * Registers a date range picker provider as the active singleton.
@@ -17,7 +22,7 @@ let _provider: DateRangePickerProvider | null = null
  * @param provider - The date range picker provider implementation to bond.
  */
 export function setProvider(provider: DateRangePickerProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +31,7 @@ export function setProvider(provider: DateRangePickerProvider): void {
  * @returns The active date range picker provider, or `null`.
  */
 export function getProvider(): DateRangePickerProvider | null {
-  return _provider
+  return get<DateRangePickerProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +40,7 @@ export function getProvider(): DateRangePickerProvider | null {
  * @returns `true` if a date range picker provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,10 +50,10 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): DateRangePickerProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error(
       'DateRangePicker provider not configured. Bond a date-range-picker provider first.',
     )
   }
-  return _provider
+  return requireSingleton<DateRangePickerProvider>(BOND_TYPE)
 }

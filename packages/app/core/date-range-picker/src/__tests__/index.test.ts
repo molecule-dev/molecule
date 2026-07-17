@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { bond, reset } from '@molecule/app-bond'
+
 import type {
   DatePreset,
   DateRange,
@@ -11,7 +13,7 @@ import { getProvider, hasProvider, requireProvider, setProvider } from '../index
 
 describe('@molecule/app-date-range-picker', () => {
   beforeEach(() => {
-    setProvider(null as unknown as DateRangePickerProvider)
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -111,6 +113,26 @@ describe('@molecule/app-date-range-picker', () => {
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
       expect(hasProvider()).toBe(true)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it('reflects a bond("date-range-picker", p) made via @molecule/app-bond', () => {
+      // The exact bug this migration fixes: bond() on the shared registry must be
+      // observable through the core's own accessors.
+      const mockProvider: DateRangePickerProvider = {
+        name: 'test-bond',
+        createPicker: () => ({
+          getValue: () => null,
+          setValue: () => {},
+          clear: () => {},
+          open: () => {},
+          close: () => {},
+          destroy: () => {},
+        }),
+      }
+      bond('date-range-picker', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
     })
   })

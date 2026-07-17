@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { bond, reset } from '@molecule/app-bond'
+
 import type {
   CropData,
   CropperInstance,
@@ -11,7 +13,7 @@ import { getProvider, hasProvider, requireProvider, setProvider } from '../index
 
 describe('@molecule/app-image-crop', () => {
   beforeEach(() => {
-    setProvider(null as unknown as ImageCropProvider)
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -126,6 +128,35 @@ describe('@molecule/app-image-crop', () => {
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
       expect(hasProvider()).toBe(true)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it('reflects a bond("image-crop", p) made via @molecule/app-bond', () => {
+      // The exact bug this migration fixes: bond() on the shared registry must be
+      // observable through the core's own accessors.
+      const mockProvider: ImageCropProvider = {
+        name: 'test-bond',
+        createCropper: () => ({
+          getCroppedCanvas: () => ({}) as HTMLCanvasElement,
+          getCropData: () => ({
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+            rotate: 0,
+            scaleX: 1,
+            scaleY: 1,
+          }),
+          setCropData: () => {},
+          reset: () => {},
+          rotate: () => {},
+          zoom: () => {},
+          destroy: () => {},
+        }),
+      }
+      bond('image-crop', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
     })
   })

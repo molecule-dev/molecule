@@ -1,15 +1,20 @@
 /**
- * Keyboard shortcuts provider singleton.
+ * Keyboard shortcuts provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call `setProvider()` during setup.
- * Application code calls `getProvider()` / `requireProvider()` at runtime.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('keyboard-shortcuts', provider)`, so wiring via this package's
+ * `setProvider()` and via `bond('keyboard-shortcuts', …)` write the SAME registry
+ * slot — use either. Application code calls `getProvider()` / `requireProvider()`
+ * at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { KeyboardShortcutsProvider } from './types.js'
 
-let _provider: KeyboardShortcutsProvider | null = null
+const BOND_TYPE = 'keyboard-shortcuts'
 
 /**
  * Registers a keyboard shortcuts provider as the active singleton.
@@ -17,7 +22,7 @@ let _provider: KeyboardShortcutsProvider | null = null
  * @param provider - The keyboard shortcuts provider implementation to bond.
  */
 export function setProvider(provider: KeyboardShortcutsProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +31,7 @@ export function setProvider(provider: KeyboardShortcutsProvider): void {
  * @returns The active keyboard shortcuts provider, or `null`.
  */
 export function getProvider(): KeyboardShortcutsProvider | null {
-  return _provider
+  return get<KeyboardShortcutsProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +40,7 @@ export function getProvider(): KeyboardShortcutsProvider | null {
  * @returns `true` if a keyboard shortcuts provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,10 +50,10 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): KeyboardShortcutsProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error(
       'KeyboardShortcuts provider not configured. Bond a keyboard-shortcuts provider first.',
     )
   }
-  return _provider
+  return requireSingleton<KeyboardShortcutsProvider>(BOND_TYPE)
 }

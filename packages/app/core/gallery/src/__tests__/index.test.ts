@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { bond, reset } from '@molecule/app-bond'
+
 import type { GalleryInstance, GalleryItem, GalleryOptions, GalleryProvider } from '../index.js'
 import { getProvider, hasProvider, requireProvider, setProvider } from '../index.js'
 
 describe('@molecule/app-gallery', () => {
   beforeEach(() => {
-    setProvider(null as unknown as GalleryProvider)
+    reset()
   })
 
   describe('Types compile correctly', () => {
@@ -101,6 +103,26 @@ describe('@molecule/app-gallery', () => {
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
       expect(hasProvider()).toBe(true)
+      expect(requireProvider()).toBe(mockProvider)
+    })
+
+    it('reflects a bond("gallery", p) made via @molecule/app-bond', () => {
+      // The exact bug this migration fixes: bond() on the shared registry must be
+      // observable through the core's own accessors.
+      const mockProvider: GalleryProvider = {
+        name: 'test-bond',
+        createGallery: () => ({
+          open: () => {},
+          close: () => {},
+          next: () => {},
+          previous: () => {},
+          goTo: () => {},
+          getCurrentIndex: () => 0,
+        }),
+      }
+      bond('gallery', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
       expect(requireProvider()).toBe(mockProvider)
     })
   })

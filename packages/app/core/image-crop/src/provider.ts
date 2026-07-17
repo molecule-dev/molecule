@@ -1,15 +1,19 @@
 /**
- * Image crop provider singleton.
+ * Image crop provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call `setProvider()` during setup.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('image-crop', provider)`, so wiring via this package's `setProvider()`
+ * and via `bond('image-crop', …)` write the SAME registry slot — use either.
  * Application code calls `getProvider()` / `requireProvider()` at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { ImageCropProvider } from './types.js'
 
-let _provider: ImageCropProvider | null = null
+const BOND_TYPE = 'image-crop'
 
 /**
  * Registers an image crop provider as the active singleton.
@@ -17,7 +21,7 @@ let _provider: ImageCropProvider | null = null
  * @param provider - The image crop provider implementation to bond.
  */
 export function setProvider(provider: ImageCropProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +30,7 @@ export function setProvider(provider: ImageCropProvider): void {
  * @returns The active image crop provider, or `null`.
  */
 export function getProvider(): ImageCropProvider | null {
-  return _provider
+  return get<ImageCropProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +39,7 @@ export function getProvider(): ImageCropProvider | null {
  * @returns `true` if an image crop provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +49,8 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): ImageCropProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error('ImageCrop provider not configured. Bond an image-crop provider first.')
   }
-  return _provider
+  return requireSingleton<ImageCropProvider>(BOND_TYPE)
 }

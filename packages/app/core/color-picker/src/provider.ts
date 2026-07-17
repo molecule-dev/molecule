@@ -1,15 +1,19 @@
 /**
- * Color picker provider singleton.
+ * Color picker provider wiring, backed by the shared `@molecule/app-bond` registry.
  *
- * Bond packages call `setProvider()` during setup.
+ * Bond packages call `setProvider()` during setup; it delegates to
+ * `bond('color-picker', provider)`, so wiring via this package's `setProvider()`
+ * and via `bond('color-picker', …)` write the SAME registry slot — use either.
  * Application code calls `getProvider()` / `requireProvider()` at runtime.
  *
  * @module
  */
 
+import { bond, get, isBonded, requireSingleton } from '@molecule/app-bond'
+
 import type { ColorPickerProvider } from './types.js'
 
-let _provider: ColorPickerProvider | null = null
+const BOND_TYPE = 'color-picker'
 
 /**
  * Registers a color picker provider as the active singleton.
@@ -17,7 +21,7 @@ let _provider: ColorPickerProvider | null = null
  * @param provider - The color picker provider implementation to bond.
  */
 export function setProvider(provider: ColorPickerProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +30,7 @@ export function setProvider(provider: ColorPickerProvider): void {
  * @returns The active color picker provider, or `null`.
  */
 export function getProvider(): ColorPickerProvider | null {
-  return _provider
+  return get<ColorPickerProvider>(BOND_TYPE) ?? null
 }
 
 /**
@@ -35,7 +39,7 @@ export function getProvider(): ColorPickerProvider | null {
  * @returns `true` if a color picker provider is available.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +49,8 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been bonded.
  */
 export function requireProvider(): ColorPickerProvider {
-  if (!_provider) {
+  if (!isBonded(BOND_TYPE)) {
     throw new Error('ColorPicker provider not configured. Bond a color-picker provider first.')
   }
-  return _provider
+  return requireSingleton<ColorPickerProvider>(BOND_TYPE)
 }
