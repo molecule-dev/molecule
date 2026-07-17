@@ -93,8 +93,8 @@
  *   ignored and the server-computed value wins.
  */
 
-export * from './browser-guard.js'
 export * from './authorizers/index.js'
+export * from './browser-guard.js'
 export * from './config-registry.js'
 export * from './engine.js'
 export * from './handlers/index.js'
