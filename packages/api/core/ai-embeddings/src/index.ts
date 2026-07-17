@@ -9,11 +9,10 @@
  * `@molecule/api-ai-embeddings-local` for keyless local inference).
  *
  * @remarks
- * - **Wire it with THIS package's `setProvider()` — NOT `bond('ai-embeddings', …)`.**
- *   This core keeps its own singleton and does not read the `@molecule/api-bond`
- *   registry: a generic `bond('ai-embeddings', provider)` call appears to succeed,
- *   but `requireProvider()` still throws "not configured" at first use. Call
- *   `setProvider(...)` in the app's bond setup instead.
+ * - **Wire it at startup with `setProvider(...)` — or the equivalent
+ *   `bond('ai-embeddings', provider)`.** This core routes through the shared
+ *   `@molecule/api-bond` registry, so either call registers the same provider and
+ *   `validateBonds()` reports it as missing when unwired.
  * - **Vectors are only comparable within ONE model + dimension.** Never mix
  *   embeddings from different models (or `dimensions` settings) in the same
  *   collection/index — record which model produced a vector and re-embed the corpus

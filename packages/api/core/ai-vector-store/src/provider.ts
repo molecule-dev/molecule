@@ -1,15 +1,22 @@
 /**
- * AIVectorStore provider singleton.
+ * AIVectorStore provider bond accessor.
  *
- * Bond packages call set() during setup.
- * Application code calls get()/require() at runtime.
+ * Bond packages call `setProvider()` during setup, which registers the provider
+ * in the shared `@molecule/api-bond` registry under the `'ai-vector-store'` bond
+ * type. Application code calls `getProvider()`/`requireProvider()` at runtime.
+ * Because wiring routes through the shared registry, a generic
+ * `bond('ai-vector-store', provider)` call is equivalent to `setProvider()` and
+ * `validateBonds()` can detect a missing provider.
  *
  * @module
  */
 
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
+
 import type { AIVectorStoreProvider } from './types.js'
 
-let _provider: AIVectorStoreProvider | null = null
+const BOND_TYPE = 'ai-vector-store'
+expectBond(BOND_TYPE)
 
 /**
  * Set the active vector store provider.
@@ -17,7 +24,7 @@ let _provider: AIVectorStoreProvider | null = null
  * @param provider - The vector store provider to register.
  */
 export function setProvider(provider: AIVectorStoreProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +33,7 @@ export function setProvider(provider: AIVectorStoreProvider): void {
  * @returns The current provider or null.
  */
 export function getProvider(): AIVectorStoreProvider | null {
-  return _provider
+  return isBonded(BOND_TYPE) ? bondRequire<AIVectorStoreProvider>(BOND_TYPE) : null
 }
 
 /**
@@ -35,7 +42,7 @@ export function getProvider(): AIVectorStoreProvider | null {
  * @returns True if a provider has been set.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +52,12 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been set.
  */
 export function requireProvider(): AIVectorStoreProvider {
-  if (!_provider) {
-    throw new Error('AIVectorStore provider not configured. Bond a ai-vector-store provider first.')
+  try {
+    return bondRequire<AIVectorStoreProvider>(BOND_TYPE)
+  } catch (error) {
+    throw new Error(
+      'AIVectorStore provider not configured. Bond a ai-vector-store provider first.',
+      { cause: error },
+    )
   }
-  return _provider
 }

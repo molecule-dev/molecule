@@ -1,23 +1,18 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
-import type * as ProviderModule from '../provider.js'
+import { bond, reset } from '@molecule/api-bond'
+
+import { getProvider, hasProvider, requireProvider, setProvider } from '../provider.js'
 import type { AIEmbeddingsProvider } from '../types.js'
 
-let setProvider: typeof ProviderModule.setProvider
-let getProvider: typeof ProviderModule.getProvider
-let hasProvider: typeof ProviderModule.hasProvider
-let requireProvider: typeof ProviderModule.requireProvider
+const BOND_TYPE = 'ai-embeddings'
 
 const stub = (name = 'mock'): AIEmbeddingsProvider => ({ name }) as AIEmbeddingsProvider
 
-describe('ai-embeddings provider singleton', () => {
-  beforeEach(async () => {
-    vi.resetModules()
-    const mod = await import('../provider.js')
-    setProvider = mod.setProvider
-    getProvider = mod.getProvider
-    hasProvider = mod.hasProvider
-    requireProvider = mod.requireProvider
+describe('ai-embeddings provider', () => {
+  beforeEach(() => {
+    // Isolate tests by clearing the shared @molecule/api-bond registry.
+    reset()
   })
 
   it('starts with no provider bonded', () => {
@@ -50,10 +45,14 @@ describe('ai-embeddings provider singleton', () => {
     expect(getProvider()).toBe(b)
   })
 
-  it('state is module-singleton (persists within a module instance)', () => {
-    const p = stub()
-    setProvider(p)
+  it('bond() on the shared @molecule/api-bond registry is visible via the accessors', () => {
+    // The exact bug this migration fixes: a generic bond(category, provider) call
+    // was previously a silent no-op for this core. It must now be seen by the
+    // core's own getProvider()/hasProvider()/requireProvider().
+    const p = stub('via-registry')
+    bond(BOND_TYPE, p)
+    expect(hasProvider()).toBe(true)
     expect(getProvider()).toBe(p)
-    expect(getProvider()).toBe(p)
+    expect(requireProvider()).toBe(p)
   })
 })

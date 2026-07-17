@@ -1,15 +1,22 @@
 /**
- * AIImageGeneration provider singleton.
+ * AIImageGeneration provider bond accessor.
  *
- * Bond packages call set() during setup.
- * Application code calls get()/require() at runtime.
+ * Bond packages call `setProvider()` during setup, which registers the provider
+ * in the shared `@molecule/api-bond` registry under the `'ai-image-generation'`
+ * bond type. Application code calls `getProvider()`/`requireProvider()` at
+ * runtime. Because wiring routes through the shared registry, a generic
+ * `bond('ai-image-generation', provider)` call is equivalent to `setProvider()`
+ * and `validateBonds()` can detect a missing provider.
  *
  * @module
  */
 
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
+
 import type { AIImageGenerationProvider } from './types.js'
 
-let _provider: AIImageGenerationProvider | null = null
+const BOND_TYPE = 'ai-image-generation'
+expectBond(BOND_TYPE)
 
 /**
  * Registers the AI image generation provider singleton.
@@ -17,7 +24,7 @@ let _provider: AIImageGenerationProvider | null = null
  * @param provider - The AI image generation provider implementation to register.
  */
 export function setProvider(provider: AIImageGenerationProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +33,7 @@ export function setProvider(provider: AIImageGenerationProvider): void {
  * @returns The active provider, or `null`.
  */
 export function getProvider(): AIImageGenerationProvider | null {
-  return _provider
+  return isBonded(BOND_TYPE) ? bondRequire<AIImageGenerationProvider>(BOND_TYPE) : null
 }
 
 /**
@@ -35,7 +42,7 @@ export function getProvider(): AIImageGenerationProvider | null {
  * @returns `true` if a provider is bonded.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,10 +52,12 @@ export function hasProvider(): boolean {
  * @throws {Error} When no provider has been bonded.
  */
 export function requireProvider(): AIImageGenerationProvider {
-  if (!_provider) {
+  try {
+    return bondRequire<AIImageGenerationProvider>(BOND_TYPE)
+  } catch (error) {
     throw new Error(
       'AIImageGeneration provider not configured. Bond a ai-image-generation provider first.',
+      { cause: error },
     )
   }
-  return _provider
 }

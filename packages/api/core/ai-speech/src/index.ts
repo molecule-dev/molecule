@@ -8,10 +8,10 @@
  * (e.g. `@molecule/api-ai-speech-openai`, `@molecule/api-ai-speech-elevenlabs`).
  *
  * @remarks
- * - **Wire it with THIS package's `setProvider()` — NOT `bond('ai-speech', …)`.**
- *   This core keeps its own singleton and does not read the `@molecule/api-bond`
- *   registry: a generic `bond(...)` call appears to succeed, but `requireProvider()`
- *   still throws at first use. Call `setProvider(...)` in the app's bond setup.
+ * - **Wire it at startup with `setProvider(...)` — or the equivalent
+ *   `bond('ai-speech', provider)`.** This core routes through the shared
+ *   `@molecule/api-bond` registry, so either call registers the same provider and
+ *   `validateBonds()` reports it as missing when unwired.
  * - **EVERY provider method is optional — feature-detect before calling.** Providers
  *   implement disjoint subsets (a TTS-only provider has no `transcribe`/`translate`;
  *   an STT-capable one may lack `synthesizeSpeech`/`listVoices`). Calling an absent

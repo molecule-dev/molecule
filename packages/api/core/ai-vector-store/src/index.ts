@@ -9,10 +9,10 @@
  * `-chroma`, or `-memory` for dev/tests).
  *
  * @remarks
- * - **Wire it with THIS package's `setProvider()` — NOT `bond('ai-vector-store', …)`.**
- *   This core keeps its own singleton and does not read the `@molecule/api-bond`
- *   registry: a generic `bond(...)` call appears to succeed, but `requireProvider()`
- *   still throws at first use. Call `setProvider(...)` in the app's bond setup.
+ * - **Wire it at startup with `setProvider(...)` — or the equivalent
+ *   `bond('ai-vector-store', provider)`.** This core routes through the shared
+ *   `@molecule/api-bond` registry, so either call registers the same provider and
+ *   `validateBonds()` reports it as missing when unwired.
  * - **Pick the bond by what is actually provisioned.** `-memory` needs nothing but
  *   holds vectors in process memory (lost on restart — dev/tests only). `-pgvector`
  *   reuses the app's existing Postgres (`DATABASE_URL`) and provisions its own

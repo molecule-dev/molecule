@@ -188,11 +188,15 @@ function setProvider(provider: AIEmbeddingsProvider): void
 
 ## Injection Notes
 
-- **Wire it with THIS package's `setProvider()` — NOT `bond('ai-embeddings', …)`.**
-  This core keeps its own singleton and does not read the `@molecule/api-bond`
-  registry: a generic `bond('ai-embeddings', provider)` call appears to succeed,
-  but `requireProvider()` still throws "not configured" at first use. Call
-  `setProvider(...)` in the app's bond setup instead.
+### Requirements
+
+Peer dependencies:
+- `@molecule/api-bond` ^1.0.0
+
+- **Wire it at startup with `setProvider(...)` — or the equivalent
+  `bond('ai-embeddings', provider)`.** This core routes through the shared
+  `@molecule/api-bond` registry, so either call registers the same provider and
+  `validateBonds()` reports it as missing when unwired.
 - **Vectors are only comparable within ONE model + dimension.** Never mix
   embeddings from different models (or `dimensions` settings) in the same
   collection/index — record which model produced a vector and re-embed the corpus

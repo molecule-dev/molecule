@@ -1,15 +1,22 @@
 /**
- * AIEmbeddings provider singleton.
+ * AIEmbeddings provider bond accessor.
  *
- * Bond packages call set() during setup.
- * Application code calls get()/require() at runtime.
+ * Bond packages call `setProvider()` during setup, which registers the provider
+ * in the shared `@molecule/api-bond` registry under the `'ai-embeddings'` bond
+ * type. Application code calls `getProvider()`/`requireProvider()` at runtime.
+ * Because wiring routes through the shared registry, a generic
+ * `bond('ai-embeddings', provider)` call is equivalent to `setProvider()` and
+ * `validateBonds()` can detect a missing provider.
  *
  * @module
  */
 
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
+
 import type { AIEmbeddingsProvider } from './types.js'
 
-let _provider: AIEmbeddingsProvider | null = null
+const BOND_TYPE = 'ai-embeddings'
+expectBond(BOND_TYPE)
 
 /**
  * Registers the AI embeddings provider singleton.
@@ -17,7 +24,7 @@ let _provider: AIEmbeddingsProvider | null = null
  * @param provider - The AI embeddings provider implementation to register.
  */
 export function setProvider(provider: AIEmbeddingsProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +33,7 @@ export function setProvider(provider: AIEmbeddingsProvider): void {
  * @returns The active provider, or `null`.
  */
 export function getProvider(): AIEmbeddingsProvider | null {
-  return _provider
+  return isBonded(BOND_TYPE) ? bondRequire<AIEmbeddingsProvider>(BOND_TYPE) : null
 }
 
 /**
@@ -35,7 +42,7 @@ export function getProvider(): AIEmbeddingsProvider | null {
  * @returns `true` if a provider is bonded.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +52,11 @@ export function hasProvider(): boolean {
  * @throws {Error} When no provider has been bonded.
  */
 export function requireProvider(): AIEmbeddingsProvider {
-  if (!_provider) {
-    throw new Error('AIEmbeddings provider not configured. Bond a ai-embeddings provider first.')
+  try {
+    return bondRequire<AIEmbeddingsProvider>(BOND_TYPE)
+  } catch (error) {
+    throw new Error('AIEmbeddings provider not configured. Bond a ai-embeddings provider first.', {
+      cause: error,
+    })
   }
-  return _provider
 }

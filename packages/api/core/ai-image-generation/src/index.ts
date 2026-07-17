@@ -9,10 +9,10 @@
  * `@molecule/api-ai-image-generation-stability`).
  *
  * @remarks
- * - **Wire it with THIS package's `setProvider()` — NOT `bond('ai-image-generation', …)`.**
- *   This core keeps its own singleton and does not read the `@molecule/api-bond`
- *   registry: a generic `bond(...)` call appears to succeed, but `requireProvider()`
- *   still throws at first use. Call `setProvider(...)` in the app's bond setup.
+ * - **Wire it at startup with `setProvider(...)` — or the equivalent
+ *   `bond('ai-image-generation', provider)`.** This core routes through the shared
+ *   `@molecule/api-bond` registry, so either call registers the same provider and
+ *   `validateBonds()` reports it as missing when unwired.
  * - **Feature-detect the optional methods.** Only `generate()` is required;
  *   `edit`/`imageToImage`/`upscale`/`generateImage` are optional — guard with
  *   `if (provider.edit)` and surface "not supported" instead of calling

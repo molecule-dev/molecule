@@ -8,10 +8,10 @@
  * `@molecule/api-ai-translation-deepl`).
  *
  * @remarks
- * - **Wire it with THIS package's `setProvider()` — NOT `bond('ai-translation', …)`.**
- *   This core keeps its own singleton and does not read the `@molecule/api-bond`
- *   registry: a generic `bond(...)` call appears to succeed, but `requireProvider()`
- *   still throws at first use. Call `setProvider(...)` in the app's bond setup.
+ * - **Wire it at startup with `setProvider(...)` — or the equivalent
+ *   `bond('ai-translation', provider)`.** This core routes through the shared
+ *   `@molecule/api-bond` registry, so either call registers the same provider and
+ *   `validateBonds()` reports it as missing when unwired.
  * - **This translates CONTENT, not the UI.** App chrome/labels stay on the i18n
  *   system (`t(key, values, { defaultValue })` + locale bonds); use this bond for
  *   user-generated or dynamic text.

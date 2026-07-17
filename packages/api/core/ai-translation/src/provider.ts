@@ -1,15 +1,22 @@
 /**
- * AITranslation provider singleton.
+ * AITranslation provider bond accessor.
  *
- * Bond packages call set() during setup.
- * Application code calls get()/require() at runtime.
+ * Bond packages call `setProvider()` during setup, which registers the provider
+ * in the shared `@molecule/api-bond` registry under the `'ai-translation'` bond
+ * type. Application code calls `getProvider()`/`requireProvider()` at runtime.
+ * Because wiring routes through the shared registry, a generic
+ * `bond('ai-translation', provider)` call is equivalent to `setProvider()` and
+ * `validateBonds()` can detect a missing provider.
  *
  * @module
  */
 
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
+
 import type { AITranslationProvider } from './types.js'
 
-let _provider: AITranslationProvider | null = null
+const BOND_TYPE = 'ai-translation'
+expectBond(BOND_TYPE)
 
 /**
  * Registers the AI translation provider singleton.
@@ -17,7 +24,7 @@ let _provider: AITranslationProvider | null = null
  * @param provider - The AI translation provider implementation to register.
  */
 export function setProvider(provider: AITranslationProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +33,7 @@ export function setProvider(provider: AITranslationProvider): void {
  * @returns The active provider, or `null`.
  */
 export function getProvider(): AITranslationProvider | null {
-  return _provider
+  return isBonded(BOND_TYPE) ? bondRequire<AITranslationProvider>(BOND_TYPE) : null
 }
 
 /**
@@ -35,7 +42,7 @@ export function getProvider(): AITranslationProvider | null {
  * @returns `true` if a provider is bonded.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +52,12 @@ export function hasProvider(): boolean {
  * @throws {Error} When no provider has been bonded.
  */
 export function requireProvider(): AITranslationProvider {
-  if (!_provider) {
-    throw new Error('AITranslation provider not configured. Bond a ai-translation provider first.')
+  try {
+    return bondRequire<AITranslationProvider>(BOND_TYPE)
+  } catch (error) {
+    throw new Error(
+      'AITranslation provider not configured. Bond a ai-translation provider first.',
+      { cause: error },
+    )
   }
-  return _provider
 }

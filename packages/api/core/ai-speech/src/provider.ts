@@ -1,15 +1,22 @@
 /**
- * AISpeech provider singleton.
+ * AISpeech provider bond accessor.
  *
- * Bond packages call set() during setup.
- * Application code calls get()/require() at runtime.
+ * Bond packages call `setProvider()` during setup, which registers the provider
+ * in the shared `@molecule/api-bond` registry under the `'ai-speech'` bond type.
+ * Application code calls `getProvider()`/`requireProvider()` at runtime. Because
+ * wiring routes through the shared registry, a generic `bond('ai-speech',
+ * provider)` call is equivalent to `setProvider()` and `validateBonds()` can
+ * detect a missing provider.
  *
  * @module
  */
 
+import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
+
 import type { AISpeechProvider } from './types.js'
 
-let _provider: AISpeechProvider | null = null
+const BOND_TYPE = 'ai-speech'
+expectBond(BOND_TYPE)
 
 /**
  * Register an AISpeech provider implementation.
@@ -17,7 +24,7 @@ let _provider: AISpeechProvider | null = null
  * @param provider - The speech provider to register.
  */
 export function setProvider(provider: AISpeechProvider): void {
-  _provider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -26,7 +33,7 @@ export function setProvider(provider: AISpeechProvider): void {
  * @returns The registered provider, or null.
  */
 export function getProvider(): AISpeechProvider | null {
-  return _provider
+  return isBonded(BOND_TYPE) ? bondRequire<AISpeechProvider>(BOND_TYPE) : null
 }
 
 /**
@@ -35,7 +42,7 @@ export function getProvider(): AISpeechProvider | null {
  * @returns True if a provider has been registered.
  */
 export function hasProvider(): boolean {
-  return _provider !== null
+  return isBonded(BOND_TYPE)
 }
 
 /**
@@ -45,8 +52,11 @@ export function hasProvider(): boolean {
  * @throws {Error} if no provider has been registered.
  */
 export function requireProvider(): AISpeechProvider {
-  if (!_provider) {
-    throw new Error('AISpeech provider not configured. Bond a ai-speech provider first.')
+  try {
+    return bondRequire<AISpeechProvider>(BOND_TYPE)
+  } catch (error) {
+    throw new Error('AISpeech provider not configured. Bond a ai-speech provider first.', {
+      cause: error,
+    })
   }
-  return _provider
 }
