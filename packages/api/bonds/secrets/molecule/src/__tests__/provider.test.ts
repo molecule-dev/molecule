@@ -219,6 +219,120 @@ describe('@molecule/api-secrets-molecule', () => {
     })
   })
 
+  // Regression guard: a keyed getMany() must NOT poison unrequested keys.
+  // Before the per-key cache fix, getMany(['A','B']) stored its {A,B} subset as
+  // the whole cache, so a later get('C') read the fresh subset, found no 'C',
+  // and returned undefined WITHOUT ever hitting the vault.
+  describe('per-key cache isolation (getMany must not poison unrequested keys)', () => {
+    it('get(C) after getMany([A,B]) still fetches C — returns its real value, not undefined', async () => {
+      // 1st call: keyed getMany → the vault returns ONLY the requested subset.
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ KEY_A: 'val-a', KEY_B: 'val-b' }),
+      })
+      // 2nd call: get('KEY_C') → keyed request for C → vault returns C.
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ KEY_C: 'val-c' }),
+      })
+
+      const provider = createMoleculeSecretsProvider({ token: 'mol.test', cacheTtl: 60000 })
+
+      const many = await provider.getMany(['KEY_A', 'KEY_B'])
+      expect(many).toEqual({ KEY_A: 'val-a', KEY_B: 'val-b' })
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+
+      // The bug: this used to return undefined off the poisoned cache with NO
+      // second fetch. It must now reach the vault and return C's real value.
+      const c = await provider.get('KEY_C')
+      expect(c).toBe('val-c')
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+
+      // A and B remain cached from the first fetch — not re-hit within TTL.
+      expect(await provider.get('KEY_A')).toBe('val-a')
+      expect(await provider.get('KEY_B')).toBe('val-b')
+      // And C is now cached too — still only 2 fetches total.
+      expect(await provider.get('KEY_C')).toBe('val-c')
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('getMany([A,C]) after getMany([A,B]) fetches only the missing C, keeps A/B cached', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ KEY_A: 'val-a', KEY_B: 'val-b' }),
+      })
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        // Keyed getMany(['KEY_A','KEY_C']) — vault echoes the requested subset.
+        json: () => Promise.resolve({ KEY_A: 'val-a', KEY_C: 'val-c' }),
+      })
+
+      const provider = createMoleculeSecretsProvider({ token: 'mol.test', cacheTtl: 60000 })
+
+      await provider.getMany(['KEY_A', 'KEY_B'])
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+
+      // KEY_C is absent from the cache → this getMany must refetch (KEY_A is
+      // fresh but one missing key forces the call).
+      const second = await provider.getMany(['KEY_A', 'KEY_C'])
+      expect(second).toEqual({ KEY_A: 'val-a', KEY_C: 'val-c' })
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+
+      // KEY_B — never re-requested — is still cached from the first fetch.
+      expect(await provider.get('KEY_B')).toBe('val-b')
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('preserves per-key TTL for getMany-populated keys (expiry still refetches)', async () => {
+      vi.useFakeTimers()
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ KEY_A: 'old-a', KEY_B: 'old-b' }),
+      })
+
+      const provider = createMoleculeSecretsProvider({ token: 'mol.test', cacheTtl: 1000 })
+
+      await provider.getMany(['KEY_A', 'KEY_B'])
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+
+      // Within TTL: served from the per-key cache, no refetch.
+      expect(await provider.get('KEY_A')).toBe('old-a')
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+
+      // Past TTL: the stale entry forces a refetch.
+      vi.advanceTimersByTime(1001)
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ KEY_A: 'new-a' }),
+      })
+      expect(await provider.get('KEY_A')).toBe('new-a')
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+
+      vi.useRealTimers()
+    })
+
+    it('caches a requested-but-absent key as known-absent (no refetch within TTL)', async () => {
+      // getMany asks for MISSING; the vault does not return it. That is an
+      // authoritative "known-absent" for a REQUESTED key, so a later get of the
+      // SAME key stays cached — while an UNrequested key would still fetch.
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ KEY_A: 'val-a' }),
+      })
+
+      const provider = createMoleculeSecretsProvider({ token: 'mol.test', cacheTtl: 60000 })
+
+      const many = await provider.getMany(['KEY_A', 'MISSING'])
+      expect(many).toEqual({ KEY_A: 'val-a', MISSING: undefined })
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+
+      // MISSING was fetched (requested) and known-absent → cached, no refetch.
+      expect(await provider.get('MISSING')).toBeUndefined()
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('stale-while-error', () => {
     it('should serve last-good cache on fetch failure (default staleWhileError)', async () => {
       vi.useFakeTimers()

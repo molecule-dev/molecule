@@ -48,8 +48,15 @@ export function createMoleculeSecretsProvider(
   const cacheTtl = options.cacheTtl ?? 60000
   const staleWhileError = options.staleWhileError ?? true
 
-  let secretsCache: Record<string, string> | null = null
-  let cacheTime = 0
+  // Per-key TTL cache. Each requested key gets its OWN entry — the cache is NOT
+  // a single "full map" blob. This is what stops a keyed getMany()/get(), whose
+  // vault response only ever contains the requested subset, from poisoning
+  // UNrequested keys to `undefined`: a key that is simply absent from this map
+  // is a cache MISS (must fetch), never a cached `undefined`. An entry whose
+  // `value` is `undefined` means the vault was asked for that key and
+  // authoritatively does not have it (known-absent) — that is a HIT and is not
+  // refetched until its TTL expires.
+  const cache = new Map<string, { value: string | undefined; cachedAt: number }>()
 
   /**
    * Builds the authenticated request headers for vault calls. Never logs the
@@ -68,17 +75,35 @@ export function createMoleculeSecretsProvider(
   }
 
   /**
-   * Fetches the app's secret map from the vault, using the in-memory cache when
-   * within TTL. On failure, when `staleWhileError` is enabled and a last-good
-   * cache exists, returns the stale cache (logged `warn`); otherwise rethrows so
-   * callers can fall back to `process.env`.
-   * @param keys - Optional subset of keys to request via `?keys=`.
-   * @returns A record of secret key-value pairs scoped to this app.
+   * Resolves the requested `keys` to their secret values, hitting the vault only
+   * when at least one requested key is missing from the per-key cache or stale.
+   * On a successful fetch, ONLY the requested keys are written to the cache (a
+   * requested-but-absent key is cached as known-absent) — never any unrequested
+   * key, so an unrelated getMany() can never poison a later get(). On failure,
+   * when `staleWhileError` is enabled and at least one requested key has a cached
+   * value, the stale cache is served (logged `warn`); otherwise the error is
+   * rethrown so callers can fall back to `process.env`.
+   * @param keys - The exact keys to resolve; the set is requested via `?keys=`.
+   * @returns A record of the requested keys to their values (`undefined` if absent).
    */
-  async function fetchSecrets(keys?: string[]): Promise<Record<string, string>> {
-    // Serve from cache while within TTL.
-    if (secretsCache && Date.now() - cacheTime < cacheTtl) {
-      return secretsCache
+  async function fetchSecrets(keys: string[]): Promise<Record<string, string | undefined>> {
+    const now = Date.now()
+
+    // Fast path: serve entirely from cache when EVERY requested key has a fresh
+    // (within-TTL) entry. A single missing or stale key forces a refetch — a key
+    // that was never fetched is a MISS, not a cached `undefined`.
+    const allFresh =
+      keys.length > 0 &&
+      keys.every((key) => {
+        const entry = cache.get(key)
+        return entry !== undefined && now - entry.cachedAt < cacheTtl
+      })
+    if (allFresh) {
+      const result: Record<string, string | undefined> = {}
+      for (const key of keys) {
+        result[key] = cache.get(key)!.value
+      }
+      return result
     }
 
     if (!token) {
@@ -91,7 +116,7 @@ export function createMoleculeSecretsProvider(
     }
 
     const url = new URL(`${vaultUrl}/secrets`)
-    if (keys && keys.length > 0) {
+    if (keys.length > 0) {
       url.searchParams.set('keys', keys.join(','))
     }
 
@@ -113,17 +138,30 @@ export function createMoleculeSecretsProvider(
 
       const data = (await response.json()) as Record<string, string>
 
-      secretsCache = data
-      cacheTime = Date.now()
-
-      return data
+      // Cache ONLY the keys we actually requested. The vault's response to a
+      // keyed query contains just that subset, so writing anything else would be
+      // guessing; and a requested key absent from `data` is authoritatively
+      // known-absent — cache it as `undefined` so it isn't refetched within TTL,
+      // but NEVER touch an unrequested key.
+      const result: Record<string, string | undefined> = {}
+      for (const key of keys) {
+        const value = data[key]
+        cache.set(key, { value, cachedAt: now })
+        result[key] = value
+      }
+      return result
     } catch (error) {
-      // Stale-while-error: serve the last successful cache so a transient vault
-      // blip does not brown out a running app. Only when there is no cache at
-      // all do we let the error propagate to the process.env fallback.
-      if (staleWhileError && secretsCache) {
+      // Stale-while-error: serve the last-good cached values for the requested
+      // keys so a transient vault blip does not brown out a running app. Only
+      // when NO requested key has any cached value do we let the error propagate
+      // to the caller's process.env fallback.
+      if (staleWhileError && keys.some((key) => cache.has(key))) {
         logger.warn('Molecule vault fetch failed, serving stale cache:', error)
-        return secretsCache
+        const result: Record<string, string | undefined> = {}
+        for (const key of keys) {
+          result[key] = cache.get(key)?.value
+        }
+        return result
       }
       throw error
     }
@@ -134,7 +172,9 @@ export function createMoleculeSecretsProvider(
 
     async get(key: string): Promise<string | undefined> {
       try {
-        const secrets = await fetchSecrets()
+        // Scope the request to this one key so its cache entry is per-key —
+        // a fresh entry for it is a HIT, its absence a MISS that refetches.
+        const secrets = await fetchSecrets([key])
         return secrets[key]
       } catch (error) {
         // No cache available — fall back to process.env.
@@ -145,12 +185,9 @@ export function createMoleculeSecretsProvider(
 
     async getMany(keys: string[]): Promise<Record<string, string | undefined>> {
       try {
-        const secrets = await fetchSecrets(keys)
-        const result: Record<string, string | undefined> = {}
-        for (const key of keys) {
-          result[key] = secrets[key]
-        }
-        return result
+        // fetchSecrets already scopes its result (and its cache writes) to
+        // exactly `keys`, so no unrequested key can be poisoned by this call.
+        return await fetchSecrets(keys)
       } catch (error) {
         // No cache available — fall back to process.env.
         logger.warn('Molecule vault getMany() failed, falling back to process.env:', error)
@@ -189,7 +226,7 @@ export function createMoleculeSecretsProvider(
       }
 
       // Invalidate cache so the next read reflects the control-plane write.
-      secretsCache = null
+      cache.clear()
     },
 
     async delete(key: string): Promise<void> {
@@ -218,15 +255,19 @@ export function createMoleculeSecretsProvider(
       }
 
       // Invalidate cache so the next read reflects the control-plane write.
-      secretsCache = null
+      cache.clear()
     },
 
     async isAvailable(): Promise<boolean> {
       if (!token) return false
 
       try {
-        await fetchSecrets()
-        return true
+        // Direct reachability probe — deliberately does NOT read or populate the
+        // TTL cache, so a boot-time check always reflects the vault's live state.
+        const response = await fetch(`${vaultUrl}/secrets`, {
+          headers: buildHeaders(),
+        })
+        return response.ok
       } catch (_error) {
         // Availability probe — any failure means the vault is unreachable; returning
         // false is the correct contract. The actual error is surfaced by get/getMany.
@@ -238,10 +279,11 @@ export function createMoleculeSecretsProvider(
       try {
         const secrets = await fetchSecrets(keys)
         for (const key of keys) {
-          if (secrets[key] !== undefined) {
+          const value = secrets[key]
+          if (value !== undefined) {
             // Broker seam: values (including `<PROVIDER>_BASE_URL` gateway
             // pointers) are written verbatim — never rewritten or inspected.
-            process.env[key] = secrets[key]
+            process.env[key] = value
           }
         }
       } catch (error) {
