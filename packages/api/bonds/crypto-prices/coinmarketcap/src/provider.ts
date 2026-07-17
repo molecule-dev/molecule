@@ -90,8 +90,9 @@ interface CmcQuoteRow {
 /**
  * Top-level shape of `/cryptocurrency/quotes/latest`.
  *
- * The keys of `data` are the symbols requested via the `symbol` query
- * parameter (e.g. `BTC`).
+ * CMC keys `data` by whatever lookup key the request used: the numeric id
+ * (as a string, e.g. `'1'`) when queried via `id=`, or the ticker symbol
+ * (e.g. `BTC`) when queried via `symbol=`. See {@link cmcLookupParam}.
  */
 interface CmcQuotesLatestResponse {
   data: Record<string, CmcQuoteRow | CmcQuoteRow[]>
@@ -241,6 +242,27 @@ const fetchJson = async <T>(url: string, config: CoinMarketCapCryptoPricesConfig
 const toCmcConvert = (vsCurrency: VsCurrency): string => vsCurrency.toUpperCase()
 
 /**
+ * CoinMarketCap's `/cryptocurrency/quotes/latest` and
+ * `/cryptocurrency/quotes/historical` endpoints accept the lookup key under
+ * two DIFFERENT query parameters: a numeric coin `id` (`id=1`) or a ticker
+ * `symbol` (`symbol=BTC`). Sending a numeric id under `symbol=` fails upstream
+ * (HTTP 400 / "no price data").
+ *
+ * This bond's {@link CryptoPricesProvider.listCoins} and
+ * {@link CryptoPricesProvider.listSupportedSymbols} return CMC's NUMERIC ids
+ * (the {@link CoinId} contract for this provider — e.g. `'1'` for BTC), so a
+ * numeric-looking id MUST be dispatched to `id=` for the core round-trip (a
+ * `listCoins()` id fed back into `getPrice()`) to resolve. Anything else is
+ * treated as a ticker symbol and dispatched to `symbol=`, which keeps
+ * symbol-based lookups working.
+ *
+ * @param id - Coin identifier: a CMC numeric id (`'1'`) or a ticker symbol
+ *   (`'BTC'`).
+ * @returns `'id'` for a purely-numeric id, otherwise `'symbol'`.
+ */
+const cmcLookupParam = (id: CoinId): 'id' | 'symbol' => (/^\d+$/.test(id.trim()) ? 'id' : 'symbol')
+
+/**
  * Picks the matching quote sub-object out of a CMC row's `quote` map. CMC
  * keys quotes by upper-case currency code, but a defensive lookup tries
  * the original casing first in case a mock/server returns lower-case.
@@ -332,19 +354,21 @@ const mapMarketRow = (row: CmcQuoteRow, vsCurrency: VsCurrency): CoinMarketRow =
 }
 
 /**
- * Builds the `/cryptocurrency/quotes/latest` URL keyed by `symbol`.
+ * Builds the `/cryptocurrency/quotes/latest` URL.
  *
+ * The id is dispatched to CMC's `id=` or `symbol=` query parameter by
+ * {@link cmcLookupParam} so a numeric id from `listCoins()` round-trips.
  * `URLSearchParams` already URL-encodes its values, so the id is passed
  * through as-is.
  *
  * @param baseUrl - Base API URL.
- * @param id - Coin id (passed through as `symbol`).
+ * @param id - Coin id: a CMC numeric id (`id=`) or a ticker symbol (`symbol=`).
  * @param vsCurrency - Quote currency.
  * @returns Fully-constructed request URL.
  */
 const buildQuotesLatestUrl = (baseUrl: string, id: CoinId, vsCurrency: VsCurrency): string => {
   const params = new URLSearchParams({
-    symbol: id,
+    [cmcLookupParam(id)]: id,
     convert: toCmcConvert(vsCurrency),
   })
   return `${baseUrl}/cryptocurrency/quotes/latest?${params.toString()}`
@@ -398,10 +422,12 @@ const buildListingsForSymbolsUrl = (baseUrl: string, start: number, limit: numbe
 /**
  * Builds the `/cryptocurrency/quotes/historical` URL.
  *
- * `time_start` is computed as `now - days*86400s`, `time_end` as `now`.
+ * `time_start` is computed as `now - days*86400s`, `time_end` as `now`. The
+ * id is dispatched to CMC's `id=` or `symbol=` query parameter by
+ * {@link cmcLookupParam} so a numeric id from `listCoins()` round-trips.
  *
  * @param baseUrl - Base API URL.
- * @param id - Coin id (passed through as `symbol`).
+ * @param id - Coin id: a CMC numeric id (`id=`) or a ticker symbol (`symbol=`).
  * @param days - History window, in days.
  * @param vsCurrency - Quote currency.
  * @returns Fully-constructed request URL.
@@ -416,7 +442,7 @@ const buildQuotesHistoricalUrl = (
   const start = new Date(now - days * 24 * 60 * 60 * 1000).toISOString()
   const end = new Date(now).toISOString()
   const params = new URLSearchParams({
-    symbol: id,
+    [cmcLookupParam(id)]: id,
     time_start: start,
     time_end: end,
     convert: toCmcConvert(vsCurrency),

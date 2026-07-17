@@ -16,13 +16,13 @@
  * ```
  *
  * @remarks
- * - **Pass ticker SYMBOLS (`'BTC'`, `'ETH'`) to `getPrice()` / `getHistorical()`
- *   / `getMarketStats()` — NOT the ids this bond returns.** Those methods send
- *   the id as CoinMarketCap's `symbol=` query parameter, while `listCoins()`
- *   and `listSupportedSymbols()` return CMC's NUMERIC ids (`'1'` for BTC).
- *   Feeding a returned id back into a quote method fails upstream (HTTP 400 /
- *   "no price data") — the core contract's id round-trip does not currently
- *   hold for this bond. Key everything by ticker symbol.
+ * - **The id round-trip holds.** An id from `listCoins()` /
+ *   `listSupportedSymbols()` — CMC's NUMERIC id (`'1'` for BTC) — is a valid
+ *   input to `getPrice()` / `getHistorical()` / `getMarketStats()`, per the
+ *   core {@link CoinId} contract. Those methods dispatch on the id shape: a
+ *   purely-numeric id is sent as CoinMarketCap's `id=` query parameter,
+ *   anything else as `symbol=` — so passing a ticker symbol (`'BTC'`) works
+ *   too.
  * - The bond does not fail fast on a missing key: without
  *   `COINMARKETCAP_API_KEY` the auth header is simply omitted and every call
  *   surfaces CoinMarketCap's raw HTTP 401. `COINMARKETCAP_BASE_URL` (optional)

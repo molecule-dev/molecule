@@ -246,6 +246,167 @@ describe('coinmarketcap crypto-prices provider', () => {
     })
   })
 
+  describe('id/symbol dispatch (core CoinId round-trip)', () => {
+    it('should accept a listCoins() numeric id as a getPrice() input and produce a price', async () => {
+      // 1. listCoins() returns CMC NUMERIC ids (e.g. '1' for BTC).
+      const listMock = vi.fn().mockResolvedValue(mockFetchResponse(LISTINGS_LATEST_FIXTURE))
+      vi.stubGlobal('fetch', listMock)
+
+      const rows = await provider.listCoins()
+      const id = rows[0].id
+      expect(id).toBe('1')
+
+      // 2. Feed that id straight back into getPrice(). CMC keys the
+      //    /quotes/latest response by the numeric id when queried via `id=`.
+      const quoteMock = vi.fn().mockResolvedValue(
+        mockFetchResponse({
+          data: {
+            '1': {
+              id: 1,
+              name: 'Bitcoin',
+              symbol: 'BTC',
+              quote: {
+                USD: {
+                  price: 71234.56,
+                  percent_change_24h: 1.23,
+                  last_updated: '2026-05-01T12:00:00.000Z',
+                },
+              },
+            },
+          },
+        }),
+      )
+      vi.stubGlobal('fetch', quoteMock)
+
+      const quote = await provider.getPrice(id)
+
+      const calledUrl = quoteMock.mock.calls[0][0] as string
+      // Dispatched to CMC's `id=` param, NOT `symbol=` (which would 400).
+      expect(calledUrl).toContain('id=1')
+      expect(calledUrl).not.toMatch(/[?&]symbol=/)
+      expect(quote.id).toBe('1')
+      expect(quote.price).toBe(71234.56)
+      expect(quote.change24h).toBe(1.23)
+      expect(quote.asOf).toEqual(new Date('2026-05-01T12:00:00.000Z'))
+    })
+
+    it('should accept a listSupportedSymbols() id as a getPrice() input', async () => {
+      const listMock = vi.fn().mockResolvedValue(mockFetchResponse(LISTINGS_LATEST_FIXTURE))
+      vi.stubGlobal('fetch', listMock)
+
+      const ids = await provider.listSupportedSymbols()
+      expect(ids).toContain('1027') // Ethereum's CMC numeric id
+
+      const quoteMock = vi.fn().mockResolvedValue(
+        mockFetchResponse({
+          data: {
+            '1027': {
+              id: 1027,
+              name: 'Ethereum',
+              symbol: 'ETH',
+              quote: {
+                USD: { price: 3456.78, percent_change_24h: -0.45 },
+              },
+            },
+          },
+        }),
+      )
+      vi.stubGlobal('fetch', quoteMock)
+
+      const quote = await provider.getPrice('1027')
+
+      const calledUrl = quoteMock.mock.calls[0][0] as string
+      expect(calledUrl).toContain('id=1027')
+      expect(calledUrl).not.toMatch(/[?&]symbol=/)
+      expect(quote.price).toBe(3456.78)
+    })
+
+    it('should still dispatch a ticker symbol to the symbol= query param (no regression)', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(mockFetchResponse(QUOTES_LATEST_FIXTURE))
+      vi.stubGlobal('fetch', mockFetch)
+
+      const quote = await provider.getPrice('BTC')
+
+      const calledUrl = mockFetch.mock.calls[0][0] as string
+      expect(calledUrl).toContain('symbol=BTC')
+      expect(calledUrl).not.toMatch(/[?&]id=/)
+      expect(quote.price).toBe(71234.56)
+    })
+
+    it('should dispatch a numeric id to id= for getHistorical', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(
+        mockFetchResponse({
+          data: {
+            '1': {
+              symbol: 'BTC',
+              quotes: [
+                {
+                  timestamp: '2026-04-30T00:00:00.000Z',
+                  quote: { USD: { price: 70000.1 } },
+                },
+              ],
+            },
+          },
+        }),
+      )
+      vi.stubGlobal('fetch', mockFetch)
+
+      const points = await provider.getHistorical('1', 7)
+
+      const calledUrl = mockFetch.mock.calls[0][0] as string
+      expect(calledUrl).toContain('id=1')
+      expect(calledUrl).not.toMatch(/[?&]symbol=/)
+      expect(points).toHaveLength(1)
+      expect(points[0].price).toBe(70000.1)
+    })
+
+    it('should still dispatch a ticker symbol to symbol= for getHistorical (no regression)', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(mockFetchResponse(QUOTES_HISTORICAL_FIXTURE))
+      vi.stubGlobal('fetch', mockFetch)
+
+      await provider.getHistorical('BTC', 7)
+
+      const calledUrl = mockFetch.mock.calls[0][0] as string
+      expect(calledUrl).toContain('symbol=BTC')
+      expect(calledUrl).not.toMatch(/[?&]id=/)
+    })
+
+    it('should dispatch a numeric id to id= for getMarketStats', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(
+        mockFetchResponse({
+          data: {
+            '1': {
+              id: 1,
+              name: 'Bitcoin',
+              symbol: 'BTC',
+              circulating_supply: 19_700_000,
+              total_supply: 21_000_000,
+              quote: {
+                USD: {
+                  price: 71234.56,
+                  market_cap: 1_400_000_000_000,
+                  volume_24h: 25_000_000_000,
+                  percent_change_24h: 1.23,
+                  last_updated: '2026-05-01T12:00:00.000Z',
+                },
+              },
+            },
+          },
+        }),
+      )
+      vi.stubGlobal('fetch', mockFetch)
+
+      const stats = await provider.getMarketStats('1')
+
+      const calledUrl = mockFetch.mock.calls[0][0] as string
+      expect(calledUrl).toContain('id=1')
+      expect(calledUrl).not.toMatch(/[?&]symbol=/)
+      expect(stats.id).toBe('1')
+      expect(stats.price).toBe(71234.56)
+      expect(stats.marketCap).toBe(1_400_000_000_000)
+    })
+  })
+
   describe('listCoins', () => {
     it('should map /cryptocurrency/listings/latest rows into normalized rows', async () => {
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue(mockFetchResponse(LISTINGS_LATEST_FIXTURE)))
