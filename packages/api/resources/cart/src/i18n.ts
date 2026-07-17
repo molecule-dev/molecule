@@ -1,20 +1,14 @@
 /**
  * Locale registration for the cart resource.
  *
+ * Errors fall back to inline English defaults via `t(key, vars, { defaultValue })`
+ * — this resource ships without a companion locale bond.
+ *
  * @module
  */
 
-import { registerLocaleModule } from '@molecule/api-i18n'
-
-try {
-  // @ts-expect-error — locale package may not be installed yet
-  const locales = await import('@molecule/api-locales-cart')
-  registerLocaleModule(locales)
-} catch (_error) {
-  // Locale package not available (not built or not installed).
-}
-
 /**
- * Whether i18n registration has been attempted.
+ * Whether i18n registration has been attempted. Always `true`; this module is
+ * a placeholder for symmetry with locale-bonded resources.
  */
 export const i18nRegistered = true

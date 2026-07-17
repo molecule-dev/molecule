@@ -72,6 +72,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './i18n.js'
 export * from './authorizers/index.js'
 export * from './handlers/index.js'
 export * from './requestHandlerMap.js'

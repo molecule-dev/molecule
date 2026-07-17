@@ -606,6 +606,14 @@ Schema for validating create-version input.
 const createVersionSchema: z.ZodObject<{ snapshot: z.ZodType<unknown, unknown, z.core.$ZodTypeInternals<unknown, unknown>>; reason: z.ZodNullable<z.ZodOptional<z.ZodString>>; }, z.core.$strip>
 ```
 
+#### `i18nRegistered`
+
+The i18n registered.
+
+```typescript
+const i18nRegistered: true
+```
+
 #### `requestHandlerMap`
 
 Handler map for version-history routes.
@@ -668,6 +676,7 @@ const VERSION_HISTORY_PERMISSION_RESOURCE: "versionHistory"
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-locales-resource-version-history` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `zod` ^4.0.0

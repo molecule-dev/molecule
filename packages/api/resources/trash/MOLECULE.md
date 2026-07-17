@@ -514,6 +514,14 @@ function unregisterRestoreCallback(resourceType: string): boolean
 
 ### Constants
 
+#### `i18nRegistered`
+
+The i18n registered.
+
+```typescript
+const i18nRegistered: true
+```
+
 #### `requestHandlerMap`
 
 Handler map for trash routes.
@@ -583,6 +591,7 @@ const trashItemSchema: z.ZodObject<{ snapshot: z.ZodType<unknown, unknown, z.cor
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-locales-trash` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
 - `zod` ^4.0.0

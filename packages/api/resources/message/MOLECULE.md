@@ -417,6 +417,14 @@ Schema for `getOrCreateThread` request input.
 const getOrCreateThreadSchema: z.ZodObject<{ participantId: z.ZodString; }, z.core.$strip>
 ```
 
+#### `i18nRegistered`
+
+The i18n registered.
+
+```typescript
+const i18nRegistered: true
+```
+
 #### `MESSAGE_REALTIME_EVENTS`
 
 Realtime event names emitted by this package.
@@ -467,6 +475,7 @@ const sendMessageSchema: z.ZodObject<{ body: z.ZodString; attachments: z.ZodOpti
 Peer dependencies:
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
+- `@molecule/api-locales-resource-message` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
 - `@molecule/api-resource` ^1.0.0
