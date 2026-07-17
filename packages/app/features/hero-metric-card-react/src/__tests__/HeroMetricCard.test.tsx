@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { HeroMetricCard } from '../HeroMetricCard.js'
+import type { HeroMetricAccent } from '../types.js'
 
 afterEach(() => {
   cleanup()
@@ -78,34 +79,54 @@ describe('<HeroMetricCard>', () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
-  it('omits the colored top-border when no accent is provided', () => {
+  it('omits the accent bar when no accent is provided', () => {
     const { container } = render(<HeroMetricCard title="X" value="1" />)
-    const root = container.firstElementChild as HTMLElement | null
-    expect(root).not.toBeNull()
-    if (root) {
-      expect(root.style.borderTopWidth).toBe('')
+    expect(container.querySelector('[aria-hidden="true"]')).toBeNull()
+  })
+
+  it('renders a real theme-colored accent bar for every semantic token (danger/neutral included)', () => {
+    // Each semantic accent must resolve to a REAL, theme-aware ClassMap color
+    // token — `danger → error`, `neutral → secondary` (the theme has no
+    // `danger`/`neutral` token) — and NEVER a nonexistent `--mol-color-*` var.
+    const cases: Array<[HeroMetricAccent, string]> = [
+      ['primary', 'bg-primary'],
+      ['success', 'bg-success'],
+      ['warning', 'bg-warning'],
+      ['danger', 'bg-error'],
+      ['info', 'bg-info'],
+      ['neutral', 'bg-secondary'],
+    ]
+    for (const [accent, expectedClass] of cases) {
+      const { container, unmount } = render(<HeroMetricCard title="X" value="1" accent={accent} />)
+      const bar = container.querySelector('[aria-hidden="true"]') as HTMLElement | null
+      expect(bar, `accent="${accent}" should render an accent bar`).not.toBeNull()
+      expect(bar?.className, `accent="${accent}" color class`).toContain(expectedClass)
+      expect(bar?.className ?? '', `accent="${accent}" must not use --mol-color-*`).not.toContain(
+        '--mol-color-',
+      )
+      expect(
+        bar?.getAttribute('style') ?? '',
+        `accent="${accent}" must not inline --mol-color-*`,
+      ).not.toContain('--mol-color-')
+      unmount()
     }
   })
 
-  it('renders a colored top-border accent for semantic tokens', () => {
-    const { container } = render(<HeroMetricCard title="X" value="1" accent="success" />)
-    const root = container.firstElementChild as HTMLElement | null
-    expect(root).not.toBeNull()
-    if (root) {
-      expect(root.style.borderTopWidth).toBe('4px')
-      expect(root.style.borderTopColor).toContain('var(--mol-color-success)')
-    }
-  })
-
-  it('forwards a raw color string verbatim as the accent', () => {
+  it('applies a raw CSS color string as an inline accent-bar background', () => {
     const { container } = render(<HeroMetricCard title="X" value="1" accent="#ff8800" />)
-    const root = container.firstElementChild as HTMLElement | null
-    expect(root).not.toBeNull()
-    if (root) {
-      // jsdom normalizes hex to rgb when re-read; just confirm a top-border
-      // color is set.
-      expect(root.style.borderTopColor).not.toBe('')
-    }
+    const bar = container.querySelector('[aria-hidden="true"]') as HTMLElement | null
+    expect(bar).not.toBeNull()
+    // jsdom normalizes hex to rgb when re-read; just confirm a background is set.
+    expect(bar?.style.backgroundColor).not.toBe('')
+  })
+
+  it('styles muted text with a real theme token, not the phantom on-surface-variant class', () => {
+    const { container } = render(
+      <HeroMetricCard title="Calories" value="1,820" unit="kcal" subtitle="today" />,
+    )
+    const html = container.innerHTML
+    expect(html).not.toContain('text-on-surface-variant')
+    expect(html).toContain('text-foreground-secondary')
   })
 
   it('accepts a dataMolId prop without crashing (forwarded if Card supports it)', () => {

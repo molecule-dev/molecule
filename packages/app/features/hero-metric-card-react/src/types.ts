@@ -22,22 +22,30 @@ export interface HeroMetricTrend {
 }
 
 /**
- * Optional accent border color for the hero card.
+ * Semantic accent names for the hero card's top-edge accent bar.
  *
- * Maps to a semantic ClassMap border-color token. Use `'primary'` /
- * `'success'` / `'warning'` / `'danger'` / `'info'` / `'neutral'` to
- * align with the ClassMap palette; an arbitrary CSS color string is also
- * accepted (rendered as an inline `borderTopColor` per molecule design
- * rules — colored accent bars are the documented exception).
+ * Each name resolves at render time to a real ClassMap `ColorVariant` (and
+ * therefore a real, theme-aware color token). Note the two the theme has no
+ * matching token for: `'danger'` → `error` and `'neutral'` → `secondary`.
  */
-export type HeroMetricAccent =
+export type HeroMetricSemanticAccent =
   | 'primary'
   | 'success'
   | 'warning'
   | 'danger'
   | 'info'
   | 'neutral'
-  | (string & { __raw?: never })
+
+/**
+ * Optional accent color for the hero card's top edge.
+ *
+ * A semantic name ({@link HeroMetricSemanticAccent}) is resolved through
+ * `cm.progressColor()` to a real, theme-aware ClassMap color token, so the
+ * accent bar is visibly colored in both light and dark themes. An arbitrary
+ * CSS color string is also accepted and applied inline (a one-off accent
+ * color — the documented ClassMap exception).
+ */
+export type HeroMetricAccent = HeroMetricSemanticAccent | (string & { __raw?: never })
 
 /**
  * Props for `<HeroMetricCard>`.

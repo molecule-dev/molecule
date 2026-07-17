@@ -6,7 +6,7 @@ Exports:
 - `<HeroMetricCard>` — top-of-dashboard hero metric card.
 - `<HeroMetricTrendChip>` — directional ▲/▼ + delta chip used inside the card.
 - Type aliases: `HeroMetricCardProps`, `HeroMetricTrend`,
-  `HeroMetricTrendDirection`, `HeroMetricAccent`.
+  `HeroMetricTrendDirection`, `HeroMetricAccent`, `HeroMetricSemanticAccent`.
 
 ## Quick Start
 
@@ -104,23 +104,34 @@ interface HeroMetricTrendChipProps {
 
 #### `HeroMetricAccent`
 
-Optional accent border color for the hero card.
+Optional accent color for the hero card's top edge.
 
-Maps to a semantic ClassMap border-color token. Use `'primary'` /
-`'success'` / `'warning'` / `'danger'` / `'info'` / `'neutral'` to
-align with the ClassMap palette; an arbitrary CSS color string is also
-accepted (rendered as an inline `borderTopColor` per molecule design
-rules — colored accent bars are the documented exception).
+A semantic name ({@link HeroMetricSemanticAccent}) is resolved through
+`cm.progressColor()` to a real, theme-aware ClassMap color token, so the
+accent bar is visibly colored in both light and dark themes. An arbitrary
+CSS color string is also accepted and applied inline (a one-off accent
+color — the documented ClassMap exception).
 
 ```typescript
-type HeroMetricAccent =
+type HeroMetricAccent = HeroMetricSemanticAccent | (string & { __raw?: never })
+```
+
+#### `HeroMetricSemanticAccent`
+
+Semantic accent names for the hero card's top-edge accent bar.
+
+Each name resolves at render time to a real ClassMap `ColorVariant` (and
+therefore a real, theme-aware color token). Note the two the theme has no
+matching token for: `'danger'` → `error` and `'neutral'` → `secondary`.
+
+```typescript
+type HeroMetricSemanticAccent =
   | 'primary'
   | 'success'
   | 'warning'
   | 'danger'
   | 'info'
   | 'neutral'
-  | (string & { __raw?: never })
 ```
 
 #### `HeroMetricTrendDirection`
@@ -149,9 +160,10 @@ primitive.
 Layout: large value left (with optional unit + trend chip + subtitle),
 `progressRing` or `icon` slot to the right.
 
-Styling routes through `getClassMap()` plus a small set of raw utility
-classes (see the package remarks for their theme prerequisites); inline
-style is used only for the colored top-border accent.
+Styling routes entirely through `getClassMap()` — including the colored
+top-edge accent, which is a full-width bar tinted via `cm.progressColor()`.
+Inline style is used only for the bar's fixed height (and a one-off raw
+accent color when the caller passes a CSS color string).
 
 ```typescript
 function HeroMetricCard({
@@ -213,18 +225,15 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 
-- Accent tokens map to `var(--mol-color-<token>)`. In the standard scaffold
-  theme only `primary`, `success`, `warning`, and `info` resolve —
-  `danger` and `neutral` have NO backing variable and silently fall back to
-  `currentColor`. Use `warning`/`info` or pass a raw CSS color string until
-  the host theme defines `--mol-color-danger` / `--mol-color-neutral`.
-- KNOWN GAP: a few raw utility classes are used for typography
-  (`uppercase tracking-widest`, `font-extrabold leading-none`,
-  `text-on-surface-variant`). `text-on-surface-variant` only exists in apps
-  whose theme defines Material-3 color tokens (the polished flagship
-  templates) — in a plain scaffold the muted-text styling is absent, and
-  Tailwind builds that do not source-scan this package's dist will not
-  generate the utilities at all.
+- Every semantic `accent` (`primary`/`success`/`warning`/`danger`/`info`/
+  `neutral`) resolves to a REAL, theme-aware ClassMap color via
+  `cm.progressColor()` — visibly colored in both light and dark themes.
+  `danger` maps to the theme's `error` token and `neutral` to `secondary`
+  (the theme defines no `danger`/`neutral` token). A raw CSS color string is
+  also accepted for one-off brand accents.
+- Styling routes through `getClassMap()` (muted text = `cm.textMuted`,
+  caps/tracking = `cm.uppercase`/`cm.trackingWide`). The lone raw utility is
+  `leading-none` on the big value — a line-height with no ClassMap member.
 - `getClassMap()` requires a bonded ClassMap. Text uses
   `@molecule/app-i18n`'s `t()` with English fallbacks — the companion
   `@molecule/app-locales-hero-metric-card` bond supplies translations.
