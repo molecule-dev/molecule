@@ -19,6 +19,14 @@
  * - **Returning normally from a `subscribe` handler ACKS the message** on every bond — explicit
  *   `ack()` is only needed in pull-style `receive()` flows (and calling it in a subscriber is a
  *   safe no-op). `nack()` rejects the message for redelivery.
+ * - **Prefer `subscribe()` for single-consumer work — `receive()` locking varies by bond.**
+ *   `subscribe()` delivers each message to exactly ONE consumer on every bond. Pull-style
+ *   `receive()` LEASES the message (invisible for the visibility timeout, so a second consumer
+ *   can't take it) on `@molecule/api-queue-{memory,sqs,rabbitmq}`, but on
+ *   `@molecule/api-queue-redis` (BullMQ) `receive()` is a non-locking PEEK — two concurrent
+ *   `receive()` loops, or a `receive()` loop beside a `subscribe()` worker, can pick up the SAME
+ *   job and process it twice. If you poll with `receive()`, use a leasing bond or switch to
+ *   `subscribe()`; either way keep the handler idempotent (see above).
  *
  * **`QueueMessage.delaySeconds` support by bond** — every bond either honors it for real or
  * throws/documents an explicit alternative; NONE silently no-op it:
