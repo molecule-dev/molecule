@@ -8,6 +8,7 @@
 import { type JSX, useEffect, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Button } from '@molecule/app-ui-react'
 
 import type { AdminTableRowAction } from './types.js'
 
@@ -32,12 +33,15 @@ export function AdminTableRowActions<T>({
     return () => document.removeEventListener('click', handler)
   }, [open])
   return (
-    <div className={cm.cn('relative')}>
-      <button
+    <div className={cm.cn(cm.position('relative'))}>
+      {/* Reuse the shared ghost icon Button (theme-aware transparent + hover surface). */}
+      <Button
+        variant="ghost"
+        size="icon"
         aria-label={ariaLabel}
         aria-haspopup="menu"
         aria-expanded={open}
-        className={cm.cn('text-gray-400 hover:text-green-600 transition-colors')}
+        data-mol-id="admin-table-row-actions-trigger"
         onClick={(e) => {
           e.stopPropagation()
           setOpen((v) => !v)
@@ -46,25 +50,39 @@ export function AdminTableRowActions<T>({
         <span className={cm.cn('material-symbols-outlined')} data-icon="more_vert">
           more_vert
         </span>
-      </button>
+      </Button>
       {open ? (
+        // Surface + border from theme tokens; exact popover geometry (offset,
+        // width, radius, elevation) has no cm resolver, so it stays inline.
         <div
-          className={cm.cn(
-            cm.sp('mt', 1),
-            'absolute right-0 z-10 w-40 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5',
-          )}
+          className={cm.cn(cm.surface, cm.borderAll)}
+          style={{
+            position: 'absolute',
+            top: '100%',
+            right: 0,
+            marginTop: 4,
+            minWidth: 160,
+            zIndex: 20,
+            borderRadius: 8,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className={cm.sp('py', 1)}>
+          <div className={cm.cn(cm.sp('py', 1))}>
             {actions.map((action, i) => {
               const href = action.hrefFor?.(row)
               const className = cm.cn(
+                cm.flex({ align: 'center' }),
+                cm.w('full'),
                 cm.sp('px', 4),
                 cm.sp('py', 2),
                 cm.textSize('sm'),
-                cm.w('full'),
-                'block text-left hover:bg-gray-100',
-                action.destructive ? 'text-red-600' : 'text-gray-700',
+                cm.cursorPointer,
+                // Theme-aware hover surface (was hover:bg-gray-100).
+                cm.tableRowHoverable,
+                // Destructive → theme error color + weight; default inherits foreground.
+                action.destructive ? cm.textError : '',
+                action.destructive ? cm.fontWeight('semibold') : '',
               )
               if (href) {
                 return (

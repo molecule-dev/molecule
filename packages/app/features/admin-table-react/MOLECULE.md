@@ -205,8 +205,9 @@ Peer dependencies:
 
 - Requires the Material Symbols Outlined font (row-actions kebab icon) —
   load it via an `@molecule/app-fonts-*` bond or a font link.
-- The current implementation styles with a fixed light palette
-  (white/slate surfaces) — verify against your theme before shipping a
-  dark-mode surface.
+- Styling resolves entirely through the ClassMap bond (`getClassMap()` /
+  `cm.*`): surfaces, borders, text, and hover all use theme tokens, so the
+  table renders correctly in both light and dark themes with no per-app
+  restyling.
 - `selectedIds` is honored only together with `onSelectedIdsChange`
   (controlled selection); omit both for internal selection state.

@@ -34,29 +34,31 @@ export function ActivityTimelineRow({
       <ActivityTimelineDot tone={tone ?? DEFAULT_TONE} />
       <div>
         <div className={cm.cn(cm.flex({ justify: 'between', align: 'center' }), cm.sp('mb', 1))}>
-          <h3 className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'), 'text-on-surface')}>
-            {event.title}
-          </h3>
+          {/* Title inherits the theme foreground from the card surface — no explicit color. */}
+          <h3 className={cm.cn(cm.textSize('sm'), cm.fontWeight('bold'))}>{event.title}</h3>
           {event.meta ? (
             <span
               className={cm.cn(
                 cm.fontWeight('medium'),
-                'text-[10px] text-on-surface/50 uppercase whitespace-nowrap',
+                cm.textSize('xs'),
+                cm.textMuted,
+                cm.uppercase,
               )}
+              style={{ whiteSpace: 'nowrap' }}
             >
               {event.meta}
             </span>
           ) : null}
         </div>
         {event.description ? (
-          <p className={cm.cn(cm.textSize('xs'), 'text-on-surface-variant')}>{event.description}</p>
+          <p className={cm.cn(cm.textSize('xs'), cm.textMuted)}>{event.description}</p>
         ) : null}
         {event.footer ?? null}
       </div>
     </>
   )
 
-  const baseClass = cm.cn(cm.sp('pl', 10), 'relative')
+  const baseClass = cm.cn(cm.sp('pl', 10), cm.position('relative'))
   if (wrapper) return <div className={baseClass}>{wrapper(inner)}</div>
   return <div className={baseClass}>{inner}</div>
 }

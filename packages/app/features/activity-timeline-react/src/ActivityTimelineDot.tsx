@@ -25,11 +25,16 @@ export function ActivityTimelineDot({ tone, className }: ActivityTimelineDotProp
         cm.flex({ align: 'center', justify: 'center' }),
         cm.w(6),
         cm.h(6),
-        tone.dotClass ?? 'bg-primary',
-        'absolute left-0 top-0 rounded',
-        tone.iconClass ?? 'text-on-primary',
+        cm.position('absolute'),
+        cm.roundedFull,
+        // Consumer-supplied `dotClass`/`iconClass` win; the package defaults use
+        // theme tokens (subtle primary fill + primary icon) that read correctly
+        // in both light and dark — never a light-only literal.
+        tone.dotClass ?? cm.bgPrimarySubtle,
+        tone.iconClass ?? cm.textPrimary,
         className,
       )}
+      style={{ left: 0, top: 0 }}
     >
       <span className={cm.cn(cm.textSize('xs'), 'material-symbols-outlined')}>{tone.icon}</span>
     </div>

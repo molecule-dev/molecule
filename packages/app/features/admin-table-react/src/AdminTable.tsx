@@ -68,13 +68,15 @@ export function AdminTable<T>({
     columns.length + (bulkSelect ? 1 : 0) + (rowActions && rowActions.length > 0 ? 1 : 0)
 
   return (
-    <div className={cm.cn('bg-white rounded-xl shadow-sm overflow-hidden', className)}>
-      <table className={cm.cn(cm.w('full'), 'text-left border-collapse')}>
+    // cm.card() = theme surface + border + radius + shadow (light/dark aware),
+    // replacing the old bg-white/rounded-xl/shadow-sm literals. `overflow` has
+    // no ClassMap resolver, so it stays inline to clip the rounded corners.
+    <div className={cm.cn(cm.card(), className)} style={{ overflow: 'hidden' }}>
+      {/* border-collapse has no cm token; inline so the row borders render cleanly. */}
+      <table className={cm.cn(cm.w('full'))} style={{ borderCollapse: 'collapse' }}>
         <thead>
-          <tr className={cm.cn('bg-slate-50 text-slate-600')}>
-            {bulkSelect ? (
-              <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), 'w-8 text-left')} />
-            ) : null}
+          <tr className={cm.cn(cm.surfaceSecondary, cm.textMuted, cm.borderB)}>
+            {bulkSelect ? <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(8))} /> : null}
             {columns.map((col) => (
               <th
                 key={col.id}
@@ -83,7 +85,8 @@ export function AdminTable<T>({
                   cm.sp('px', 6),
                   cm.textSize('xs'),
                   cm.fontWeight('bold'),
-                  'uppercase tracking-wide',
+                  cm.uppercase,
+                  cm.trackingWide,
                   col.align === 'right'
                     ? cm.textRight
                     : col.align === 'center'
@@ -96,17 +99,18 @@ export function AdminTable<T>({
               </th>
             ))}
             {rowActions && rowActions.length > 0 ? (
-              <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), 'w-12 text-right')} />
+              <th className={cm.cn(cm.sp('py', 3), cm.sp('px', 6), cm.w(12), cm.textRight)} />
             ) : null}
           </tr>
         </thead>
-        <tbody className={cm.cn('divide-y divide-slate-100')} data-mol-id={tbodyDataMolId}>
+        {/* Row separators come from cm.tableRow / cm.borderB (theme border), not a light-only divide. */}
+        <tbody data-mol-id={tbodyDataMolId}>
           {loading
             ? Array.from({ length: skeletonRowCount }).map((_, i) => (
-                <tr key={i} className={cm.cn('animate-pulse')}>
+                <tr key={i} className={cm.cn(cm.borderB)}>
                   {Array.from({ length: totalColCount }).map((__, j) => (
                     <td key={j} className={cm.cn(cm.sp('py', 4), cm.sp('px', 6))}>
-                      <div className={cm.cn(cm.h(4), 'w-24 bg-gray-200 rounded')} />
+                      <div className={cm.cn(cm.h(4), cm.w(24), cm.skeleton())} />
                     </td>
                   ))}
                 </tr>
@@ -117,6 +121,7 @@ export function AdminTable<T>({
                 return (
                   <tr
                     key={id}
+                    data-mol-id={`admin-table-row-${id}`}
                     role={onRowClick ? 'link' : undefined}
                     tabIndex={onRowClick ? 0 : undefined}
                     onClick={onRowClick ? () => onRowClick(row) : undefined}
@@ -130,16 +135,15 @@ export function AdminTable<T>({
                           }
                         : undefined
                     }
-                    className={cm.cn(
-                      'hover:bg-slate-50 transition-colors',
-                      onRowClick ? 'cursor-pointer' : '',
-                    )}
+                    // cm.tableRow = border-b + transition + theme hover surface.
+                    className={cm.cn(cm.tableRow, onRowClick ? cm.tableRowClickable : '')}
                   >
                     {bulkSelect ? (
                       <td className={cm.cn(cm.sp('py', 4), cm.sp('px', 6))}>
                         <input
                           type="checkbox"
                           checked={isSelected}
+                          data-mol-id={`admin-table-select-${id}`}
                           onChange={(e) => {
                             e.stopPropagation()
                             setSelected(
@@ -149,10 +153,8 @@ export function AdminTable<T>({
                             )
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className={cm.cn(
-                            cm.input(),
-                            'rounded border-gray-300 text-green-600 focus:ring-green-500',
-                          )}
+                          // cm.checkbox() = themed control (border/focus ring), no light-only literals.
+                          className={cm.checkbox()}
                         />
                       </td>
                     ) : null}

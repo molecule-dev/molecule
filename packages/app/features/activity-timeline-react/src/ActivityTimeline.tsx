@@ -28,8 +28,6 @@ interface ActivityTimelineProps {
 
 const FALLBACK_TONE: TimelineKindTone = {
   icon: 'event',
-  dotClass: 'bg-primary',
-  iconClass: 'text-on-primary',
 }
 
 /**
@@ -48,20 +46,26 @@ export function ActivityTimeline({
 }: ActivityTimelineProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <div
-      className={cm.cn(
-        cm.sp('p', 6),
-        'bg-surface-container-lowest rounded-3xl shadow-sm',
-        className,
-      )}
-    >
+    <div className={cm.cn(cm.card(), cm.sp('p', 6), className)}>
       {header ?? null}
-      <div
-        className={cm.cn(
-          cm.stack(8),
-          'relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[1px] before:bg-surface-container-high',
-        )}
-      >
+      <div className={cm.cn(cm.stack(8), cm.position('relative'))}>
+        {/*
+          Connector rail. Color comes from the theme border token (cm.bgBorder,
+          light/dark aware); the exact geometry (offsets + 1px width) has no
+          ClassMap resolver, so it stays inline. Absolutely positioned, so it is
+          out of the flex flow and never affects row spacing.
+        */}
+        <span
+          aria-hidden
+          className={cm.cn(cm.bgBorder)}
+          style={{
+            position: 'absolute',
+            left: '0.75rem',
+            top: '0.5rem',
+            bottom: '0.5rem',
+            width: 1,
+          }}
+        />
         {events.map((event) => {
           const tone = toneByKind?.[event.kind] ?? defaultTone ?? FALLBACK_TONE
           return (
