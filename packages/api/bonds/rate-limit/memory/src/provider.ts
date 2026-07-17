@@ -153,6 +153,20 @@ export const provider: RateLimitProvider = {
     return Math.max(0, config.max - bucket.consumed)
   },
 
+  async refund(key: string, cost = 1): Promise<void> {
+    if (cost <= 0) {
+      return
+    }
+    const fullKey = resolveKey(key)
+    // Read the existing bucket directly — never create/refresh one via getBucket,
+    // since there's nothing to refund on an unknown or expired window.
+    const bucket = store.get(fullKey)
+    if (!bucket) {
+      return
+    }
+    bucket.consumed = Math.max(0, bucket.consumed - cost)
+  },
+
   configure(options: RateLimitOptions): void {
     config = { ...config, ...options }
     startCleanup()

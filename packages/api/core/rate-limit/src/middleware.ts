@@ -7,10 +7,14 @@
  * @module
  */
 
+import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
 import { getProvider } from './provider.js'
 import type { RateLimitOptions } from './types.js'
+
+/** Bonded logger (falls back to console) for surfacing refund failures. */
+const logger = getLogger()
 
 /** Express-compatible request object (minimal shape). */
 interface Request {
@@ -23,6 +27,10 @@ interface Response {
   status(code: number): Response
   json(body: unknown): Response
   set(field: string, value: string): Response
+  /** Final HTTP status code, read after the response completes. */
+  statusCode: number
+  /** Registers a listener (used for the `'finish'` event) to observe completion. */
+  on(event: string, listener: () => void): Response
   [key: string]: unknown
 }
 
@@ -42,6 +50,11 @@ export type RequestHandler = (
  * When the rate limit is exceeded, responds with HTTP 429 and sets standard
  * rate-limit headers (`RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`,
  * `Retry-After`).
+ *
+ * If `options.skipFailedRequests` or `options.skipSuccessfulRequests` is set, the
+ * token consumed for an allowed request is refunded (via `provider.refund()`) once
+ * the response completes and its final status matches — failed is `statusCode >= 400`,
+ * successful is `< 400` — so those requests are not counted against the limit.
  *
  * @param options - Optional rate limit configuration to apply before the middleware runs.
  * @returns An Express request handler.
@@ -78,6 +91,29 @@ export const createRateLimitMiddleware = (options?: RateLimitOptions): RequestHa
         }),
       })
       return
+    }
+
+    const skipFailed = options?.skipFailedRequests ?? false
+    const skipSuccessful = options?.skipSuccessfulRequests ?? false
+
+    if (skipFailed || skipSuccessful) {
+      // The final status is only known after the handler responds, so roll the
+      // just-consumed token back once the response completes if it matches a
+      // skip flag. Consuming up front (rather than deferring) preserves the
+      // provider's atomicity guarantee under concurrency.
+      res.on('finish', () => {
+        const failed = res.statusCode >= 400
+        const shouldSkip = (failed && skipFailed) || (!failed && skipSuccessful)
+        if (!shouldSkip) {
+          return
+        }
+        provider.refund(key).catch((error: unknown) => {
+          logger.warn(
+            '[api-rate-limit] failed to refund a skipped request; its token stays counted',
+            { error },
+          )
+        })
+      })
     }
 
     next()

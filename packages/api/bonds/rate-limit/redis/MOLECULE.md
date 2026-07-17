@@ -29,7 +29,7 @@ const strict = createProvider({ url: 'redis://my-redis:6379', failMode: 'closed'
 
 ## Installation
 ```bash
-npm install @molecule/api-rate-limit-redis @molecule/api-rate-limit ioredis
+npm install @molecule/api-rate-limit-redis @molecule/api-bond @molecule/api-rate-limit ioredis
 ```
 
 ## API
@@ -48,9 +48,20 @@ interface RateLimitOptions {
     max: number;
     /** Optional prefix for rate limit keys (useful for namespacing). */
     keyPrefix?: string;
-    /** If `true`, failed requests (status >= 400) are not counted. */
+    /**
+     * If `true`, a request that ends in failure (final HTTP status `>= 400`) is not
+     * counted against the limit — its consumed token is refunded once the response
+     * completes. Honored ONLY by {@link createRateLimitMiddleware}, which observes
+     * the response status; a direct `consume()` call cannot know the outcome, so it
+     * never rolls anything back.
+     */
     skipFailedRequests?: boolean;
-    /** If `true`, successful requests (status < 400) are not counted. */
+    /**
+     * If `true`, a request that ends in success (final HTTP status `< 400`) is not
+     * counted against the limit — its consumed token is refunded once the response
+     * completes. Honored ONLY by {@link createRateLimitMiddleware}; a direct
+     * `consume()` call cannot know the outcome.
+     */
     skipSuccessfulRequests?: boolean;
 }
 ```
@@ -92,6 +103,21 @@ interface RateLimitProvider {
      * @returns Number of remaining requests in the current window.
      */
     getRemaining(key: string): Promise<number>;
+    /**
+     * Refunds (un-consumes) previously consumed tokens for a key, rolling back a
+     * prior {@link consume}. Used by {@link createRateLimitMiddleware} to honor
+     * {@link RateLimitOptions.skipFailedRequests} /
+     * {@link RateLimitOptions.skipSuccessfulRequests}: once the response status is
+     * known, a request that should not count has its token rolled back.
+     *
+     * Providers refund the most recent consumption(s); the bucket never drops below
+     * zero, and refunding an unknown/expired bucket (or a non-positive `cost`) is a
+     * no-op.
+     *
+     * @param key - Unique identifier for the rate limit bucket.
+     * @param cost - Number of tokens to refund (defaults to 1).
+     */
+    refund(key: string, cost?: number): Promise<void>;
     /**
      * Applies new rate limit configuration to the provider.
      *
@@ -238,6 +264,7 @@ Peer dependencies:
 
 ### Runtime Dependencies
 
+- `@molecule/api-bond`
 - `@molecule/api-rate-limit`
 - `ioredis`
 

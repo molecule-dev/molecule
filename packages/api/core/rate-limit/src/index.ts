@@ -39,8 +39,11 @@
  *   namespaced key.
  * - Rate-limit auth endpoints by the attempted identifier (email/username), not only IP — a
  *   credential-stuffing attacker rotates IPs but reuses identifiers.
- * - `skipFailedRequests`/`skipSuccessfulRequests` on {@link RateLimitOptions} are not honored
- *   by the bundled middleware or bonds — do not rely on them.
+ * - `skipFailedRequests`/`skipSuccessfulRequests` on {@link RateLimitOptions} are honored by
+ *   `createRateLimitMiddleware`: after the response completes, a request whose final status
+ *   matches the flag (`>= 400` for failed, `< 400` for successful) has its consumed token
+ *   refunded via the provider's `refund()`, so it isn't counted. They apply ONLY through the
+ *   middleware — calling `consume()` directly cannot know the outcome and rolls nothing back.
  * - On rejection respond 429 with `Retry-After` (the middleware does this and sets the
  *   standard `RateLimit-*` headers from {@link RateLimitResult}).
  *

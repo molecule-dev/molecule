@@ -10,6 +10,7 @@ let check: typeof ProviderModule.check
 let consume: typeof ProviderModule.consume
 let reset: typeof ProviderModule.reset
 let getRemaining: typeof ProviderModule.getRemaining
+let refund: typeof ProviderModule.refund
 let configure: typeof ProviderModule.configure
 
 const makeResult = (overrides?: Partial<RateLimitResult>): RateLimitResult => ({
@@ -25,6 +26,7 @@ const makeMockProvider = (overrides?: Partial<RateLimitProvider>): RateLimitProv
   consume: vi.fn().mockResolvedValue(makeResult({ remaining: 98 })),
   reset: vi.fn().mockResolvedValue(undefined),
   getRemaining: vi.fn().mockResolvedValue(99),
+  refund: vi.fn().mockResolvedValue(undefined),
   configure: vi.fn(),
   ...overrides,
 })
@@ -40,6 +42,7 @@ describe('rate-limit provider', () => {
     consume = providerModule.consume
     reset = providerModule.reset
     getRemaining = providerModule.getRemaining
+    refund = providerModule.refund
     configure = providerModule.configure
   })
 
@@ -155,6 +158,30 @@ describe('rate-limit provider', () => {
 
       expect(mockGetRemaining).toHaveBeenCalledWith('user:123')
       expect(result).toBe(42)
+    })
+  })
+
+  describe('refund', () => {
+    it('should throw when no provider is set', async () => {
+      await expect(refund('key')).rejects.toThrow('Rate-limit provider not configured')
+    })
+
+    it('should delegate to provider refund with default cost', async () => {
+      const mockRefund = vi.fn().mockResolvedValue(undefined)
+      setProvider(makeMockProvider({ refund: mockRefund }))
+
+      await refund('user:123')
+
+      expect(mockRefund).toHaveBeenCalledWith('user:123', undefined)
+    })
+
+    it('should delegate to provider refund with custom cost', async () => {
+      const mockRefund = vi.fn().mockResolvedValue(undefined)
+      setProvider(makeMockProvider({ refund: mockRefund }))
+
+      await refund('user:123', 3)
+
+      expect(mockRefund).toHaveBeenCalledWith('user:123', 3)
     })
   })
 

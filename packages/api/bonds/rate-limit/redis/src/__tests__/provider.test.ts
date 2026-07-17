@@ -4,6 +4,7 @@ import type { RateLimitProvider } from '@molecule/api-rate-limit'
 
 // Mock ioredis before importing
 const mockZremrangebyscore = vi.fn()
+const mockZremrangebyrank = vi.fn()
 const mockZcard = vi.fn()
 const mockZadd = vi.fn()
 const mockPexpire = vi.fn()
@@ -28,6 +29,7 @@ vi.mock('ioredis', () => {
   const MockRedis = vi.fn(function () {
     return {
       zremrangebyscore: mockZremrangebyscore,
+      zremrangebyrank: mockZremrangebyrank,
       zcard: mockZcard,
       zadd: mockZadd,
       pexpire: mockPexpire,
@@ -142,6 +144,7 @@ describe('@molecule/api-rate-limit-redis', () => {
       expect(typeof p.consume).toBe('function')
       expect(typeof p.reset).toBe('function')
       expect(typeof p.getRemaining).toBe('function')
+      expect(typeof p.refund).toBe('function')
       expect(typeof p.configure).toBe('function')
     })
   })
@@ -382,6 +385,61 @@ describe('@molecule/api-rate-limit-redis', () => {
       await provider.reset('test-key')
 
       expect(mockDel).toHaveBeenCalledWith('test-key')
+    })
+  })
+
+  describe('refund()', () => {
+    it('removes the single most-recent member via ZREMRANGEBYRANK by default', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      await provider.refund('test-key')
+
+      expect(mockZremrangebyrank).toHaveBeenCalledWith('test-key', -1, -1)
+    })
+
+    it('removes the `cost` most-recent members for a custom cost', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      await provider.refund('test-key', 3)
+
+      expect(mockZremrangebyrank).toHaveBeenCalledWith('test-key', -3, -1)
+    })
+
+    it('applies the configured keyPrefix', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      provider.configure({ windowMs: 60_000, max: 10, keyPrefix: 'api' })
+
+      await provider.refund('test-key')
+
+      expect(mockZremrangebyrank).toHaveBeenCalledWith('api:test-key', -1, -1)
+    })
+
+    it('is a no-op (no command) for a non-positive cost — never wipes the window', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      await provider.refund('test-key', 0)
+
+      expect(mockZremrangebyrank).not.toHaveBeenCalled()
+    })
+
+    it('logs and does not throw when Redis errors', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider()
+      provider.configure({ windowMs: 60_000, max: 10 })
+
+      mockZremrangebyrank.mockRejectedValueOnce(new Error('ECONNREFUSED'))
+
+      await expect(provider.refund('test-key')).resolves.toBeUndefined()
+      expect(warnSpy).toHaveBeenCalled()
+      warnSpy.mockRestore()
     })
   })
 

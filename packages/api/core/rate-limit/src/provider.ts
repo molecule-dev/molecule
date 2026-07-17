@@ -100,6 +100,19 @@ export const getRemaining = async (key: string): Promise<number> => {
 }
 
 /**
+ * Refunds (un-consumes) previously consumed tokens for a key on the bonded provider,
+ * rolling back a prior {@link consume}.
+ *
+ * @param key - Unique identifier for the rate limit bucket.
+ * @param cost - Number of tokens to refund (defaults to 1).
+ * @returns A promise that resolves when the tokens have been refunded.
+ * @throws {Error} If no rate-limit provider has been bonded.
+ */
+export const refund = async (key: string, cost?: number): Promise<void> => {
+  return getProvider().refund(key, cost)
+}
+
+/**
  * Applies new rate limit configuration to the bonded provider.
  *
  * @param options - The rate limit options to apply.

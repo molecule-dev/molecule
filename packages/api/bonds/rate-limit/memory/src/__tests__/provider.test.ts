@@ -24,6 +24,7 @@ describe('@molecule/api-rate-limit-memory', () => {
     expect(typeof p.consume).toBe('function')
     expect(typeof p.reset).toBe('function')
     expect(typeof p.getRemaining).toBe('function')
+    expect(typeof p.refund).toBe('function')
     expect(typeof p.configure).toBe('function')
   })
 
@@ -111,6 +112,48 @@ describe('@molecule/api-rate-limit-memory', () => {
       await provider.reset('key-a')
       expect(await provider.getRemaining('key-a')).toBe(10)
       expect(await provider.getRemaining('key-b')).toBe(3)
+    })
+  })
+
+  describe('refund', () => {
+    it('un-consumes a token, restoring remaining budget', async () => {
+      await provider.consume('test-key', 5)
+      expect(await provider.getRemaining('test-key')).toBe(5)
+
+      await provider.refund('test-key')
+      expect(await provider.getRemaining('test-key')).toBe(6)
+    })
+
+    it('supports a custom cost', async () => {
+      await provider.consume('test-key', 8)
+      await provider.refund('test-key', 3)
+      expect(await provider.getRemaining('test-key')).toBe(5)
+    })
+
+    it('never restores above max (floors consumed at zero)', async () => {
+      await provider.consume('test-key', 2)
+      await provider.refund('test-key', 5)
+      expect(await provider.getRemaining('test-key')).toBe(10)
+    })
+
+    it('is a no-op for an unknown key', async () => {
+      await provider.refund('never-seen')
+      expect(await provider.getRemaining('never-seen')).toBe(10)
+    })
+
+    it('is a no-op for a non-positive cost', async () => {
+      await provider.consume('test-key', 4)
+      await provider.refund('test-key', 0)
+      expect(await provider.getRemaining('test-key')).toBe(6)
+    })
+
+    it('does not affect other keys', async () => {
+      await provider.consume('key-a', 4)
+      await provider.consume('key-b', 6)
+
+      await provider.refund('key-a', 2)
+      expect(await provider.getRemaining('key-a')).toBe(8)
+      expect(await provider.getRemaining('key-b')).toBe(4)
     })
   })
 

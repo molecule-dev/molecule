@@ -308,6 +308,31 @@ export const createProvider = (redisOptions?: RedisRateLimitOptions): RateLimitP
       }
     },
 
+    async refund(key: string, cost = 1): Promise<void> {
+      // Guard a non-positive cost: `ZREMRANGEBYRANK key 0 -1` would wipe the
+      // WHOLE window (start rank 0 → stop -1), so never issue the command for it.
+      if (cost <= 0) {
+        return
+      }
+      const fullKey = resolveKey(key)
+      try {
+        // Remove the `cost` most-recent members (highest ranks) from the sliding
+        // window. Which specific members are pruned is irrelevant for counting —
+        // the decrement magnitude is exact — and the command is a no-op on a
+        // missing/empty key, so an over-refund can't push the count below zero.
+        await client.zremrangebyrank(fullKey, -cost, -1)
+      } catch (error) {
+        // A refund failure only leaves the token counted (a minor over-count that
+        // self-heals as the window slides); never fail the request over it, but
+        // don't swallow the degradation silently either.
+        logger.warn(
+          `[api-rate-limit-redis] Redis error during refund(${key}); token stays counted. ` +
+            'Rate limiting is briefly over-counting until Redis recovers.',
+          { error },
+        )
+      }
+    },
+
     configure(options: RateLimitOptions): void {
       config = { ...config, ...options }
     },

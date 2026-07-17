@@ -51,10 +51,21 @@ interface RateLimitOptions {
   /** Optional prefix for rate limit keys (useful for namespacing). */
   keyPrefix?: string
 
-  /** If `true`, failed requests (status >= 400) are not counted. */
+  /**
+   * If `true`, a request that ends in failure (final HTTP status `>= 400`) is not
+   * counted against the limit — its consumed token is refunded once the response
+   * completes. Honored ONLY by {@link createRateLimitMiddleware}, which observes
+   * the response status; a direct `consume()` call cannot know the outcome, so it
+   * never rolls anything back.
+   */
   skipFailedRequests?: boolean
 
-  /** If `true`, successful requests (status < 400) are not counted. */
+  /**
+   * If `true`, a request that ends in success (final HTTP status `< 400`) is not
+   * counted against the limit — its consumed token is refunded once the response
+   * completes. Honored ONLY by {@link createRateLimitMiddleware}; a direct
+   * `consume()` call cannot know the outcome.
+   */
   skipSuccessfulRequests?: boolean
 }
 ```
@@ -99,6 +110,22 @@ interface RateLimitProvider {
    * @returns Number of remaining requests in the current window.
    */
   getRemaining(key: string): Promise<number>
+
+  /**
+   * Refunds (un-consumes) previously consumed tokens for a key, rolling back a
+   * prior {@link consume}. Used by {@link createRateLimitMiddleware} to honor
+   * {@link RateLimitOptions.skipFailedRequests} /
+   * {@link RateLimitOptions.skipSuccessfulRequests}: once the response status is
+   * known, a request that should not count has its token rolled back.
+   *
+   * Providers refund the most recent consumption(s); the bucket never drops below
+   * zero, and refunding an unknown/expired bucket (or a non-positive `cost`) is a
+   * no-op.
+   *
+   * @param key - Unique identifier for the rate limit bucket.
+   * @param cost - Number of tokens to refund (defaults to 1).
+   */
+  refund(key: string, cost?: number): Promise<void>
 
   /**
    * Applies new rate limit configuration to the provider.
@@ -192,6 +219,11 @@ When the rate limit is exceeded, responds with HTTP 429 and sets standard
 rate-limit headers (`RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`,
 `Retry-After`).
 
+If `options.skipFailedRequests` or `options.skipSuccessfulRequests` is set, the
+token consumed for an allowed request is refunded (via `provider.refund()`) once
+the response completes and its final status matches — failed is `statusCode >= 400`,
+successful is `< 400` — so those requests are not counted against the limit.
+
 ```typescript
 function createRateLimitMiddleware(options?: RateLimitOptions): RequestHandler
 ```
@@ -231,6 +263,20 @@ function hasProvider(): boolean
 ```
 
 **Returns:** `true` if a rate-limit provider is bonded.
+
+#### `refund(key, cost)`
+
+Refunds (un-consumes) previously consumed tokens for a key on the bonded provider,
+rolling back a prior {@link consume}.
+
+```typescript
+function refund(key: string, cost?: number): Promise<void>
+```
+
+- `key` — Unique identifier for the rate limit bucket.
+- `cost` — Number of tokens to refund (defaults to 1).
+
+**Returns:** A promise that resolves when the tokens have been refunded.
 
 #### `reset(key)`
 
@@ -291,8 +337,11 @@ Peer dependencies:
   namespaced key.
 - Rate-limit auth endpoints by the attempted identifier (email/username), not only IP — a
   credential-stuffing attacker rotates IPs but reuses identifiers.
-- `skipFailedRequests`/`skipSuccessfulRequests` on {@link RateLimitOptions} are not honored
-  by the bundled middleware or bonds — do not rely on them.
+- `skipFailedRequests`/`skipSuccessfulRequests` on {@link RateLimitOptions} are honored by
+  `createRateLimitMiddleware`: after the response completes, a request whose final status
+  matches the flag (`>= 400` for failed, `< 400` for successful) has its consumed token
+  refunded via the provider's `refund()`, so it isn't counted. They apply ONLY through the
+  middleware — calling `consume()` directly cannot know the outcome and rolls nothing back.
 - On rejection respond 429 with `Retry-After` (the middleware does this and sets the
   standard `RateLimit-*` headers from {@link RateLimitResult}).
 
