@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `screenOrientation.error.noProvider` | @molecule/app-screen-orientation: No provider set. Call setProvider() with a ScreenOrientationProvider implementation (e.g., from @molecule/app-screen-orientation-capacitor). |
+| `screenOrientation.error.noProvider` | @molecule/app-screen-orientation: No provider set. Call setProvider() with a ScreenOrientationProvider implementation. |
 
 ## Metadata
 

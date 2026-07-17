@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `motion.error.noProvider` | @molecule/app-motion: No provider set. Call setProvider() with a MotionProvider implementation (e.g., from @molecule/app-motion-capacitor). |
+| `motion.error.noProvider` | @molecule/app-motion: No provider set. Call setProvider() with a MotionProvider implementation. |
 
 ## Metadata
 

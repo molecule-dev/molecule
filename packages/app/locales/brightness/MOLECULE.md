@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `brightness.error.noProvider` | @molecule/app-brightness: No provider set. Call setProvider() with a BrightnessProvider implementation (e.g., from @molecule/app-brightness-capacitor). |
+| `brightness.error.noProvider` | @molecule/app-brightness: No provider set. Call setProvider() with a BrightnessProvider implementation. |
 
 ## Metadata
 

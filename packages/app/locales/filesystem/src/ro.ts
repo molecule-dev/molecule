@@ -3,5 +3,5 @@ import type { FilesystemTranslations } from './types.js'
 /** Filesystem translations for Romanian. */
 export const ro: FilesystemTranslations = {
   'filesystem.error.noProvider':
-    '@molecule/app-filesystem: Niciun furnizor setat. Apelați setProvider() cu o implementare FilesystemProvider (de ex., din @molecule/app-filesystem-capacitor).',
+    '@molecule/app-filesystem: Niciun furnizor setat. Apelați setProvider() cu o implementare FilesystemProvider.',
 }

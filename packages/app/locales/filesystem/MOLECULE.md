@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `filesystem.error.noProvider` | @molecule/app-filesystem: No provider set. Call setProvider() with a FilesystemProvider implementation (e.g., from @molecule/app-filesystem-capacitor). |
+| `filesystem.error.noProvider` | @molecule/app-filesystem: No provider set. Call setProvider() with a FilesystemProvider implementation. |
 
 ## Metadata
 

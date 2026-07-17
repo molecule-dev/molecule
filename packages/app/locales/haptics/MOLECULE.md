@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `haptics.error.noProvider` | @molecule/app-haptics: No provider set. Call setProvider() with a HapticsProvider implementation (e.g., from @molecule/app-haptics-capacitor). |
+| `haptics.error.noProvider` | @molecule/app-haptics: No provider set. Call setProvider() with a HapticsProvider implementation. |
 
 ## Metadata
 

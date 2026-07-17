@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `calendar.error.noProvider` | @molecule/app-calendar: No provider set. Call setProvider() with a CalendarProvider implementation (e.g., from @molecule/app-calendar-capacitor). |
+| `calendar.error.noProvider` | @molecule/app-calendar: No provider set. Call setProvider() with a CalendarProvider implementation. |
 
 ## Metadata
 

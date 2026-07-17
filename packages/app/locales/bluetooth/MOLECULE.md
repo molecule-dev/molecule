@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `bluetooth.error.noProvider` | @molecule/app-bluetooth: No provider set. Call setProvider() with a BluetoothProvider implementation (e.g., from @molecule/app-bluetooth-capacitor). |
+| `bluetooth.error.noProvider` | @molecule/app-bluetooth: No provider set. Call setProvider() with a BluetoothProvider implementation. |
 
 ## Metadata
 

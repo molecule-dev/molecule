@@ -36,7 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
-| `nfc.error.noProvider` | @molecule/app-nfc: No provider set. Call setProvider() with an NfcProvider implementation (e.g., from @molecule/app-nfc-capacitor). |
+| `nfc.error.noProvider` | @molecule/app-nfc: No provider set. Call setProvider() with an NfcProvider implementation. |
 
 ## Metadata
 

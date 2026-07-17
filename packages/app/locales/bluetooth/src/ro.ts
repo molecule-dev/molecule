@@ -3,5 +3,5 @@ import type { BluetoothTranslations } from './types.js'
 /** Bluetooth translations for Romanian. */
 export const ro: BluetoothTranslations = {
   'bluetooth.error.noProvider':
-    '@molecule/app-bluetooth: Niciun furnizor setat. Apelați setProvider() cu o implementare BluetoothProvider (de ex., din @molecule/app-bluetooth-capacitor).',
+    '@molecule/app-bluetooth: Niciun furnizor setat. Apelați setProvider() cu o implementare BluetoothProvider.',
 }
