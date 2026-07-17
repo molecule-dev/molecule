@@ -95,9 +95,10 @@ Peer dependencies:
 - `react`
 
 - Renders `null` when `images` is empty — no empty-state UI.
-- `maxThumbnails` doubles as the thumbnail grid's column count; the
-  ClassMap grid supports small column counts (1-4 is safe) — larger values
-  may not resolve to a grid class.
+- `maxThumbnails` doubles as the thumbnail grid's column count. Any value is
+  safe: it is snapped to the nearest column count the ClassMap grid actually
+  supports (1-6 or 12), so a real `grid-cols-*` class is always emitted and
+  extra thumbnails wrap onto additional rows instead of collapsing.
 - Default alt text is the English "Image N" — pass `alts` with translated
   strings in localized apps.
 - `getClassMap()` requires a bonded ClassMap (e.g.

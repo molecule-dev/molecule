@@ -2,6 +2,32 @@ import { type JSX, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/**
+ * Column counts the ClassMap `cm.grid()` resolver can actually render. The
+ * `@molecule/app-ui-tailwind` grid CVA only defines these keys — any other
+ * value produces no `grid-cols-*` class and the thumbnails collapse into a
+ * single column. Keep in sync with that bond's `grid` variants.
+ */
+const SUPPORTED_GRID_COLS = [1, 2, 3, 4, 5, 6, 12] as const
+
+/**
+ * Snaps an arbitrary desired column count to the largest ClassMap-supported
+ * value that does not exceed it (minimum 1). This lets any `maxThumbnails`
+ * render a real grid — thumbnails beyond the chosen column count simply wrap
+ * onto additional rows instead of breaking the layout.
+ *
+ * @param desired - The requested number of columns (e.g. `maxThumbnails`).
+ * @returns A column count guaranteed to resolve to a `grid-cols-*` class.
+ */
+function toGridCols(desired: number): number {
+  const clamped = Math.max(1, Math.floor(desired || 0))
+  let best: number = SUPPORTED_GRID_COLS[0]
+  for (const cols of SUPPORTED_GRID_COLS) {
+    if (cols <= clamped) best = cols
+  }
+  return best
+}
+
 export interface ImageGalleryProps {
   /** Image URLs in display order. */
   images: string[]
@@ -52,7 +78,7 @@ export function ImageGallery({
         />
       </div>
       {images.length > 1 && (
-        <div className={cm.grid({ cols: maxThumbnails as 4, gap: 'sm' })}>
+        <div className={cm.grid({ cols: toGridCols(maxThumbnails), gap: 'sm' })}>
           {visible.map((src, i) => (
             <button
               key={i}

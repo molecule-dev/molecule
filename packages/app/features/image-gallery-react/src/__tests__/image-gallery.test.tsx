@@ -14,6 +14,12 @@ vi.mock('@molecule/app-ui', () => ({
               .filter((c) => typeof c === 'string' && c.length > 0)
               .join(' ')
         }
+        // Echo the resolved column count so the emitted grid class is
+        // observable in the rendered markup (mirrors the Tailwind bond, whose
+        // `grid` CVA turns `cols: N` into `grid-cols-N`).
+        if (prop === 'grid') {
+          return (opts?: { cols?: number }) => `grid grid-cols-${opts?.cols ?? 1}`
+        }
         const token = String(prop)
         return (..._args: unknown[]) => token
       },
@@ -51,6 +57,36 @@ describe('ImageGallery', () => {
   it('summarises images beyond maxThumbnails as a "+N" chip', () => {
     const markup = html(createElement(ImageGallery, { images, maxThumbnails: 4 }))
     expect(markup).toContain('+2')
+  })
+
+  it('renders every thumbnail when maxThumbnails is greater than 4', () => {
+    // The old `cols: maxThumbnails as 4` cast lied about the column count and
+    // broke the grid past 4. All six thumbnails must still render as buttons.
+    const markup = html(createElement(ImageGallery, { images, maxThumbnails: 6 }))
+    expect(markup.match(/<button/g) ?? []).toHaveLength(6)
+    expect(markup).toContain('grid-cols-6')
+  })
+
+  it('emits a real 4-column grid class for the default maxThumbnails', () => {
+    const markup = html(createElement(ImageGallery, { images: images.slice(0, 4) }))
+    expect(markup).toContain('grid-cols-4')
+  })
+
+  it('clamps an unsupported column count to a real grid class (never grid-cols-8)', () => {
+    const many = Array.from({ length: 8 }, (_v, i) => `/img-${i}.jpg`)
+    const markup = html(createElement(ImageGallery, { images: many, maxThumbnails: 8 }))
+    // 8 is not a ClassMap grid column count → snapped down to the supported 6.
+    expect(markup).toContain('grid-cols-6')
+    expect(markup).not.toContain('grid-cols-8')
+    // All eight thumbnails still render (they wrap onto a second row).
+    expect(markup.match(/<button/g) ?? []).toHaveLength(8)
+  })
+
+  it('snaps a very large column count to the top supported value (grid-cols-12)', () => {
+    const many = Array.from({ length: 20 }, (_v, i) => `/img-${i}.jpg`)
+    const markup = html(createElement(ImageGallery, { images: many, maxThumbnails: 20 }))
+    expect(markup).toContain('grid-cols-12')
+    expect(markup.match(/<button/g) ?? []).toHaveLength(20)
   })
 
   it('honours a controlled selectedIndex', () => {
