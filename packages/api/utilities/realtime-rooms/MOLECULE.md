@@ -342,23 +342,24 @@ function listMembers(roomId: string): Promise<RoomMember[]>
 
 #### `subscribe(roomId, handler)`
 
-Subscribes to all events for a room via the bonded `realtime`
-provider. Returns an {@link Unsubscribe} function.
+Subscribes `handler` to every event broadcast on `roomId`.
 
-The bonded provider's `onMessage` is global per-process; each call
-installs its own transport-level message listener (never removed —
-the unsubscribe only deactivates the handler) and filters down to
-the requested room. Callers who need fine-grained transport-level
-unsubscription should use the bond directly.
+This package installs exactly **one** transport-level `onMessage` listener
+for the whole process (at module load) and multiplexes it: `subscribe()`
+registers `handler` against the room's channel and the returned
+{@link Unsubscribe} removes *that* handler. Subscribing installs no
+additional transport listener, and unsubscribing fully detaches the handler
+from the registry — so listeners never accumulate and it is safe to
+subscribe / unsubscribe per request. The unsubscribe is idempotent.
 
 ```typescript
 function subscribe(roomId: string, handler: RoomEventHandler): Unsubscribe
 ```
 
 - `roomId` — Room to subscribe to.
-- `handler` — Invoked with each {@link RoomEvent}.
+- `handler` — Invoked with each {@link RoomEvent} broadcast on the room.
 
-**Returns:** Function that removes the subscription.
+**Returns:** Idempotent function that removes this subscription.
 
 ## Injection Notes
 
@@ -387,7 +388,8 @@ provider) AND a realtime transport must be set via `@molecule/api-realtime`'s
 before the transport is set are buffered by api-realtime and flushed when
 it is; `broadcast()` before then throws "Realtime provider not configured".
 
-`subscribe()` registers a transport-level listener that is NOT removed by
-the returned unsubscribe function (it only stops your handler from firing —
-the underlying `onMessage` handler lives for the process lifetime). Create
-long-lived subscriptions at startup; do not subscribe per request.
+`subscribe()` does NOT install a transport-level listener per call. The
+package installs exactly ONE shared `onMessage` listener for the whole
+process (at import) and multiplexes it to per-room handlers; `subscribe()`
+registers a handler and the returned unsubscribe fully removes it. Listeners
+never accumulate, so subscribing / unsubscribing per request is safe.

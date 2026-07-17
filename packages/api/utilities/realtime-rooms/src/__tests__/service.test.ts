@@ -55,6 +55,19 @@ import {
   subscribe,
 } from '../service.js'
 
+// The package installs exactly ONE shared transport listener at module load
+// (service.ts calls realtimeOnMessage() once, at import). Capture it + the
+// install count here, before the first beforeEach clears the mock: every
+// subscribe()/unsubscribe() below multiplexes onto this single listener and
+// must never install another (the pre-fix leak was one listener per subscribe).
+const transportInstallCallsAtLoad = mockOnMessage.mock.calls.length
+const transportDispatch = mockOnMessage.mock.calls[0]?.[0] as (
+  channel: string,
+  clientId: string,
+  kind: string,
+  data: unknown,
+) => void
+
 const ROOM_ID = '00000000-0000-0000-0000-000000000001'
 const HOST = 'host-user'
 const GUEST = 'guest-user'
@@ -359,25 +372,36 @@ describe('@molecule/api-realtime-rooms service', () => {
   })
 
   describe('subscribe', () => {
-    it('installs a realtime onMessage listener filtered to the room channel', () => {
+    it('installs exactly one shared transport listener for the whole package', () => {
+      // Registered once, at module load — not per subscribe().
+      expect(transportInstallCallsAtLoad).toBe(1)
+      expect(transportDispatch).toBeTypeOf('function')
+    })
+
+    it('does not install an additional transport listener per subscribe (single-listener / no leak)', () => {
+      // beforeEach cleared the load-time install call; subscribing many rooms
+      // and handlers must NOT call realtimeOnMessage again — the pre-fix bug
+      // installed a fresh, never-removed listener on every subscribe().
+      const unsubs = [
+        subscribe(ROOM_ID, vi.fn()),
+        subscribe(ROOM_ID, vi.fn()),
+        subscribe('another-room', vi.fn()),
+      ]
+      expect(mockOnMessage).not.toHaveBeenCalled()
+      unsubs.forEach((u) => u())
+    })
+
+    it('routes a message to the subscribed handler as a normalised RoomEvent, filtered by channel', () => {
       const handler = vi.fn()
       const unsubscribe = subscribe(ROOM_ID, handler)
-      expect(mockOnMessage).toHaveBeenCalledTimes(1)
-
-      const installed = mockOnMessage.mock.calls[0]?.[0] as (
-        channel: string,
-        clientId: string,
-        kind: string,
-        data: unknown,
-      ) => void
 
       // Wrong channel — handler must NOT fire.
-      installed('realtime-rooms:other', 'c-1', 'ping', { payload: 1 })
+      transportDispatch('realtime-rooms:other', 'c-1', 'ping', { payload: 1 })
       expect(handler).not.toHaveBeenCalled()
 
       // Right channel — handler fires with normalised RoomEvent.
       const sentAt = '2026-05-01T12:00:00Z'
-      installed(channelFor(ROOM_ID), 'c-1', 'ping', {
+      transportDispatch(channelFor(ROOM_ID), 'c-1', 'ping', {
         roomId: ROOM_ID,
         payload: { x: 1 },
         sentAt,
@@ -395,24 +419,76 @@ describe('@molecule/api-realtime-rooms service', () => {
       expect(event.sentAt).toBeInstanceOf(Date)
       expect(event.sentAt.getTime()).toBe(new Date(sentAt).getTime())
 
-      // After unsubscribe, the handler stops firing.
       unsubscribe()
-      installed(channelFor(ROOM_ID), 'c-1', 'ping', { payload: { x: 2 } })
+    })
+
+    it('detaches the handler on unsubscribe — it stops receiving events (no leak)', () => {
+      const handler = vi.fn()
+      const unsubscribe = subscribe(ROOM_ID, handler)
+      transportDispatch(channelFor(ROOM_ID), 'c-1', 'ping', { payload: { x: 1 } })
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      unsubscribe()
+      transportDispatch(channelFor(ROOM_ID), 'c-1', 'ping', { payload: { x: 2 } })
+      // Still 1 — the handler was removed from the registry, not merely muted.
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('falls back to using the raw data as payload when shape is non-standard', () => {
+    it('is idempotent — a double / stale unsubscribe is safe and never tears down a later subscription', () => {
+      const first = vi.fn()
+      const unsub1 = subscribe(ROOM_ID, first)
+      unsub1()
+      unsub1() // no-op, must not throw
+
+      const second = vi.fn()
+      const unsub2 = subscribe(ROOM_ID, second)
+      // A stale second call to the first unsubscribe must NOT remove `second`.
+      unsub1()
+      transportDispatch(channelFor(ROOM_ID), 'c-1', 'ping', { payload: 1 })
+      expect(first).not.toHaveBeenCalled()
+      expect(second).toHaveBeenCalledTimes(1)
+      unsub2()
+    })
+
+    it('does not stack duplicate deliveries — each live handler fires exactly once per message', () => {
+      const h1 = vi.fn()
+      const h2 = vi.fn()
+      const u1 = subscribe(ROOM_ID, h1)
+      const u2 = subscribe(ROOM_ID, h2)
+      transportDispatch(channelFor(ROOM_ID), 'c-1', 'ping', { payload: 1 })
+      expect(h1).toHaveBeenCalledTimes(1)
+      expect(h2).toHaveBeenCalledTimes(1)
+      // …and all of it rode the single shared listener — no new install.
+      expect(mockOnMessage).not.toHaveBeenCalled()
+      u1()
+      u2()
+    })
+
+    it('returns the channel to baseline after its last handler unsubscribes (registry cleaned, no revival)', () => {
       const handler = vi.fn()
-      subscribe(ROOM_ID, handler)
-      const installed = mockOnMessage.mock.calls[0]?.[0] as (
-        channel: string,
-        clientId: string,
-        kind: string,
-        data: unknown,
-      ) => void
-      installed(channelFor(ROOM_ID), 'c-1', 'raw', 'just-a-string')
+      const unsubscribe = subscribe(ROOM_ID, handler)
+      transportDispatch(channelFor(ROOM_ID), 'c-1', 'ping', { payload: 1 })
+      expect(handler).toHaveBeenCalledTimes(1)
+      unsubscribe()
+
+      // Baseline restored: a message on the now-empty channel reaches nobody,
+      // and a fresh subscription starts clean — the old handler never revives.
+      transportDispatch(channelFor(ROOM_ID), 'c-1', 'ping', { payload: 2 })
+      const fresh = vi.fn()
+      const u2 = subscribe(ROOM_ID, fresh)
+      transportDispatch(channelFor(ROOM_ID), 'c-1', 'ping', { payload: 3 })
+      expect(handler).toHaveBeenCalledTimes(1) // never revived
+      expect(fresh).toHaveBeenCalledTimes(1)
+      u2()
+    })
+
+    it('falls back to using the raw data as payload when the shape is non-standard', () => {
+      const handler = vi.fn()
+      const unsubscribe = subscribe(ROOM_ID, handler)
+      transportDispatch(channelFor(ROOM_ID), 'c-1', 'raw', 'just-a-string')
       expect(handler).toHaveBeenCalledTimes(1)
       expect(handler.mock.calls[0]?.[0].payload).toBe('just-a-string')
+      unsubscribe()
     })
   })
 })

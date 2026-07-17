@@ -335,49 +335,122 @@ export const broadcast = async (roomId: string, event: BroadcastOptions): Promis
 }
 
 /**
- * Subscribes to all events for a room via the bonded `realtime`
- * provider. Returns an {@link Unsubscribe} function.
+ * Live per-channel subscriber registry backing {@link subscribe}.
  *
- * The bonded provider's `onMessage` is global per-process; each call
- * installs its own transport-level message listener (never removed —
- * the unsubscribe only deactivates the handler) and filters down to
- * the requested room. Callers who need fine-grained transport-level
- * unsubscription should use the bond directly.
+ * The bonded realtime provider's `onMessage` is a single global per-process
+ * sink with **no** `off`/remove counterpart, so calling it once per
+ * `subscribe()` would install — and permanently leak — a fresh transport
+ * listener on every call. Instead this package installs exactly **one** shared
+ * transport listener (see the module-load registration below) that fans each
+ * incoming message out to the handlers registered for its channel.
+ * `subscribe()` adds its handler to the channel's set; the returned unsubscribe
+ * removes it (deleting the channel entry once its last handler leaves). The
+ * transport therefore carries a single fixed listener for the process lifetime
+ * regardless of how many rooms or handlers subscribe.
+ *
+ * Keyed by transport channel ({@link channelFor}). `channel` ↔ `roomId` is 1:1,
+ * so each entry carries the `roomId` it maps to for event construction.
+ */
+interface ChannelSubscription {
+  /** Room id this channel maps to. */
+  roomId: string
+  /** Live per-subscription handlers registered for this channel. */
+  handlers: Set<RoomEventHandler>
+}
+
+const channelSubscriptions = new Map<string, ChannelSubscription>()
+
+/**
+ * Normalises a raw transport message's data into `{ payload, sentAt }`.
+ *
+ * A message broadcast via {@link broadcast} wraps the body as
+ * `{ roomId, payload, sentAt }`; anything else is treated as the raw payload.
+ *
+ * @param data - Raw transport message data.
+ * @returns The extracted payload and parsed `sentAt` Date.
+ */
+const normaliseEventData = (data: unknown): { payload: unknown; sentAt: Date } => {
+  const payload =
+    data && typeof data === 'object' && 'payload' in (data as Record<string, unknown>)
+      ? (data as { payload: unknown }).payload
+      : data
+  const sentAtRaw =
+    data && typeof data === 'object' && 'sentAt' in (data as Record<string, unknown>)
+      ? (data as { sentAt: unknown }).sentAt
+      : undefined
+  const sentAt =
+    sentAtRaw instanceof Date
+      ? sentAtRaw
+      : typeof sentAtRaw === 'string'
+        ? new Date(sentAtRaw)
+        : new Date()
+  return { payload, sentAt }
+}
+
+/**
+ * The one shared transport listener. Dispatches each incoming transport
+ * message to every live handler registered for its channel; a message on a
+ * channel with no (remaining) subscribers is ignored.
+ *
+ * @param channel - Transport channel the message arrived on.
+ * @param _clientId - Sending client id (unused — room events are room-scoped).
+ * @param kind - Event name.
+ * @param data - Raw event data.
+ */
+const dispatchTransportMessage = (
+  channel: string,
+  _clientId: string,
+  kind: string,
+  data: unknown,
+): void => {
+  const subscription = channelSubscriptions.get(channel)
+  if (!subscription || subscription.handlers.size === 0) return
+  const { payload, sentAt } = normaliseEventData(data)
+  const event: RoomEvent = { roomId: subscription.roomId, kind, payload, sentAt }
+  // Snapshot so a handler that unsubscribes mid-dispatch can't mutate the set
+  // being iterated.
+  for (const handler of [...subscription.handlers]) {
+    void handler(event)
+  }
+}
+
+// Install the single shared transport listener exactly once, at module load.
+// api-realtime buffers onMessage registrations made before a provider is
+// bonded and flushes them on setProvider(), so registering here — well before
+// the realtime bond binds at server-creation — is safe and order-independent.
+realtimeOnMessage(dispatchTransportMessage)
+
+/**
+ * Subscribes `handler` to every event broadcast on `roomId`.
+ *
+ * This package installs exactly **one** transport-level `onMessage` listener
+ * for the whole process (at module load) and multiplexes it: `subscribe()`
+ * registers `handler` against the room's channel and the returned
+ * {@link Unsubscribe} removes *that* handler. Subscribing installs no
+ * additional transport listener, and unsubscribing fully detaches the handler
+ * from the registry — so listeners never accumulate and it is safe to
+ * subscribe / unsubscribe per request. The unsubscribe is idempotent.
  *
  * @param roomId - Room to subscribe to.
- * @param handler - Invoked with each {@link RoomEvent}.
- * @returns Function that removes the subscription.
+ * @param handler - Invoked with each {@link RoomEvent} broadcast on the room.
+ * @returns Idempotent function that removes this subscription.
  */
 export const subscribe = (roomId: string, handler: RoomEventHandler): Unsubscribe => {
-  const targetChannel = channelFor(roomId)
-  let unsubscribed = false
+  const channel = channelFor(roomId)
+  let subscription = channelSubscriptions.get(channel)
+  if (!subscription) {
+    subscription = { roomId, handlers: new Set<RoomEventHandler>() }
+    channelSubscriptions.set(channel, subscription)
+  }
+  subscription.handlers.add(handler)
 
-  realtimeOnMessage((channel, _clientId, kind, data) => {
-    if (unsubscribed) return
-    if (channel !== targetChannel) return
-    const payload =
-      data && typeof data === 'object' && 'payload' in (data as Record<string, unknown>)
-        ? (data as { payload: unknown }).payload
-        : data
-    const sentAtRaw =
-      data && typeof data === 'object' && 'sentAt' in (data as Record<string, unknown>)
-        ? (data as { sentAt: unknown }).sentAt
-        : undefined
-    const sentAt =
-      sentAtRaw instanceof Date
-        ? sentAtRaw
-        : typeof sentAtRaw === 'string'
-          ? new Date(sentAtRaw)
-          : new Date()
-    void handler({
-      roomId,
-      kind,
-      payload,
-      sentAt,
-    })
-  })
-
+  let active = true
   return () => {
-    unsubscribed = true
+    if (!active) return
+    active = false
+    const current = channelSubscriptions.get(channel)
+    if (!current) return
+    current.handlers.delete(handler)
+    if (current.handlers.size === 0) channelSubscriptions.delete(channel)
   }
 }

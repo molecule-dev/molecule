@@ -51,10 +51,11 @@
  * before the transport is set are buffered by api-realtime and flushed when
  * it is; `broadcast()` before then throws "Realtime provider not configured".
  *
- * `subscribe()` registers a transport-level listener that is NOT removed by
- * the returned unsubscribe function (it only stops your handler from firing —
- * the underlying `onMessage` handler lives for the process lifetime). Create
- * long-lived subscriptions at startup; do not subscribe per request.
+ * `subscribe()` does NOT install a transport-level listener per call. The
+ * package installs exactly ONE shared `onMessage` listener for the whole
+ * process (at import) and multiplexes it to per-room handlers; `subscribe()`
+ * registers a handler and the returned unsubscribe fully removes it. Listeners
+ * never accumulate, so subscribing / unsubscribing per request is safe.
  *
  * @module
  */
