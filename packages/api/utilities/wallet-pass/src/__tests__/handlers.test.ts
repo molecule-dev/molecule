@@ -193,6 +193,31 @@ describe('createGoogleWalletPassHandler', () => {
     expect(jwt.split('.').length).toBe(3)
   })
 
+  test('issues a coupon (offer) pass when the resolver selects passType', async () => {
+    const handle = createGoogleWalletPassHandler({
+      resolve: async () => ({
+        passClass: { id: '3388000000000000000.coupon-class' },
+        passObject: {
+          id: '3388000000000000000.coupon-object',
+          classId: '3388000000000000000.coupon-class',
+        },
+        serviceAccount: {
+          clientEmail: 'wallet@example.iam.gserviceaccount.com',
+          privateKey: makeKey(),
+        },
+        passType: 'coupon',
+      }),
+    })
+    const res = makeResponse()
+    await handle({ params: { passId: 'coupon-1' } }, res)
+
+    const jwt = res.redirected!.replace('https://pay.google.com/gp/v/save/', '')
+    const payload = JSON.parse(base64UrlDecode(jwt.split('.')[1]!).toString('utf8'))
+    expect(payload.payload.offerClasses).toBeDefined()
+    expect(payload.payload.offerObjects).toBeDefined()
+    expect(payload.payload.eventTicketClasses).toBeUndefined()
+  })
+
   test('honors custom saveUrlPrefix', async () => {
     const handle = createGoogleWalletPassHandler({
       saveUrlPrefix: 'https://example.test/save/',
@@ -210,3 +235,17 @@ describe('createGoogleWalletPassHandler', () => {
     expect(res.redirected).toMatch(/^https:\/\/example\.test\/save\//)
   })
 })
+
+/**
+ * Decode a base64-url string back to bytes.
+ *
+ * @param input - Base64-url string.
+ * @returns Decoded bytes.
+ */
+function base64UrlDecode(input: string): Buffer {
+  const padded = input
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(input.length + ((4 - (input.length % 4)) % 4), '=')
+  return Buffer.from(padded, 'base64')
+}

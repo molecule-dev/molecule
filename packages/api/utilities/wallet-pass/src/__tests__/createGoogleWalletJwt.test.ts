@@ -119,6 +119,85 @@ describe('createGoogleWalletJwt', () => {
     expect(payload.origins).toEqual(['https://example.com'])
   })
 
+  test('defaults to the eventTicket pass type', () => {
+    const { privateKey } = generatePemKeypair()
+    const jwt = createGoogleWalletJwt(samplePassClass, samplePassObject, {
+      clientEmail: 'wallet@example.iam.gserviceaccount.com',
+      privateKey,
+    })
+    const payload = JSON.parse(base64UrlDecode(jwt.split('.')[1]!).toString('utf8'))
+    expect(payload.payload.eventTicketClasses).toEqual([samplePassClass])
+    expect(payload.payload.eventTicketObjects).toEqual([samplePassObject])
+    expect(payload.payload.offerClasses).toBeUndefined()
+  })
+
+  test('builds a coupon (offer) pass — uses offer keys, NOT eventTicket', () => {
+    const { privateKey } = generatePemKeypair()
+    const couponClass = { id: '3388000000022123456.coupon-class' }
+    const couponObject = {
+      id: '3388000000022123456.coupon-object',
+      classId: '3388000000022123456.coupon-class',
+      state: 'ACTIVE',
+    }
+    const jwt = createGoogleWalletJwt(
+      couponClass,
+      couponObject,
+      { clientEmail: 'wallet@example.iam.gserviceaccount.com', privateKey },
+      undefined,
+      'coupon',
+    )
+    const payload = JSON.parse(base64UrlDecode(jwt.split('.')[1]!).toString('utf8'))
+    expect(payload.payload.offerClasses).toEqual([couponClass])
+    expect(payload.payload.offerObjects).toEqual([couponObject])
+    // Critically, it must NOT emit the event-ticket keys for a coupon.
+    expect(payload.payload.eventTicketClasses).toBeUndefined()
+    expect(payload.payload.eventTicketObjects).toBeUndefined()
+  })
+
+  test("'offer' and 'coupon' are aliases for the same Google offer keys", () => {
+    const { privateKey } = generatePemKeypair()
+    const sa = { clientEmail: 'wallet@example.iam.gserviceaccount.com', privateKey }
+    const offerPayload = JSON.parse(
+      base64UrlDecode(
+        createGoogleWalletJwt(samplePassClass, samplePassObject, sa, undefined, 'offer').split(
+          '.',
+        )[1]!,
+      ).toString('utf8'),
+    )
+    const couponPayload = JSON.parse(
+      base64UrlDecode(
+        createGoogleWalletJwt(samplePassClass, samplePassObject, sa, undefined, 'coupon').split(
+          '.',
+        )[1]!,
+      ).toString('utf8'),
+    )
+    expect(offerPayload.payload.offerClasses).toBeDefined()
+    expect(couponPayload.payload.offerClasses).toBeDefined()
+    expect(Object.keys(offerPayload.payload)).toEqual(Object.keys(couponPayload.payload))
+  })
+
+  test('routes every supported pass type to its Google payload keys', () => {
+    const { privateKey } = generatePemKeypair()
+    const sa = { clientEmail: 'wallet@example.iam.gserviceaccount.com', privateKey }
+    const cases: Array<[Parameters<typeof createGoogleWalletJwt>[4], string, string]> = [
+      ['eventTicket', 'eventTicketClasses', 'eventTicketObjects'],
+      ['offer', 'offerClasses', 'offerObjects'],
+      ['coupon', 'offerClasses', 'offerObjects'],
+      ['loyalty', 'loyaltyClasses', 'loyaltyObjects'],
+      ['giftCard', 'giftCardClasses', 'giftCardObjects'],
+      ['flight', 'flightClasses', 'flightObjects'],
+      ['transit', 'transitClasses', 'transitObjects'],
+      ['generic', 'genericClasses', 'genericObjects'],
+    ]
+    for (const [passType, classKey, objectKey] of cases) {
+      const jwt = createGoogleWalletJwt(samplePassClass, samplePassObject, sa, undefined, passType)
+      const payload = JSON.parse(base64UrlDecode(jwt.split('.')[1]!).toString('utf8'))
+      expect(Object.keys(payload.payload)).toEqual([classKey, objectKey])
+      expect(payload.payload[classKey]).toEqual([samplePassClass])
+      expect(payload.payload[objectKey]).toEqual([samplePassObject])
+    }
+  })
+
   test('rejects an invalid private key without leaking the key material', () => {
     expect(() =>
       createGoogleWalletJwt(samplePassClass, samplePassObject, {

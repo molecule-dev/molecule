@@ -9,7 +9,9 @@
  *   "Pass Type ID" cert + WWDR intermediate). Output is a `Buffer` ready
  *   to send with `Content-Type: application/vnd.apple.pkpass`.
  * - {@link createGoogleWalletJwt} — produces an RS256-signed JWT containing
- *   the pass class + pass object payloads. Embed the JWT into
+ *   the pass class + pass object payloads for the selected
+ *   {@link GoogleWalletPassType} (event ticket, offer/coupon, loyalty, gift
+ *   card, flight, transit, or generic). Embed the JWT into
  *   `https://pay.google.com/gp/v/save/<jwt>` for the "save to wallet" flow.
  *
  * Two HTTP handlers — {@link createApplePassHandler} and
@@ -27,17 +29,24 @@
  * // Apple
  * const pkpass = await createApplePass(passJsonPayload, signingCerts, assets)
  *
- * // Google
+ * // Google — event ticket (default)
  * const jwt = createGoogleWalletJwt(passClass, passObject, serviceAccount)
  * const saveUrl = `https://pay.google.com/gp/v/save/${jwt}`
+ *
+ * // Google — coupon (offer pass type)
+ * const couponJwt = createGoogleWalletJwt(
+ *   passClass, passObject, serviceAccount, undefined, 'coupon',
+ * )
  * ```
  *
  * @remarks
- * Pass-style coverage is asymmetric: the Apple generator accepts all five
- * PassKit styles (`eventTicket`, `boardingPass`, `coupon`, `generic`,
- * `storeCard`) via {@link ApplePassData}, but {@link createGoogleWalletJwt}
- * currently emits ONLY `eventTicketClasses`/`eventTicketObjects` in the JWT
- * payload — Google offers/coupons/loyalty passes are not yet supported.
+ * Both generators cover their vendor's full pass-type range. The Apple
+ * generator accepts all five PassKit styles (`eventTicket`, `boardingPass`,
+ * `coupon`, `generic`, `storeCard`) via {@link ApplePassData}. The Google
+ * generator selects its pass type via the `passType` argument
+ * ({@link GoogleWalletPassType}) and routes to the matching JWT payload keys —
+ * `eventTicket`, `offer`/`coupon`, `loyalty`, `giftCard`, `flight`, `transit`,
+ * or `generic` — defaulting to `eventTicket`.
  *
  * Signing material is caller-supplied PEM strings — this package reads no
  * environment variables and makes NO network calls (signing is fully local).

@@ -197,15 +197,44 @@ export interface CreateApplePassOptions {
 }
 
 /**
+ * Google Wallet pass type. Selects which class/object payload keys the signed
+ * JWT carries — Google routes each pass to a different on-device surface by
+ * these keys, so the type MUST match the schema of `passClass`/`passObject`.
+ *
+ * - `'eventTicket'` — event tickets (`eventTicketClasses`/`eventTicketObjects`).
+ * - `'offer'` / `'coupon'` — offers & coupons (`offerClasses`/`offerObjects`);
+ *   Google Wallet has no separate "coupon" type — a coupon IS an offer, so the
+ *   two spellings are aliases.
+ * - `'loyalty'` — loyalty cards (`loyaltyClasses`/`loyaltyObjects`).
+ * - `'giftCard'` — gift cards (`giftCardClasses`/`giftCardObjects`).
+ * - `'flight'` — boarding passes (`flightClasses`/`flightObjects`).
+ * - `'transit'` — transit passes (`transitClasses`/`transitObjects`).
+ * - `'generic'` — generic passes (`genericClasses`/`genericObjects`).
+ *
+ * @see https://developers.google.com/wallet/generic/rest/v1
+ */
+export type GoogleWalletPassType =
+  | 'eventTicket'
+  | 'offer'
+  | 'coupon'
+  | 'loyalty'
+  | 'giftCard'
+  | 'flight'
+  | 'transit'
+  | 'generic'
+
+/**
  * Google Wallet "pass class" — the shared template all matching pass
  * objects inherit from. Apps typically create one class per event /
  * loyalty-program and many objects underneath it.
  *
  * The shape mirrors Google's REST schema; only `id` is required at this
- * layer. All other Google fields (eventName, venue, dateTime, etc.) are
- * accepted via the index signature.
+ * layer. All other Google fields (eventName, venue, dateTime, redemptionIssuers,
+ * etc.) are accepted via the index signature, so the same interface serves
+ * every {@link GoogleWalletPassType} (event ticket, offer/coupon, loyalty, …).
  *
  * @see https://developers.google.com/wallet/tickets/events/rest/v1/eventticketclass
+ * @see https://developers.google.com/wallet/retail/offers/rest/v1/offerclass
  */
 export interface GoogleWalletClass {
   /** Globally unique class id, formatted `'<issuerId>.<suffix>'`. */
@@ -219,9 +248,11 @@ export interface GoogleWalletClass {
  *
  * The shape mirrors Google's REST schema; `id` and `classId` are required.
  * All other Google fields (state, ticketHolderName, barcode, etc.) are
- * accepted via the index signature.
+ * accepted via the index signature, so the same interface serves every
+ * {@link GoogleWalletPassType} (event ticket, offer/coupon, loyalty, …).
  *
  * @see https://developers.google.com/wallet/tickets/events/rest/v1/eventticketobject
+ * @see https://developers.google.com/wallet/retail/offers/rest/v1/offerobject
  */
 export interface GoogleWalletObject {
   /** Globally unique object id, formatted `'<issuerId>.<suffix>'`. */
@@ -257,6 +288,11 @@ export interface CreateGoogleWalletJwtOptions {
   serviceAccount: GoogleWalletServiceAccount
   /** JWT origins (audience domains). Defaults to `['https://wallet.google']`. */
   origins?: string[]
+  /**
+   * Which Google Wallet pass type to emit. Defaults to `'eventTicket'`. Use
+   * `'offer'` (or `'coupon'`) for coupons — see {@link GoogleWalletPassType}.
+   */
+  passType?: GoogleWalletPassType
 }
 
 /**

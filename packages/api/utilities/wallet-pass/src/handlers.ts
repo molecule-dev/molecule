@@ -17,6 +17,7 @@ import {
   type ApplePassData,
   type GoogleWalletClass,
   type GoogleWalletObject,
+  type GoogleWalletPassType,
   type GoogleWalletServiceAccount,
   PKPASS_CONTENT_TYPE,
 } from './types.js'
@@ -69,6 +70,11 @@ export type GoogleWalletPassResolver = (passId: string) => Promise<
       passObject: GoogleWalletObject
       serviceAccount: GoogleWalletServiceAccount
       origins?: string[]
+      /**
+       * Which Google Wallet pass type to issue. Defaults to `'eventTicket'`.
+       * Return `'offer'`/`'coupon'` (etc.) to deliver a coupon.
+       */
+      passType?: GoogleWalletPassType
     }
   | undefined
 >
@@ -187,6 +193,7 @@ export function createGoogleWalletPassHandler(
       resolved.passObject,
       resolved.serviceAccount,
       resolved.origins,
+      resolved.passType,
     )
 
     res.redirect(`${saveUrlPrefix}${jwt}`)

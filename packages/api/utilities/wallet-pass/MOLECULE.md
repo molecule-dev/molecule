@@ -10,7 +10,9 @@ Two independent sub-APIs:
   "Pass Type ID" cert + WWDR intermediate). Output is a `Buffer` ready
   to send with `Content-Type: application/vnd.apple.pkpass`.
 - {@link createGoogleWalletJwt} — produces an RS256-signed JWT containing
-  the pass class + pass object payloads. Embed the JWT into
+  the pass class + pass object payloads for the selected
+  {@link GoogleWalletPassType} (event ticket, offer/coupon, loyalty, gift
+  card, flight, transit, or generic). Embed the JWT into
   `https://pay.google.com/gp/v/save/<jwt>` for the "save to wallet" flow.
 
 Two HTTP handlers — {@link createApplePassHandler} and
@@ -29,9 +31,14 @@ import { createApplePass, createGoogleWalletJwt } from '@molecule/api-wallet-pas
 // Apple
 const pkpass = await createApplePass(passJsonPayload, signingCerts, assets)
 
-// Google
+// Google — event ticket (default)
 const jwt = createGoogleWalletJwt(passClass, passObject, serviceAccount)
 const saveUrl = `https://pay.google.com/gp/v/save/${jwt}`
+
+// Google — coupon (offer pass type)
+const couponJwt = createGoogleWalletJwt(
+  passClass, passObject, serviceAccount, undefined, 'coupon',
+)
 ```
 
 ## Type
@@ -248,6 +255,11 @@ interface CreateGoogleWalletJwtOptions {
   serviceAccount: GoogleWalletServiceAccount
   /** JWT origins (audience domains). Defaults to `['https://wallet.google']`. */
   origins?: string[]
+  /**
+   * Which Google Wallet pass type to emit. Defaults to `'eventTicket'`. Use
+   * `'offer'` (or `'coupon'`) for coupons — see {@link GoogleWalletPassType}.
+   */
+  passType?: GoogleWalletPassType
 }
 ```
 
@@ -271,8 +283,9 @@ objects inherit from. Apps typically create one class per event /
 loyalty-program and many objects underneath it.
 
 The shape mirrors Google's REST schema; only `id` is required at this
-layer. All other Google fields (eventName, venue, dateTime, etc.) are
-accepted via the index signature.
+layer. All other Google fields (eventName, venue, dateTime, redemptionIssuers,
+etc.) are accepted via the index signature, so the same interface serves
+every {@link GoogleWalletPassType} (event ticket, offer/coupon, loyalty, …).
 
 ```typescript
 interface GoogleWalletClass {
@@ -289,7 +302,8 @@ Google Wallet "pass object" — the per-user instance of a class.
 
 The shape mirrors Google's REST schema; `id` and `classId` are required.
 All other Google fields (state, ticketHolderName, barcode, etc.) are
-accepted via the index signature.
+accepted via the index signature, so the same interface serves every
+{@link GoogleWalletPassType} (event ticket, offer/coupon, loyalty, …).
 
 ```typescript
 interface GoogleWalletObject {
@@ -430,9 +444,42 @@ type GoogleWalletPassResolver = (passId: string) => Promise<
       passObject: GoogleWalletObject
       serviceAccount: GoogleWalletServiceAccount
       origins?: string[]
+      /**
+       * Which Google Wallet pass type to issue. Defaults to `'eventTicket'`.
+       * Return `'offer'`/`'coupon'` (etc.) to deliver a coupon.
+       */
+      passType?: GoogleWalletPassType
     }
   | undefined
 >
+```
+
+#### `GoogleWalletPassType`
+
+Google Wallet pass type. Selects which class/object payload keys the signed
+JWT carries — Google routes each pass to a different on-device surface by
+these keys, so the type MUST match the schema of `passClass`/`passObject`.
+
+- `'eventTicket'` — event tickets (`eventTicketClasses`/`eventTicketObjects`).
+- `'offer'` / `'coupon'` — offers & coupons (`offerClasses`/`offerObjects`);
+  Google Wallet has no separate "coupon" type — a coupon IS an offer, so the
+  two spellings are aliases.
+- `'loyalty'` — loyalty cards (`loyaltyClasses`/`loyaltyObjects`).
+- `'giftCard'` — gift cards (`giftCardClasses`/`giftCardObjects`).
+- `'flight'` — boarding passes (`flightClasses`/`flightObjects`).
+- `'transit'` — transit passes (`transitClasses`/`transitObjects`).
+- `'generic'` — generic passes (`genericClasses`/`genericObjects`).
+
+```typescript
+type GoogleWalletPassType =
+  | 'eventTicket'
+  | 'offer'
+  | 'coupon'
+  | 'loyalty'
+  | 'giftCard'
+  | 'flight'
+  | 'transit'
+  | 'generic'
 ```
 
 ### Functions
@@ -492,20 +539,27 @@ function createApplePassHandler(options: CreateApplePassHandlerOptions): (req: W
 
 **Returns:** Handler.
 
-#### `createGoogleWalletJwt(passClass, passObject, serviceAccount, origins)`
+#### `createGoogleWalletJwt(passClass, passObject, serviceAccount, origins, passType)`
 
 Build and RS256-sign a Google Wallet JWT containing the pass class and
 pass object. The returned string can be embedded directly into the
 `https://pay.google.com/gp/v/save/<jwt>` redirect URL.
 
+The `passType` selects which Google Wallet class/object keys the payload
+carries, so the SAME function creates event tickets, offers/coupons, loyalty
+cards, gift cards, boarding passes, transit passes, or generic passes —
+routed via {@link PASS_TYPE_PAYLOAD_KEYS}. It is NOT hardcoded to event
+tickets.
+
 ```typescript
-function createGoogleWalletJwt(passClass: GoogleWalletClass, passObject: GoogleWalletObject, serviceAccount: GoogleWalletServiceAccount, origins?: readonly string[]): string
+function createGoogleWalletJwt(passClass: GoogleWalletClass, passObject: GoogleWalletObject, serviceAccount: GoogleWalletServiceAccount, origins?: readonly string[], passType?: GoogleWalletPassType): string
 ```
 
 - `passClass` — Pass class definition (template).
 - `passObject` — Pass object definition (per-user instance).
 - `serviceAccount` — Service-account email + RSA private key.
 - `origins` — Optional origin domains; defaults to `['https://wallet.google']`.
+- `passType` — Google Wallet pass type; defaults to `'eventTicket'`. Use
 
 **Returns:** A signed JWT string.
 
@@ -552,11 +606,13 @@ const PKPASS_CONTENT_TYPE: "application/vnd.apple.pkpass"
 
 - `node-forge`
 
-Pass-style coverage is asymmetric: the Apple generator accepts all five
-PassKit styles (`eventTicket`, `boardingPass`, `coupon`, `generic`,
-`storeCard`) via {@link ApplePassData}, but {@link createGoogleWalletJwt}
-currently emits ONLY `eventTicketClasses`/`eventTicketObjects` in the JWT
-payload — Google offers/coupons/loyalty passes are not yet supported.
+Both generators cover their vendor's full pass-type range. The Apple
+generator accepts all five PassKit styles (`eventTicket`, `boardingPass`,
+`coupon`, `generic`, `storeCard`) via {@link ApplePassData}. The Google
+generator selects its pass type via the `passType` argument
+({@link GoogleWalletPassType}) and routes to the matching JWT payload keys —
+`eventTicket`, `offer`/`coupon`, `loyalty`, `giftCard`, `flight`, `transit`,
+or `generic` — defaulting to `eventTicket`.
 
 Signing material is caller-supplied PEM strings — this package reads no
 environment variables and makes NO network calls (signing is fully local).
