@@ -53,6 +53,16 @@ describe('extractFields', () => {
     expect(out.data.invoice_number).toBe('INV-2')
   })
 
+  it('parses JSON even when the model wraps the fence in prose', async () => {
+    mockChat.mockReturnValue(
+      streamChunks([
+        'Here is the extracted data:\n```json\n{"data":{"invoice_number":"INV-9"},"reasoning":"r"}\n```\nHope this helps!',
+      ]),
+    )
+    const out = await extractFields({ text: 'doc', fields: FIELDS })
+    expect(out.data.invoice_number).toBe('INV-9')
+  })
+
   it('returns empty data + diagnostic when JSON is malformed', async () => {
     mockChat.mockReturnValue(streamChunks(['totally not json']))
     const out = await extractFields({ text: 'doc', fields: FIELDS })

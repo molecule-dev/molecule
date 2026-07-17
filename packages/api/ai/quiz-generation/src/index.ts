@@ -105,10 +105,20 @@ async function callAI(prompt: string, model?: string, temperature = 0.3): Promis
 /** Strips optional markdown code fences from an AI response and parses the result as JSON, returning null on parse failure. */
 function parseJson<T>(raw: string): T | null {
   try {
-    const json = raw
-      .replace(/```(?:json)?\s*/i, '')
-      .replace(/\s*```\s*$/, '')
-      .trim()
+    // Extract the JSON object even when the model wraps it in prose and/or a
+    // markdown fence (LLMs commonly add "Here is the result:" or trailing
+    // remarks). Prefer fenced content, then slice first `{` to last `}` — a bare
+    // fence-strip fails on prose around the block.
+    const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i)
+    const jsonBody = (fenced ? fenced[1] : raw).trim()
+    // Slice the outermost JSON value — object OR array — out of any prose.
+    const objAt = jsonBody.indexOf('{')
+    const arrAt = jsonBody.indexOf('[')
+    const useArray = arrAt >= 0 && (objAt < 0 || arrAt < objAt)
+    const valStart = useArray ? arrAt : objAt
+    const valEnd = jsonBody.lastIndexOf(useArray ? ']' : '}')
+    const json =
+      valStart >= 0 && valEnd > valStart ? jsonBody.slice(valStart, valEnd + 1) : jsonBody
     return JSON.parse(json) as T
   } catch (_error) {
     // Intentional noop: AI may return malformed or non-JSON output; callers handle the null return.

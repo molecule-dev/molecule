@@ -108,6 +108,20 @@ describe('gradeResponses', () => {
     expect(out.responses).toHaveLength(2)
   })
 
+  it('grades even when the model wraps the JSON array in prose', async () => {
+    mockChat.mockReturnValue(
+      streamChunks([
+        'Sure, here are the grades:\n```json\n[{"question_id":"q1","submitted":"A","correct":true,"score":1.0,"feedback":"yes"}]\n```',
+      ]),
+    )
+    const out = await gradeResponses({
+      quiz: SAMPLE_QUIZ,
+      responses: [{ question_id: 'q1', submitted: 'A' }],
+    })
+    expect(out.earned).toBe(1)
+    expect(out.responses).toHaveLength(1)
+  })
+
   it('returns 0 percentage when quiz has no questions (avoid divide-by-zero)', async () => {
     mockChat.mockReturnValue(streamChunks(['[]']))
     const out = await gradeResponses({ quiz: { questions: [] }, responses: [] })
