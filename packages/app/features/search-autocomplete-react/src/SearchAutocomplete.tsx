@@ -1,5 +1,5 @@
 import type { JSX, ReactNode } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -59,20 +59,51 @@ export function SearchAutocomplete<T = unknown>({
   const { t } = useTranslation()
   const [internal, setInternal] = useState<SuggestionItem<T>[]>([])
   const [open, setOpen] = useState(false)
+  // Index of the keyboard-highlighted option (-1 = none highlighted).
+  const [activeIndex, setActiveIndex] = useState(-1)
   const wrapRef = useRef<HTMLDivElement>(null)
+  // Monotonic id of the latest in-flight `onSearch`. A response only applies if
+  // its token still equals the latest — the stale-response race guard.
+  const requestRef = useRef(0)
+  const baseId = useId()
+  const listId = `${baseId}-listbox`
+  /**
+   * Stable DOM id for the option at `index` (referenced by aria-activedescendant).
+   * @param index - Option position.
+   */
+  const optionId = (index: number): string => `${baseId}-option-${index}`
   const list = controlledSuggestions ?? internal
+  // The popover is only visible with open + at least one suggestion.
+  const isExpanded = open && list.length > 0
 
   useEffect(() => {
     if (!onSearch || value.length < minChars) {
       setInternal([])
       return
     }
-    const id = setTimeout(async () => {
-      const r = await onSearch(value)
-      setInternal(r)
+    const id = setTimeout(() => {
+      const token = ++requestRef.current
+      Promise.resolve(onSearch(value))
+        .then((r) => {
+          // Drop a response that lost the race: only the LATEST request may
+          // apply, so a slow earlier fetch can't clobber fresher results.
+          if (token === requestRef.current) setInternal(r)
+        })
+        .catch((_error) => {
+          // Typeahead is best-effort — a failed suggestion fetch simply yields
+          // no suggestions for THIS query. Guard on the token so an
+          // out-of-order failure can't wipe a fresher successful result.
+          if (token === requestRef.current) setInternal([])
+        })
     }, debounceMs)
     return () => clearTimeout(id)
   }, [value, onSearch, debounceMs, minChars])
+
+  // A new query resets the keyboard highlight (works for both the internal and
+  // the controlled `suggestions` data modes).
+  useEffect(() => {
+    setActiveIndex(-1)
+  }, [value])
 
   useEffect(() => {
     if (!open) return
@@ -81,11 +112,61 @@ export function SearchAutocomplete<T = unknown>({
      * @param e
      */
     function onDoc(e: MouseEvent): void {
-      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false)
+      if (!wrapRef.current?.contains(e.target as Node)) {
+        setOpen(false)
+        setActiveIndex(-1)
+      }
     }
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [open])
+
+  /**
+   * Commits a suggestion selection and closes the popover.
+   * @param item - The chosen suggestion.
+   */
+  function select(item: SuggestionItem<T>): void {
+    onSelect(item)
+    setOpen(false)
+    setActiveIndex(-1)
+  }
+
+  /**
+   * Full keyboard support for the combobox: ArrowDown/ArrowUp move the
+   * highlight (opening the popover if needed), Enter selects the highlighted
+   * option, Escape closes.
+   * @param e - The keyboard event from the input.
+   */
+  function onKeyDown(e: KeyboardEvent): void {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      if (!open) {
+        if (list.length > 0) setOpen(true)
+        return
+      }
+      if (list.length === 0) return
+      setActiveIndex((i) => (i + 1) % list.length)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      if (!open) {
+        if (list.length > 0) setOpen(true)
+        return
+      }
+      if (list.length === 0) return
+      setActiveIndex((i) => (i <= 0 ? list.length - 1 : i - 1))
+    } else if (e.key === 'Enter') {
+      if (isExpanded && activeIndex >= 0 && activeIndex < list.length) {
+        e.preventDefault()
+        select(list[activeIndex])
+      }
+    } else if (e.key === 'Escape') {
+      if (open) {
+        e.preventDefault()
+        setOpen(false)
+        setActiveIndex(-1)
+      }
+    }
+  }
 
   return (
     <div ref={wrapRef} className={cm.cn(cm.position('relative'), className)}>
@@ -97,13 +178,18 @@ export function SearchAutocomplete<T = unknown>({
           setOpen(true)
         }}
         onFocus={() => value.length >= minChars && setOpen(true)}
+        onKeyDown={onKeyDown}
         placeholder={placeholder ?? t('search.placeholder', {}, { defaultValue: 'Search…' })}
+        role="combobox"
         aria-autocomplete="list"
-        aria-expanded={open}
+        aria-expanded={isExpanded}
+        aria-controls={listId}
+        aria-activedescendant={isExpanded && activeIndex >= 0 ? optionId(activeIndex) : undefined}
       />
-      {open && list.length > 0 && (
+      {isExpanded && (
         <ul
           role="listbox"
+          id={listId}
           className={cm.cn(cm.stack(0 as const), cm.sp('p', 1))}
           style={{
             position: 'absolute',
@@ -119,15 +205,21 @@ export function SearchAutocomplete<T = unknown>({
             overflowY: 'auto',
           }}
         >
-          {list.map((s) => (
+          {list.map((s, index) => (
             <li
               key={s.id}
+              id={optionId(index)}
               role="option"
-              onClick={() => {
-                onSelect(s)
-                setOpen(false)
-              }}
-              className={cm.cn(cm.sp('px', 2), cm.sp('py', 2), cm.textSize('sm'), cm.cursorPointer)}
+              aria-selected={index === activeIndex}
+              onMouseEnter={() => setActiveIndex(index)}
+              onClick={() => select(s)}
+              className={cm.cn(
+                cm.sp('px', 2),
+                cm.sp('py', 2),
+                cm.textSize('sm'),
+                cm.cursorPointer,
+                index === activeIndex && cm.surfaceSecondary,
+              )}
             >
               <div className={cm.fontWeight('medium')}>{s.label}</div>
               {s.meta && <div className={cm.textSize('xs')}>{s.meta}</div>}

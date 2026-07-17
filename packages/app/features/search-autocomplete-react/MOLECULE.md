@@ -132,10 +132,12 @@ Peer dependencies:
 
 - Throws unless rendered inside `<I18nProvider>` (from
   `@molecule/app-react`) with a bonded ClassMap.
-- Suggestion selection is MOUSE-ONLY: no arrow-key/Enter navigation is
-  implemented. Add your own key handling when keyboard support matters.
-- Rapid typing can apply an out-of-order `onSearch` result (no request
-  cancellation) — keep `onSearch` fast or raise `debounceMs`.
+- Full keyboard support: it's an ARIA combobox — ArrowDown/ArrowUp move the
+  highlight (opening the popover), Enter selects the highlighted option, and
+  Escape closes. `aria-activedescendant` tracks the active `role="option"`.
+- Stale-response safe: out-of-order `onSearch` responses are dropped (each
+  request carries a token; only the latest applies), so a slow earlier fetch
+  can't overwrite fresher results. `onSearch` needs no cancellation of its own.
 - The popover surface uses `var(--color-surface)` with a WHITE fallback
   and black-alpha borders — define `--color-surface` (dark themes) or the
   dropdown stays light.
