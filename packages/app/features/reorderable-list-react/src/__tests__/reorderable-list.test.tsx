@@ -22,6 +22,21 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
+vi.mock('@molecule/app-react', () => ({
+  useTranslation: () => ({
+    t: (
+      _key: string,
+      values: Record<string, unknown> | undefined,
+      opts?: { defaultValue?: string },
+    ) => {
+      let out = opts?.defaultValue ?? _key
+      if (values)
+        for (const [k, v] of Object.entries(values)) out = out.replace(`{{${k}}}`, String(v))
+      return out
+    },
+  }),
+}))
+
 const { ReorderableList } = await import('../ReorderableList.js')
 
 const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderToStaticMarkup(el)
@@ -78,5 +93,24 @@ describe('ReorderableList', () => {
       }),
     )
     expect(markup).toContain('rl-cls')
+  })
+
+  it('renders keyboard-accessible move controls with aria + data-mol-id, disabled at the edges', () => {
+    const markup = html(
+      createElement(ReorderableList<{ label: string }>, { items, onReorder: () => {}, renderItem }),
+    )
+    // Every row exposes move-up/move-down buttons the finding requires.
+    expect(markup).toContain('data-mol-id="reorderable-move-up-a"')
+    expect(markup).toContain('data-mol-id="reorderable-move-down-a"')
+    expect(markup).toContain('data-mol-id="reorderable-move-up-b"')
+    expect(markup).toContain('data-mol-id="reorderable-move-down-b"')
+    expect(markup).toContain('aria-label="Move up"')
+    expect(markup).toContain('aria-label="Move down"')
+    // Rows carry a focusable tabindex + a position label for screen readers.
+    expect(markup).toMatch(/<li[^>]*tabindex="0"/)
+    expect(markup).toContain('aria-label="Item 1 of 2"')
+    // First row's up + last row's down are disabled (boundary guards).
+    expect(markup).toMatch(/data-mol-id="reorderable-move-up-a"[^>]*disabled/)
+    expect(markup).toMatch(/data-mol-id="reorderable-move-down-b"[^>]*disabled/)
   })
 })

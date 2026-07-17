@@ -8,6 +8,10 @@
  * `renderHandle?` (when set, only the handle is draggable — e.g. a "≡"
  * glyph; otherwise the whole row drags), `className?`.
  *
+ * Reordering works with a mouse (HTML5 drag) AND the keyboard: every row has
+ * move-up/move-down buttons (`data-mol-id="reorderable-move-{up,down}-<id>"`),
+ * and a focused row responds to Alt+ArrowUp / Alt+ArrowDown.
+ *
  * @example
  * ```tsx
  * import { useState } from 'react'
@@ -32,14 +36,16 @@
  * ```
  *
  * @remarks
- * - Native HTML5 drag events: works with MOUSE/POINTER ONLY. Touch devices
- *   (iOS/Android) fire no HTML5 drag events, and there is no keyboard
- *   reordering — add explicit up/down buttons (or a touch-capable drag
- *   library) when mobile or a11y reordering is required.
- * - Requires a bonded ClassMap (`setClassMap()` at startup) or rendering
- *   throws.
+ * - Native HTML5 drag works with MOUSE/POINTER only — touch devices
+ *   (iOS/Android) fire no HTML5 drag events. The keyboard path (move buttons +
+ *   Alt+Arrow) is the a11y/touch-safe fallback and is always present; add a
+ *   pointer/touch drag library only if you also need touch DRAG specifically.
+ * - Requires a bonded ClassMap (`setClassMap()` at startup) and an
+ *   `<I18nProvider>` (for the control labels) or rendering throws.
  * - Item `id`s must be unique — drop resolution matches by id.
- * - The handle's "Drag to reorder" aria-label is hardcoded English.
+ * - Control labels ("Move up/down", "Drag to reorder", row position) render
+ *   through `t(...)` with English defaults; no companion locale bond ships yet,
+ *   so translate them by wiring a `reorderableList.*` bond when needed.
  *
  * @module
  */
