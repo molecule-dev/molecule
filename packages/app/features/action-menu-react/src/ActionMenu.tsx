@@ -20,12 +20,19 @@ export interface ActionMenuItem {
   href?: string
   /** When true, rendered in a disabled state. */
   disabled?: boolean
-  /** Marks the item as destructive. Currently rendered with semibold weight only (no error-color accent). */
+  /**
+   * Marks the item as destructive. Rendered in the theme's error color
+   * (`cm.textError`) with semibold weight, so it reads as red in both light
+   * and dark themes.
+   */
   destructive?: boolean
   /** Insert a divider below this item. */
   divider?: boolean
 }
 
+/**
+ * Props for the {@link ActionMenu} component.
+ */
 export interface ActionMenuProps {
   /** Items to render. */
   items: ActionMenuItem[]
@@ -94,21 +101,21 @@ export function ActionMenu({
         aria-label={triggerAriaLabel}
         aria-haspopup="menu"
         aria-expanded={open}
+        data-mol-id="action-menu-trigger"
       >
         {trigger ?? '⋮'}
       </Button>
       {open && (
         <ul
           role="menu"
-          className={cm.cn(cm.stack(0 as const), cm.sp('p', 1))}
+          data-mol-id="action-menu-list"
+          className={cm.cn(cm.stack(0 as const), cm.sp('p', 1), cm.surface, cm.borderAll)}
           style={{
             position: 'absolute',
             top: '100%',
             [align === 'right' ? 'right' : 'left']: 0,
             minWidth: 160,
             zIndex: 50,
-            background: 'var(--color-surface, #fff)',
-            border: '1px solid rgba(0,0,0,0.1)',
             borderRadius: 8,
             boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
           }}
@@ -119,12 +126,15 @@ export function ActionMenu({
                 <a
                   href={it.href}
                   role="menuitem"
+                  data-mol-id={`action-menu-item-${it.id}`}
                   onClick={() => setOpen(false)}
                   className={cm.cn(
                     cm.flex({ align: 'center', gap: 'sm' }),
                     cm.sp('px', 2),
                     cm.sp('py', 2),
                     cm.textSize('sm'),
+                    it.destructive && cm.textError,
+                    it.destructive ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
                   )}
                   style={{ opacity: it.disabled ? 0.5 : 1 }}
                 >
@@ -135,6 +145,7 @@ export function ActionMenu({
                 <button
                   type="button"
                   role="menuitem"
+                  data-mol-id={`action-menu-item-${it.id}`}
                   onClick={() => {
                     if (!it.disabled) {
                       it.onClick?.()
@@ -148,6 +159,7 @@ export function ActionMenu({
                     cm.sp('px', 2),
                     cm.sp('py', 2),
                     cm.textSize('sm'),
+                    it.destructive && cm.textError,
                     it.destructive ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
                   )}
                 >
@@ -158,12 +170,8 @@ export function ActionMenu({
               {it.divider && (
                 <span
                   aria-hidden
-                  style={{
-                    display: 'block',
-                    height: 1,
-                    margin: '4px 0',
-                    background: 'rgba(0,0,0,0.08)',
-                  }}
+                  className={cm.cn(cm.displayBlock, cm.bgBorder)}
+                  style={{ height: 1, margin: '4px 0' }}
                 />
               )}
             </li>
