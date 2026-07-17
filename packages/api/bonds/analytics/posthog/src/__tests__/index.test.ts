@@ -471,6 +471,34 @@ describe('@molecule/api-analytics-posthog', () => {
         properties: undefined,
       })
     })
+
+    it('should use the configurable group type from options instead of the hardcoded default', async () => {
+      const { createProvider } = await import('../index.js')
+      const provider = createProvider({ apiKey: 'test-key', groupType: 'workspace' })
+
+      await provider.group?.('ws-1', { plan: 'pro' })
+
+      expect(mockGroupIdentify).toHaveBeenCalledWith({
+        groupType: 'workspace',
+        groupKey: 'ws-1',
+        properties: { plan: 'pro' },
+      })
+    })
+
+    it('should fall back to the POSTHOG_GROUP_TYPE env var when no option is given', async () => {
+      process.env.POSTHOG_GROUP_TYPE = 'team'
+      const { createProvider } = await import('../index.js')
+      const provider = createProvider({ apiKey: 'test-key' })
+
+      await provider.group?.('team-9')
+
+      expect(mockGroupIdentify).toHaveBeenCalledWith({
+        groupType: 'team',
+        groupKey: 'team-9',
+        properties: undefined,
+      })
+      delete process.env.POSTHOG_GROUP_TYPE
+    })
   })
 
   describe('provider.reset', () => {

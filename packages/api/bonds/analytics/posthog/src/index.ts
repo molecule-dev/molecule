@@ -32,6 +32,11 @@
  * - Server-side calls have no ambient session: pass `userId` (or
  *   `anonymousId`) on `track()` AND `page()` or events pile up under a single
  *   shared "anonymous" person.
+ * - `group()` associates users under a configurable group TYPE (PostHog's
+ *   group-analytics dimension), `'company'` by default. Set the `groupType`
+ *   option on `createProvider()` or the `POSTHOG_GROUP_TYPE` env var to group
+ *   by `'workspace'`/`'team'`/etc.; the type must be enabled for group
+ *   analytics in your PostHog project.
  * - When `POSTHOG_HOST` is unset, the SDK's own default host applies (PostHog
  *   Cloud US, `https://us.i.posthog.com`). EU-region projects MUST set
  *   `POSTHOG_HOST=https://eu.i.posthog.com` — an EU project key sent to the

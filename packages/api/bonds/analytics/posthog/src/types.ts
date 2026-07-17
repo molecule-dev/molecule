@@ -28,6 +28,13 @@ declare global {
        * set `https://eu.i.posthog.com`.
        */
       POSTHOG_HOST?: string
+      /**
+       * PostHog group TYPE that `group()` associates users under. Defaults to
+       * `'company'`. Set to `'workspace'`, `'team'`, etc. to group by a
+       * different entity — the type must be enabled for group analytics in
+       * your PostHog project.
+       */
+      POSTHOG_GROUP_TYPE?: string
     }
   }
 }
@@ -40,4 +47,12 @@ export interface PostHogOptions {
   host?: string
   flushAt?: number
   flushInterval?: number
+  /**
+   * Group TYPE that `group()` associates users under (PostHog's group
+   * analytics dimension). Falls back to the `POSTHOG_GROUP_TYPE` env var, then
+   * `'company'`. Set to `'workspace'`, `'team'`, etc. to group by a different
+   * entity; the type must be enabled for group analytics in your PostHog
+   * project.
+   */
+  groupType?: string
 }

@@ -162,6 +162,30 @@ describe('@molecule/api-analytics-mixpanel × REAL mixpanel', () => {
     }
   })
 
+  it('group() sends the configured group key over the wire (not the hardcoded default)', async () => {
+    const { server, port, requests } = await startIngestionServer()
+    try {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({
+        token: 'integration-token',
+        host: `127.0.0.1:${port}`,
+        protocol: 'http',
+        groupType: 'workspace',
+      })
+
+      await provider.group!('ws-1', { plan: 'team' })
+      const groupReq = requests.at(-1)!
+      expect(groupReq.path).toBe('/groups')
+      expect(groupReq.data).toMatchObject({
+        $group_key: 'workspace',
+        $group_id: 'ws-1',
+        $set: { plan: 'team' },
+      })
+    } finally {
+      server.close()
+    }
+  })
+
   it('FAILURE DISAMBIGUATION: a server-side rejection is an UNTAGGED "Mixpanel Server Error" — distinct from missing config', async () => {
     const { server, port, respondWith } = await startIngestionServer()
     try {

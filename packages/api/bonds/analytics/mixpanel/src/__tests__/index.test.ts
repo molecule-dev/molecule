@@ -464,6 +464,43 @@ describe('Mixpanel Analytics Provider', () => {
 
       await expect(provider.group!('company-789')).rejects.toThrow('Group set failed')
     })
+
+    it('should use the configurable group key from options instead of the hardcoded default', async () => {
+      mockGroupsSet.mockImplementation((groupKey, groupId, traits, callback) => callback(null))
+
+      const provider = createProvider({ token: 'test-token', groupType: 'workspace' })
+
+      await provider.group!('ws-1', { plan: 'pro' })
+
+      expect(mockGroupsSet).toHaveBeenCalledWith(
+        'workspace',
+        'ws-1',
+        { plan: 'pro' },
+        expect.any(Function),
+      )
+    })
+
+    it('should fall back to the MIXPANEL_GROUP_TYPE env var when no option is given', async () => {
+      mockGroupsSet.mockImplementation((groupKey, groupId, traits, callback) => callback(null))
+      process.env.MIXPANEL_GROUP_TYPE = 'team'
+
+      const provider = createProvider({ token: 'test-token' })
+
+      await provider.group!('team-9')
+
+      expect(mockGroupsSet).toHaveBeenCalledWith('team', 'team-9', {}, expect.any(Function))
+      delete process.env.MIXPANEL_GROUP_TYPE
+    })
+
+    it("should default to 'company' when neither option nor env var is set", async () => {
+      mockGroupsSet.mockImplementation((groupKey, groupId, traits, callback) => callback(null))
+
+      const provider = createProvider({ token: 'test-token' })
+
+      await provider.group!('org-1')
+
+      expect(mockGroupsSet).toHaveBeenCalledWith('company', 'org-1', {}, expect.any(Function))
+    })
   })
 
   describe('flush', () => {

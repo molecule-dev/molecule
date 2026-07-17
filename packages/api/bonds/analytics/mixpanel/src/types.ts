@@ -22,6 +22,13 @@ declare global {
        * Mixpanel project token.
        */
       MIXPANEL_TOKEN?: string
+      /**
+       * Mixpanel group KEY that `group()` associates users under. Defaults to
+       * `'company'`. Set to `'workspace'`, `'team'`, etc. to group by a
+       * different entity — the key must match a group key configured in
+       * Mixpanel → Project Settings.
+       */
+      MIXPANEL_GROUP_TYPE?: string
     }
   }
 }
@@ -43,4 +50,12 @@ export interface MixpanelOptions {
   host?: string
   /** Wire protocol for the ingestion host (self-hosted proxies). Defaults to `'https'`. */
   protocol?: 'http' | 'https'
+  /**
+   * Group KEY that `group()` associates users under (Mixpanel's "group key" —
+   * the group-analytics dimension). Falls back to the `MIXPANEL_GROUP_TYPE`
+   * env var, then `'company'`. Set to `'workspace'`, `'team'`, etc. to group
+   * by a different entity; the key must match a group key configured in
+   * Mixpanel → Project Settings.
+   */
+  groupType?: string
 }

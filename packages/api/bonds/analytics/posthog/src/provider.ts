@@ -40,9 +40,10 @@ const warnIfMissingKey = (apiKey: string): void => {
  * `provider` (the shared default client, so `shutdown()` flushes it).
  *
  * @param client - The PostHog Node SDK client to wrap.
+ * @param groupType - The group TYPE `group()` associates users under (default `'company'`).
  * @returns An `AnalyticsProvider` backed by the given client.
  */
-const buildProvider = (client: PostHog): AnalyticsProvider => {
+const buildProvider = (client: PostHog, groupType = 'company'): AnalyticsProvider => {
   return {
     async identify(user: AnalyticsUserProps): Promise<void> {
       client.identify({
@@ -83,7 +84,7 @@ const buildProvider = (client: PostHog): AnalyticsProvider => {
 
     async group(groupId: string, traits?: Record<string, unknown>): Promise<void> {
       client.groupIdentify({
-        groupType: 'company',
+        groupType,
         groupKey: groupId,
         properties: traits,
       })
@@ -129,7 +130,10 @@ export const createProvider = (options?: PostHogOptions): AnalyticsProvider => {
     flushInterval: options?.flushInterval ?? 10000,
   })
 
-  return buildProvider(client)
+  // Group type is configurable (default 'company') so an app can group users
+  // under 'workspace'/'team'/etc. instead of the hardcoded default.
+  const groupType = options?.groupType ?? process.env.POSTHOG_GROUP_TYPE
+  return buildProvider(client, groupType)
 }
 
 /**
@@ -168,12 +172,12 @@ function getDefaultClient(): PostHog {
  */
 export const provider: AnalyticsProvider = new Proxy({} as AnalyticsProvider, {
   get(_, prop, receiver) {
-    if (!_provider) _provider = buildProvider(getDefaultClient())
+    if (!_provider) _provider = buildProvider(getDefaultClient(), process.env.POSTHOG_GROUP_TYPE)
     return Reflect.get(_provider, prop, receiver)
   },
   // set trap: methods run with `this` bound to the proxy — without it, instance-state writes land on the dummy target and are lost (see api-push-notifications-web-push)
   set(_, prop, value) {
-    if (!_provider) _provider = buildProvider(getDefaultClient())
+    if (!_provider) _provider = buildProvider(getDefaultClient(), process.env.POSTHOG_GROUP_TYPE)
     return Reflect.set(_provider, prop, value)
   },
 })

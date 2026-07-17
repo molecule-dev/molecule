@@ -24,6 +24,11 @@
  *   rejection).
  * - Server-side calls have no ambient session: pass `userId` (or
  *   `anonymousId`) on `track()` AND `page()` or events are unattributed.
+ * - `group()` associates users under a configurable group KEY (Mixpanel's
+ *   group-analytics dimension), `'company'` by default. Set the `groupType`
+ *   option on `createProvider()` or the `MIXPANEL_GROUP_TYPE` env var to group
+ *   by `'workspace'`/`'team'`/etc.; the key must match a group key configured
+ *   in Mixpanel → Project Settings.
  * - `timestamp` older than 5 days is rejected by Mixpanel's `/track` ingestion
  *   endpoint — historical backfill needs Mixpanel's import API, not this bond.
  * - The deprecated raw `mixpanel` export throws a tagged `config.notConfigured`

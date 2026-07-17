@@ -163,6 +163,34 @@ describe('@molecule/api-analytics-posthog × REAL posthog-node', () => {
     }
   })
 
+  it('group() sends the configured group type over the wire (not the hardcoded default)', async () => {
+    const { server, host, events } = await startIngestionServer()
+    try {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({
+        apiKey: 'phc_integration',
+        host,
+        flushAt: 1,
+        flushInterval: 250,
+        groupType: 'workspace',
+      })
+
+      await provider.group!('ws-1', { plan: 'team' })
+      await provider.flush!()
+
+      const groupEvent = events.find((e) => e.event === '$groupidentify')
+      expect(groupEvent).toMatchObject({
+        properties: expect.objectContaining({
+          $group_type: 'workspace',
+          $group_key: 'ws-1',
+          $group_set: expect.objectContaining({ plan: 'team' }),
+        }),
+      })
+    } finally {
+      server.close()
+    }
+  })
+
   it('FAILURE DISAMBIGUATION: a missing key never throws or rejects, sends nothing, and leaves ONE actionable warning', async () => {
     const { server, host, events } = await startIngestionServer()
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})

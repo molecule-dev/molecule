@@ -55,6 +55,9 @@ export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => 
     ...(options?.host ? { host: options.host } : {}),
     ...(options?.protocol ? { protocol: options.protocol } : {}),
   })
+  // Group key is configurable (default 'company') so an app can group users
+  // under 'workspace'/'team'/etc. instead of the hardcoded default.
+  const groupType = options?.groupType ?? process.env.MIXPANEL_GROUP_TYPE ?? 'company'
 
   return {
     async identify(user: AnalyticsUserProps): Promise<void> {
@@ -125,7 +128,7 @@ export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => 
 
     async group(groupId: string, traits?: Record<string, unknown>): Promise<void> {
       return new Promise((resolve, reject) => {
-        mixpanel.groups.set('company', groupId, traits ?? {}, (err) => {
+        mixpanel.groups.set(groupType, groupId, traits ?? {}, (err) => {
           if (err) reject(err)
           else resolve()
         })

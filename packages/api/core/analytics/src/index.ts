@@ -24,9 +24,10 @@
  * `.catch()` at fire-and-forget call sites (or log-and-continue) so an
  * analytics outage or missing configuration cannot fail your request handlers.
  *
- * `group(groupId)` normalizes the group TYPE to `'company'` in every bond
- * (Mixpanel group key, PostHog group type) — look under "company" in the
- * provider's UI.
+ * `group(groupId)` associates the user under the bond's configured group type
+ * (Mixpanel group key, PostHog group type), `'company'` by default in every
+ * bond — overridable per bond via its `groupType` option or `*_GROUP_TYPE`
+ * env var. Look under that group type (default "company") in the provider's UI.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
@@ -64,7 +65,7 @@
  *   reflect REAL recorded events (perform an action, the matching count/funnel
  *   step increments) and are SCOPED — a user/org reads only its OWN analytics;
  *   no endpoint lets one org read another org's numbers (`group()` associates a
- *   user under the normalized 'company' type).
+ *   user under the bond's group type, 'company' by default).
  *
  * @module
  */
