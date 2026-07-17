@@ -20,6 +20,11 @@ import type * as types from '../types.js'
  */
 const extendedUpdatePropsSchema = updatePropsSchema.extend({
   oauthData: propsSchema.shape.oauthData,
+  // emailVerified is permitted through the schema ONLY so the handler can RESET it
+  // to false when the email changes (server-set below). It is NEVER copied from
+  // req.body — the same discipline as twoFactorEnabled — so a caller cannot
+  // self-verify by sending `emailVerified: true`.
+  emailVerified: propsSchema.shape.emailVerified,
   // [M6-1] twoFactorEnabled is deliberately NOT writable here. The generic profile update is
   // gated only by authSelf (no TOTP step-up), so allowing it would let a caller PATCH 2FA off
   // without the current second factor — defeating verifyTwoFactor's disable step-up. ALL 2FA
@@ -49,6 +54,7 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
       const id = req.params.id as string
       const props: types.UpdateProps & {
         oauthData?: Record<string, unknown>
+        emailVerified?: boolean
         twoFactorEnabled?: boolean
       } = {}
 
@@ -91,6 +97,8 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
       if (req.body.email !== undefined) {
         if (req.body.email === '' || req.body.email === null) {
           props.email = null as unknown as string
+          // No address on file → it cannot be verified.
+          props.emailVerified = false
         } else {
           props.email = String(req.body.email).substring(0, 1023)
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email)) {
@@ -114,6 +122,18 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
                 errorKey: 'user.error.emailAlreadyRegistered',
               },
             }
+          }
+
+          // Changing the address invalidates the verified flag — the new email is
+          // unproven, and leaving emailVerified=true would let a caller point a
+          // "verified" email anywhere (poisoning password-reset and email-gated
+          // access). Reset ONLY on a real change so an unchanged profile save does
+          // not needlessly un-verify. Server-set — never read from req.body.
+          const current = await findOne<{ email?: string | null }>(tableName, [
+            { field: 'id', operator: '=', value: id },
+          ])
+          if (!current || current.email !== props.email) {
+            props.emailVerified = false
           }
         }
       }

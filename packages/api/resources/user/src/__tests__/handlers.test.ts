@@ -1779,6 +1779,59 @@ describe('update handler — avatar + bio profile fields', () => {
     expect(passedProps).not.toHaveProperty('twoFactorEnabled')
   })
 
+  // findOne is called twice on the email path: the uniqueness check (email=…, id!=…)
+  // and the current-user load (id=…). Return the current row only for the id-equals
+  // lookup so the change comparison works regardless of call order.
+  const mockCurrentEmail = (email: string | null): void => {
+    mockFindOne.mockImplementation(
+      async (_table: string, conditions: Array<{ field: string; operator: string }>) => {
+        const isCurrentUserLoad = conditions.some((c) => c.field === 'id' && c.operator === '=')
+        return isCurrentUserLoad ? { id: 'user-1', email } : null
+      },
+    )
+  }
+
+  it('resets emailVerified to false when the email is CHANGED', async () => {
+    mockCurrentEmail('old@example.com')
+    const req = makeReq({ params: { id: 'user-1' }, body: { email: 'new@example.com' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    const passedProps = mockResourceUpdate.mock.calls[0]?.[0]?.props ?? {}
+    expect(passedProps.email).toBe('new@example.com')
+    // A changed address is unproven — the verified flag must be cleared.
+    expect(passedProps.emailVerified).toBe(false)
+  })
+
+  it('does NOT reset emailVerified when the email is UNCHANGED', async () => {
+    mockCurrentEmail('same@example.com')
+    const req = makeReq({ params: { id: 'user-1' }, body: { email: 'same@example.com' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    const passedProps = mockResourceUpdate.mock.calls[0]?.[0]?.props ?? {}
+    // Re-submitting the same address (e.g. a profile save) must not un-verify.
+    expect(passedProps).not.toHaveProperty('emailVerified')
+  })
+
+  it('ignores emailVerified from the request body — no self-verification', async () => {
+    mockCurrentEmail('same@example.com')
+    const req = makeReq({
+      params: { id: 'user-1' },
+      body: { email: 'same@example.com', emailVerified: true },
+    })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    // The handler builds props field-by-field and never copies req.body.emailVerified,
+    // so a caller cannot flip their own verified flag on.
+    const passedProps = mockResourceUpdate.mock.calls[0]?.[0]?.props ?? {}
+    expect(passedProps.emailVerified).not.toBe(true)
+  })
+
   it('should reject an avatar larger than the cap (and not persist)', async () => {
     const req = makeReq({
       params: { id: 'user-1' },
