@@ -1502,4 +1502,51 @@ describe('@molecule/app-charts', () => {
       expect(() => chart.update()).not.toThrow()
     })
   })
+
+  describe('Placeholder Provider Honesty (no real chart provider ships)', () => {
+    const placeholderConfig: ChartConfig = {
+      type: 'bar',
+      datasets: [{ label: 'x', data: [1, 2, 3] }],
+    }
+
+    it('warns once, actionably, when the placeholder renders — naming the gap and the fix', async () => {
+      // Fresh module state so the module-scoped warn-once guard is reset,
+      // independent of every other createChart call in this file.
+      vi.resetModules()
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const { createSimpleChartProvider: freshCreateProvider } = await import('../chart.js')
+
+      const provider = freshCreateProvider()
+      provider.createChart(createMockCanvas(), placeholderConfig)
+
+      expect(warnSpy).toHaveBeenCalledTimes(1)
+      const message = String(warnSpy.mock.calls[0][0])
+      expect(message).toContain('@molecule/app-charts')
+      expect(message).toContain('No chart provider bonded')
+      expect(message).toContain('ChartProvider')
+      expect(message).toMatch(/bond\('charts'|setProvider/)
+
+      // A screen full of placeholder charts must not spam the console.
+      provider.createChart(createMockCanvas(), placeholderConfig)
+      freshCreateProvider().createChart(createMockCanvas(), placeholderConfig)
+      expect(warnSpy).toHaveBeenCalledTimes(1)
+
+      warnSpy.mockRestore()
+    })
+
+    it('paints an unmistakable placeholder notice, not a real-looking chart', () => {
+      const provider = createSimpleChartProvider()
+      const canvas = createMockCanvas()
+      const ctx = canvas.getContext('2d') as unknown as {
+        fillText: ReturnType<typeof vi.fn>
+      }
+
+      provider.createChart(canvas, placeholderConfig)
+
+      const drawn = ctx.fillText.mock.calls.map((call) => String(call[0])).join(' | ')
+      // Label names itself a placeholder; description states no provider is bonded.
+      expect(drawn.toLowerCase()).toContain('placeholder')
+      expect(drawn).toContain('No chart provider bonded')
+    })
+  })
 })

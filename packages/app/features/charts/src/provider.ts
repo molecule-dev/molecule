@@ -12,10 +12,14 @@ import type { ChartConfig, ChartInstance, ChartProvider } from './types.js'
 const BOND_TYPE = 'charts'
 
 /**
- * Default chart provider — the built-in simple provider. Exported so apps can
- * wire it with `bond('charts', provider)` (equivalent to `setProvider`), matching
- * the convention of other bondable feature packages (e.g. `@molecule/app-data-table-*`).
- * Bond a richer `ChartProvider` instead to replace it.
+ * Default chart provider — the built-in **placeholder** provider. It does NOT
+ * draw real charts: it paints a "no chart provider bonded" notice and warns
+ * once (see {@link createSimpleChartProvider}). Exported only so apps can name
+ * it explicitly; it is NOT a shippable renderer. To draw real charts, implement
+ * the `ChartProvider` interface around a real library (Chart.js / Recharts / D3)
+ * and bond that instead with `bond('charts', provider)` (equivalent to
+ * `setProvider`), matching the convention of other bondable feature packages
+ * (e.g. `@molecule/app-data-table-*`).
  */
 export const provider: ChartProvider = createSimpleChartProvider()
 
@@ -28,7 +32,10 @@ export const setProvider = (provider: ChartProvider): void => {
 }
 
 /**
- * Gets the current chart provider. Falls back to a simple built-in provider if none has been bonded.
+ * Gets the current chart provider. Falls back to the built-in **placeholder**
+ * provider if none has been bonded — that fallback does not draw real charts and
+ * warns once when it first renders (see {@link createSimpleChartProvider}). Bond
+ * a real `ChartProvider` before any `create*Chart` call to draw actual charts.
  * @returns The active chart provider instance.
  */
 export const getProvider = (): ChartProvider => {

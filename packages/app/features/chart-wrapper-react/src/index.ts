@@ -51,10 +51,11 @@
  * ```
  *
  * @remarks
- * `@molecule/app-charts`' built-in provider renders a text placeholder, not a
- * real chart — wire a real `ChartProvider` (or render your own chart component
- * as `children`) before shipping. Legend `items` labels/values are
- * consumer-provided ReactNodes; pass translated strings via `t()`.
+ * `@molecule/app-charts`' built-in provider renders a non-functional placeholder
+ * notice (and logs a one-time console warning), not a real chart — wire a real
+ * `ChartProvider` (or render your own chart component as `children`) before
+ * shipping. Legend `items` labels/values are consumer-provided ReactNodes; pass
+ * translated strings via `t()`.
  *
  * @module
  */

@@ -752,16 +752,22 @@ function createScatterChart(container: HTMLCanvasElement | HTMLElement, config: 
 
 #### `createSimpleChartProvider(options)`
 
-Creates a simple canvas-based chart provider.
-This is a basic fallback - for production use, prefer dedicated providers.
+Creates the built-in **placeholder** chart provider. It does NOT draw real
+charts: every `createChart` paints a "placeholder — no chart provider bonded"
+notice onto the canvas and logs a one-time, actionable `console.warn`, rather
+than silently pretending to render. No real chart provider ships with the
+fleet — to draw actual charts, implement the {@link ChartProvider} interface
+around a real library (Chart.js / Recharts / D3) and wire it with
+`bond('charts', provider)` (or `setProvider(provider)`) at startup, before any
+`create*Chart` call.
 
 ```typescript
 function createSimpleChartProvider(options?: SimpleChartProviderOptions): ChartProvider
 ```
 
-- `options` — Custom placeholder labels and descriptions for the fallback renderer.
+- `options` — Optional overrides for the placeholder label/description text.
 
-**Returns:** A chart provider that renders basic canvas placeholders.
+**Returns:** A placeholder chart provider — renders a non-functional notice, not a chart.
 
 #### `generateColors(count, palette)`
 
@@ -791,7 +797,10 @@ function getColor(index: number, palette?: "default" | "pastel" | "vivid" | "coo
 
 #### `getProvider()`
 
-Gets the current chart provider. Falls back to a simple built-in provider if none has been bonded.
+Gets the current chart provider. Falls back to the built-in **placeholder**
+provider if none has been bonded — that fallback does not draw real charts and
+warns once when it first renders (see {@link createSimpleChartProvider}). Bond
+a real `ChartProvider` before any `create*Chart` call to draw actual charts.
 
 ```typescript
 function getProvider(): ChartProvider
@@ -831,10 +840,14 @@ const colorPalettes: { default: string[]; pastel: string[]; vivid: string[]; coo
 
 #### `provider`
 
-Default chart provider — the built-in simple provider. Exported so apps can
-wire it with `bond('charts', provider)` (equivalent to `setProvider`), matching
-the convention of other bondable feature packages (e.g. `@molecule/app-data-table-*`).
-Bond a richer `ChartProvider` instead to replace it.
+Default chart provider — the built-in **placeholder** provider. It does NOT
+draw real charts: it paints a "no chart provider bonded" notice and warns
+once (see {@link createSimpleChartProvider}). Exported only so apps can name
+it explicitly; it is NOT a shippable renderer. To draw real charts, implement
+the `ChartProvider` interface around a real library (Chart.js / Recharts / D3)
+and bond that instead with `bond('charts', provider)` (equivalent to
+`setProvider`), matching the convention of other bondable feature packages
+(e.g. `@molecule/app-data-table-*`).
 
 ```typescript
 const provider: ChartProvider
@@ -854,11 +867,12 @@ Peer dependencies:
 - `@molecule/app-i18n`
 
 **The built-in default provider does NOT draw real charts.** If no provider
-is bonded, every `create*Chart` call renders a text placeholder ("line
-chart — Use a proper chart provider") onto the canvas, and it only
-recognises bar/line/pie. No prebuilt `@molecule/app-charts-*` provider
-package exists — to ship real charts, implement the `ChartProvider`
-interface around your chart library and wire it at startup with
+is bonded, every `create*Chart` call paints a non-functional placeholder
+notice onto the canvas (e.g. "bar chart — placeholder" / "No chart provider
+bonded") and logs a one-time, actionable `console.warn` — it never silently
+pretends to render. No prebuilt `@molecule/app-charts-*` provider package
+exists — to ship real charts, implement the `ChartProvider` interface around
+your chart library (Chart.js / Recharts / D3) and wire it at startup with
 `bond('charts', provider)` (or `setProvider(provider)` — same thing) in
 `bonds.ts`, BEFORE any component calls `createChart`. All `create*Chart`
 calls then route through your provider unchanged. Do not import a chart
