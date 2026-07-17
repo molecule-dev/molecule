@@ -30,15 +30,29 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-// `t(key, values, opts)` echoes the supplied `defaultValue` so canonical
-// English copy lands in the rendered markup.
-vi.mock('@molecule/app-react', () => ({
-  useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
-  }),
-  useAuth: mockUseAuth,
-}))
+// `t(key, values, opts)` resolves bonded `content.*` HTML from a tiny local
+// dictionary (the real copy lives in @molecule/app-locales-legal-default, which
+// isn't loaded here) and echoes the supplied `defaultValue` for every other
+// key. In BOTH cases it performs real `{{token}}` interpolation from `values`,
+// exactly like the i18n bond — so a test can prove a component forwards
+// `appName` through to `t()`.
+vi.mock('@molecule/app-react', () => {
+  const CONTENT: Record<string, string> = {
+    'content.privacyPolicy': '<p>Privacy Policy for {{appName}}.</p>',
+    'content.termsOfService': '<p>These terms govern your use of {{appName}}.</p>',
+  }
+  const interpolate = (str: string, values?: Record<string, unknown>): string =>
+    str.replace(/\{\{(\w+)\}\}/g, (whole, name: string) =>
+      values && name in values ? String(values[name]) : whole,
+    )
+  return {
+    useTranslation: () => ({
+      t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) =>
+        interpolate(CONTENT[key] ?? opts?.defaultValue ?? key, values),
+    }),
+    useAuth: mockUseAuth,
+  }
+})
 
 vi.mock('@molecule/app-ui-react', () => ({
   Button: ({ children }: { children?: ReactNode }) =>
@@ -46,6 +60,10 @@ vi.mock('@molecule/app-ui-react', () => ({
   Flex: ({ children }: { children?: ReactNode }) =>
     createElement('div', { 'data-flex': '' }, children),
   Spinner: () => createElement('span', { 'data-spinner': '' }),
+  // Render the body unconditionally: renderToStaticMarkup can't drive the
+  // open/close state, so the modal content is always present in the markup.
+  Modal: ({ children }: { children?: ReactNode }) =>
+    createElement('div', { 'data-modal': '' }, children),
 }))
 
 vi.mock('react-router-dom', () => ({
@@ -53,6 +71,8 @@ vi.mock('react-router-dom', () => ({
     createElement('a', { href: to }, children),
 }))
 
+const { LegalContentPage } = await import('../LegalContentPage.js')
+const { LegalModalLinks } = await import('../LegalModalLinks.js')
 const { LegalPageLayout } = await import('../LegalPageLayout.js')
 const { LegalPageSection } = await import('../LegalPageSection.js')
 const { PlanUpdatedPage } = await import('../PlanUpdatedPage.js')
@@ -221,5 +241,39 @@ describe('TermsPage', () => {
   it('honours a custom titleDefault', () => {
     const markup = html(createElement(TermsPage, { titleDefault: 'Nutzungsbedingungen' }))
     expect(markup).toContain('Nutzungsbedingungen')
+  })
+})
+
+describe('LegalModalLinks (in-place modals)', () => {
+  it('interpolates appName into BOTH the privacy and terms modal bodies', () => {
+    const markup = html(createElement(LegalModalLinks, { appName: 'Acme' }))
+    // The terms modal previously dropped `appName`, leaving `{{appName}}`
+    // literal — this is the regression the fix addresses.
+    expect(markup).toContain('These terms govern your use of Acme.')
+    // The privacy modal already interpolated; it must still work.
+    expect(markup).toContain('Privacy Policy for Acme.')
+    // No unsubstituted placeholder may reach the rendered output.
+    expect(markup).not.toContain('{{appName}}')
+  })
+
+  it('leaves the terms placeholder unsubstituted when no appName is supplied', () => {
+    const markup = html(createElement(LegalModalLinks, {}))
+    // Proves the content genuinely carries `{{appName}}` (so the positive test
+    // is not vacuous) and that substitution is driven by the passed value.
+    expect(markup).toContain('These terms govern your use of {{appName}}.')
+  })
+})
+
+describe('LegalContentPage (standalone bonded pages)', () => {
+  it('interpolates appName into the terms body', () => {
+    const markup = html(createElement(LegalContentPage, { kind: 'terms', appName: 'Acme' }))
+    expect(markup).toContain('These terms govern your use of Acme.')
+    expect(markup).not.toContain('{{appName}}')
+  })
+
+  it('interpolates appName into the privacy body', () => {
+    const markup = html(createElement(LegalContentPage, { kind: 'privacy', appName: 'Acme' }))
+    expect(markup).toContain('Privacy Policy for Acme.')
+    expect(markup).not.toContain('{{appName}}')
   })
 })

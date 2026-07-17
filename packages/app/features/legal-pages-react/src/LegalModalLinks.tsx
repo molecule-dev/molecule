@@ -6,7 +6,7 @@ import { Modal } from '@molecule/app-ui-react'
 
 /** Shared options for the legal-modal hook + component. */
 export interface UseLegalModalsOptions {
-  /** App name interpolated into the privacy body (`{{appName}}`). */
+  /** App name interpolated into the privacy AND terms bodies (`{{appName}}`). */
   appName?: string
   /**
    * Lazy-loader for the legal HTML — pass `loadContent` from the app's
@@ -81,7 +81,7 @@ export function useLegalModals({
         <div
           className={cm.prose}
           dangerouslySetInnerHTML={{
-            __html: t('content.termsOfService', {}, { defaultValue: '' }),
+            __html: t('content.termsOfService', appName ? { appName } : {}, { defaultValue: '' }),
           }}
         />
       </Modal>
