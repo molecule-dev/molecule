@@ -68,6 +68,10 @@ describe('@molecule/api-database-postgresql', () => {
     vi.clearAllMocks()
     // Reset pool constructor mock
     mockPoolClass.mockClear()
+    // A safe baseline so accessing the default pool doesn't trip the DATABASE_URL
+    // fail-fast in tests that aren't specifically exercising it — those `delete`
+    // this to test the throw path instead.
+    process.env = { ...originalEnv, DATABASE_URL: 'postgres://localhost:5432/test' }
   })
 
   afterEach(() => {
@@ -80,9 +84,13 @@ describe('@molecule/api-database-postgresql', () => {
       const { pool } = await import('../index.js')
       expect(pool).toBeDefined()
       expect(pool.query).toBeDefined()
+      expect(pool.connect).toBeDefined()
+      // transaction() is part of the cross-bond contract (sqlite/mysql implement
+      // it too) — without it, transactional code breaks on a swap to postgres.
+      expect(pool.transaction).toBeDefined()
     })
 
-    it('should create pool without DATABASE_URL', async () => {
+    it('FAIL-FAST: throws an actionable "DATABASE_URL is not set" error when the URL is unset, instead of silently connecting to the pg driver defaults', async () => {
       delete process.env.DATABASE_URL
       vi.resetModules()
 
@@ -91,11 +99,14 @@ describe('@molecule/api-database-postgresql', () => {
 
       const { pool } = await import('../index.js')
 
-      // Trigger lazy initialization by accessing a property on the pool
-      void pool.query
-
-      // When DATABASE_URL is not set, Pool is called with no arguments
-      expect(pg.Pool).toHaveBeenCalled()
+      // Before the fix, first use silently constructed a pg.Pool with the driver
+      // defaults (localhost:5432, OS user, no password) and only failed LATER on
+      // the first query with a raw ECONNREFUSED/auth error — never naming
+      // DATABASE_URL as the thing to set. Now lazy init throws immediately.
+      expect(() => {
+        void pool.query
+      }).toThrow(/DATABASE_URL/)
+      expect(pg.Pool).not.toHaveBeenCalled()
     })
 
     it('should create pool with DATABASE_URL', async () => {
@@ -291,6 +302,117 @@ describe('@molecule/api-database-postgresql', () => {
       expect(result.rows).toEqual(mockRows)
       client.release()
       expect(mockRelease).toHaveBeenCalled()
+    })
+  })
+
+  describe('pool.transaction() — cross-bond contract (parity with sqlite/mysql)', () => {
+    // pg is mocked (matching this suite), so these assert the BEGIN/COMMIT/
+    // ROLLBACK/release SEQUENCE on a dedicated client rather than real row
+    // persistence — the sqlite bond's integration test covers real isolation.
+
+    it('begins a transaction on a dedicated client and returns a DatabaseTransaction', async () => {
+      vi.resetModules()
+      const { pool } = await import('../index.js')
+      mockQuery.mockResolvedValue({ rows: [], rowCount: 0, command: 'BEGIN', oid: 0, fields: [] })
+
+      const tx = await pool.transaction!()
+
+      expect(mockQuery).toHaveBeenCalledWith('BEGIN')
+      expect(tx.query).toBeDefined()
+      expect(tx.commit).toBeDefined()
+      expect(tx.rollback).toBeDefined()
+      expect(tx.release).toBeDefined()
+    })
+
+    it('COMMIT on success: issues COMMIT then releases the client exactly once (row would persist)', async () => {
+      vi.resetModules()
+      const { pool } = await import('../index.js')
+      mockQuery.mockResolvedValue({ rows: [], rowCount: 0, command: 'COMMIT', oid: 0, fields: [] })
+      mockRelease.mockClear()
+
+      const tx = await pool.transaction!()
+      // The row the caller inserts within the transaction.
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ id: 'tx-commit' }],
+        rowCount: 1,
+        command: 'INSERT',
+        oid: 0,
+        fields: [],
+      })
+      const inserted = await tx.query('INSERT INTO "todos" ("id") VALUES ($1) RETURNING *', [
+        'tx-commit',
+      ])
+      await tx.commit()
+
+      expect(inserted.rows).toEqual([{ id: 'tx-commit' }])
+      expect(mockQuery).toHaveBeenCalledWith('COMMIT')
+      expect(mockQuery).not.toHaveBeenCalledWith('ROLLBACK')
+      expect(mockRelease).toHaveBeenCalledTimes(1)
+    })
+
+    it('ROLLBACK on throw: a failed query rolls back (never COMMITs) and releases once (row would NOT persist)', async () => {
+      vi.resetModules()
+      const { pool } = await import('../index.js')
+      mockQuery.mockResolvedValue({ rows: [], rowCount: 0, command: 'BEGIN', oid: 0, fields: [] })
+      mockRelease.mockClear()
+
+      const tx = await pool.transaction!()
+
+      // Simulate the documented usage: run work, roll back on error, always
+      // release. The insert rejects (e.g. a constraint violation).
+      mockQuery.mockRejectedValueOnce(new Error('constraint violation'))
+      let threw = false
+      try {
+        await tx.query('INSERT INTO "todos" ("id") VALUES ($1)', ['dup'])
+        await tx.commit()
+      } catch (_error) {
+        // Intentionally ignore the error value — this test asserts the ROLLBACK
+        // path runs, not the specific error surfaced by the failed insert.
+        await tx.rollback()
+        threw = true
+      }
+
+      expect(threw).toBe(true)
+      expect(mockQuery).toHaveBeenCalledWith('ROLLBACK')
+      expect(mockQuery).not.toHaveBeenCalledWith('COMMIT')
+      expect(mockRelease).toHaveBeenCalledTimes(1)
+    })
+
+    it('the returned transaction is a working connection: tx.query routes to the dedicated client and adapts the pg result', async () => {
+      vi.resetModules()
+      const { pool } = await import('../index.js')
+      mockQuery.mockResolvedValue({ rows: [], rowCount: 0, command: 'BEGIN', oid: 0, fields: [] })
+
+      const tx = await pool.transaction!()
+      // Statements run inside the transaction go through tx.query (same shape as
+      // the sqlite/mysql bonds — see the sqlite integration test) and get the
+      // same { rows, rowCount, fields } adaptation as pool.query.
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ id: 'in-tx', title: 'hi' }],
+        rowCount: 1,
+        command: 'INSERT',
+        oid: 0,
+        fields: [{ name: 'id', dataTypeID: 25 }],
+      })
+
+      const result = await tx.query(
+        'INSERT INTO "todos" ("id", "title") VALUES ($1, $2) RETURNING *',
+        ['in-tx', 'hi'],
+      )
+
+      expect(result.rows).toEqual([{ id: 'in-tx', title: 'hi' }])
+      expect(result.rowCount).toBe(1)
+      expect(result.fields).toEqual([{ name: 'id', dataTypeID: 25 }])
+    })
+
+    it('releases the client (no leak) when BEGIN itself fails', async () => {
+      vi.resetModules()
+      const { pool } = await import('../index.js')
+      mockRelease.mockClear()
+      mockQuery.mockRejectedValueOnce(new Error('cannot start transaction'))
+
+      await expect(pool.transaction!()).rejects.toThrow('cannot start transaction')
+      expect(mockRelease).toHaveBeenCalledTimes(1)
     })
   })
 

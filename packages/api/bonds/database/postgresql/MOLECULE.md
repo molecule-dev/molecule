@@ -144,6 +144,12 @@ const store: DataStore
 
 #### `setup`
 
+Members:
+
+- `setup.replacements` — const: The default SQL files contain placeholder values which should be replaced.
+- `setup.runSQL` — function: Executes the SQL contained within some file, replacing placeholder values as necessary.
+- `setup.setup` — function: Sets up the database by executing all SQL files.
+
 ## Core Interface
 Implements `@molecule/api-database` interface.
 
@@ -203,16 +209,21 @@ from the `DATABASE_URL` env var (server-side) — don't hardcode credentials.
   caller's own `%`/`_` are honored as wildcards, identical to the sqlite/mysql bonds. For
   human-typed search input, use `ilike` instead (escapes + auto-wraps `%…%`) — see
   `WhereCondition['operator']` in `@molecule/api-database`.
-- **`pool.transaction()` is NOT implemented** (the `DatabasePool` method is
-  optional): acquire a connection via `pool.connect()` and issue
-  `BEGIN`/`COMMIT`/`ROLLBACK` yourself, releasing in `finally`. The sqlite
-  and mysql bonds DO implement `transaction()` — code written against them
-  does not port unchanged.
-- **Nothing fails fast when `DATABASE_URL` is unset**: the pool falls through
-  to the pg driver defaults (localhost:5432, OS user) and the migrator to
-  `postgres://localhost:5432/myapp`, so a missing/late-resolved URL surfaces
-  as a raw `ECONNREFUSED`/auth error — not a "DATABASE_URL is not set"
-  message. Confirm the env var is populated before boot.
+- **`pool.transaction()` is implemented** (parity with the sqlite/mysql
+  bonds, so transactional code ports across the bonds unchanged): it acquires
+  a dedicated client, issues `BEGIN`, and returns a `DatabaseTransaction`
+  whose `query()` runs on that client and whose `commit()`/`rollback()` run
+  the matching SQL and release the client back to the pool. Call `commit()`
+  on success and `rollback()` on a thrown error; either one (or a bare
+  `release()`) returns the client exactly once, so wrap in try/catch/finally
+  and never leak it.
+- **The pool fails fast when `DATABASE_URL` is unset**: first use throws an
+  actionable "DATABASE_URL is not set" error (via `@molecule/api-secrets`)
+  instead of silently connecting to the pg driver defaults (localhost:5432,
+  OS user) and failing later with a raw `ECONNREFUSED`/auth error far from
+  the cause. An explicit `createPool(config)` is the caller's own choice and
+  is not second-guessed. (The one-shot migration runner still defaults its
+  URL but prints the `DATABASE_URL` to check on a connection failure.)
 - One-off bootstrap SQL (grants, extensions, seed data) goes in `.sql` files
   under a `__setup__` directory (run via the exported `setup` namespace);
   versioned schema belongs in `migrations` only.
