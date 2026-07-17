@@ -21,10 +21,13 @@ export interface NowPlayingTrack {
 
 /** Now-playing bar component props. */
 export interface NowPlayingBarProps {
-  /** The currently loaded track. REQUIRED — render the bar conditionally
-   *  (`{track ? <NowPlayingBar track={track} ... /> : null}`) when nothing
-   *  is playing; passing null/undefined crashes. */
-  track: NowPlayingTrack
+  /**
+   * The currently loaded track, or `null`/`undefined` when nothing is playing.
+   * When absent the bar renders a compact empty state ("Nothing playing")
+   * instead of throwing — you can leave it mounted rather than conditionally
+   * unmounting it.
+   */
+  track?: NowPlayingTrack | null
   /** True when the track is actively playing. Drives the play/pause toggle. */
   isPlaying: boolean
   /** Called when the user presses play. */
@@ -101,6 +104,29 @@ export function NowPlayingBar(props: NowPlayingBarProps): JSX.Element {
   } = props
   const cm = getClassMap()
   const { t } = useTranslation()
+
+  // Empty state: nothing is playing. Guard BEFORE touching `track.*` so a
+  // null/undefined track renders the documented placeholder instead of
+  // throwing. The bar can stay mounted; no conditional unmount needed.
+  if (track == null) {
+    const emptyLabel = t('nowPlaying.empty', {}, { defaultValue: 'Nothing playing' })
+    return (
+      <div
+        role="region"
+        aria-label={emptyLabel}
+        data-mol-id="now-playing-bar"
+        data-mol-empty="true"
+        className={cm.cn(cm.flex({ align: 'center', gap: 'md' }), cm.sp('p', 3), className)}
+      >
+        <span
+          className={cm.cn(cm.textSize('sm'), cm.textMuted)}
+          data-mol-id="now-playing-bar-empty"
+        >
+          {emptyLabel}
+        </span>
+      </div>
+    )
+  }
 
   const playLabel = isPlaying
     ? t('nowPlaying.aria.pause', {}, { defaultValue: 'Pause' })

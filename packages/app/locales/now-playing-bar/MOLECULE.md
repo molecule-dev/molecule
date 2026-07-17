@@ -4,7 +4,7 @@ Translations for @molecule/app-now-playing-bar-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-now-playing-bar-react` package which has 8 translation keys.
+Provides translations for the `@molecule/app-now-playing-bar-react` package which has 9 translation keys.
 
 ## Languages
 
@@ -36,6 +36,7 @@ registerLocaleModule(locales)
 
 | Key | English |
 |-----|---------|
+| `nowPlaying.empty` | Nothing playing |
 | `nowPlaying.aria.region` | Now playing: {{title}} |
 | `nowPlaying.aria.artwork` | Artwork for {{title}} |
 | `nowPlaying.aria.play` | Play |

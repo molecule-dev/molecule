@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** Now-playing-bar translations for English. */
 export const en: NowPlayingBarTranslations = {
+  'nowPlaying.empty': 'Nothing playing',
   'nowPlaying.aria.region': 'Now playing: {{title}}',
   'nowPlaying.aria.artwork': 'Artwork for {{title}}',
   'nowPlaying.aria.play': 'Play',

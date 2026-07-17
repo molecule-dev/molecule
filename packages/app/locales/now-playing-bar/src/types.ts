@@ -1,5 +1,6 @@
 /** Translation keys for the now-playing-bar locale package. */
 export type NowPlayingBarTranslationKey =
+  | 'nowPlaying.empty'
   | 'nowPlaying.aria.region'
   | 'nowPlaying.aria.artwork'
   | 'nowPlaying.aria.play'

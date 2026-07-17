@@ -343,6 +343,54 @@ describe('<NowPlayingBar>', () => {
     expect(trailing?.querySelector('[data-mol-id="custom-queue"]')).not.toBeNull()
   })
 
+  it('renders the documented empty state (no throw) when track is null', () => {
+    let result: ReturnType<typeof render> | undefined
+    // The whole point of the fix: a null track must not throw.
+    expect(() => {
+      result = render(
+        <Wrap>
+          <NowPlayingBar
+            track={null}
+            isPlaying={false}
+            onPlay={() => {}}
+            onPause={() => {}}
+            currentTime={0}
+            duration={0}
+            onSeek={() => {}}
+          />
+        </Wrap>,
+      )
+    }).not.toThrow()
+    const container = result!.container
+    const region = container.querySelector('[role="region"]')!
+    expect(region.getAttribute('data-mol-id')).toBe('now-playing-bar')
+    expect(region.getAttribute('data-mol-empty')).toBe('true')
+    const empty = container.querySelector('[data-mol-id="now-playing-bar-empty"]')
+    expect(empty?.textContent).toBe('Nothing playing')
+    // The transport / play controls must NOT be present in the empty state.
+    expect(container.querySelector('[data-mol-id="now-playing-bar-play"]')).toBeNull()
+  })
+
+  it('renders the empty state when track is undefined (prop omitted)', () => {
+    const { container, getByRole } = render(
+      <Wrap>
+        <NowPlayingBar
+          isPlaying={false}
+          onPlay={() => {}}
+          onPause={() => {}}
+          currentTime={0}
+          duration={0}
+          onSeek={() => {}}
+        />
+      </Wrap>,
+    )
+    expect(getByRole('region').getAttribute('data-mol-empty')).toBe('true')
+    expect(container.querySelector('[data-mol-id="now-playing-bar-empty"]')?.textContent).toBe(
+      'Nothing playing',
+    )
+    expect(container.querySelector('[data-mol-id="now-playing-bar-seek"]')).toBeNull()
+  })
+
   it('renders artwork placeholder div when artwork is omitted', () => {
     const { container } = render(
       <Wrap>
