@@ -43,12 +43,52 @@ export type SpawnFunction = (
  * Options for {@link processAudioRenderJob}.
  */
 export interface ProcessAudioRenderJobOptions {
-  /** ffmpeg binary path. Defaults to `'ffmpeg'` (resolved on $PATH). */
+  /**
+   * ffmpeg binary path. When omitted, resolves the `FFMPEG_PATH` environment
+   * variable, then falls back to `'ffmpeg'` (resolved on `$PATH`). See
+   * {@link resolveFfmpegPath}.
+   */
   ffmpegPath?: string
   /** Override `child_process.spawn` for tests. */
   spawn?: SpawnFunction
   /** Maximum time (ms) to allow ffmpeg before killing it. Defaults to 600_000 (10 min). */
   timeoutMs?: number
+}
+
+/**
+ * Resolve the ffmpeg binary path to spawn. Precedence: an explicit
+ * `ffmpegPath` → the `FFMPEG_PATH` environment variable → `'ffmpeg'`
+ * (resolved on `$PATH`).
+ *
+ * @param explicit - An explicit path from {@link ProcessAudioRenderJobOptions}.
+ * @returns The binary path/name to spawn.
+ */
+export const resolveFfmpegPath = (explicit?: string): string => {
+  if (explicit !== undefined && explicit.length > 0) return explicit
+  const fromEnv = process.env.FFMPEG_PATH
+  if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv
+  return 'ffmpeg'
+}
+
+/**
+ * Turn a spawn failure into a human-actionable message. A raw
+ * `spawn ffmpeg ENOENT` gives no hint at the fix; for `ENOENT` this names the
+ * resolved binary path and how to point at a real one. Any other error is
+ * returned by its own `.message`.
+ *
+ * @param error - The error thrown/emitted by `child_process.spawn`.
+ * @param ffmpegPath - The binary path that failed to spawn.
+ * @returns A clear, actionable error message string.
+ */
+export const describeSpawnFailure = (error: unknown, ffmpegPath: string): string => {
+  const err = error instanceof Error ? error : new Error(String(error))
+  if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+    return (
+      `ffmpeg not found at '${ffmpegPath}'. Install ffmpeg (e.g. \`apt-get install -y ffmpeg\`) ` +
+      `or set the FFMPEG_PATH environment variable (or pass ffmpegPath) to its absolute path.`
+    )
+  }
+  return err.message
 }
 
 /**
@@ -103,7 +143,7 @@ export const processAudioRenderJob = async (
   payload: AudioRenderJobPayload,
   processOptions: ProcessAudioRenderJobOptions = {},
 ): Promise<ProcessAudioRenderJobResult> => {
-  const ffmpegPath = processOptions.ffmpegPath ?? 'ffmpeg'
+  const ffmpegPath = resolveFfmpegPath(processOptions.ffmpegPath)
   const spawn = processOptions.spawn ?? nodeSpawn
   const timeoutMs = processOptions.timeoutMs ?? 600_000
 
@@ -131,7 +171,7 @@ export const processAudioRenderJob = async (
     try {
       child = spawn(ffmpegPath, command.args, { stdio: ['ignore', 'ignore', 'pipe'] })
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
+      const message = describeSpawnFailure(err, ffmpegPath)
       updateJob(payload.jobId, { status: 'failed', error: message, finishedAt: new Date() })
       resolve({
         jobId: payload.jobId,
@@ -156,7 +196,7 @@ export const processAudioRenderJob = async (
 
     child.on('error', (err: Error) => {
       if (timeoutHandle) clearTimeout(timeoutHandle)
-      const message = err.message
+      const message = describeSpawnFailure(err, ffmpegPath)
       updateJob(payload.jobId, { status: 'failed', error: message, finishedAt: new Date() })
       resolve({
         jobId: payload.jobId,

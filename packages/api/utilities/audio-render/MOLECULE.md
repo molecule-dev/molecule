@@ -136,6 +136,28 @@ interface AudioEffect {
 }
 ```
 
+#### `AudioJobStore`
+
+Backend contract for render-job status. All operations are synchronous to
+keep `getRenderStatus` / `cancelRender` synchronous (their public shape).
+A backend shared across processes (to fix the split-process topology) must
+therefore be a synchronous façade over the shared storage.
+
+```typescript
+interface AudioJobStore {
+  /** Register a freshly-enqueued job. */
+  register(job: RenderJob): void
+  /** Look up a job by id, or `undefined` if unknown to this store. */
+  get(jobId: string): RenderJob | undefined
+  /** Merge a partial patch into an existing job. No-op (returns `undefined`) if unknown. */
+  update(jobId: string, patch: Partial<RenderJob>): RenderJob | undefined
+  /** Drop all jobs — primarily for tests. */
+  reset(): void
+  /** Snapshot of all registered job ids — for diagnostics and tests. */
+  ids(): string[]
+}
+```
+
 #### `AudioRenderJobPayload`
 
 Payload placed on the queue for the worker to consume.
@@ -274,7 +296,11 @@ Options for {@link processAudioRenderJob}.
 
 ```typescript
 interface ProcessAudioRenderJobOptions {
-  /** ffmpeg binary path. Defaults to `'ffmpeg'` (resolved on $PATH). */
+  /**
+   * ffmpeg binary path. When omitted, resolves the `FFMPEG_PATH` environment
+   * variable, then falls back to `'ffmpeg'` (resolved on `$PATH`). See
+   * {@link resolveFfmpegPath}.
+   */
   ffmpegPath?: string
   /** Override `child_process.spawn` for tests. */
   spawn?: SpawnFunction
@@ -411,6 +437,11 @@ marked but the worker decides whether to honour the flag (the bundled
 worker checks before spawning ffmpeg and again on completion). Jobs in
 a terminal state (`completed`, `failed`, `cancelled`) are not changed.
 
+**Process-local**, same caveat as {@link getRenderStatus}: the flag is
+written to this process's job store, so a worker in a separate process only
+observes it when a shared store is injected via `setAudioJobStore()` in both
+processes.
+
 ```typescript
 function cancelRender(jobId: string): boolean
 ```
@@ -432,9 +463,46 @@ function createAudioRenderRoutes(routeOptions?: CreateAudioRenderRoutesOptions):
 
 **Returns:** A bundle of three async handlers.
 
+#### `createInMemoryAudioJobStore()`
+
+The default in-memory {@link AudioJobStore}, backed by a `Map`.
+Process-local — a restart loses state.
+
+```typescript
+function createInMemoryAudioJobStore(): AudioJobStore
+```
+
+**Returns:** A fresh in-memory store.
+
+#### `describeSpawnFailure(error, ffmpegPath)`
+
+Turn a spawn failure into a human-actionable message. A raw
+`spawn ffmpeg ENOENT` gives no hint at the fix; for `ENOENT` this names the
+resolved binary path and how to point at a real one. Any other error is
+returned by its own `.message`.
+
+```typescript
+function describeSpawnFailure(error: unknown, ffmpegPath: string): string
+```
+
+- `error` — The error thrown/emitted by `child_process.spawn`.
+- `ffmpegPath` — The binary path that failed to spawn.
+
+**Returns:** A clear, actionable error message string.
+
+#### `getAudioJobStore()`
+
+Return the active job store. Defaults to the in-memory store.
+
+```typescript
+function getAudioJobStore(): AudioJobStore
+```
+
+**Returns:** The active {@link AudioJobStore}.
+
 #### `getJob(jobId)`
 
-Look up a job by id.
+Look up a job by id in the active store.
 
 ```typescript
 function getJob(jobId: string): RenderJob | undefined
@@ -448,13 +516,23 @@ function getJob(jobId: string): RenderJob | undefined
 
 Look up a previously-enqueued render job by id.
 
+**Process-local.** This reads the active job store (an in-memory `Map` by
+default), which only reflects the worker's transitions when the worker runs
+in the SAME process (true with the `@molecule/api-queue-memory` bond). With
+a distributed queue bond and a separate worker process this returns the
+stale `queued` snapshot forever — the worker's `processing`/`completed`/
+`failed` updates land in the worker's own store. To make status observable
+across processes, inject a shared backend via `setAudioJobStore()` in BOTH
+processes, or persist durable status from the worker's `onJobComplete`
+callback and read it from your own storage.
+
 ```typescript
 function getRenderStatus(jobId: string): RenderJob | undefined
 ```
 
 - `jobId` — The id returned in `RenderJob.id` from {@link renderAudio}.
 
-**Returns:** The job, or `undefined` if it isn't registered in this process.
+**Returns:** The job as known to THIS process's store, or `undefined`.
 
 #### `listJobIds()`
 
@@ -484,7 +562,7 @@ function processAudioRenderJob(payload: AudioRenderJobPayload, processOptions?: 
 
 #### `registerJob(job)`
 
-Register a freshly-enqueued job.
+Register a freshly-enqueued job in the active store.
 
 ```typescript
 function registerJob(job: RenderJob): void
@@ -517,6 +595,20 @@ Drop all registered jobs — for tests.
 function resetJobStore(): void
 ```
 
+#### `resolveFfmpegPath(explicit)`
+
+Resolve the ffmpeg binary path to spawn. Precedence: an explicit
+`ffmpegPath` → the `FFMPEG_PATH` environment variable → `'ffmpeg'`
+(resolved on `$PATH`).
+
+```typescript
+function resolveFfmpegPath(explicit?: string): string
+```
+
+- `explicit` — An explicit path from {@link ProcessAudioRenderJobOptions}.
+
+**Returns:** The binary path/name to spawn.
+
 #### `sanitizeAudioPath(value, label)`
 
 Reject paths/URLs containing NUL, newline, or any other control
@@ -532,6 +624,19 @@ function sanitizeAudioPath(value: unknown, label: string): string
 - `label` — Diagnostic label used in the thrown error.
 
 **Returns:** The validated value, unchanged.
+
+#### `setAudioJobStore(store)`
+
+Replace the active job store. Wire a shared, cross-process backend here (in
+BOTH the enqueuing process and the worker process) so `getRenderStatus`
+observes the worker's transitions in a split-process queue topology. Pass
+`undefined` to reset to a fresh in-memory store — primarily for tests.
+
+```typescript
+function setAudioJobStore(store: AudioJobStore | undefined): void
+```
+
+- `store` — The store to use, or `undefined` to reset to in-memory.
 
 #### `startAudioRenderWorker(options)`
 
@@ -590,10 +695,13 @@ sessions. The package is queue-driven on purpose so flagship apps can
 gate concurrency at the queue tier rather than in the request path.
 
 **ffmpeg is a runtime prerequisite, not a dependency.** The worker spawns
-whatever `ffmpegPath` points at (default: `ffmpeg` resolved on `$PATH`).
-Install it in the runtime image (e.g. `apt-get install -y ffmpeg`) or pass
-an explicit `ffmpegPath`; without it every job fails at processing time
-with a spawn ENOENT recorded on the job's `error` field.
+whatever `ffmpegPath` points at — resolved from the `ffmpegPath` option, then
+the `FFMPEG_PATH` env var, then `ffmpeg` on `$PATH`. Install it in the runtime
+image (e.g. `apt-get install -y ffmpeg`) — it is NOT present in minimal
+containers including the molecule.dev sandbox base image. When it's missing,
+the job fails with a clear, actionable error naming the path and the fix
+(install ffmpeg or set `FFMPEG_PATH`) on the job's `error` field — not a raw
+`spawn ffmpeg ENOENT`.
 
 **Queue wiring:** `renderAudio` dispatches through the abstract
 `@molecule/api-queue` core, so a queue bond must be wired at startup —
@@ -602,13 +710,16 @@ dev default), `-redis`, `-rabbitmq`, or `-sqs` — and
 `startAudioRenderWorker()` must be running to consume jobs. Both throw
 "Queue provider not configured. Call setProvider() first." otherwise.
 
-**Job status is process-local.** `getRenderStatus` / `cancelRender` read an
-in-memory map that is shared between `renderAudio` and the worker ONLY when
-both run in the same process (true with the memory queue bond). With a
-distributed queue bond and a separate worker process, the enqueuing process
-never sees status transitions — persist durable status from the worker's
-`onJobComplete` callback instead. For HTTP exposure of enqueue/status/cancel,
-see `createAudioRenderRoutes()`.
+**Job status is process-local by default.** `getRenderStatus` /
+`cancelRender` read the active job store — an in-memory map by default — that
+is shared between `renderAudio` and the worker ONLY when both run in the same
+process (true with the memory queue bond). With a distributed queue bond and
+a separate worker process, the enqueuing process never sees status
+transitions. Fix it either way: inject a shared, cross-process backend via
+`setAudioJobStore()` in BOTH processes (the store contract is synchronous, so
+it must be a sync façade over the shared storage), OR persist durable status
+from the worker's `onJobComplete` callback and read it from your own storage.
+For HTTP exposure of enqueue/status/cancel, see `createAudioRenderRoutes()`.
 
 **No locale bond:** This package's surface is programmatic — no
 user-visible strings are generated, so there's no companion

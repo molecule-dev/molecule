@@ -162,8 +162,18 @@ export const renderAudio = async (
 /**
  * Look up a previously-enqueued render job by id.
  *
+ * **Process-local.** This reads the active job store (an in-memory `Map` by
+ * default), which only reflects the worker's transitions when the worker runs
+ * in the SAME process (true with the `@molecule/api-queue-memory` bond). With
+ * a distributed queue bond and a separate worker process this returns the
+ * stale `queued` snapshot forever — the worker's `processing`/`completed`/
+ * `failed` updates land in the worker's own store. To make status observable
+ * across processes, inject a shared backend via `setAudioJobStore()` in BOTH
+ * processes, or persist durable status from the worker's `onJobComplete`
+ * callback and read it from your own storage.
+ *
  * @param jobId - The id returned in `RenderJob.id` from {@link renderAudio}.
- * @returns The job, or `undefined` if it isn't registered in this process.
+ * @returns The job as known to THIS process's store, or `undefined`.
  */
 export const getRenderStatus = (jobId: string): RenderJob | undefined => {
   return getJob(jobId)
@@ -176,6 +186,11 @@ export const getRenderStatus = (jobId: string): RenderJob | undefined => {
  * marked but the worker decides whether to honour the flag (the bundled
  * worker checks before spawning ffmpeg and again on completion). Jobs in
  * a terminal state (`completed`, `failed`, `cancelled`) are not changed.
+ *
+ * **Process-local**, same caveat as {@link getRenderStatus}: the flag is
+ * written to this process's job store, so a worker in a separate process only
+ * observes it when a shared store is injected via `setAudioJobStore()` in both
+ * processes.
  *
  * @param jobId - The id returned in `RenderJob.id` from {@link renderAudio}.
  * @returns `true` if the job was found and a cancellation flag applied,

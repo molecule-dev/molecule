@@ -58,10 +58,13 @@
  * gate concurrency at the queue tier rather than in the request path.
  *
  * **ffmpeg is a runtime prerequisite, not a dependency.** The worker spawns
- * whatever `ffmpegPath` points at (default: `ffmpeg` resolved on `$PATH`).
- * Install it in the runtime image (e.g. `apt-get install -y ffmpeg`) or pass
- * an explicit `ffmpegPath`; without it every job fails at processing time
- * with a spawn ENOENT recorded on the job's `error` field.
+ * whatever `ffmpegPath` points at — resolved from the `ffmpegPath` option, then
+ * the `FFMPEG_PATH` env var, then `ffmpeg` on `$PATH`. Install it in the runtime
+ * image (e.g. `apt-get install -y ffmpeg`) — it is NOT present in minimal
+ * containers including the molecule.dev sandbox base image. When it's missing,
+ * the job fails with a clear, actionable error naming the path and the fix
+ * (install ffmpeg or set `FFMPEG_PATH`) on the job's `error` field — not a raw
+ * `spawn ffmpeg ENOENT`.
  *
  * **Queue wiring:** `renderAudio` dispatches through the abstract
  * `@molecule/api-queue` core, so a queue bond must be wired at startup —
@@ -70,13 +73,16 @@
  * `startAudioRenderWorker()` must be running to consume jobs. Both throw
  * "Queue provider not configured. Call setProvider() first." otherwise.
  *
- * **Job status is process-local.** `getRenderStatus` / `cancelRender` read an
- * in-memory map that is shared between `renderAudio` and the worker ONLY when
- * both run in the same process (true with the memory queue bond). With a
- * distributed queue bond and a separate worker process, the enqueuing process
- * never sees status transitions — persist durable status from the worker's
- * `onJobComplete` callback instead. For HTTP exposure of enqueue/status/cancel,
- * see `createAudioRenderRoutes()`.
+ * **Job status is process-local by default.** `getRenderStatus` /
+ * `cancelRender` read the active job store — an in-memory map by default — that
+ * is shared between `renderAudio` and the worker ONLY when both run in the same
+ * process (true with the memory queue bond). With a distributed queue bond and
+ * a separate worker process, the enqueuing process never sees status
+ * transitions. Fix it either way: inject a shared, cross-process backend via
+ * `setAudioJobStore()` in BOTH processes (the store contract is synchronous, so
+ * it must be a sync façade over the shared storage), OR persist durable status
+ * from the worker's `onJobComplete` callback and read it from your own storage.
+ * For HTTP exposure of enqueue/status/cancel, see `createAudioRenderRoutes()`.
  *
  * **No locale bond:** This package's surface is programmatic — no
  * user-visible strings are generated, so there's no companion

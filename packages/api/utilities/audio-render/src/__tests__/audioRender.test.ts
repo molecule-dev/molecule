@@ -21,7 +21,7 @@
 import type { spawn } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type {
   MessageHandler,
@@ -41,9 +41,15 @@ import type {
   AudioRenderResponse,
   AudioSession,
 } from '../index.js'
-import { getJob, resetJobStore } from '../jobStore.js'
+import {
+  createInMemoryAudioJobStore,
+  getAudioJobStore,
+  getJob,
+  resetJobStore,
+  setAudioJobStore,
+} from '../jobStore.js'
 import { cancelRender, getRenderStatus, renderAudio } from '../renderAudio.js'
-import { processAudioRenderJob } from '../worker.js'
+import { describeSpawnFailure, processAudioRenderJob, resolveFfmpegPath } from '../worker.js'
 
 interface MockQueueInstance extends Queue {
   messages: Array<{ id: string; body: unknown }>
@@ -116,6 +122,7 @@ const sampleSession: AudioSession = {
 }
 
 beforeEach(() => {
+  setAudioJobStore(undefined) // reset to a fresh in-memory store
   resetJobStore()
   const provider = createMockQueueProvider()
   setQueueProvider(provider)
@@ -379,6 +386,144 @@ describe('processAudioRenderJob', () => {
     expect(result.status).toBe('failed')
     expect(result.error).toContain('ENOENT')
     expect(getJob(job.id)?.status).toBe('failed')
+  })
+
+  it('spawns the FFMPEG_PATH binary when no ffmpegPath option is given', async () => {
+    const original = process.env.FFMPEG_PATH
+    process.env.FFMPEG_PATH = '/env/bin/ffmpeg'
+    try {
+      const job = await renderAudio(sampleSession)
+      const payload = getMockProvider().queues.get('audio-render')!.messages[0]!
+        .body as AudioRenderJobPayload
+      payload.jobId = job.id
+
+      const fakeChild = makeFakeChild()
+      const spawn = vi.fn(() => fakeChild)
+      const promise = processAudioRenderJob(payload, { spawn: spawn as unknown as never })
+      await Promise.resolve()
+      fakeChild.emit('close', 0)
+      await promise
+
+      expect(spawn).toHaveBeenCalledTimes(1)
+      expect(spawn.mock.calls[0]![0]).toBe('/env/bin/ffmpeg')
+    } finally {
+      if (original === undefined) delete process.env.FFMPEG_PATH
+      else process.env.FFMPEG_PATH = original
+    }
+  })
+
+  it('records an actionable error when ffmpeg is missing (synchronous ENOENT)', async () => {
+    const job = await renderAudio(sampleSession)
+    const payload = getMockProvider().queues.get('audio-render')!.messages[0]!
+      .body as AudioRenderJobPayload
+    payload.jobId = job.id
+
+    const spawn = vi.fn(() => {
+      throw Object.assign(new Error('spawn /opt/ffmpeg ENOENT'), { code: 'ENOENT' })
+    })
+
+    const result = await processAudioRenderJob(payload, {
+      spawn: spawn as unknown as never,
+      ffmpegPath: '/opt/ffmpeg',
+    })
+    expect(result.status).toBe('failed')
+    expect(result.error).toMatch(/ffmpeg not found at '\/opt\/ffmpeg'/)
+    expect(result.error).toMatch(/FFMPEG_PATH/)
+    expect(getJob(job.id)?.error).toMatch(/ffmpeg not found/)
+  })
+
+  it('records an actionable error when spawn emits ENOENT asynchronously', async () => {
+    const job = await renderAudio(sampleSession)
+    const payload = getMockProvider().queues.get('audio-render')!.messages[0]!
+      .body as AudioRenderJobPayload
+    payload.jobId = job.id
+
+    const fakeChild = makeFakeChild()
+    const spawn = vi.fn(() => fakeChild)
+    const promise = processAudioRenderJob(payload, {
+      spawn: spawn as unknown as never,
+      ffmpegPath: 'ffmpeg',
+    })
+    await Promise.resolve()
+    fakeChild.emit('error', Object.assign(new Error('spawn ffmpeg ENOENT'), { code: 'ENOENT' }))
+    const result = await promise
+    expect(result.status).toBe('failed')
+    expect(result.error).toMatch(/ffmpeg not found at 'ffmpeg'/)
+    expect(result.error).toMatch(/install ffmpeg/i)
+  })
+})
+
+describe('resolveFfmpegPath', () => {
+  const original = process.env.FFMPEG_PATH
+
+  afterEach(() => {
+    if (original === undefined) delete process.env.FFMPEG_PATH
+    else process.env.FFMPEG_PATH = original
+  })
+
+  it("defaults to 'ffmpeg' when no explicit path and no FFMPEG_PATH", () => {
+    delete process.env.FFMPEG_PATH
+    expect(resolveFfmpegPath()).toBe('ffmpeg')
+  })
+
+  it('reads FFMPEG_PATH when no explicit path is given', () => {
+    process.env.FFMPEG_PATH = '/env/ffmpeg'
+    expect(resolveFfmpegPath()).toBe('/env/ffmpeg')
+  })
+
+  it('lets an explicit path win over FFMPEG_PATH', () => {
+    process.env.FFMPEG_PATH = '/env/ffmpeg'
+    expect(resolveFfmpegPath('/explicit/ffmpeg')).toBe('/explicit/ffmpeg')
+  })
+})
+
+describe('describeSpawnFailure', () => {
+  it('rewrites ENOENT into an actionable message naming the path + fix', () => {
+    const err = Object.assign(new Error('spawn /opt/ffmpeg ENOENT'), { code: 'ENOENT' })
+    const msg = describeSpawnFailure(err, '/opt/ffmpeg')
+    expect(msg).toMatch(/ffmpeg not found at '\/opt\/ffmpeg'/)
+    expect(msg).toMatch(/FFMPEG_PATH/)
+  })
+
+  it('passes through non-ENOENT error messages unchanged', () => {
+    expect(describeSpawnFailure(new Error('permission denied'), 'ffmpeg')).toBe('permission denied')
+  })
+})
+
+describe('AudioJobStore injection (split-process status fix)', () => {
+  it('routes register + worker updates through an injected shared store', async () => {
+    const shared = createInMemoryAudioJobStore()
+    setAudioJobStore(shared)
+
+    const job = await renderAudio(sampleSession)
+    // renderAudio registered the job into the injected store.
+    expect(shared.get(job.id)?.status).toBe('queued')
+
+    // A worker sharing the same store completes the job...
+    const payload = getMockProvider().queues.get('audio-render')!.messages[0]!
+      .body as AudioRenderJobPayload
+    payload.jobId = job.id
+    const fakeChild = makeFakeChild()
+    const spawn = vi.fn(() => fakeChild)
+    const promise = processAudioRenderJob(payload, { spawn: spawn as unknown as never })
+    await Promise.resolve()
+    fakeChild.emit('close', 0)
+    await promise
+
+    // ...and getRenderStatus (reading the shared store) observes the transition.
+    expect(getRenderStatus(job.id)?.status).toBe('completed')
+    expect(shared.get(job.id)?.status).toBe('completed')
+  })
+
+  it('setAudioJobStore(undefined) resets to a fresh in-memory store', async () => {
+    const shared = createInMemoryAudioJobStore()
+    setAudioJobStore(shared)
+    await renderAudio(sampleSession)
+    expect(shared.ids().length).toBe(1)
+
+    setAudioJobStore(undefined)
+    expect(getAudioJobStore()).not.toBe(shared)
+    expect(getAudioJobStore().ids().length).toBe(0)
   })
 })
 
