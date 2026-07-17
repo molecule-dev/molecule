@@ -142,20 +142,56 @@ export const createProvider = (config: GdprConfig = {}): ComplianceProvider => {
       const requestedCategories = options?.categories ?? [...categories]
       const retainLegal = options?.retainLegalObligations ?? true
 
+      // Categories whose data was actually erased (a delete hook ran).
       const deletedCategories: DataCategory[] = []
+      // Categories deliberately kept for a legal obligation.
       const retainedCategories: DataCategory[] = []
+      // Categories the caller asked to erase but that have no delete-capable
+      // collector — nothing was erased for these, so they must NOT be reported
+      // as deleted (that was the data-integrity bug this provider used to have).
+      const skippedCategories: DataCategory[] = []
 
       for (const category of requestedCategories) {
         if (retainLegal && legalObligationCategories.includes(category)) {
           retainedCategories.push(category)
-        } else {
+          continue
+        }
+
+        // Actually erase the category through every registered delete hook.
+        // A rejection propagates out — an erasure that hit an error must never
+        // resolve to a rosy result.
+        let erased = false
+        for (const collector of dataCollectors) {
+          if (collector.category === category && collector.delete) {
+            await collector.delete(userId)
+            erased = true
+          }
+        }
+
+        if (erased) {
           deletedCategories.push(category)
+        } else {
+          skippedCategories.push(category)
         }
       }
 
-      let status: DeletionStatus = 'completed'
-      if (deletedCategories.length === 0 && retainedCategories.length > 0) {
+      // Report the truth: only 'completed' when everything the caller asked to
+      // erase was actually erased (legal retention aside). Anything skipped
+      // downgrades the status so callers/regulators are never told erasure
+      // finished when it did not.
+      let status: DeletionStatus
+      if (deletedCategories.length === 0) {
+        if (skippedCategories.length > 0) {
+          status = 'failed'
+        } else if (retainedCategories.length > 0) {
+          status = 'partial'
+        } else {
+          status = 'completed'
+        }
+      } else if (skippedCategories.length > 0) {
         status = 'partial'
+      } else {
+        status = 'completed'
       }
 
       if (deletedCategories.length > 0) {
@@ -168,12 +204,17 @@ export const createProvider = (config: GdprConfig = {}): ComplianceProvider => {
         deletedCategories,
         retainedCategories,
         requestedAt: new Date(),
-        completedAt: new Date(),
+        // No completion timestamp when nothing was erased.
+        completedAt: status === 'failed' ? undefined : new Date(),
       }
 
       deletionStore.set(userId, result)
 
-      if (deletedCategories.includes('profile') || deletedCategories.includes('preferences')) {
+      // Consent records are this provider's OWN in-memory data, so erase them
+      // directly whenever profile/preferences erasure was requested (i.e. not
+      // legally retained), regardless of the external-data outcome.
+      const erasureRequested = new Set<DataCategory>([...deletedCategories, ...skippedCategories])
+      if (erasureRequested.has('profile') || erasureRequested.has('preferences')) {
         const consents = consentStore.get(userId)
         if (consents) {
           const retained = consents.filter(

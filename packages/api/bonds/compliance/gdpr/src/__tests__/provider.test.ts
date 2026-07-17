@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ComplianceProvider } from '@molecule/api-compliance'
+import type { ComplianceProvider, DataCategory } from '@molecule/api-compliance'
 
 import { createProvider } from '../provider.js'
 import type { DataCollector } from '../types.js'
@@ -94,50 +94,144 @@ describe('GDPR compliance provider', () => {
   })
 
   describe('deleteUserData', () => {
-    it('should delete all categories by default', async () => {
-      const result = await provider.deleteUserData('user-1')
+    /**
+     * Builds a delete-capable collector backed by an in-memory store so tests
+     * can prove the user's data is actually removed, not merely reported gone.
+     *
+     * @param category - The data category this collector owns.
+     * @param store - The backing store keyed by userId.
+     * @returns A collector whose `delete` removes the user's row from `store`.
+     */
+    const makeDeletingCollector = (
+      category: DataCategory,
+      store: Map<string, unknown>,
+    ): DataCollector => ({
+      category,
+      collect: vi.fn(async (userId: string) => store.get(userId)),
+      delete: vi.fn(async (userId: string) => {
+        store.delete(userId)
+      }),
+    })
 
-      expect(result.userId).toBe('user-1')
+    it('should invoke the delete hook and actually remove the collector data', async () => {
+      const store = new Map<string, unknown>([['user-1', { name: 'Test User' }]])
+      const collector = makeDeletingCollector('profile', store)
+
+      const customProvider = createProvider({
+        categories: ['profile'],
+        dataCollectors: [collector],
+      })
+
+      const result = await customProvider.deleteUserData('user-1', { categories: ['profile'] })
+
+      expect(collector.delete).toHaveBeenCalledWith('user-1')
+      expect(store.has('user-1')).toBe(false)
       expect(result.status).toBe('completed')
-      expect(result.deletedCategories.length).toBeGreaterThan(0)
-      expect(result.requestedAt).toBeInstanceOf(Date)
+      expect(result.deletedCategories).toEqual(['profile'])
       expect(result.completedAt).toBeInstanceOf(Date)
     })
 
-    it('should retain legal obligation categories by default', async () => {
-      const result = await provider.deleteUserData('user-1')
+    it('should NOT report completed when a collector has no delete hook', async () => {
+      const collector: DataCollector = {
+        category: 'profile',
+        collect: vi.fn(async () => ({ name: 'Test User' })),
+        // no delete hook — this category cannot be erased
+      }
 
-      expect(result.retainedCategories).toContain('billing')
-      expect(result.deletedCategories).not.toContain('billing')
-    })
-
-    it('should delete legal obligation categories when retainLegalObligations is false', async () => {
-      const result = await provider.deleteUserData('user-1', {
-        retainLegalObligations: false,
+      const customProvider = createProvider({
+        categories: ['profile'],
+        dataCollectors: [collector],
       })
 
-      expect(result.deletedCategories).toContain('billing')
-      expect(result.retainedCategories).not.toContain('billing')
+      const result = await customProvider.deleteUserData('user-1', { categories: ['profile'] })
+
+      expect(result.status).not.toBe('completed')
+      expect(result.status).toBe('failed')
+      expect(result.deletedCategories).not.toContain('profile')
+      expect(result.deletedCategories).toEqual([])
+      expect(result.completedAt).toBeUndefined()
     })
 
-    it('should delete only specified categories', async () => {
+    it('should NOT report completed for a category with no collector at all', async () => {
       const result = await provider.deleteUserData('user-1', {
         categories: ['profile', 'activity'],
       })
 
-      expect(result.deletedCategories).toEqual(['profile', 'activity'])
-      expect(result.retainedCategories).toEqual([])
+      expect(result.status).toBe('failed')
+      expect(result.deletedCategories).toEqual([])
     })
 
-    it('should return partial status when all requested categories are retained', async () => {
-      const result = await provider.deleteUserData('user-1', {
-        categories: ['billing'],
-        retainLegalObligations: true,
+    it('should report partial when some categories erase and others cannot', async () => {
+      const store = new Map<string, unknown>([['user-1', { name: 'Test User' }]])
+      const profile = makeDeletingCollector('profile', store)
+      const activity: DataCollector = {
+        category: 'activity',
+        collect: vi.fn(async () => []),
+        // no delete hook
+      }
+
+      const customProvider = createProvider({
+        categories: ['profile', 'activity'],
+        dataCollectors: [profile, activity],
+      })
+
+      const result = await customProvider.deleteUserData('user-1', {
+        categories: ['profile', 'activity'],
       })
 
       expect(result.status).toBe('partial')
+      expect(result.deletedCategories).toEqual(['profile'])
+      expect(result.deletedCategories).not.toContain('activity')
+      expect(store.has('user-1')).toBe(false)
+    })
+
+    it('should reject (never claim success) when a delete hook throws', async () => {
+      const boom: DataCollector = {
+        category: 'profile',
+        collect: vi.fn(),
+        delete: vi.fn(async () => {
+          throw new Error('data store unavailable')
+        }),
+      }
+
+      const customProvider = createProvider({
+        categories: ['profile'],
+        dataCollectors: [boom],
+      })
+
+      await expect(
+        customProvider.deleteUserData('user-1', { categories: ['profile'] }),
+      ).rejects.toThrow('data store unavailable')
+    })
+
+    it('should retain legal obligation categories and report partial when only legal remain', async () => {
+      const result = await provider.deleteUserData('user-1', { categories: ['billing'] })
+
+      expect(result.status).toBe('partial')
       expect(result.retainedCategories).toContain('billing')
+      expect(result.deletedCategories).not.toContain('billing')
       expect(result.deletedCategories).toEqual([])
+    })
+
+    it('should erase legal obligation categories when retainLegalObligations is false', async () => {
+      const store = new Map<string, unknown>([['user-1', { plan: 'pro' }]])
+      const billing = makeDeletingCollector('billing', store)
+
+      const customProvider = createProvider({
+        categories: ['billing'],
+        dataCollectors: [billing],
+      })
+
+      const result = await customProvider.deleteUserData('user-1', {
+        categories: ['billing'],
+        retainLegalObligations: false,
+      })
+
+      expect(billing.delete).toHaveBeenCalledWith('user-1')
+      expect(store.has('user-1')).toBe(false)
+      expect(result.deletedCategories).toContain('billing')
+      expect(result.retainedCategories).not.toContain('billing')
+      expect(result.status).toBe('completed')
     })
 
     it('should support custom legal obligation categories', async () => {
@@ -151,7 +245,7 @@ describe('GDPR compliance provider', () => {
       expect(result.retainedCategories).toContain('authentication')
     })
 
-    it('should clear consent records when profile is deleted', async () => {
+    it('should clear in-memory consent records when profile erasure is requested', async () => {
       await provider.setConsent('user-1', { purpose: 'marketing', granted: true })
 
       const consentBefore = await provider.getConsent('user-1')
@@ -163,20 +257,37 @@ describe('GDPR compliance provider', () => {
       expect(consentAfter.consents).toHaveLength(0)
     })
 
-    it('should record a processing log entry on deletion', async () => {
-      await provider.deleteUserData('user-1')
+    it('should record a processing log entry when data is actually deleted', async () => {
+      const store = new Map<string, unknown>([['user-1', {}]])
+      const customProvider = createProvider({
+        categories: ['activity'],
+        dataCollectors: [makeDeletingCollector('activity', store)],
+      })
 
-      const log = await provider.getDataProcessingLog('user-1')
+      await customProvider.deleteUserData('user-1', { categories: ['activity'] })
+
+      const log = await customProvider.getDataProcessingLog('user-1')
 
       expect(log.some((entry) => entry.activity === 'data_deletion')).toBe(true)
     })
 
-    it('should include reason in deletion request', async () => {
+    it('should not record a data_deletion log entry when nothing was erased', async () => {
+      await provider.deleteUserData('user-1', { categories: ['activity'] })
+
+      const log = await provider.getDataProcessingLog('user-1')
+
+      expect(log.some((entry) => entry.activity === 'data_deletion')).toBe(false)
+    })
+
+    it('should return a well-formed result even when erasure could not complete', async () => {
       const result = await provider.deleteUserData('user-1', {
+        categories: ['profile'],
         reason: 'User requested account deletion',
       })
 
-      expect(result.status).toBe('completed')
+      expect(result.userId).toBe('user-1')
+      expect(result.requestedAt).toBeInstanceOf(Date)
+      expect(result.status).not.toBe('completed')
     })
   })
 
@@ -286,11 +397,25 @@ describe('GDPR compliance provider', () => {
     })
 
     it('should accumulate log entries', async () => {
-      await provider.setConsent('user-1', { purpose: 'marketing', granted: true })
-      await provider.exportUserData('user-1')
-      await provider.deleteUserData('user-1', { categories: ['activity'] })
+      const store = new Map<string, unknown>([['user-1', {}]])
+      const customProvider = createProvider({
+        categories: ['activity'],
+        dataCollectors: [
+          {
+            category: 'activity',
+            collect: vi.fn(async () => store.get('user-1')),
+            delete: vi.fn(async () => {
+              store.delete('user-1')
+            }),
+          },
+        ],
+      })
 
-      const log = await provider.getDataProcessingLog('user-1')
+      await customProvider.setConsent('user-1', { purpose: 'marketing', granted: true })
+      await customProvider.exportUserData('user-1')
+      await customProvider.deleteUserData('user-1', { categories: ['activity'] })
+
+      const log = await customProvider.getDataProcessingLog('user-1')
 
       expect(log.length).toBeGreaterThanOrEqual(3)
     })

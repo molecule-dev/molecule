@@ -48,28 +48,48 @@ export interface GdprConfig {
   defaultLegalBasis?: LegalBasis
 
   /**
-   * Callback invoked when user data is collected, for custom data
-   * source integration. Providers can register data collectors that
-   * are called during data export.
+   * Data collectors for custom data-source integration, one per category.
+   * `collect()` feeds `exportUserData()`; the optional `delete()` hook is
+   * what makes `deleteUserData()` actually erase that category's data. A
+   * category with no delete-capable collector is NOT erased and cannot be
+   * reported as deleted.
    */
   dataCollectors?: DataCollector[]
 }
 
 /**
- * A function that collects user data for a specific category.
+ * Bridges the provider to a real data source for one data category.
  *
- * NOTE: collectors are read-only — they are invoked by `exportUserData()`
- * only and are NOT invoked during deletion.
+ * `collect()` is invoked by `exportUserData()`. `delete()`, if implemented,
+ * is invoked by `deleteUserData()` to actually erase the user's data for
+ * this category — without it, that category is left in place and reported
+ * as skipped (never as a false `'completed'`).
  */
 export interface DataCollector {
   /** The data category this collector handles. */
   category: DataCategory
 
   /**
-   * Collects data for the given user.
+   * Collects data for the given user (used by `exportUserData()`).
    *
    * @param userId - The user whose data to collect.
    * @returns The collected data.
    */
   collect(userId: string): Promise<unknown>
+
+  /**
+   * Erases this collector's data for the given user (used by
+   * `deleteUserData()`).
+   *
+   * OPTIONAL so existing collect-only collectors keep compiling — but a
+   * collector WITHOUT this hook cannot be erased: `deleteUserData()` will
+   * not count its category as deleted and will report a non-`'completed'`
+   * status. Implement it to make right-to-erasure real. It should be
+   * idempotent; a rejection propagates out of `deleteUserData()` (the call
+   * fails loudly rather than claiming success) and the caller may retry.
+   *
+   * @param userId - The user whose data to erase.
+   * @returns Resolves once this category's data has been erased.
+   */
+  delete?(userId: string): Promise<void>
 }

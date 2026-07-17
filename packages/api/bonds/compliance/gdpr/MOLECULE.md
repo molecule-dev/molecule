@@ -16,7 +16,11 @@ import { createProvider } from '@molecule/api-compliance-gdpr'
 setProvider(createProvider({
   legalObligationCategories: ['billing', 'authentication'],
   dataCollectors: [
-    { category: 'profile', collect: async (userId) => findOne('users', { id: userId }) },
+    {
+      category: 'profile',
+      collect: async (userId) => findOne('users', { id: userId }),
+      delete: async (userId) => { await deleteById('users', userId) },
+    },
   ],
 }))
 ```
@@ -35,10 +39,12 @@ npm install @molecule/api-compliance-gdpr @molecule/api-compliance
 
 #### `DataCollector`
 
-A function that collects user data for a specific category.
+Bridges the provider to a real data source for one data category.
 
-NOTE: collectors are read-only — they are invoked by `exportUserData()`
-only and are NOT invoked during deletion.
+`collect()` is invoked by `exportUserData()`. `delete()`, if implemented,
+is invoked by `deleteUserData()` to actually erase the user's data for
+this category — without it, that category is left in place and reported
+as skipped (never as a false `'completed'`).
 
 ```typescript
 interface DataCollector {
@@ -46,12 +52,28 @@ interface DataCollector {
   category: DataCategory
 
   /**
-   * Collects data for the given user.
+   * Collects data for the given user (used by `exportUserData()`).
    *
    * @param userId - The user whose data to collect.
    * @returns The collected data.
    */
   collect(userId: string): Promise<unknown>
+
+  /**
+   * Erases this collector's data for the given user (used by
+   * `deleteUserData()`).
+   *
+   * OPTIONAL so existing collect-only collectors keep compiling — but a
+   * collector WITHOUT this hook cannot be erased: `deleteUserData()` will
+   * not count its category as deleted and will report a non-`'completed'`
+   * status. Implement it to make right-to-erasure real. It should be
+   * idempotent; a rejection propagates out of `deleteUserData()` (the call
+   * fails loudly rather than claiming success) and the caller may retry.
+   *
+   * @param userId - The user whose data to erase.
+   * @returns Resolves once this category's data has been erased.
+   */
+  delete?(userId: string): Promise<void>
 }
 ```
 
@@ -99,9 +121,11 @@ interface GdprConfig {
   defaultLegalBasis?: LegalBasis
 
   /**
-   * Callback invoked when user data is collected, for custom data
-   * source integration. Providers can register data collectors that
-   * are called during data export.
+   * Data collectors for custom data-source integration, one per category.
+   * `collect()` feeds `exportUserData()`; the optional `delete()` hook is
+   * what makes `deleteUserData()` actually erase that category's data. A
+   * category with no delete-capable collector is NOT erased and cannot be
+   * reported as deleted.
    */
   dataCollectors?: DataCollector[]
 }
@@ -160,16 +184,18 @@ Peer dependencies:
 
 - `@molecule/api-compliance`
 
-- **This provider is the compliance BOOKKEEPING layer — it does not touch
-  your data stores.** `deleteUserData()` records which categories were
-  requested/retained and returns `status: 'completed'`, but performs NO
-  actual deletion anywhere: `DataCollector` only has `collect()` (used by
-  `exportUserData()`), and there is no deletion hook. Your handler must
-  itself delete the user's rows/files for the returned `deletedCategories`
-  (e.g. via `@molecule/api-database`) after calling `deleteUserData()`.
+- **Erasure runs through your `DataCollector.delete` hooks.**
+  `deleteUserData()` calls the optional `delete(userId)` on every registered
+  collector whose category is being erased, and returns `status: 'completed'`
+  only when every requested (non-legally-retained) category was actually
+  erased. A category with no delete-capable collector is left in place and
+  reported as skipped — the result comes back `'partial'` (some erased) or
+  `'failed'` (none erased), never a false `'completed'`. So register a
+  `delete`-capable collector per category you manage; a `collect`-only
+  collector still exports but does NOT erase.
 - **`exportUserData()` returns an empty `data` object unless you register
-  `dataCollectors`** — one per data category, each returning that user's
-  data from your real sources. Without them the export contains only
+  `dataCollectors`** — one per data category, each `collect()` returning that
+  user's data from your real sources. Without them the export contains only
   in-memory consent entries.
 - **All state is in process memory.** Consent records, processing logs, and
   deletion receipts are lost on restart and are not shared across

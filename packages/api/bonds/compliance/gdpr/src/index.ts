@@ -7,16 +7,18 @@
  * retention, and data category filtering for GDPR Article 15–20 compliance.
  *
  * @remarks
- * - **This provider is the compliance BOOKKEEPING layer — it does not touch
- *   your data stores.** `deleteUserData()` records which categories were
- *   requested/retained and returns `status: 'completed'`, but performs NO
- *   actual deletion anywhere: `DataCollector` only has `collect()` (used by
- *   `exportUserData()`), and there is no deletion hook. Your handler must
- *   itself delete the user's rows/files for the returned `deletedCategories`
- *   (e.g. via `@molecule/api-database`) after calling `deleteUserData()`.
+ * - **Erasure runs through your `DataCollector.delete` hooks.**
+ *   `deleteUserData()` calls the optional `delete(userId)` on every registered
+ *   collector whose category is being erased, and returns `status: 'completed'`
+ *   only when every requested (non-legally-retained) category was actually
+ *   erased. A category with no delete-capable collector is left in place and
+ *   reported as skipped — the result comes back `'partial'` (some erased) or
+ *   `'failed'` (none erased), never a false `'completed'`. So register a
+ *   `delete`-capable collector per category you manage; a `collect`-only
+ *   collector still exports but does NOT erase.
  * - **`exportUserData()` returns an empty `data` object unless you register
- *   `dataCollectors`** — one per data category, each returning that user's
- *   data from your real sources. Without them the export contains only
+ *   `dataCollectors`** — one per data category, each `collect()` returning that
+ *   user's data from your real sources. Without them the export contains only
  *   in-memory consent entries.
  * - **All state is in process memory.** Consent records, processing logs, and
  *   deletion receipts are lost on restart and are not shared across
@@ -32,7 +34,11 @@
  * setProvider(createProvider({
  *   legalObligationCategories: ['billing', 'authentication'],
  *   dataCollectors: [
- *     { category: 'profile', collect: async (userId) => findOne('users', { id: userId }) },
+ *     {
+ *       category: 'profile',
+ *       collect: async (userId) => findOne('users', { id: userId }),
+ *       delete: async (userId) => { await deleteById('users', userId) },
+ *     },
  *   ],
  * }))
  * ```
