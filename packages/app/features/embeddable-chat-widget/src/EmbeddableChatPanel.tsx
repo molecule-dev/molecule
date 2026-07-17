@@ -1,15 +1,13 @@
 import type { CSSProperties, FormEvent, JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-
 import { sendChatRequest } from './sendChatRequest.js'
 import type {
   EmbeddableChatMessage,
   EmbeddableChatWidgetConfig,
   EmbeddableChatWidgetPosition,
 } from './types.js'
+import { useSafeTranslation } from './useSafeTranslation.js'
 
 export interface EmbeddableChatPanelProps {
   /** Whether the panel is expanded (visible) or collapsed (hidden). */
@@ -37,8 +35,7 @@ export function EmbeddableChatPanel({
   position,
   config,
 }: EmbeddableChatPanelProps): JSX.Element | null {
-  const cm = getClassMap()
-  const { t } = useTranslation()
+  const { t } = useSafeTranslation()
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<EmbeddableChatMessage[]>([])
   const [isStreaming, setIsStreaming] = useState(false)
@@ -219,7 +216,6 @@ export function EmbeddableChatPanel({
       role="dialog"
       aria-label={headerLabel}
       data-mol-id="embeddable-chat-panel"
-      className={cm.cn()}
       style={panelStyle}
     >
       <header style={headerStyle}>

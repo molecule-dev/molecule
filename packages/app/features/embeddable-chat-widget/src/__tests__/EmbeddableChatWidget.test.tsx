@@ -3,12 +3,14 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import * as React from 'react'
+import type { Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider } from '@molecule/app-i18n'
 import { I18nProvider } from '@molecule/app-react'
 
 import { EmbeddableChatWidget } from '../EmbeddableChatWidget.js'
+import { mountEmbeddableChatWidget } from '../mount.js'
 import type { EmbeddableChatWidgetConfig } from '../types.js'
 
 /**
@@ -125,7 +127,11 @@ describe('<EmbeddableChatWidget>', () => {
       .calls[0]
     expect(url).toBe('https://api.example.com/chat')
     expect(init.method).toBe('POST')
+    // Wire contract: only the latest user message is posted (no history/id/auth).
     expect(JSON.parse(init.body as string)).toEqual({ message: 'Hi there' })
+    // Wire contract: SSE is requested via the Accept header.
+    expect((init.headers as Record<string, string>).Accept).toBe('text/event-stream')
+    expect((init.headers as Record<string, string>)['Content-Type']).toBe('application/json')
   })
 
   it('shows an error message when the backend returns a non-OK response', async () => {
@@ -177,5 +183,90 @@ describe('<EmbeddableChatWidget>', () => {
     ) as HTMLElement
     expect(launcher.style.left).toBe('24px')
     expect(launcher.style.right).toBe('')
+  })
+})
+
+describe('<EmbeddableChatWidget> on a bare page (no molecule providers)', () => {
+  // NOTE: these tests deliberately render WITHOUT <Wrap> (no I18nProvider) and
+  // never call setClassMap() — this file wires no test setup, so no ClassMap
+  // bond exists. This reproduces a bare third-party host page; the widget must
+  // NOT throw and must render English defaults + inline styling.
+
+  it('renders the launcher without any provider and does not throw', () => {
+    expect(() =>
+      render(<EmbeddableChatWidget config={configWith(makeStreamingFetch([]))} />),
+    ).not.toThrow()
+    expect(document.querySelector('[data-mol-id="embeddable-chat-launcher"]')).not.toBeNull()
+  })
+
+  it('expands to a panel with English default labels and no provider', () => {
+    render(<EmbeddableChatWidget config={configWith(makeStreamingFetch([]))} defaultOpen />)
+    expect(document.querySelector('[data-mol-id="embeddable-chat-panel"]')).not.toBeNull()
+    // Interpolated defaultValue (brandName substituted) is used with no i18n bond.
+    expect(screen.getByText('Chat with Acme')).toBeDefined()
+    expect(screen.getByText('Ask a question to get started.')).toBeDefined()
+    const input = document.querySelector(
+      '[data-mol-id="embeddable-chat-input"]',
+    ) as HTMLTextAreaElement
+    expect(input.placeholder).toBe('Type your message…')
+  })
+
+  it('streams a reply on a bare page (no provider) without throwing', async () => {
+    const fetchImpl = makeStreamingFetch(['Bare ', 'page ', 'works'])
+    render(<EmbeddableChatWidget config={configWith(fetchImpl)} defaultOpen />)
+    const input = document.querySelector(
+      '[data-mol-id="embeddable-chat-input"]',
+    ) as HTMLTextAreaElement
+    const send = document.querySelector('[data-mol-id="embeddable-chat-send"]') as HTMLButtonElement
+    fireEvent.change(input, { target: { value: 'Hi' } })
+    await act(async () => {
+      fireEvent.click(send)
+    })
+    await waitFor(() => {
+      expect(screen.getByText('Bare page works')).toBeDefined()
+    })
+  })
+})
+
+describe('mountEmbeddableChatWidget', () => {
+  let container: HTMLDivElement
+  let root: Root | undefined
+
+  afterEach(() => {
+    if (root) {
+      act(() => root?.unmount())
+      root = undefined
+    }
+    container?.remove()
+  })
+
+  it('mounts into a bare container (no providers) and renders the launcher', () => {
+    container = document.createElement('div')
+    container.id = 'molecule-chat-widget'
+    document.body.appendChild(container)
+    expect(() => {
+      act(() => {
+        root = mountEmbeddableChatWidget(container, configWith(makeStreamingFetch([])))
+      })
+    }).not.toThrow()
+    expect(container.querySelector('[data-mol-id="embeddable-chat-launcher"]')).not.toBeNull()
+  })
+
+  it('accepts a CSS selector for the container', () => {
+    container = document.createElement('div')
+    container.id = 'via-selector'
+    document.body.appendChild(container)
+    act(() => {
+      root = mountEmbeddableChatWidget('#via-selector', configWith(makeStreamingFetch([])), {
+        defaultOpen: true,
+      })
+    })
+    expect(container.querySelector('[data-mol-id="embeddable-chat-panel"]')).not.toBeNull()
+  })
+
+  it('throws a clear error when the selector matches no element', () => {
+    expect(() =>
+      mountEmbeddableChatWidget('#does-not-exist', configWith(makeStreamingFetch([]))),
+    ).toThrow(/no element found/)
   })
 })

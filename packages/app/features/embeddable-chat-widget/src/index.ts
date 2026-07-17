@@ -6,8 +6,10 @@
  * - `<EmbeddableChatWidget>` — root component (floating launcher + expanded panel).
  * - `<EmbeddableChatLauncher>` — standalone floating bubble (used internally).
  * - `<EmbeddableChatPanel>` — standalone expanded panel (used internally).
+ * - `mountEmbeddableChatWidget()` — imperative one-call mount into a host element.
  * - `sendChatRequest()` — fetch + SSE helper, exported for advanced integrations.
  * - `readChatStream()` — low-level SSE / chunked-text reader.
+ * - `useSafeTranslation()` — provider-optional translation hook (used internally).
  * - Types: `EmbeddableChatWidgetConfig`, `EmbeddableChatWidgetTheme`,
  *   `EmbeddableChatWidgetPosition`, `EmbeddableChatMessage`,
  *   `EmbeddableChatStreamEvent`.
@@ -27,47 +29,48 @@
  * ```
  *
  * @remarks
- * **Prerequisites (the widget throws without them).** The components call
- * `useTranslation()` and `getClassMap()`, so the render tree MUST have the
- * molecule `I18nProvider` above it and a ClassMap bond wired via
- * `setClassMap()` before first render. Inside a molecule-scaffolded app
- * both are already set up. On a NON-molecule host page you must perform
- * that wiring in your embed bundle before mounting — there is currently no
- * self-mounting standalone build; render through your own bundler (raw JSX
- * in a browser `script` tag will not parse), for example:
+ * **True drop-in — no provider wiring required.** The widget renders with
+ * sensible English defaults and fully inlined styling when no molecule
+ * `I18nProvider` or ClassMap bond is present, so it does NOT throw on a bare
+ * third-party page. When it IS mounted inside a molecule app it
+ * automatically picks up the host `I18nProvider` (via context) for
+ * translations + locale changes; no ClassMap is needed either way because
+ * all geometry/colour is inline. Mount it with the bundled helper — no
+ * `I18nProvider`, no `setClassMap()`:
  *
- * ```tsx
- * import { createRoot } from 'react-dom/client'
- * import { createSimpleI18nProvider } from '@molecule/app-i18n'
- * import { I18nProvider } from '@molecule/app-react'
- * import { setClassMap } from '@molecule/app-ui'
- * import { classMap } from '@molecule/app-ui-tailwind'
- * import { EmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
+ * ```ts
+ * import { mountEmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
  *
- * setClassMap(classMap)
- * createRoot(document.getElementById('molecule-chat-widget')!).render(
- *   <I18nProvider provider={createSimpleI18nProvider()}>
- *     <EmbeddableChatWidget
- *       config={{ apiBaseUrl: 'https://api.example.com', brandName: 'Acme' }}
- *     />
- *   </I18nProvider>,
- * )
+ * mountEmbeddableChatWidget('#molecule-chat-widget', {
+ *   apiBaseUrl: 'https://api.example.com',
+ *   brandName: 'Acme',
+ * })
  * ```
  *
- * **Backend wire contract.** Every send POSTs
- * `${apiBaseUrl}/chat` with JSON body `{ "message": "<latest user text>" }`
- * and `Accept: text/event-stream`. No conversation id, history, or auth is
- * sent — the transcript lives only in widget state, so a stateless backend
- * answers each turn without context. Correlate sessions server-side
- * (cookies) or inject headers/ids with `config.fetchImpl`. Responses may be
- * SSE (`data: {"type":"content","delta":"…"}` … `data: [DONE]`),
- * OpenAI/Anthropic-shaped JSON lines with a `content`/`text` field, or
- * plain chunked text — all are appended as deltas.
+ * (Raw JSX in a `<script>` tag still won't parse — build your embed with a
+ * bundler, or ship a pre-built bundle that calls `mountEmbeddableChatWidget`.)
  *
- * **Styling.** Panel/launcher geometry and colors are inlined (independent
- * of host CSS) and light-themed (white panel); `config.theme` customizes
- * only the primary accent + its foreground. Layout primitives still
- * resolve through the wired ClassMap.
+ * **Backend wire contract.** Every send POSTs `${apiBaseUrl}/chat` with
+ * request header `Accept: text/event-stream`, `Content-Type:
+ * application/json`, and JSON body `{ "message": "<latest user text>" }` —
+ * ONLY the newest user turn. No conversation id, history, or auth is sent;
+ * the transcript lives only in widget state, so a stateless backend answers
+ * each turn without context. Correlate sessions server-side (cookies) or
+ * inject headers/ids with `config.fetchImpl`. The response should stream the
+ * assistant reply back; the reader accepts any of:
+ * - SSE: `data: {"type":"content","delta":"…"}` lines, terminated by
+ *   `data: {"type":"done"}` or `data: [DONE]`; `data:
+ *   {"type":"error","message":"…"}` surfaces an error.
+ * - JSON lines with a `content` or `text` field (OpenAI/Anthropic-shaped) —
+ *   the field is appended as a delta.
+ * - Plain chunked text — appended verbatim as deltas.
+ * A non-2xx status (or a `data:` error event) is surfaced to the user as an
+ * error message in the panel.
+ *
+ * **Styling.** Panel/launcher geometry and colours are 100% inline
+ * (independent of host CSS) and light-themed (white panel); `config.theme`
+ * customises only the primary accent + its foreground. There is no ClassMap
+ * dependency, so the widget looks identical on and off a molecule host.
  *
  * @module
  */
@@ -75,6 +78,8 @@
 export * from './EmbeddableChatLauncher.js'
 export * from './EmbeddableChatPanel.js'
 export * from './EmbeddableChatWidget.js'
+export * from './mount.js'
 export * from './sendChatRequest.js'
 export * from './stream.js'
 export * from './types.js'
+export * from './useSafeTranslation.js'

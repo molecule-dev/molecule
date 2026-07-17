@@ -1,9 +1,7 @@
 import type { CSSProperties, JSX } from 'react'
 
-import { useTranslation } from '@molecule/app-react'
-import { getClassMap } from '@molecule/app-ui'
-
 import type { EmbeddableChatWidgetPosition, EmbeddableChatWidgetTheme } from './types.js'
+import { useSafeTranslation } from './useSafeTranslation.js'
 
 export interface EmbeddableChatLauncherProps {
   /** Whether the launcher should render. Hidden while the panel is expanded. */
@@ -22,10 +20,11 @@ export interface EmbeddableChatLauncherProps {
  * Floating circular launcher rendered in the corner of the host page.
  * Click expands the chat panel.
  *
- * Uses inline-style positioning + sizing because the host page might
- * not load the molecule stylesheet — this component is intentionally
- * self-sufficient for color and geometry. ClassMap is still used for
- * layout primitives that don't conflict with host CSS.
+ * Fully self-contained: positioning, sizing, color, and flex centering are
+ * all inline styles, so the launcher renders correctly even when the host
+ * page has NOT loaded the molecule stylesheet / wired a ClassMap bond. Text
+ * is resolved through a provider-optional translation hook that falls back
+ * to English defaults when no `I18nProvider` is present.
  *
  * @param props - Component props (see {@link EmbeddableChatLauncherProps}).
  */
@@ -36,8 +35,7 @@ export function EmbeddableChatLauncher({
   theme,
   className,
 }: EmbeddableChatLauncherProps): JSX.Element | null {
-  const cm = getClassMap()
-  const { t } = useTranslation()
+  const { t } = useSafeTranslation()
   if (!visible) return null
 
   const positionStyle: CSSProperties =
@@ -56,6 +54,11 @@ export function EmbeddableChatLauncher({
     boxShadow: '0 6px 18px rgba(0, 0, 0, 0.18)',
     background: theme?.primaryColor ?? '#2563eb',
     color: theme?.primaryForegroundColor ?? '#ffffff',
+    // Center the icon inline (not via ClassMap) so it works on a bare page
+    // where no Tailwind/ClassMap classes are loaded.
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     ...positionStyle,
   }
 
@@ -67,7 +70,7 @@ export function EmbeddableChatLauncher({
       onClick={onOpen}
       aria-label={ariaLabel}
       data-mol-id="embeddable-chat-launcher"
-      className={cm.cn(cm.flex({ align: 'center', justify: 'center' }), className)}
+      className={className}
       style={buttonStyle}
     >
       {/* Inline SVG keeps the launcher self-contained — no font/icon dep. */}
