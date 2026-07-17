@@ -29,19 +29,20 @@
  * ```
  *
  * @remarks
- * - HARD PREREQUISITES: this component styles itself with raw Tailwind
- *   utilities and Material-3 color tokens (`bg-surface-container-low`,
- *   `border-outline-variant`, `text-on-surface`, `font-headline`, …). The
- *   host app's Tailwind build must (a) source-scan this package's dist (add
- *   `@source "../node_modules/@molecule/app-image-gallery-editor-react/dist";`
- *   to the CSS entry — scaffolds do NOT include it by default) and (b) define
- *   the Material-3 color tokens in its theme (the polished flagship templates
- *   do; a plain scaffold does not). Without both, the layout collapses and
- *   the raw file input renders visible.
- * - Icons are Material Symbols ligatures (`cloud_upload`, `delete`) — the
- *   Material Symbols Outlined font must be loaded (scaffolded `index.html`
- *   links it; other hosts must add the stylesheet) or the icon names render
- *   as literal text.
+ * - Styling is 100% ClassMap (`getClassMap()` / `cm.*`) — the editor renders
+ *   correctly out of the box under any bonded styling library and needs NO
+ *   per-app Tailwind `@source` scan of this package. (It previously hardcoded
+ *   raw Tailwind + Material-3 utility classes that no scaffold `@source`-scans,
+ *   so even the `hidden` file input never generated a rule and rendered
+ *   visible; the file input is now hidden with an inline `display:none`.) The
+ *   few `style={...}` values (grid-column span, aspect ratio, corner radius,
+ *   the dashed drop-zone border, `object-fit`, dim opacity, `display:none`)
+ *   are the documented ClassMap-can't-express cases and use real theme tokens.
+ * - Icons are real SVG glyphs from `@molecule/app-ui-react`'s `<Icon>`
+ *   (`upload`, `trash`, and the `emptySlotIcon` — a typed `IconName`) — NO
+ *   Material Symbols font to load. Requires a bonded `@molecule/app-icons` set.
+ * - The filled-slot delete affordance is always visible (touch-friendly)
+ *   rather than hover-revealed.
  * - `dropZoneTitle` / `dropZoneHint` / `confirmRemoveMessage` default to
  *   English strings — pass translated values (`t('...')`) in localized apps.
  * - `getClassMap()` requires a bonded ClassMap for the layout primitives.
