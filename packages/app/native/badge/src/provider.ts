@@ -36,7 +36,7 @@ export function getProvider(): BadgeProvider {
         defaultValue:
           '@molecule/app-badge: No provider set. ' +
           'Call setProvider() with a BadgeProvider implementation ' +
-          '(e.g., from @molecule/app-badge-capacitor).',
+          '— no provider ships with the fleet; implement the interface on your native runtime and bond it.',
       }),
     )
   }

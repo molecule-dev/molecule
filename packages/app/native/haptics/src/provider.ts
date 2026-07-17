@@ -35,7 +35,7 @@ export function getProvider(): HapticsProvider {
     throw new Error(
       t('haptics.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-haptics: No provider set. Call setProvider() with a HapticsProvider implementation (e.g., from @molecule/app-haptics-capacitor).',
+          '@molecule/app-haptics: No provider set. Call setProvider() with a HapticsProvider implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
       }),
     )
   }

@@ -32,7 +32,7 @@ export function getProvider(): BrightnessProvider {
     throw new Error(
       t('brightness.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-brightness: No provider set. Call setProvider() with a BrightnessProvider implementation (e.g., from @molecule/app-brightness-capacitor).',
+          '@molecule/app-brightness: No provider set. Call setProvider() with a BrightnessProvider implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
       }),
     )
   }

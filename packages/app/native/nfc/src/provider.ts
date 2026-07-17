@@ -45,7 +45,7 @@ export function getProvider(): NfcProvider {
     throw new Error(
       t('nfc.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-nfc: No provider set. Call setProvider() with an NfcProvider implementation (e.g., from @molecule/app-nfc-capacitor).',
+          '@molecule/app-nfc: No provider set. Call setProvider() with an NfcProvider implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
       }),
     )
   }

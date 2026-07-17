@@ -38,7 +38,7 @@ export function getProvider(): ShareProvider {
         defaultValue:
           '@molecule/app-share: No provider set. ' +
           'Call setProvider() with a ShareProvider implementation ' +
-          '(e.g., from @molecule/app-share-capacitor).',
+          '— no provider ships with the fleet; implement the interface on your native runtime and bond it.',
       }),
     )
   }

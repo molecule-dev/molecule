@@ -44,7 +44,7 @@ export function getProvider(): BluetoothProvider {
     throw new Error(
       t('bluetooth.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-bluetooth: No provider set. Call setProvider() with a BluetoothProvider implementation (e.g., from @molecule/app-bluetooth-capacitor).',
+          '@molecule/app-bluetooth: No provider set. Call setProvider() with a BluetoothProvider implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
       }),
     )
   }

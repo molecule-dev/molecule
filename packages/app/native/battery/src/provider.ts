@@ -41,7 +41,7 @@ export function getProvider(): BatteryProvider {
     throw new Error(
       t('battery.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-battery: No provider set. Call setProvider() with a BatteryProvider implementation (e.g., from @molecule/app-battery-capacitor).',
+          '@molecule/app-battery: No provider set. Call setProvider() with a BatteryProvider implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
       }),
     )
   }

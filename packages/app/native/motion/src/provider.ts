@@ -40,7 +40,7 @@ export function getProvider(): MotionProvider {
     throw new Error(
       t('motion.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-motion: No provider set. Call setProvider() with a MotionProvider implementation (e.g., from @molecule/app-motion-capacitor).',
+          '@molecule/app-motion: No provider set. Call setProvider() with a MotionProvider implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
       }),
     )
   }

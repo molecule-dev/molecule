@@ -41,7 +41,7 @@ export function getProvider(): FilesystemProvider {
     throw new Error(
       t('filesystem.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-filesystem: No provider set. Call setProvider() with a FilesystemProvider implementation (e.g., from @molecule/app-filesystem-capacitor).',
+          '@molecule/app-filesystem: No provider set. Call setProvider() with a FilesystemProvider implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
       }),
     )
   }
