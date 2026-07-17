@@ -21,40 +21,70 @@ import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/ap
 const logger = getLogger()
 
 /**
- * The AWS SESv2 client instance, configured from `AWS_SES_REGION`. An optional
- * `AWS_SES_ENDPOINT` overrides the service endpoint (for a credential broker or
- * a self-hosted / SES-compatible service). When unset, the SDK resolves the
- * default regional endpoint, so behaviour is unchanged.
- *
- * nodemailer 7 requires the SESv2 client + SendEmailCommand pair — the old
- * `{ ses, aws }` (@aws-sdk/client-ses) shape made `createTransport` THROW at
- * import time ("legacy SES configuration"), breaking every real consumer of
- * this bond.
+ * The lazily-constructed AWS SESv2 client and nodemailer transport. Both are
+ * built on first send — NOT at import — and memoized thereafter.
  */
-export const ses = new SESv2Client({
-  region: process.env.AWS_SES_REGION || 'us-east-1',
-  credentialDefaultProvider: defaultProvider,
-  ...(process.env.AWS_SES_ENDPOINT ? { endpoint: process.env.AWS_SES_ENDPOINT } : {}),
-})
+let _ses: SESv2Client | undefined
+let _nodemailerTransport: nodemailer.Transporter | undefined
 
 /**
- * The underlying nodemailer transport (nodemailer 7 SESv2 shape).
+ * Returns the AWS SESv2 client, constructing it from the environment on the
+ * FIRST call and memoizing thereafter.
  *
- * @see https://www.npmjs.com/package/nodemailer
+ * Construction is deferred to first use — NOT module load — so a region resolved
+ * into `process.env` AFTER this module is imported (late secrets resolution via
+ * a secrets bond) is honored: `AWS_SES_REGION` (default `us-east-1`) and the
+ * optional `AWS_SES_ENDPOINT` are read at send time, not frozen at import.
+ * Reading them at import instead pinned an empty/default region and every send
+ * failed in the WRONG region ("Email address is not verified"). Credentials
+ * still resolve lazily via the AWS default chain (`AWS_ACCESS_KEY_ID`/
+ * `AWS_SECRET_ACCESS_KEY`, shared config, or an instance role) at send time, so
+ * a missing credential surfaces then as a descriptive AWS SDK error.
+ *
+ * nodemailer 7 requires the SESv2 client + `SendEmailCommand` pair — the old
+ * `{ ses, aws }` (@aws-sdk/client-ses) shape made `createTransport` THROW
+ * ("legacy SES configuration"), breaking every real consumer of this bond.
+ *
+ * @returns The configured SESv2 client.
  */
-const nodemailerTransport = nodemailer.createTransport({
-  SES: { sesClient: ses, SendEmailCommand },
-} as Parameters<typeof nodemailer.createTransport>[0])
+export const getSesClient = (): SESv2Client => {
+  if (!_ses) {
+    _ses = new SESv2Client({
+      region: process.env.AWS_SES_REGION || 'us-east-1',
+      credentialDefaultProvider: defaultProvider,
+      ...(process.env.AWS_SES_ENDPOINT ? { endpoint: process.env.AWS_SES_ENDPOINT } : {}),
+    })
+  }
+  return _ses
+}
 
 /**
- * Sends an email through AWS SES via nodemailer.
+ * Returns the lazily-initialized nodemailer transport (nodemailer 7 SESv2
+ * shape), constructing it — and the underlying SESv2 client — from the
+ * environment on the first send and memoizing thereafter.
+ *
+ * @returns The nodemailer `Transporter` backed by AWS SES.
+ */
+const getTransport = (): nodemailer.Transporter => {
+  if (!_nodemailerTransport) {
+    _nodemailerTransport = nodemailer.createTransport({
+      SES: { sesClient: getSesClient(), SendEmailCommand },
+    } as Parameters<typeof nodemailer.createTransport>[0])
+  }
+  return _nodemailerTransport
+}
+
+/**
+ * Sends an email through AWS SES via nodemailer. The SES client and transport
+ * are configured lazily from the environment on the first call, so late-resolved
+ * region/credentials are honored.
  *
  * @param message - The email message (to, from, subject, text/html, attachments).
  * @returns Send result with accepted/rejected addresses and message ID.
  */
 export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> => {
   try {
-    const result = await nodemailerTransport.sendMail(message as nodemailer.SendMailOptions)
+    const result = await getTransport().sendMail(message as nodemailer.SendMailOptions)
 
     return {
       // nodemailer's SES transport resolves with `{ envelope, messageId,
@@ -84,13 +114,15 @@ export const provider: EmailTransport = {
 }
 
 /**
- * Raw nodemailer transport for direct access.
+ * Raw nodemailer transport for direct access. Lazily configured on first send.
  * @deprecated Use `sendMail()` or `provider` instead.
  */
-export const transport = nodemailerTransport
+export const transport = {
+  sendMail: (msg: nodemailer.SendMailOptions) => getTransport().sendMail(msg),
+}
 
 /**
  * Raw nodemailer transport alias.
  * @deprecated Use `sendMail()` or `provider` instead.
  */
-export const email = nodemailerTransport
+export const email = transport

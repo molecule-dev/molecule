@@ -176,30 +176,95 @@ describe('SendGrid Email Provider', () => {
   })
 
   describe('transport', () => {
-    it('should export sgClient', async () => {
-      const { sgClient } = await import('../transport.js')
+    it('should export getClient', async () => {
+      const { getClient } = await import('../transport.js')
 
-      expect(sgClient).toBeDefined()
+      expect(getClient).toBeDefined()
+      expect(typeof getClient).toBe('function')
+      const sgClient = getClient()
       expect(sgClient.send).toBeDefined()
       expect(sgClient.setApiKey).toBeDefined()
     })
   })
 
-  describe('environment variable handling', () => {
-    it('should call setApiKey when SENDGRID_API_KEY is set', async () => {
+  describe('lazy configuration (env read at first use, not import)', () => {
+    it('does NOT call setApiKey at import time — only on first getClient()', async () => {
       vi.resetModules()
+      mockSetApiKey.mockClear()
 
-      await import('../transport.js')
+      // Importing the module must NOT read env / configure the SDK.
+      const { getClient } = await import('../transport.js')
+      expect(mockSetApiKey).not.toHaveBeenCalled()
 
+      // Configuration happens on first use.
+      getClient()
       expect(mockSetApiKey).toHaveBeenCalledWith('test-sendgrid-api-key')
     })
 
-    it('should not call setApiKey when SENDGRID_API_KEY is missing', async () => {
+    it('applies SENDGRID_API_KEY only once across repeated getClient() calls', async () => {
+      vi.resetModules()
+      mockSetApiKey.mockClear()
+
+      const { getClient } = await import('../transport.js')
+      getClient()
+      getClient()
+      getClient()
+
+      expect(mockSetApiKey).toHaveBeenCalledTimes(1)
+    })
+
+    it('honors SENDGRID_API_KEY resolved AFTER import (late secrets), not the import-time value', async () => {
+      // Simulate late secrets resolution: the key is ABSENT when the bond is
+      // imported and only lands in process.env afterwards (a secrets bond
+      // resolving at startup). The lazy client must apply the value present at
+      // first send — never the empty import-time value.
       delete process.env.SENDGRID_API_KEY
       vi.resetModules()
       mockSetApiKey.mockClear()
 
-      await import('../transport.js')
+      const { sendMail } = await import('../sendMail.js')
+
+      // Import saw no key, so nothing was configured at import time.
+      expect(mockSetApiKey).not.toHaveBeenCalled()
+
+      // The real key arrives late, before the first send.
+      process.env.SENDGRID_API_KEY = 'late-resolved-key'
+      mockSend.mockResolvedValue([{ statusCode: 202, headers: {}, body: '' }, {}])
+
+      await sendMail({ from: 'a@x.com', to: 'b@y.com', subject: 'Hi', text: 'x' })
+
+      // The SDK was configured with the LATE value at send time.
+      expect(mockSetApiKey).toHaveBeenCalledWith('late-resolved-key')
+      expect(mockSetApiKey).not.toHaveBeenCalledWith('')
+      expect(mockSend).toHaveBeenCalledTimes(1)
+    })
+
+    it('honors SENDGRID_BASE_URL resolved AFTER import (late secrets)', async () => {
+      delete process.env.SENDGRID_BASE_URL
+      vi.resetModules()
+      mockSetDefaultRequest.mockClear()
+
+      const { sendMail } = await import('../sendMail.js')
+      expect(mockSetDefaultRequest).not.toHaveBeenCalled()
+
+      process.env.SENDGRID_BASE_URL = 'https://late-broker.example.com'
+      mockSend.mockResolvedValue([{ statusCode: 202, headers: {}, body: '' }, {}])
+
+      await sendMail({ from: 'a@x.com', to: 'b@y.com', subject: 'Hi', text: 'x' })
+
+      expect(mockSetDefaultRequest).toHaveBeenCalledWith(
+        'baseUrl',
+        'https://late-broker.example.com',
+      )
+    })
+
+    it('does not call setApiKey when SENDGRID_API_KEY is missing (even on getClient)', async () => {
+      delete process.env.SENDGRID_API_KEY
+      vi.resetModules()
+      mockSetApiKey.mockClear()
+
+      const { getClient } = await import('../transport.js')
+      getClient()
 
       expect(mockSetApiKey).not.toHaveBeenCalled()
     })
@@ -220,12 +285,15 @@ describe('SendGrid Email Provider', () => {
       expect(mockSend).not.toHaveBeenCalled()
     })
 
-    it('should set the base URL when SENDGRID_BASE_URL is set', async () => {
+    it('sets the base URL on first getClient() when SENDGRID_BASE_URL is set', async () => {
       process.env.SENDGRID_BASE_URL = 'https://broker.example.com'
       vi.resetModules()
       mockSetDefaultRequest.mockClear()
 
-      await import('../transport.js')
+      const { getClient } = await import('../transport.js')
+      // Lazy: not configured merely by importing.
+      expect(mockSetDefaultRequest).not.toHaveBeenCalled()
+      getClient()
 
       expect(mockSetDefaultRequest).toHaveBeenCalledWith('baseUrl', 'https://broker.example.com')
     })
@@ -235,7 +303,8 @@ describe('SendGrid Email Provider', () => {
       vi.resetModules()
       mockSetDefaultRequest.mockClear()
 
-      await import('../transport.js')
+      const { getClient } = await import('../transport.js')
+      getClient()
 
       expect(mockSetDefaultRequest).not.toHaveBeenCalled()
     })
@@ -247,7 +316,7 @@ describe('SendGrid Email Provider', () => {
 
       expect(exports.sendMail).toBeDefined()
       expect(exports.provider).toBeDefined()
-      expect(exports.sgClient).toBeDefined()
+      expect(exports.getClient).toBeDefined()
     })
 
     it('registers SENDGRID_API_KEY in the @molecule/api-secrets registry when the barrel is imported', async () => {

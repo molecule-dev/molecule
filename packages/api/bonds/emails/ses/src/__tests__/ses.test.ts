@@ -194,18 +194,45 @@ describe('AWS SES Email Provider', () => {
     })
   })
 
-  describe('SES client', () => {
-    it('should export ses client', async () => {
-      const { ses } = await import('../provider.js')
+  describe('SES client (lazy — constructed on first use, not import)', () => {
+    it('should export getSesClient', async () => {
+      const { getSesClient } = await import('../provider.js')
 
-      expect(ses).toBeDefined()
+      expect(getSesClient).toBeDefined()
+      expect(typeof getSesClient).toBe('function')
+      expect(getSesClient()).toBeDefined()
     })
 
-    it('should configure SES client with region from environment', async () => {
+    it('does NOT construct the SES client at import time — only on first use', async () => {
+      vi.resetModules()
+      mockSESClient.mockClear()
+
+      const { getSesClient } = await import('../provider.js')
+      // Import must not read env / build the client.
+      expect(mockSESClient).not.toHaveBeenCalled()
+
+      getSesClient()
+      expect(mockSESClient).toHaveBeenCalledTimes(1)
+    })
+
+    it('constructs the SES client once across repeated calls', async () => {
+      vi.resetModules()
+      mockSESClient.mockClear()
+
+      const { getSesClient } = await import('../provider.js')
+      getSesClient()
+      getSesClient()
+      getSesClient()
+
+      expect(mockSESClient).toHaveBeenCalledTimes(1)
+    })
+
+    it('should configure SES client with region from environment on first use', async () => {
       process.env.AWS_SES_REGION = 'eu-west-1'
       vi.resetModules()
 
-      await import('../provider.js')
+      const { getSesClient } = await import('../provider.js')
+      getSesClient()
 
       expect(mockSESClient).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -214,11 +241,50 @@ describe('AWS SES Email Provider', () => {
       )
     })
 
+    it('honors AWS_SES_REGION resolved AFTER import (late secrets), not the import-time value', async () => {
+      // Simulate late secrets resolution: the region is ABSENT when the bond is
+      // imported and only lands in process.env afterwards. The lazy client must
+      // be constructed with the region present at first send.
+      delete process.env.AWS_SES_REGION
+      vi.resetModules()
+      mockSESClient.mockClear()
+
+      const { sendMail } = await import('../provider.js')
+
+      // Import saw no region and did not construct the client.
+      expect(mockSESClient).not.toHaveBeenCalled()
+
+      // The real region arrives late, before the first send.
+      process.env.AWS_SES_REGION = 'eu-central-1'
+      mockSendMail.mockResolvedValue({
+        envelope: { to: ['recipient@example.com'] },
+        messageId: 'late-id',
+        response: '250 OK',
+      })
+
+      await sendMail({
+        from: 'sender@example.com',
+        to: 'recipient@example.com',
+        subject: 'Test',
+        text: 'body',
+      })
+
+      // The client was constructed with the LATE region at first send —
+      // never the default `us-east-1` frozen at import.
+      expect(mockSESClient).toHaveBeenCalledWith(
+        expect.objectContaining({ region: 'eu-central-1' }),
+      )
+      expect(mockSESClient).not.toHaveBeenCalledWith(
+        expect.objectContaining({ region: 'us-east-1' }),
+      )
+    })
+
     it('should use default region when AWS_SES_REGION is not set', async () => {
       delete process.env.AWS_SES_REGION
       vi.resetModules()
 
-      await import('../provider.js')
+      const { getSesClient } = await import('../provider.js')
+      getSesClient()
 
       expect(mockSESClient).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -227,11 +293,12 @@ describe('AWS SES Email Provider', () => {
       )
     })
 
-    it('should pass endpoint when AWS_SES_ENDPOINT is set', async () => {
+    it('should pass endpoint when AWS_SES_ENDPOINT is set on first use', async () => {
       process.env.AWS_SES_ENDPOINT = 'https://broker.example.com'
       vi.resetModules()
 
-      await import('../provider.js')
+      const { getSesClient } = await import('../provider.js')
+      getSesClient()
 
       expect(mockSESClient).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -243,8 +310,10 @@ describe('AWS SES Email Provider', () => {
     it('should not set endpoint when AWS_SES_ENDPOINT is unset', async () => {
       delete process.env.AWS_SES_ENDPOINT
       vi.resetModules()
+      mockSESClient.mockClear()
 
-      await import('../provider.js')
+      const { getSesClient } = await import('../provider.js')
+      getSesClient()
 
       const config = mockSESClient.mock.calls[0][0] as Record<string, unknown>
       expect(config).not.toHaveProperty('endpoint')
@@ -265,7 +334,7 @@ describe('AWS SES Email Provider', () => {
     it('should export all expected items', async () => {
       const exports = await import('../index.js')
 
-      expect(exports.ses).toBeDefined()
+      expect(exports.getSesClient).toBeDefined()
       expect(exports.sendMail).toBeDefined()
       expect(exports.provider).toBeDefined()
       expect(exports.transport).toBeDefined()

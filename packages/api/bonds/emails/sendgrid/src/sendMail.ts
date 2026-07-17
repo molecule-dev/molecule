@@ -13,7 +13,7 @@ import type {
 } from '@molecule/api-emails'
 import { configNotConfiguredError } from '@molecule/api-secrets'
 
-import { sgClient } from './transport.js'
+import { getClient } from './transport.js'
 
 const logger = getLogger()
 
@@ -124,6 +124,9 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
     if (message.attachments?.length) msg.attachments = toSgAttachments(message.attachments)
     if (isTestMode()) msg.mailSettings = { sandboxMode: { enable: true } }
 
+    // Configure the client lazily from the environment on first send (honors
+    // late-resolved secrets), then send.
+    const sgClient = getClient()
     const [response] = await sgClient.send(msg as unknown as Parameters<typeof sgClient.send>[0])
 
     return {

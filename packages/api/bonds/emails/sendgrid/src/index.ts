@@ -4,16 +4,18 @@
  * @see https://www.npmjs.com/package/@sendgrid/mail
  *
  * @remarks
- * - **`SENDGRID_API_KEY` is consumed at module load** (`setApiKey()` runs at
- *   import time). If the key lands in `process.env` AFTER this module is
- *   imported (late secrets resolution), the call-time "key present" guard
- *   passes but requests go out unauthenticated — an opaque SendGrid 401
- *   ("The provided authorization grant is invalid"). Ensure the key is in the
- *   environment before the bond is imported (e.g. dotenv preload).
+ * - **Configuration is lazy and env-driven**: `SENDGRID_API_KEY` (and the
+ *   optional `SENDGRID_BASE_URL`) are read on the FIRST send via
+ *   `getClient()` — NOT at import time — and applied once. So a key resolved
+ *   into `process.env` AFTER this module is imported (late secrets resolution
+ *   via a secrets bond) is honored: the value present at send time is the one
+ *   used. If the key is genuinely absent at send time, `sendMail()` throws a
+ *   tagged config-missing error (clean 503 / `config.notConfigured`) naming
+ *   `SENDGRID_API_KEY` — never an opaque SendGrid 401.
  * - `SENDGRID_TEST_MODE=true` enables SendGrid sandbox mode: the API
  *   validates and accepts the message (auth + payload exercised for real) but
- *   NOTHING is delivered. `SENDGRID_BASE_URL` (optional, also read at module
- *   load) overrides the API base URL for brokers/compatible endpoints.
+ *   NOTHING is delivered. `SENDGRID_BASE_URL` (optional, read lazily on first
+ *   send too) overrides the API base URL for brokers/compatible endpoints.
  * - Stream attachments are not supported — Buffer/string content only; a
  *   stream throws. On success `accepted` echoes every `to` recipient
  *   (SendGrid returns no per-recipient verdict) and `messageId` is taken from

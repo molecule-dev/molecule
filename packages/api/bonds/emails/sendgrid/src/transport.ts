@@ -24,23 +24,47 @@ interface SendGridClient {
   setDefaultRequest(key: 'baseUrl', value: string): unknown
 }
 
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-}
-
-// Optional base URL override for proxying through a credential broker or a
-// self-hosted / SendGrid-compatible endpoint. `@sendgrid/mail` delegates HTTP
-// to an underlying client (`sgMail.client`) whose `setDefaultRequest(key, value)`
-// merges defaults into every outgoing request. When `SENDGRID_BASE_URL` is unset
-// the client keeps its built-in default base URL, so behaviour is unchanged.
-if (process.env.SENDGRID_BASE_URL) {
-  const client = (sgMail as unknown as { client: SendGridClient }).client
-  client.setDefaultRequest('baseUrl', process.env.SENDGRID_BASE_URL)
-}
+/**
+ * Whether the API key / base URL have already been applied to the shared
+ * `@sendgrid/mail` singleton, so each is configured exactly once (on the first
+ * send that sees it present) rather than on every send.
+ */
+let apiKeyConfigured = false
+let baseUrlConfigured = false
 
 /**
- * The configured SendGrid mail client.
+ * Returns the SendGrid mail client, applying configuration from the environment
+ * on FIRST USE and memoizing each setting thereafter.
  *
- * @see https://www.npmjs.com/package/@sendgrid/mail
+ * Configuration is deferred to the first send — NOT module load — so an app that
+ * resolves `SENDGRID_API_KEY` (and the optional `SENDGRID_BASE_URL`) into
+ * `process.env` AFTER this module is imported (late secrets resolution via a
+ * secrets bond) is honored: the value present at send time is the one applied.
+ * Reading the key at import time instead froze an empty/stale key and every
+ * request went out unauthenticated — an opaque SendGrid 401. Each env var is
+ * applied once, the first time it is seen set, so whichever arrives late is
+ * still picked up.
+ *
+ * @returns The configured `@sendgrid/mail` client.
  */
-export const sgClient = sgMail
+export const getClient = (): typeof sgMail => {
+  const apiKey = process.env.SENDGRID_API_KEY
+  if (apiKey && !apiKeyConfigured) {
+    sgMail.setApiKey(apiKey)
+    apiKeyConfigured = true
+  }
+
+  // Optional base URL override for proxying through a credential broker or a
+  // self-hosted / SendGrid-compatible endpoint. `@sendgrid/mail` delegates HTTP
+  // to an underlying client (`sgMail.client`) whose `setDefaultRequest(key, value)`
+  // merges defaults into every outgoing request. When `SENDGRID_BASE_URL` is unset
+  // the client keeps its built-in default base URL, so behaviour is unchanged.
+  const baseUrl = process.env.SENDGRID_BASE_URL
+  if (baseUrl && !baseUrlConfigured) {
+    const client = (sgMail as unknown as { client: SendGridClient }).client
+    client.setDefaultRequest('baseUrl', baseUrl)
+    baseUrlConfigured = true
+  }
+
+  return sgMail
+}

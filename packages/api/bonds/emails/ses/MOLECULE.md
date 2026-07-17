@@ -124,9 +124,36 @@ interface EmailTransport {
 
 ### Functions
 
+#### `getSesClient()`
+
+Returns the AWS SESv2 client, constructing it from the environment on the
+FIRST call and memoizing thereafter.
+
+Construction is deferred to first use — NOT module load — so a region resolved
+into `process.env` AFTER this module is imported (late secrets resolution via
+a secrets bond) is honored: `AWS_SES_REGION` (default `us-east-1`) and the
+optional `AWS_SES_ENDPOINT` are read at send time, not frozen at import.
+Reading them at import instead pinned an empty/default region and every send
+failed in the WRONG region ("Email address is not verified"). Credentials
+still resolve lazily via the AWS default chain (`AWS_ACCESS_KEY_ID`/
+`AWS_SECRET_ACCESS_KEY`, shared config, or an instance role) at send time, so
+a missing credential surfaces then as a descriptive AWS SDK error.
+
+nodemailer 7 requires the SESv2 client + `SendEmailCommand` pair — the old
+`{ ses, aws }` (@aws-sdk/client-ses) shape made `createTransport` THROW
+("legacy SES configuration"), breaking every real consumer of this bond.
+
+```typescript
+function getSesClient(): SESv2Client
+```
+
+**Returns:** The configured SESv2 client.
+
 #### `sendMail(message)`
 
-Sends an email through AWS SES via nodemailer.
+Sends an email through AWS SES via nodemailer. The SES client and transport
+are configured lazily from the environment on the first call, so late-resolved
+region/credentials are honored.
 
 ```typescript
 function sendMail(message: EmailMessage): Promise<EmailSendResult>
@@ -143,7 +170,7 @@ function sendMail(message: EmailMessage): Promise<EmailSendResult>
 Raw nodemailer transport alias.
 
 ```typescript
-const email: nodemailer.Transporter<SentMessageInfo, Options>
+const email: { sendMail: (msg: nodemailer.SendMailOptions) => Promise<any>; }
 ```
 
 #### `emailsSesSecretDefinitions`
@@ -162,28 +189,12 @@ The SES email provider implementing the `EmailTransport` interface.
 const provider: EmailTransport
 ```
 
-#### `ses`
-
-The AWS SESv2 client instance, configured from `AWS_SES_REGION`. An optional
-`AWS_SES_ENDPOINT` overrides the service endpoint (for a credential broker or
-a self-hosted / SES-compatible service). When unset, the SDK resolves the
-default regional endpoint, so behaviour is unchanged.
-
-nodemailer 7 requires the SESv2 client + SendEmailCommand pair — the old
-`{ ses, aws }` (@aws-sdk/client-ses) shape made `createTransport` THROW at
-import time ("legacy SES configuration"), breaking every real consumer of
-this bond.
-
-```typescript
-const ses: SESv2Client
-```
-
 #### `transport` *(deprecated)*
 
-Raw nodemailer transport for direct access.
+Raw nodemailer transport for direct access. Lazily configured on first send.
 
 ```typescript
-const transport: nodemailer.Transporter<SentMessageInfo, Options>
+const transport: { sendMail: (msg: nodemailer.SendMailOptions) => Promise<any>; }
 ```
 
 ## Core Interface
@@ -233,16 +244,19 @@ Peer dependencies:
 - `@molecule/api-secrets`
 - `nodemailer`
 
-- **The SES client is created at module load**: `AWS_SES_REGION` (default
-  `us-east-1`) and optional `AWS_SES_ENDPOINT` are frozen at import time —
-  a region resolved into env later is ignored, which surfaces as
-  "Email address is not verified" in the WRONG region. Credentials resolve
-  lazily via the AWS default chain (`AWS_ACCESS_KEY_ID`/
-  `AWS_SECRET_ACCESS_KEY`, shared config, or an instance role), so they may
-  arrive after import.
-- **No fail-fast**: missing credentials surface at first send as a raw AWS
-  SDK error ("Could not load credentials…"), not a tagged config error
-  naming the env var.
+- **Configuration is lazy and env-driven**: the SES client is constructed on
+  the FIRST send — NOT at import — so `AWS_SES_REGION` (default `us-east-1`)
+  and the optional `AWS_SES_ENDPOINT` are read at send time. A region resolved
+  into env AFTER this module is imported (late secrets resolution via a
+  secrets bond) is honored; reading it at import instead froze the
+  default/empty region and sends failed in the WRONG region ("Email address
+  is not verified"). Credentials resolve lazily via the AWS default chain
+  (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`, shared config, or an instance
+  role), so they may arrive after import too.
+- **No fail-fast**: because credentials can legitimately come from an instance
+  role or shared config (not env), missing credentials are not pre-checked —
+  they surface at first send as a descriptive AWS SDK error ("Could not load
+  credentials…"), not a tagged config error naming the env var.
 - New SES accounts are sandboxed: both the sender identity AND every
   recipient must be verified until production access is granted.
 - On success `accepted` is mapped from `envelope.to` — nodemailer's SES
