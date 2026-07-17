@@ -19,8 +19,16 @@
  * - Results are `Buffer`s: send them with a `Content-Type: application/pdf` response or
  *   store via the uploads package — never `JSON.stringify` a Buffer into an API payload,
  *   and avoid holding many large PDFs in memory at once.
- * - HTML assembled from user input is an injection surface — escape interpolated values
- *   before `fromHTML`, or a malicious string can forge/restyle document content.
+ * - HTML from user input is an injection surface. `fromTemplate` HTML-escapes the
+ *   interpolated `data` values for you (like Handlebars `{{ }}`); `fromHTML` does NOT —
+ *   escape values yourself before assembling the string, or a malicious value can forge or
+ *   restyle document content.
+ * - **A browser-engine bond renders server-side, so resource URLs in the HTML are fetched by
+ *   YOUR server (SSRF).** An `<img src>` / CSS `url()` / `<iframe>` pointing at an internal
+ *   address (`169.254.169.254`, `10.…`, `localhost`) is requested with your server's network
+ *   access — and can pull the response into the PDF. Never build the HTML from an untrusted
+ *   URL; if a document must include user-provided images, fetch + validate them through an
+ *   SSRF-safe path first and embed as `data:` URIs, rather than letting the renderer load them.
  *
  * @example
  * ```typescript

@@ -85,13 +85,35 @@ const toPuppeteerOptions = (options?: PDFOptions): PuppeteerPDFOptions => {
 }
 
 /**
+ * HTML-escapes an interpolated value so `fromTemplate` data cannot inject markup.
+ *
+ * @param value - The raw string value.
+ * @returns The value with HTML-significant characters escaped.
+ */
+const escapeHtml = (value: string): string =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+
+/**
  * Interpolates simple `{{key}}` placeholders in a template string.
+ *
+ * Interpolated VALUES are HTML-escaped (like Handlebars/Mustache `{{ }}`), because
+ * this output is rendered as HTML by a headless browser: an unescaped user value —
+ * e.g. a customer name of `<img src="http://169.254.169.254/…">` — would otherwise
+ * inject live markup that the renderer fetches server-side (an SSRF / content-forgery
+ * vector). The template body itself (the app-authored markup around the placeholders)
+ * is NOT escaped. For raw pre-assembled HTML, use `fromHTML` (and escape values there
+ * yourself).
  *
  * @param template - The template string with `{{key}}` placeholders.
  * @param data - Key-value pairs for interpolation.
  * @param openDelimiter - Opening delimiter. Defaults to `'{{'`.
  * @param closeDelimiter - Closing delimiter. Defaults to `'}}'`.
- * @returns The interpolated string.
+ * @returns The interpolated string with values HTML-escaped.
  */
 const interpolateTemplate = (
   template: string,
@@ -110,7 +132,7 @@ const interpolateTemplate = (
       if (value == null || typeof value !== 'object') return ''
       value = (value as Record<string, unknown>)[part]
     }
-    return value == null ? '' : String(value)
+    return value == null ? '' : escapeHtml(String(value))
   })
 }
 

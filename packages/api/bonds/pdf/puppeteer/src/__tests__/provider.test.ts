@@ -204,6 +204,24 @@ describe('puppeteer PDF provider', () => {
         expect(setContentCall[0]).toBe('<p></p>')
       }
     })
+
+    it('HTML-escapes interpolated values so data cannot inject markup', async () => {
+      const p = createProviderFn()
+      await p.fromTemplate('<p>{{ name }}</p>', {
+        name: '<img src="http://169.254.169.254/latest/meta-data/">',
+      })
+
+      const { page } = await getMockBrowserAndPage()
+      const setContentCall = page.setContent.mock.calls[0] as unknown[] | undefined
+      expect(setContentCall).toBeDefined()
+      if (setContentCall) {
+        const html = setContentCall[0] as string
+        // The injected tag is neutralized — no live <img> the renderer would fetch
+        // server-side (SSRF), just escaped text.
+        expect(html).not.toContain('<img')
+        expect(html).toContain('&lt;img')
+      }
+    })
   })
 
   describe('merge', () => {
