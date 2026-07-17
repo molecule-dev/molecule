@@ -4,7 +4,7 @@ Translations for @molecule/app-footer-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-footer-react` package which has 4 translation keys.
+Provides translations for the `@molecule/app-footer-react` package which has 6 translation keys.
 
 ## Languages
 
@@ -37,9 +37,11 @@ registerLocaleModule(locales)
 | Key | English |
 |-----|---------|
 | `footer.version` | v{{version}} |
+| `footer.about` | About {{appName}} |
 | `footer.privacyPolicy` | Privacy Policy |
 | `footer.termsOfService` | Terms of Service |
 | `footer.language` | Language |
+| `footer.legalNotConfigured` | This content has not been configured yet. The app owner must provide it. |
 
 ## Metadata
 

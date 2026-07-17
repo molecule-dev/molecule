@@ -50,7 +50,9 @@ const isExternalHref = (href: string): boolean => /^https?:\/\//i.test(href)
  * of variation (external WEBSITE_URL vs internal /about). Privacy/Terms HTML
  * is loaded lazily through the `loadContent` callback when supplied, then
  * rendered from the bonded i18n catalog (`content.privacyPolicy`,
- * `content.termsOfService`).
+ * `content.termsOfService`). Those keys are EMPTY by default (the app supplies
+ * its real legal HTML); until it does, the modal shows a clear
+ * `footer.legalNotConfigured` placeholder rather than a silently-blank modal.
  */
 export function AppFooter({
   appName,
@@ -76,6 +78,26 @@ export function AppFooter({
   )
 
   const aboutLabel = t('footer.about', { appName }, { defaultValue: 'About {{appName}}' })
+
+  const legalNotConfigured = t(
+    'footer.legalNotConfigured',
+    {},
+    {
+      defaultValue: 'This content has not been configured yet. The app owner must provide it.',
+    },
+  )
+
+  /**
+   * Render legal HTML from the i18n catalog, or — when the app has registered
+   * none (the bond ships `content.*` empty by design) — a clear placeholder.
+   * Never a silently-blank modal, and never fabricated legal text.
+   */
+  const renderLegal = (html: string): React.JSX.Element =>
+    html.trim() ? (
+      <div className={cm.prose} dangerouslySetInnerHTML={{ __html: html }} />
+    ) : (
+      <p className={cm.prose}>{legalNotConfigured}</p>
+    )
 
   const openPrivacy = async (): Promise<void> => {
     if (loadContent) await loadContent('privacyPolicy')
@@ -136,12 +158,7 @@ export function AppFooter({
             title={t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
             size="lg"
           >
-            <div
-              className={cm.prose}
-              dangerouslySetInnerHTML={{
-                __html: t('content.privacyPolicy', { appName }, { defaultValue: '' }),
-              }}
-            />
+            {renderLegal(t('content.privacyPolicy', { appName }, { defaultValue: '' }))}
           </Modal>
           <Modal
             open={termsOpen}
@@ -149,12 +166,7 @@ export function AppFooter({
             title={t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
             size="lg"
           >
-            <div
-              className={cm.prose}
-              dangerouslySetInnerHTML={{
-                __html: t('content.termsOfService', {}, { defaultValue: '' }),
-              }}
-            />
+            {renderLegal(t('content.termsOfService', { appName }, { defaultValue: '' }))}
           </Modal>
         </>
       )}

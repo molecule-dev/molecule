@@ -27,10 +27,15 @@
  *   version core falls back to a web provider).
  * - The privacy/terms modals render whatever HTML the i18n catalog holds under
  *   `content.privacyPolicy` / `content.termsOfService`. The companion
- *   `@molecule/app-locales-footer` bond ships those keys EMPTY — register your
- *   legal HTML in the app's locale catalog (scaffolded apps lazy-load it via
- *   `loadContent` from `config.ts`), or use `legalMode="route"` and render
- *   your own /privacy and /terms pages.
+ *   `@molecule/app-locales-footer` bond ships those keys EMPTY BY DESIGN — a
+ *   generic default policy would be legally wrong to present as an app's own —
+ *   so the app MUST register its real legal HTML: add it to the app's locale
+ *   catalog (scaffolded apps lazy-load it via `loadContent` from `config.ts`),
+ *   wire the generic-template `@molecule/app-locales-legal-default` bond, or use
+ *   `legalMode="route"` and render your own /privacy and /terms pages. Until
+ *   content is registered the modal shows a clear `footer.legalNotConfigured`
+ *   placeholder ("…the app owner must provide it.") instead of a blank modal —
+ *   no fabricated legal text is ever shipped.
  * - The language picker lists every locale registered on the i18n provider —
  *   wire i18n with `@molecule/app-i18n-default-react`'s `setupI18nDefault()`
  *   (or prune manually) so only locales your app translated appear.
