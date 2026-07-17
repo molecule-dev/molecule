@@ -32,6 +32,7 @@ const { mockQuillInstance, MockQuill } = vi.hoisted(() => {
     isEnabled: vi.fn(() => true),
     on: vi.fn(),
     off: vi.fn(),
+    getModule: vi.fn(),
     root: {
       innerHTML: '<p>test content</p>',
       addEventListener: vi.fn(),
@@ -306,6 +307,37 @@ describe('Quill Rich Text Provider', () => {
           }),
         }),
       )
+    })
+
+    it('merges caller-provided modules WITHOUT dropping the toolbar preset', () => {
+      const provider = createQuillProvider()
+      provider.createEditor({
+        container,
+        toolbar: 'minimal',
+        modules: { history: { delay: 2000, maxStack: 500, userOnly: true } },
+      } as QuillOptions)
+
+      const expectedToolbar = toolbarConfigToQuill(quillToolbars.minimal)
+      const opts = MockQuill.mock.calls[0][1] as {
+        modules: { toolbar: unknown; history: unknown }
+      }
+      // The caller's `history` module is preserved AND the toolbar preset survives —
+      // the old trailing `...mergedOptions` spread used to clobber `modules` here.
+      expect(opts.modules.toolbar).toEqual(expectedToolbar)
+      expect(opts.modules.history).toEqual({ delay: 2000, maxStack: 500, userOnly: true })
+    })
+
+    it('lets caller modules.toolbar explicitly override the derived preset', () => {
+      const provider = createQuillProvider()
+      const customBar = [['bold']]
+      provider.createEditor({
+        container,
+        toolbar: 'full',
+        modules: { toolbar: customBar },
+      } as QuillOptions)
+
+      const opts = MockQuill.mock.calls[0][1] as { modules: { toolbar: unknown } }
+      expect(opts.modules.toolbar).toEqual(customBar)
     })
 
     it('should set initial value with delta', () => {
@@ -649,10 +681,45 @@ describe('createQuillEditor', () => {
 
   describe('destroy', () => {
     it('should clean up the editor', () => {
+      mockQuillInstance.getModule.mockReturnValue(undefined)
       container.innerHTML = '<p>some content</p>'
       editor.destroy()
 
       expect(container.innerHTML).toBe('')
+    })
+
+    it('removes the snow-theme toolbar sibling so re-mounting does not stack toolbars', () => {
+      const parent = document.createElement('div')
+      const toolbar = document.createElement('div')
+      toolbar.className = 'ql-toolbar ql-snow'
+      const editorContainer = document.createElement('div')
+      parent.appendChild(toolbar)
+      parent.appendChild(editorContainer)
+      document.body.appendChild(parent)
+
+      // Quill exposes the generated toolbar element via the toolbar module.
+      mockQuillInstance.getModule.mockReturnValue({ container: toolbar })
+      const ed = createQuillEditor(mockQuillInstance as unknown as Quill, editorContainer)
+
+      expect(parent.querySelectorAll('.ql-toolbar')).toHaveLength(1)
+      ed.destroy()
+      expect(parent.querySelectorAll('.ql-toolbar')).toHaveLength(0)
+    })
+
+    it('falls back to the previous-sibling .ql-toolbar when the module is unavailable', () => {
+      const parent = document.createElement('div')
+      const toolbar = document.createElement('div')
+      toolbar.className = 'ql-toolbar ql-snow'
+      const editorContainer = document.createElement('div')
+      parent.appendChild(toolbar)
+      parent.appendChild(editorContainer)
+      document.body.appendChild(parent)
+
+      mockQuillInstance.getModule.mockReturnValue(undefined)
+      const ed = createQuillEditor(mockQuillInstance as unknown as Quill, editorContainer)
+
+      ed.destroy()
+      expect(parent.querySelectorAll('.ql-toolbar')).toHaveLength(0)
     })
   })
 })

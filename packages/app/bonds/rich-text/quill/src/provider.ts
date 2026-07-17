@@ -69,6 +69,7 @@ export const createQuillProvider = (defaultOptions?: Partial<QuillOptions>): Ric
         toolbar,
         theme = 'snow',
         modules = {},
+        ...rest
       } = mergedOptions as Omit<EditorOptions, 'toolbar'> &
         QuillOptions & { toolbar?: EditorOptions['toolbar'] | false }
 
@@ -84,8 +85,16 @@ export const createQuillProvider = (defaultOptions?: Partial<QuillOptions>): Ric
         toolbarConfig = toolbarConfigToQuill(quillToolbars.standard)
       }
 
-      // Create Quill instance
+      // Create Quill instance.
+      // Spread the pass-through Quill options (`...rest`: formats, debug, etc.)
+      // FIRST, then set the resolved fields last so nothing clobbers them. In
+      // particular, `modules` merges the caller's modules UNDER the derived
+      // toolbar preset (`{ toolbar, ...modules }`) so a caller-provided `modules`
+      // object never wipes the toolbar; pass `modules.toolbar` explicitly to
+      // override the preset. `container`/`value`/`toolbar` are molecule-only keys
+      // excluded from `...rest`, so they don't leak into Quill's options.
       const quill = new Quill(container, {
+        ...rest,
         theme,
         placeholder,
         readOnly,
@@ -93,7 +102,6 @@ export const createQuillProvider = (defaultOptions?: Partial<QuillOptions>): Ric
           toolbar: toolbarConfig,
           ...modules,
         },
-        ...mergedOptions,
       })
 
       // Set initial value

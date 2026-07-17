@@ -491,3 +491,10 @@ Peer dependencies:
   still sanitize server-side before persisting/re-serving user content.
 - Toolbar: pass a preset name (`'minimal' | 'standard' | 'full'`), a custom
   `ToolbarConfig`, or `toolbar: false`; presets live in `quillToolbars`.
+- **Custom `modules` merge with the toolbar preset.** A `modules` object you
+  pass (`history`/`clipboard`/`keyboard`/…) is merged UNDER the derived toolbar,
+  so it never drops the toolbar; set `modules.toolbar` only when you want to
+  override the preset.
+- **`editor.destroy()` fully tears down** — it also removes the snow theme's
+  sibling `.ql-toolbar` element, so re-mounting on the same node won't stack
+  duplicate toolbars.

@@ -162,7 +162,27 @@ export const createQuillEditor = (quill: Quill, container: HTMLElement): RichTex
 
     destroy: (): void => {
       eventHandlers.clear()
-      // Quill doesn't have a destroy method, but we can clean up
+
+      // Quill has no destroy() and the snow theme injects its toolbar as a
+      // SIBLING element (a `.ql-toolbar` div placed just before the editor
+      // container). Clearing the container alone leaves that toolbar behind, so
+      // re-mounting on the same node stacks duplicate toolbars. Remove the
+      // toolbar element explicitly first — via the toolbar module's element when
+      // available, else the `.ql-toolbar` previous sibling.
+      const toolbarModule =
+        typeof (quill as { getModule?: (name: string) => unknown }).getModule === 'function'
+          ? (quill.getModule('toolbar') as { container?: HTMLElement } | null | undefined)
+          : undefined
+      const siblingToolbar =
+        container.previousElementSibling instanceof HTMLElement &&
+        container.previousElementSibling.classList.contains('ql-toolbar')
+          ? container.previousElementSibling
+          : null
+      const toolbarEl = toolbarModule?.container ?? siblingToolbar
+      if (toolbarEl && toolbarEl !== container) {
+        toolbarEl.remove()
+      }
+
       container.innerHTML = ''
     },
   }
