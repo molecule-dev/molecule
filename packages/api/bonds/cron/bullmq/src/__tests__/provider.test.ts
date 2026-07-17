@@ -20,6 +20,16 @@ interface MockRedisClient {
   del: (...keys: string[]) => Promise<number>
 }
 
+/** The shape of the `connection` the provider hands BullMQ's Queue/Worker. */
+interface CapturedConnection {
+  host?: string
+  port?: number
+  password?: string
+  db?: number
+  url?: string
+  tls?: unknown
+}
+
 interface MockQueueInstance {
   upsertJobScheduler: ReturnType<typeof vi.fn>
   removeJobScheduler: ReturnType<typeof vi.fn>
@@ -27,12 +37,16 @@ interface MockQueueInstance {
   on: ReturnType<typeof vi.fn>
   store: Map<string, string>
   client: Promise<MockRedisClient>
+  /** The options object passed to `new Queue(name, opts)` — carries `connection`. */
+  opts: { connection?: CapturedConnection }
 }
 
 interface MockWorkerInstance {
   on: ReturnType<typeof vi.fn>
   close: ReturnType<typeof vi.fn>
   processor: (job: { name: string }) => Promise<void>
+  /** The options object passed to `new Worker(name, processor, opts)` — carries `connection`. */
+  opts: { connection?: CapturedConnection }
 }
 
 vi.mock('bullmq', () => {
@@ -43,8 +57,10 @@ vi.mock('bullmq', () => {
     on = vi.fn()
     store = new Map<string, string>()
     client: Promise<MockRedisClient>
+    opts: { connection?: CapturedConnection }
 
-    constructor() {
+    constructor(_name: string, opts: { connection?: CapturedConnection }) {
+      this.opts = opts
       this.client = Promise.resolve({
         get: vi.fn(async (key: string) => this.store.get(key) ?? null),
         set: vi.fn(async (key: string, value: string) => {
@@ -67,9 +83,15 @@ vi.mock('bullmq', () => {
     on = vi.fn()
     close = vi.fn().mockResolvedValue(undefined)
     processor: (job: { name: string }) => Promise<void>
+    opts: { connection?: CapturedConnection }
 
-    constructor(_name: string, processor: (job: { name: string }) => Promise<void>) {
+    constructor(
+      _name: string,
+      processor: (job: { name: string }) => Promise<void>,
+      opts: { connection?: CapturedConnection },
+    ) {
       this.processor = processor
+      this.opts = opts
       workerInstances.push(this)
     }
   }
@@ -121,6 +143,61 @@ describe('bullmq cron provider', () => {
       expect(p.pause).toBeInstanceOf(Function)
       expect(p.resume).toBeInstanceOf(Function)
       expect(p.runNow).toBeInstanceOf(Function)
+    })
+  })
+
+  describe('TLS connection (BUG FIX: the documented tls option must reach the connection BullMQ builds)', () => {
+    it('threads an explicit tls options object through to BOTH the queue and worker connection', () => {
+      const tls = { rejectUnauthorized: false, servername: 'redis.internal' }
+      createProvider({ connection: { host: 'redis.internal', port: 6380, tls } })
+      const { queue, worker } = lastMocks()
+      // The whole point of the fix: tls is no longer dropped between the bond
+      // config and the ioredis connection BullMQ constructs for each side.
+      expect(queue.opts.connection?.tls).toEqual(tls)
+      expect(worker.opts.connection?.tls).toEqual(tls)
+    })
+
+    it('normalizes `tls: true` to `{}` (ioredis enables TLS with defaults)', () => {
+      createProvider({ connection: { host: 'h', port: 6379, tls: true } })
+      const { queue, worker } = lastMocks()
+      expect(queue.opts.connection?.tls).toEqual({})
+      expect(worker.opts.connection?.tls).toEqual({})
+    })
+
+    it('enables TLS on the connection when the url uses the rediss:// scheme', () => {
+      const url = 'rediss://redis.example.com:6380'
+      createProvider({ connection: { url } })
+      const { queue, worker } = lastMocks()
+      expect(queue.opts.connection?.url).toBe(url)
+      expect(queue.opts.connection?.tls).toEqual({})
+      expect(worker.opts.connection?.tls).toEqual({})
+    })
+
+    it('an explicit tls config wins even when a rediss:// url is also present', () => {
+      const tls = { ca: 'ROOT_CA_PEM' }
+      createProvider({ connection: { url: 'rediss://redis.internal:6380', tls } })
+      const { queue } = lastMocks()
+      expect(queue.opts.connection?.tls).toEqual(tls)
+    })
+
+    it('a plaintext host/port config does NOT set tls (no accidental TLS negotiation)', () => {
+      createProvider(defaultConfig)
+      const { queue, worker } = lastMocks()
+      expect(queue.opts.connection?.tls).toBeUndefined()
+      expect(worker.opts.connection?.tls).toBeUndefined()
+    })
+
+    it('a plaintext redis:// url does NOT enable tls', () => {
+      createProvider({ connection: { url: 'redis://localhost:6379' } })
+      const { queue } = lastMocks()
+      expect(queue.opts.connection?.url).toBe('redis://localhost:6379')
+      expect(queue.opts.connection?.tls).toBeUndefined()
+    })
+
+    it('`tls: false` is respected as an explicit plaintext opt-out', () => {
+      createProvider({ connection: { host: 'h', port: 6379, tls: false } })
+      const { queue } = lastMocks()
+      expect(queue.opts.connection?.tls).toBeUndefined()
     })
   })
 

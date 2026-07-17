@@ -8,6 +8,7 @@
  * @module
  */
 
+import type { RedisOptions } from 'bullmq'
 import { Queue, Worker } from 'bullmq'
 
 import { getLogger } from '@molecule/api-bond'
@@ -62,11 +63,34 @@ interface HandlerRecord {
  */
 export const createProvider = (config: BullMQCronConfig): CronProvider => {
   const queueName = config.queueName ?? DEFAULT_QUEUE_NAME
-  const connection = {
+  const connection: RedisOptions = {
     host: config.connection.host ?? 'localhost',
     port: config.connection.port ?? 6379,
     password: config.connection.password,
     db: config.connection.db,
+  }
+
+  // A full connection URL (e.g. a managed Redis' `rediss://…` string) wins over
+  // host/port — ioredis parses it first, so the defaults above only fill gaps
+  // the URL leaves.
+  if (config.connection.url) {
+    connection.url = config.connection.url
+  }
+
+  // Thread TLS through to the ioredis connection BullMQ actually builds. The
+  // prior bug dropped this option entirely (only host/port/password/db were
+  // forwarded), so a TLS-required managed Redis silently attempted a PLAINTEXT
+  // connection and failed. Two ways to ask for TLS: an explicit `tls` config
+  // (`true` is shorthand for `{}` = ioredis' "TLS with defaults"), or a
+  // `rediss://` URL. An explicit `tls` always wins; `false`/omitted stays
+  // plaintext.
+  const { tls } = config.connection
+  if (tls === true) {
+    connection.tls = {}
+  } else if (tls && typeof tls === 'object') {
+    connection.tls = tls
+  } else if (tls === undefined && config.connection.url?.startsWith('rediss://')) {
+    connection.tls = {}
   }
 
   const queue = new Queue(queueName, { connection })
@@ -78,7 +102,7 @@ export const createProvider = (config: BullMQCronConfig): CronProvider => {
   // to. Log loudly and by name (host:port) so a stuck `schedule()` await
   // (ioredis retries connection commands indefinitely by default) reads as
   // "Redis unreachable" instead of a silent, indistinguishable hang.
-  const redisTarget = `${connection.host}:${connection.port}`
+  const redisTarget = config.connection.url ?? `${connection.host}:${connection.port}`
   const handleConnectionError =
     (source: 'worker' | 'queue') =>
     (error: Error): void => {
