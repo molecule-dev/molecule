@@ -116,6 +116,49 @@ describe('sharp image provider', () => {
     })
   })
 
+  describe('metadata stripping (privacy)', () => {
+    // A JPEG carrying an EXIF block stands in for a real uploaded photo — whose
+    // EXIF in the wild includes GPS coordinates and camera/device info.
+    const createJpegWithExif = async (): Promise<Buffer> => {
+      const sharp = (await import('sharp')).default
+      return sharp({
+        create: { width: 20, height: 12, channels: 3, background: { r: 0, g: 128, b: 255 } },
+      })
+        .withMetadata({ orientation: 6 })
+        .jpeg()
+        .toBuffer()
+    }
+
+    it('resize strips EXIF metadata by default (no GPS/camera leak)', async () => {
+      const sharp = (await import('sharp')).default
+      const input = await createJpegWithExif()
+      // Sanity: the input actually carries an EXIF block.
+      expect((await sharp(input).metadata()).exif).toBeInstanceOf(Buffer)
+
+      const out = await createProvider().resize(input, { width: 10 })
+      const meta = await sharp(out).metadata()
+      // Default config strips it — the resized image leaks no EXIF, and the
+      // orientation was baked into the pixels rather than left dangling.
+      expect(meta.exif).toBeUndefined()
+      expect(meta.orientation).toBeUndefined()
+    })
+
+    it('resize keeps EXIF when stripMetadata is false', async () => {
+      const sharp = (await import('sharp')).default
+      const input = await createJpegWithExif()
+      const out = await createProvider({ stripMetadata: false }).resize(input, { width: 10 })
+      expect((await sharp(out).metadata()).exif).toBeInstanceOf(Buffer)
+    })
+
+    it('optimize honors an explicit stripMetadata: false override', async () => {
+      const sharp = (await import('sharp')).default
+      const input = await createJpegWithExif()
+      // Provider default strips, but the per-call override asks to keep it.
+      const out = await createProvider().optimize(input, { stripMetadata: false })
+      expect((await sharp(out).metadata()).exif).toBeInstanceOf(Buffer)
+    })
+  })
+
   describe('crop', () => {
     it('should crop an image to a region', async () => {
       const input = await createTestRgba()

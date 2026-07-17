@@ -82,14 +82,23 @@ export const createProvider = (config?: SharpConfig): ImageProvider => {
 
   return {
     async resize(input: Buffer, options: ResizeOptions): Promise<Buffer> {
-      let pipeline = createPipeline(input).resize({
-        width: options.width,
-        height: options.height,
-        fit: options.fit ?? 'cover',
-        background: options.background,
-        withoutEnlargement: options.withoutEnlargement ?? false,
-      })
-      if (stripMetadata) {
+      let pipeline = createPipeline(input)
+        // Bake EXIF orientation into the pixels BEFORE resizing so that stripping
+        // metadata below can't leave an EXIF-rotated photo sideways.
+        .rotate()
+        .resize({
+          width: options.width,
+          height: options.height,
+          fit: options.fit ?? 'cover',
+          background: options.background,
+          withoutEnlargement: options.withoutEnlargement ?? false,
+        })
+      // sharp STRIPS all metadata (EXIF/GPS/camera/…) by default — keeping it on a
+      // user upload leaks the photo's location. Re-attach it ONLY when the caller
+      // opts out of stripping. (The previous `if (stripMetadata) withMetadata()`
+      // was inverted: withMetadata() KEEPS metadata, so the default config —
+      // stripMetadata: true — actually preserved and leaked EXIF GPS.)
+      if (!stripMetadata) {
         pipeline = pipeline.withMetadata()
       }
       return pipeline.toBuffer()
@@ -116,11 +125,8 @@ export const createProvider = (config?: SharpConfig): ImageProvider => {
     },
 
     async optimize(input: Buffer, options?: OptimizeOptions): Promise<Buffer> {
-      let pipeline = createPipeline(input)
-
-      if (options?.stripMetadata !== false && stripMetadata) {
-        // Default: strip metadata for smaller files
-      }
+      // Auto-orient so stripping metadata below can't rotate an EXIF-oriented image.
+      let pipeline = createPipeline(input).rotate()
 
       if (options?.format) {
         pipeline = applyFormat(pipeline, options.format, options.quality)
@@ -129,6 +135,15 @@ export const createProvider = (config?: SharpConfig): ImageProvider => {
         const meta = await sharp(input).metadata()
         const fmt = (meta.format ?? 'jpeg') as ImageFormat
         pipeline = applyFormat(pipeline, fmt, options?.quality)
+      }
+
+      // Strip metadata by default (smaller files + no EXIF/GPS leak); keep it only
+      // when opted out at the call or the provider. The prior empty
+      // `if (…strip…) { }` block made `options.stripMetadata: false` a silent no-op
+      // — a caller asking to KEEP metadata got it stripped anyway.
+      const strip = options?.stripMetadata ?? stripMetadata
+      if (!strip) {
+        pipeline = pipeline.withMetadata()
       }
 
       return pipeline.toBuffer()
