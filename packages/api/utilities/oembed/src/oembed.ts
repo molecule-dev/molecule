@@ -96,7 +96,8 @@ function parseOembed(raw: string, sourceUrl: string): OEmbedResponse {
  *
  * Honors:
  *
- * - SSRF guard — rejects private/loopback/link-local hosts unless
+ * - SSRF guard — rejects private/loopback/link-local hosts, and hosts
+ *   that RESOLVE to such addresses (DNS-aware), unless
  *   `allowPrivateNetworks: true` is passed (applies to the input
  *   URL, every redirect hop, AND the discovered oEmbed endpoint).
  * - Manual redirect following with per-hop SSRF re-validation.

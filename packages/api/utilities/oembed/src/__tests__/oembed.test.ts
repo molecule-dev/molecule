@@ -1,7 +1,14 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { oembed } from '../oembed.js'
 import { OEmbedError, type OEmbedResponse } from '../types.js'
+
+// The DNS-aware SSRF guard resolves each host before fetching. Mock
+// node:dns/promises so tests are deterministic and offline; by default
+// every hostname resolves to a public address, and individual SSRF tests
+// override the resolution to a private one.
+const { lookupMock } = vi.hoisted(() => ({ lookupMock: vi.fn() }))
+vi.mock('node:dns/promises', () => ({ lookup: lookupMock }))
 
 /**
  * Build a minimal `Response`-like object compatible with what the
@@ -25,6 +32,12 @@ function buildResponse(opts: {
 }
 
 describe('oembed', () => {
+  beforeEach(() => {
+    lookupMock.mockReset()
+    // Default: every host resolves to a public address.
+    lookupMock.mockResolvedValue([{ address: '93.184.216.34', family: 4 }])
+  })
+
   it('uses the built-in YouTube provider without HTML discovery', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       buildResponse({
@@ -134,6 +147,44 @@ describe('oembed', () => {
       allowPrivateNetworks: true,
     })
     expect(r.title).toBe('Internal')
+  })
+
+  it('refuses a host that RESOLVES to a private address (DNS-rebinding SSRF)', async () => {
+    // Public-looking hostname, no built-in provider match, whose A record
+    // points at the cloud metadata endpoint — caught by the DNS-aware
+    // guard before any request goes out.
+    lookupMock.mockResolvedValueOnce([{ address: '169.254.169.254', family: 4 }])
+    const fetchMock = vi.fn()
+    await expect(
+      oembed('https://rebind.attacker.example/x', {
+        fetch: fetchMock as unknown as typeof globalThis.fetch,
+      }),
+    ).rejects.toMatchObject({ name: 'OEmbedError', code: 'private-network-blocked' })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('allows a host that resolves to a public address (discovery path)', async () => {
+    lookupMock.mockResolvedValue([{ address: '93.184.216.34', family: 4 }])
+    const html = `<head>
+      <link rel="alternate" type="application/json+oembed"
+            href="https://public.example/oembed?url=foo">
+    </head>`
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        buildResponse({ headers: { 'content-type': 'text/html' }, body: html }),
+      )
+      .mockResolvedValueOnce(
+        buildResponse({
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ type: 'rich', version: '1.0', title: 'Public' }),
+        }),
+      )
+    const r = await oembed('https://public.example/v/1', {
+      fetch: fetchMock as unknown as typeof globalThis.fetch,
+    })
+    expect(r.title).toBe('Public')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it('sanitizes <script> tags out of returned html', async () => {

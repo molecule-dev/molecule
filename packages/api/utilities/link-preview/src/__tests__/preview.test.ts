@@ -1,7 +1,14 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getLinkPreview } from '../preview.js'
 import { type LinkPreview, LinkPreviewError } from '../types.js'
+
+// The DNS-aware SSRF guard resolves each host before fetching. Mock
+// node:dns/promises so tests are deterministic and offline; by default
+// every hostname resolves to a public address, and individual SSRF tests
+// override the resolution to a private one.
+const { lookupMock } = vi.hoisted(() => ({ lookupMock: vi.fn() }))
+vi.mock('node:dns/promises', () => ({ lookup: lookupMock }))
 
 /**
  * Build a minimal `Response`-like object compatible with what
@@ -28,6 +35,12 @@ function buildResponse(opts: {
 }
 
 describe('getLinkPreview', () => {
+  beforeEach(() => {
+    lookupMock.mockReset()
+    // Default: every host resolves to a public address.
+    lookupMock.mockResolvedValue([{ address: '93.184.216.34', family: 4 }])
+  })
+
   it('returns a full OG card for a typical article page', async () => {
     const html = `
       <html><head>
@@ -239,6 +252,61 @@ describe('getLinkPreview', () => {
       allowPrivateNetworks: true,
     })
     expect(preview.title).toBe('Internal')
+  })
+
+  it('refuses a host that RESOLVES to a private address (DNS-rebinding SSRF)', async () => {
+    // A public-looking hostname whose A record points at the cloud
+    // metadata endpoint — the literal host check cannot see this, so the
+    // DNS-aware guard must block it before any request goes out.
+    lookupMock.mockResolvedValueOnce([{ address: '169.254.169.254', family: 4 }])
+    const fetchMock = vi.fn()
+    await expect(
+      getLinkPreview('https://rebind.attacker.example/x', {
+        fetch: fetchMock as unknown as typeof globalThis.fetch,
+      }),
+    ).rejects.toMatchObject({
+      name: 'LinkPreviewError',
+      code: 'private-network-blocked',
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('allows a host that resolves to a public address', async () => {
+    lookupMock.mockResolvedValueOnce([{ address: '93.184.216.34', family: 4 }])
+    const fetchMock = vi.fn().mockResolvedValue(
+      buildResponse({
+        headers: { 'content-type': 'text/html' },
+        body: `<head><meta property="og:title" content="Public"></head>`,
+      }),
+    )
+    const preview = await getLinkPreview('https://public.example/x', {
+      fetch: fetchMock as unknown as typeof globalThis.fetch,
+    })
+    expect(preview.title).toBe('Public')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('refuses a redirect whose target host RESOLVES to a private address', async () => {
+    // First hop resolves public; the redirect target hostname resolves to
+    // a private IP and is caught by the DNS guard on the next hop.
+    lookupMock
+      .mockResolvedValueOnce([{ address: '93.184.216.34', family: 4 }]) // example.com
+      .mockResolvedValueOnce([{ address: '10.0.0.5', family: 4 }]) // rebind target
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      buildResponse({
+        status: 302,
+        headers: { location: 'https://rebind.attacker.example/secret' },
+      }),
+    )
+    await expect(
+      getLinkPreview('https://example.com/start', {
+        fetch: fetchMock as unknown as typeof globalThis.fetch,
+      }),
+    ).rejects.toMatchObject({
+      name: 'LinkPreviewError',
+      code: 'private-network-blocked',
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   it('rejects non-http(s) protocols', async () => {

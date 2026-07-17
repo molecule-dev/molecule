@@ -199,9 +199,9 @@ export interface OEmbedOptions {
 
   /**
    * SSRF guard — when `false` (the default) requests to private /
-   * loopback / link-local IP ranges are refused. Set `true` to allow
-   * them (for example in an internal-network embed scraper). Use with
-   * care.
+   * loopback / link-local IP ranges are refused, including hosts that
+   * resolve to such an address (DNS-aware). Set `true` to allow them
+   * (for example in an internal-network embed scraper). Use with care.
    */
   allowPrivateNetworks?: boolean
 

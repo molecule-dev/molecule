@@ -14,7 +14,8 @@ import type { GetLinkPreviewOptions, LinkPreview } from './types.js'
  *
  * Honors:
  *
- * - SSRF guard — rejects private/loopback/link-local hosts unless
+ * - SSRF guard — rejects private/loopback/link-local hosts, and hosts
+ *   that RESOLVE to such addresses (DNS-aware), unless
  *   `allowPrivateNetworks: true` is passed.
  * - Manual redirect following with per-hop SSRF re-validation.
  * - Total timeout via `AbortController` (default 5s).

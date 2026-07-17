@@ -11,10 +11,15 @@
  * Built-in safety:
  *
  * - SSRF guard refuses private/loopback/link-local hosts by default.
- * - The SSRF guard checks hostname and IP literals only — it does NOT
- *   resolve DNS, so a public hostname that resolves to a private address is
- *   not caught. For stricter deployments resolve the host yourself and
- *   re-validate the IP, or restrict egress at the network layer.
+ * - The SSRF guard is DNS-aware: it resolves each host before fetching
+ *   and rejects it if any A/AAAA record lands in a private/internal/
+ *   metadata range, so a public hostname that resolves to a private
+ *   address (DNS-rebinding / resolve-to-internal) is caught — not just
+ *   IP/host literals. On the default fetch path the connection is pinned
+ *   to the validated address (no check-then-connect rebind window); an
+ *   injected `options.fetch` is still resolve-validated but owns its own
+ *   transport, so for a hard guarantee there also restrict egress at the
+ *   network layer.
  * - Manual redirect handling re-validates each hop.
  * - Hard timeout (default 5s) via `AbortController`.
  * - Body-size cap (default 1 MiB) — large pages are truncated.

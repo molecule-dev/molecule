@@ -12,8 +12,56 @@
  * @module
  */
 
-import { isPrivateHost } from './ssrf.js'
+import { lookup as dnsLookupCb } from 'node:dns'
+
+import { Agent, type Dispatcher } from 'undici'
+
+import { isHostBlocked, isPrivateAddress, isPrivateHost } from './ssrf.js'
 import { OEmbedError, type OEmbedErrorCode, type OEmbedOptions } from './types.js'
+
+/**
+ * A shared undici dispatcher whose connect-time DNS lookup refuses any
+ * host that resolves to a private/internal/metadata address. Because
+ * validation happens in the SAME resolution undici uses to open the
+ * socket, the default fetch path has NO validate-then-connect
+ * TOCTOU / DNS-rebinding window — the host cannot rebind to
+ * `169.254.169.254` between the check and the connect.
+ *
+ * (The injectable `options.fetch` path cannot be pinned — a custom
+ * transport ignores this dispatcher — so it relies on the pre-fetch
+ * {@link isHostBlocked} check, which has a small residual rebind window.
+ * Deployments that need a hard guarantee there should also restrict
+ * egress at the network layer.)
+ */
+const ssrfSafeAgent = new Agent({
+  connect: {
+    lookup(hostname, options, callback): void {
+      dnsLookupCb(hostname, { ...(options ?? {}), all: true, verbatim: true }, (err, addresses) => {
+        if (err) {
+          callback(err, '', 0)
+          return
+        }
+        const list = (Array.isArray(addresses) ? addresses : [addresses]) as Array<{
+          address: string
+          family: number
+        }>
+        for (const record of list) {
+          if (isPrivateAddress(record.address)) {
+            callback(new Error('Refusing to connect to a private/internal address (SSRF)'), '', 0)
+            return
+          }
+        }
+        const first = list[0]
+        if (!first) {
+          callback(new Error('DNS lookup returned no addresses'), '', 0)
+          return
+        }
+        if (options && (options as { all?: boolean }).all) callback(null, list as never, 0)
+        else callback(null, first.address, first.family)
+      })
+    },
+  },
+})
 
 /**
  * Default polite, brand-neutral User-Agent — matches the link-preview
@@ -36,7 +84,11 @@ function fail(code: OEmbedErrorCode, message: string, url: string): never {
 
 /**
  * Validate a URL string. Rejects non-http(s) protocols, malformed
- * URLs, and (unless explicitly allowed) private network hosts.
+ * URLs, and (unless explicitly allowed) private-network host literals.
+ *
+ * This is the synchronous fast-fail check. The DNS-aware guard that
+ * rejects a public hostname resolving to a private address runs
+ * per-hop inside {@link fetchText} (see {@link isHostBlocked}).
  *
  * @param rawUrl - URL string to validate.
  * @param allowPrivate - If `true`, private/loopback/link-local hosts
@@ -118,6 +170,14 @@ export interface FetchTextOptions extends Pick<
  * SSRF-validated — the built-in `redirect: 'follow'` mode would let a
  * malicious server bounce us to `127.0.0.1`.
  *
+ * SSRF is enforced per-hop by a DNS-aware guard ({@link isHostBlocked}):
+ * a public hostname whose A/AAAA record resolves to a private/internal/
+ * metadata address is rejected before the request. On the default fetch
+ * path the connection is additionally pinned to the validated address
+ * (via {@link ssrfSafeAgent}) so it cannot rebind between check and
+ * connect. An injected `options.fetch` is guarded by the pre-fetch
+ * resolution but not pinned (it owns its transport).
+ *
  * @param inputUrl - URL to fetch.
  * @param options - Fetch options.
  * @returns Truncated body + final URL + content-type.
@@ -127,10 +187,15 @@ export async function fetchText(
   inputUrl: string,
   options: FetchTextOptions = {},
 ): Promise<FetchedText> {
-  const fetchImpl = options.fetch ?? globalThis.fetch
+  const customFetch = options.fetch
+  const fetchImpl = customFetch ?? globalThis.fetch
   if (typeof fetchImpl !== 'function') {
     fail('fetch-failed', 'No fetch implementation available', inputUrl)
   }
+  // Only the default (undici) fetch honors the SSRF-safe dispatcher; a
+  // caller-injected fetch owns its own transport and is guarded by the
+  // pre-fetch DNS check below instead.
+  const usingDefaultFetch = typeof customFetch !== 'function'
 
   const userAgent = options.userAgent ?? DEFAULT_USER_AGENT
   const timeoutMs = options.timeoutMs ?? 5_000
@@ -143,23 +208,40 @@ export async function fetchText(
   let currentUrl = validateUrl(inputUrl, allowPrivate).toString()
   let redirects = 0
 
+  const requestInit: RequestInit & { dispatcher?: Dispatcher } = {
+    method: 'GET',
+    redirect: 'manual',
+    headers: {
+      'user-agent': userAgent,
+      accept,
+      'accept-language': 'en;q=0.9, *;q=0.5',
+    },
+  }
+  if (usingDefaultFetch) requestInit.dispatcher = ssrfSafeAgent
+
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
     while (true) {
+      // DNS-aware SSRF guard, immediately before each hop: reject a host
+      // that resolves to a private/internal/metadata address (the literal
+      // check in validateUrl cannot see this). Runs for BOTH the default
+      // and injected-fetch paths so the guard is never bypassed.
+      if (!allowPrivate) {
+        const currentHost = new URL(currentUrl).hostname
+        if (await isHostBlocked(currentHost)) {
+          fail(
+            'private-network-blocked',
+            `Refusing to fetch private/loopback host: ${currentHost}`,
+            currentUrl,
+          )
+        }
+      }
+
       let response: Response
       try {
-        response = await fetchImpl(currentUrl, {
-          method: 'GET',
-          redirect: 'manual',
-          signal: controller.signal,
-          headers: {
-            'user-agent': userAgent,
-            accept,
-            'accept-language': 'en;q=0.9, *;q=0.5',
-          },
-        })
+        response = await fetchImpl(currentUrl, { ...requestInit, signal: controller.signal })
       } catch (err) {
         const error = err as { name?: string; message?: string }
         if (error?.name === 'AbortError') {

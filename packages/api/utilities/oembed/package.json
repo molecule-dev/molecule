@@ -25,6 +25,9 @@
     "embed"
   ],
   "license": "MIT",
+  "dependencies": {
+    "undici": "7.28.0"
+  },
   "devDependencies": {
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
