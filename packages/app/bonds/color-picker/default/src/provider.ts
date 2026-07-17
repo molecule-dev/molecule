@@ -15,16 +15,18 @@ import type { DefaultColorPickerConfig } from './types.js'
 /**
  * Creates a default color picker provider.
  *
- * @param _config - Optional provider configuration.
+ * @param config - Optional provider configuration. `config.format` supplies the
+ *   default color format for every picker that does not pass its own
+ *   per-call `options.format`.
  * @returns A configured ColorPickerProvider.
  */
-export function createProvider(_config?: DefaultColorPickerConfig): ColorPickerProvider {
+export function createProvider(config: DefaultColorPickerConfig = {}): ColorPickerProvider {
   return {
     name: 'default',
 
     createPicker(options: ColorPickerOptions): ColorPickerInstance {
       let currentValue = options.value ?? '#000000'
-      let currentFormat: 'hex' | 'rgb' | 'hsl' = options.format ?? 'hex'
+      let currentFormat: 'hex' | 'rgb' | 'hsl' = options.format ?? config.format ?? 'hex'
 
       return {
         getValue(): string {

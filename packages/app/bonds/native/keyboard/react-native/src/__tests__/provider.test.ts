@@ -245,11 +245,4 @@ describe('@molecule/app-keyboard-react-native', () => {
       })
     })
   })
-
-  describe('config', () => {
-    it('should accept defaultScrollPadding config', () => {
-      const p = createReactNativeKeyboardProvider({ defaultScrollPadding: 40 })
-      expect(p).toBeDefined()
-    })
-  })
 })

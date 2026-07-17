@@ -23,14 +23,22 @@ export interface FullCalendarConfig {
   defaultFirstDay?: number
 
   /**
-   * Whether to allow events to overlap by default.
+   * Whether a dragged or resized event may overlap another event.
+   *
+   * Mirrors FullCalendar's `eventOverlap` option. When `false`, a drag or
+   * resize that would collide with another event is rejected (the event
+   * stays put and no `onEventDrop` / `onEventResize` callback fires).
+   * Programmatic `addEvent` / `setEvents` / `updateEvent` are never blocked.
    * Defaults to `true`.
    */
   allowEventOverlap?: boolean
 
   /**
-   * Minimum event duration in minutes for new/resized events.
-   * Defaults to `30`.
+   * Minimum event duration in minutes enforced when an event is resized.
+   *
+   * A resize that would shrink an event below this floor is clamped: the
+   * start is preserved and the end is pushed out so the event stays at least
+   * `minEventDurationMinutes` long. Defaults to `30`.
    */
   minEventDurationMinutes?: number
 }

@@ -20,13 +20,34 @@ import type {
 
 import type { ReactNativeStatusBarConfig } from './types.js'
 
+/** Memoized in-flight/resolved `react-native` import, deduped across callers. */
+let reactNativeModulePromise: Promise<typeof import('react-native')> | undefined
+
+/**
+ * Dynamically loads react-native once, sharing a single import across all
+ * callers. Deduping matters because a provider created with initial config
+ * applies it at setup (one import) while an immediate `getState()` triggers
+ * another — issuing two concurrent first-time imports of the same module. On
+ * failure the memo is cleared so a later call can retry.
+ * @returns The react-native module.
+ */
+async function loadReactNative(): Promise<typeof import('react-native')> {
+  if (!reactNativeModulePromise) {
+    reactNativeModulePromise = import('react-native').catch((error) => {
+      reactNativeModulePromise = undefined
+      throw error
+    })
+  }
+  return reactNativeModulePromise
+}
+
 /**
  * Dynamically loads react-native StatusBar.
  * @returns The StatusBar module.
  */
 async function getReactNativeStatusBar(): Promise<StatusBarStatic> {
   try {
-    const { StatusBar } = await import('react-native')
+    const { StatusBar } = await loadReactNative()
     return StatusBar
   } catch (error) {
     throw new Error(
@@ -79,7 +100,7 @@ function toRNAnimation(animation?: StatusBarAnimation): string {
  */
 async function getRuntimePlatform(): Promise<'ios' | 'android' | 'web'> {
   try {
-    const { Platform } = await import('react-native')
+    const { Platform } = await loadReactNative()
     const os = Platform.OS
     if (os === 'ios' || os === 'android' || os === 'web') return os
     return 'android'
@@ -188,6 +209,35 @@ export function createReactNativeStatusBarProvider(
       }
     },
   }
+
+  /**
+   * Applies the caller-configured initial values to the native StatusBar at
+   * setup so `initialStyle`/`initialBackgroundColor` actually take effect rather
+   * than only seeding the tracked snapshot. Only values the caller explicitly
+   * set are applied — the rest are left to the OS / navigation library.
+   * @returns Resolves once the configured initial values have been applied.
+   */
+  async function applyInitialConfig(): Promise<void> {
+    if (config.initialStyle !== undefined) {
+      // `setBarStyle` works on both iOS and Android — apply unconditionally.
+      await provider.setStyle(config.initialStyle)
+    }
+    if (config.initialBackgroundColor !== undefined) {
+      // `setBackgroundColor` is an Android-only RN API (silent no-op on iOS), so
+      // gate it the same way `getCapabilities()` gates `canSetBackgroundColor`.
+      if ((await getRuntimePlatform()) === 'android') {
+        await provider.setBackgroundColor(config.initialBackgroundColor)
+      }
+    }
+  }
+
+  void applyInitialConfig().catch((_error) => {
+    // Best-effort setup: applying the initial bar state is only meaningful in a
+    // real React Native runtime. When react-native is unavailable (tests /
+    // non-RN environments) `getReactNativeStatusBar()` rejects — safe to ignore
+    // here because the snapshot already reflects the configured values and the
+    // runtime setters remain available. No logger dependency in this package.
+  })
 
   return provider
 }

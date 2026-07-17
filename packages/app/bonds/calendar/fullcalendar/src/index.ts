@@ -16,10 +16,15 @@
  * ```
  *
  * @remarks
- * `FullCalendarConfig.allowEventOverlap` and `.minEventDurationMinutes` are
- * currently NOT enforced by this provider — they are stored and exposed via
- * `_getConfig()` for a rendering layer to honor. Overlap and duration rules
- * you need today belong in your `onEventDrop` / `onEventResize` handlers.
+ * This provider honours FullCalendar's interaction rules on drag/resize.
+ * `allowEventOverlap` (default `true`) mirrors FullCalendar's `eventOverlap`:
+ * when `false`, a drag or resize that would collide with another event is
+ * rejected (the event stays put, no `onEventDrop` / `onEventResize` fires).
+ * `minEventDurationMinutes` (default `30`) clamps a resize so an event is
+ * never shorter than the configured minimum — the start is kept and the end
+ * pushed out. Both rules apply ONLY to the interactive `_handleEventDrop` /
+ * `_handleEventResize` paths; programmatic `addEvent` / `setEvents` /
+ * `updateEvent` are never blocked.
  *
  * @module
  */

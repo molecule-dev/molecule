@@ -409,4 +409,95 @@ describe('@molecule/app-calendar-fullcalendar', () => {
       expect(cal._getLocale()).toBe('de-DE')
     })
   })
+
+  describe('interaction rules (allowEventOverlap)', () => {
+    it('allows an overlapping drop by default', () => {
+      const onEventDrop = vi.fn()
+      const cal = provider.createCalendar(createOptions({ onEventDrop })) as FullCalendarInstance
+      // Move Meeting ('1') on top of Lunch ('2', 12:00–13:00) — overlaps.
+      cal._handleEventDrop('1', new Date('2026-03-28T12:00:00'), new Date('2026-03-28T13:00:00'))
+      expect(onEventDrop).toHaveBeenCalledOnce()
+      const moved = cal.getEvents().find((e) => e.id === '1')
+      expect(moved?.start.getTime()).toBe(new Date('2026-03-28T12:00:00').getTime())
+    })
+
+    it('rejects an overlapping drop when allowEventOverlap is false', () => {
+      const onEventDrop = vi.fn()
+      const p = createFullCalendarProvider({ allowEventOverlap: false })
+      const cal = p.createCalendar(createOptions({ onEventDrop })) as FullCalendarInstance
+      cal._handleEventDrop('1', new Date('2026-03-28T12:00:00'), new Date('2026-03-28T13:00:00'))
+      expect(onEventDrop).not.toHaveBeenCalled()
+      // Event unchanged — still at its original 10:00–11:00 slot.
+      const after = cal.getEvents().find((e) => e.id === '1')
+      expect(after?.start.getTime()).toBe(new Date('2026-03-28T10:00:00').getTime())
+      expect(after?.end.getTime()).toBe(new Date('2026-03-28T11:00:00').getTime())
+    })
+
+    it('allows a non-overlapping drop when allowEventOverlap is false', () => {
+      const onEventDrop = vi.fn()
+      const p = createFullCalendarProvider({ allowEventOverlap: false })
+      const cal = p.createCalendar(createOptions({ onEventDrop })) as FullCalendarInstance
+      const newStart = new Date('2026-03-28T14:00:00')
+      const newEnd = new Date('2026-03-28T15:00:00')
+      cal._handleEventDrop('1', newStart, newEnd)
+      expect(onEventDrop).toHaveBeenCalledOnce()
+      const after = cal.getEvents().find((e) => e.id === '1')
+      expect(after?.start.getTime()).toBe(newStart.getTime())
+    })
+
+    it('treats edge-touching (back-to-back) events as non-overlapping', () => {
+      const onEventDrop = vi.fn()
+      const p = createFullCalendarProvider({ allowEventOverlap: false })
+      const cal = p.createCalendar(createOptions({ onEventDrop })) as FullCalendarInstance
+      // Meeting ('1') moved to 11:00–12:00: ends exactly when Lunch ('2') begins.
+      cal._handleEventDrop('1', new Date('2026-03-28T11:00:00'), new Date('2026-03-28T12:00:00'))
+      expect(onEventDrop).toHaveBeenCalledOnce()
+    })
+
+    it('rejects an overlapping resize when allowEventOverlap is false', () => {
+      const onEventResize = vi.fn()
+      const p = createFullCalendarProvider({ allowEventOverlap: false })
+      const cal = p.createCalendar(createOptions({ onEventResize })) as FullCalendarInstance
+      // Resize Meeting's end from 11:00 out to 12:30 → overlaps Lunch (12:00–13:00).
+      cal._handleEventResize('1', new Date('2026-03-28T10:00:00'), new Date('2026-03-28T12:30:00'))
+      expect(onEventResize).not.toHaveBeenCalled()
+      const after = cal.getEvents().find((e) => e.id === '1')
+      expect(after?.end.getTime()).toBe(new Date('2026-03-28T11:00:00').getTime())
+    })
+  })
+
+  describe('interaction rules (minEventDurationMinutes)', () => {
+    it('clamps a resize shorter than the default 30-minute minimum', () => {
+      const onEventResize = vi.fn()
+      const cal = provider.createCalendar(createOptions({ onEventResize })) as FullCalendarInstance
+      const start = new Date('2026-03-28T10:00:00')
+      cal._handleEventResize('1', start, new Date('2026-03-28T10:10:00')) // 10 min
+      expect(onEventResize).toHaveBeenCalledOnce()
+      const payload = onEventResize.mock.calls[0][0]
+      // End pushed out to satisfy the 30-minute floor.
+      expect(payload.newEnd.getTime()).toBe(new Date('2026-03-28T10:30:00').getTime())
+      const after = cal.getEvents().find((e) => e.id === '1')
+      expect(after?.end.getTime()).toBe(new Date('2026-03-28T10:30:00').getTime())
+    })
+
+    it('honours a custom minEventDurationMinutes', () => {
+      const onEventResize = vi.fn()
+      const p = createFullCalendarProvider({ minEventDurationMinutes: 15 })
+      const cal = p.createCalendar(createOptions({ onEventResize })) as FullCalendarInstance
+      const start = new Date('2026-03-28T10:00:00')
+      cal._handleEventResize('1', start, new Date('2026-03-28T10:05:00')) // 5 min
+      const payload = onEventResize.mock.calls[0][0]
+      expect(payload.newEnd.getTime()).toBe(new Date('2026-03-28T10:15:00').getTime())
+    })
+
+    it('leaves a resize longer than the minimum unchanged', () => {
+      const onEventResize = vi.fn()
+      const cal = provider.createCalendar(createOptions({ onEventResize })) as FullCalendarInstance
+      const start = new Date('2026-03-28T10:00:00')
+      const end = new Date('2026-03-28T11:30:00') // 90 min
+      cal._handleEventResize('1', start, end)
+      const payload = onEventResize.mock.calls[0][0]
+      expect(payload.newEnd.getTime()).toBe(end.getTime())
+    })
+  })
 })

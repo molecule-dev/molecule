@@ -31,8 +31,12 @@
  * - **Wire it with THIS package's `setProvider()` or `bond('tree-view', …)`.**
  *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
  *   both write the same slot; {@link requireProvider} throws until one has run.
- * - `onDrop` only fires when `draggable: true`; `multiSelect` and
- *   `showCheckboxes` default to `false`.
+ * - Drive reordering with `moveNode(sourceId, targetId, position)` — it mutates
+ *   the tree and fires `onDrop` only when `draggable: true`, and is a rejected
+ *   no-op otherwise. Drive checkbox state with `toggleChecked(id)` +
+ *   `getCheckedNodes()`, active only when `showCheckboxes: true`; the checkbox
+ *   (`checked`) state is independent of selection (`selected`). `multiSelect`,
+ *   `draggable`, and `showCheckboxes` all default to `false`.
  * - Call `destroy()` when the owning screen unmounts.
  *
  * @e2e

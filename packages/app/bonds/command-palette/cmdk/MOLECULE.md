@@ -35,8 +35,11 @@ Provider-specific configuration for the cmdk command palette provider.
 ```typescript
 interface CmdkConfig {
   /**
-   * Whether to use built-in fuzzy matching or defer to the consumer's
-   * custom `filter` function. Defaults to `true` (built-in fuzzy).
+   * Whether the built-in matcher performs fuzzy (in-order subsequence)
+   * matching in addition to exact substring matching. When `false`, only
+   * exact case-insensitive substring matches are returned. A per-call
+   * `options.filter` always takes precedence over the built-in matcher.
+   * Defaults to `true` (fuzzy enabled).
    */
   defaultFuzzyMatch?: boolean
 
@@ -146,10 +149,12 @@ Peer dependencies:
 - `@molecule/app-command-palette`
 
 Filtering: a custom `options.filter` always takes precedence; otherwise
-the built-in fuzzy matcher (exact substring scores highest, then
-in-order character match) is used. The `defaultFuzzyMatch` config knob
-currently has no effect. `close()` clears the query AND resets page
-navigation to root; `pushPage(id)` silently ignores unregistered page ids.
+the built-in matcher is used (exact substring scores highest, then, when
+`defaultFuzzyMatch` is `true`, an in-order subsequence match). Set the
+provider config `defaultFuzzyMatch: false` to restrict the built-in
+matcher to exact substring matches only. `close()` clears the query AND
+resets page navigation to root; `pushPage(id)` silently ignores
+unregistered page ids.
 
 ## E2E Tests
 

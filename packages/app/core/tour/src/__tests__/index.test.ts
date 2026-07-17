@@ -53,8 +53,12 @@ describe('@molecule/app-tour', () => {
         complete: () => {},
         isActive: () => false,
         getCurrentStep: () => 0,
+        hasOverlay: () => true,
+        hasButtons: () => true,
       }
       expect(instance.isActive()).toBe(false)
+      expect(instance.hasOverlay()).toBe(true)
+      expect(instance.hasButtons()).toBe(true)
     })
 
     it('should compile TourProvider type', () => {
@@ -68,6 +72,8 @@ describe('@molecule/app-tour', () => {
           complete: () => {},
           isActive: () => false,
           getCurrentStep: () => 0,
+          hasOverlay: () => true,
+          hasButtons: () => true,
         }),
       }
       expect(provider.name).toBe('test')
@@ -100,6 +106,8 @@ describe('@molecule/app-tour', () => {
           complete: () => {},
           isActive: () => false,
           getCurrentStep: () => 0,
+          hasOverlay: () => true,
+          hasButtons: () => true,
         }),
       }
       setProvider(mockProvider)
@@ -121,6 +129,8 @@ describe('@molecule/app-tour', () => {
           complete: () => {},
           isActive: () => false,
           getCurrentStep: () => 0,
+          hasOverlay: () => true,
+          hasButtons: () => true,
         }),
       }
       bond('tour', mockProvider)
@@ -140,6 +150,8 @@ describe('@molecule/app-tour', () => {
         complete: () => {},
         isActive: () => true,
         getCurrentStep: () => 0,
+        hasOverlay: () => true,
+        hasButtons: () => true,
       }
       const mockProvider: TourProvider = {
         name: 'test',

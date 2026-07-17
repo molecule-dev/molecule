@@ -12,6 +12,12 @@ highlight UI yourself from `getCurrentStep()` and the step's
 `@molecule/app-ui` and run step text through
 `t('key', values, { defaultValue })`.
 
+The bond draws nothing, but it DOES resolve and expose the `overlay` /
+`showButtons` intent so your render code can honor it: `hasOverlay()` and
+`hasButtons()` on the instance return the resolved flag (per-tour
+`TourOptions` option → provider-level `ShepherdConfig` default → `true`).
+Gate the backdrop and nav buttons you paint on those accessors.
+
 ## Quick Start
 
 ```typescript
@@ -44,33 +50,42 @@ npm install @molecule/app-tour-shepherd @molecule/app-tour
 
 #### `ShepherdConfig`
 
-Provider-specific configuration options.
+Provider-level defaults for the tour provider.
 
-Reserved — the current implementation consumes NO configuration; these
-fields have no effect (there is no built-in overlay or button UI to
-configure — see the module notes).
+These set the DEFAULT value of the resolved UI flags each tour instance
+exposes via `hasOverlay()` / `hasButtons()`. A per-tour
+`TourOptions.overlay` / `TourOptions.showButtons` overrides them; if neither
+is set, the flags default to `true`. The provider still draws no UI itself —
+the consumer reads the resolved flags off the instance to decide what to
+render (see the module notes).
 
 ```typescript
 interface ShepherdConfig {
-  /** Reserved. Not consumed — this provider draws no overlay. */
+  /**
+   * Default for `hasOverlay()` when a tour does not set `overlay`.
+   * Defaults to `true`.
+   */
   overlay?: boolean
 
-  /** Reserved. Not consumed — this provider draws no buttons. */
+  /**
+   * Default for `hasButtons()` when a tour does not set `showButtons`.
+   * Defaults to `true`.
+   */
   showButtons?: boolean
 }
 ```
 
 ### Functions
 
-#### `createProvider(_config)`
+#### `createProvider(config)`
 
 Creates a Shepherd-based tour provider.
 
 ```typescript
-function createProvider(_config?: ShepherdConfig): TourProvider
+function createProvider(config?: ShepherdConfig): TourProvider
 ```
 
-- `_config` — Optional provider configuration.
+- `config` — Optional provider-level defaults for the resolved
 
 **Returns:** A configured TourProvider.
 
@@ -139,6 +154,9 @@ RENDERS from `getCurrentStep()` — verify what's on screen, not just the calls:
   (the step is skipped or the tour ends) — it never crashes anchoring a tooltip
   to a null element (the bond keeps `target` as a plain string and never
   touches the DOM, so this guard lives in the app's render code).
-- [ ] While the tour is active with `overlay` on, the backdrop blocks
-  interaction outside the current step — clicks reach only the tour controls
-  and the highlighted target; ending the tour restores normal interaction.
+- [ ] While the tour is active with `overlay` on (i.e. `hasOverlay()` is
+  true), the backdrop blocks interaction outside the current step — clicks
+  reach only the tour controls and the highlighted target; ending the tour
+  restores normal interaction. A tour created with `overlay: false` reports
+  `hasOverlay() === false` and your render code paints no backdrop. Likewise
+  gate the nav buttons on `hasButtons()`.

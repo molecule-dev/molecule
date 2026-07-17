@@ -20,8 +20,6 @@ import type {
 } from '@molecule/app-keyboard'
 import { getLogger } from '@molecule/app-logger'
 
-import type { ReactNativeKeyboardConfig } from './types.js'
-
 /** Minimal shape of react-native Keyboard and Dimensions modules. */
 interface RNKeyboard {
   dismiss(): void
@@ -61,13 +59,9 @@ async function getReactNativeKeyboard(): Promise<{
 /**
  * Creates a React Native keyboard provider backed by react-native Keyboard.
  *
- * @param config - Optional provider configuration.
  * @returns A KeyboardProvider implementation for React Native.
  */
-export function createReactNativeKeyboardProvider(
-  config: ReactNativeKeyboardConfig = {},
-): KeyboardProvider {
-  const { defaultScrollPadding = 20 } = config
+export function createReactNativeKeyboardProvider(): KeyboardProvider {
   const logger = getLogger('keyboard')
   let isKeyboardVisible = false
   let keyboardHeight = 0
@@ -123,7 +117,6 @@ export function createReactNativeKeyboardProvider(
     async setScroll(_options: KeyboardScrollOptions): Promise<void> {
       // Scroll behavior is managed by KeyboardAvoidingView or
       // ScrollView keyboardShouldPersistTaps in React Native.
-      void defaultScrollPadding
     },
 
     onShow(callback: (event: KeyboardShowEvent) => void): () => void {

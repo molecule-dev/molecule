@@ -3,7 +3,7 @@
  *
  * Defines the provider interface and configuration options for
  * rendering markdown content into HTML with optional features
- * like syntax highlighting, GFM support, and table of contents extraction.
+ * like GFM support and table of contents extraction.
  *
  * @module
  */
@@ -45,9 +45,6 @@ export interface MarkdownOptions {
 
   /** Whether to convert line breaks to `<br>` elements. Defaults to `false`. */
   breaks?: boolean
-
-  /** Whether to enable syntax highlighting for code blocks. Defaults to `false`. */
-  syntaxHighlight?: boolean
 
   /** Custom component overrides keyed by HTML element name. */
   components?: Record<string, unknown>

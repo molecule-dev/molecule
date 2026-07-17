@@ -54,6 +54,38 @@ declare module 'expo-notifications' {
     content: NotificationContent
   }
 
+  /**
+   * Android notification importance levels (subset of expo's `AndroidImportance`).
+   * At runtime the real enum from expo-notifications supplies the values; this
+   * ambient declaration only provides the type/members the provider references.
+   */
+  export enum AndroidImportance {
+    UNKNOWN = 0,
+    MIN = 1,
+    LOW = 2,
+    DEFAULT = 3,
+    HIGH = 4,
+    MAX = 5,
+  }
+
+  /** Minimal Android notification channel input. */
+  export interface NotificationChannelInput {
+    /** Human-readable channel name shown in the system notification settings. */
+    name: string
+    /** Channel importance (controls heads-up display, sound, etc.). */
+    importance: AndroidImportance
+  }
+
+  /**
+   * Trigger describing when/where a scheduled notification fires. `null` presents
+   * immediately; `{ channelId }` presents immediately on a specific Android
+   * channel; a date trigger may also carry a `channelId` (Android).
+   */
+  export type NotificationTriggerInput =
+    | { date: Date; channelId?: string }
+    | { channelId: string }
+    | null
+
   /** Subscription handle returned by add*Listener calls. */
   export interface Subscription {
     remove(): void
@@ -77,6 +109,10 @@ declare module 'expo-notifications' {
     callback: (response: NotificationResponse) => void,
   ): Subscription
   export function addPushTokenListener(callback: (tokenData: DevicePushToken) => void): Subscription
+  export function setNotificationChannelAsync(
+    channelId: string,
+    channel: NotificationChannelInput,
+  ): Promise<unknown>
   export function scheduleNotificationAsync(request: {
     content: {
       title: string
@@ -85,7 +121,7 @@ declare module 'expo-notifications' {
       sound?: boolean
       badge?: number
     }
-    trigger: { date: Date } | null
+    trigger: NotificationTriggerInput
   }): Promise<string>
   export function cancelScheduledNotificationAsync(id: string): Promise<void>
   export function cancelAllScheduledNotificationsAsync(): Promise<void>

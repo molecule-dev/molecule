@@ -29,7 +29,7 @@ tree.expandNode('root')
 
 ## Installation
 ```bash
-npm install @molecule/app-tree-view
+npm install @molecule/app-tree-view @molecule/app-bond
 ```
 
 ## API
@@ -95,6 +95,41 @@ interface TreeInstance<T = unknown> {
   getSelectedNodes(): TreeNode<T>[]
 
   /**
+   * Toggles the checkbox state of a node by its ID.
+   *
+   * Only has an effect when the tree was created with `showCheckboxes: true`;
+   * otherwise it is a no-op. Disabled nodes are never toggled. The checkbox
+   * (`checked`) state is independent of selection (`selected`).
+   *
+   * @param id - The node ID whose checkbox to toggle.
+   */
+  toggleChecked(id: string): void
+
+  /**
+   * Returns all nodes whose checkbox is currently checked.
+   *
+   * @returns Array of checked tree nodes.
+   */
+  getCheckedNodes(): TreeNode<T>[]
+
+  /**
+   * Moves a node relative to a target node, reparenting or reordering it.
+   *
+   * Only performs the move when the tree was created with `draggable: true`;
+   * otherwise it is a rejected no-op returning `false`. Moving a node into its
+   * own subtree (or onto itself) is rejected. On a successful move the tree is
+   * mutated in place and the `onDrop` callback fires with the moved node, the
+   * target, and the position.
+   *
+   * @param sourceId - ID of the node to move.
+   * @param targetId - ID of the node to move relative to.
+   * @param position - Placement relative to the target: `before`/`after` as a
+   *   sibling, or `inside` as a child.
+   * @returns `true` if the move was performed, `false` if rejected.
+   */
+  moveNode(sourceId: string, targetId: string, position: 'before' | 'after' | 'inside'): boolean
+
+  /**
    * Destroys the tree view instance and cleans up resources.
    */
   destroy(): void
@@ -127,6 +162,13 @@ interface TreeNode<T = unknown> {
 
   /** Whether the node is selected. */
   selected?: boolean
+
+  /**
+   * Whether the node's checkbox is checked. Distinct from `selected` — this is
+   * the multi-check state driven via `toggleChecked` and only meaningful when
+   * the tree was created with `showCheckboxes: true`.
+   */
+  checked?: boolean
 
   /** Whether the node is disabled (non-interactive). */
   disabled?: boolean
@@ -243,6 +285,10 @@ function setProvider(provider: TreeViewProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+
 - **The instance is HEADLESS state, not UI.** `createTree` returns tree state
   operations (`expandNode`/`selectNode`/`getData`/…) — nothing appears on
   screen. The app renders the nodes itself, re-rendering after state calls;
@@ -251,8 +297,12 @@ Peer dependencies:
 - **Wire it with THIS package's `setProvider()` or `bond('tree-view', …)`.**
   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
   both write the same slot; {@link requireProvider} throws until one has run.
-- `onDrop` only fires when `draggable: true`; `multiSelect` and
-  `showCheckboxes` default to `false`.
+- Drive reordering with `moveNode(sourceId, targetId, position)` — it mutates
+  the tree and fires `onDrop` only when `draggable: true`, and is a rejected
+  no-op otherwise. Drive checkbox state with `toggleChecked(id)` +
+  `getCheckedNodes()`, active only when `showCheckboxes: true`; the checkbox
+  (`checked`) state is independent of selection (`selected`). `multiSelect`,
+  `draggable`, and `showCheckboxes` all default to `false`.
 - Call `destroy()` when the owning screen unmounts.
 
 ## E2E Tests

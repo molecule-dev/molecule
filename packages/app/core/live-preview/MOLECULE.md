@@ -46,8 +46,6 @@ interface PreviewConfig {
   url: string
   defaultDevice?: DeviceFrame
   interactive?: boolean
-  autoRefresh?: boolean
-  refreshDelay?: number
 }
 ```
 

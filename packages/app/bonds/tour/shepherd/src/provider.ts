@@ -11,10 +11,11 @@ import type { ShepherdConfig } from './types.js'
 /**
  * Creates a Shepherd-based tour provider.
  *
- * @param _config - Optional provider configuration.
+ * @param config - Optional provider-level defaults for the resolved
+ *   `overlay` / `showButtons` UI flags.
  * @returns A configured TourProvider.
  */
-export function createProvider(_config?: ShepherdConfig): TourProvider {
+export function createProvider(config: ShepherdConfig = {}): TourProvider {
   return {
     name: 'shepherd',
 
@@ -22,6 +23,12 @@ export function createProvider(_config?: ShepherdConfig): TourProvider {
       let active = false
       let currentStep = 0
       const steps = options.steps
+      // Resolve the UI-intent flags the consumer reads back off the instance:
+      // per-tour option → provider-level default → `true`. The provider itself
+      // renders nothing; these flags tell the consumer's render code whether to
+      // paint the backdrop / nav buttons.
+      const overlay = options.overlay ?? config.overlay ?? true
+      const showButtons = options.showButtons ?? config.showButtons ?? true
 
       return {
         start(): void {
@@ -61,6 +68,14 @@ export function createProvider(_config?: ShepherdConfig): TourProvider {
 
         getCurrentStep(): number {
           return currentStep
+        },
+
+        hasOverlay(): boolean {
+          return overlay
+        },
+
+        hasButtons(): boolean {
+          return showButtons
         },
       }
     },

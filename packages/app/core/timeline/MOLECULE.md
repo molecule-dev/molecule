@@ -16,7 +16,6 @@ setProvider(provider) // once, at startup (bonds.ts)
 
 const timeline = requireProvider().createTimeline({
   items: [{ id: '1', date: new Date(), title: 'Created project' }],
-  orientation: 'vertical',
 })
 timeline.addItem({ id: '2', date: new Date(), title: 'Invited teammate' })
 ```
@@ -26,7 +25,7 @@ timeline.addItem({ id: '2', date: new Date(), title: 'Invited teammate' })
 
 ## Installation
 ```bash
-npm install @molecule/app-timeline
+npm install @molecule/app-timeline @molecule/app-bond
 ```
 
 ## API
@@ -113,10 +112,7 @@ interface TimelineOptions {
   /** Items to display in the timeline. */
   items: TimelineItem[]
 
-  /** Layout orientation. Defaults to `'vertical'`. */
-  orientation?: 'vertical' | 'horizontal'
-
-  /** Whether to alternate items on opposite sides (vertical only). Defaults to `false`. */
+  /** Whether to alternate items on opposite sides. Defaults to `false`. */
   alternate?: boolean
 
   /** Callback when a timeline item is clicked. */
@@ -201,6 +197,10 @@ function setProvider(provider: TimelineProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+
 - **The instance is HEADLESS state, not UI.** `createTimeline` returns item
   management (`setItems`/`addItem`/`removeItem`/`getItems`) — nothing appears
   on screen. The app renders the entries itself, styling via `getClassMap()`
@@ -226,9 +226,8 @@ every box off one by one. A box you can't check is an integration bug to fix
 - [ ] Each rendered entry shows its real data: the locale-formatted `date`
   (never a raw `Date` string), the `title`, and — when set — the
   `description`, `icon`, and dot/marker `color`.
-- [ ] Orientation matches config: `orientation: 'vertical'` stacks entries
-  top-to-bottom, `'horizontal'` lays them left-to-right; with `alternate` on
-  (vertical only) consecutive entries sit on opposite sides.
+- [ ] With `alternate` on, consecutive entries sit on opposite sides of the
+  rail; with it off, every entry sits on the same side.
 - [ ] Clicking an entry fires `onItemClick` with THAT item — the wired action
   (navigate/expand/select) happens for the clicked entry, not a neighbour.
 - [ ] If the app groups entries (by day or type), each entry sits under the

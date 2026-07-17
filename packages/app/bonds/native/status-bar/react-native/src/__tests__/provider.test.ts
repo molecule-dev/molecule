@@ -267,5 +267,33 @@ describe('@molecule/app-status-bar-react-native', () => {
       const state = await p.getState()
       expect(state.backgroundColor).toBe('#AABBCC')
     })
+
+    it('should apply initial style to the native bar on setup', async () => {
+      mockPlatform.OS = 'android'
+      createReactNativeStatusBarProvider({ initialStyle: 'light' })
+      await vi.waitFor(() => expect(mockSetBarStyle).toHaveBeenCalledWith('light-content', true))
+    })
+
+    it('should apply initial background color to the native bar on Android at setup', async () => {
+      mockPlatform.OS = 'android'
+      createReactNativeStatusBarProvider({ initialBackgroundColor: '#AABBCC' })
+      await vi.waitFor(() => expect(mockSetBackgroundColor).toHaveBeenCalledWith('#AABBCC', true))
+    })
+
+    it('should not apply initial background color on iOS at setup (Android-only API)', async () => {
+      mockPlatform.OS = 'ios'
+      createReactNativeStatusBarProvider({ initialBackgroundColor: '#AABBCC' })
+      // Give the fire-and-forget setup a chance to run, then assert it stayed a no-op.
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(mockSetBackgroundColor).not.toHaveBeenCalled()
+    })
+
+    it('should not touch the native bar when no initial values are configured', async () => {
+      mockPlatform.OS = 'android'
+      createReactNativeStatusBarProvider()
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(mockSetBarStyle).not.toHaveBeenCalled()
+      expect(mockSetBackgroundColor).not.toHaveBeenCalled()
+    })
   })
 })

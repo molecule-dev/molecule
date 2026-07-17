@@ -19,10 +19,12 @@ describe('@molecule/app-tree-view', () => {
         icon: 'file',
         expanded: false,
         selected: true,
+        checked: true,
         disabled: false,
       }
       expect(node.id).toBe('file-1')
       expect(node.data?.size).toBe(1024)
+      expect(node.checked).toBe(true)
     })
 
     it('should compile TreeNode with children', () => {
@@ -49,7 +51,11 @@ describe('@molecule/app-tree-view', () => {
         onExpand: () => {},
         multiSelect: true,
         draggable: true,
-        onDrop: () => {},
+        onDrop: (source, target, position) => {
+          void source
+          void target
+          void position
+        },
         showCheckboxes: true,
       }
       expect(options.multiSelect).toBe(true)
@@ -65,6 +71,9 @@ describe('@molecule/app-tree-view', () => {
         collapseAll: () => {},
         selectNode: () => {},
         getSelectedNodes: () => [],
+        toggleChecked: () => {},
+        getCheckedNodes: () => [],
+        moveNode: () => false,
         destroy: () => {},
       }
       expect(instance.getData()).toEqual([])
@@ -82,6 +91,9 @@ describe('@molecule/app-tree-view', () => {
           collapseAll: () => {},
           selectNode: () => {},
           getSelectedNodes: () => [] as TreeNode<T>[],
+          toggleChecked: () => {},
+          getCheckedNodes: () => [] as TreeNode<T>[],
+          moveNode: () => false,
           destroy: () => {},
         }),
       }
@@ -116,6 +128,9 @@ describe('@molecule/app-tree-view', () => {
           collapseAll: () => {},
           selectNode: () => {},
           getSelectedNodes: () => [] as TreeNode<T>[],
+          toggleChecked: () => {},
+          getCheckedNodes: () => [] as TreeNode<T>[],
+          moveNode: () => false,
           destroy: () => {},
         }),
       }
@@ -139,6 +154,9 @@ describe('@molecule/app-tree-view', () => {
           collapseAll: () => {},
           selectNode: () => {},
           getSelectedNodes: () => [] as TreeNode<T>[],
+          toggleChecked: () => {},
+          getCheckedNodes: () => [] as TreeNode<T>[],
+          moveNode: () => false,
           destroy: () => {},
         }),
       }
@@ -170,6 +188,9 @@ describe('@molecule/app-tree-view', () => {
         collapseAll: () => {},
         selectNode: () => {},
         getSelectedNodes: () => [],
+        toggleChecked: () => {},
+        getCheckedNodes: () => [],
+        moveNode: () => false,
         destroy: () => {},
       }
       const mockProvider: TreeViewProvider = {

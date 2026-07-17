@@ -11,6 +11,12 @@
  * `@molecule/app-ui` and run step text through
  * `t('key', values, { defaultValue })`.
  *
+ * The bond draws nothing, but it DOES resolve and expose the `overlay` /
+ * `showButtons` intent so your render code can honor it: `hasOverlay()` and
+ * `hasButtons()` on the instance return the resolved flag (per-tour
+ * `TourOptions` option → provider-level `ShepherdConfig` default → `true`).
+ * Gate the backdrop and nav buttons you paint on those accessors.
+ *
  * @example
  * ```typescript
  * import { provider } from '@molecule/app-tour-shepherd'

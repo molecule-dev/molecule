@@ -40,6 +40,11 @@
  * - With `handleForeground: true` (default), the global foreground-display handler
  *   is installed when `onNotificationReceived()` is first subscribed — subscribe
  *   early (app root) if foreground alerts should always show.
+ * - **Android notification channels:** set `androidChannelId` (and optionally
+ *   `androidChannelName`) and the provider creates that channel on Android via
+ *   `setNotificationChannelAsync` at `register()`, then targets it for local
+ *   notifications (a per-call `channelId` wins). Android 8+ needs a channel for
+ *   notifications to display; iOS/web ignore this.
  * - **The Expo push token and the native device token are distinct.**
  *   `register()`/`getToken()` return the Expo push token; `onTokenChange` fires
  *   with a freshly re-fetched Expo push token (NOT the raw native FCM/APNs token

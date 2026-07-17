@@ -51,10 +51,10 @@ export interface DateRangeOptions {
   /** Callback when the selected range changes. */
   onChange?: (range: DateRange) => void
 
-  /** Locale string for date formatting (e.g. `'en-US'`). */
-  locale?: string
-
-  /** Whether to select a single date instead of a range. Defaults to `false`. */
+  /**
+   * Select a single date instead of a range. When `true`, one selection sets
+   * both `startDate` and `endDate` to the same day. Defaults to `false`.
+   */
   singleDate?: boolean
 }
 

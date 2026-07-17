@@ -148,4 +148,38 @@ describe('@molecule/app-tour-shepherd', () => {
       expect(tour.getCurrentStep()).toBe(0)
     })
   })
+
+  describe('overlay / showButtons flags', () => {
+    const steps = [{ target: '#a', title: 'A', content: 'First' }]
+
+    it('defaults hasOverlay/hasButtons to true when unset', () => {
+      const tour = provider.createTour({ steps })
+      expect(tour.hasOverlay()).toBe(true)
+      expect(tour.hasButtons()).toBe(true)
+    })
+
+    it('reflects per-tour overlay/showButtons options in the instance', () => {
+      const off = provider.createTour({ steps, overlay: false, showButtons: false })
+      expect(off.hasOverlay()).toBe(false)
+      expect(off.hasButtons()).toBe(false)
+
+      const on = provider.createTour({ steps, overlay: true, showButtons: true })
+      expect(on.hasOverlay()).toBe(true)
+      expect(on.hasButtons()).toBe(true)
+    })
+
+    it('applies provider-level config as the default', () => {
+      const p = createProvider({ overlay: false, showButtons: false })
+      const tour = p.createTour({ steps })
+      expect(tour.hasOverlay()).toBe(false)
+      expect(tour.hasButtons()).toBe(false)
+    })
+
+    it('lets a per-tour option override the provider-level default', () => {
+      const p = createProvider({ overlay: false, showButtons: false })
+      const tour = p.createTour({ steps, overlay: true, showButtons: true })
+      expect(tour.hasOverlay()).toBe(true)
+      expect(tour.hasButtons()).toBe(true)
+    })
+  })
 })

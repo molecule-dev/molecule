@@ -25,33 +25,15 @@ npm install @molecule/app-keyboard-react-native @molecule/app-i18n @molecule/app
 
 ## API
 
-### Interfaces
-
-#### `ReactNativeKeyboardConfig`
-
-Configuration for the React Native keyboard provider.
-
-```typescript
-interface ReactNativeKeyboardConfig {
-  /**
-   * Default scroll padding above keyboard when input is focused.
-   * @default 20
-   */
-  defaultScrollPadding?: number
-}
-```
-
 ### Functions
 
-#### `createReactNativeKeyboardProvider(config)`
+#### `createReactNativeKeyboardProvider()`
 
 Creates a React Native keyboard provider backed by react-native Keyboard.
 
 ```typescript
-function createReactNativeKeyboardProvider(config?: ReactNativeKeyboardConfig): KeyboardProvider
+function createReactNativeKeyboardProvider(): KeyboardProvider
 ```
-
-- `config` — Optional provider configuration.
 
 **Returns:** A KeyboardProvider implementation for React Native.
 
@@ -105,7 +87,6 @@ Peer dependencies:
   this bond — resize is configured in AndroidManifest.xml / app.json, scroll
   via `KeyboardAvoidingView`. `getCapabilities()` reports all four `false`;
   feature-gate on it rather than assuming the calls did something.
-- `ReactNativeKeyboardConfig.defaultScrollPadding` is currently INERT.
 - Requires the `react-native` peer; it is imported lazily and a missing
   install surfaces as a descriptive error on first use.
 

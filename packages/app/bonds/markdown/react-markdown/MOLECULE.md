@@ -178,7 +178,7 @@ Peer dependencies:
 - **Honored options:** `gfm`, `sanitize`, `breaks` (soft breaks → `<br>`),
   `linkTarget` (`_blank` also adds `rel="noopener noreferrer"`), and
   `components` (custom tag overrides). Headings get slug `id`s so `result.toc`
-  anchors resolve. `syntaxHighlight`: fenced code always carries a
+  anchors resolve. For syntax highlighting, fenced code always carries a
   `language-*` class (highlighter-ready); to actually colorize, pass a rehype
   highlighter (e.g. `rehype-highlight`) via `config.rehypePlugins`.
 - **{@link ReactMarkdownConfig}** additionally exposes `remarkPlugins`,
@@ -200,8 +200,7 @@ by one. A box you can't check is an integration bug to fix — not a skip:
   block a `<pre><code>` — not the raw `*`/backticks shown as literal text.
 - [ ] GFM extras render when enabled (`gfm`, default on): a pipe table
   `| a | b |` becomes a real `<table>` with header + rows, and `![alt](src)`
-  an `<img>`. With `syntaxHighlight` on, code tokens are colorized, not one
-  flat monochrome block.
+  an `<img>`.
 - [ ] The output tracks the source: editing the markdown updates the preview
   live — change a heading's text and its `<h#>` updates; add a list item and
   a new `<li>` appears. No stale or one-shot render.

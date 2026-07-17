@@ -39,15 +39,15 @@ interface DefaultColorPickerConfig {
 
 ### Functions
 
-#### `createProvider(_config)`
+#### `createProvider(config)`
 
 Creates a default color picker provider.
 
 ```typescript
-function createProvider(_config?: DefaultColorPickerConfig): ColorPickerProvider
+function createProvider(config?: DefaultColorPickerConfig): ColorPickerProvider
 ```
 
-- `_config` — Optional provider configuration.
+- `config` — Optional provider configuration. `config.format` supplies the
 
 **Returns:** A configured ColorPickerProvider.
 
@@ -94,9 +94,10 @@ hex/rgb/hsl, and `setValue()` accepts any string without validation or
 normalization. If your UI offers format switching, convert the value
 yourself before calling `setValue()`. `presets`, `showAlpha`, and
 `showInput` are carried in options for YOUR rendering layer — the
-instance does not act on them. The `createProvider({ format })` config
-knob is currently ignored; set `format` per-picker in
-`createPicker(options)` instead.
+instance does not act on them. `createProvider({ format })` sets the
+DEFAULT format for every picker created by that provider; a per-picker
+`createPicker({ format })` still overrides it, falling back to `'hex'`
+when neither is set.
 
 ## E2E Tests
 

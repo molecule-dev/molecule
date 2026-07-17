@@ -38,6 +38,23 @@ function cloneEvent(event: CalendarEvent): CalendarEvent {
   }
 }
 
+/**
+ * Determines whether two half-open date ranges overlap.
+ *
+ * Uses half-open interval semantics (`[start, end)`), so events that merely
+ * touch at an edge (one ends exactly when the next begins) do NOT count as
+ * overlapping — matching FullCalendar's `eventOverlap` behaviour.
+ *
+ * @param aStart - Start of the first range.
+ * @param aEnd - End of the first range.
+ * @param bStart - Start of the second range.
+ * @param bEnd - End of the second range.
+ * @returns `true` if the ranges overlap.
+ */
+function rangesOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date): boolean {
+  return aStart.getTime() < bEnd.getTime() && bStart.getTime() < aEnd.getTime()
+}
+
 // ---------------------------------------------------------------------------
 // Calendar instance
 // ---------------------------------------------------------------------------
@@ -59,6 +76,14 @@ function createCalendarInstance(
   const editable = options.editable ?? false
   const firstDay = options.firstDay ?? config.defaultFirstDay ?? 0
   const locale = options.locale
+
+  // FullCalendar-style interaction rules, honoured on drag/resize.
+  // `allowEventOverlap` mirrors FullCalendar's `eventOverlap` option: when
+  // false, a drag/resize that would collide with another event is rejected.
+  // `minEventDurationMinutes` clamps a resize so an event is never shorter
+  // than the configured floor. Both fall back to FullCalendar's defaults.
+  const allowEventOverlap = config.allowEventOverlap ?? true
+  const minEventDurationMs = Math.max(0, config.minEventDurationMinutes ?? 30) * 60_000
 
   // -------------------------------------------------------------------------
   // Navigation helpers
@@ -84,6 +109,19 @@ function createCalendarInstance(
         break
     }
     currentDate = d
+  }
+
+  /**
+   * Returns whether a candidate time range collides with any event other than
+   * the one being moved/resized.
+   *
+   * @param eventId - The id of the event being moved/resized (excluded from the check).
+   * @param start - Candidate start date/time.
+   * @param end - Candidate end date/time.
+   * @returns `true` if the range overlaps another event.
+   */
+  function overlapsOtherEvent(eventId: string, start: Date, end: Date): boolean {
+    return events.some((e) => e.id !== eventId && rangesOverlap(start, end, e.start, e.end))
   }
 
   // -------------------------------------------------------------------------
@@ -182,6 +220,12 @@ function createCalendarInstance(
       const event = events.find((e) => e.id === eventId)
       if (!event) return
 
+      // Honour allowEventOverlap: reject a move that would collide with
+      // another event, leaving the event at its original time.
+      if (!allowEventOverlap && overlapsOtherEvent(eventId, newStart, newEnd)) {
+        return
+      }
+
       // Update internal state
       event.start = new Date(newStart.getTime())
       event.end = new Date(newEnd.getTime())
@@ -199,15 +243,29 @@ function createCalendarInstance(
       const event = events.find((e) => e.id === eventId)
       if (!event) return
 
+      // Honour minEventDurationMinutes: never let a resize shrink an event
+      // below the configured minimum. The start is preserved and the end is
+      // pushed out so the event is at least `minEventDurationMinutes` long.
+      let effectiveEnd = newEnd
+      if (effectiveEnd.getTime() - newStart.getTime() < minEventDurationMs) {
+        effectiveEnd = new Date(newStart.getTime() + minEventDurationMs)
+      }
+
+      // Honour allowEventOverlap: reject a resize that would collide with
+      // another event, leaving the event at its original size.
+      if (!allowEventOverlap && overlapsOtherEvent(eventId, newStart, effectiveEnd)) {
+        return
+      }
+
       // Update internal state
       event.start = new Date(newStart.getTime())
-      event.end = new Date(newEnd.getTime())
+      event.end = new Date(effectiveEnd.getTime())
 
       if (options.onEventResize) {
         options.onEventResize({
           event: cloneEvent(event),
           newStart: new Date(newStart.getTime()),
-          newEnd: new Date(newEnd.getTime()),
+          newEnd: new Date(effectiveEnd.getTime()),
         })
       }
     },

@@ -37,10 +37,6 @@ interface IframePreviewConfig {
   defaultUrl?: string
   /** Default device frame. */
   defaultDevice?: DeviceFrame
-  /** Auto-refresh on URL change. */
-  autoRefresh?: boolean
-  /** Delay in ms before auto-refresh. */
-  refreshDelay?: number
 }
 ```
 
@@ -102,9 +98,6 @@ Peer dependencies:
 
 - `@molecule/app-live-preview`
 
-- **`IframePreviewConfig.autoRefresh` and `refreshDelay` are currently
-  INERT** — only `defaultUrl` and `defaultDevice` are read. Use `refresh()`
-  to force a reload.
 - `setUrl(sameUrl)` is a deliberate no-op — renderers key reloads off
   `loadNonce`. See `@molecule/app-live-preview`'s remarks for the full
   renderer contract (`molecule:navigate` reporting, nav-command Back/Forward,

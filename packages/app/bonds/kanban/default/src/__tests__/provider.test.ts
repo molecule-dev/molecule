@@ -422,3 +422,102 @@ describe('KanbanInstance (default provider)', () => {
     })
   })
 })
+
+// ---------------------------------------------------------------------------
+// cloneCardData config
+// ---------------------------------------------------------------------------
+
+describe('cloneCardData snapshot isolation', () => {
+  interface CardData {
+    label: string
+    tags: string[]
+  }
+
+  /**
+   * Builds a two-column board seeded with a single card holding `source` as its
+   * data, using the given provider config.
+   *
+   * @param source - Mutable card data object shared with the caller.
+   * @param cloneCardData - The config flag under test.
+   * @returns The board instance.
+   */
+  function makeBoard(source: CardData, cloneCardData?: boolean): KanbanInstance<CardData> {
+    return createDefaultProvider({ cloneCardData }).createBoard<CardData>({
+      columns: [
+        { id: 'todo', title: 'To Do', cards: [{ id: 'card-1', data: source }] },
+        { id: 'done', title: 'Done', cards: [] },
+      ],
+      onCardMove: vi.fn(),
+    })
+  }
+
+  describe('cloneCardData: false (default)', () => {
+    it('returns card data by reference from findCard', () => {
+      const source: CardData = { label: 'A', tags: ['x'] }
+      const board = makeBoard(source)
+      expect(board.findCard('card-1')!.card.data).toBe(source)
+    })
+
+    it('returns card data by reference from getColumns / getState', () => {
+      const source: CardData = { label: 'A', tags: ['x'] }
+      const board = makeBoard(source)
+      expect(board.getColumns()[0].cards[0].data).toBe(source)
+      expect(board.getState().columns[0].cards[0].data).toBe(source)
+    })
+
+    it('keeps the same reference for a moved card', () => {
+      const source: CardData = { label: 'A', tags: ['x'] }
+      const board = makeBoard(source)
+      board.moveCard('card-1', 'done', 0)
+      const moved = board.findCard('card-1')!
+      expect(moved.columnId).toBe('done')
+      expect(moved.card.data).toBe(source)
+    })
+  })
+
+  describe('cloneCardData: true', () => {
+    it('deep-clones card data in findCard so it is a distinct object', () => {
+      const source: CardData = { label: 'A', tags: ['x'] }
+      const board = makeBoard(source, true)
+      const data = board.findCard('card-1')!.card.data
+      expect(data).not.toBe(source)
+      expect(data).toEqual(source)
+      // Mutating the source must not affect the returned snapshot.
+      source.label = 'MUTATED'
+      source.tags.push('y')
+      expect(data.label).toBe('A')
+      expect(data.tags).toEqual(['x'])
+    })
+
+    it('deep-clones card data in getColumns and getState', () => {
+      const source: CardData = { label: 'A', tags: ['x'] }
+      const board = makeBoard(source, true)
+      expect(board.getColumns()[0].cards[0].data).not.toBe(source)
+      expect(board.getState().columns[0].cards[0].data).not.toBe(source)
+      // Independent snapshots do not share the same cloned object either.
+      expect(board.getColumns()[0].cards[0].data).not.toBe(board.getColumns()[0].cards[0].data)
+    })
+
+    it('isolates a moved card from the original source object', () => {
+      const source: CardData = { label: 'A', tags: ['x'] }
+      const board = makeBoard(source, true)
+      board.moveCard('card-1', 'done', 0)
+      const moved = board.findCard('card-1')!
+      expect(moved.columnId).toBe('done')
+      expect(moved.card.data).not.toBe(source)
+      source.label = 'MUTATED'
+      expect(moved.card.data.label).toBe('A')
+    })
+
+    it('delivers deep-cloned data to onUpdate subscribers', () => {
+      const source: CardData = { label: 'A', tags: ['x'] }
+      const board = makeBoard(source, true)
+      const handler = vi.fn<(state: { columns: { cards: { data: CardData }[] }[] }) => void>()
+      board.onUpdate(handler)
+      board.setActiveCard('card-1')
+      const delivered = handler.mock.calls[0][0].columns[0].cards[0].data
+      expect(delivered).not.toBe(source)
+      expect(delivered).toEqual(source)
+    })
+  })
+})

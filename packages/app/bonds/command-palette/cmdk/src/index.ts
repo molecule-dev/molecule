@@ -16,10 +16,12 @@
  *
  * @remarks
  * Filtering: a custom `options.filter` always takes precedence; otherwise
- * the built-in fuzzy matcher (exact substring scores highest, then
- * in-order character match) is used. The `defaultFuzzyMatch` config knob
- * currently has no effect. `close()` clears the query AND resets page
- * navigation to root; `pushPage(id)` silently ignores unregistered page ids.
+ * the built-in matcher is used (exact substring scores highest, then, when
+ * `defaultFuzzyMatch` is `true`, an in-order subsequence match). Set the
+ * provider config `defaultFuzzyMatch: false` to restrict the built-in
+ * matcher to exact substring matches only. `close()` clears the query AND
+ * resets page navigation to root; `pushPage(id)` silently ignores
+ * unregistered page ids.
  *
  * @module
  */

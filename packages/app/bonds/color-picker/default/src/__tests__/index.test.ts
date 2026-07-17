@@ -63,6 +63,18 @@ describe('@molecule/app-color-picker-default', () => {
       expect(picker.getFormat()).toBe('rgb')
     })
 
+    it('should use the provider config format as the default when no per-call format is given', () => {
+      const p = createProvider({ format: 'hsl' })
+      const picker = p.createPicker({})
+      expect(picker.getFormat()).toBe('hsl')
+    })
+
+    it('should let a per-call format override the provider config format', () => {
+      const p = createProvider({ format: 'hsl' })
+      const picker = p.createPicker({ format: 'rgb' })
+      expect(picker.getFormat()).toBe('rgb')
+    })
+
     it('should set format', () => {
       const picker = provider.createPicker({})
       picker.setFormat('hsl')

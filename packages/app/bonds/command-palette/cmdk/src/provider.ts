@@ -25,14 +25,17 @@ import type { CmdkConfig, CmdkPaletteInstance } from './types.js'
 // ---------------------------------------------------------------------------
 
 /**
- * Default fuzzy matching score function. Matches if all query characters
- * appear in order within the target, case-insensitive.
+ * Default matching score function. An exact case-insensitive substring
+ * always scores highest. When `fuzzy` is enabled, a query whose characters
+ * all appear in order within the target (a subsequence) also matches at a
+ * lower score; when disabled, only exact substring matches count.
  *
  * @param query - Search query.
  * @param target - Target string to match against.
+ * @param fuzzy - Whether to allow in-order subsequence matches. Defaults to `true`.
  * @returns Score > 0 if matched (higher = better), 0 if not matched.
  */
-function defaultFuzzyScore(query: string, target: string): number {
+function defaultFuzzyScore(query: string, target: string, fuzzy = true): number {
   if (query.length === 0) return 1
   const lowerQuery = query.toLowerCase()
   const lowerTarget = target.toLowerCase()
@@ -41,6 +44,9 @@ function defaultFuzzyScore(query: string, target: string): number {
   if (lowerTarget.includes(lowerQuery)) {
     return 2 + lowerQuery.length / lowerTarget.length
   }
+
+  // Without fuzzy matching, only exact substring matches count.
+  if (!fuzzy) return 0
 
   // Fuzzy: all chars in order
   let qi = 0
@@ -58,14 +64,15 @@ function defaultFuzzyScore(query: string, target: string): number {
  *
  * @param query - Search query.
  * @param item - The command item.
+ * @param fuzzy - Whether to allow in-order subsequence matches. Defaults to `true`.
  * @returns Score > 0 if matched, 0 if not.
  */
-function scoreItem(query: string, item: CommandItem): number {
-  let best = defaultFuzzyScore(query, item.label)
+function scoreItem(query: string, item: CommandItem, fuzzy = true): number {
+  let best = defaultFuzzyScore(query, item.label, fuzzy)
 
   if (item.keywords) {
     for (const keyword of item.keywords) {
-      const score = defaultFuzzyScore(query, keyword)
+      const score = defaultFuzzyScore(query, keyword, fuzzy)
       if (score > best) best = score
     }
   }
@@ -233,14 +240,9 @@ function createPaletteInstance(
         const scored: Array<{ cmd: CommandItem; score: number }> = []
 
         for (const cmd of group.commands) {
-          let score: number
-          if (customFilter && !useFuzzy) {
-            score = customFilter(query, cmd)
-          } else if (customFilter) {
-            score = customFilter(query, cmd)
-          } else {
-            score = scoreItem(query, cmd)
-          }
+          // A per-call custom filter always takes precedence; otherwise the
+          // built-in matcher runs, honoring the provider's fuzzy default.
+          const score = customFilter ? customFilter(query, cmd) : scoreItem(query, cmd, useFuzzy)
           if (score > 0) {
             scored.push({ cmd, score })
           }

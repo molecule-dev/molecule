@@ -43,8 +43,6 @@ interface MonacoConfig {
   wordWrap?: boolean
   /** Show minimap by default. */
   minimap?: boolean
-  /** Currently unused — Monaco loads from the bundled `monaco-editor` peer dependency, never from a CDN. */
-  cdnUrl?: string
   /** TypeScript compiler options for the language service. */
   tsCompilerOptions?: Record<string, unknown>
 }

@@ -46,10 +46,18 @@ export interface TourOptions {
   /** Whether to show a progress indicator. Defaults to `true`. */
   showProgress?: boolean
 
-  /** Whether to show navigation buttons. Defaults to `true`. */
+  /**
+   * Whether navigation buttons (back / next / done) should be rendered.
+   * Defaults to `true`. Surfaced back to the consumer's render code via
+   * {@link TourInstance.hasButtons}.
+   */
   showButtons?: boolean
 
-  /** Whether to display a backdrop overlay. Defaults to `true`. */
+  /**
+   * Whether a backdrop overlay should be rendered. Defaults to `true`.
+   * Surfaced back to the consumer's render code via
+   * {@link TourInstance.hasOverlay}.
+   */
   overlay?: boolean
 }
 
@@ -95,6 +103,30 @@ export interface TourInstance {
    * @returns Zero-based index of the current step.
    */
   getCurrentStep(): number
+
+  /**
+   * Whether a backdrop overlay should be rendered for this tour.
+   *
+   * The provider tracks state only and draws nothing on screen — read this in
+   * your render code to decide whether to paint the backdrop. Reflects the
+   * resolved `overlay` value: the per-tour {@link TourOptions.overlay}, else
+   * the provider's default, else `true`.
+   *
+   * @returns `true` if the consumer should render a backdrop overlay.
+   */
+  hasOverlay(): boolean
+
+  /**
+   * Whether navigation buttons (back / next / done) should be rendered.
+   *
+   * The provider draws no buttons itself — read this in your render code to
+   * decide whether to paint the nav controls. Reflects the resolved
+   * `showButtons` value: the per-tour {@link TourOptions.showButtons}, else the
+   * provider's default, else `true`.
+   *
+   * @returns `true` if the consumer should render navigation buttons.
+   */
+  hasButtons(): boolean
 }
 
 /**

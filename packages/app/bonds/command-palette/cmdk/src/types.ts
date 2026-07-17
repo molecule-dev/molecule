@@ -11,8 +11,11 @@ import type { CommandGroup, CommandItem } from '@molecule/app-command-palette'
  */
 export interface CmdkConfig {
   /**
-   * Whether to use built-in fuzzy matching or defer to the consumer's
-   * custom `filter` function. Defaults to `true` (built-in fuzzy).
+   * Whether the built-in matcher performs fuzzy (in-order subsequence)
+   * matching in addition to exact substring matching. When `false`, only
+   * exact case-insensitive substring matches are returned. A per-call
+   * `options.filter` always takes precedence over the built-in matcher.
+   * Defaults to `true` (fuzzy enabled).
    */
   defaultFuzzyMatch?: boolean
 

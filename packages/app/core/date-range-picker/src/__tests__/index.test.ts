@@ -44,10 +44,9 @@ describe('@molecule/app-date-range-picker', () => {
         maxDate: new Date('2030-12-31'),
         presets: [],
         onChange: () => {},
-        locale: 'en-US',
         singleDate: false,
       }
-      expect(options.locale).toBe('en-US')
+      expect(options.singleDate).toBe(false)
     })
 
     it('should compile DateRangeOptions with minimal fields', () => {

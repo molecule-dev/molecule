@@ -19,9 +19,10 @@
  * normalization. If your UI offers format switching, convert the value
  * yourself before calling `setValue()`. `presets`, `showAlpha`, and
  * `showInput` are carried in options for YOUR rendering layer — the
- * instance does not act on them. The `createProvider({ format })` config
- * knob is currently ignored; set `format` per-picker in
- * `createPicker(options)` instead.
+ * instance does not act on them. `createProvider({ format })` sets the
+ * DEFAULT format for every picker created by that provider; a per-picker
+ * `createPicker({ format })` still overrides it, falling back to `'hex'`
+ * when neither is set.
  *
  * @module
  */

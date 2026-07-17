@@ -2,7 +2,7 @@
  * Markdown rendering core interface for molecule.dev.
  *
  * Provides a standardized API for rendering markdown content into HTML,
- * with support for GFM, syntax highlighting, and table of contents extraction.
+ * with support for GFM and table of contents extraction.
  * Bond a provider (e.g. `@molecule/app-markdown-react-markdown`) to supply
  * the concrete implementation.
  *
@@ -25,8 +25,10 @@
  *   only safe because it was sanitized. NEVER pass `sanitize: false` for
  *   user-supplied or model-generated markdown (chat replies, comments, notes);
  *   reserve it for fully trusted, app-authored content.
- * - Options are per-call (`gfm`, `breaks`, `syntaxHighlight`, `linkTarget`);
- *   `result.toc` carries extracted headings when the provider supports it.
+ * - Options are per-call (`gfm`, `breaks`, `linkTarget`); `result.toc` carries
+ *   extracted headings when the provider supports it. Syntax highlighting is a
+ *   provider concern — e.g. the react-markdown bond wires a rehype highlighter
+ *   via its `rehypePlugins` config rather than a generic option.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
@@ -39,8 +41,7 @@
  *   block a `<pre><code>` — not the raw `*`/backticks shown as literal text.
  * - [ ] GFM extras render when enabled (`gfm`, default on): a pipe table
  *   `| a | b |` becomes a real `<table>` with header + rows, and `![alt](src)`
- *   an `<img>`. With `syntaxHighlight` on, code tokens are colorized, not one
- *   flat monochrome block.
+ *   an `<img>`.
  * - [ ] The output tracks the source: editing the markdown updates the preview
  *   live — change a heading's text and its `<h#>` updates; add a list item and
  *   a new `<li>` appears. No stale or one-shot render.

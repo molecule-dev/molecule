@@ -34,10 +34,12 @@ Provider-specific configuration for the default kanban provider.
 ```typescript
 interface DefaultKanbanConfig {
   /**
-   * Whether to deep-clone card data when returning snapshots.
+   * Whether to deep-clone card `data` when returning snapshots.
    * When `false` (default), card `data` fields are returned by reference for
-   * performance. Set to `true` if consumers may mutate returned card data and
-   * you need snapshot isolation.
+   * performance. Set to `true` to deep-clone (via `structuredClone`) each
+   * card's `data` in every returned snapshot — `getColumns`, `getColumn`,
+   * `findCard`, `getState`, and `onUpdate` — so consumers may mutate returned
+   * card data without affecting internal board state.
    *
    * Defaults to `false`.
    */
@@ -47,15 +49,15 @@ interface DefaultKanbanConfig {
 
 ### Functions
 
-#### `createDefaultProvider(_config)`
+#### `createDefaultProvider(config)`
 
 Creates a default kanban provider.
 
 ```typescript
-function createDefaultProvider(_config?: DefaultKanbanConfig): KanbanProvider
+function createDefaultProvider(config?: DefaultKanbanConfig): KanbanProvider
 ```
 
-- `_config` — Optional provider-specific configuration.
+- `config` — Optional provider-specific configuration. Set
 
 **Returns:** A `KanbanProvider` backed by in-memory state management.
 
@@ -102,9 +104,12 @@ Peer dependencies:
   `onUpdate` to re-render.
 - `KanbanOptions.onCardMove` is required and fires on every `moveCard` —
   persist the move there.
-- **`DefaultKanbanConfig.cloneCardData` is currently INERT** — the provider
-  never reads it; card `data` is always returned by reference (columns/cards
-  arrays are shallow-cloned). Do not rely on snapshot isolation of `data`.
+- **`DefaultKanbanConfig.cloneCardData`** controls snapshot isolation of card
+  `data`. Default `false` returns `data` by reference (columns/cards are
+  shallow-cloned) for performance. Set it `true` to deep-clone each card's
+  `data` (via `structuredClone`) in every returned snapshot
+  (`getColumns`/`getColumn`/`findCard`/`getState`/`onUpdate`), so callers can
+  mutate returned data without touching board state.
 - `destroy()` clears the board and detaches all subscribers; instances are
   independent (`createBoard` per board).
 

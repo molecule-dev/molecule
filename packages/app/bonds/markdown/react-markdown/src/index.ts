@@ -36,7 +36,7 @@
  * - **Honored options:** `gfm`, `sanitize`, `breaks` (soft breaks → `<br>`),
  *   `linkTarget` (`_blank` also adds `rel="noopener noreferrer"`), and
  *   `components` (custom tag overrides). Headings get slug `id`s so `result.toc`
- *   anchors resolve. `syntaxHighlight`: fenced code always carries a
+ *   anchors resolve. For syntax highlighting, fenced code always carries a
  *   `language-*` class (highlighter-ready); to actually colorize, pass a rehype
  *   highlighter (e.g. `rehype-highlight`) via `config.rehypePlugins`.
  * - **{@link ReactMarkdownConfig}** additionally exposes `remarkPlugins`,

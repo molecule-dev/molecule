@@ -40,10 +40,7 @@ export interface TimelineOptions {
   /** Items to display in the timeline. */
   items: TimelineItem[]
 
-  /** Layout orientation. Defaults to `'vertical'`. */
-  orientation?: 'vertical' | 'horizontal'
-
-  /** Whether to alternate items on opposite sides (vertical only). Defaults to `false`. */
+  /** Whether to alternate items on opposite sides. Defaults to `false`. */
   alternate?: boolean
 
   /** Callback when a timeline item is clicked. */

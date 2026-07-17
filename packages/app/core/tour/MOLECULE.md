@@ -29,7 +29,7 @@ tour.start()
 
 ## Installation
 ```bash
-npm install @molecule/app-tour
+npm install @molecule/app-tour @molecule/app-bond
 ```
 
 ## API
@@ -80,6 +80,30 @@ interface TourInstance {
    * @returns Zero-based index of the current step.
    */
   getCurrentStep(): number
+
+  /**
+   * Whether a backdrop overlay should be rendered for this tour.
+   *
+   * The provider tracks state only and draws nothing on screen — read this in
+   * your render code to decide whether to paint the backdrop. Reflects the
+   * resolved `overlay` value: the per-tour {@link TourOptions.overlay}, else
+   * the provider's default, else `true`.
+   *
+   * @returns `true` if the consumer should render a backdrop overlay.
+   */
+  hasOverlay(): boolean
+
+  /**
+   * Whether navigation buttons (back / next / done) should be rendered.
+   *
+   * The provider draws no buttons itself — read this in your render code to
+   * decide whether to paint the nav controls. Reflects the resolved
+   * `showButtons` value: the per-tour {@link TourOptions.showButtons}, else the
+   * provider's default, else `true`.
+   *
+   * @returns `true` if the consumer should render navigation buttons.
+   */
+  hasButtons(): boolean
 }
 ```
 
@@ -101,10 +125,18 @@ interface TourOptions {
   /** Whether to show a progress indicator. Defaults to `true`. */
   showProgress?: boolean
 
-  /** Whether to show navigation buttons. Defaults to `true`. */
+  /**
+   * Whether navigation buttons (back / next / done) should be rendered.
+   * Defaults to `true`. Surfaced back to the consumer's render code via
+   * {@link TourInstance.hasButtons}.
+   */
   showButtons?: boolean
 
-  /** Whether to display a backdrop overlay. Defaults to `true`. */
+  /**
+   * Whether a backdrop overlay should be rendered. Defaults to `true`.
+   * Surfaced back to the consumer's render code via
+   * {@link TourInstance.hasOverlay}.
+   */
   overlay?: boolean
 }
 ```
@@ -212,11 +244,20 @@ function setProvider(provider: TourProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+
 - **The provider manages tour STATE — it does not draw the overlay.** The
   bundled bond tracks the active step and fires each step's `action` plus
   `onComplete`/`onCancel`; the highlight/tooltip UI is the consumer's to
   render from `getCurrentStep()` and the step's `target`/`title`/`content`.
   Don't expect `start()` alone to put anything on screen.
+- **Read the `overlay`/`showButtons` intent back off the instance.** Because
+  the provider draws nothing, `TourOptions.overlay`/`showButtons` are surfaced
+  for the consumer via `hasOverlay()`/`hasButtons()` (resolved: per-tour
+  option → provider default → `true`). Gate the backdrop and nav buttons your
+  render code paints on those accessors rather than re-deriving the flags.
 - The instance has NO change subscription — drive re-renders from the
   per-step `action` callbacks (or wrap `next`/`previous`), not by polling.
 - `target` is a CSS selector: prefer stable `[data-mol-id="…"]` selectors
@@ -257,6 +298,9 @@ RENDERS from `getCurrentStep()` — verify what's on screen, not just the calls:
   (the step is skipped or the tour ends) — it never crashes anchoring a tooltip
   to a null element (the bond keeps `target` as a plain string and never
   touches the DOM, so this guard lives in the app's render code).
-- [ ] While the tour is active with `overlay` on, the backdrop blocks
-  interaction outside the current step — clicks reach only the tour controls
-  and the highlighted target; ending the tour restores normal interaction.
+- [ ] While the tour is active with `overlay` on (i.e. `hasOverlay()` is
+  true), the backdrop blocks interaction outside the current step — clicks
+  reach only the tour controls and the highlighted target; ending the tour
+  restores normal interaction. A tour created with `overlay: false` reports
+  `hasOverlay() === false` and your render code paints no backdrop. Likewise
+  gate the nav buttons on `hasButtons()`.

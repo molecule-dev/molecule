@@ -26,9 +26,11 @@
  *   use safe-area insets for layout, not this value.
  * - `getState()` reflects what THIS provider last set (locally tracked), not values
  *   changed elsewhere (e.g. by a navigation library's own status-bar handling).
- * - `initialStyle`/`initialBackgroundColor` config only seed the tracked snapshot —
- *   they do not apply anything at startup; call `configure({ … })` once at launch to
- *   actually set the bar.
+ * - `initialStyle`/`initialBackgroundColor` config are applied to the native bar at
+ *   provider setup (best-effort, fire-and-forget): a configured `initialStyle` calls
+ *   `setBarStyle` on both platforms, and `initialBackgroundColor` calls
+ *   `setBackgroundColor` on Android only (the API is a no-op on iOS). Unset knobs are
+ *   left untouched, so the OS / navigation library keeps control of them.
  *
  * @module @molecule/app-status-bar-react-native
  */

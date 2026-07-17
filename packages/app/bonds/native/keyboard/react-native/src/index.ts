@@ -21,7 +21,6 @@
  *   this bond — resize is configured in AndroidManifest.xml / app.json, scroll
  *   via `KeyboardAvoidingView`. `getCapabilities()` reports all four `false`;
  *   feature-gate on it rather than assuming the calls did something.
- * - `ReactNativeKeyboardConfig.defaultScrollPadding` is currently INERT.
  * - Requires the `react-native` peer; it is imported lazily and a missing
  *   install surfaces as a descriptive error on first use.
  *
@@ -29,4 +28,3 @@
  */
 
 export * from './provider.js'
-export * from './types.js'

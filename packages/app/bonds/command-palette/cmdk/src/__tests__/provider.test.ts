@@ -233,6 +233,56 @@ describe('@molecule/app-command-palette-cmdk', () => {
     })
   })
 
+  describe('defaultFuzzyMatch config', () => {
+    // "svfl" is an in-order subsequence of "Save File" but NOT a substring,
+    // so it only matches when fuzzy matching is enabled.
+    const subsequenceQuery = 'svfl'
+
+    it('subsequence query matches when defaultFuzzyMatch defaults to true', () => {
+      const pal = provider.createPalette(createOptions())
+      pal.setQuery(subsequenceQuery)
+      const allCmds = pal.getFilteredGroups().flatMap((g) => g.commands)
+      expect(allCmds.some((c) => c.id === 'save')).toBe(true)
+    })
+
+    it('subsequence query matches when defaultFuzzyMatch is explicitly true', () => {
+      const p = createCmdkProvider({ defaultFuzzyMatch: true })
+      const pal = p.createPalette(createOptions())
+      pal.setQuery(subsequenceQuery)
+      const allCmds = pal.getFilteredGroups().flatMap((g) => g.commands)
+      expect(allCmds.some((c) => c.id === 'save')).toBe(true)
+    })
+
+    it('subsequence query is excluded when defaultFuzzyMatch is false', () => {
+      const p = createCmdkProvider({ defaultFuzzyMatch: false })
+      const pal = p.createPalette(createOptions())
+      pal.setQuery(subsequenceQuery)
+      const allCmds = pal.getFilteredGroups().flatMap((g) => g.commands)
+      // No command contains "svfl" as a substring, so with fuzzy disabled
+      // there are zero matches — proving the knob changes behavior.
+      expect(allCmds).toHaveLength(0)
+    })
+
+    it('exact substring matches still work when defaultFuzzyMatch is false', () => {
+      const p = createCmdkProvider({ defaultFuzzyMatch: false })
+      const pal = p.createPalette(createOptions())
+      pal.setQuery('Save') // exact substring of "Save File"
+      const allCmds = pal.getFilteredGroups().flatMap((g) => g.commands)
+      expect(allCmds).toHaveLength(1)
+      expect(allCmds[0].id).toBe('save')
+    })
+
+    it('a per-call custom filter still overrides defaultFuzzyMatch: false', () => {
+      const filter = vi.fn((_query: string, item: CommandItem) => (item.id === 'home' ? 1 : 0))
+      const p = createCmdkProvider({ defaultFuzzyMatch: false })
+      const pal = p.createPalette(createOptions({ filter }))
+      pal.setQuery('anything')
+      const allCmds = pal.getFilteredGroups().flatMap((g) => g.commands)
+      expect(allCmds).toHaveLength(1)
+      expect(allCmds[0].id).toBe('home')
+    })
+  })
+
   describe('page navigation', () => {
     it('starts at root page', () => {
       const pal = provider.createPalette(createOptions())

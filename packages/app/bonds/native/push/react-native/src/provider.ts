@@ -10,6 +10,7 @@ import type {
   DevicePushToken as ExpoDevicePushToken,
   Notification as ExpoNotification,
   NotificationResponse as ExpoNotificationResponse,
+  NotificationTriggerInput as ExpoNotificationTriggerInput,
   ScheduledNotification as ExpoScheduledNotification,
 } from 'expo-notifications'
 
@@ -86,6 +87,9 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
   // Raw NATIVE device push token (FCM/APNs) observed via `onTokenChange`. Tracked
   // separately so a device-token roll never clobbers the Expo token above.
   let currentDeviceToken: string | null = null
+  // Whether the configured Android channel has been created this session. Channel
+  // creation is idempotent but the native round-trip is avoided after the first.
+  let androidChannelEnsured = false
 
   /**
    * Resolves the runtime platform, falling back to 'android' when react-native
@@ -151,6 +155,37 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
     return token
   }
 
+  /**
+   * Creates (or updates) the configured Android notification channel via
+   * expo-notifications' `setNotificationChannelAsync`, wiring `androidChannelId`
+   * (the channel id) and `androidChannelName` (its display name). No-op on
+   * iOS/web — channels are Android-only — and when no `androidChannelId` is
+   * configured (expo's default channel is used). Android 8+ requires a channel
+   * for notifications to display; server push payloads and local notifications
+   * target it by id. Idempotent and run at most once per provider instance;
+   * failures are logged, never thrown, so channel setup can't break registration
+   * or scheduling.
+   * @param notifications - The loaded expo-notifications module.
+   * @param platform - The resolved runtime platform.
+   */
+  async function ensureAndroidChannel(
+    notifications: typeof import('expo-notifications'),
+    platform: 'ios' | 'android' | 'web',
+  ): Promise<void> {
+    if (platform !== 'android' || androidChannelEnsured) return
+    const channelId = config.androidChannelId
+    if (!channelId) return
+    try {
+      await notifications.setNotificationChannelAsync(channelId, {
+        name: config.androidChannelName ?? channelId,
+        importance: notifications.AndroidImportance.DEFAULT,
+      })
+      androidChannelEnsured = true
+    } catch (error) {
+      logger.warn('Failed to create Android notification channel', error)
+    }
+  }
+
   const provider: PushProvider = {
     async checkPermission(): Promise<PermissionStatus> {
       const Notifications = await getExpoNotifications()
@@ -170,6 +205,7 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
         getRuntimePlatform(),
       ])
       const token = await fetchExpoToken(Notifications, platform)
+      await ensureAndroidChannel(Notifications, platform)
       logger.debug('Push token registered', token.value)
       return token
     },
@@ -306,9 +342,29 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
     },
 
     async scheduleLocal(options: LocalNotificationOptions): Promise<string> {
-      const Notifications = await getExpoNotifications()
+      const [Notifications, platform] = await Promise.all([
+        getExpoNotifications(),
+        getRuntimePlatform(),
+      ])
 
-      const trigger = options.at ? { date: options.at } : null
+      // Ensure the configured Android channel exists before targeting it, so a
+      // local notification scheduled without a prior register() still renders on
+      // the right channel.
+      await ensureAndroidChannel(Notifications, platform)
+
+      // Android routes each notification through a channel: prefer the per-call
+      // `channelId`, then the provider-level `androidChannelId`. iOS/web have no
+      // channels, so leave the trigger untargeted there.
+      const channelId =
+        platform === 'android' ? (options.channelId ?? config.androidChannelId) : undefined
+
+      const trigger: ExpoNotificationTriggerInput = options.at
+        ? channelId
+          ? { date: options.at, channelId }
+          : { date: options.at }
+        : channelId
+          ? { channelId }
+          : null
 
       const id = await Notifications.scheduleNotificationAsync({
         content: {

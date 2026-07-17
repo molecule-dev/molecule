@@ -44,7 +44,6 @@ describe('@molecule/app-markdown', () => {
         sanitize: true,
         gfm: true,
         breaks: false,
-        syntaxHighlight: true,
         components: { a: 'custom-link' },
         linkTarget: '_blank',
       }

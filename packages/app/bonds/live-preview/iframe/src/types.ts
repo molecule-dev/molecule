@@ -14,8 +14,4 @@ export interface IframePreviewConfig {
   defaultUrl?: string
   /** Default device frame. */
   defaultDevice?: DeviceFrame
-  /** Auto-refresh on URL change. */
-  autoRefresh?: boolean
-  /** Delay in ms before auto-refresh. */
-  refreshDelay?: number
 }

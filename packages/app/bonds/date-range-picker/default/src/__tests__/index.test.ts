@@ -24,8 +24,31 @@ describe('@molecule/app-date-range-picker-default', () => {
     })
 
     it('should create a provider with custom config', () => {
-      const p = createProvider({ locale: 'de-DE' })
+      const p = createProvider({ singleDate: true })
       expect(p.name).toBe('default')
+    })
+
+    it('should apply config.singleDate as a provider-wide default', () => {
+      const p = createProvider({ singleDate: true })
+      const picker = p.createPicker({})
+      picker.setValue({
+        startDate: new Date('2025-03-10'),
+        endDate: new Date('2025-03-20'),
+      })
+      const value = picker.getValue()!
+      expect(value.startDate.getTime()).toBe(value.endDate.getTime())
+      expect(value.startDate.toISOString()).toBe(new Date('2025-03-10').toISOString())
+    })
+
+    it('per-call options.singleDate overrides the provider default', () => {
+      const p = createProvider({ singleDate: true })
+      const picker = p.createPicker({ singleDate: false })
+      picker.setValue({
+        startDate: new Date('2025-03-10'),
+        endDate: new Date('2025-03-20'),
+      })
+      const value = picker.getValue()!
+      expect(value.startDate.getTime()).not.toBe(value.endDate.getTime())
     })
   })
 
@@ -99,6 +122,117 @@ describe('@molecule/app-date-range-picker-default', () => {
       })
       picker.destroy()
       expect(picker.getValue()).toBeNull()
+    })
+  })
+
+  describe('minDate / maxDate clamping', () => {
+    const minDate = new Date('2025-01-10')
+    const maxDate = new Date('2025-01-20')
+
+    it('clamps a start date below minDate up to minDate', () => {
+      const picker = provider.createPicker({ minDate, maxDate })
+      picker.setValue({
+        startDate: new Date('2025-01-01'), // below min
+        endDate: new Date('2025-01-15'),
+      })
+      const value = picker.getValue()!
+      expect(value.startDate.getTime()).toBe(minDate.getTime())
+      expect(value.endDate.getTime()).toBe(new Date('2025-01-15').getTime())
+    })
+
+    it('clamps an end date above maxDate down to maxDate', () => {
+      const picker = provider.createPicker({ minDate, maxDate })
+      picker.setValue({
+        startDate: new Date('2025-01-15'),
+        endDate: new Date('2025-01-31'), // above max
+      })
+      const value = picker.getValue()!
+      expect(value.startDate.getTime()).toBe(new Date('2025-01-15').getTime())
+      expect(value.endDate.getTime()).toBe(maxDate.getTime())
+    })
+
+    it('clamps the initial value from options into range', () => {
+      const picker = provider.createPicker({
+        minDate,
+        maxDate,
+        startDate: new Date('2025-01-01'), // below min
+        endDate: new Date('2025-01-31'), // above max
+      })
+      const value = picker.getValue()!
+      expect(value.startDate.getTime()).toBe(minDate.getTime())
+      expect(value.endDate.getTime()).toBe(maxDate.getTime())
+    })
+
+    it('onChange reports the clamped range', () => {
+      const onChange = vi.fn()
+      const picker = provider.createPicker({ minDate, maxDate, onChange })
+      picker.setValue({
+        startDate: new Date('2025-01-01'),
+        endDate: new Date('2025-01-31'),
+      })
+      const reported = onChange.mock.calls[0][0]
+      expect(reported.startDate.getTime()).toBe(minDate.getTime())
+      expect(reported.endDate.getTime()).toBe(maxDate.getTime())
+    })
+
+    it('leaves an in-range selection untouched', () => {
+      const picker = provider.createPicker({ minDate, maxDate })
+      picker.setValue({
+        startDate: new Date('2025-01-12'),
+        endDate: new Date('2025-01-18'),
+      })
+      const value = picker.getValue()!
+      expect(value.startDate.getTime()).toBe(new Date('2025-01-12').getTime())
+      expect(value.endDate.getTime()).toBe(new Date('2025-01-18').getTime())
+    })
+  })
+
+  describe('singleDate mode', () => {
+    it('collapses a selection to a single-day range on one setValue', () => {
+      const picker = provider.createPicker({ singleDate: true })
+      picker.setValue({
+        startDate: new Date('2025-05-05'),
+        endDate: new Date('2025-05-25'),
+      })
+      const value = picker.getValue()!
+      expect(value.startDate.getTime()).toBe(value.endDate.getTime())
+      expect(value.startDate.toISOString()).toBe(new Date('2025-05-05').toISOString())
+    })
+
+    it('collapses the initial value when only startDate is given', () => {
+      const picker = provider.createPicker({
+        singleDate: true,
+        startDate: new Date('2025-05-05'),
+      })
+      const value = picker.getValue()!
+      expect(value.startDate.getTime()).toBe(value.endDate.getTime())
+      expect(value.startDate.toISOString()).toBe(new Date('2025-05-05').toISOString())
+    })
+
+    it('fires onChange with a same-day range', () => {
+      const onChange = vi.fn()
+      const picker = provider.createPicker({ singleDate: true, onChange })
+      picker.setValue({
+        startDate: new Date('2025-05-05'),
+        endDate: new Date('2025-05-25'),
+      })
+      const reported = onChange.mock.calls[0][0]
+      expect(reported.startDate.getTime()).toBe(reported.endDate.getTime())
+    })
+
+    it('clamps the single day into [minDate, maxDate]', () => {
+      const picker = provider.createPicker({
+        singleDate: true,
+        minDate: new Date('2025-05-10'),
+        maxDate: new Date('2025-05-20'),
+      })
+      picker.setValue({
+        startDate: new Date('2025-05-01'), // below min
+        endDate: new Date('2025-05-01'),
+      })
+      const value = picker.getValue()!
+      expect(value.startDate.getTime()).toBe(new Date('2025-05-10').getTime())
+      expect(value.endDate.getTime()).toBe(new Date('2025-05-10').getTime())
     })
   })
 })

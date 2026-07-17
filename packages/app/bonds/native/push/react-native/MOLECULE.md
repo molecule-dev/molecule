@@ -43,12 +43,19 @@ Configuration for the React Native push notifications provider.
 ```typescript
 interface ReactNativePushConfig {
   /**
-   * Android notification channel ID. (Reserved — not currently applied by the provider.)
+   * Android notification channel ID. On Android the provider creates (or updates)
+   * this channel via expo-notifications' `setNotificationChannelAsync` during
+   * `register()`, and targets it when scheduling local notifications (unless a
+   * per-notification `channelId` overrides it). Android 8+ requires a channel for
+   * notifications to display, and server push payloads target it by id. No-op on
+   * iOS/web; when omitted, expo's default channel is used.
    */
   androidChannelId?: string
 
   /**
-   * Android notification channel name. (Reserved — not currently applied by the provider.)
+   * Human-readable name shown for the Android channel in the system notification
+   * settings. Applied only when `androidChannelId` is set; defaults to the channel
+   * id when omitted. Ignored on iOS/web.
    */
   androidChannelName?: string
 
@@ -142,6 +149,11 @@ Peer dependencies:
 - With `handleForeground: true` (default), the global foreground-display handler
   is installed when `onNotificationReceived()` is first subscribed — subscribe
   early (app root) if foreground alerts should always show.
+- **Android notification channels:** set `androidChannelId` (and optionally
+  `androidChannelName`) and the provider creates that channel on Android via
+  `setNotificationChannelAsync` at `register()`, then targets it for local
+  notifications (a per-call `channelId` wins). Android 8+ needs a channel for
+  notifications to display; iOS/web ignore this.
 - **The Expo push token and the native device token are distinct.**
   `register()`/`getToken()` return the Expo push token; `onTokenChange` fires
   with a freshly re-fetched Expo push token (NOT the raw native FCM/APNs token

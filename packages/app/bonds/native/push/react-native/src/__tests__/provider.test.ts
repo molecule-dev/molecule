@@ -30,6 +30,7 @@ const {
   mockAddNotificationReceivedListener,
   mockAddNotificationResponseReceivedListener,
   mockAddPushTokenListener,
+  mockSetNotificationChannelAsync,
   mockScheduleNotificationAsync,
   mockCancelScheduledNotificationAsync,
   mockCancelAllScheduledNotificationsAsync,
@@ -39,6 +40,7 @@ const {
   mockDismissAllNotificationsAsync,
   mockSetBadgeCountAsync,
   mockGetBadgeCountAsync,
+  mockPlatform,
 } = vi.hoisted(() => ({
   mockGetPermissionsAsync: vi.fn().mockResolvedValue({ status: 'granted' }),
   mockRequestPermissionsAsync: vi.fn().mockResolvedValue({ status: 'granted' }),
@@ -48,6 +50,7 @@ const {
   mockAddNotificationReceivedListener: vi.fn().mockReturnValue({ remove: vi.fn() }),
   mockAddNotificationResponseReceivedListener: vi.fn().mockReturnValue({ remove: vi.fn() }),
   mockAddPushTokenListener: vi.fn().mockReturnValue({ remove: vi.fn() }),
+  mockSetNotificationChannelAsync: vi.fn().mockResolvedValue({ id: 'channel' }),
   mockScheduleNotificationAsync: vi.fn().mockResolvedValue('notif-id-1'),
   mockCancelScheduledNotificationAsync: vi.fn().mockResolvedValue(undefined),
   mockCancelAllScheduledNotificationsAsync: vi.fn().mockResolvedValue(undefined),
@@ -57,6 +60,7 @@ const {
   mockDismissAllNotificationsAsync: vi.fn().mockResolvedValue(undefined),
   mockSetBadgeCountAsync: vi.fn().mockResolvedValue(true),
   mockGetBadgeCountAsync: vi.fn().mockResolvedValue(0),
+  mockPlatform: { OS: 'ios' as 'ios' | 'android' | 'web' },
 }))
 
 vi.mock('expo-notifications', () => ({
@@ -68,6 +72,8 @@ vi.mock('expo-notifications', () => ({
   addNotificationReceivedListener: mockAddNotificationReceivedListener,
   addNotificationResponseReceivedListener: mockAddNotificationResponseReceivedListener,
   addPushTokenListener: mockAddPushTokenListener,
+  setNotificationChannelAsync: mockSetNotificationChannelAsync,
+  AndroidImportance: { UNKNOWN: 0, MIN: 1, LOW: 2, DEFAULT: 3, HIGH: 4, MAX: 5 },
   scheduleNotificationAsync: mockScheduleNotificationAsync,
   cancelScheduledNotificationAsync: mockCancelScheduledNotificationAsync,
   cancelAllScheduledNotificationsAsync: mockCancelAllScheduledNotificationsAsync,
@@ -86,7 +92,7 @@ vi.mock('expo-constants', () => ({
 }))
 
 vi.mock('react-native', () => ({
-  Platform: { OS: 'ios' },
+  Platform: mockPlatform,
 }))
 
 vi.mock('@molecule/app-push', () => ({}))
@@ -98,6 +104,8 @@ import { createReactNativePushProvider, provider } from '../provider.js'
 describe('@molecule/app-push-react-native', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Default every test to iOS; Android-specific tests opt in explicitly.
+    mockPlatform.OS = 'ios'
   })
 
   afterEach(() => {
@@ -440,6 +448,87 @@ describe('@molecule/app-push-react-native', () => {
             sound: true,
             badge: 3,
           },
+          trigger: null,
+        })
+      })
+    })
+
+    describe('Android notification channel', () => {
+      it('creates the configured channel on register (Android)', async () => {
+        mockPlatform.OS = 'android'
+        const androidProvider = createReactNativePushProvider({
+          androidChannelId: 'chat-messages',
+          androidChannelName: 'Chat Messages',
+        })
+        await androidProvider.register()
+        expect(mockSetNotificationChannelAsync).toHaveBeenCalledWith('chat-messages', {
+          name: 'Chat Messages',
+          importance: 3,
+        })
+      })
+
+      it('does NOT create a channel on iOS', async () => {
+        mockPlatform.OS = 'ios'
+        const iosProvider = createReactNativePushProvider({
+          androidChannelId: 'chat-messages',
+          androidChannelName: 'Chat Messages',
+        })
+        await iosProvider.register()
+        expect(mockSetNotificationChannelAsync).not.toHaveBeenCalled()
+      })
+
+      it('falls back to the channel id as the display name when androidChannelName is omitted', async () => {
+        mockPlatform.OS = 'android'
+        const androidProvider = createReactNativePushProvider({ androidChannelId: 'alerts' })
+        await androidProvider.register()
+        expect(mockSetNotificationChannelAsync).toHaveBeenCalledWith('alerts', {
+          name: 'alerts',
+          importance: 3,
+        })
+      })
+
+      it('does not create a channel when no androidChannelId is configured (Android)', async () => {
+        mockPlatform.OS = 'android'
+        const androidProvider = createReactNativePushProvider()
+        await androidProvider.register()
+        expect(mockSetNotificationChannelAsync).not.toHaveBeenCalled()
+      })
+
+      it('creates the channel only once across multiple register calls', async () => {
+        mockPlatform.OS = 'android'
+        const androidProvider = createReactNativePushProvider({ androidChannelId: 'once' })
+        await androidProvider.register()
+        await androidProvider.register()
+        expect(mockSetNotificationChannelAsync).toHaveBeenCalledTimes(1)
+      })
+
+      it('targets the configured channel when scheduling a local notification (Android)', async () => {
+        mockPlatform.OS = 'android'
+        const androidProvider = createReactNativePushProvider({ androidChannelId: 'reminders' })
+        await androidProvider.scheduleLocal({ title: 'Hi' })
+        expect(mockScheduleNotificationAsync).toHaveBeenCalledWith({
+          content: expect.objectContaining({ title: 'Hi' }),
+          trigger: { channelId: 'reminders' },
+        })
+      })
+
+      it('prefers the per-call channelId and keeps the date trigger (Android)', async () => {
+        mockPlatform.OS = 'android'
+        const when = new Date('2026-05-01T00:00:00Z')
+        const androidProvider = createReactNativePushProvider({ androidChannelId: 'default-ch' })
+        await androidProvider.scheduleLocal({ title: 'Later', at: when, channelId: 'urgent' })
+        expect(mockScheduleNotificationAsync).toHaveBeenCalledWith({
+          content: expect.objectContaining({ title: 'Later' }),
+          trigger: { date: when, channelId: 'urgent' },
+        })
+      })
+
+      it('does not attach a channel to the trigger on iOS', async () => {
+        mockPlatform.OS = 'ios'
+        const iosProvider = createReactNativePushProvider({ androidChannelId: 'ignored' })
+        await iosProvider.scheduleLocal({ title: 'Hi', channelId: 'also-ignored' })
+        expect(mockScheduleNotificationAsync).toHaveBeenCalledWith({
+          content: expect.objectContaining({ title: 'Hi' }),
           trigger: null,
         })
       })

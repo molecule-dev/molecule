@@ -37,11 +37,10 @@ describe('@molecule/app-timeline', () => {
     it('should compile TimelineOptions type', () => {
       const options: TimelineOptions = {
         items: [],
-        orientation: 'horizontal',
         alternate: true,
         onItemClick: () => {},
       }
-      expect(options.orientation).toBe('horizontal')
+      expect(options.alternate).toBe(true)
     })
 
     it('should compile TimelineInstance type', () => {

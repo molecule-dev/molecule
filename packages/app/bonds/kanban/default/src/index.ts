@@ -20,9 +20,12 @@
  *   `onUpdate` to re-render.
  * - `KanbanOptions.onCardMove` is required and fires on every `moveCard` —
  *   persist the move there.
- * - **`DefaultKanbanConfig.cloneCardData` is currently INERT** — the provider
- *   never reads it; card `data` is always returned by reference (columns/cards
- *   arrays are shallow-cloned). Do not rely on snapshot isolation of `data`.
+ * - **`DefaultKanbanConfig.cloneCardData`** controls snapshot isolation of card
+ *   `data`. Default `false` returns `data` by reference (columns/cards are
+ *   shallow-cloned) for performance. Set it `true` to deep-clone each card's
+ *   `data` (via `structuredClone`) in every returned snapshot
+ *   (`getColumns`/`getColumn`/`findCard`/`getState`/`onUpdate`), so callers can
+ *   mutate returned data without touching board state.
  * - `destroy()` clears the board and detaches all subscribers; instances are
  *   independent (`createBoard` per board).
  *

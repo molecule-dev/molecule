@@ -29,8 +29,11 @@
  * - **Wire with THIS package's `setProvider()` or `bond('date-range-picker', …)`** —
  *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so both
  *   write the same slot; `requireProvider()` throws until one has run.
- * - Format displayed dates with the i18n layer (`formatDate` from
- *   `@molecule/app-i18n`), never `toLocaleDateString` with a hardcoded locale.
+ * - **There is no `locale` option** — the instance is a pure value store of
+ *   `Date` objects and emits no formatted/labelled output, so a locale knob here
+ *   would be inert. Format displayed dates in your rendering layer with the i18n
+ *   layer (`formatDate` from `@molecule/app-i18n`), never `toLocaleDateString`
+ *   with a hardcoded locale.
  * - Send API-bound dates as ISO strings; the server must re-validate the range
  *   (order, bounds) — client clamping via `minDate`/`maxDate` is UX, not a boundary.
  *

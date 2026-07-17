@@ -3,7 +3,7 @@
 Markdown rendering core interface for molecule.dev.
 
 Provides a standardized API for rendering markdown content into HTML,
-with support for GFM, syntax highlighting, and table of contents extraction.
+with support for GFM and table of contents extraction.
 Bond a provider (e.g. `@molecule/app-markdown-react-markdown`) to supply
 the concrete implementation.
 
@@ -24,7 +24,7 @@ console.log(result.html) // sanitized HTML string
 
 ## Installation
 ```bash
-npm install @molecule/app-markdown
+npm install @molecule/app-markdown @molecule/app-bond
 ```
 
 ## API
@@ -45,9 +45,6 @@ interface MarkdownOptions {
 
   /** Whether to convert line breaks to `<br>` elements. Defaults to `false`. */
   breaks?: boolean
-
-  /** Whether to enable syntax highlighting for code blocks. Defaults to `false`. */
-  syntaxHighlight?: boolean
 
   /** Custom component overrides keyed by HTML element name. */
   components?: Record<string, unknown>
@@ -166,6 +163,10 @@ function setProvider(provider: MarkdownProvider): void
 Peer dependencies:
 - `@molecule/app-bond` ^1.0.0
 
+### Runtime Dependencies
+
+- `@molecule/app-bond`
+
 - **Wire a bond at startup** — {@link requireProvider} throws until
   `setProvider(provider)` has been called.
 - **`sanitize` defaults to `true` and is the XSS gate.** The result is an
@@ -173,8 +174,10 @@ Peer dependencies:
   only safe because it was sanitized. NEVER pass `sanitize: false` for
   user-supplied or model-generated markdown (chat replies, comments, notes);
   reserve it for fully trusted, app-authored content.
-- Options are per-call (`gfm`, `breaks`, `syntaxHighlight`, `linkTarget`);
-  `result.toc` carries extracted headings when the provider supports it.
+- Options are per-call (`gfm`, `breaks`, `linkTarget`); `result.toc` carries
+  extracted headings when the provider supports it. Syntax highlighting is a
+  provider concern — e.g. the react-markdown bond wires a rehype highlighter
+  via its `rehypePlugins` config rather than a generic option.
 
 ## E2E Tests
 
@@ -188,8 +191,7 @@ by one. A box you can't check is an integration bug to fix — not a skip:
   block a `<pre><code>` — not the raw `*`/backticks shown as literal text.
 - [ ] GFM extras render when enabled (`gfm`, default on): a pipe table
   `| a | b |` becomes a real `<table>` with header + rows, and `![alt](src)`
-  an `<img>`. With `syntaxHighlight` on, code tokens are colorized, not one
-  flat monochrome block.
+  an `<img>`.
 - [ ] The output tracks the source: editing the markdown updates the preview
   live — change a heading's text and its `<h#>` updates; add a list item and
   a new `<li>` appears. No stale or one-shot render.

@@ -9,12 +9,19 @@
  */
 export interface ReactNativePushConfig {
   /**
-   * Android notification channel ID. (Reserved — not currently applied by the provider.)
+   * Android notification channel ID. On Android the provider creates (or updates)
+   * this channel via expo-notifications' `setNotificationChannelAsync` during
+   * `register()`, and targets it when scheduling local notifications (unless a
+   * per-notification `channelId` overrides it). Android 8+ requires a channel for
+   * notifications to display, and server push payloads target it by id. No-op on
+   * iOS/web; when omitted, expo's default channel is used.
    */
   androidChannelId?: string
 
   /**
-   * Android notification channel name. (Reserved — not currently applied by the provider.)
+   * Human-readable name shown for the Android channel in the system notification
+   * settings. Applied only when `androidChannelId` is set; defaults to the channel
+   * id when omitted. Ignored on iOS/web.
    */
   androidChannelName?: string
 

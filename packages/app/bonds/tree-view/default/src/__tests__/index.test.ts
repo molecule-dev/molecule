@@ -160,4 +160,129 @@ describe('@molecule/app-tree-view-default', () => {
       expect(selected[0].id).toBe('grandchild-1')
     })
   })
+
+  describe('checkboxes (showCheckboxes)', () => {
+    it('should check and uncheck a node when showCheckboxes is enabled', () => {
+      const tree = provider.createTree({ data: sampleData, showCheckboxes: true })
+      tree.toggleChecked('child-1')
+      let checked = tree.getCheckedNodes()
+      expect(checked).toHaveLength(1)
+      expect(checked[0].id).toBe('child-1')
+      // Toggling again clears it.
+      tree.toggleChecked('child-1')
+      checked = tree.getCheckedNodes()
+      expect(checked).toHaveLength(0)
+    })
+
+    it('should reflect checked state in getData when enabled', () => {
+      const tree = provider.createTree({ data: sampleData, showCheckboxes: true })
+      tree.toggleChecked('root')
+      expect(tree.getData()[0].checked).toBe(true)
+    })
+
+    it('should allow multiple independent checked nodes when enabled', () => {
+      const tree = provider.createTree({ data: sampleData, showCheckboxes: true })
+      tree.toggleChecked('child-1')
+      tree.toggleChecked('grandchild-1')
+      const checked = tree.getCheckedNodes()
+      expect(checked.map((n) => n.id).sort()).toEqual(['child-1', 'grandchild-1'])
+    })
+
+    it('should keep checked state independent of selection', () => {
+      const tree = provider.createTree({ data: sampleData, showCheckboxes: true })
+      tree.selectNode('child-1')
+      tree.toggleChecked('child-2')
+      expect(tree.getSelectedNodes().map((n) => n.id)).toEqual(['child-1'])
+      expect(tree.getCheckedNodes().map((n) => n.id)).toEqual(['child-2'])
+    })
+
+    it('should be a no-op when showCheckboxes is disabled', () => {
+      const tree = provider.createTree({ data: sampleData })
+      tree.toggleChecked('child-1')
+      expect(tree.getCheckedNodes()).toHaveLength(0)
+      expect(tree.getData()[0].children![0].checked).toBeFalsy()
+    })
+
+    it('should not check disabled nodes even when enabled', () => {
+      const tree = provider.createTree({
+        data: [{ id: 'disabled', label: 'Disabled', disabled: true }],
+        showCheckboxes: true,
+      })
+      tree.toggleChecked('disabled')
+      expect(tree.getCheckedNodes()).toHaveLength(0)
+    })
+  })
+
+  describe('drag and drop (draggable / onDrop)', () => {
+    it('should reorder a node as a sibling and fire onDrop when draggable', () => {
+      const onDrop = vi.fn()
+      const tree = provider.createTree({ data: sampleData, draggable: true, onDrop })
+      // Move child-1 to after child-2 within the root's children.
+      const moved = tree.moveNode('child-1', 'child-2', 'after')
+      expect(moved).toBe(true)
+      expect(onDrop).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'child-1' }),
+        expect.objectContaining({ id: 'child-2' }),
+        'after',
+      )
+      const rootChildren = tree.getData()[0].children!
+      expect(rootChildren.map((n) => n.id)).toEqual(['child-2', 'child-1'])
+    })
+
+    it('should reparent a node inside a target when draggable', () => {
+      const onDrop = vi.fn()
+      const tree = provider.createTree({ data: sampleData, draggable: true, onDrop })
+      const moved = tree.moveNode('child-1', 'child-2', 'inside')
+      expect(moved).toBe(true)
+      const data = tree.getData()
+      const rootChildren = data[0].children!
+      // child-1 is no longer a direct child of root.
+      expect(rootChildren.map((n) => n.id)).toEqual(['child-2'])
+      // child-1 now nested under child-2 alongside its existing grandchild.
+      expect(rootChildren[0].children!.map((n) => n.id).sort()).toEqual(['child-1', 'grandchild-1'])
+      expect(onDrop).toHaveBeenCalledOnce()
+    })
+
+    it('should move a node up to root level with position before', () => {
+      const onDrop = vi.fn()
+      const tree = provider.createTree({ data: sampleData, draggable: true, onDrop })
+      const moved = tree.moveNode('grandchild-1', 'root', 'before')
+      expect(moved).toBe(true)
+      expect(tree.getData().map((n) => n.id)).toEqual(['grandchild-1', 'root'])
+    })
+
+    it('should not move or fire onDrop when draggable is disabled', () => {
+      const onDrop = vi.fn()
+      const tree = provider.createTree({ data: sampleData, onDrop })
+      const moved = tree.moveNode('child-1', 'child-2', 'after')
+      expect(moved).toBe(false)
+      expect(onDrop).not.toHaveBeenCalled()
+      // Tree order unchanged.
+      expect(tree.getData()[0].children!.map((n) => n.id)).toEqual(['child-1', 'child-2'])
+    })
+
+    it('should reject moving a node onto itself', () => {
+      const onDrop = vi.fn()
+      const tree = provider.createTree({ data: sampleData, draggable: true, onDrop })
+      expect(tree.moveNode('child-1', 'child-1', 'after')).toBe(false)
+      expect(onDrop).not.toHaveBeenCalled()
+    })
+
+    it('should reject moving a node into its own descendant', () => {
+      const onDrop = vi.fn()
+      const tree = provider.createTree({ data: sampleData, draggable: true, onDrop })
+      // child-2 contains grandchild-1; moving child-2 inside grandchild-1 must reject.
+      expect(tree.moveNode('child-2', 'grandchild-1', 'inside')).toBe(false)
+      expect(onDrop).not.toHaveBeenCalled()
+      // Tree structure preserved.
+      expect(tree.getData()[0].children!.map((n) => n.id)).toEqual(['child-1', 'child-2'])
+    })
+
+    it('should reject a move to an unknown target', () => {
+      const onDrop = vi.fn()
+      const tree = provider.createTree({ data: sampleData, draggable: true, onDrop })
+      expect(tree.moveNode('child-1', 'nope', 'after')).toBe(false)
+      expect(onDrop).not.toHaveBeenCalled()
+    })
+  })
 })

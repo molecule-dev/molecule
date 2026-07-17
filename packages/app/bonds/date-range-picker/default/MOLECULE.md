@@ -30,24 +30,33 @@ npm install @molecule/app-date-range-picker-default @molecule/app-date-range-pic
 
 Provider-specific configuration options.
 
+There is intentionally no `locale` field: this default provider is a pure
+value store of `Date` objects and produces no formatted/labelled output, so a
+locale knob would be inert. Format displayed dates in your rendering layer via
+`@molecule/app-i18n`.
+
 ```typescript
 interface DefaultDateRangeConfig {
-  /** Default locale for date formatting. Defaults to `'en-US'`. */
-  locale?: string
+  /**
+   * Provider-wide default for single-date mode. When `true`, every picker that
+   * does not pass its own `options.singleDate` collapses a selection to a
+   * single-day range (`startDate === endDate`). Defaults to `false`.
+   */
+  singleDate?: boolean
 }
 ```
 
 ### Functions
 
-#### `createProvider(_config)`
+#### `createProvider(config)`
 
 Creates a default date range picker provider.
 
 ```typescript
-function createProvider(_config?: DefaultDateRangeConfig): DateRangePickerProvider
+function createProvider(config?: DefaultDateRangeConfig): DateRangePickerProvider
 ```
 
-- `_config` — Optional provider configuration.
+- `config` — Optional provider configuration. `config.singleDate` supplies
 
 **Returns:** A configured DateRangePickerProvider.
 
@@ -88,13 +97,22 @@ Peer dependencies:
 
 - `@molecule/app-date-range-picker`
 
-This default instance is a plain range store: it does NOT validate or
-clamp — `minDate`/`maxDate` are carried for YOUR UI to enforce, inverted
-ranges (start after end) are stored as-is, and `singleDate` mode is not
-implemented. `clear()` resets the value WITHOUT firing `onChange` (only
-`setValue()` notifies) — trigger your own refresh after clearing. The
-`createProvider({ locale })` config knob is currently ignored; format
-dates with `@molecule/app-i18n` in your rendering layer.
+This default instance is an in-memory range store that honors its options:
+- `minDate`/`maxDate` **clamp** every stored selection (initial value and
+  `setValue`) into range — a start below `minDate` becomes `minDate`, an end
+  above `maxDate` becomes `maxDate`. This is client UX, not a security
+  boundary; re-validate ranges on the server.
+- `singleDate: true` collapses a selection to a single-day range
+  (`startDate === endDate` = the picked day) on one `setValue`; no second
+  click. `createProvider({ singleDate: true })` sets this as a provider-wide
+  default that per-call `options.singleDate` overrides.
+- Inverted ranges (start after end) in range mode are stored as-is — swap or
+  block them in your UI if needed.
+- `clear()` resets the value WITHOUT firing `onChange` (only `setValue()`
+  notifies) — trigger your own refresh after clearing.
+- There is **no `locale` knob** (removed as inert): this store emits no
+  formatted output, so format dates with `@molecule/app-i18n` in your
+  rendering layer.
 
 ## E2E Tests
 

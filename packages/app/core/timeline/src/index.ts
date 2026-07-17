@@ -14,7 +14,6 @@
  *
  * const timeline = requireProvider().createTimeline({
  *   items: [{ id: '1', date: new Date(), title: 'Created project' }],
- *   orientation: 'vertical',
  * })
  * timeline.addItem({ id: '2', date: new Date(), title: 'Invited teammate' })
  * ```
@@ -44,9 +43,8 @@
  * - [ ] Each rendered entry shows its real data: the locale-formatted `date`
  *   (never a raw `Date` string), the `title`, and — when set — the
  *   `description`, `icon`, and dot/marker `color`.
- * - [ ] Orientation matches config: `orientation: 'vertical'` stacks entries
- *   top-to-bottom, `'horizontal'` lays them left-to-right; with `alternate` on
- *   (vertical only) consecutive entries sit on opposite sides.
+ * - [ ] With `alternate` on, consecutive entries sit on opposite sides of the
+ *   rail; with it off, every entry sits on the same side.
  * - [ ] Clicking an entry fires `onItemClick` with THAT item — the wired action
  *   (navigate/expand/select) happens for the clicked entry, not a neighbour.
  * - [ ] If the app groups entries (by day or type), each entry sits under the
