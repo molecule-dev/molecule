@@ -11,12 +11,22 @@
  * an L2 isolation control; pair it with host-layer default-deny egress filtering (operator-
  * provisioned) for full isolation. [C1-1]
  *
- * **Prerequisites.** A Docker daemon reachable at `DOCKER_SOCKET_PATH`
- * (default `/var/run/docker.sock`) — remote TCP daemons are not supported —
- * and the base image (default `node:22-slim`, or `config.baseImage`) already
- * pulled on the host: the provider never pulls images, so `create()` fails
- * with a no-such-image error otherwise. The isolated sandbox network is
- * auto-created on first use; it is NOT a prerequisite.
+ * **Prerequisites.** A reachable Docker daemon and the base image already pulled
+ * on the host. The daemon is reached over a unix socket by default
+ * (`config.socketPath` ?? `DOCKER_SOCKET_PATH` ?? `/var/run/docker.sock`); a
+ * remote or rootless daemon can be selected with `config.host`/`config.port` or a
+ * `DOCKER_HOST` (`tcp://host:port` or `unix:///path`). Only PLAIN (unencrypted)
+ * TCP is supported — front a TLS-protected daemon (2376) with a local socket
+ * proxy. The provider never pulls images, so `create()` fails with a no-such-image
+ * error if the base image (default `node:22-slim`, or `config.baseImage`) is
+ * absent. The isolated sandbox network is auto-created on first use; it is NOT a
+ * prerequisite.
+ *
+ * **No per-sandbox disk quota.** The Docker API cannot portably cap a
+ * container/volume size (it needs specific storage drivers — e.g. overlay2 on xfs
+ * with `pquota` — and errors on the common overlay2/ext4 host), so this provider
+ * enforces none. The core `resources.diskMB` is accepted but not applied here; cap
+ * disk at the host / volume level instead.
  *
  * @module
  */

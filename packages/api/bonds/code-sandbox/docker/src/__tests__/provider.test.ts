@@ -14,6 +14,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { SandboxConfig } from '@molecule/api-code-sandbox'
 
+import type { DockerConfig } from '../types.js'
+
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
 const mockLogger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), trace: vi.fn() }
@@ -1554,5 +1556,203 @@ describe('readDir — missing directories throw, never read as empty', () => {
       { name: 'file.ts', type: 'file', size: 42 },
       { name: 'sub', type: 'directory', size: undefined },
     ])
+  })
+})
+
+// ─── config.network — the sandbox network is a first-class, wired knob ────────
+
+describe('config.network — wired to NetworkMode and the ensured network', () => {
+  /**
+   * `createProvider({ network })` used to silently no-op — the network was read
+   * exclusively from `SANDBOX_DOCKER_NETWORK`. It is now wired: it sets each
+   * container's `NetworkMode` AND names the ICC-off network ensured on first
+   * create, and it takes precedence over the env var (explicit config wins).
+   */
+  it('sets NetworkMode AND the ensured /networks/create name, overriding the env var', async () => {
+    const prev = process.env.SANDBOX_DOCKER_NETWORK
+    // Env is deliberately different so we prove config.network WINS (not the env).
+    process.env.SANDBOX_DOCKER_NETWORK = 'env-should-lose'
+    try {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock', network: 'tenant-net-42' })
+
+      enqueueNetworkCreate()
+      enqueueJson(201, { Id: 'container-cfgnet' })
+      await provider.create({ projectId: 'proj-cfgnet' })
+
+      // The container attaches to config.network...
+      const body = JSON.parse(containerCreateCall().body!)
+      const hostConfig = body.HostConfig as Record<string, unknown>
+      expect(hostConfig.NetworkMode).toBe('tenant-net-42')
+
+      // ...and the ICC-off network ensured up front is the SAME config.network.
+      const netBody = JSON.parse(findCall('/networks/create').body!)
+      expect(netBody.Name).toBe('tenant-net-42')
+      expect(netBody.Options['com.docker.network.bridge.enable_icc']).toBe('false')
+    } finally {
+      if (prev === undefined) delete process.env.SANDBOX_DOCKER_NETWORK
+      else process.env.SANDBOX_DOCKER_NETWORK = prev
+    }
+  })
+
+  it('falls back to SANDBOX_DOCKER_NETWORK when config.network is unset (unchanged behavior)', async () => {
+    const prev = process.env.SANDBOX_DOCKER_NETWORK
+    process.env.SANDBOX_DOCKER_NETWORK = 'env-net-only'
+    try {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+
+      enqueueNetworkCreate()
+      enqueueJson(201, { Id: 'container-envnet' })
+      await provider.create({ projectId: 'proj-envnet' })
+
+      const hostConfig = JSON.parse(containerCreateCall().body!).HostConfig as Record<
+        string,
+        unknown
+      >
+      expect(hostConfig.NetworkMode).toBe('env-net-only')
+    } finally {
+      if (prev === undefined) delete process.env.SANDBOX_DOCKER_NETWORK
+      else process.env.SANDBOX_DOCKER_NETWORK = prev
+    }
+  })
+
+  it('config.network="bridge" is refused in production (C1-1), like the env var', async () => {
+    const prevNet = process.env.SANDBOX_DOCKER_NETWORK
+    const prevNodeEnv = process.env.NODE_ENV
+    delete process.env.SANDBOX_DOCKER_NETWORK
+    process.env.NODE_ENV = 'production'
+    try {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock', network: 'bridge' })
+      await expect(provider.create({ projectId: 'proj-bridge' })).rejects.toThrow(
+        /"bridge" is forbidden in production/,
+      )
+    } finally {
+      if (prevNet === undefined) delete process.env.SANDBOX_DOCKER_NETWORK
+      else process.env.SANDBOX_DOCKER_NETWORK = prevNet
+      if (prevNodeEnv === undefined) delete process.env.NODE_ENV
+      else process.env.NODE_ENV = prevNodeEnv
+    }
+  })
+})
+
+// ─── Daemon endpoint selection — unix socket vs TCP (config.host/port, DOCKER_HOST) ──
+
+describe('daemon endpoint selection (socket vs TCP)', () => {
+  /**
+   * `config.host`/`config.port` and `DOCKER_HOST` used to be documented but dead —
+   * the provider always connected via `socketPath`. They are now wired into every
+   * Docker Engine API request's transport (Node `http.request` uses `socketPath`,
+   * else `host`/`port`). We prove it by inspecting the recorded request options.
+   */
+  async function optsForCreate(config: DockerConfig): Promise<http.RequestOptions> {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider(config)
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-endpoint' })
+    await provider.create({ projectId: 'proj-endpoint' })
+    return containerCreateCall().opts
+  }
+
+  it('config.host/port routes API calls over TCP, not the socket', async () => {
+    const opts = await optsForCreate({ host: '10.0.0.5', port: 4321 })
+    expect(opts.host).toBe('10.0.0.5')
+    expect(opts.port).toBe(4321)
+    expect(opts.socketPath).toBeUndefined()
+  })
+
+  it('config.host with no port defaults to 2375', async () => {
+    const opts = await optsForCreate({ host: 'docker-host' })
+    expect(opts.host).toBe('docker-host')
+    expect(opts.port).toBe(2375)
+    expect(opts.socketPath).toBeUndefined()
+  })
+
+  it('honors DOCKER_HOST=tcp://host:port for the daemon endpoint', async () => {
+    const prev = process.env.DOCKER_HOST
+    process.env.DOCKER_HOST = 'tcp://192.168.1.9:2375'
+    try {
+      const opts = await optsForCreate({})
+      expect(opts.host).toBe('192.168.1.9')
+      expect(opts.port).toBe(2375)
+      expect(opts.socketPath).toBeUndefined()
+    } finally {
+      if (prev === undefined) delete process.env.DOCKER_HOST
+      else process.env.DOCKER_HOST = prev
+    }
+  })
+
+  it('honors DOCKER_HOST=unix:///path for a non-default socket', async () => {
+    const prev = process.env.DOCKER_HOST
+    process.env.DOCKER_HOST = 'unix:///var/run/custom.sock'
+    try {
+      const opts = await optsForCreate({})
+      expect(opts.socketPath).toBe('/var/run/custom.sock')
+      expect(opts.host).toBeUndefined()
+      expect(opts.port).toBeUndefined()
+    } finally {
+      if (prev === undefined) delete process.env.DOCKER_HOST
+      else process.env.DOCKER_HOST = prev
+    }
+  })
+
+  it('explicit config.socketPath beats a DOCKER_HOST env (explicit config wins)', async () => {
+    const prev = process.env.DOCKER_HOST
+    process.env.DOCKER_HOST = 'tcp://should-not-be-used:2375'
+    try {
+      const opts = await optsForCreate({ socketPath: '/explicit.sock' })
+      expect(opts.socketPath).toBe('/explicit.sock')
+      expect(opts.host).toBeUndefined()
+    } finally {
+      if (prev === undefined) delete process.env.DOCKER_HOST
+      else process.env.DOCKER_HOST = prev
+    }
+  })
+
+  it('the TCP endpoint is applied to exec (dockerApiRaw) calls too, not just create', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ host: '10.0.0.9', port: 2375 })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-tcpexec' })
+    const sandbox = await provider.create({ projectId: 'proj-tcpexec' })
+
+    enqueueJson(200, { Id: 'exec-tcp' }) // exec create
+    enqueueResponse(200, Buffer.alloc(0)) // exec start (dockerApiRaw)
+    enqueueJson(200, { ExitCode: 0 }) // exec inspect
+    await sandbox.exec('ls')
+
+    // The raw exec-start call (dockerApiRaw) must use the same TCP endpoint.
+    const startOpts = findCall('/start').opts
+    expect(startOpts.host).toBe('10.0.0.9')
+    expect(startOpts.port).toBe(2375)
+    expect(startOpts.socketPath).toBeUndefined()
+  })
+})
+
+// ─── defaultDiskMB removed — the provider applies NO disk quota (documented) ──
+
+describe('no per-sandbox disk quota is applied', () => {
+  /**
+   * `defaultDiskMB` was removed from DockerConfig (its removal is enforced by the
+   * `tsc` build): Docker cannot portably cap container/volume size, so the provider
+   * enforces none. This guards the behavioral truth — no disk-limiting key is ever
+   * written to HostConfig, even when the core `resources.diskMB` is supplied.
+   */
+  it('writes no StorageOpt/DiskQuota to HostConfig even when resources.diskMB is set', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-disk' })
+    await provider.create({
+      projectId: 'proj-disk',
+      resources: { cpu: 1, memoryMB: 512, diskMB: 2048 },
+    })
+
+    const hostConfig = JSON.parse(containerCreateCall().body!).HostConfig as Record<string, unknown>
+    expect(hostConfig.StorageOpt).toBeUndefined()
+    expect(hostConfig.DiskQuota).toBeUndefined()
   })
 })

@@ -47,11 +47,67 @@ const LABEL_PREFIX = 'molecule-sandbox'
  * a cross-tenant info-disclosure gap for any multi-tenant app that runs untrusted code in these
  * sandboxes. We default to a dedicated user-defined network created with ICC DISABLED
  * (`com.docker.network.bridge.enable_icc=false`) so each tenant is isolated at L2 out of the
- * box. Operators can override with `SANDBOX_DOCKER_NETWORK`; setting it to `bridge` is refused
- * in production (see {@link DockerSandboxProvider.ensureSandboxNetwork}). Host-layer
- * default-deny egress filtering remains a separate, operator-provisioned control.
+ * box. Operators can override with `config.network` or `SANDBOX_DOCKER_NETWORK`; setting it to
+ * `bridge` is refused in production (see {@link DockerSandboxProvider.ensureSandboxNetwork}).
+ * Host-layer default-deny egress filtering remains a separate, operator-provisioned control.
  */
 const DEFAULT_SANDBOX_NETWORK = 'molecule-sandbox'
+
+/** Default Docker daemon TCP port for a plain (unencrypted) `tcp://` endpoint. */
+const DEFAULT_DOCKER_TCP_PORT = 2375
+
+/**
+ * A resolved Docker daemon endpoint — either a local unix socket or a TCP
+ * host:port. Spread directly into `http.RequestOptions` at every call site
+ * (Node's `http.request` honors `socketPath`, else `host`/`port`).
+ */
+type DockerEndpoint = { socketPath: string } | { host: string; port: number }
+
+/**
+ * Parse a `DOCKER_HOST`-style value into an endpoint, honoring the docker-client
+ * conventions: `unix:///path/to/docker.sock` selects a socket; `tcp://host:port`
+ * (or bare `http://host:port`) selects a plain-TCP endpoint (port defaults to
+ * {@link DEFAULT_DOCKER_TCP_PORT}). Unknown schemes (e.g. Windows `npipe://`)
+ * return `null` so the caller falls back to the unix socket.
+ *
+ * TLS-protected daemons (`tcp://…:2376`, `DOCKER_TLS_VERIFY=1`) are NOT handled —
+ * the transport is plain HTTP; front such a daemon with a local socket proxy.
+ * @param value - the raw `DOCKER_HOST` value (or any endpoint string).
+ * @returns the parsed endpoint, or `null` if it does not name a supported endpoint.
+ */
+function parseDockerHost(value: string | undefined): DockerEndpoint | null {
+  const raw = value?.trim()
+  if (!raw) return null
+  if (raw.startsWith('unix://')) {
+    return { socketPath: raw.slice('unix://'.length) || '/var/run/docker.sock' }
+  }
+  const tcp = /^(?:tcp|http):\/\/([^/:]+)(?::(\d+))?/.exec(raw)
+  if (tcp) return { host: tcp[1], port: tcp[2] ? Number(tcp[2]) : DEFAULT_DOCKER_TCP_PORT }
+  return null
+}
+
+/**
+ * Resolve which Docker daemon endpoint the provider connects to. Explicit config
+ * beats env; precedence:
+ * 1. `config.host`/`config.port` → plain-TCP endpoint (host defaults to
+ *    `127.0.0.1`, port to {@link DEFAULT_DOCKER_TCP_PORT});
+ * 2. `config.socketPath` → that unix socket;
+ * 3. `DOCKER_HOST` env (`tcp://` or `unix://`, the docker-client convention);
+ * 4. `DOCKER_SOCKET_PATH` env, else `/var/run/docker.sock` (the default transport).
+ * @param config - the provider configuration.
+ * @returns the resolved endpoint to spread into every Docker API request.
+ */
+function resolveDockerEndpoint(config: DockerConfig): DockerEndpoint {
+  if (config.host !== undefined || config.port !== undefined) {
+    return { host: config.host ?? '127.0.0.1', port: config.port ?? DEFAULT_DOCKER_TCP_PORT }
+  }
+  if (config.socketPath !== undefined) {
+    return { socketPath: config.socketPath }
+  }
+  const fromEnv = parseDockerHost(process.env.DOCKER_HOST)
+  if (fromEnv) return fromEnv
+  return { socketPath: process.env.DOCKER_SOCKET_PATH ?? '/var/run/docker.sock' }
+}
 
 /**
  * Parses Docker's multiplexed binary stream from a raw socket.
@@ -179,51 +235,71 @@ export async function withTransientRetry<T>(
 /**
  * Docker-based implementation of `SandboxProvider`. Each sandbox runs as an isolated
  * Docker container with configurable CPU/memory limits. Communicates with the Docker
- * Engine API over a Unix socket.
+ * Engine API over a Unix socket by default, or a plain-TCP endpoint when one is
+ * selected via `config.host`/`config.port` or a `DOCKER_HOST` env var.
  */
 class DockerSandboxProvider implements SandboxProvider {
   readonly name = 'docker'
-  private socketPath: string
+  /** Resolved daemon endpoint (unix socket or TCP host:port); see {@link resolveDockerEndpoint}. */
+  private endpoint: DockerEndpoint
   private baseImage: string
   private labelPrefix: string
   private previewUrlTemplate: string
   private defaultCpu: number
   private defaultMemoryMB: number
+  /**
+   * Explicit network from `config.network`, if any. Takes precedence over the
+   * `SANDBOX_DOCKER_NETWORK` env var — which is still read at create time when
+   * this is unset, so operators can set it after construction. See {@link resolveNetwork}.
+   */
+  private configNetwork?: string
   /** [C1-1] Memoize the one-time ICC-off network ensure so create() pays it only once. */
   private networkEnsured = false
 
   constructor(config: DockerConfig = {}) {
-    this.socketPath = config.socketPath ?? process.env.DOCKER_SOCKET_PATH ?? '/var/run/docker.sock'
+    this.endpoint = resolveDockerEndpoint(config)
     this.baseImage = config.baseImage ?? DEFAULT_IMAGE
     this.labelPrefix = config.labelPrefix ?? LABEL_PREFIX
     this.previewUrlTemplate = config.previewUrlTemplate ?? 'http://localhost:{port}'
     this.defaultCpu = config.defaultCpu ?? 1
     this.defaultMemoryMB = config.defaultMemoryMB ?? 1024
+    this.configNetwork = config.network
+  }
+
+  /**
+   * Resolve the Docker network to attach containers to. Precedence:
+   * `config.network` (captured at construction) → `SANDBOX_DOCKER_NETWORK` env
+   * (read here, at create time) → {@link DEFAULT_SANDBOX_NETWORK}.
+   * @returns the network name for the container's `NetworkMode`.
+   */
+  private resolveNetwork(): string {
+    return this.configNetwork ?? process.env.SANDBOX_DOCKER_NETWORK ?? DEFAULT_SANDBOX_NETWORK
   }
 
   /**
    * [C1-1] Idempotently ensure the sandbox network exists with inter-container communication
    * DISABLED, so tenants can't reach each other's containers over a shared bridge. Resolves the
-   * network from `SANDBOX_DOCKER_NETWORK` (default {@link DEFAULT_SANDBOX_NETWORK}). The shared
+   * network via {@link resolveNetwork} (`config.network` → `SANDBOX_DOCKER_NETWORK` →
+   * {@link DEFAULT_SANDBOX_NETWORK}). The shared
    * `bridge` has ICC enabled and gives NO isolation, so it is refused in production and only
    * warned about elsewhere. Memoized; tolerant of "already exists" (409); non-fatal on other
    * errors (container create surfaces a clear error if the network is genuinely missing).
    */
   private async ensureSandboxNetwork(): Promise<void> {
     if (this.networkEnsured) return
-    const network = process.env.SANDBOX_DOCKER_NETWORK || DEFAULT_SANDBOX_NETWORK
+    const network = this.resolveNetwork()
     if (network === 'bridge') {
       if (process.env.NODE_ENV === 'production') {
         throw new Error(
-          'SANDBOX_DOCKER_NETWORK="bridge" is forbidden in production: the shared docker bridge ' +
-            "has inter-container communication enabled, so one tenant can reach another tenant's " +
-            'sandbox dev-server ports by IP (C1-1). Unset SANDBOX_DOCKER_NETWORK to use the ' +
-            `isolated default ("${DEFAULT_SANDBOX_NETWORK}"), or set a dedicated ICC-off network.`,
+          'Sandbox network "bridge" is forbidden in production (via SANDBOX_DOCKER_NETWORK or ' +
+            'config.network): the shared docker bridge has inter-container communication enabled, ' +
+            "so one tenant can reach another tenant's sandbox dev-server ports by IP (C1-1). Use " +
+            `the isolated default ("${DEFAULT_SANDBOX_NETWORK}") or a dedicated ICC-off network.`,
         )
       }
       logger.warn(
         'Sandbox network is the shared docker "bridge" — NO cross-tenant isolation (C1-1). ' +
-          'Unset SANDBOX_DOCKER_NETWORK to use the isolated default network.',
+          'Use the isolated default network (unset SANDBOX_DOCKER_NETWORK / config.network).',
       )
       this.networkEnsured = true
       return
@@ -327,10 +403,10 @@ class DockerSandboxProvider implements SandboxProvider {
     // [C1-1] Network: default to the dedicated ICC-OFF network (ensured above) so tenants are
     // L2-isolated out of the box — NOT the shared `bridge`, whose inter-container communication
     // lets one tenant reach another's dev-server ports by IP. Operators can override with
-    // SANDBOX_DOCKER_NETWORK (a `bridge` value is refused in production); pair it with
-    // host.docker.internal (below) + SANDBOX_DB_HOST=host.docker.internal so the sandbox still
-    // reaches its own DB.
-    hostConfig.NetworkMode = process.env.SANDBOX_DOCKER_NETWORK || DEFAULT_SANDBOX_NETWORK
+    // `config.network` or SANDBOX_DOCKER_NETWORK (a `bridge` value is refused in production); pair
+    // it with host.docker.internal (below) + SANDBOX_DB_HOST=host.docker.internal so the sandbox
+    // still reaches its own DB. Resolved identically to ensureSandboxNetwork() above.
+    hostConfig.NetworkMode = this.resolveNetwork()
     // Map host.docker.internal → host gateway on all networks (not added
     // automatically on user-defined bridges). Harmless on the default bridge.
     hostConfig.ExtraHosts = ['host.docker.internal:host-gateway']
@@ -869,7 +945,7 @@ class DockerSandboxProvider implements SandboxProvider {
   private async dockerApi(path: string, method = 'GET', body?: unknown): Promise<unknown> {
     return new Promise((resolve, reject) => {
       const opts: http.RequestOptions = {
-        socketPath: this.socketPath,
+        ...this.endpoint,
         path: `/v1.44${path}`,
         method,
         headers: body ? { 'Content-Type': 'application/json' } : undefined,
@@ -922,7 +998,7 @@ class DockerSandboxProvider implements SandboxProvider {
   private async dockerApiRaw(path: string, method = 'GET', body?: unknown): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const opts: http.RequestOptions = {
-        socketPath: this.socketPath,
+        ...this.endpoint,
         path: `/v1.44${path}`,
         method,
         headers: body ? { 'Content-Type': 'application/json' } : undefined,
@@ -985,7 +1061,7 @@ class DockerSandboxProvider implements SandboxProvider {
       const body = JSON.stringify({ Detach: false, Tty: false })
       const req = http.request(
         {
-          socketPath: this.socketPath,
+          ...this.endpoint,
           path: `/v1.44/exec/${execId}/start`,
           method: 'POST',
           headers: {
@@ -1017,7 +1093,9 @@ class DockerSandboxProvider implements SandboxProvider {
 
 /**
  * Creates a new `DockerSandboxProvider` instance with the given configuration.
- * @param config - Optional Docker-specific configuration (socket path, base image, resource defaults).
+ * @param config - Optional Docker-specific configuration: daemon endpoint
+ *   (`socketPath`, or `host`/`port` for a TCP daemon; `DOCKER_HOST` is also
+ *   honored), `baseImage`, CPU/memory defaults, and the sandbox `network`.
  * @returns A `SandboxProvider` that manages Docker containers as sandboxes.
  */
 export function createProvider(config?: DockerConfig): SandboxProvider {
