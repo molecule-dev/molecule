@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest'
 
 import {
   calculateBounds,
@@ -23,6 +23,20 @@ import type {
   MarkerConfig,
   Viewport,
 } from '../types.js'
+
+// The placeholder provider intentionally console.warns once when it engages
+// (see "placeholder honesty & safety" below). Capture it in a spy so the many
+// createMap() calls across this file don't spam test output, and so the honesty
+// tests can assert on it.
+let warnSpy: MockInstance
+
+beforeEach(() => {
+  warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+})
+
+afterEach(() => {
+  warnSpy.mockRestore()
+})
 
 // ============================================================================
 // Utility Functions Tests
@@ -932,6 +946,97 @@ describe('maps/edge-cases', () => {
       const markers = mapInstance.getMarkers()
       expect(markers[0]).toEqual(marker)
     })
+  })
+})
+
+// ============================================================================
+// Placeholder Honesty & Safety (loud, self-identifying, XSS-safe)
+// ============================================================================
+
+describe('maps/placeholder honesty & safety', () => {
+  it('should warn once, actionably, the first time the placeholder engages', () => {
+    const container = document.createElement('div')
+    const provider = createSimpleMapProvider()
+
+    const map1 = provider.createMap({ container }) as MapInstance
+
+    expect(warnSpy).toHaveBeenCalledTimes(1)
+    const message = String(warnSpy.mock.calls[0][0])
+    expect(message).toContain('No map provider bonded')
+    expect(message).toContain('MapProvider')
+    expect(message).toContain('setProvider')
+
+    // The same provider rendering another map does NOT re-warn (warn-once).
+    const container2 = document.createElement('div')
+    const map2 = provider.createMap({ container: container2 }) as MapInstance
+    expect(warnSpy).toHaveBeenCalledTimes(1)
+
+    map1.destroy()
+    map2.destroy()
+  })
+
+  it('should render an identifiable placeholder, not masquerade as a map', () => {
+    const container = document.createElement('div')
+    const map = createSimpleMapProvider().createMap({ container }) as MapInstance
+
+    const placeholder = container.querySelector('[data-mol-map-placeholder="true"]')
+    expect(placeholder).not.toBeNull()
+    expect(placeholder?.getAttribute('role')).toBe('img')
+    expect(placeholder?.textContent).toContain('Map Placeholder')
+
+    map.destroy()
+  })
+
+  it('should render caller-supplied text via textContent, never innerHTML (no XSS)', () => {
+    const container = document.createElement('div')
+    const evilTitle = '<img src=x onerror="globalThis.__mapsXss = true">'
+    const evilDescription = '<script>globalThis.__mapsXss2 = true</script>'
+
+    const map = createSimpleMapProvider({
+      placeholderTitle: evilTitle,
+      placeholderDescription: evilDescription,
+    }).createMap({ container }) as MapInstance
+
+    // The interpolated values must be inert text, never parsed into DOM nodes.
+    expect(container.querySelector('img')).toBeNull()
+    expect(container.querySelector('script')).toBeNull()
+    // ...and the literal text is preserved verbatim.
+    expect(container.textContent).toContain(evilTitle)
+    expect(container.textContent).toContain(evilDescription)
+
+    map.destroy()
+  })
+})
+
+// ============================================================================
+// Documented Exports Resolve (Quick Start / @module names are real)
+// ============================================================================
+
+describe('maps/documented-exports', () => {
+  it('should export every value named in the module docs / Quick Start', async () => {
+    const mod = (await import('../index.js')) as Record<string, unknown>
+
+    // Named in the @module IMPORTANT paragraph, @remarks, and Quick Start @example.
+    for (const name of [
+      'createSimpleMapProvider',
+      'setProvider',
+      'getProvider',
+      'hasProvider',
+      'createMap',
+      'calculateBounds',
+      'calculateCenter',
+      'calculateDistance',
+    ]) {
+      expect(typeof mod[name]).toBe('function')
+    }
+    expect(mod.provider).toBeDefined()
+
+    // The phantom provider bonds called out in the CRITICAL finding must NOT
+    // exist as exports — the docs no longer name them.
+    expect(mod.mapbox).toBeUndefined()
+    expect(mod.google).toBeUndefined()
+    expect(mod.createMapboxProvider).toBeUndefined()
+    expect(mod.createGoogleMapsProvider).toBeUndefined()
   })
 })
 

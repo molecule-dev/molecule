@@ -10,14 +10,17 @@ helpers (`provider`, `setProvider`, `getProvider`, `hasProvider`,
 `createMap`), geometry utilities (`calculateBounds`, `calculateCenter`,
 `calculateDistance`), and `createSimpleMapProvider()`.
 
-IMPORTANT: no real map SDK integration ships today. The only built-in
-provider is `createSimpleMapProvider()`, a PLACEHOLDER that renders a static
-grey panel ("Map Placeholder") instead of a map — markers are tracked in
-memory but never drawn, overlays/events/projection are no-ops, and
-`getSnapshot()` resolves to an empty string. To show a real map, implement
-`MapProvider` against your chosen SDK (Leaflet, MapLibre, Mapbox GL, Google
-Maps JS — install the SDK yourself) and wire it with
-`setProvider(myProvider)` (equivalent to `bond('maps', myProvider)`).
+IMPORTANT: no real map SDK integration ships today — there are NO
+`@molecule/app-maps-*` provider bonds (no `app-maps-mapbox`, no
+`app-maps-google`; those names do not exist). The only built-in provider is
+`createSimpleMapProvider()`, a PLACEHOLDER that renders a static grey panel
+("Map Placeholder", tagged `data-mol-map-placeholder`) instead of a map and
+`console.warn`s once when it engages — markers are tracked in memory but
+never drawn, overlays/events/projection are no-ops, and `getSnapshot()`
+resolves to an empty string. To show a real map, implement `MapProvider`
+against your chosen SDK (Leaflet, MapLibre, Mapbox GL, Google Maps JS —
+install the SDK yourself) and wire it with `setProvider(myProvider)`
+(equivalent to `bond('maps', myProvider)`).
 
 ## Quick Start
 
@@ -796,8 +799,14 @@ function createMap(config: MapConfig): MapInstance | Promise<MapInstance>
 
 #### `createSimpleMapProvider(options)`
 
-Create a simple placeholder map provider that renders a static placeholder
-div instead of a real map. Useful as a fallback when no map SDK is loaded.
+Create the built-in PLACEHOLDER map provider. It does NOT render a real map:
+it draws a static grey panel that identifies itself as a placeholder and
+`console.warn`s once when it first engages, because no real map SDK ships with
+the fleet. Markers are tracked in memory but never drawn; overlays, popups,
+events and projection are no-ops; `getSnapshot()` returns an empty string. It
+exists only so map-using screens render *something honest* until a real
+`MapProvider` (Mapbox GL / Google Maps / Leaflet / MapLibre) is implemented
+and bonded via `setProvider()`.
 
 ```typescript
 function createSimpleMapProvider(options?: SimpleMapProviderOptions): MapProvider
@@ -805,12 +814,15 @@ function createSimpleMapProvider(options?: SimpleMapProviderOptions): MapProvide
 
 - `options` — Optional placeholder title and description text.
 
-**Returns:** A MapProvider that renders placeholder content.
+**Returns:** A MapProvider that renders an honest, self-identifying placeholder.
 
 #### `getProvider()`
 
-Get the current map provider. Falls back to a simple placeholder
-provider if none has been explicitly set.
+Get the current map provider. Falls back to the built-in placeholder provider
+if none has been bonded — no real map SDK ships with the fleet, so the
+placeholder renders a grey panel (not a map) and `console.warn`s once when it
+engages rather than silently faking a working map. Use `hasProvider()` to
+detect whether a real provider was actually wired.
 
 ```typescript
 function getProvider(): MapProvider
@@ -885,9 +897,10 @@ Peer dependencies:
 - `@molecule/app-bond`
 - `@molecule/app-i18n`
 
-- `getProvider()` silently falls back to the placeholder when nothing is
-  wired — a forgotten `setProvider` does not throw, it just renders the grey
-  placeholder panel. Use `hasProvider()` to detect real wiring.
+- `getProvider()` falls back to the placeholder when nothing is wired — a
+  forgotten `setProvider` does not throw; the placeholder renders a grey
+  panel AND `console.warn`s once (naming the gap and the fix) so the omission
+  is visible, not silent. Use `hasProvider()` to detect real wiring.
 - The map fills 100% of its container: the container element must have an
   explicit height or the map/placeholder is invisible (a zero-height parent
   is the classic blank-screen trap).

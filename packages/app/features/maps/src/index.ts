@@ -9,19 +9,23 @@
  * `createMap`), geometry utilities (`calculateBounds`, `calculateCenter`,
  * `calculateDistance`), and `createSimpleMapProvider()`.
  *
- * IMPORTANT: no real map SDK integration ships today. The only built-in
- * provider is `createSimpleMapProvider()`, a PLACEHOLDER that renders a static
- * grey panel ("Map Placeholder") instead of a map — markers are tracked in
- * memory but never drawn, overlays/events/projection are no-ops, and
- * `getSnapshot()` resolves to an empty string. To show a real map, implement
- * `MapProvider` against your chosen SDK (Leaflet, MapLibre, Mapbox GL, Google
- * Maps JS — install the SDK yourself) and wire it with
- * `setProvider(myProvider)` (equivalent to `bond('maps', myProvider)`).
+ * IMPORTANT: no real map SDK integration ships today — there are NO
+ * `@molecule/app-maps-*` provider bonds (no `app-maps-mapbox`, no
+ * `app-maps-google`; those names do not exist). The only built-in provider is
+ * `createSimpleMapProvider()`, a PLACEHOLDER that renders a static grey panel
+ * ("Map Placeholder", tagged `data-mol-map-placeholder`) instead of a map and
+ * `console.warn`s once when it engages — markers are tracked in memory but
+ * never drawn, overlays/events/projection are no-ops, and `getSnapshot()`
+ * resolves to an empty string. To show a real map, implement `MapProvider`
+ * against your chosen SDK (Leaflet, MapLibre, Mapbox GL, Google Maps JS —
+ * install the SDK yourself) and wire it with `setProvider(myProvider)`
+ * (equivalent to `bond('maps', myProvider)`).
  *
  * @remarks
- * - `getProvider()` silently falls back to the placeholder when nothing is
- *   wired — a forgotten `setProvider` does not throw, it just renders the grey
- *   placeholder panel. Use `hasProvider()` to detect real wiring.
+ * - `getProvider()` falls back to the placeholder when nothing is wired — a
+ *   forgotten `setProvider` does not throw; the placeholder renders a grey
+ *   panel AND `console.warn`s once (naming the gap and the fix) so the omission
+ *   is visible, not silent. Use `hasProvider()` to detect real wiring.
  * - The map fills 100% of its container: the container element must have an
  *   explicit height or the map/placeholder is invisible (a zero-height parent
  *   is the classic blank-screen trap).

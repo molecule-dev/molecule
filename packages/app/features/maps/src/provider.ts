@@ -28,8 +28,11 @@ export const setProvider = (provider: MapProvider): void => {
 }
 
 /**
- * Get the current map provider. Falls back to a simple placeholder
- * provider if none has been explicitly set.
+ * Get the current map provider. Falls back to the built-in placeholder provider
+ * if none has been bonded — no real map SDK ships with the fleet, so the
+ * placeholder renders a grey panel (not a map) and `console.warn`s once when it
+ * engages rather than silently faking a working map. Use `hasProvider()` to
+ * detect whether a real provider was actually wired.
  * @returns The active MapProvider instance.
  */
 export const getProvider = (): MapProvider => {
