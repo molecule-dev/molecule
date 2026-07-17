@@ -20,10 +20,14 @@ import type {
 // Provider Management
 // ============================================================================
 
-const BOND_TYPE = 'calendar'
+// Distinct bond key. The calendar UI *feature* core (`@molecule/app-calendar`)
+// bonds its provider under `'calendar'`; this device/OS calendar package MUST
+// bond under a separate key so wiring one does not silently clobber the other
+// in the shared bond registry. Do NOT change this back to `'calendar'`.
+const BOND_TYPE = 'device-calendar'
 
 /**
- * Set the calendar provider.
+ * Set the device calendar provider.
  * @param provider - CalendarProvider implementation to register.
  */
 export function setProvider(provider: CalendarProvider): void {
@@ -31,7 +35,7 @@ export function setProvider(provider: CalendarProvider): void {
 }
 
 /**
- * Get the current calendar provider.
+ * Get the current device calendar provider.
  * @throws {Error} If no provider has been set via setProvider.
  * @returns The active CalendarProvider instance.
  */
@@ -41,7 +45,7 @@ export function getProvider(): CalendarProvider {
     throw new Error(
       t('calendar.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-calendar: No provider set. Call setProvider() with a CalendarProvider implementation (e.g., from @molecule/app-calendar-capacitor).',
+          '@molecule/app-device-calendar: No provider set. Call setProvider() with a CalendarProvider implementation (e.g., from @molecule/app-calendar-capacitor).',
       }),
     )
   }

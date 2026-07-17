@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { bond, get as bondGet } from '@molecule/app-bond'
+
 import {
   createEvent,
   deleteEvent,
@@ -716,5 +718,75 @@ describe('Type Coverage', () => {
         expect(['granted', 'denied', 'limited', 'prompt', 'unsupported']).toContain(status)
       })
     })
+  })
+})
+
+// ============================================================================
+// Bond Key Isolation Tests
+// ============================================================================
+//
+// Regression guard: this device/OS calendar package must bond under its own
+// `'device-calendar'` key, NOT the `'calendar'` key owned by the separate
+// calendar UI feature core (`@molecule/app-calendar`). Sharing a key made
+// wiring one silently clobber the other in the shared bond registry.
+
+describe('Bond Key Isolation (no collision with @molecule/app-calendar feature core)', () => {
+  // A stand-in for the @molecule/app-calendar (calendar UI) feature core, which
+  // bonds its own provider under the `'calendar'` singleton key.
+  const featureCalendarProvider = { __featureCalendarUi: true }
+
+  beforeEach(() => {
+    // Clear both slots so ordering between tests can't mask a clobber.
+    bond('calendar', null)
+    bond('device-calendar', null)
+  })
+
+  it('bonds the device provider under the distinct "device-calendar" key, not "calendar"', () => {
+    const deviceProvider = createMockProvider()
+    setProvider(deviceProvider)
+
+    expect(bondGet('device-calendar')).toBe(deviceProvider)
+    // The 'calendar' slot (owned by the feature core) is untouched by setProvider.
+    expect(bondGet('calendar')).toBeUndefined()
+  })
+
+  it('device-calendar and the calendar feature core coexist without clobbering (feature first)', () => {
+    // Feature UI core bonds first...
+    bond('calendar', featureCalendarProvider)
+    // ...then the device calendar bonds its provider.
+    const deviceProvider = createMockProvider()
+    setProvider(deviceProvider)
+
+    // Each accessor returns ITS OWN provider — neither overwrote the other.
+    expect(getProvider()).toBe(deviceProvider)
+    expect(bondGet('calendar')).toBe(featureCalendarProvider)
+  })
+
+  it('device-calendar and the calendar feature core coexist without clobbering (device first)', () => {
+    // Reverse wiring order: device calendar bonds first...
+    const deviceProvider = createMockProvider()
+    setProvider(deviceProvider)
+    // ...then the feature UI core bonds under its own key.
+    bond('calendar', featureCalendarProvider)
+
+    expect(getProvider()).toBe(deviceProvider)
+    expect(bondGet('calendar')).toBe(featureCalendarProvider)
+  })
+
+  it('hasProvider() tracks only the device-calendar key, ignoring the feature core', () => {
+    // Only the feature core is bonded — device-calendar must still report absent.
+    bond('calendar', featureCalendarProvider)
+    expect(hasProvider()).toBe(false)
+
+    const deviceProvider = createMockProvider()
+    setProvider(deviceProvider)
+    expect(hasProvider()).toBe(true)
+  })
+
+  it('getProvider() throws naming @molecule/app-device-calendar when unbonded', () => {
+    // 'device-calendar' cleared by beforeEach; a bonded feature core must not
+    // satisfy the device-calendar accessor.
+    bond('calendar', featureCalendarProvider)
+    expect(() => getProvider()).toThrow(/@molecule\/app-device-calendar/)
   })
 })

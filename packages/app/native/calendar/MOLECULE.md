@@ -439,7 +439,7 @@ function getPermissionStatus(): Promise<CalendarPermissionStatus>
 
 #### `getProvider()`
 
-Get the current calendar provider.
+Get the current device calendar provider.
 
 ```typescript
 function getProvider(): CalendarProvider
@@ -517,7 +517,7 @@ function requestPermission(): Promise<CalendarPermissionStatus>
 
 #### `setProvider(provider)`
 
-Set the calendar provider.
+Set the device calendar provider.
 
 ```typescript
 function setProvider(provider: CalendarProvider): void
@@ -557,9 +557,10 @@ Peer dependencies:
   `hasProvider()`. Browsers cannot read/write the OS calendar store — on
   web, integrate a server-side calendar API (`@molecule/api-calendar`)
   instead.
-- **Do not wire this and `@molecule/app-calendar` interchangeably** — they
-  share nothing but a similar name. (Their bond keys currently also
-  collide; keep only one of the two wired per app until that is fixed.)
+- **Do not confuse this with `@molecule/app-calendar`** — they share nothing
+  but a similar name. This package bonds its provider under the distinct
+  `'device-calendar'` key (the calendar UI core uses `'calendar'`), so both
+  can be wired in the same app without clobbering each other in the registry.
 - Request permission from a user gesture at the point of use; a denied
   prompt is remembered — recovery is `openSettings()`. iOS can grant
   `'limited'` (write-only add) access.
