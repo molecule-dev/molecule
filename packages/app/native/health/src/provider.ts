@@ -30,7 +30,17 @@ export function setProvider(provider: HealthProvider): void {
 
 /**
  * Get the current health provider.
- * @throws {Error} If no provider has been set via setProvider.
+ *
+ * No health provider ships with the fleet, so this THROWS an actionable error
+ * until an app bonds one via {@link setProvider}. It deliberately does NOT fall
+ * back to a silent no-op: a health read has no honest default value — returning
+ * fake zeros would lie about the user's data, which is worse than a throw — so
+ * the failure is loud. Feature-detect with {@link hasProvider} (or
+ * `getCapabilities().supported`) before calling.
+ * @throws {Error} If no provider has been bonded. The message names the gap (no
+ *   provider ships with the fleet) and the fix (implement the `HealthProvider`
+ *   interface against HealthKit / Health Connect / Google Fit, then
+ *   `setProvider()`).
  * @returns The active HealthProvider instance.
  */
 export function getProvider(): HealthProvider {
@@ -39,7 +49,12 @@ export function getProvider(): HealthProvider {
     throw new Error(
       t('health.error.noProvider', undefined, {
         defaultValue:
-          '@molecule/app-health: No provider set. Call setProvider() with a HealthProvider implementation (e.g., from @molecule/app-health-capacitor).',
+          '@molecule/app-health: No health provider bonded — implement the ' +
+          'HealthProvider interface on your native runtime (Apple HealthKit / ' +
+          'Android Health Connect / Google Fit) and bond it with setProvider() at ' +
+          'startup. No provider ships with the fleet. Feature-detect with ' +
+          'hasProvider() or getCapabilities().supported before calling — a health ' +
+          'read has no honest default, so this throws rather than return fake data.',
       }),
     )
   }

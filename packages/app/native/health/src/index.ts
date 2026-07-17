@@ -28,11 +28,18 @@
  * ```
  *
  * @remarks
- * - **Interface only — NO health provider package ships with molecule.**
- *   Every accessor THROWS until you `setProvider()` a `HealthProvider`
- *   implemented on your native runtime's HealthKit / Health Connect
- *   bindings. Browsers have no health-store API at all: on web, hide the
- *   feature (`hasProvider()`) or use server-side wearable sync
+ * - **Interface only — NO real health provider ships with molecule yet.**
+ *   There is no `@molecule/app-health-*` provider package: every data
+ *   accessor THROWS an actionable error until you `setProvider()` a
+ *   `HealthProvider` you implement yourself against your native runtime's
+ *   Apple HealthKit / Android Health Connect / Google Fit bindings (that
+ *   native bridge is your integration work — it is multi-platform native
+ *   code, not a config flag). It deliberately does NOT fall back to a silent
+ *   no-op: a health read has no honest default, so fake zeros would be worse
+ *   than a throw. **ALWAYS feature-detect first** — check `hasProvider()`
+ *   (and `getCapabilities().supported`) before any read or write, and hide
+ *   the feature when it is false. Browsers have no health-store API at all:
+ *   on web, hide the feature or use server-side wearable sync
  *   (`@molecule/api-wearable`) instead. Do NOT ship health UI that assumes
  *   this works out of the box.
  * - **Authorization is per data type and per direction** —

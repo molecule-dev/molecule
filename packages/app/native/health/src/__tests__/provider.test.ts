@@ -3,10 +3,13 @@
  * Provider management tests
  */
 
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getProvider, hasProvider, setProvider } from '../provider.js'
+import { unbond } from '@molecule/app-bond'
+
+import { getProvider, hasProvider, querySamples, setProvider } from '../provider.js'
 import type { HealthAuthStatus, HealthCapabilities, HealthProvider } from '../types.js'
+import { getStepsToday } from '../utilities.js'
 
 // Create a mock provider
 function createMockProvider(): HealthProvider {
@@ -32,6 +35,12 @@ function createMockProvider(): HealthProvider {
 }
 
 describe('Provider Management', () => {
+  // Bond state is a module-level singleton shared across tests, so start every
+  // test from a known-unbonded state (the honest default: no provider ships).
+  beforeEach(() => {
+    unbond('health')
+  })
+
   describe('setProvider', () => {
     it('should set the provider', () => {
       const mockProvider = createMockProvider()
@@ -53,6 +62,36 @@ describe('Provider Management', () => {
       const mockProvider = createMockProvider()
       setProvider(mockProvider)
       expect(hasProvider()).toBe(true)
+    })
+
+    it('should return false when no provider is bonded (feature-detectable)', () => {
+      // No provider ships with the fleet — apps must be able to detect this and
+      // hide the feature instead of hitting a throw.
+      expect(hasProvider()).toBe(false)
+    })
+  })
+
+  describe('unbonded (no provider ships with the fleet)', () => {
+    it('getProvider() throws an actionable error naming the gap and the fix', () => {
+      expect(hasProvider()).toBe(false)
+      // Names the gap...
+      expect(() => getProvider()).toThrow('No health provider bonded')
+      expect(() => getProvider()).toThrow('No provider ships with the fleet')
+      // ...and the fix.
+      expect(() => getProvider()).toThrow('HealthProvider')
+      expect(() => getProvider()).toThrow('setProvider()')
+      // Does NOT reference a provider package that doesn't exist.
+      expect(() => getProvider()).not.toThrow('app-health-capacitor')
+    })
+
+    it('a data read (querySamples) surfaces the same actionable throw, not fake data', async () => {
+      await expect(
+        querySamples('steps', { startDate: '2026-01-01', endDate: '2026-01-02' }),
+      ).rejects.toThrow(/No health provider bonded/)
+    })
+
+    it('a convenience read (getStepsToday) throws rather than return a fake zero', async () => {
+      await expect(getStepsToday()).rejects.toThrow(/No health provider bonded/)
     })
   })
 })
