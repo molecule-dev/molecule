@@ -29,10 +29,10 @@
  * ```
  *
  * @remarks
- * - **Wire with `setProvider()` from `@molecule/app-stepper` — NOT `bond('stepper', …)`.**
- *   The stepper core keeps its own module-local singleton and never reads the
- *   `@molecule/app-bond` registry: a generic `bond()` call appears to succeed, then
- *   `requireProvider()` throws "not configured" at first use.
+ * - **Wire it** with `setProvider()` from `@molecule/app-stepper` or
+ *   `bond('stepper', provider)` from `@molecule/app-bond` — both route through the
+ *   shared registry (the core was migrated off its old module-local singleton);
+ *   `requireProvider()` throws until one has run.
  * - **Headless** — the provider owns navigation state only; the app owns all
  *   rendering (step indicators, content, buttons).
  * - **There is no "complete step" method.** The instance shares your step objects:

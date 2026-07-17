@@ -26,7 +26,8 @@ const { html } = requireProvider().render('| a | b |\n| - | - |\n| 1 | 2 |')
 
 ## Installation
 ```bash
-npm install @molecule/app-markdown-react-markdown @molecule/app-markdown
+npm install @molecule/app-markdown-react-markdown @molecule/app-markdown react react-dom react-markdown remark-gfm
+npm install -D @types/react @types/react-dom
 ```
 
 ## API
@@ -156,6 +157,10 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-markdown`
+- `react`
+- `react-dom`
+- `react-markdown`
+- `remark-gfm`
 
 - **GFM is real and on by default.** Tables, `~~strikethrough~~`,
   `- [x]` task lists, bare-URL autolinks, and footnotes all render. Set
@@ -179,9 +184,9 @@ Peer dependencies:
 - **{@link ReactMarkdownConfig}** additionally exposes `remarkPlugins`,
   `rehypePlugins`, `allowedElements`, and `disallowedElements` for
   provider-level customization at {@link createProvider} time.
-- **Wire with `setProvider()` from `@molecule/app-markdown`** — the core
-  keeps a module-local singleton; a generic `bond('markdown', …)` silently
-  no-ops and `requireProvider()` throws.
+- **Wire it** with `setProvider()` from `@molecule/app-markdown` or
+  `bond('markdown', provider)` from `@molecule/app-bond` — both route through
+  the shared registry; `requireProvider()` throws until one has run.
 
 ## E2E Tests
 

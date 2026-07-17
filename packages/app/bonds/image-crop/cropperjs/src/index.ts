@@ -39,9 +39,9 @@
  *   `createProvider(config)`; per-cropper `CropperOptions.guides` wins over the
  *   config default. `maxWidth`/`maxHeight` are enforced on output (cropperjs has no
  *   max-crop-box constructor option).
- * - **Wire with `setProvider()` from `@molecule/app-image-crop`** — the core keeps a
- *   module-local singleton; a generic `bond('image-crop', …)` silently no-ops and
- *   `requireProvider()` throws.
+ * - **Wire it** with `setProvider()` from `@molecule/app-image-crop` or
+ *   `bond('image-crop', provider)` from `@molecule/app-bond` — both route through
+ *   the shared registry; `requireProvider()` throws until one has run.
  *
  * @module
  */

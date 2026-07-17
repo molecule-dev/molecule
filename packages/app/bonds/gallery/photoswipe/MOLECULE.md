@@ -119,9 +119,9 @@ Peer dependencies:
   (per-gallery options override the provider-level `PhotoSwipeConfig`; both
   default on). `showThumbnails` has no effect — PhotoSwipe core has no thumbnail
   strip (it needs a separate plugin).
-- **Wire with `setProvider()` from `@molecule/app-gallery`** — the core keeps a
-  module-local singleton; a generic `bond('gallery', …)` silently no-ops and
-  `requireProvider()` throws.
+- **Wire it** with `setProvider()` from `@molecule/app-gallery` or
+  `bond('gallery', provider)` from `@molecule/app-bond` — both route through the
+  shared registry; `requireProvider()` throws until one has run.
 
 ## E2E Tests
 

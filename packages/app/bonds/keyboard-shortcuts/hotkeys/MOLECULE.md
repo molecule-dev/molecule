@@ -26,7 +26,7 @@ unregister()
 
 ## Installation
 ```bash
-npm install @molecule/app-keyboard-shortcuts-hotkeys @molecule/app-keyboard-shortcuts
+npm install @molecule/app-keyboard-shortcuts-hotkeys @molecule/app-keyboard-shortcuts hotkeys-js
 ```
 
 ## API
@@ -107,6 +107,7 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-keyboard-shortcuts`
+- `hotkeys-js`
 
 - **Handlers fire for real.** `register()` binds via `hotkeys(combo, handler)`;
   pressing the combo invokes `Shortcut.handler` with the real `KeyboardEvent`.
@@ -125,9 +126,9 @@ Peer dependencies:
 - `enable()`/`disable()` gate whether bound handlers run (the bindings stay
   attached, just suppressed). `getAll()` reflects the resulting `enabled`
   state; `isPressed(key)` reflects hotkeys-js's live key-state tracking.
-- **Wire with `setProvider()` from `@molecule/app-keyboard-shortcuts`** — the
-  core keeps a module-local singleton; a generic
-  `bond('keyboard-shortcuts', …)` silently no-ops.
+- **Wire it** with `setProvider()` from `@molecule/app-keyboard-shortcuts` or
+  `bond('keyboard-shortcuts', provider)` from `@molecule/app-bond` — both route
+  through the shared registry.
 
 ## E2E Tests
 

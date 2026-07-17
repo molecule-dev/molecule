@@ -25,7 +25,8 @@ canvas.toBlob((blob) => uploadAvatar(blob), 'image/png')
 
 ## Installation
 ```bash
-npm install @molecule/app-image-crop-cropperjs @molecule/app-image-crop
+npm install @molecule/app-image-crop-cropperjs @molecule/app-image-crop cropperjs
+npm install -D @types/cropperjs
 ```
 
 ## API
@@ -112,6 +113,7 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-image-crop`
+- `cropperjs`
 
 - **Import cropperjs's stylesheet yourself** — this package does NOT:
   `import 'cropperjs/dist/cropper.css'`. Without it the crop box, handles, and
@@ -133,9 +135,9 @@ Peer dependencies:
   `createProvider(config)`; per-cropper `CropperOptions.guides` wins over the
   config default. `maxWidth`/`maxHeight` are enforced on output (cropperjs has no
   max-crop-box constructor option).
-- **Wire with `setProvider()` from `@molecule/app-image-crop`** — the core keeps a
-  module-local singleton; a generic `bond('image-crop', …)` silently no-ops and
-  `requireProvider()` throws.
+- **Wire it** with `setProvider()` from `@molecule/app-image-crop` or
+  `bond('image-crop', provider)` from `@molecule/app-bond` — both route through
+  the shared registry; `requireProvider()` throws until one has run.
 
 ## E2E Tests
 

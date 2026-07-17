@@ -42,9 +42,9 @@
  * - **{@link ReactMarkdownConfig}** additionally exposes `remarkPlugins`,
  *   `rehypePlugins`, `allowedElements`, and `disallowedElements` for
  *   provider-level customization at {@link createProvider} time.
- * - **Wire with `setProvider()` from `@molecule/app-markdown`** — the core
- *   keeps a module-local singleton; a generic `bond('markdown', …)` silently
- *   no-ops and `requireProvider()` throws.
+ * - **Wire it** with `setProvider()` from `@molecule/app-markdown` or
+ *   `bond('markdown', provider)` from `@molecule/app-bond` — both route through
+ *   the shared registry; `requireProvider()` throws until one has run.
  *
  * @module
  */

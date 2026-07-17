@@ -37,9 +37,9 @@
  * - `enable()`/`disable()` gate whether bound handlers run (the bindings stay
  *   attached, just suppressed). `getAll()` reflects the resulting `enabled`
  *   state; `isPressed(key)` reflects hotkeys-js's live key-state tracking.
- * - **Wire with `setProvider()` from `@molecule/app-keyboard-shortcuts`** — the
- *   core keeps a module-local singleton; a generic
- *   `bond('keyboard-shortcuts', …)` silently no-ops.
+ * - **Wire it** with `setProvider()` from `@molecule/app-keyboard-shortcuts` or
+ *   `bond('keyboard-shortcuts', provider)` from `@molecule/app-bond` — both route
+ *   through the shared registry.
  *
  * @module
  */
