@@ -34,6 +34,18 @@ export const en: CommonTranslations = {
   'auth.signup.password': 'Password (Required)',
   'auth.signup.signUp': 'Sign up',
   'auth.signup.signingUp': 'Signing up...',
+  'auth.modal.loginTitle': 'Log in',
+  'auth.modal.signupTitle': 'Create your account',
+  'auth.modal.loginBlurb': 'Log in to keep your work.',
+  'auth.modal.signupBlurb': 'Sign up to keep your work.',
+  'auth.modal.working': 'Just a moment…',
+  'auth.modal.haveAccount': 'Already have an account? Log in',
+  'auth.modal.needAccount': "Don't have an account? Sign up",
+  // `{{appName}}` / `{{tagline}}` are interpolation passthroughs — the
+  // component passes the per-app appName/tagline prop as the value, so the
+  // brand name renders through instead of being overridden by a fixed string.
+  'authBrandHeader.appName': '{{appName}}',
+  'authBrandHeader.tagline': '{{tagline}}',
   'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}: {{status}} {{error}}',
   'codeSandbox.docker.error.deleteFailed': 'Failed to delete {{path}}: {{error}}',
   'codeSandbox.docker.error.readFailed': 'Failed to read {{path}}: {{error}}',

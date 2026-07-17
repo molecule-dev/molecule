@@ -234,5 +234,6 @@ the app's auth/HTTP providers (it calls `useAuth`), and the standalone
 `/login` & `/signup` pages should stay routed — they are the fallback
 for modifier clicks and deep links. App-specific extras (stash a guest
 id, claim guest work, invalidate usage) go in `onBeforeAuth` /
-`onAuthenticated`. The modal's `auth.modal.*` strings currently ship
-English defaults only (no locale bond yet).
+`onAuthenticated`. The modal's `auth.modal.*` strings are homed in the
+`@molecule/app-locales-common` bond (79 languages), alongside the
+`auth.login.*` / `auth.signup.*` keys the modal also renders.

@@ -24,8 +24,14 @@ vi.mock('@molecule/app-ui', () => ({
 
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    // Mirrors real i18next: with no resource for the key, the (interpolated)
+    // defaultValue is returned — so `{{appName}}` is substituted from `values`.
+    // The header's appName/tagline keys pass the prop as the interpolation
+    // value, so a `{{…}}` canonical renders the per-app brand through.
+    t: (key: string, values?: Record<string, unknown>, opts?: { defaultValue?: string }) => {
+      const resolved = opts?.defaultValue ?? key
+      return resolved.replace(/\{\{(\w+)\}\}/g, (_m, name: string) => String(values?.[name] ?? ''))
+    },
   }),
 }))
 

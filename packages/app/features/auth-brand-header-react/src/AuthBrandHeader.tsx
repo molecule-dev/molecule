@@ -196,10 +196,18 @@ export function AuthBrandHeader({
             <AuthBrandHeaderChip icon={icon} chipGradient={chipGradient} chipShape={chipShape} />
           ) : null}
           <AuthBrandHeaderWordmark color={wordmarkColor}>
-            {t('authBrandHeader.appName', undefined, { defaultValue: appName ?? '' })}
+            {t(
+              'authBrandHeader.appName',
+              { appName: appName ?? '' },
+              { defaultValue: '{{appName}}' },
+            )}
           </AuthBrandHeaderWordmark>
           <AuthBrandHeaderTagline>
-            {t('authBrandHeader.tagline', undefined, { defaultValue: tagline ?? '' })}
+            {t(
+              'authBrandHeader.tagline',
+              { tagline: tagline ?? '' },
+              { defaultValue: '{{tagline}}' },
+            )}
           </AuthBrandHeaderTagline>
         </>
       )}

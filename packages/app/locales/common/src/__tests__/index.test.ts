@@ -132,6 +132,32 @@ describe('@molecule/app-locales-common', () => {
     expect(bond.en['theme.toggle']).toBe('Toggle theme')
   })
 
+  it('homes every auth.modal.* key rendered by @molecule/app-auth-modal-react', () => {
+    // AuthModal.tsx renders these via t('auth.modal.<key>', …). Without a home in
+    // this bond they fall back to English in every locale. English canonical must
+    // match each t() call's inline defaultValue.
+    const authModal: Record<string, string> = {
+      'auth.modal.loginTitle': 'Log in',
+      'auth.modal.signupTitle': 'Create your account',
+      'auth.modal.loginBlurb': 'Log in to keep your work.',
+      'auth.modal.signupBlurb': 'Sign up to keep your work.',
+      'auth.modal.working': 'Just a moment…',
+      'auth.modal.haveAccount': 'Already have an account? Log in',
+      'auth.modal.needAccount': "Don't have an account? Sign up",
+    }
+    for (const [key, value] of Object.entries(authModal)) {
+      expect(bond.en[key as keyof CommonTranslations], `missing ${key}`).toBe(value)
+    }
+  })
+
+  it('homes authBrandHeader.* keys as interpolation passthroughs (never a fixed brand)', () => {
+    // AuthBrandHeader.tsx passes the per-app appName/tagline prop as the
+    // interpolation value, so the canonical value MUST be the `{{…}}`
+    // placeholder — a fixed string would override every app's brand name.
+    expect(bond.en['authBrandHeader.appName']).toBe('{{appName}}')
+    expect(bond.en['authBrandHeader.tagline']).toBe('{{tagline}}')
+  })
+
   it('apostrophe-containing values (Catalan) round-trip with a real apostrophe', () => {
     // Catalan has values with apostrophes (e.g. "Error d'inici de sessió"); the
     // runtime value must be a real apostrophe, NOT an HTML entity (&#39;) —

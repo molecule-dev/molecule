@@ -65,6 +65,15 @@ registerLocaleModule(locales)
 | `auth.signup.password` | Password (Required) |
 | `auth.signup.signUp` | Sign up |
 | `auth.signup.signingUp` | Signing up... |
+| `auth.modal.loginTitle` | Log in |
+| `auth.modal.signupTitle` | Create your account |
+| `auth.modal.loginBlurb` | Log in to keep your work. |
+| `auth.modal.signupBlurb` | Sign up to keep your work. |
+| `auth.modal.working` | Just a moment… |
+| `auth.modal.haveAccount` | Already have an account? Log in |
+| `auth.modal.needAccount` | Don |
+| `authBrandHeader.appName` | {{appName}} |
+| `authBrandHeader.tagline` | {{tagline}} |
 | `codeSandbox.docker.error.apiError` | Docker API {{method}} {{path}}: {{status}} {{error}} |
 | `codeSandbox.docker.error.deleteFailed` | Failed to delete {{path}}: {{error}} |
 | `codeSandbox.docker.error.readFailed` | Failed to read {{path}}: {{error}} |

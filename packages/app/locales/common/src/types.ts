@@ -39,6 +39,20 @@ export interface CommonTranslations {
   'auth.signup.password': string
   'auth.signup.signUp': string
   'auth.signup.signingUp': string
+  'auth.modal.loginTitle': string
+  'auth.modal.signupTitle': string
+  'auth.modal.loginBlurb': string
+  'auth.modal.signupBlurb': string
+  'auth.modal.working': string
+  'auth.modal.haveAccount': string
+  'auth.modal.needAccount': string
+  // Brand-name / tagline passthroughs for @molecule/app-auth-brand-header-react.
+  // Values are `{{…}}` interpolation placeholders so the per-app appName/tagline
+  // prop renders through (see AuthBrandHeader.tsx); a fixed string here would
+  // override every app's brand. Apps localize by overriding these in their own
+  // app locale.
+  'authBrandHeader.appName': string
+  'authBrandHeader.tagline': string
   'codeSandbox.docker.error.apiError': string
   'codeSandbox.docker.error.deleteFailed': string
   'codeSandbox.docker.error.readFailed': string
