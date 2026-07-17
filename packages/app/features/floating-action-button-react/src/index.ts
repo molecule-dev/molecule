@@ -12,24 +12,24 @@
  * import { Icon } from '@molecule/app-ui-react'
  *
  * function CreateFab() {
- *   const cm = getClassMap()
  *   return (
  *     <FloatingActionButton
  *       icon={<Icon name="plus" size={24} />}
  *       label="Create new item"
  *       position="bottom-right"
  *       onClick={() => setCreateOpen(true)}
- *       className={cm.surface}
  *     />
  *   )
  * }
  * ```
  *
  * @remarks
- * The FAB ships with NO default background, border, or shadow — pass
- * surface styling via `className` (e.g. the ClassMap `surface` class
- * plus your shadow utility) or the button renders as a transparent
- * circle over the page.
+ * The FAB ships with a visible default surface — a primary gradient plus
+ * soft elevation (the `gradientPrimary` + `shadowLifted` ClassMap tokens,
+ * which also supply a contrasting `on-primary` icon color) — so an
+ * out-of-the-box FAB is prominent in both light and dark themes with no
+ * extra styling. Pass `className` to override it (e.g. `cm.surface`); caller
+ * classes are merged last (tailwind-merge) so they win over the default.
  *
  * `label` doubles as an i18n key: it is resolved through
  * `t(label, {}, { defaultValue: label })`, so passing a translation key

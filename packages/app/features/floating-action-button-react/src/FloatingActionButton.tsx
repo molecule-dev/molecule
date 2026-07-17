@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link FloatingActionButton}. */
 export interface FloatingActionButtonProps {
   /** Icon rendered inside the FAB. */
   icon: ReactNode
@@ -37,7 +38,11 @@ const SIZE_MAP = { sm: 10, md: 14, lg: 16 } as const
 /**
  * Fixed-position circular action button. Renders either an anchor (when
  * `href` is set) or a button (when `onClick` is set). Positioning is
- * inline-style so the component works without extra CSS setup.
+ * inline-style so the component works without extra CSS setup, and it ships
+ * with a visible default surface (primary gradient + soft elevation, via the
+ * `gradientPrimary`/`shadowLifted` ClassMap tokens) so an out-of-the-box FAB
+ * is prominent in both light and dark themes. Pass `className` to override the
+ * surface — caller classes are resolved last by `cm.cn` (tailwind-merge).
  * @param props - Component props (see {@link FloatingActionButtonProps}).
  */
 export function FloatingActionButton({
@@ -53,9 +58,16 @@ export function FloatingActionButton({
   const cm = getClassMap()
   const { t } = useTranslation()
   const dim = SIZE_MAP[size] * 4 // px
+  // A FAB is a prominent primary action, so it must be visible out of the box.
+  // `gradientPrimary` supplies the primary surface AND the contrasting
+  // `on-primary` icon color; `shadowLifted` adds elevation. Both are
+  // theme-aware. They precede `className` so a caller-supplied surface class
+  // (resolved last by tailwind-merge in `cm.cn`) overrides the default.
   const commonClass = cm.cn(
     cm.flex({ align: 'center', justify: 'center' }),
     cm.roundedFull,
+    cm.gradientPrimary,
+    cm.shadowLifted,
     className,
   )
   const style: React.CSSProperties = {

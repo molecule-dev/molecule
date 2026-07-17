@@ -14,14 +14,12 @@ import { getClassMap } from '@molecule/app-ui'
 import { Icon } from '@molecule/app-ui-react'
 
 function CreateFab() {
-  const cm = getClassMap()
   return (
     <FloatingActionButton
       icon={<Icon name="plus" size={24} />}
       label="Create new item"
       position="bottom-right"
       onClick={() => setCreateOpen(true)}
-      className={cm.surface}
     />
   )
 }
@@ -41,6 +39,8 @@ npm install -D @types/react
 ### Interfaces
 
 #### `FloatingActionButtonProps`
+
+Props for {@link FloatingActionButton}.
 
 ```typescript
 interface FloatingActionButtonProps {
@@ -69,7 +69,11 @@ interface FloatingActionButtonProps {
 
 Fixed-position circular action button. Renders either an anchor (when
 `href` is set) or a button (when `onClick` is set). Positioning is
-inline-style so the component works without extra CSS setup.
+inline-style so the component works without extra CSS setup, and it ships
+with a visible default surface (primary gradient + soft elevation, via the
+`gradientPrimary`/`shadowLifted` ClassMap tokens) so an out-of-the-box FAB
+is prominent in both light and dark themes. Pass `className` to override the
+surface — caller classes are resolved last by `cm.cn` (tailwind-merge).
 
 ```typescript
 function FloatingActionButton({
@@ -103,10 +107,12 @@ Peer dependencies:
 - `@molecule/app-ui-react`
 - `react`
 
-The FAB ships with NO default background, border, or shadow — pass
-surface styling via `className` (e.g. the ClassMap `surface` class
-plus your shadow utility) or the button renders as a transparent
-circle over the page.
+The FAB ships with a visible default surface — a primary gradient plus
+soft elevation (the `gradientPrimary` + `shadowLifted` ClassMap tokens,
+which also supply a contrasting `on-primary` icon color) — so an
+out-of-the-box FAB is prominent in both light and dark themes with no
+extra styling. Pass `className` to override it (e.g. `cm.surface`); caller
+classes are merged last (tailwind-merge) so they win over the default.
 
 `label` doubles as an i18n key: it is resolved through
 `t(label, {}, { defaultValue: label })`, so passing a translation key

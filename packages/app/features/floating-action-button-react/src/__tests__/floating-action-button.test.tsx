@@ -105,4 +105,37 @@ describe('FloatingActionButton', () => {
     )
     expect(markup).toContain('fab-cls')
   })
+
+  it('applies a visible default surface (background + elevation) out of the box', () => {
+    const markup = html(
+      createElement(FloatingActionButton, { icon, label: 'Add', onClick: () => {} }),
+    )
+    const cls = markup.match(/class="([^"]*)"/)?.[1] ?? ''
+    // A FAB is a prominent primary action — its default surface must not be
+    // empty (the pre-fix bug: a transparent, invisible circle).
+    expect(cls.length).toBeGreaterThan(0)
+    // The default pulls a real ClassMap surface/background token
+    // (`gradientPrimary` — a primary gradient with contrasting on-primary
+    // icon color) plus an elevation token (`shadowLifted`), with no caller
+    // styling supplied.
+    expect(cls).toContain('gradientPrimary')
+    expect(cls).toContain('shadowLifted')
+  })
+
+  it('lets an explicit className override/compose over the default surface', () => {
+    const markup = html(
+      createElement(FloatingActionButton, {
+        icon,
+        label: 'Add',
+        onClick: () => {},
+        className: 'fab-override',
+      }),
+    )
+    const cls = markup.match(/class="([^"]*)"/)?.[1] ?? ''
+    // Caller class composes in…
+    expect(cls).toContain('fab-override')
+    // …and is emitted AFTER the default surface token, so under cm.cn's real
+    // tailwind-merge a conflicting caller class wins (default is overridable).
+    expect(cls.indexOf('fab-override')).toBeGreaterThan(cls.indexOf('gradientPrimary'))
+  })
 })
