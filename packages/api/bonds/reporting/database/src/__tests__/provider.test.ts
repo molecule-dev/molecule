@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ReportProvider } from '@molecule/api-reporting'
 
+import type { DatabaseReportProvider, ReportDelivery, StoredSchedule } from '../types.js'
+
 const mockQuery = vi.fn().mockResolvedValue({ rows: [] })
 
 vi.mock('@molecule/api-database', () => ({
@@ -12,14 +14,16 @@ vi.mock('node:crypto', () => ({
   randomUUID: () => 'test-uuid-1234',
 }))
 
-let createProvider: (options?: Record<string, unknown>) => ReportProvider
+let createProvider: (options?: Record<string, unknown>) => DatabaseReportProvider
 
 describe('database reporting provider', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     vi.resetModules()
     const mod = await import('../provider.js')
-    createProvider = mod.createProvider as (options?: Record<string, unknown>) => ReportProvider
+    createProvider = mod.createProvider as (
+      options?: Record<string, unknown>,
+    ) => DatabaseReportProvider
   })
 
   describe('createProvider', () => {
@@ -31,6 +35,8 @@ describe('database reporting provider', () => {
       expect(typeof p.export).toBe('function')
       expect(typeof p.schedule).toBe('function')
       expect(typeof p.cancelSchedule).toBe('function')
+      expect(typeof p.listSchedules).toBe('function')
+      expect(typeof p.runDueReports).toBe('function')
     })
 
     it('should accept custom options', () => {
@@ -464,13 +470,18 @@ describe('database reporting provider', () => {
       })
 
       expect(id).toBe('test-uuid-1234')
-      expect(mockQuery).toHaveBeenCalledTimes(2)
+      // ensureSchedulesTable runs CREATE TABLE + idempotent ALTER, then INSERT.
+      expect(mockQuery).toHaveBeenCalledTimes(3)
 
       const createTableSql = mockQuery.mock.calls[0][0] as string
       expect(createTableSql).toContain('CREATE TABLE IF NOT EXISTS')
       expect(createTableSql).toContain('_reporting_schedules')
+      expect(createTableSql).toContain('"last_run_at"')
 
-      const insertSql = mockQuery.mock.calls[1][0] as string
+      const alterSql = mockQuery.mock.calls[1][0] as string
+      expect(alterSql).toContain('ADD COLUMN IF NOT EXISTS "last_run_at"')
+
+      const insertSql = mockQuery.mock.calls[2][0] as string
       expect(insertSql).toContain('INSERT INTO')
     })
 
@@ -496,7 +507,7 @@ describe('database reporting provider', () => {
         schedule: '0 0 * * *',
       })
 
-      const insertParams = mockQuery.mock.calls[1][1] as unknown[]
+      const insertParams = mockQuery.mock.calls[2][1] as unknown[]
       expect(insertParams[5]).toBeNull()
     })
   })
@@ -506,14 +517,193 @@ describe('database reporting provider', () => {
       const p = createProvider()
       await p.cancelSchedule('some-schedule-id')
 
-      expect(mockQuery).toHaveBeenCalledTimes(2)
+      // CREATE TABLE + ALTER (ensureSchedulesTable), then DELETE.
+      expect(mockQuery).toHaveBeenCalledTimes(3)
 
-      const deleteSql = mockQuery.mock.calls[1][0] as string
+      const deleteSql = mockQuery.mock.calls[2][0] as string
       expect(deleteSql).toContain('DELETE FROM')
       expect(deleteSql).toContain('"id" = $1')
 
-      const deleteParams = mockQuery.mock.calls[1][1] as unknown[]
+      const deleteParams = mockQuery.mock.calls[2][1] as unknown[]
       expect(deleteParams[0]).toBe('some-schedule-id')
+    })
+  })
+
+  describe('listSchedules', () => {
+    it('should return normalized stored schedules', async () => {
+      mockQuery
+        .mockResolvedValueOnce({ rows: [] }) // CREATE
+        .mockResolvedValueOnce({ rows: [] }) // ALTER
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              id: 'sched-1',
+              name: 'Daily Revenue',
+              // JSONB may arrive parsed (object) or raw (string) depending on driver.
+              query: { table: 'orders', measures: [{ field: 'revenue', function: 'sum' }] },
+              format: 'csv',
+              schedule: '0 9 * * *',
+              recipients: '["a@example.com","b@example.com"]',
+              created_at: new Date('2024-01-01T00:00:00.000Z'),
+              last_run_at: null,
+            },
+            {
+              id: 'sched-2',
+              name: 'No recipients',
+              query: { table: 'users', measures: [{ field: '*', function: 'count' }] },
+              format: 'json',
+              schedule: '0 0 * * 1',
+              recipients: null,
+              created_at: '2024-02-01T00:00:00.000Z',
+              last_run_at: new Date('2024-03-01T00:00:00.000Z'),
+            },
+          ],
+        })
+
+      const p = createProvider()
+      const schedules = await p.listSchedules()
+
+      expect(schedules).toHaveLength(2)
+      expect(schedules[0]).toMatchObject({
+        id: 'sched-1',
+        name: 'Daily Revenue',
+        format: 'csv',
+        schedule: '0 9 * * *',
+        recipients: ['a@example.com', 'b@example.com'],
+        createdAt: '2024-01-01T00:00:00.000Z',
+        lastRunAt: null,
+      })
+      expect(schedules[0].query).toEqual({
+        table: 'orders',
+        measures: [{ field: 'revenue', function: 'sum' }],
+      })
+      // Null recipients normalize to an empty array; timestamps to ISO strings.
+      expect(schedules[1].recipients).toEqual([])
+      expect(schedules[1].lastRunAt).toBe('2024-03-01T00:00:00.000Z')
+
+      const selectSql = mockQuery.mock.calls[2][0] as string
+      expect(selectSql).toContain('SELECT')
+      expect(selectSql).toContain('_reporting_schedules')
+    })
+  })
+
+  describe('runDueReports', () => {
+    const dueRow = {
+      id: 'sched-1',
+      name: 'Daily Revenue',
+      query: {
+        table: 'orders',
+        measures: [{ field: 'revenue', function: 'sum', alias: 'total' }],
+        dimensions: ['category'],
+      },
+      format: 'csv',
+      schedule: '30 9 * * *',
+      recipients: ['admin@example.com'],
+      created_at: new Date('2024-01-01T00:00:00.000Z'),
+      last_run_at: null,
+    }
+    const dueNow = new Date('2024-06-15T09:30:00.000Z')
+
+    it('should generate and deliver a due report, then record the run', async () => {
+      mockQuery
+        .mockResolvedValueOnce({ rows: [] }) // CREATE
+        .mockResolvedValueOnce({ rows: [] }) // ALTER
+        .mockResolvedValueOnce({ rows: [dueRow] }) // SELECT schedules
+        .mockResolvedValueOnce({ rows: [{ category: 'Electronics', total: 5000 }] }) // export data
+        .mockResolvedValueOnce({ rows: [] }) // UPDATE last_run_at
+
+      const delivered: ReportDelivery[] = []
+      const p = createProvider()
+      const result = await p.runDueReports(
+        async (delivery) => {
+          delivered.push(delivery)
+        },
+        { now: dueNow },
+      )
+
+      expect(result.delivered).toEqual(['sched-1'])
+      expect(result.skipped).toEqual([])
+      expect(result.failed).toEqual([])
+
+      // The delivery carries a real generated buffer, recipients, and format.
+      expect(delivered).toHaveLength(1)
+      expect(delivered[0].recipients).toEqual(['admin@example.com'])
+      expect(delivered[0].format).toBe('csv')
+      expect(Buffer.isBuffer(delivered[0].data)).toBe(true)
+      const csv = delivered[0].data.toString()
+      expect(csv).toContain('category,total')
+      expect(csv).toContain('Electronics,5000')
+
+      // last_run_at is advanced so the same minute won't re-deliver.
+      const updateSql = mockQuery.mock.calls[4][0] as string
+      expect(updateSql).toContain('UPDATE')
+      expect(updateSql).toContain('"last_run_at"')
+      const updateParams = mockQuery.mock.calls[4][1] as unknown[]
+      expect(updateParams[0]).toBe(dueNow.toISOString())
+      expect(updateParams[1]).toBe('sched-1')
+    })
+
+    it('should skip a schedule that is not due and never call deliver', async () => {
+      mockQuery
+        .mockResolvedValueOnce({ rows: [] }) // CREATE
+        .mockResolvedValueOnce({ rows: [] }) // ALTER
+        .mockResolvedValueOnce({ rows: [dueRow] }) // SELECT schedules
+
+      const deliver = vi.fn()
+      const p = createProvider()
+      // 10:30 — the cron is 09:30, so this schedule is not due.
+      const result = await p.runDueReports(deliver, {
+        now: new Date('2024-06-15T10:30:00.000Z'),
+      })
+
+      expect(result.skipped).toEqual(['sched-1'])
+      expect(result.delivered).toEqual([])
+      expect(deliver).not.toHaveBeenCalled()
+      // Only CREATE + ALTER + SELECT ran — no export, no UPDATE.
+      expect(mockQuery).toHaveBeenCalledTimes(3)
+    })
+
+    it('should record a failed delivery without advancing last_run_at or throwing', async () => {
+      mockQuery
+        .mockResolvedValueOnce({ rows: [] }) // CREATE
+        .mockResolvedValueOnce({ rows: [] }) // ALTER
+        .mockResolvedValueOnce({ rows: [dueRow] }) // SELECT schedules
+        .mockResolvedValueOnce({ rows: [{ category: 'Electronics', total: 5000 }] }) // export data
+
+      const p = createProvider()
+      const result = await p.runDueReports(
+        async () => {
+          throw new Error('smtp down')
+        },
+        { now: dueNow },
+      )
+
+      expect(result.delivered).toEqual([])
+      expect(result.failed).toEqual([{ id: 'sched-1', error: 'smtp down' }])
+      // Export ran (call 4) but no UPDATE followed — the failed run retries later.
+      expect(mockQuery).toHaveBeenCalledTimes(4)
+    })
+
+    it('should honor an injected isDue predicate', async () => {
+      mockQuery
+        .mockResolvedValueOnce({ rows: [] }) // CREATE
+        .mockResolvedValueOnce({ rows: [] }) // ALTER
+        .mockResolvedValueOnce({ rows: [dueRow] }) // SELECT schedules
+        .mockResolvedValueOnce({ rows: [{ category: 'Electronics', total: 5000 }] }) // export data
+        .mockResolvedValueOnce({ rows: [] }) // UPDATE
+
+      const isDue = vi.fn((_schedule: StoredSchedule, _now: Date) => true)
+      const deliver = vi.fn(async () => {})
+      const p = createProvider()
+      // A time that the cron would NOT match, but the predicate forces due.
+      const result = await p.runDueReports(deliver, {
+        isDue,
+        now: new Date('2024-06-15T03:00:00.000Z'),
+      })
+
+      expect(isDue).toHaveBeenCalledTimes(1)
+      expect(result.delivered).toEqual(['sched-1'])
+      expect(deliver).toHaveBeenCalledTimes(1)
     })
   })
 

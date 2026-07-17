@@ -16,6 +16,28 @@ import { provider } from '@molecule/api-reporting-database'
 setProvider(provider)
 ```
 
+```typescript
+// Actually DELIVER scheduled reports: drive runDueReports() once a minute and
+// hand each generated report to an email bond. Delivery stays swappable — this
+// bond never imports an email transport itself.
+import { schedule } from '@molecule/api-cron'
+import { sendMail } from '@molecule/api-emails'
+import { provider } from '@molecule/api-reporting-database'
+
+await schedule('reporting:deliver-due', '* * * * *', async () => {
+  await provider.runDueReports(async ({ schedule: report, data, recipients, format }) => {
+    if (recipients.length === 0) return
+    await sendMail({
+      from: 'reports@example.com',
+      to: recipients,
+      subject: `Scheduled report: ${report.name}`,
+      text: `Your "${report.name}" report is attached.`,
+      attachments: [{ filename: `${report.name}.${format}`, content: data }],
+    })
+  })
+})
+```
+
 ## Type
 `provider`
 
@@ -86,6 +108,39 @@ interface DatabaseReportingOptions {
 }
 ```
 
+#### `DatabaseReportProvider`
+
+The database reporting bond's provider — the core {@link ReportProvider} plus
+the persistence-backed delivery runner. `schedule()` only records intent; the
+two methods below turn that persisted intent into actual delivery, which the
+core interface intentionally leaves to the bond (a cloud-analytics reporting
+bond would deliver through its own service instead).
+
+```typescript
+interface DatabaseReportProvider extends ReportProvider {
+  /**
+   * Returns every persisted schedule (newest last), with its query, cron
+   * expression, recipients, and run timestamps.
+   *
+   * @returns All stored schedules.
+   */
+  listSchedules(): Promise<StoredSchedule[]>
+
+  /**
+   * Generates every due report and hands it to `deliver`, then records the run.
+   * Intended to be invoked on a ~1-minute cadence (e.g. an `@molecule/api-cron`
+   * `* * * * *` job or an `@molecule/api-scheduler` task with `intervalMs:
+   * 60000`). A due minute missed while the process is down is skipped, not
+   * caught up — consistent with the cron/scheduler bonds.
+   *
+   * @param deliver - Callback that delivers each generated report.
+   * @param options - Due-ness predicate and evaluation instant overrides.
+   * @returns The delivered / skipped / failed schedule ids.
+   */
+  runDueReports(deliver: DeliverReport, options?: RunDueReportsOptions): Promise<RunDueReportsResult>
+}
+```
+
 #### `Filter`
 
 A filter condition for queries.
@@ -126,6 +181,27 @@ interface OrderBy {
     field: string;
     /** Sort direction. */
     direction: SortDirection;
+}
+```
+
+#### `ReportDelivery`
+
+A generated report ready for delivery, handed to a {@link DeliverReport}
+callback by {@link DatabaseReportProvider.runDueReports}.
+
+```typescript
+interface ReportDelivery {
+  /** The schedule that produced this report. */
+  schedule: StoredSchedule
+
+  /** The generated export payload (e.g. an email attachment body). */
+  data: Buffer
+
+  /** Recipients declared on the schedule (may be empty). */
+  recipients: string[]
+
+  /** The format `data` was generated in (drives filename/MIME on the caller side). */
+  format: ExportFormat
 }
 ```
 
@@ -175,6 +251,42 @@ interface ReportProvider {
 }
 ```
 
+#### `RunDueReportsOptions`
+
+Options for {@link DatabaseReportProvider.runDueReports}.
+
+```typescript
+interface RunDueReportsOptions {
+  /**
+   * Predicate deciding whether a stored schedule is due at `now`. Defaults to
+   * `isScheduleDue` — the schedule's cron matches the current UTC minute and it
+   * has not already run during that minute. Inject a custom predicate for
+   * timezone-aware matching, named cron fields, or catch-up semantics.
+   */
+  isDue?: (schedule: StoredSchedule, now: Date) => boolean
+
+  /** The instant to evaluate due-ness against. Defaults to `new Date()`. */
+  now?: Date
+}
+```
+
+#### `RunDueReportsResult`
+
+Outcome of a {@link DatabaseReportProvider.runDueReports} pass.
+
+```typescript
+interface RunDueReportsResult {
+  /** Ids of schedules generated and handed to `deliver` successfully. */
+  delivered: string[]
+
+  /** Ids of schedules that were not due this pass. */
+  skipped: string[]
+
+  /** Schedules whose generation or delivery threw, with the error message. */
+  failed: { id: string; error: string }[]
+}
+```
+
 #### `ScheduledReport`
 
 Configuration for a scheduled report.
@@ -191,6 +303,42 @@ interface ScheduledReport {
     schedule: string;
     /** Email addresses to deliver the report to. */
     recipients?: string[];
+}
+```
+
+#### `StoredSchedule`
+
+A scheduled report as persisted by {@link ReportProvider.schedule} and read
+back by {@link DatabaseReportProvider.listSchedules} /
+{@link DatabaseReportProvider.runDueReports}. Unlike the write-side
+`ScheduledReport`, this carries the generated `id`, a normalized (never
+`undefined`) `recipients` array, and the persistence timestamps.
+
+```typescript
+interface StoredSchedule {
+  /** Unique schedule identifier (the value `schedule()` returned). */
+  id: string
+
+  /** Human-readable report name. */
+  name: string
+
+  /** The query to execute when the schedule fires. */
+  query: AggregateQuery | TimeSeriesQuery
+
+  /** Output format for the generated report. */
+  format: ExportFormat
+
+  /** Cron expression defining the schedule. */
+  schedule: string
+
+  /** Delivery recipients (empty when the schedule was created without any). */
+  recipients: string[]
+
+  /** ISO 8601 creation timestamp, or `null` if the store did not record one. */
+  createdAt: string | null
+
+  /** ISO 8601 timestamp of the last successful delivery, or `null` if never run. */
+  lastRunAt: string | null
 }
 ```
 
@@ -253,6 +401,18 @@ Aggregate function applied to a measure field.
 type AggregateFunction = 'count' | 'sum' | 'avg' | 'min' | 'max' | 'countDistinct';
 ```
 
+#### `DeliverReport`
+
+Delivery callback invoked once per due report. The caller wires this to its
+own channel — typically `sendMail()` from `@molecule/api-emails` with `data`
+as an attachment. This bond never sends anything itself, keeping delivery
+swappable. Throwing marks the report failed and leaves `lastRunAt` unadvanced
+so the next run retries it.
+
+```typescript
+type DeliverReport = (delivery: ReportDelivery) => Promise<void>
+```
+
 #### `ExportFormat`
 
 Supported export formats.
@@ -293,15 +453,66 @@ Creates a database-backed reporting provider instance.
 
 Uses the bonded `@molecule/api-database` pool for all queries. Aggregate
 and time-series reports are translated to parameterized SQL. Scheduled
-reports are persisted to a database table for external schedulers to consume.
+reports are persisted to a database table; `runDueReports()` generates the
+due ones and hands each to an injected delivery callback (see the module docs
+for the email-bond wiring pattern).
 
 ```typescript
-function createProvider(options?: DatabaseReportingOptions): ReportProvider
+function createProvider(options?: DatabaseReportingOptions): DatabaseReportProvider
 ```
 
 - `options` — Provider configuration options.
 
-**Returns:** A fully configured `ReportProvider` implementation.
+**Returns:** A fully configured `DatabaseReportProvider` implementation.
+
+#### `cronMatches(expr, date)`
+
+Tests whether a cron expression matches the given instant (evaluated in UTC).
+
+Follows the standard Vixie-cron day rule: when BOTH day-of-month and
+day-of-week are restricted (neither is `*`), a match on EITHER is sufficient;
+otherwise the restricted field(s) must match.
+
+```typescript
+function cronMatches(expr: string, date: Date): boolean
+```
+
+- `expr` — A 5-field cron expression.
+- `date` — The instant to test.
+
+**Returns:** `true` if `expr` fires at `date`.
+
+#### `isScheduleDue(schedule, now)`
+
+Default due-ness predicate for {@link DatabaseReportProvider.runDueReports}: a
+schedule is due when its cron matches `now`'s UTC minute AND it has not
+already run during that same minute (guards against a runner invoked more
+than once per minute double-delivering).
+
+```typescript
+function isScheduleDue(schedule: StoredSchedule, now: Date): boolean
+```
+
+- `schedule` — The stored schedule.
+- `now` — The instant to evaluate against.
+
+**Returns:** `true` if the schedule should run now.
+
+#### `parseCronField(field, lo, hi)`
+
+Parses a single cron field into the concrete set of values it matches within
+`[lo, hi]`. Supports `*`, `a`, `a-b`, and any of those with a `/step` suffix,
+plus comma-separated lists of them.
+
+```typescript
+function parseCronField(field: string, lo: number, hi: number): Set<number>
+```
+
+- `field` — The raw cron field text (e.g. `'1-5'`, `'0,30'`, `'0-20/5'`).
+- `lo` — Lowest legal value for this field.
+- `hi` — Highest legal value for this field.
+
+**Returns:** The set of matching integer values.
 
 ### Constants
 
@@ -311,7 +522,7 @@ Default lazily-initialized database reporting provider.
 Uses the bonded database pool for queries.
 
 ```typescript
-const provider: ReportProvider
+const provider: DatabaseReportProvider
 ```
 
 ## Core Interface
@@ -348,12 +559,19 @@ Peer dependencies:
   — on the sqlite/mysql database bonds `timeSeries()` and `schedule()` fail with SQL
   syntax errors ($n placeholders are translated by those bonds; these functions/types
   are not). `aggregate()` sticks to portable GROUP BY SQL.
-- **`schedule()` does NOT execute or deliver anything.** It persists the report
-  definition (query, format, cron string, recipients) to a
-  `<tablePrefix>schedules` table for an EXTERNAL scheduler/worker to consume — no
-  bundled process runs the cron or emails recipients. Pair it with
-  `@molecule/api-scheduler` + an email bond (or an external cron) that reads this
-  table, or don't surface scheduled reports in the app.
+- **Scheduling is record-then-run — `schedule()` delivers nothing by itself.**
+  It only PERSISTS the report definition (query, format, cron string,
+  recipients) to a `<tablePrefix>schedules` table; it does not run the cron or
+  email anyone. To make delivery real, drive `runDueReports(deliver)` on a
+  ~1-minute cadence (an `@molecule/api-cron` `* * * * *` job, an
+  `@molecule/api-scheduler` task with `intervalMs: 60000`, or an external cron):
+  it generates each due report and hands the buffer to your `deliver` callback,
+  which sends it however you like (see the second example). `listSchedules()`
+  enumerates what's stored; `cancelSchedule(id)` removes one. A due minute
+  missed while the process is down is skipped, not caught up — consistent with
+  the cron/scheduler bonds. The built-in due-ness matcher reads standard 5-field
+  numeric cron in UTC; inject `runDueReports(deliver, { isDue })` for timezone
+  or named-field matching.
 - Export formats: `csv` and `json` are native; `xlsx` is XML Spreadsheet 2003
   (opens in Excel/LibreOffice — not a real `.xlsx` ZIP container).
 

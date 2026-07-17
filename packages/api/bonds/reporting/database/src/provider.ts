@@ -16,7 +16,6 @@ import type {
   AggregateQuery,
   AggregateResult,
   ExportFormat,
-  ReportProvider,
   ScheduledReport,
   TimeSeriesQuery,
   TimeSeriesResult,
@@ -28,7 +27,29 @@ import {
   buildTimeSeriesSQL,
   sanitizeIdentifier,
 } from './query-builder.js'
-import type { DatabaseReportingOptions } from './types.js'
+import { isScheduleDue } from './scheduling.js'
+import type {
+  DatabaseReportingOptions,
+  DatabaseReportProvider,
+  DeliverReport,
+  RunDueReportsOptions,
+  RunDueReportsResult,
+  StoredSchedule,
+} from './types.js'
+
+/**
+ * Raw row shape read back from the schedules table.
+ */
+interface ScheduleRow {
+  id: string
+  name: string
+  query: unknown
+  format: string
+  schedule: string
+  recipients: unknown
+  created_at: unknown
+  last_run_at: unknown
+}
 
 /**
  * Returns the internal schedules table name.
@@ -53,10 +74,70 @@ const ensureSchedulesTable = async (prefix: string): Promise<void> => {
       "format" TEXT NOT NULL,
       "schedule" TEXT NOT NULL,
       "recipients" JSONB,
-      "created_at" TIMESTAMPTZ DEFAULT NOW()
+      "created_at" TIMESTAMPTZ DEFAULT NOW(),
+      "last_run_at" TIMESTAMPTZ
     )`,
   )
+  // Forward-safe: a schedules table created by a pre-runDueReports() build of
+  // this bond predates the last_run_at column the runner uses to avoid
+  // re-delivering within the same minute. ADD COLUMN IF NOT EXISTS is an
+  // idempotent no-op once the column exists.
+  await query(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "last_run_at" TIMESTAMPTZ`)
 }
+
+/**
+ * Parses a JSONB column value that the driver may hand back either as a parsed
+ * object (node-postgres) or as a raw string, falling back when absent/corrupt.
+ *
+ * @param value - The raw column value.
+ * @param fallback - Value to use when null/undefined or unparseable.
+ * @returns The parsed value or `fallback`.
+ */
+const parseJsonColumn = <T>(value: unknown, fallback: T): T => {
+  if (value === null || value === undefined) return fallback
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as T
+    } catch (_error) {
+      // A single malformed stored row must not break listing/running the rest;
+      // treat it as the empty/default value rather than throwing.
+      return fallback
+    }
+  }
+  return value as T
+}
+
+/**
+ * Normalizes a timestamp column (Date or string) to an ISO 8601 string.
+ *
+ * @param value - The raw column value.
+ * @returns The ISO string, or `null` when absent.
+ */
+const toIsoOrNull = (value: unknown): string | null => {
+  if (value === null || value === undefined) return null
+  if (value instanceof Date) return value.toISOString()
+  return String(value)
+}
+
+/**
+ * Maps a raw schedules-table row into a normalized {@link StoredSchedule}.
+ *
+ * @param row - The raw row.
+ * @returns The normalized schedule.
+ */
+const toStoredSchedule = (row: ScheduleRow): StoredSchedule => ({
+  id: String(row.id),
+  name: String(row.name),
+  query: parseJsonColumn<AggregateQuery | TimeSeriesQuery>(row.query, {
+    table: '',
+    measures: [],
+  }),
+  format: row.format as ExportFormat,
+  schedule: String(row.schedule),
+  recipients: parseJsonColumn<string[]>(row.recipients, []),
+  createdAt: toIsoOrNull(row.created_at),
+  lastRunAt: toIsoOrNull(row.last_run_at),
+})
 
 /**
  * Detects whether a query is a TimeSeriesQuery by checking for `dateField`.
@@ -185,12 +266,14 @@ const formatExport = (rows: Record<string, unknown>[], format: ExportFormat): Bu
  *
  * Uses the bonded `@molecule/api-database` pool for all queries. Aggregate
  * and time-series reports are translated to parameterized SQL. Scheduled
- * reports are persisted to a database table for external schedulers to consume.
+ * reports are persisted to a database table; `runDueReports()` generates the
+ * due ones and hands each to an injected delivery callback (see the module docs
+ * for the email-bond wiring pattern).
  *
  * @param options - Provider configuration options.
- * @returns A fully configured `ReportProvider` implementation.
+ * @returns A fully configured `DatabaseReportProvider` implementation.
  */
-export const createProvider = (options?: DatabaseReportingOptions): ReportProvider => {
+export const createProvider = (options?: DatabaseReportingOptions): DatabaseReportProvider => {
   const tablePrefix = options?.tablePrefix ?? '_reporting_'
   const maxRows = options?.maxRows ?? 10000
 
@@ -226,25 +309,40 @@ export const createProvider = (options?: DatabaseReportingOptions): ReportProvid
     return { points, interval: q.interval }
   }
 
+  const executeExport = async (
+    q: AggregateQuery | TimeSeriesQuery,
+    format: ExportFormat,
+  ): Promise<Buffer> => {
+    if (isTimeSeriesQuery(q)) {
+      const result = await executeTimeSeries(q)
+      const rows = result.points.map((p) => ({
+        date: p.date,
+        ...p.values,
+      }))
+      return formatExport(rows, format)
+    }
+
+    const dataQuery = buildAggregateSQL(q, maxRows)
+    const result = await query<Record<string, unknown>>(dataQuery.sql, dataQuery.params)
+    return formatExport(result.rows, format)
+  }
+
+  const loadSchedules = async (): Promise<StoredSchedule[]> => {
+    await ensureSchedulesTable(tablePrefix)
+    const table = schedulesTable(tablePrefix)
+    const result = await query<ScheduleRow>(
+      `SELECT "id", "name", "query", "format", "schedule", "recipients", "created_at", "last_run_at"
+       FROM "${table}" ORDER BY "created_at" ASC`,
+    )
+    return result.rows.map(toStoredSchedule)
+  }
+
   return {
     aggregate: executeAggregate,
 
     timeSeries: executeTimeSeries,
 
-    export: async (q: AggregateQuery | TimeSeriesQuery, format: ExportFormat): Promise<Buffer> => {
-      if (isTimeSeriesQuery(q)) {
-        const result = await executeTimeSeries(q)
-        const rows = result.points.map((p) => ({
-          date: p.date,
-          ...p.values,
-        }))
-        return formatExport(rows, format)
-      }
-
-      const dataQuery = buildAggregateSQL(q, maxRows)
-      const result = await query<Record<string, unknown>>(dataQuery.sql, dataQuery.params)
-      return formatExport(result.rows, format)
-    },
+    export: executeExport,
 
     schedule: async (report: ScheduledReport): Promise<string> => {
       await ensureSchedulesTable(tablePrefix)
@@ -272,16 +370,64 @@ export const createProvider = (options?: DatabaseReportingOptions): ReportProvid
       const table = schedulesTable(tablePrefix)
       await query(`DELETE FROM "${table}" WHERE "id" = $1`, [scheduleId])
     },
+
+    listSchedules: async (): Promise<StoredSchedule[]> => {
+      return loadSchedules()
+    },
+
+    runDueReports: async (
+      deliver: DeliverReport,
+      runOptions?: RunDueReportsOptions,
+    ): Promise<RunDueReportsResult> => {
+      const now = runOptions?.now ?? new Date()
+      const isDue = runOptions?.isDue ?? isScheduleDue
+      const table = schedulesTable(tablePrefix)
+      const schedules = await loadSchedules()
+
+      const result: RunDueReportsResult = { delivered: [], skipped: [], failed: [] }
+
+      for (const schedule of schedules) {
+        if (!isDue(schedule, now)) {
+          result.skipped.push(schedule.id)
+          continue
+        }
+
+        try {
+          const data = await executeExport(schedule.query, schedule.format)
+          await deliver({
+            schedule,
+            data,
+            recipients: schedule.recipients,
+            format: schedule.format,
+          })
+          await query(`UPDATE "${table}" SET "last_run_at" = $1 WHERE "id" = $2`, [
+            now.toISOString(),
+            schedule.id,
+          ])
+          result.delivered.push(schedule.id)
+        } catch (error) {
+          // One report's generation/delivery failing must not abort the rest of
+          // the pass. Surface it in `failed` (returned to the caller) instead of
+          // throwing, and leave last_run_at unadvanced so the next run retries.
+          result.failed.push({
+            id: schedule.id,
+            error: error instanceof Error ? error.message : String(error),
+          })
+        }
+      }
+
+      return result
+    },
   }
 }
 
-let _provider: ReportProvider | undefined
+let _provider: DatabaseReportProvider | undefined
 
 /**
  * Default lazily-initialized database reporting provider.
  * Uses the bonded database pool for queries.
  */
-export const provider: ReportProvider = new Proxy({} as ReportProvider, {
+export const provider: DatabaseReportProvider = new Proxy({} as DatabaseReportProvider, {
   get(_, prop, receiver) {
     if (!_provider) _provider = createProvider()
     return Reflect.get(_provider, prop, receiver)
