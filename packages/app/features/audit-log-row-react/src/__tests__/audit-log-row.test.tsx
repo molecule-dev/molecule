@@ -81,6 +81,21 @@ describe('AuditLogRow', () => {
     expect(plain).not.toContain('cursorPointer')
   })
 
+  it('carries a data-mol-id on every row', () => {
+    expect(html(createElement(AuditLogRow, { entry: entry() }))).toContain(
+      'data-mol-id="audit-log-row"',
+    )
+  })
+
+  it('exposes an interactive row as a focusable button (role + tabindex) only when clickable', () => {
+    const clickable = html(createElement(AuditLogRow, { entry: entry(), onClick: () => {} }))
+    expect(clickable).toContain('role="button"')
+    expect(clickable).toContain('tabindex="0"')
+    const plain = html(createElement(AuditLogRow, { entry: entry() }))
+    expect(plain).not.toContain('role="button"')
+    expect(plain).not.toContain('tabindex')
+  })
+
   it('forwards className', () => {
     const markup = html(createElement(AuditLogRow, { entry: entry(), className: 'alr-cls' }))
     expect(markup).toContain('alr-cls')

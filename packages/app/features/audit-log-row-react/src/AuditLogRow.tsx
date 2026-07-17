@@ -1,4 +1,4 @@
-import type { JSX, ReactNode } from 'react'
+import type { JSX, KeyboardEvent, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
@@ -40,9 +40,24 @@ export function AuditLogRow({ entry, onClick, className }: AuditLogRowProps): JS
   const cm = getClassMap()
   const { actor, action, target, timestamp, oldValue, newValue, environment, traceId } = entry
   const showDelta = oldValue !== undefined || newValue !== undefined
+  // When the row is interactive, promote the <div> to a real button in the
+  // a11y tree: role/tabIndex make it focusable and Enter/Space activate it,
+  // matching native button keyboard semantics.
+  const handleKeyDown = onClick
+    ? (event: KeyboardEvent<HTMLDivElement>): void => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onClick()
+        }
+      }
+    : undefined
   return (
     <div
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      data-mol-id="audit-log-row"
       className={cm.cn(
         cm.flex({ align: 'start', gap: 'sm' }),
         cm.sp('py', 2),

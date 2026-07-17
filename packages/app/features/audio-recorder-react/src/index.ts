@@ -24,10 +24,13 @@
  * plain HTTP. The requested `mimeType` is best-effort: unsupported types
  * silently fall back to the browser default (the actual type is reported
  * in `onRecorded`). Reaching `maxDurationSeconds` auto-stops and still
- * fires `onRecorded`. The recording dot's pulse uses a `mol-pulse`
- * CSS animation that the host app must define
- * (`@keyframes mol-pulse { 50% { opacity: .4 } }`) — without it the dot
- * is static (recording still works). Translations come from the companion
+ * fires `onRecorded`. The recording dot's pulse uses a `mol-pulse` CSS
+ * animation shipped in the molecule base stylesheet
+ * (`@molecule/app-ui-tailwind`'s `base.css`, loaded by every molecule app),
+ * so the dot animates out of the box; a host that does not load that
+ * stylesheet can define `@keyframes mol-pulse { 50% { opacity: .4 } }`
+ * itself (without it the dot is static but recording still works).
+ * Translations come from the companion
  * `@molecule/app-locales-audio-recorder` locale bond.
  *
  * @module

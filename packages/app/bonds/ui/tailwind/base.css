@@ -323,3 +323,23 @@
     margin: 0;
   }
 }
+
+/*
+ * `mol-pulse` — the shared pulse animation for live/recording status dots.
+ * Referenced by name (never redefined) from feature packages such as
+ * `@molecule/app-audio-recorder-react` (the mic dot pulses while recording:
+ * `animation: mol-pulse 1.2s ease-in-out infinite`). Shipped here in the base
+ * ClassMap stylesheet so every app that loads it gets the animation for free;
+ * a keyframes at-rule is global and not affected by @layer ordering.
+ */
+@keyframes mol-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}

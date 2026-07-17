@@ -31,8 +31,15 @@ vi.mock('@molecule/app-react', () => ({
 }))
 
 vi.mock('@molecule/app-ui-react', () => ({
-  Button: ({ children }: { children?: ReactNode }) =>
-    createElement('button', { 'data-button': '' }, children),
+  // Mirror the real Button: consume variant/size, forward everything else
+  // (aria-label, data-mol-id, onClick, …) onto the <button> like `{...rest}`.
+  Button: ({
+    children,
+    variant: _variant,
+    size: _size,
+    ...rest
+  }: { children?: ReactNode } & Record<string, unknown>) =>
+    createElement('button', { 'data-button': '', ...rest }, children),
 }))
 
 const { AudioPlayer } = await import('../AudioPlayer.js')
@@ -83,6 +90,29 @@ describe('AudioPlayer', () => {
   it('shows the unmuted glyph by default and the muted glyph when defaultMuted', () => {
     expect(html(createElement(AudioPlayer, { src: 's' }))).toContain('🔊')
     expect(html(createElement(AudioPlayer, { src: 's', defaultMuted: true }))).toContain('🔇')
+  })
+
+  it('gives the play/pause control an accessible name and data-mol-id, and hides the glyph', () => {
+    const markup = html(createElement(AudioPlayer, { src: 's' }))
+    expect(markup).toContain('data-mol-id="audio-player-toggle"')
+    // Idle → the toggle plays, so its accessible name is "Play".
+    expect(markup).toContain('aria-label="Play"')
+    // The emoji glyph is decorative once the button is labelled.
+    expect(markup).toContain('aria-hidden="true"')
+  })
+
+  it('gives the mute control an accessible name reflecting state + a data-mol-id', () => {
+    const unmuted = html(createElement(AudioPlayer, { src: 's' }))
+    expect(unmuted).toContain('data-mol-id="audio-player-mute"')
+    expect(unmuted).toContain('aria-label="Mute"')
+    const muted = html(createElement(AudioPlayer, { src: 's', defaultMuted: true }))
+    expect(muted).toContain('aria-label="Unmute"')
+  })
+
+  it('gives the seek control a data-mol-id alongside its aria-label', () => {
+    const markup = html(createElement(AudioPlayer, { src: 's' }))
+    expect(markup).toContain('data-mol-id="audio-player-seek"')
+    expect(markup).toContain('aria-label="Seek"')
   })
 
   it('forwards className', () => {

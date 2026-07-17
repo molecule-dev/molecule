@@ -4,7 +4,7 @@ Translations for @molecule/app-audio-player-react in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-audio-player-react` package which has 1 translation key.
+Provides translations for the `@molecule/app-audio-player-react` package which has 5 translation keys.
 
 ## Languages
 
@@ -37,6 +37,10 @@ registerLocaleModule(locales)
 | Key | English |
 |-----|---------|
 | `audio.seek` | Seek |
+| `audio.play` | Play |
+| `audio.pause` | Pause |
+| `audio.mute` | Mute |
+| `audio.unmute` | Unmute |
 
 ## Metadata
 

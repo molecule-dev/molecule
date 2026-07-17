@@ -140,8 +140,18 @@ export function AudioPlayer({
       )}
       {visualizer}
       <div className={cm.flex({ align: 'center', gap: 'sm' })}>
-        <Button variant="ghost" size="sm" onClick={toggle}>
-          {playing ? '⏸' : '▶'}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggle}
+          data-mol-id="audio-player-toggle"
+          aria-label={
+            playing
+              ? t('audio.pause', {}, { defaultValue: 'Pause' })
+              : t('audio.play', {}, { defaultValue: 'Play' })
+          }
+        >
+          <span aria-hidden>{playing ? '⏸' : '▶'}</span>
         </Button>
         <span className={cm.textSize('xs')} style={{ minWidth: 64 }}>
           {fmt(current)} / {fmt(duration)}
@@ -154,10 +164,21 @@ export function AudioPlayer({
           value={current}
           onChange={(e) => seek(Number(e.target.value))}
           aria-label={t('audio.seek', {}, { defaultValue: 'Seek' })}
+          data-mol-id="audio-player-seek"
           className={cm.flex1}
         />
-        <Button variant="ghost" size="sm" onClick={toggleMute}>
-          {muted ? '🔇' : '🔊'}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleMute}
+          data-mol-id="audio-player-mute"
+          aria-label={
+            muted
+              ? t('audio.unmute', {}, { defaultValue: 'Unmute' })
+              : t('audio.mute', {}, { defaultValue: 'Mute' })
+          }
+        >
+          <span aria-hidden>{muted ? '🔇' : '🔊'}</span>
         </Button>
       </div>
     </div>
