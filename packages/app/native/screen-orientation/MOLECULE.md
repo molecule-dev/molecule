@@ -429,6 +429,7 @@ function withOrientation(orientation: OrientationLock, callback: () => T | Promi
 ### Requirements
 
 Peer dependencies:
+- `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 
 ### Runtime Dependencies
@@ -439,10 +440,9 @@ Peer dependencies:
   prebuilt provider package ships with molecule**; supply a
   `ScreenOrientationProvider` from your native runtime (or a web one over
   the Screen Orientation API).
-- **Wiring exception:** this core keeps its provider in a module-local
-  singleton — `bond('screen-orientation', provider)` through
-  `@molecule/app-bond` does NOT reach it and `validateBonds()` cannot
-  check it. Use THIS package's `setProvider()`.
+- **Wiring:** this core delegates to the shared `@molecule/app-bond`
+  registry, so `setProvider(provider)` and `bond('screen-orientation',
+  provider)` write the same slot — use either.
 - On web, `screen.orientation.lock()` generally requires FULLSCREEN first
   (and is rejected on most desktops); iOS Safari doesn't support locking
   at all. Treat locking as best-effort: check `getCapabilities().canLock`

@@ -1,3 +1,4 @@
+import { bond, get, reset } from '@molecule/app-bond'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { getProvider, hasProvider, setProvider } from '../provider.js'
@@ -30,9 +31,10 @@ const createMockProvider = (): ScreenOrientationProvider => ({
 })
 
 describe('Provider Management', () => {
+  // Storage is now the shared @molecule/app-bond registry, so we CAN reset
+  // it between tests for real isolation.
   beforeEach(() => {
-    // Reset provider state by setting to a new provider then checking
-    // We can't directly reset, but we can test the state
+    reset()
   })
 
   describe('setProvider', () => {
@@ -50,11 +52,8 @@ describe('Provider Management', () => {
       expect(getProvider()).toBe(mockProvider)
     })
 
-    it('should throw an error when no provider is set', () => {
-      // Create a fresh module scope test would require module reset
-      // For now, verify the provider that was set in previous test
-      const provider = getProvider()
-      expect(provider).toBeDefined()
+    it('should throw a descriptive error when no provider is set', () => {
+      expect(() => getProvider()).toThrow(/No provider set/)
     })
   })
 
@@ -62,6 +61,27 @@ describe('Provider Management', () => {
     it('should return true when a provider is set', () => {
       setProvider(createMockProvider())
       expect(hasProvider()).toBe(true)
+    })
+
+    it('should return false when no provider is bonded', () => {
+      expect(hasProvider()).toBe(false)
+    })
+  })
+
+  // The exact bug behind finding L138: a provider wired through the shared
+  // @molecule/app-bond registry must be visible via this core's accessors.
+  describe('shared @molecule/app-bond registry', () => {
+    it('bond("screen-orientation", provider) is visible through getProvider()/hasProvider()', () => {
+      const mockProvider = createMockProvider()
+      bond('screen-orientation', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
+    })
+
+    it('setProvider() writes the same slot app-bond get("screen-orientation") reads', () => {
+      const mockProvider = createMockProvider()
+      setProvider(mockProvider)
+      expect(get('screen-orientation')).toBe(mockProvider)
     })
   })
 })

@@ -3,6 +3,7 @@
  * Provider management for NFC module
  */
 
+import { bond, get, isBonded } from '@molecule/app-bond'
 import { t } from '@molecule/app-i18n'
 
 import type {
@@ -19,14 +20,18 @@ import type {
 // Provider Management
 // ============================================================================
 
-let currentProvider: NfcProvider | null = null
+/**
+ * Bond category for the NFC provider in the shared `@molecule/app-bond`
+ * registry. `setProvider()` and `bond('nfc', provider)` write the same slot.
+ */
+const BOND_TYPE = 'nfc'
 
 /**
  * Set the NFC provider.
  * @param provider - NfcProvider implementation to register.
  */
 export function setProvider(provider: NfcProvider): void {
-  currentProvider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -35,7 +40,8 @@ export function setProvider(provider: NfcProvider): void {
  * @returns The active NfcProvider instance.
  */
 export function getProvider(): NfcProvider {
-  if (!currentProvider) {
+  const provider = get<NfcProvider>(BOND_TYPE)
+  if (!provider) {
     throw new Error(
       t('nfc.error.noProvider', undefined, {
         defaultValue:
@@ -43,7 +49,7 @@ export function getProvider(): NfcProvider {
       }),
     )
   }
-  return currentProvider
+  return provider
 }
 
 /**
@@ -51,7 +57,7 @@ export function getProvider(): NfcProvider {
  * @returns Whether an NfcProvider has been set.
  */
 export function hasProvider(): boolean {
-  return currentProvider !== null
+  return isBonded(BOND_TYPE)
 }
 
 // ============================================================================

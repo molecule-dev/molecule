@@ -3,18 +3,24 @@
  * Provider management for screen orientation
  */
 
+import { bond, get, isBonded } from '@molecule/app-bond'
 import { t } from '@molecule/app-i18n'
 
 import type { ScreenOrientationProvider } from './types.js'
 
-let currentProvider: ScreenOrientationProvider | null = null
+/**
+ * Bond category for the screen orientation provider in the shared
+ * `@molecule/app-bond` registry. `setProvider()` and
+ * `bond('screen-orientation', provider)` write the same slot.
+ */
+const BOND_TYPE = 'screen-orientation'
 
 /**
  * Set the screen orientation provider.
  * @param provider - ScreenOrientationProvider implementation to register.
  */
 export function setProvider(provider: ScreenOrientationProvider): void {
-  currentProvider = provider
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -23,7 +29,8 @@ export function setProvider(provider: ScreenOrientationProvider): void {
  * @returns The active ScreenOrientationProvider instance.
  */
 export function getProvider(): ScreenOrientationProvider {
-  if (!currentProvider) {
+  const provider = get<ScreenOrientationProvider>(BOND_TYPE)
+  if (!provider) {
     throw new Error(
       t('screenOrientation.error.noProvider', undefined, {
         defaultValue:
@@ -31,7 +38,7 @@ export function getProvider(): ScreenOrientationProvider {
       }),
     )
   }
-  return currentProvider
+  return provider
 }
 
 /**
@@ -39,5 +46,5 @@ export function getProvider(): ScreenOrientationProvider {
  * @returns Whether a ScreenOrientationProvider has been set.
  */
 export function hasProvider(): boolean {
-  return currentProvider !== null
+  return isBonded(BOND_TYPE)
 }

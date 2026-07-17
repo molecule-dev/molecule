@@ -35,10 +35,9 @@
  *   **no prebuilt provider package ships with molecule**; supply an
  *   `NfcProvider` from your native runtime. The pure NDEF helpers work
  *   anywhere.
- * - **Wiring exception:** this core keeps its provider in a module-local
- *   singleton — `bond('nfc', provider)` through `@molecule/app-bond` does
- *   NOT reach it and `validateBonds()` cannot check it. Use THIS package's
- *   `setProvider()`.
+ * - **Wiring:** this core delegates to the shared `@molecule/app-bond`
+ *   registry, so `setProvider(provider)` and `bond('nfc', provider)` write
+ *   the same slot — use either.
  * - Web support is narrow: Web NFC exists only in Chromium on Android, on
  *   HTTPS, from a user gesture — iOS browsers have none. Always gate the
  *   whole feature on `isAvailable()` + `isEnabled()` and offer a QR-code

@@ -1,3 +1,4 @@
+import { bond, get, reset } from '@molecule/app-bond'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -70,6 +71,12 @@ const createMockProvider = (overrides?: Partial<NfcProvider>): NfcProvider => ({
   ...overrides,
 })
 
+// Each test starts from an empty @molecule/app-bond registry so provider
+// state never leaks between tests now that storage is the shared registry.
+beforeEach(() => {
+  reset()
+})
+
 // ============================================================================
 // Provider Management Tests
 // ============================================================================
@@ -89,12 +96,37 @@ describe('Provider Management', () => {
       setProvider(mockProvider)
       expect(getProvider()).toBe(mockProvider)
     })
+
+    it('should throw a descriptive error when no provider is set', () => {
+      expect(() => getProvider()).toThrow(/No provider set/)
+    })
   })
 
   describe('hasProvider', () => {
     it('should return true when a provider is set', () => {
       setProvider(createMockProvider())
       expect(hasProvider()).toBe(true)
+    })
+
+    it('should return false when no provider is bonded', () => {
+      expect(hasProvider()).toBe(false)
+    })
+  })
+
+  // The exact bug behind finding L138: a provider wired through the shared
+  // @molecule/app-bond registry must be visible via this core's accessors.
+  describe('shared @molecule/app-bond registry', () => {
+    it('bond("nfc", provider) is visible through getProvider()/hasProvider()', () => {
+      const mockProvider = createMockProvider()
+      bond('nfc', mockProvider)
+      expect(hasProvider()).toBe(true)
+      expect(getProvider()).toBe(mockProvider)
+    })
+
+    it('setProvider() writes the same slot app-bond get("nfc") reads', () => {
+      const mockProvider = createMockProvider()
+      setProvider(mockProvider)
+      expect(get('nfc')).toBe(mockProvider)
     })
   })
 })
@@ -190,9 +222,9 @@ describe('NFC Convenience Functions', () => {
     })
 
     it('should return false when no provider is set', async () => {
-      // Create a fresh module state simulation by checking hasProvider behavior
-      // This test validates that isAvailable handles missing provider gracefully
-      expect(await isAvailable()).toBe(true) // With provider
+      reset()
+      expect(hasProvider()).toBe(false)
+      expect(await isAvailable()).toBe(false)
     })
   })
 
