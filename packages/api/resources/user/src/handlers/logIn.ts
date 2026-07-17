@@ -8,6 +8,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import * as authorization from '../authorization.js'
 import type * as types from '../types.js'
+import { normalizeEmail } from '../utilities/normalizeEmail.js'
 import { notify } from '../utilities/notify.js'
 
 const analytics = getAnalytics()
@@ -65,10 +66,16 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
             { field: 'username', operator: '=', value: body.username },
           ])) ?? undefined
       } else if (body.email) {
-        user =
-          (await findOne<types.Props>(tableName, [
-            { field: 'email', operator: '=', value: body.email },
-          ])) ?? undefined
+        // Emails are stored normalized (lowercased) at signup — look them up the
+        // same way, or a mixed-case login (`User@x.com`) never matches its stored
+        // lowercase form and the user is locked out of their own account.
+        const normalizedEmail = normalizeEmail(body.email)
+        if (normalizedEmail) {
+          user =
+            (await findOne<types.Props>(tableName, [
+              { field: 'email', operator: '=', value: normalizedEmail },
+            ])) ?? undefined
+        }
       }
 
       if (!user) {

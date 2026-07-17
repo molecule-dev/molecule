@@ -461,6 +461,31 @@ describe('logIn handler — timing attack prevention', () => {
   })
 })
 
+describe('logIn handler — email normalization', () => {
+  const handler = logIn(testResource)
+
+  it('looks up a mixed-case email by its normalized (lowercased) form', async () => {
+    // Signup stores emails lowercased; a raw mixed-case lookup would never match
+    // the stored value, locking the user out of their own account.
+    mockFindOne.mockResolvedValue(null)
+    const req = makeReq({ body: { email: 'User@Example.COM', password: 'x' } })
+    const res = makeRes()
+
+    await handler(req as MoleculeRequest, res as MoleculeResponse)
+
+    const emailCall = mockFindOne.mock.calls.find(
+      (c) =>
+        Array.isArray(c?.[1]) &&
+        (c[1] as Array<{ field: string }>).some((cc) => cc.field === 'email'),
+    )
+    expect(emailCall).toBeDefined()
+    const emailCond = (emailCall![1] as Array<{ field: string; value: unknown }>).find(
+      (cc) => cc.field === 'email',
+    )
+    expect(emailCond?.value).toBe('user@example.com')
+  })
+})
+
 // ===== 4. Constant-time token comparison (logIn.ts) ========================
 
 describe('logIn handler — password reset token', () => {
@@ -1814,6 +1839,18 @@ describe('update handler — avatar + bio profile fields', () => {
     const passedProps = mockResourceUpdate.mock.calls[0]?.[0]?.props ?? {}
     // Re-submitting the same address (e.g. a profile save) must not un-verify.
     expect(passedProps).not.toHaveProperty('emailVerified')
+  })
+
+  it('normalizes the stored email (lowercases) to match signup + the login lookup', async () => {
+    mockCurrentEmail('old@example.com')
+    const req = makeReq({ params: { id: 'user-1' }, body: { email: 'New.User@Example.COM' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    const passedProps = mockResourceUpdate.mock.calls[0]?.[0]?.props ?? {}
+    // Stored lowercased — else login (which normalizes) can't find the new address.
+    expect(passedProps.email).toBe('new.user@example.com')
   })
 
   it('ignores emailVerified from the request body — no self-verification', async () => {

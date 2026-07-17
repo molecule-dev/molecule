@@ -8,6 +8,7 @@ import { update as resourceUpdate } from '@molecule/api-resource'
 
 import { MAX_AVATAR_LENGTH, MAX_BIO_LENGTH, propsSchema, updatePropsSchema } from '../schema.js'
 import type * as types from '../types.js'
+import { normalizeEmail } from '../utilities/normalizeEmail.js'
 
 /**
  * Extended update schema that also permits the application-specific
@@ -100,7 +101,11 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
           // No address on file → it cannot be verified.
           props.emailVerified = false
         } else {
-          props.email = String(req.body.email).substring(0, 1023)
+          // Normalize (lowercase) on store to match signup + the login/reset
+          // lookups — otherwise a profile email change stores a mixed-case value
+          // that those normalized lookups can't find, and lets a case-variant
+          // duplicate slip past the uniqueness check below.
+          props.email = (normalizeEmail(String(req.body.email)) ?? '').substring(0, 1023)
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email)) {
             return {
               statusCode: 400,

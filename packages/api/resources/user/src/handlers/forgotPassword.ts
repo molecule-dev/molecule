@@ -7,6 +7,7 @@ import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
 
 import type * as types from '../types.js'
+import { normalizeEmail } from '../utilities/normalizeEmail.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -40,10 +41,15 @@ export const forgotPassword = ({ name: _name, tableName, schema: _schema }: type
         }
       }
 
-      // Find user by email.
-      const user = await findOne<types.Props>(tableName, [
-        { field: 'email', operator: '=', value: email },
-      ])
+      // Find user by email — normalized to match how signup stores it. A raw
+      // mixed-case lookup silently finds nothing, and the 200-no-reveal response
+      // (anti-enumeration) then hides the failure: the user never gets a reset.
+      const normalizedEmail = normalizeEmail(email)
+      const user = normalizedEmail
+        ? await findOne<types.Props>(tableName, [
+            { field: 'email', operator: '=', value: normalizedEmail },
+          ])
+        : null
 
       if (!user) {
         // Don't reveal whether the email exists.
