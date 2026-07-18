@@ -230,6 +230,12 @@ Peer dependencies:
   `config.notConfigured` error naming the missing key (`MAILGUN_API_KEY`,
   then `MAILGUN_DOMAIN`). On success `accepted` echoes the message's own
   recipients (Mailgun's transport returns no per-recipient verdict).
+- **The `from` address's domain must equal `MAILGUN_DOMAIN`** (Mailgun sends
+  through, and signs SPF/DKIM for, that verified domain). A `from` on any other
+  domain — a hardcoded `noreply@example.com`, `noreply@store.com`, etc. — is
+  rejected or unsigned (spam). Default the sender to the sending domain:
+  `` process.env.EMAIL_FROM ?? `no-reply@${process.env.MAILGUN_DOMAIN}` `` — never
+  a literal placeholder domain.
 
 ## E2E Tests
 

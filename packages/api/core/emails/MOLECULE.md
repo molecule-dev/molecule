@@ -11,7 +11,8 @@ import { sendMail } from '@molecule/api-emails'
 
 // Account email → the authenticated user's OWN address (not a client-named one).
 await sendMail({
-  from: 'no-reply@myapp.com',
+  // A domain VERIFIED with your provider — derived from config, never a placeholder.
+  from: process.env.EMAIL_FROM ?? `no-reply@${process.env.MAILGUN_DOMAIN ?? 'localhost'}`,
   to: user.email, // validated, owned by the session
   subject: 'Reset your password',
   html: `<a href="${resetLink}">Reset</a>`, // a single-use link, not the raw token
@@ -246,6 +247,14 @@ key; they come from config/secrets and stay SERVER-SIDE.
   demand is a spam/abuse vector. Require auth and rate-limit it.
 - **Never put a secret in the body/subject.** A password reset is a single-use LINK, not
   the raw token/secret; don't leak internal errors or stack traces into email content.
+- **The `from` domain must be one you VERIFIED with your provider** (Mailgun/SendGrid/SES),
+  or the send is rejected / lands in spam (SPF+DKIM won't align on an unowned domain). Do
+  NOT hardcode a placeholder like `noreply@example.com` or an arbitrary domain: read the
+  sender from config and default it to your verified sending domain — e.g.
+  `` const from = process.env.EMAIL_FROM ?? `no-reply@${process.env.MAILGUN_DOMAIN ?? 'localhost'}` ``
+  (the exact env var for the sending domain is provider-specific; `MAILGUN_DOMAIN` for
+  Mailgun). One canonical `EMAIL_FROM` override + a default derived from the verified
+  domain = email that delivers out of the box.
 
 ## E2E Tests
 
