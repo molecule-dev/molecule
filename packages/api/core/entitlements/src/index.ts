@@ -53,6 +53,16 @@
  *   structured `LimitErrorPayload` (default 403; pass `status: 429` for
  *   usage-style limits) that the app's limit/upgrade notice renders — don't
  *   swallow it into a generic error page.
+ * - **It is a SOFT ceiling — `getCurrent` COUNTS, then the handler CREATES the
+ *   resource afterwards.** Under concurrency N requests can all read the same
+ *   `current < limit` and all create, so the limit can be exceeded by a few.
+ *   That is fine for plan limits (max projects / seats / collaborators — a
+ *   bounded, harmless overshoot). It is NOT enough for a HARD limit where going
+ *   over is a real loss: money / wallet balances, physical inventory (stock,
+ *   tickets, seats), or metered credits. Enforce THOSE atomically at the write
+ *   with a conditional `UPDATE ... WHERE remaining >= $n RETURNING` that affects
+ *   0 rows when it wouldn't fit (or an advisory-lock reserve for a ledger SUM) —
+ *   never a count-then-allow middleware.
  * - **Plan keys are cached per process** (default 5-minute TTL). The
  *   resource-user payment webhook glue invalidates on plan change; any custom
  *   path that mutates a user's `planKey` must call
