@@ -15,6 +15,12 @@
  *   demand is a spam/abuse vector. Require auth and rate-limit it.
  * - **Never put a secret in the body/subject.** A password reset is a single-use LINK, not
  *   the raw token/secret; don't leak internal errors or stack traces into email content.
+ * - **Build links from a TRUSTED configured origin, never request headers.** A link in an
+ *   email (verification, reset, cancel, invite) must be built from `SITE_ORIGIN` (config),
+ *   NOT `req.headers.origin`/`host`/`x-forwarded-host` — those are caller-controlled, so a
+ *   forged header poisons the emailed link (host-header injection: the token-carrying URL
+ *   sent to a victim points at the attacker's domain → token leak + phishing). e.g.
+ *   `` const origin = getConfig('SITE_ORIGIN', '') || 'http://localhost:3000' ``.
  * - **The `from` domain must be one you VERIFIED with your provider** (Mailgun/SendGrid/SES),
  *   or the send is rejected / lands in spam (SPF+DKIM won't align on an unowned domain). Do
  *   NOT hardcode a placeholder like `noreply@example.com` or an arbitrary domain: read the
@@ -30,8 +36,9 @@
  *
  * // Account email → the authenticated user's OWN address (not a client-named one).
  * await sendMail({
- *   // A domain VERIFIED with your provider — derived from config, never a placeholder.
- *   from: process.env.EMAIL_FROM ?? `no-reply@${process.env.MAILGUN_DOMAIN ?? 'localhost'}`,
+ *   // `emailFrom`: a domain VERIFIED with your provider, read from config (see @remarks) —
+ *   // e.g. `getConfig('EMAIL_FROM', `no-reply@${MAILGUN_DOMAIN}`)`, never a placeholder.
+ *   from: emailFrom,
  *   to: user.email, // validated, owned by the session
  *   subject: 'Reset your password',
  *   html: `<a href="${resetLink}">Reset</a>`, // a single-use link, not the raw token
