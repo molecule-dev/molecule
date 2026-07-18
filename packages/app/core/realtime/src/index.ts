@@ -28,6 +28,14 @@
  *   pair across the stack — e.g. `@molecule/app-realtime-socketio` in the app
  *   with `@molecule/api-realtime-socketio` in the API — and connect to YOUR
  *   API's URL. A client bond alone has nothing to connect to.
+ * - **Wiring the bond is NOT consuming.** Setting the bond up in `bonds.ts` only
+ *   opens the connection — a screen must ALSO `connect()` → `joinRoom(room)` →
+ *   `on(event, handler)`, or it receives nothing while the server broadcasts to
+ *   an empty room. The `room` and `event` names MUST match the server's
+ *   `broadcast(room, event, …)` EXACTLY — both are usually template literals
+ *   (e.g. `` `listing:${id}` ``), so build the identical string. A wrong (or
+ *   never-joined) room, or a wrong event name, is a SILENT no-op: nothing throws,
+ *   the events just never arrive. Confirm with the live two-session check below.
  * - **Clean up on unmount/screen change.** Registering `on(event, handler)` in
  *   a render/effect without the matching `off(event, handler)` (plus
  *   `leaveRoom`/`disconnect`) re-registers on every re-render — events then

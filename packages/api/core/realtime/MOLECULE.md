@@ -577,6 +577,15 @@ Peer dependencies:
   custom `server.ts` — you give up Next's managed server and fight its
   lifecycle. The interface below is identical for every provider; only the
   bond and where you attach its transport change.
+- **A `broadcast(room, event, …)` reaches ONLY clients that already joined
+  that EXACT room and registered a handler for that EXACT event name.**
+  Broadcasting is half the feature — the client half is a separate, easy-to-
+  forget step: wire `@molecule/app-realtime-*` and have the relevant screen
+  `connect()` → `joinRoom(room)` → `on(event, …)` with the SAME room + event
+  strings this call uses (usually a template literal like `` `listing:${id}` ``).
+  A server that broadcasts to a room no client joined — or under an event name
+  no client listens for — is a SILENT no-op (nothing errors). Verify the live
+  two-session check below; do NOT assume a compiling broadcast works.
 - **Without a registered join guard ANY connected client may join ANY room
   by name** — apps with private rooms MUST register `onJoinRequest` and
   validate the request's `auth` payload (e.g. verify a token grants access
