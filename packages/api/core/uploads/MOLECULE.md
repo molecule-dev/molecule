@@ -277,6 +277,16 @@ handler around {@link UploadProvider.upload} / {@link UploadProvider.getFile} /
   stream that never emits `'limit'` is NEVER size-limited by these bonds.
 - **Private by default.** Do NOT put user uploads on a public, guessable path; serve them
   through an authenticated route (or a short-lived signed URL). Public buckets leak files.
+- **Persist the id, never the provider URL.** Store `file.id` (or a serve URL you build from
+  it, e.g. `/api/files/<id>`) — NEVER the raw `file.location`. A bucket URL 403s the moment
+  storage is private (the default here), so a rendered `location` works only on the local
+  filesystem bond and breaks on S3; and only the id lets a later route serve, delete, or
+  REPLACE the object. Persisting `location` strands the file — uncleanable.
+- **Free the blob on delete AND replace.** Deleting the owning row must also call
+  `deleteFile(id)` — a row-only delete orphans the object in storage forever. On REPLACE (a
+  new upload overwriting a stored id) `deleteFile` the OLD id too, or every change leaks the
+  previous blob. Both are best-effort (log, don't fail the request) and run AFTER the row
+  write so a storage hiccup never leaves a row pointing at a gone object.
 - **Never build a storage key from the raw client filename** — sanitize/generate the key
   server-side (path traversal / overwrite).
 - Stream to storage (the API takes a `NodeJS.ReadableStream`); never buffer a whole upload
