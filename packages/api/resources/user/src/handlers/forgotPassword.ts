@@ -75,8 +75,21 @@ export const forgotPassword = ({ name: _name, tableName, schema: _schema }: type
             ? `${siteOrigin}/reset-password?token=${passwordResetToken}`
             : ''
 
+          // Default the sender to the app's OWN domain (derived from SITE_ORIGIN),
+          // never a placeholder like `noreply@example.com`: a provider (e.g. Mailgun)
+          // rejects a `from` whose domain isn't its verified sending domain, so a
+          // placeholder silently BOUNCES this reset email — a critical flow. An
+          // explicit EMAIL_FROM still wins; the localhost fallback is dev-only (prod
+          // sets SITE_ORIGIN).
+          let defaultFrom = 'no-reply@localhost'
+          try {
+            if (siteOrigin) defaultFrom = `no-reply@${new URL(siteOrigin).hostname}`
+          } catch (_error) {
+            // Malformed SITE_ORIGIN — keep the localhost fallback.
+          }
+
           await emailProvider.sendMail({
-            from: getConfig('EMAIL_FROM', 'noreply@example.com'),
+            from: getConfig('EMAIL_FROM', defaultFrom),
             to: email,
             subject: t(
               'user.email.passwordResetSubject',
