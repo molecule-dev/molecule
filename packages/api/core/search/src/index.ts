@@ -19,6 +19,18 @@
  * ```
  *
  * @remarks
+ * - **A `search()` route needs BOTH halves wired, or it ships dead.** (1) The
+ *   index starts EMPTY — you must `index(collection, id, doc)` each record on
+ *   create/update (and `deleteDocument()` on delete), or a query returns zero
+ *   hits forever (nothing was ever indexed). (2) The engine can be ABSENT —
+ *   unbonded, or no service URL in dev/CI/sandboxes — so a bare `search()`
+ *   throws and the endpoint 500s. Guard and degrade: call `search()` only when
+ *   `hasProvider()` is true, wrap it in try/catch, and on absence or failure
+ *   fall back to a DataStore query — `findMany(coll, { where: [{ field,
+ *   operator: 'ilike', value: `%${text}%` }] })` — so the feature works WITH or
+ *   WITHOUT the engine. For a small, already-loaded list, filtering client-side
+ *   is fine — just don't ship a `search()` route no page calls and no writer
+ *   indexes.
  * - **Empty/whitespace-only `SearchQuery.text` is "browse" mode** — every
  *   bundled bond matches ALL documents (filters/sort/pagination still
  *   apply) rather than erroring or returning zero hits. Build an initial
