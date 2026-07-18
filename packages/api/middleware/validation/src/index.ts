@@ -25,6 +25,20 @@
  * `req.query`, so Zod coercions and defaults are what handlers see. On
  * failure the response is `400 { error, errors: [{ field, message, code }] }`.
  *
+ * MASS-ASSIGNMENT SAFETY — Zod object schemas STRIP unknown keys by default, so
+ * after `validateBody(schema)` the replaced `req.body` holds ONLY the schema's
+ * declared fields. THAT is what makes persisting it wholesale safe:
+ * `create('posts', req.body)` / `updateById('posts', id, req.body)` /
+ * `updateById('posts', id, { ...req.body })` cannot smuggle privileged columns
+ * (`role`, `is_admin`, `user_id`, `owner_id`, `status`, `balance`, …) — the
+ * client's extra keys were dropped. The corollary is LOAD-BEARING: writing raw
+ * `req.body` / `{ ...req.body }` to the DataStore on a route that is NOT behind
+ * `validateBody`/`validate({ body })` (or an in-handler `schema.parse()`) IS a
+ * mass-assignment hole. A `const body = req.body as z.infer<typeof schema>` CAST
+ * does NOTHING at runtime (types are erased) — it neither validates nor strips;
+ * only the middleware (or a real `.parse()`) sanitizes. Rule: validate the body
+ * before you persist it, every mutation route.
+ *
  * Sibling: `@molecule/api-utilities-validation` is the PROGRAMMATIC helper
  * set (`getValidProps`, `safeParse`) for use inside handlers/services — both
  * packages export a `validate`, so alias if you import both.
