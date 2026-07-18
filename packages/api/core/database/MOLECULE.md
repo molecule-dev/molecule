@@ -653,6 +653,22 @@ Data-access contract — the rules code generators most often get wrong:
   query lives on the pool/provider. The store also has NO `.exec()`,
   `.prepare()`, `.run()`, `.get()`, or `.all()` — those are driver methods
   (better-sqlite3 / pg) and calling them fails the type-check.
+- **Atomic multi-write = a MANUAL transaction on ONE connection; the store
+  helpers do NOT join it.** When several writes must be all-or-nothing (move
+  funds between two accounts, create an order AND decrement its stock, accept a
+  booking AND mark the slot taken), acquire a dedicated connection and drive
+  raw SQL on IT: `const conn = await connect()` then
+  `try { await conn.query('BEGIN'); …writes…; await conn.query('COMMIT') }`
+  `catch (e) { await conn.query('ROLLBACK').catch(() => {}); throw e }`
+  `finally { conn.release() }`. **The load-bearing gotcha:** the exported
+  `create`/`updateById`/`findMany`/`deleteById` run on the POOL's own
+  connection and commit INDEPENDENTLY — calling them between your `BEGIN` and
+  `COMMIT` does NOT enroll them in the transaction, so a mid-way failure leaves
+  those writes committed while the rest rolls back (a half-applied transfer).
+  Inside a transaction do every read AND write with `conn.query(sql, values)`
+  on that same `conn`, and ALWAYS `release()` in `finally` — a leaked
+  connection permanently drains the pool. Prefer this only for true multi-row
+  invariants; a single-row update is already atomic via `updateById`.
 - **Create tables only via timestamped `.sql` files in `migrations/`** (the
   migration runner applies them on startup) — NEVER programmatically through
   the store. Seed rows with `create()`.
