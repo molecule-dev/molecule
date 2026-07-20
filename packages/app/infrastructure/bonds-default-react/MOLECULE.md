@@ -53,7 +53,7 @@ bootstrapApp({
 
 ## Installation
 ```bash
-npm install @molecule/app-bonds-default-react @molecule/app-auth @molecule/app-code-editor @molecule/app-code-editor-monaco @molecule/app-command-palette @molecule/app-command-palette-cmdk @molecule/app-drag-drop @molecule/app-drag-drop-dndkit @molecule/app-fonts @molecule/app-fonts-arimo @molecule/app-http @molecule/app-icons @molecule/app-icons-molecule @molecule/app-keyboard-shortcuts @molecule/app-keyboard-shortcuts-hotkeys @molecule/app-realtime @molecule/app-realtime-socketio @molecule/app-routing @molecule/app-routing-react-router @molecule/app-storage @molecule/app-storage-localstorage @molecule/app-styling-tailwind @molecule/app-theme @molecule/app-theme-css-variables @molecule/app-ui @molecule/app-ui-tailwind @molecule/app-virtual-scroll @molecule/app-virtual-scroll-tanstack react react-dom
+npm install @molecule/app-bonds-default-react @molecule/app-auth @molecule/app-charts-chartjs @molecule/app-code-editor @molecule/app-code-editor-monaco @molecule/app-command-palette @molecule/app-command-palette-cmdk @molecule/app-drag-drop @molecule/app-drag-drop-dndkit @molecule/app-fonts @molecule/app-fonts-arimo @molecule/app-http @molecule/app-icons @molecule/app-icons-molecule @molecule/app-keyboard-shortcuts @molecule/app-keyboard-shortcuts-hotkeys @molecule/app-maps-leaflet @molecule/app-realtime @molecule/app-realtime-socketio @molecule/app-routing @molecule/app-routing-react-router @molecule/app-storage @molecule/app-storage-localstorage @molecule/app-styling-tailwind @molecule/app-theme @molecule/app-theme-css-variables @molecule/app-ui @molecule/app-ui-tailwind @molecule/app-video-hls @molecule/app-virtual-scroll @molecule/app-virtual-scroll-tanstack react react-dom
 npm install -D @types/react @types/react-dom
 ```
 
@@ -337,6 +337,7 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-auth`
+- `@molecule/app-charts-chartjs`
 - `@molecule/app-code-editor`
 - `@molecule/app-code-editor-monaco`
 - `@molecule/app-command-palette`
@@ -350,6 +351,7 @@ Peer dependencies:
 - `@molecule/app-icons-molecule`
 - `@molecule/app-keyboard-shortcuts`
 - `@molecule/app-keyboard-shortcuts-hotkeys`
+- `@molecule/app-maps-leaflet`
 - `@molecule/app-realtime`
 - `@molecule/app-realtime-socketio`
 - `@molecule/app-routing`
@@ -361,6 +363,7 @@ Peer dependencies:
 - `@molecule/app-theme-css-variables`
 - `@molecule/app-ui`
 - `@molecule/app-ui-tailwind`
+- `@molecule/app-video-hls`
 - `@molecule/app-virtual-scroll`
 - `@molecule/app-virtual-scroll-tanstack`
 - `react`

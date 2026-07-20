@@ -20,7 +20,7 @@ setProvider(provider)
 
 ## Installation
 ```bash
-npm install @molecule/app-file-upload-filepond @molecule/app-file-upload
+npm install @molecule/app-file-upload-filepond @molecule/app-file-upload @molecule/app-i18n
 ```
 
 ## API
@@ -92,6 +92,7 @@ Peer dependencies:
 ### Runtime Dependencies
 
 - `@molecule/app-file-upload`
+- `@molecule/app-i18n`
 
 Transport is ONE multipart/form-data request per file to
 `destination.url` (default method POST, default field name `'file'`,
