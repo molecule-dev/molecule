@@ -202,6 +202,14 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
           body: JSON.stringify(credentials),
         })
 
+        // Two-factor gate: the server answered 206 `{ twoFactorRequired: true }`
+        // — no tokens/user issued. Surface the result WITHOUT marking the
+        // session authenticated; the caller re-prompts for the TOTP and retries.
+        if (result.twoFactorRequired) {
+          setState({ loading: false })
+          return result
+        }
+
         tokenStorage.setAccessToken(result.accessToken || null)
         tokenStorage.setRefreshToken(result.refreshToken || null)
         tokenStorage.setUser(result.user)

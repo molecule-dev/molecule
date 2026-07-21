@@ -191,11 +191,38 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
       // Verify the OAuth code with the bonded provider.
       // SECURITY: do NOT pass the client-supplied `body.redirect_uri` — it is a value
       // the browser controls, but the token-exchange redirect_uri MUST equal the one
-      // used to build the authorization request (the server's APP_ORIGIN). Passing
-      // undefined makes each provider bond use its own `process.env.APP_ORIGIN` (a
-      // server constant) — keeping redirect_uri off the client trust boundary AND
-      // fixing the handshake whenever the app origin differs from APP_ORIGIN.
-      const oauthProps = await oauthProvider.verify(body.code, codeVerifier, undefined)
+      // used to build the authorization request. That URI is `APP_ORIGIN` plus the
+      // sanitized same-origin path the flow started on (e.g. `/login`) — persisted
+      // at initiation in the httpOnly `oauth_redirect` cookie so the exchange can
+      // reconstruct it byte-for-byte (RFC 6749 §4.1.3; GitHub/Google reject with
+      // `redirect_uri_mismatch` otherwise) without trusting the request body.
+      const redirectCookies = (req as unknown as { cookies?: Record<string, string> }).cookies
+      const cookieRedirect =
+        getConfig<string>('NODE_ENV') === 'production'
+          ? redirectCookies?.[authorization.getAuthCookieName('oauth_redirect')]
+          : (redirectCookies?.[authorization.getAuthCookieName('oauth_redirect')] ??
+            redirectCookies?.oauth_redirect)
+      if (typeof expressResVerifier.clearCookie === 'function') {
+        expressResVerifier.clearCookie(authorization.getAuthCookieName('oauth_redirect'), {
+          ...authorization.getAuthCookieOptions(),
+        })
+        expressResVerifier.clearCookie('oauth_redirect', { path: '/' })
+      }
+      const appOrigin = getConfig<string>('APP_ORIGIN', '')
+      // Re-validate defensively (same rule the initiation applied) so a planted
+      // cookie can never turn the exchange redirect_uri into an open redirect.
+      const safeRedirectPath =
+        typeof cookieRedirect === 'string' &&
+        cookieRedirect.startsWith('/') &&
+        !cookieRedirect.startsWith('//') &&
+        !cookieRedirect.includes('\\')
+          ? cookieRedirect
+          : ''
+      const oauthProps = await oauthProvider.verify(
+        body.code,
+        codeVerifier,
+        appOrigin ? `${appOrigin}${safeRedirectPath}` : undefined,
+      )
 
       if (!oauthProps?.oauthId || !oauthProps?.oauthServer) {
         analytics

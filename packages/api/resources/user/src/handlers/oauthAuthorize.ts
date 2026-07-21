@@ -124,6 +124,18 @@ export const oauthAuthorize = () => {
     const redirectTo = sanitizeRedirectPath(req.query?.redirect_to)
     const redirectUri = appOrigin ? `${appOrigin}${redirectTo}` : undefined
 
+    // Persist the sanitized return path so `logInOAuth` can reconstruct the
+    // IDENTICAL redirect_uri at token exchange — RFC 6749 §4.1.3 requires the
+    // exchange redirect_uri to equal the authorization one byte-for-byte, and
+    // GitHub/Google enforce it (mismatch → `redirect_uri_mismatch`, which used
+    // to sink every flow started from a non-root page like /login). httpOnly +
+    // one-time-use, same cookie contract as oauth_state/oauth_verifier.
+    res.cookie(authorization.getAuthCookieName('oauth_redirect'), redirectTo, {
+      ...cookieOptions,
+      httpOnly: true,
+      maxAge: OAUTH_COOKIE_MAX_AGE_MS,
+    })
+
     const authorizeUrl = oauthProvider.getAuthorizeUrl({
       redirectUri,
       state,
