@@ -315,10 +315,22 @@ export function StreamingIndicator({
         gap: '8px',
         padding: '6px 0',
         width: '100%',
+        minWidth: 0,
       }}
     >
       <MolSpinner size={16} />
-      <span style={{ fontSize: '13px', opacity: 0.7, fontStyle: 'italic' }}>{text}</span>
+      <span
+        style={{
+          fontSize: '13px',
+          opacity: 0.7,
+          fontStyle: 'italic',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {text}
+      </span>
       {/* Status metrics pushed to the right edge; the spinner + label stay left.
           Token estimate + elapsed timer show how much work is happening and that
           it's still alive. Same size/color as the label; tabular-nums keeps the
@@ -333,6 +345,8 @@ export function StreamingIndicator({
             fontSize: '13px',
             opacity: 0.7,
             fontVariantNumeric: 'tabular-nums',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
           aria-hidden="true"
         >
