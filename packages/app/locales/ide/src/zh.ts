@@ -82,8 +82,12 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': '已切换到计划模式',
   'ide.chat.switchedToExecute': '已切换到执行模式',
   'ide.chat.costError': '无法获取使用情况数据。',
-  'ide.chat.usageAllowanceLine':
-    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.usageAllowanceTodayLine': "You've used ~{{percent}}% of today's AI allowance.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.resetSoon': 'soon',
+  'ide.chat.resetUnderHour': 'in under an hour',
+  'ide.chat.resetTomorrow': 'tomorrow',
+  'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.models.colUsageRate': 'Usage rate',
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',

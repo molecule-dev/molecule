@@ -44,8 +44,12 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'પ્લાન મોડ પર સ્વિચ કર્યું',
   'ide.chat.switchedToExecute': 'એક્ઝિક્યુટ મોડ પર સ્વિચ કર્યું',
   'ide.chat.costError': 'વપરાશ ડેટા મેળવવામાં અસમર્થ.',
-  'ide.chat.usageAllowanceLine':
-    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.usageAllowanceTodayLine': "You've used ~{{percent}}% of today's AI allowance.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.resetSoon': 'soon',
+  'ide.chat.resetUnderHour': 'in under an hour',
+  'ide.chat.resetTomorrow': 'tomorrow',
+  'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.models.colUsageRate': 'Usage rate',
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',

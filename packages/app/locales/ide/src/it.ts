@@ -79,8 +79,12 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Passato alla modalità piano',
   'ide.chat.switchedToExecute': 'Passato alla modalità di esecuzione',
   'ide.chat.costError': 'Impossibile recuperare i dati di utilizzo.',
-  'ide.chat.usageAllowanceLine':
-    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.usageAllowanceTodayLine': "You've used ~{{percent}}% of today's AI allowance.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.resetSoon': 'soon',
+  'ide.chat.resetUnderHour': 'in under an hour',
+  'ide.chat.resetTomorrow': 'tomorrow',
+  'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.models.colUsageRate': 'Usage rate',
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',

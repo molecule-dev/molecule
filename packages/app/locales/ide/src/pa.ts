@@ -45,8 +45,12 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': "ਪਲਾਨ ਮੋਡ 'ਤੇ ਸਵਿੱਚ ਕੀਤਾ ਗਿਆ",
   'ide.chat.switchedToExecute': 'ਐਗਜ਼ੀਕਿਊਟ ਮੋਡ ਵਿੱਚ ਬਦਲਿਆ ਗਿਆ',
   'ide.chat.costError': 'ਵਰਤੋਂ ਡੇਟਾ ਪ੍ਰਾਪਤ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ।',
-  'ide.chat.usageAllowanceLine':
-    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.usageAllowanceTodayLine': "You've used ~{{percent}}% of today's AI allowance.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.resetSoon': 'soon',
+  'ide.chat.resetUnderHour': 'in under an hour',
+  'ide.chat.resetTomorrow': 'tomorrow',
+  'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.models.colUsageRate': 'Usage rate',
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',

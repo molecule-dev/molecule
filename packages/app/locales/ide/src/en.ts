@@ -59,8 +59,12 @@ export const en: IdeTranslations = {
   'ide.chat.switchedToPlan': 'Switched to plan mode',
   'ide.chat.switchedToExecute': 'Switched to execute mode',
   'ide.chat.costError': 'Unable to fetch usage data.',
-  'ide.chat.usageAllowanceLine':
-    "This conversation has used ~{{percent}}% of a day's AI allowance.",
+  'ide.chat.usageAllowanceTodayLine': "You've used ~{{percent}}% of today's AI allowance.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.resetSoon': 'soon',
+  'ide.chat.resetUnderHour': 'in under an hour',
+  'ide.chat.resetTomorrow': 'tomorrow',
+  'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.models.colUsageRate': 'Usage rate',
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',

@@ -558,6 +558,34 @@ function relativeTimeLong(ms: number): string {
 }
 
 /**
+ * Format an AI-allowance window reset (epoch ms) as a short countdown phrase for
+ * the /cost used-up line ("refreshes in about 3 hours"). Under an hour reads "in
+ * under an hour"; ≥ 6h out on a later local calendar day reads "tomorrow".
+ * @param resetAt - Epoch ms of the window end (always in the future from the API).
+ * @returns A localized human countdown phrase.
+ */
+function allowanceResetCountdown(resetAt: number): string {
+  const diffMs = resetAt - Date.now()
+  if (!Number.isFinite(diffMs) || diffMs <= 0) {
+    return t('ide.chat.resetSoon', undefined, { defaultValue: 'soon' })
+  }
+  const hours = diffMs / 3_600_000
+  if (hours < 1) {
+    return t('ide.chat.resetUnderHour', undefined, { defaultValue: 'in under an hour' })
+  }
+  const rounded = Math.round(hours)
+  const laterLocalDay = new Date(resetAt).toDateString() !== new Date().toDateString()
+  if (laterLocalDay && rounded >= 6) {
+    return t('ide.chat.resetTomorrow', undefined, { defaultValue: 'tomorrow' })
+  }
+  return t(
+    'ide.chat.resetInHours',
+    { hours: rounded },
+    { defaultValue: `in about ${rounded} ${rounded === 1 ? 'hour' : 'hours'}` },
+  )
+}
+
+/**
  * User-message accent stripe. The left edge of a real user message draws a vertical,
  * multi-tone BLUE gradient swept gently up and down (the same smooth single-gradient
  * technique as the composer ring, but vertical + blue) — NOT a repeating barber-pole,
@@ -4632,6 +4660,7 @@ function ChatInner({
             inputTokens: number
             outputTokens: number
             allowancePercent?: number | null
+            allowanceResetAt?: number | null
             model: string
             streaming?: boolean
           }>(usageUrl)
@@ -4642,21 +4671,29 @@ function ChatInner({
               : n >= 1_000
                 ? (n / 1_000).toFixed(1) + 'K'
                 : String(n)
-          // AI usage is shown as a UNITLESS share of the allowance — currency
-          // never appears on AI-usage surfaces. The percent is the
-          // whole-conversation total across every model used (P2-04), so
-          // long-lived conversations can exceed 100 (of one day's allowance).
+          // AI usage is shown as a UNITLESS share of today's allowance —
+          // currency never appears on AI-usage surfaces. The percent is the
+          // owner's rolling-24h window spend (the number the chat gate actually
+          // enforces), so 100% here IS the block point; at/above it the card
+          // switches to the used-up line with the window's reset countdown.
           const allowanceLine =
             typeof d.allowancePercent === 'number'
               ? '\n' +
-                t(
-                  'ide.chat.usageAllowanceLine',
-                  { percent: d.allowancePercent },
-                  {
-                    defaultValue:
-                      "This conversation has used ~{{percent}}% of a day's AI allowance.",
-                  },
-                )
+                (d.allowancePercent >= 100 && typeof d.allowanceResetAt === 'number'
+                  ? t(
+                      'ide.chat.usageAllowanceUsedUpLine',
+                      { when: allowanceResetCountdown(d.allowanceResetAt) },
+                      {
+                        defaultValue: "Today's AI allowance is used up — refreshes {{when}}.",
+                      },
+                    )
+                  : t(
+                      'ide.chat.usageAllowanceTodayLine',
+                      { percent: d.allowancePercent },
+                      {
+                        defaultValue: "You've used ~{{percent}}% of today's AI allowance.",
+                      },
+                    ))
               : ''
           // Mid-stream the totals include the in-progress response's running
           // usage (the server folds it in) — say so, since the figure is still
