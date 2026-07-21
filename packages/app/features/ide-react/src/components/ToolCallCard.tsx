@@ -631,9 +631,7 @@ export const ToolCallCard = memo(function ToolCallCard({
 }: ToolCallCardProps): JSX.Element | null {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
-  // find_package starts expanded: the found packages ARE the result the user
-  // wants to see (and click) — the other expandable tools stay collapsed.
-  const [expanded, setExpanded] = useState(name === 'find_package')
+  const [expanded, setExpanded] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [isUndoneLocal, setIsUndoneLocal] = useState(false)
   const isUndone = isUndoneProp ?? isUndoneLocal
