@@ -172,6 +172,42 @@ export const createBillingRoutes = <
   const resolveUserId = options.resolveUserId ?? defaultResolveUserId
   const tiers = options.tiers
 
+  // Bridge the tier catalogue into the `plans` bond (when an app wires one,
+  // e.g. @molecule/api-resource-payment) so a completed checkout's price id
+  // maps back to a plan at verify/webhook time — without this, payment
+  // verification rejects every real purchase with "unknown plan" even though
+  // the charge succeeded. Only tiers carrying a platform price id are
+  // registered; the free/default plan stays the service's own.
+  const plansBond = bondGet<{
+    registerPlans?: (plans: Record<string, unknown>) => void
+  }>('plans')
+  if (plansBond?.registerPlans) {
+    const providerName = options.providerName ?? 'stripe'
+    const mapped: Record<string, unknown> = {}
+    for (const tier of tiers.getPricingTiers()) {
+      if (!tier.stripePriceId) continue
+      const cents = tier.priceMonthly ?? tier.priceYearly ?? 0
+      mapped[tier.id] = {
+        planKey: tier.id,
+        platformKey: providerName,
+        platformProductId: tier.stripePriceId,
+        platformPriceIds: [tier.stripePriceId],
+        alias: tier.id,
+        period: tier.priceYearly && !tier.priceMonthly ? 'year' : 'month',
+        price: `$${cents / 100}`,
+        autoRenews: cents > 0,
+        title: tier.name,
+        description: tier.features.join(', '),
+        capabilities: { premium: cents > 0 },
+      }
+    }
+    try {
+      plansBond.registerPlans(mapped)
+    } catch (error) {
+      logger.warn('billing-routes: failed to register tiers into the plans bond', { error })
+    }
+  }
+
   /** Computes the set of valid Stripe price IDs from the configured tiers. */
   const validPriceIds = (): Set<string> => {
     const set = new Set<string>()

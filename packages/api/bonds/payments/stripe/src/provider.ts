@@ -133,6 +133,35 @@ export const createCheckoutSession = async (options: {
 }
 
 /**
+ * Creates a Stripe Billing Portal session so the user can manage their
+ * subscription (update payment method, cancel, view invoices) in Stripe's
+ * hosted portal.
+ *
+ * @param options - Portal configuration.
+ * @param options.customerId - The Stripe Customer ID to open the portal for.
+ * @param options.returnUrl - URL Stripe returns the user to when they exit
+ *   the portal. Falls back to APP_ORIGIN/ORIGIN when omitted.
+ * @returns The portal session ID and URL, or `null` when Stripe rejects the
+ *   request (e.g. unknown customer).
+ */
+export const createPortalSession = async (options: {
+  customerId: string
+  returnUrl?: string
+}): Promise<{ id: string; url: string } | null> => {
+  try {
+    const returnUrl = options.returnUrl ?? process.env.APP_ORIGIN ?? process.env.ORIGIN ?? undefined
+    const session = await getClient().billingPortal.sessions.create({
+      customer: options.customerId,
+      return_url: returnUrl,
+    })
+    return { id: session.id, url: session.url }
+  } catch (error) {
+    logger.error(`Error creating Stripe billing portal session:`, error)
+    return null
+  }
+}
+
+/**
  * Retrieves a Stripe Checkout session by ID, including the associated subscription.
  *
  * @param sessionId - The Stripe Checkout session ID.

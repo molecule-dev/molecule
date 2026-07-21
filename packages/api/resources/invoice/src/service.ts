@@ -53,6 +53,14 @@ function toDateString(value: string | Date | null): string | null {
 export function toInvoice(row: InvoiceRow): Invoice {
   return {
     ...row,
+    // pg returns `numeric` columns as strings (precision guard); the Invoice
+    // contract and every downstream math site expect numbers. Coerce here so
+    // comparisons ("paid >= total") and JSON responses are numeric.
+    subtotal: Number(row.subtotal),
+    tax_rate: Number(row.tax_rate),
+    tax_amount: Number(row.tax_amount),
+    total: Number(row.total),
+    amount_paid: Number(row.amount_paid),
     issue_date: toDateString(row.issue_date) ?? '',
     due_date: toDateString(row.due_date),
     paid_at: toIso(row.paid_at),
@@ -159,7 +167,9 @@ export async function updateInvoiceForUser(
   const updates: Record<string, unknown> = { ...patch }
   if (patch.items || patch.tax_rate !== undefined) {
     const items = patch.items ?? existing.items
-    const taxRate = patch.tax_rate ?? existing.tax_rate
+    // pg numerics arrive as strings — the ?? fallback must be numeric before
+    // it reaches computeTotals' multiplication.
+    const taxRate = patch.tax_rate ?? Number(existing.tax_rate)
     const totals = computeTotals(items, taxRate)
     updates.subtotal = totals.subtotal
     updates.tax_amount = totals.tax_amount
@@ -192,8 +202,11 @@ export async function recordPayment(
 ): Promise<Invoice | null> {
   const existing = await findById<InvoiceRow>(TABLE, invoiceId)
   if (!existing || existing.user_id !== userId) return null
-  const newPaid = round2(existing.amount_paid + amount)
-  const isFullyPaid = newPaid >= existing.total
+  // pg numerics arrive as strings — coerce before arithmetic or the addition
+  // string-concats ("0.00" + 42000 → "0.0042000") and the paid check compares
+  // strings lexicographically.
+  const newPaid = round2(Number(existing.amount_paid) + amount)
+  const isFullyPaid = newPaid >= Number(existing.total)
   const updates: Record<string, unknown> = {
     amount_paid: newPaid,
     status: isFullyPaid ? 'paid' : 'partial',

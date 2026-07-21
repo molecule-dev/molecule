@@ -76,9 +76,11 @@ export interface Plan {
   price: string
   autoRenews?: boolean
   title: string
-  titleKey: string
+  /** i18n key for {@link Plan.title}. Optional — plans registered cross-package (e.g. by a billing router bridging its tiers) carry plain text only. */
+  titleKey?: string
   description: string
-  descriptionKey: string
+  /** i18n key for {@link Plan.description}. Optional — see {@link Plan.titleKey}. */
+  descriptionKey?: string
   shortDescription?: string
   shortDescriptionKey?: string
   highlightedDescription?: string

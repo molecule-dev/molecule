@@ -164,6 +164,9 @@ function buildOrderBy(orderBy?: { field: string; direction: 'asc' | 'desc' }[]):
 export function createStore(pool: DatabasePool): DataStore {
   // Cache of "does this table have an `id` column" so we don't re-introspect per insert.
   const hasIdColumnCache = new Map<string, boolean>()
+  // Cache of a table's json/jsonb columns so writes serialize JS objects/arrays
+  // to JSON strings instead of letting node-pg mangle them (see below).
+  const jsonColumnsCache = new Map<string, Set<string>>()
   /**
    * Returns whether `table` has an `id` column (cached), used to decide if `create()`
    * should auto-generate an id when the caller omits one.
@@ -181,6 +184,53 @@ export function createStore(pool: DatabasePool): DataStore {
     const has = (result.rows?.length ?? 0) > 0
     hasIdColumnCache.set(table, has)
     return has
+  }
+
+  /**
+   * Returns the set of `table`'s json/jsonb column names (cached).
+   * @param table - The table name to introspect.
+   * @returns A set of column names whose data type is json or jsonb.
+   */
+  async function tableJsonColumns(table: string): Promise<Set<string>> {
+    const cached = jsonColumnsCache.get(table)
+    if (cached !== undefined) return cached
+    const result = await pool.query<{ column_name: string }>(
+      `SELECT column_name FROM information_schema.columns
+       WHERE table_schema = current_schema() AND table_name = $1 AND data_type IN ('json', 'jsonb')`,
+      [table],
+    )
+    const cols = new Set((result.rows ?? []).map((r) => r.column_name))
+    jsonColumnsCache.set(table, cols)
+    return cols
+  }
+
+  /**
+   * Serializes write values for json/jsonb columns. node-pg serializes a JS
+   * array as a Postgres ARRAY literal (`{"...","..."}`) and a plain object via
+   * its own toPostgres — BOTH of which jsonb rejects (`22P02 invalid input
+   * syntax for type json`, e.g. an invoice's `items jsonb` line-item array
+   * arriving as `{"{\"description\":…}"}`). JSON-stringifying up front makes
+   * the parameter a valid JSON document pg stores verbatim. Values for other
+   * column types pass through untouched (driver handles dates, buffers, and
+   * real Postgres array columns).
+   * @param table - The table being written to.
+   * @param data - The column/value map about to be sent.
+   * @returns The same map with json/jsonb column values JSON-stringified.
+   */
+  async function serializeJsonValues(
+    table: string,
+    data: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const jsonCols = await tableJsonColumns(table)
+    if (jsonCols.size === 0) return data
+    const out: Record<string, unknown> = { ...data }
+    for (const key of Object.keys(out)) {
+      const value = out[key]
+      if (value !== null && typeof value === 'object' && jsonCols.has(key)) {
+        out[key] = JSON.stringify(value)
+      }
+    }
+    return out
   }
 
   return {
@@ -261,6 +311,7 @@ export function createStore(pool: DatabasePool): DataStore {
       if (data.id == null && (await tableHasIdColumn(table))) {
         data = { id: randomUUID(), ...data }
       }
+      data = await serializeJsonValues(table, data)
       const keys = Object.keys(data)
       for (const k of keys) assertSafeIdentifier(k)
       const columns = keys.map((k) => `"${k}"`).join(', ')
@@ -291,6 +342,7 @@ export function createStore(pool: DatabasePool): DataStore {
         return { data: existing.rows[0] ?? null, affected: existing.rowCount ?? 0 }
       }
       for (const k of keys) assertSafeIdentifier(k)
+      data = await serializeJsonValues(table, data)
       const setClauses = keys.map((k, i) => `"${k}" = $${i + 1}`).join(', ')
       const values = [...keys.map((k) => data[k]), id]
 
@@ -314,6 +366,7 @@ export function createStore(pool: DatabasePool): DataStore {
       assertSafeIdentifier(table)
       const keys = Object.keys(data)
       for (const k of keys) assertSafeIdentifier(k)
+      data = await serializeJsonValues(table, data)
       const setClauses = keys.map((k, i) => `"${k}" = $${i + 1}`).join(', ')
       const setValues = keys.map((k) => data[k])
 

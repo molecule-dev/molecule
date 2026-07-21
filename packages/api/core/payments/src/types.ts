@@ -375,6 +375,16 @@ export interface PaymentProviderInterface {
   cancelSubscription?(params: { userId: string }): Promise<boolean>
 
   /**
+   * Create a customer-portal session (Stripe Billing Portal-style) so the
+   * user can manage payment methods, cancel, and view invoices in the
+   * provider's hosted portal. Receipt-based providers (Apple/Google) omit it.
+   */
+  createPortalSession?(params: {
+    userId: string
+    returnUrl?: string
+  }): Promise<{ id: string; url: string } | null>
+
+  /**
    * Create a SetupIntent for the saved-card flow (Stripe-style).
    *
    * The frontend confirms the SetupIntent with the provider's client SDK
@@ -437,6 +447,13 @@ export interface PlanService {
   findPlanByProductId(productId: string): Plan | null
   getDefaultPlan(): Plan | null
   getAllPlans(): Plan[]
+  /**
+   * Registers (or replaces) plans in the service's registry, keyed by
+   * `planKey`. Optional: services with a static catalogue omit it. Billing
+   * routers call this at wiring time so checkout price ids map back to plans
+   * at verify/webhook time.
+   */
+  registerPlans?(plans: Record<string, Plan>): void
 }
 
 /**

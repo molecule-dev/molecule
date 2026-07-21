@@ -26,6 +26,7 @@ import {
 
 import {
   createCheckoutSession,
+  createPortalSession as stripeCreatePortalSession,
   createSetupIntent as stripeCreateSetupIntent,
   detachPaymentMethod as stripeDetachPaymentMethod,
   getCheckoutSession,
@@ -449,6 +450,43 @@ export const paymentProvider: PaymentProvider = {
       }
       logger.error('Stripe bondAdapter cancelSubscription error:', error)
       return false
+    }
+  },
+
+  /**
+   * Creates a Stripe Billing Portal session for the user so they can manage
+   * payment methods, cancel, and view invoices in Stripe's hosted portal.
+   * Resolves the user's Stripe customer ID from their payment record (stored
+   * at checkout/verify time).
+   *
+   * @param params - The portal parameters.
+   * @param params.userId - The molecule user ID to open the portal for.
+   * @param params.returnUrl - URL Stripe returns the user to on exit.
+   * @returns The portal session `{ id, url }`, or `null` when the user has no
+   *   Stripe customer record or Stripe rejects the request.
+   */
+  async createPortalSession(params: {
+    userId: string
+    returnUrl?: string
+  }): Promise<{ id: string; url: string } | null> {
+    try {
+      const records = get<PaymentRecordService>('paymentRecords')
+      if (!records) return null
+
+      const payment = await records.findByUserId(params.userId, 'stripe')
+      const customerId = (payment?.data as Record<string, unknown>)?.customerId as string
+      if (!customerId) return null
+
+      return await stripeCreatePortalSession({
+        customerId,
+        returnUrl: params.returnUrl,
+      })
+    } catch (error) {
+      if (isConfigNotConfiguredError(error)) {
+        throw error
+      }
+      logger.error('Stripe bondAdapter createPortalSession error:', error)
+      return null
     }
   },
 }
