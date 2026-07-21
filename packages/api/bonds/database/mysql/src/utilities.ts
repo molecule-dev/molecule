@@ -115,14 +115,29 @@ export const translateDdlToMysql = (sql: string): string => {
       const lines = body.split('\n').map((line) => {
         if (/^\s*(PRIMARY|UNIQUE|FOREIGN|CONSTRAINT|CHECK|KEY|INDEX)\b/i.test(line)) return line
         const cm = line.match(/^\s*"?(\w+)"?\s+([A-Za-z]+(?:\s*\(\s*\d+(?:\s*,\s*\d+)?\s*\))?)/)
+        let outLine = line
         if (cm) {
           types[cm[1]] = cm[2]
-          if (/\bUNIQUE\b/i.test(line) && colNeedsPrefix(cm[2])) {
+          if (/\bUNIQUE\b/i.test(outLine) && colNeedsPrefix(cm[2])) {
             extra.push(`  UNIQUE ("${cm[1]}"(${IDX_PREFIX}))`)
-            return line.replace(/\s+UNIQUE\b/i, '')
+            outLine = outLine.replace(/\s+UNIQUE\b/i, '')
+          }
+          // Inline (column-level) `REFERENCES t(c) [ON DELETE …]` — Postgres
+          // dialect all resource migrations author. MySQL PARSES BUT IGNORES
+          // inline REFERENCES, so without this rewrite every foreign key
+          // silently vanishes (no enforcement, no cascades). Hoist to a real
+          // table-level FOREIGN KEY constraint.
+          const fk = outLine.match(
+            /\s+REFERENCES\s+"?(\w+)"?\s*\(\s*"?(\w+)"?\s*\)(\s+ON\s+DELETE\s+(?:CASCADE|SET NULL|RESTRICT|NO ACTION|SET DEFAULT))?(\s+ON\s+UPDATE\s+(?:CASCADE|SET NULL|RESTRICT|NO ACTION|SET DEFAULT))?/i,
+          )
+          if (fk) {
+            extra.push(
+              `  FOREIGN KEY ("${cm[1]}") REFERENCES "${fk[1]}" ("${fk[2]}")${fk[3] ?? ''}${fk[4] ?? ''}`,
+            )
+            outLine = outLine.replace(fk[0], '')
           }
         }
-        return line
+        return outLine
       })
       tableTypes[tname] = types
       let bodyOut = lines.join('\n').replace(

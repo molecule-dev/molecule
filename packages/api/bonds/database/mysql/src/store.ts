@@ -169,6 +169,9 @@ function buildOrderBy(orderBy?: { field: string; direction: 'asc' | 'desc' }[]):
 export function createStore(pool: DatabasePool): DataStore {
   // Cache of "does this table have an `id` column" so we don't re-introspect per insert.
   const hasIdColumnCache = new Map<string, boolean>()
+  // Cache of each table's column data types so writes coerce values MySQL
+  // rejects (ISO datetimes, JS objects bound for JSON columns).
+  const columnTypesCache = new Map<string, Map<string, string>>()
   /**
    * Returns whether `table` has an `id` column (cached), used to decide if `create()`
    * should auto-generate an id when the caller omits one.
@@ -187,6 +190,88 @@ export function createStore(pool: DatabasePool): DataStore {
     const has = (result.rows?.length ?? 0) > 0
     hasIdColumnCache.set(table, has)
     return has
+  }
+
+  /**
+   * Returns `table`'s column data types (cached).
+   *
+   * @param table - The table name to introspect.
+   * @returns Map of column name to MySQL data type (e.g. datetime, json).
+   */
+  async function tableColumnTypes(table: string): Promise<Map<string, string>> {
+    const cached = columnTypesCache.get(table)
+    if (cached !== undefined) return cached
+    const result = await pool.query<{
+      column_name?: string
+      data_type?: string
+      COLUMN_NAME?: string
+      DATA_TYPE?: string
+    }>(
+      `SELECT column_name, data_type FROM information_schema.columns
+       WHERE table_schema = DATABASE() AND table_name = ?`,
+      [table],
+    )
+    // information_schema row keys arrive UPPERCASE from the mysql2 driver
+    // (server-meta casing) — accept both.
+    const types = new Map(
+      (result.rows ?? []).map((r) => [
+        (r.column_name ?? r.COLUMN_NAME) as string,
+        ((r.data_type ?? r.DATA_TYPE) as string).toLowerCase(),
+      ]),
+    )
+    columnTypesCache.set(table, types)
+    return types
+  }
+
+  /**
+   * Coerces write values MySQL rejects:
+   * - ISO-8601 strings / Date objects bound for date/datetime/timestamp
+   *   columns → `YYYY-MM-DD HH:MM:SS.mmm` (UTC). Resources pass JS
+   *   `Date#toISOString()` everywhere (e.g. `createdAt`); Postgres and SQLite
+   *   accept ISO verbatim, MySQL 8 rejects it with ER_TRUNCATED_WRONG_VALUE.
+   * - JS objects/arrays bound for json columns → JSON strings. The mysql2
+   *   driver expands JS arrays into `(...)` list literals (for WHERE IN),
+   *   which a JSON column rejects.
+   * Values for every other column type pass through untouched.
+   *
+   * @param table - The table being written to.
+   * @param data - The column/value map about to be sent.
+   * @returns The same map with coerced values.
+   */
+  async function coerceWriteValues(
+    table: string,
+    data: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    // Gate the introspection query on actual coercion candidates (an object,
+    // or a string shaped like an ISO datetime) so plain scalar writes never
+    // pay the extra round-trip.
+    const hasCandidate = Object.values(data).some(
+      (v) =>
+        (v !== null && typeof v === 'object') ||
+        (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(v)),
+    )
+    if (!hasCandidate) return data
+    const types = await tableColumnTypes(table)
+    if (types.size === 0) return data
+    const out: Record<string, unknown> = { ...data }
+    for (const key of Object.keys(out)) {
+      const type = types.get(key)
+      const value = out[key]
+      if (value == null || !type) continue
+      if (type === 'date' || type === 'datetime' || type === 'timestamp') {
+        if (value instanceof Date) {
+          out[key] = value.toISOString().replace('T', ' ').replace('Z', '')
+        } else if (
+          typeof value === 'string' &&
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)
+        ) {
+          out[key] = value.replace('T', ' ').replace('Z', '')
+        }
+      } else if (type === 'json' && typeof value === 'object') {
+        out[key] = JSON.stringify(value)
+      }
+    }
+    return out
   }
 
   /**
@@ -276,6 +361,7 @@ export function createStore(pool: DatabasePool): DataStore {
       if (data.id == null && (await tableHasIdColumn(table))) {
         data = { id: randomUUID(), ...data }
       }
+      data = await coerceWriteValues(table, data)
       const keys = Object.keys(data)
       for (const k of keys) assertSafeIdentifier(k)
       const columns = keys.map((k) => `\`${k}\``).join(', ')
@@ -308,6 +394,7 @@ export function createStore(pool: DatabasePool): DataStore {
         return { data: existing, affected: existing ? 1 : 0 }
       }
       for (const k of keys) assertSafeIdentifier(k)
+      data = await coerceWriteValues(table, data)
       const setClauses = keys.map((k) => `\`${k}\` = ?`).join(', ')
       const values = [...keys.map((k) => data[k]), id]
 
@@ -334,6 +421,7 @@ export function createStore(pool: DatabasePool): DataStore {
       assertSafeIdentifier(table)
       const keys = Object.keys(data)
       for (const k of keys) assertSafeIdentifier(k)
+      data = await coerceWriteValues(table, data)
       const setClauses = keys.map((k) => `\`${k}\` = ?`).join(', ')
       const setValues = keys.map((k) => data[k])
 

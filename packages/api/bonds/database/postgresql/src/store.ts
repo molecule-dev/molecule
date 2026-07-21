@@ -221,6 +221,9 @@ export function createStore(pool: DatabasePool): DataStore {
     table: string,
     data: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
+    // Gate the introspection query on an actual object/array value so plain
+    // scalar writes never pay the extra round-trip.
+    if (!Object.values(data).some((v) => v !== null && typeof v === 'object')) return data
     const jsonCols = await tableJsonColumns(table)
     if (jsonCols.size === 0) return data
     const out: Record<string, unknown> = { ...data }
