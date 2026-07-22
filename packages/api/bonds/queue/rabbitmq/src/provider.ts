@@ -46,6 +46,12 @@ export const createProvider = async (options?: RabbitMQOptions): Promise<QueuePr
   const connectionUrl = url ?? `amqp://${username}:${password}@${host}:${port}${vhost}`
 
   const queues = new Map<string, RabbitMQQueue>()
+  // The exact assert options each createQueue(name, options) declared the
+  // queue with — replayed byte-identically on every later re-assert (send,
+  // receive, subscribe, size, purge), because RabbitMQ closes the channel
+  // (406 PRECONDITION_FAILED) when a re-declare's arguments differ from the
+  // existing queue's, and a closed channel kills every queue sharing it.
+  const assertOptionsByQueue = new Map<string, amqp.Options.AssertQueue>()
 
   let connection!: Awaited<ReturnType<typeof amqp.connect>>
   let channel!: Awaited<ReturnType<typeof connection.createChannel>>
@@ -156,7 +162,7 @@ export const createProvider = async (options?: RabbitMQOptions): Promise<QueuePr
   const getQueue = (name: string): RabbitMQQueue => {
     let q = queues.get(name)
     if (!q) {
-      q = createQueue(channelProxy, name)
+      q = createQueue(channelProxy, name, (n) => assertOptionsByQueue.get(n))
       queues.set(name, q)
     }
     return q
@@ -190,13 +196,23 @@ export const createProvider = async (options?: RabbitMQOptions): Promise<QueuePr
         assertOptions.arguments!['x-dead-letter-routing-key'] = queueOptions.deadLetterQueue.name
       }
 
+      // Record BEFORE asserting: every later operation on this queue handle
+      // re-asserts with these exact options (see assertOptionsByQueue above).
+      assertOptionsByQueue.set(name, assertOptions)
       await channelProxy.assertQueue(name, assertOptions)
       return getQueue(name)
     },
 
     async deleteQueue(name: string): Promise<void> {
+      // Assert before deleting: deleting a queue that does not exist is a
+      // broker 404, which CLOSES the shared channel (and every consumer on
+      // it) — the rejection reaching the caller is the least of the damage.
+      // Asserting with the queue's own recorded options makes deleteQueue
+      // idempotent (a missing queue is created, then deleted: a net no-op).
+      await channelProxy.assertQueue(name, assertOptionsByQueue.get(name) ?? { durable: true })
       await channelProxy.deleteQueue(name)
       queues.delete(name)
+      assertOptionsByQueue.delete(name)
     },
 
     async close(): Promise<void> {

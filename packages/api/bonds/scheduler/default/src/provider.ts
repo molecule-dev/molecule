@@ -74,6 +74,14 @@ export const createProvider = (options?: DefaultSchedulerOptions): SchedulerProv
       entry.staggerTimer = null
       if (!started) return
       runTask(entry)
+      // runTask's synchronous portion runs the handler up to its first
+      // await — and the handler may have unscheduled THIS task (the only
+      // in-contract one-off pattern is unschedule-inside-handler), replaced
+      // it via schedule(), or stop()ped the scheduler in that window. Arming
+      // the interval unconditionally here leaked it: the entry was already
+      // deleted from `tasks`, so nothing could ever stop the interval and
+      // the "one-off" task kept firing forever.
+      if (tasks.get(entry.task.name) !== entry || !started) return
       entry.timer = setInterval(() => runTask(entry), entry.task.intervalMs)
       entry.timer?.unref?.()
     }, delay)

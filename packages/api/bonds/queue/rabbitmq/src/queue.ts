@@ -40,9 +40,20 @@ export interface RabbitMQQueue extends Queue {
  * @param channel - The open amqplib channel to use for all queue operations. May be a live proxy that
  *   forwards to a channel recreated after a reconnect — every operation reads it fresh at call time.
  * @param queueName - The RabbitMQ queue name to operate on.
+ * @param resolveAssertOptions - Optional lookup returning the EXACT assert options a prior
+ *   `provider.createQueue(name, options)` used for this queue (e.g. dead-letter arguments). Every
+ *   re-assert must repeat those arguments byte-identically: RabbitMQ closes the channel
+ *   (`406 PRECONDITION_FAILED`) when a re-declare's arguments differ from the existing queue's,
+ *   and a closed channel kills every queue sharing it. Defaults to plain `{ durable: true }`.
  * @returns A `Queue` (with an extra `reattachSubscribers` used by the provider) bound to the queue.
  */
-export const createQueue = (channel: Channel, queueName: string): RabbitMQQueue => {
+export const createQueue = (
+  channel: Channel,
+  queueName: string,
+  resolveAssertOptions?: (name: string) => amqp.Options.AssertQueue | undefined,
+): RabbitMQQueue => {
+  const assertOptions = (): amqp.Options.AssertQueue =>
+    resolveAssertOptions?.(queueName) ?? { durable: true }
   // Split into two maps so `unsubscribe()` keeps its original race-safe
   // behavior (a consumer that hasn't finished its async setup yet has no
   // consumerTag, so cancelling it is a no-op instead of `channel.cancel('')`)
@@ -57,7 +68,7 @@ export const createQueue = (channel: Channel, queueName: string): RabbitMQQueue 
     handler: MessageHandler<unknown>,
     options?: ReceiveOptions,
   ): Promise<void> => {
-    await channel.assertQueue(queueName, { durable: true })
+    await channel.assertQueue(queueName, assertOptions())
 
     if (options?.maxMessages) {
       // amqplib's prefetch is async — un-awaited, consume() could start
@@ -109,7 +120,7 @@ export const createQueue = (channel: Channel, queueName: string): RabbitMQQueue 
         headers: message.attributes,
       }
 
-      await channel.assertQueue(queueName, { durable: true })
+      await channel.assertQueue(queueName, assertOptions())
 
       if (message.delaySeconds && message.delaySeconds > 0) {
         // Real delayed delivery WITHOUT the rabbitmq-delayed-message-exchange
@@ -150,7 +161,7 @@ export const createQueue = (channel: Channel, queueName: string): RabbitMQQueue 
     },
 
     async receive<T = unknown>(options?: ReceiveOptions): Promise<ReceivedMessage<T>[]> {
-      await channel.assertQueue(queueName, { durable: true })
+      await channel.assertQueue(queueName, assertOptions())
 
       const messages: ReceivedMessage<T>[] = []
       const maxMessages = options?.maxMessages ?? 10
@@ -187,11 +198,17 @@ export const createQueue = (channel: Channel, queueName: string): RabbitMQQueue 
     },
 
     async size(): Promise<number> {
-      const { messageCount } = await channel.assertQueue(queueName, { durable: true })
+      const { messageCount } = await channel.assertQueue(queueName, assertOptions())
       return messageCount
     },
 
     async purge(): Promise<void> {
+      // Assert before purging: purging a queue that does not exist is a
+      // broker 404, and RabbitMQ CLOSES the channel on a 404 — taking down
+      // every other queue and consumer sharing it, not just this call.
+      // Asserting makes purge idempotent (a missing queue is created empty,
+      // then purged to the same effect).
+      await channel.assertQueue(queueName, assertOptions())
       await channel.purgeQueue(queueName)
     },
 

@@ -335,6 +335,78 @@ describe('RabbitMQ Queue Provider', () => {
     })
   })
 
+  describe('channel-safe asserts (404/406 regression)', () => {
+    it('replays createQueue arguments byte-identically on every later re-assert', async () => {
+      const provider = await createProvider()
+      await provider.createQueue('dlx-queue', {
+        deadLetterQueue: { name: 'dlq', maxReceiveCount: 3 },
+      })
+      mockChannel.assertQueue.mockClear()
+
+      const q = provider.queue('dlx-queue')
+      await q.send({ body: 'x' })
+      await q.size()
+      await q.purge()
+      await q.receive()
+      q.subscribe(async () => undefined)
+      // attachConsumer asserts asynchronously — let it run.
+      await new Promise((resolve) => setImmediate(resolve))
+
+      const expected = {
+        durable: true,
+        arguments: { 'x-dead-letter-exchange': '', 'x-dead-letter-routing-key': 'dlq' },
+      }
+      // A 406-mismatching plain { durable: true } re-assert would close the
+      // shared channel on a real broker — every call must match exactly.
+      expect(mockChannel.assertQueue.mock.calls.length).toBeGreaterThanOrEqual(5)
+      for (const call of mockChannel.assertQueue.mock.calls) {
+        expect(call).toEqual(['dlx-queue', expected])
+      }
+    })
+
+    it('purge() asserts the queue first (purging a missing queue 404s and closes the shared channel)', async () => {
+      const provider = await createProvider()
+      const q = provider.queue('maybe-missing')
+      await q.purge()
+
+      expect(mockChannel.assertQueue).toHaveBeenCalledWith('maybe-missing', { durable: true })
+      expect(mockChannel.purgeQueue).toHaveBeenCalledWith('maybe-missing')
+      expect(mockChannel.assertQueue.mock.invocationCallOrder[0]).toBeLessThan(
+        mockChannel.purgeQueue.mock.invocationCallOrder[0],
+      )
+    })
+
+    it('deleteQueue() asserts first with the recorded options, then forgets them', async () => {
+      const provider = await createProvider()
+      await provider.createQueue('opted-queue', { messageRetentionSeconds: 60 })
+      mockChannel.assertQueue.mockClear()
+
+      await provider.deleteQueue('opted-queue')
+
+      expect(mockChannel.assertQueue).toHaveBeenCalledWith('opted-queue', {
+        durable: true,
+        arguments: { 'x-message-ttl': 60000 },
+      })
+      expect(mockChannel.deleteQueue).toHaveBeenCalledWith('opted-queue')
+      expect(mockChannel.assertQueue.mock.invocationCallOrder[0]).toBeLessThan(
+        mockChannel.deleteQueue.mock.invocationCallOrder[0],
+      )
+
+      // After deletion the recorded options are gone — a fresh handle re-asserts plain.
+      mockChannel.assertQueue.mockClear()
+      await provider.queue('opted-queue').size()
+      expect(mockChannel.assertQueue).toHaveBeenCalledWith('opted-queue', { durable: true })
+    })
+
+    it('deleteQueue() on a never-created queue asserts plain durable first (idempotent no-op)', async () => {
+      const provider = await createProvider()
+      await provider.deleteQueue('never-existed')
+
+      expect(mockChannel.assertQueue).toHaveBeenCalledWith('never-existed', { durable: true })
+      expect(mockChannel.deleteQueue).toHaveBeenCalledWith('never-existed')
+    })
+  })
+
   describe('provider.listQueues', () => {
     it('should return list of known queues', async () => {
       const provider = await createProvider()

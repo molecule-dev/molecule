@@ -8,7 +8,7 @@
  * @module
  */
 
-import cron from 'node-cron'
+import cron, { type ScheduledTask } from 'node-cron'
 
 import type { CronJob, CronOptions, CronProvider } from '@molecule/api-cron'
 import { logger } from '@molecule/api-logger'
@@ -26,7 +26,7 @@ interface JobRecord {
   /** Cron expression. */
   cronExpression: string
   /** The node-cron scheduled task. */
-  task: cron.ScheduledTask
+  task: ScheduledTask
   /** The handler function. */
   handler: () => Promise<void>
   /** Current status. */
@@ -77,7 +77,7 @@ export const createProvider = (config: NodeCronConfig = {}): CronProvider => {
         status: 'active',
         runCount: 0,
         maxRuns: options?.maxRuns,
-        task: null as unknown as cron.ScheduledTask,
+        task: null as unknown as ScheduledTask,
       }
 
       const task = cron.schedule(

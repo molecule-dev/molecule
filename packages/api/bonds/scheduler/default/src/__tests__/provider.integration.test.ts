@@ -198,6 +198,54 @@ describe('@molecule/api-scheduler-default × REAL timers + REAL bond registry', 
     expect(lateRuns).toBe(0)
   })
 
+  it('REGRESSION: unschedule() inside the FIRST run (the one-off pattern) does not leak the interval', async () => {
+    provider = createProvider({ staggerMs: 0 })
+    let runs = 0
+    provider.schedule({
+      name: 'one-off',
+      intervalMs: 30,
+      handler: async () => {
+        runs += 1
+        // The only in-contract one-off: remove yourself on first execution.
+        // The stagger callback arms the interval AFTER the handler's
+        // synchronous portion — pre-fix this delete landed too late, the
+        // interval was armed on a dead entry, and the task fired forever.
+        provider.unschedule('one-off')
+      },
+    })
+    provider.start()
+
+    await sleep(200) // many 30ms intervals past the first run
+    expect(runs).toBe(1)
+    expect(provider.getStatus('one-off')).toBeNull()
+  })
+
+  it('REGRESSION: schedule() replacement during the first run does not arm the replaced entry', async () => {
+    provider = createProvider({ staggerMs: 0 })
+    let oldRuns = 0
+    let newRuns = 0
+    provider.schedule({
+      name: 'swap',
+      intervalMs: 30,
+      handler: async () => {
+        oldRuns += 1
+        // Replace this task synchronously inside its own first run.
+        provider.schedule({
+          name: 'swap',
+          intervalMs: 30,
+          handler: async () => {
+            newRuns += 1
+          },
+        })
+      },
+    })
+    provider.start()
+
+    await sleep(200)
+    expect(oldRuns).toBe(1)
+    expect(newRuns).toBeGreaterThanOrEqual(2)
+  })
+
   it('REGRESSION: stop() during the stagger window then start() does not leak a duplicate interval', async () => {
     provider = createProvider({ staggerMs: 100 })
     let runs = 0
