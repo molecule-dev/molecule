@@ -137,6 +137,72 @@ export const workflows = {
   }),
 
   /**
+   * Project CI for scaffolded molecule apps: lint, type-check, build, unit
+   * tests, and — when the app ships a database — migrations (`db:setup`
+   * against the runner's Postgres/SQLite). Each step runs a script the
+   * scaffold already ships, so a green local `npm run …` means a green CI.
+   *
+   * @param options - Feature toggles derived from the scaffold's package set.
+   * @param options.database - Emit the `db:setup` migrations step (Postgres service).
+   * @param options.e2e - Emit the Playwright E2E step (flagship templates ship `e2e/`).
+   * @returns A workflow config covering lint, typecheck, build, test, and
+   *   optionally migrations and E2E.
+   */
+  projectCi: (options: { database?: boolean; e2e?: boolean } = {}): WorkflowConfig => ({
+    name: 'CI',
+    on: {
+      push: { branches: ['main'] },
+      pull_request: { branches: ['main'] },
+    },
+    jobs: {
+      build: {
+        'runs-on': 'ubuntu-latest',
+        ...(options.database
+          ? {
+              services: {
+                postgres: {
+                  image: 'postgres:16',
+                  env: {
+                    POSTGRES_USER: 'molecule',
+                    POSTGRES_PASSWORD: 'molecule',
+                    POSTGRES_DB: 'app_test',
+                  },
+                  ports: ['5432:5432'],
+                  options:
+                    '--health-cmd "pg_isready -U molecule" --health-interval 5s --health-timeout 5s --health-retries 10',
+                },
+              },
+            }
+          : {}),
+        env: options.database
+          ? { DATABASE_URL: 'postgres://molecule:molecule@localhost:5432/app_test' }
+          : {},
+        steps: [
+          commonSteps.checkout(),
+          commonSteps.setupNode(),
+          commonSteps.npmInstall(),
+          commonSteps.npmLint(),
+          { name: 'Type-check', run: 'npm run typecheck' },
+          commonSteps.npmBuild(),
+          ...(options.database
+            ? [{ name: 'Run database migrations', run: 'npm run db:setup' }]
+            : []),
+          commonSteps.npmTest(),
+          ...(options.e2e
+            ? [
+                {
+                  name: 'Install Playwright browsers',
+                  run: 'npx playwright install --with-deps chromium',
+                },
+                { name: 'Run E2E tests', run: 'npm run test:e2e' },
+              ]
+            : []),
+        ],
+      },
+    },
+  }),
+
+  /**
    * CI workflow that tests across multiple Node.js versions using a matrix strategy.
    *
    * @param nodeVersions - Node.js versions to test against (defaults to
