@@ -435,6 +435,42 @@ describe('verifyPayment — Stripe subscription replay defense (M3-1)', () => {
     expect(mockUpdateFn).toHaveBeenCalled()
   })
 
+  it('accepts the provider snake_case redirect echo (subscription_id / token) as the subscription id', async () => {
+    // PayPal appends its OWN parameter names to the return_url after buyer
+    // approval — `subscription_id` for billing subscriptions, `token` for v2
+    // orders — so the handler must read those fallbacks, not just `subscriptionId`.
+    const { provider, records } = wire({
+      verifiedCustomerId: 'cus_me',
+      viaCheckoutSession: true,
+      storedCustomerId: null,
+    })
+    records.findByTransaction.mockResolvedValue(null)
+
+    const bySubscriptionId = await handler(
+      makeReq({
+        params: { id: 'me', provider: 'paypal' },
+        query: { subscription_id: 'I-PAYPAL1' },
+      }),
+    )
+    expect(bySubscriptionId?.statusCode).toBe(200)
+    expect(provider.verifySubscription).toHaveBeenCalledWith('I-PAYPAL1')
+
+    vi.clearAllMocks()
+    mockUpdateFn.mockResolvedValue({ statusCode: 200, body: { props: { planKey: 'premium' } } })
+    const { provider: provider2, records: records2 } = wire({
+      verifiedCustomerId: 'cus_me',
+      viaCheckoutSession: true,
+      storedCustomerId: null,
+    })
+    records2.findByTransaction.mockResolvedValue(null)
+
+    const byToken = await handler(
+      makeReq({ params: { id: 'me', provider: 'paypal' }, query: { token: '5O190127TN364715T' } }),
+    )
+    expect(byToken?.statusCode).toBe(200)
+    expect(provider2.verifySubscription).toHaveBeenCalledWith('5O190127TN364715T')
+  })
+
   it('fails closed when the verified subscription has no transaction id (unbindable)', async () => {
     const { provider } = wire({
       verifiedCustomerId: 'cus_me',

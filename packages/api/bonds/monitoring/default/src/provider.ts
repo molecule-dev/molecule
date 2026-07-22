@@ -98,6 +98,11 @@ export const createProvider = (options?: DefaultMonitoringOptions): MonitoringPr
       const results = await Promise.all(
         entries.map(async (check): Promise<CheckEntry> => {
           const checkedAt = new Date().toISOString()
+          // Time every check at the provider level: the built-in checks
+          // self-report `latencyMs`, but a custom check that doesn't would
+          // otherwise surface in /status with no latency at all — inconsistent
+          // telemetry for the one field a latency regression shows up in.
+          const started = Date.now()
           let result: CheckResult
           try {
             result = await withTimeout(check.check(), checkTimeoutMs)
@@ -116,6 +121,7 @@ export const createProvider = (options?: DefaultMonitoringOptions): MonitoringPr
             category: check.category,
             checkedAt,
             ...result,
+            latencyMs: result.latencyMs ?? Date.now() - started,
           }
         }),
       )
