@@ -62,9 +62,6 @@ string (e.g. "5 minutes ago", "in 3 days") using {@link Intl.RelativeTimeFormat}
 function formatRelativeTime(input: string | number | Date, now?: number | Date, locale?: string): string
 ```
 
-- `input` — *
-- `now` — *
-
 #### `RelativeTime(props)`
 
 Live-updating relative time display ("5 minutes ago"). Re-computes on

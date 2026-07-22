@@ -160,8 +160,7 @@ function checkPassword(plaintext: string, options?: CheckPasswordOptions): Promi
 - `plaintext` — The plaintext password to check.
 - `options` — Optional behavior overrides — see {@link CheckPasswordOptions}.
 
-**Returns:** Promise resolving to a {@link BreachCheckResult} with `pwned`
- *   (true when count > 0) and `count` (number of breach occurrences).
+**Returns:** Promise resolving to a {@link BreachCheckResult} with `pwned` (true when count > 0) and `count` (number of breach occurrences).
 
 #### `findCountForSuffix(body, suffix)`
 
@@ -198,8 +197,7 @@ function sha1Split(plaintext: string): Sha1Split
 
 - `plaintext` — The password (or any string) to hash.
 
-**Returns:** Object containing the uppercase SHA-1 `prefix` (length 5) and
- *   `suffix` (length 35).
+**Returns:** Object containing the uppercase SHA-1 `prefix` (length 5) and `suffix` (length 35).
 
 ## Injection Notes
 

@@ -482,8 +482,7 @@ function headerToString(value: string | string[] | undefined): string | undefine
 
 - `value` — The header value to coerce.
 
-**Returns:** The header value as a single string, or `undefined` when the
- *   header was not present.
+**Returns:** The header value as a single string, or `undefined` when the header was not present.
 
 #### `isAllowedSigningCertUrl(url)`
 
@@ -527,7 +526,7 @@ function parseRawMimeContent(raw: string | Buffer<ArrayBufferLike>, overrides?: 
 ```
 
 - `raw` — The raw RFC 822 message bytes.
-- `overrides` — Optional fields to override on the parsed result
+- `overrides` — Optional fields to override on the parsed result (e.g. an SES-assigned `id` or `receivedAt` timestamp).
 
 **Returns:** The normalized inbound email.
 

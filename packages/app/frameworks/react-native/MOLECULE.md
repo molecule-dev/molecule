@@ -1494,7 +1494,7 @@ Only providers that are passed will be included.
 function MoleculeProvider({ children, state, auth, theme, router, i18n, http, storage, logger, chat, workspace, editor, preview, }: MoleculeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `props` — Component props (see {@link MoleculeProviderProps}) — each service is
+- `props` — Component props (see {@link MoleculeProviderProps}) — each service is optional, and ONLY the services passed are provided to the tree.
 
 **Returns:** The rendered combined provider element.
 

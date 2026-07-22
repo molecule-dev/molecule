@@ -358,7 +358,7 @@ Creates a Microsoft Calendar provider.
 function createProvider(options?: MicrosoftCalendarProviderOptions): CalendarProvider
 ```
 
-- `options` — Optional configuration. Falls back to
+- `options` — Optional configuration. Falls back to `OAUTH_MICROSOFT_CLIENT_ID` / `OAUTH_MICROSOFT_CLIENT_SECRET` env vars when `clientId` / `clientSecret` are omitted.
 
 **Returns:** A {@link CalendarProvider} implementation.
 

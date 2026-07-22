@@ -550,8 +550,6 @@ Aggregate flat per-column foreign-key rows into a deduplicated list of {@link Fo
 function collectForeignKeys(rows: { constraint_name: string; column_name: string; foreign_schema: string; foreign_table: string; foreign_column: string; }[]): ForeignKeySchema[]
 ```
 
-- `rows` — *
-
 #### `collectIndexes(rows)`
 
 Aggregate flat per-column index rows into a deduplicated list of {@link IndexSchema} objects.
@@ -559,8 +557,6 @@ Aggregate flat per-column index rows into a deduplicated list of {@link IndexSch
 ```typescript
 function collectIndexes(rows: { index_name: string; column_name: string; is_unique: boolean; }[]): IndexSchema[]
 ```
-
-- `rows` — *
 
 #### `connectRemote(connection, hooks)`
 
@@ -579,7 +575,7 @@ engine is selected.
 function connectRemote(connection: RemoteDbConnection, hooks?: ConnectRemoteHooks): Promise<RemoteDb>
 ```
 
-- `connection` — Engine type, URL / path, optional read-only flag,
+- `connection` — Engine type, URL / path, optional read-only flag, optional pool size.
 - `hooks` — Optional driver-factory overrides for testing.
 
 **Returns:** A connected {@link RemoteDb}.
@@ -594,8 +590,8 @@ function createMysqlRemoteDb(pool: MysqlPoolLike, defaultDb: string, readonly: b
 ```
 
 - `pool` — Connected mysql2 pool.
-- `defaultDb` — Database name parsed from the connection URI; used as
-- `readonly` — When `true`, mutating SQL is rejected before the pool
+- `defaultDb` — Database name parsed from the connection URI; used as the default `schema` for {@link RemoteDb.listTables} when none is supplied.
+- `readonly` — When `true`, mutating SQL is rejected before the pool sees it.
 
 #### `createPgRemoteDb(pool, readonly)`
 
@@ -605,8 +601,8 @@ Build a {@link RemoteDb} backed by a `pg.Pool`.
 function createPgRemoteDb(pool: PgPoolLike, readonly: boolean): RemoteDb
 ```
 
-- `pool` — Connected pool. Ownership transfers — the caller must NOT
-- `readonly` — When `true`, mutating SQL is rejected before the pool
+- `pool` — Connected pool. Ownership transfers — the caller must NOT keep a reference to the pool, as `disconnect()` will drain it.
+- `readonly` — When `true`, mutating SQL is rejected before the pool sees it.
 
 **Returns:** A connected handle.
 
@@ -618,8 +614,6 @@ Ownership transfers — `disconnect()` calls `db.close()`.
 ```typescript
 function createSqliteRemoteDb(db: SqliteDbLike, readonly: boolean): RemoteDb
 ```
-
-- `db` — *
 
 #### `defaultMysqlPoolFactory()`
 
@@ -677,8 +671,6 @@ Returns an empty string if the URI has no path.
 function parseMysqlDatabase(uri: string): string
 ```
 
-- `uri` — *
-
 #### `quoteIdentifier(name)`
 
 Quote a SQLite identifier (schema, table, index name). PRAGMA statements
@@ -689,8 +681,6 @@ is the only defence against injection.
 function quoteIdentifier(name: string): string
 ```
 
-- `name` — *
-
 #### `raceWithTimeout(promise, timeoutMs, onTimeout)`
 
 Race a promise against a timeout. The `onTimeout` hook fires once when
@@ -699,10 +689,6 @@ the timeout wins so the caller can release driver-level resources.
 ```typescript
 function raceWithTimeout(promise: Promise<T>, timeoutMs: number, onTimeout: () => void): Promise<T>
 ```
-
-- `promise` — *
-- `timeoutMs` — *
-- `onTimeout` — *
 
 ### Constants
 

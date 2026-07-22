@@ -469,7 +469,7 @@ Searches for flight offers matching the supplied itinerary.
 function searchFlights(options: SearchFlightsOptions): Promise<FlightOffer[]>
 ```
 
-- `options` — Search parameters (origin, destination, dates,
+- `options` — Search parameters (origin, destination, dates, passenger counts, cabin, etc.).
 
 **Returns:** Array of normalized flight offers.
 

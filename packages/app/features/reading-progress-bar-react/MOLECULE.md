@@ -103,8 +103,7 @@ total scrollable height.
 function computeWindowProgress(): number
 ```
 
-**Returns:** A number in `[0, 1]`. Falls back to `0` when there is nothing to
- *   scroll (page shorter than the viewport).
+**Returns:** A number in `[0, 1]`. Falls back to `0` when there is nothing to scroll (page shorter than the viewport).
 
 #### `ReadingProgressBar(props)`
 

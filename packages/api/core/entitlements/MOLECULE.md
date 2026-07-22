@@ -390,7 +390,7 @@ an upgrade prompt.
 function buildLimitError(options: BuildLimitErrorOptions<TLimits>): LimitErrorPayload
 ```
 
-- `options` — The limit type, current tier category, current limit, and
+- `options` — The limit type, current tier category, current limit, and optional upgrade-limit resolver / retry-after / message override.
 
 **Returns:** A structured payload safe to send as a 429 / 403 response body.
 
@@ -412,7 +412,7 @@ insertions and TTL checks observe the new settings.
 function configurePlanCache(options?: PlanCacheOptions): void
 ```
 
-- `options` — Optional overrides for TTL, maxEntries, and the
+- `options` — Optional overrides for TTL, maxEntries, and the effective-plan-key resolver.
 
 #### `defineTiers(options)`
 

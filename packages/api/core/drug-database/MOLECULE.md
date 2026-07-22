@@ -308,7 +308,7 @@ clinical guarantee — see {@link DrugInteraction} for the contract.
 function checkInteractions(drugIds: string[]): Promise<DrugInteraction[]>
 ```
 
-- `drugIds` — Provider-specific ids previously returned by
+- `drugIds` — Provider-specific ids previously returned by {@link searchDrug}.
 
 **Returns:** Array of reported interactions.
 
@@ -320,7 +320,7 @@ Look up a drug by provider-specific id via the bonded provider.
 function getDrug(id: string): Promise<DrugDetail | null>
 ```
 
-- `id` — Provider-specific identifier previously returned by
+- `id` — Provider-specific identifier previously returned by {@link searchDrug}.
 
 **Returns:** The matching drug detail, or `null` when no record exists.
 
@@ -333,7 +333,7 @@ drug via the bonded provider.
 function getNDCs(drugId: string): Promise<string[]>
 ```
 
-- `drugId` — Provider-specific identifier previously returned by
+- `drugId` — Provider-specific identifier previously returned by {@link searchDrug}.
 
 **Returns:** Array of NDC strings.
 
@@ -368,8 +368,7 @@ function searchDrug(query: string): Promise<DrugMatch[]>
 
 - `query` — Free-text query (drug name).
 
-**Returns:** Array of normalized search-result rows, ordered by upstream
- *   relevance.
+**Returns:** Array of normalized search-result rows, ordered by upstream relevance.
 
 #### `setProvider(provider)`
 

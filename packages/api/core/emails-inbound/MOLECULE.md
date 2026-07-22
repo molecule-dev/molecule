@@ -410,8 +410,7 @@ via {@link replyTo}.
 function supportsReply(): boolean
 ```
 
-**Returns:** `true` when the bonded provider exposes a `replyTo()` method
- *   and reports `supportsReply() === true`.
+**Returns:** `true` when the bonded provider exposes a `replyTo()` method and reports `supportsReply() === true`.
 
 #### `verifySignature(headers, body)`
 

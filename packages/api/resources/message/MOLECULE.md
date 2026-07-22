@@ -183,8 +183,7 @@ function deleteMessage(messageId: string, senderId: string): Promise<boolean>
 - `messageId` — The message ID.
 - `senderId` — The user ID claiming to be the message author.
 
-**Returns:** `true` if the message was soft-deleted, `false` if not found
- *   or not authorised.
+**Returns:** `true` if the message was soft-deleted, `false` if not found or not authorised.
 
 #### `deleteMessageHandler(req, res)`
 
@@ -271,7 +270,7 @@ function listMessages(threadId: string, options?: ListMessagesOptions): Promise<
 ```
 
 - `threadId` — The thread ID.
-- `options` — Pagination options. `before` returns messages strictly
+- `options` — Pagination options. `before` returns messages strictly older than the given ISO timestamp; `limit` is clamped to 200.
 
 **Returns:** Array of messages, newest first.
 
@@ -283,7 +282,7 @@ Lists messages in a thread, newest first.
 function listMessagesHandler(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
-- `req` — The request with `threadId` URL param and optional
+- `req` — The request with `threadId` URL param and optional `before` / `limit` query params.
 - `res` — The response object.
 
 #### `listThreads(req, res)`

@@ -447,10 +447,9 @@ function discoverOembedUrl(html: string, baseUrl: string): string | undefined
 ```
 
 - `html` — HTML body.
-- `baseUrl` — Final URL of the page (for relative `href`
+- `baseUrl` — Final URL of the page (for relative `href` resolution).
 
-**Returns:** Absolute oEmbed discovery URL, or `undefined` if not
- *   present.
+**Returns:** Absolute oEmbed discovery URL, or `undefined` if not present.
 
 #### `fetchText(inputUrl, options)`
 
@@ -490,7 +489,7 @@ function findProvider(url: string, providers?: OEmbedProvider[]): OEmbedProvider
 ```
 
 - `url` — URL to embed.
-- `providers` — Optional caller-supplied provider list. Tested
+- `providers` — Optional caller-supplied provider list. Tested before the built-ins.
 
 **Returns:** The first matching provider, or `undefined` if none match.
 
@@ -512,8 +511,7 @@ function hostResolvesToPrivate(hostname: string, dnsLookup?: HostLookup): Promis
 - `hostname` — Hostname to resolve and classify.
 - `dnsLookup` — Injectable resolver (defaults to node:dns/promises).
 
-**Returns:** `true` if the host resolves to a blocked address (or fails to
- *   resolve).
+**Returns:** `true` if the host resolves to a blocked address (or fails to resolve).
 
 #### `isHostBlocked(hostname, dnsLookup)`
 
@@ -698,7 +696,7 @@ function validateUrl(rawUrl: string, allowPrivate: boolean): URL
 ```
 
 - `rawUrl` — URL string to validate.
-- `allowPrivate` — If `true`, private/loopback/link-local hosts
+- `allowPrivate` — If `true`, private/loopback/link-local hosts are permitted.
 
 **Returns:** The parsed `URL` object.
 

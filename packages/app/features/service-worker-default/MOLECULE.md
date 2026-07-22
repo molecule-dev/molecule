@@ -95,7 +95,7 @@ function setupDefaultServiceWorker(worker: ServiceWorkerGlobalScope, manifest: P
 
 - `worker` — The service-worker global scope (`self`).
 - `manifest` — The precache manifest (`self.__WB_MANIFEST`).
-- `options` — Optional overrides — see {@link DefaultServiceWorkerOptions}.
+- `options` — Optional overrides — see {@link DefaultServiceWorkerOptions}. By default the navigation fallback is derived from the registration scope (base-path aware) and the image cache matches all common web image formats.
 
 ### Constants
 

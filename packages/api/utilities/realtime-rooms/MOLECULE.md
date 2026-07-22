@@ -249,8 +249,7 @@ function broadcast(roomId: string, event: BroadcastOptions): Promise<RoomEvent>
 - `roomId` — Room to broadcast on.
 - `event` — Event kind + payload.
 
-**Returns:** The {@link RoomEvent} that was broadcast (useful for echo /
- *          local persistence).
+**Returns:** The {@link RoomEvent} that was broadcast (useful for echo / local persistence).
 
 #### `channelFor(roomId)`
 

@@ -269,7 +269,7 @@ Idempotent: `sanitizeHtml(sanitizeHtml(x)) === sanitizeHtml(x)`.
 function sanitizeHtml(html: string | null | undefined): string | undefined
 ```
 
-- `html` — HTML or plain-text string. `undefined` and `null` short-circuit
+- `html` — HTML or plain-text string. `undefined` and `null` short-circuit to `undefined` so callers can chain safely.
 
 **Returns:** Sanitized HTML string, or `undefined` when the input was nullish.
 

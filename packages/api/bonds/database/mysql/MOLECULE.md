@@ -278,11 +278,9 @@ Returns a `runMigrations()` bound to a migrations directory.
 function createMigrator(migrationsDir: string): () => Promise<void>
 ```
 
-- `migrationsDir` — Absolute path to the directory of ordered `*.sql`
+- `migrationsDir` — Absolute path to the directory of ordered `*.sql` migration files. Resolve via `join(new URL('.', import.meta.url).pathname, '../../migrations')` from the app's `scripts/migrate.ts`.
 
-**Returns:** A no-arg `runMigrations()` that creates the database (if missing) and
- *   applies every migration file in lexical order using a multi-statement
- *   connection.
+**Returns:** A no-arg `runMigrations()` that creates the database (if missing) and applies every migration file in lexical order using a multi-statement connection.
 
 #### `createPool(config)`
 

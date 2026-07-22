@@ -63,7 +63,7 @@ Creates a Daily.co-backed {@link VideoRoomsProvider}.
 function createProvider(config?: DailyCoVideoRoomsConfig): VideoRoomsProvider
 ```
 
-- `config` — Daily.co provider configuration. Falls back to the
+- `config` — Daily.co provider configuration. Falls back to the `DAILY_CO_API_KEY` environment variable when no `apiKey` is given.
 
 **Returns:** A fully initialised `VideoRoomsProvider` backed by Daily.co.
 

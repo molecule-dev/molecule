@@ -230,10 +230,7 @@ function verify(code: string, codeVerifier?: string, redirectUri?: string): Prom
 - `codeVerifier` — The PKCE code verifier (if PKCE was used).
 - `redirectUri` — The redirect URI used in the authorization request.
 
-**Returns:** An `OAuthUserInfo` with the user's Google email/sub, and OAuth ID —
- * or `null` when Google affirmatively rejected the code (HTTP 400
- * `invalid_grant`: bad/expired/already-redeemed code or PKCE verifier
- * mismatch), which the consumer surfaces as a 403 rather than a 500.
+**Returns:** An `OAuthUserInfo` with the user's Google email/sub, and OAuth ID — or `null` when Google affirmatively rejected the code (HTTP 400 `invalid_grant`: bad/expired/already-redeemed code or PKCE verifier mismatch), which the consumer surfaces as a 403 rather than a 500.
 
 ### Constants
 

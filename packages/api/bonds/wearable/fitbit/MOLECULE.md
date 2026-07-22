@@ -545,7 +545,7 @@ Creates a Fitbit wearable provider.
 function createProvider(options: FitbitProviderOptions): FitbitProvider
 ```
 
-- `options` — Required: `redirectUri` + `credentialsStore`. Falls
+- `options` — Required: `redirectUri` + `credentialsStore`. Falls back to `OAUTH_FITBIT_CLIENT_ID` / `OAUTH_FITBIT_CLIENT_SECRET` env vars when `clientId` / `clientSecret` are omitted.
 
 **Returns:** A Fitbit-flavored {@link FitbitProvider}.
 

@@ -107,12 +107,9 @@ Returns a `runMigrations()` bound to a migrations directory.
 function createMigrator(migrationsDir: string): () => Promise<void>
 ```
 
-- `migrationsDir` — Absolute path to the directory of ordered `*.sql`
+- `migrationsDir` — Absolute path to the directory of ordered `*.sql` migration files. Resolve via `join(new URL('.', import.meta.url).pathname, '../../migrations')` from the app's `scripts/migrate.ts`.
 
-**Returns:** A no-arg `runMigrations()` that opens the SQLite file (creating it
- *   and its parent directory if missing) and applies every migration file in
- *   lexical order using multi-statement `exec()`. Reads the file path from the
- *   `SQLITE_PATH` env var (default `./data/app.db`), matching the pool.
+**Returns:** A no-arg `runMigrations()` that opens the SQLite file (creating it and its parent directory if missing) and applies every migration file in lexical order using multi-statement `exec()`. Reads the file path from the `SQLITE_PATH` env var (default `./data/app.db`), matching the pool.
 
 #### `createPool(config)`
 

@@ -115,8 +115,7 @@ function buildMapLink(latitude: number | undefined, longitude: number | undefine
 - `latitude` — Latitude in signed decimal degrees.
 - `longitude` — Longitude in signed decimal degrees.
 
-**Returns:** An `https://www.openstreetmap.org/?...` URL, or `null` when
- *   either input is missing.
+**Returns:** An `https://www.openstreetmap.org/?...` URL, or `null` when either input is missing.
 
 #### `ExifPanel(props)`
 
@@ -152,8 +151,7 @@ function formatAperture(fNumber: number | undefined): string | null
 
 - `fNumber` — The aperture value (e.g. `2.8`, `5.6`, `8`).
 
-**Returns:** A display string like `"f/2.8"` or `"f/8"`, or `null` when
- *   the input is missing / invalid.
+**Returns:** A display string like `"f/2.8"` or `"f/8"`, or `null` when the input is missing / invalid.
 
 #### `formatCamera(make, model)`
 
@@ -207,8 +205,7 @@ function formatGps(latitude: number | undefined, longitude: number | undefined):
 - `latitude` — Latitude in signed decimal degrees.
 - `longitude` — Longitude in signed decimal degrees.
 
-**Returns:** A combined string like `"37° 25' 19.07" N, 122° 5' 4.16" W"`,
- *   or `null` if either value is missing.
+**Returns:** A combined string like `"37° 25' 19.07" N, 122° 5' 4.16" W"`, or `null` if either value is missing.
 
 #### `formatIso(iso)`
 
@@ -234,8 +231,7 @@ function formatShutter(seconds: number | undefined): string | null
 
 - `seconds` — Exposure time in seconds.
 
-**Returns:** A display string like `"1/125 s"` or `"2 s"`, or `null` when
- *   the input is missing / invalid.
+**Returns:** A display string like `"1/125 s"` or `"2 s"`, or `null` when the input is missing / invalid.
 
 #### `formatTimestamp(value)`
 
@@ -249,8 +245,7 @@ function formatTimestamp(value: string | number | Date | undefined): string | nu
 
 - `value` — The timestamp value pulled from EXIF.
 
-**Returns:** A locale-formatted date/time string, or `null` when missing
- *   or unparseable.
+**Returns:** A locale-formatted date/time string, or `null` when missing or unparseable.
 
 ## Injection Notes
 

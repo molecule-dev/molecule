@@ -529,8 +529,7 @@ function detectHasAttachments(root: ImapBodyNode | undefined): boolean
 
 - `root` — Root body-structure node from a fetch response.
 
-**Returns:** `true` if the message has any attachment-disposition part with a
- *   non-empty filename.
+**Returns:** `true` if the message has any attachment-disposition part with a non-empty filename.
 
 #### `flattenBodyStructure(root)`
 
@@ -652,7 +651,7 @@ than once are aggregated into an array.
 function parseHeaders(raw: string | Uint8Array<ArrayBufferLike> | undefined): Record<string, string | string[]>
 ```
 
-- `raw` — Raw header block as a string or `Uint8Array`. UTF-8 is
+- `raw` — Raw header block as a string or `Uint8Array`. UTF-8 is assumed when a `Uint8Array` is supplied.
 
 **Returns:** Header map keyed by lower-cased name.
 

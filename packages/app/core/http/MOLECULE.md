@@ -458,9 +458,7 @@ function unwrapSingle(res: unknown): T | null
 
 - `res` — Raw response body (e.g. `HttpResponse.data` from `@molecule/app-http`).
 
-**Returns:** The typed resource `T`, or `null` when the response shape
- *   indicates "no resource" (including the various empty envelopes
- *   above).
+**Returns:** The typed resource `T`, or `null` when the response shape indicates "no resource" (including the various empty envelopes above).
 
 ### Constants
 

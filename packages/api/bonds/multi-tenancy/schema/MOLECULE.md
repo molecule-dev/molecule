@@ -134,8 +134,7 @@ function createProvider(config?: SchemaConfig): TenancyProvider
 
 - `config` — Provider configuration.
 
-**Returns:** A `TenancyProvider` providing request-scoped tenant context (it does
- *   NOT isolate data by itself).
+**Returns:** A `TenancyProvider` providing request-scoped tenant context (it does NOT isolate data by itself).
 
 #### `runWithTenant(tenantId, fn)`
 

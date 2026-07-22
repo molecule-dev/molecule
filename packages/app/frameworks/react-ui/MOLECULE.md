@@ -1667,6 +1667,12 @@ interface UserMenuProps {
   className?: string
   /** Whether the trigger button is disabled. */
   disabled?: boolean
+  /**
+   * Override the trigger button's click handler. When provided, called
+   * instead of opening the panel — hosts use this to intercept the click
+   * (e.g. to open an auth modal for guest users).
+   */
+  onClick?: () => void
 }
 ```
 
@@ -2009,6 +2015,7 @@ function UserMenu({
   dataMolId = 'user-menu',
   className,
   disabled,
+  onClick,
 }: UserMenuProps): JSX.Element
 ```
 

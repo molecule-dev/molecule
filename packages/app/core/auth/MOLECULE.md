@@ -293,6 +293,14 @@ interface AuthResult<T = UserProfile> {
    * Token expiration time (Unix timestamp).
    */
   expiresAt?: number
+
+  /**
+   * Set (with HTTP 206) when the account has two-factor auth enabled and the
+   * login did not include a valid `twoFactorToken`. No tokens or user are
+   * issued until login is retried with the TOTP — callers must check this
+   * flag BEFORE treating the result as a successful authentication.
+   */
+  twoFactorRequired?: boolean
 }
 ```
 
@@ -349,6 +357,14 @@ interface LoginCredentials {
    * Whether to remember the session.
    */
   remember?: boolean
+
+  /**
+   * Time-based one-time password (TOTP) from the user's authenticator app.
+   * Required when the account has two-factor auth enabled — the server
+   * answers `{ twoFactorRequired: true }` (HTTP 206) until a valid token
+   * is supplied.
+   */
+  twoFactorToken?: string
 }
 ```
 
@@ -528,7 +544,7 @@ storage or a custom `StorageAdapter`.
 function createTokenStorage(storage?: "memory" | StorageAdapter, prefix?: string): TokenStorage
 ```
 
-- `storage` — `'memory'` for in-memory storage (lost on refresh),
+- `storage` — `'memory'` for in-memory storage (lost on refresh), or a `StorageAdapter` for persistent storage.
 - `prefix` — Key prefix for storage items (default: `'molecule:auth:'`).
 
 **Returns:** A `TokenStorage` instance.

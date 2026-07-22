@@ -532,7 +532,7 @@ function addRouteToDoc(doc: OpenApiDoc, route: Pick<RouteDefinition, "method" | 
 
 - `doc` — OpenAPI document to mutate.
 - `route` — Route definition to add.
-- `operation` — Pre-converted operation (typically from
+- `operation` — Pre-converted operation (typically from `routeToOperation()`).
 
 **Returns:** The same `doc` reference, for chaining.
 
@@ -548,7 +548,7 @@ function annotateOperation(route: RouteDefinition, operation: OpenApiOperation, 
 
 - `route` — Route definition.
 - `operation` — Operation already produced by `routeToOperation`.
-- `root` — Optional root document for `$ref` resolution during
+- `root` — Optional root document for `$ref` resolution during validation.
 
 **Returns:** The same operation, with sources attached.
 
@@ -710,8 +710,7 @@ function validateRequest(operation: OpenApiOperation, payload: RequestPayload): 
 - `operation` — Operation describing the expected shape.
 - `payload` — Incoming payload — `params`, `query`, `headers`, `body`.
 
-**Returns:** Discriminated union: `success: true` with parsed data, or
- *          `success: false` with an array of `ValidationIssue`s.
+**Returns:** Discriminated union: `success: true` with parsed data, or `success: false` with an array of `ValidationIssue`s.
 
 #### `zodToJsonSchema(schema)`
 

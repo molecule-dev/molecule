@@ -194,7 +194,7 @@ function nextOccurrence(rule: RecurrenceRule, after?: string | Date, options?: O
 ```
 
 - `rule` — The recurrence rule.
-- `after` — Lower bound (inclusive) as ISO string or `Date`.
+- `after` — Lower bound (inclusive) as ISO string or `Date`. When omitted, defaults to the rule's `startDate`.
 - `options` — Optional generator caps.
 
 **Returns:** ISO 8601 date-time string of the next occurrence, or `null`.

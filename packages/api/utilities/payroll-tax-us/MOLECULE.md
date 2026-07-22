@@ -259,7 +259,7 @@ function calculateFederal(taxableCents: number, filingStatus: FilingStatus, peri
 - `taxableCents` — Per-paycheck federal-taxable wages (gross minus pre-tax deductions).
 - `filingStatus` — Federal filing status.
 - `period` — Pay frequency.
-- `year` — Tax year. Omit to use the current calendar year; an
+- `year` — Tax year. Omit to use the current calendar year; an unsupported year (omitted or explicit) throws — see {@link resolveTaxYear}.
 
 **Returns:** Federal withholding for this paycheck in integer cents.
 
@@ -301,7 +301,7 @@ function calculateSocialSecurity(ficaWageCents: number, ytdCents: number, year?:
 
 - `ficaWageCents` — FICA-taxable wages for this paycheck (post-Section-125, but pre-401k).
 - `ytdCents` — Year-to-date FICA-eligible wages already paid (pre this paycheck).
-- `year` — Tax year selector. Omit to use the current calendar year; an
+- `year` — Tax year selector. Omit to use the current calendar year; an unsupported year (omitted or explicit) throws — see {@link resolveTaxYear}.
 
 **Returns:** Social Security tax withheld this period, in integer cents.
 

@@ -214,13 +214,13 @@ box you can't check is an integration bug to fix — not a skip:
   re-running it.
 - [ ] `set(key, value)` then `get<T>(key)` round-trips the same value back into
   the app (the cached data renders identically to the source data).
-- [ ] Deletion reflects a miss: after `del(key)`, `has(key)` is `false` and
+- [ ] Deletion reflects a miss: after `delete(key)`, `has(key)` is `false` and
   `get(key)` returns `undefined`, so the app recomputes fresh from source
   instead of serving the removed entry.
 - [ ] TTL expiry refetches: once `CacheOptions.ttl` seconds elapse, the next
   read recomputes fresh data — a stale value is NEVER served past its TTL.
 - [ ] A write that changes the underlying record invalidates its key (via
-  `del()` or a re-`set()`) so the very next read reflects the change — the app
+  `delete()` or a re-`set()`) so the very next read reflects the change — the app
   never serves a stale cached copy after an update.
 - [ ] AUTHORIZATION: a per-user or per-tenant value is cached under a key that
   INCLUDES the user/tenant id (`user:123:profile`, never a global `profile`).

@@ -470,7 +470,7 @@ function compositeImage(doc: LayeredImage, options?: CompositeOptions, deps?: Co
 
 - `doc` — Layered-image document.
 - `options` — Output format / quality / optional resize.
-- `deps` — Optional dependency injection. When omitted, the bonded
+- `deps` — Optional dependency injection. When omitted, the bonded `@molecule/api-image` provider is used as the raster codec.
 
 **Returns:** The flattened, encoded image buffer.
 
@@ -529,8 +529,7 @@ provider.
 function getRasterCodec(): RasterCodec
 ```
 
-**Returns:** The bonded provider cast to a raster codec, if it implements
- *   the required methods.
+**Returns:** The bonded provider cast to a raster codec, if it implements the required methods.
 
 #### `isRasterCodec(value)`
 

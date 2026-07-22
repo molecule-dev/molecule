@@ -347,7 +347,7 @@ Creates a Google Calendar provider.
 function createProvider(options?: GoogleCalendarProviderOptions): CalendarProvider
 ```
 
-- `options` — Optional configuration. Falls back to
+- `options` — Optional configuration. Falls back to `OAUTH_GOOGLE_CLIENT_ID` / `OAUTH_GOOGLE_CLIENT_SECRET` env vars when `clientId` / `clientSecret` are omitted.
 
 **Returns:** A {@link CalendarProvider} implementation.
 

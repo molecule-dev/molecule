@@ -263,9 +263,7 @@ function buildZxingHints(formats: BarcodeFormat[], zxingBarcodeFormat: Record<st
 - `zxingBarcodeFormat` — zxing's `BarcodeFormat` enum object.
 - `decodeHintType` — zxing's `DecodeHintType` enum object.
 
-**Returns:** A hint map for the reader constructor, or `null` when no
- *   requested format maps to a known zxing format (caller passes no
- *   hints, leaving the reader unconstrained).
+**Returns:** A hint map for the reader constructor, or `null` when no requested format maps to a known zxing format (caller passes no hints, leaving the reader unconstrained).
 
 ### Constants
 

@@ -422,7 +422,7 @@ bug in the caller's domain mapping rather than malformed feed data.
 function formatItunesDuration(seconds: number): string
 ```
 
-- `seconds` — Non-negative finite integer or float; fractional
+- `seconds` — Non-negative finite integer or float; fractional seconds are rounded down.
 
 **Returns:** Zero-padded duration string.
 
@@ -458,7 +458,7 @@ function serializePodcastRss(podcast: Podcast, options?: SerializePodcastRssOpti
 ```
 
 - `podcast` — Show metadata + episodes to serialize.
-- `options` — Optional serializer flags. See
+- `options` — Optional serializer flags. See {@link SerializePodcastRssOptions}.
 
 **Returns:** A complete RSS 2.0 XML document as a string.
 

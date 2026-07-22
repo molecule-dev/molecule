@@ -216,7 +216,7 @@ function clampPan(pan: PanOffset, canvasSize: { width: number; height: number; }
 - `pan` — The desired pan offset, in CSS pixels.
 - `canvasSize` — The canvas size in CSS pixels.
 - `imageSize` — The source image's natural size in pixels.
-- `zoom` — The current zoom factor. Non-positive values fall back
+- `zoom` — The current zoom factor. Non-positive values fall back to `1`.
 
 **Returns:** The clamped pan offset.
 
@@ -246,10 +246,10 @@ pointer event hit (cropping, picking, masking).
 function screenToCanvas(point: { x: number; y: number; }, canvasSize: { width: number; height: number; }, imageSize: { width: number; height: number; }, zoom: number, pan: PanOffset): { x: number; y: number; }
 ```
 
-- `point` — The canvas-space point in CSS pixels (origin top-left
+- `point` — The canvas-space point in CSS pixels (origin top-left of the canvas element).
 - `canvasSize` — The canvas size in CSS pixels.
 - `imageSize` — The source image's natural size in pixels.
-- `zoom` — The current zoom factor. Non-positive values fall back
+- `zoom` — The current zoom factor. Non-positive values fall back to `1`.
 - `pan` — The current pan offset in CSS pixels.
 
 **Returns:** The corresponding point in image-space coordinates.

@@ -216,8 +216,7 @@ function moveLayer(layers: readonly Layer[], fromIndex: number, toIndex: number)
 - `fromIndex` — Index of the layer being moved.
 - `toIndex` — Destination index after the move.
 
-**Returns:** A new array reflecting the reordered layers, or the original
- *   reference if the move is a no-op.
+**Returns:** A new array reflecting the reordered layers, or the original reference if the move is a no-op.
 
 ## Injection Notes
 

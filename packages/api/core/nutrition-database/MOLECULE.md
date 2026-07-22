@@ -318,7 +318,7 @@ Look up a food / product by provider-specific id via the bonded provider.
 function getFood(id: string): Promise<FoodNutrition | null>
 ```
 
-- `id` — Provider-specific identifier previously returned by
+- `id` — Provider-specific identifier previously returned by {@link searchFood} or {@link getFoodByBarcode}.
 
 **Returns:** The matching food record, or `null` when no record exists.
 

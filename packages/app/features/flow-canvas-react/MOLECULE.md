@@ -223,8 +223,7 @@ function addEdge(edges: FlowEdge[], edge: FlowEdge): FlowEdge[]
 - `edges` — Current edge list.
 - `edge` — Candidate edge.
 
-**Returns:** New edge array; returns `edges` unchanged if the edge would
- *   self-loop or duplicate an existing source/target/handle pair.
+**Returns:** New edge array; returns `edges` unchanged if the edge would self-loop or duplicate an existing source/target/handle pair.
 
 #### `bezierPath(a, b)`
 

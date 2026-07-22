@@ -114,7 +114,7 @@ Creates a Zoom-backed {@link VideoMeetingsProvider}.
 function createProvider(config?: ZoomVideoMeetingsConfig): VideoMeetingsProvider
 ```
 
-- `config` — Zoom provider configuration. When no `accessToken`
+- `config` — Zoom provider configuration. When no `accessToken` resolver is supplied, the Server-to-Server OAuth credentials are read from `config` first and then from the `ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, and `ZOOM_CLIENT_SECRET` environment variables.
 
 **Returns:** A fully initialised `VideoMeetingsProvider` backed by Zoom.
 

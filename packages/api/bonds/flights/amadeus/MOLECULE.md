@@ -136,10 +136,9 @@ Creates an Amadeus flights provider.
 function createProvider(config?: AmadeusFlightsConfig): FlightsProvider
 ```
 
-- `config` — Provider configuration. All fields are optional but
+- `config` — Provider configuration. All fields are optional but `clientId` / `clientSecret` (or their env vars) MUST be set before any method is invoked.
 
-**Returns:** A {@link FlightsProvider} backed by the Amadeus Self-Service
- *   API.
+**Returns:** A {@link FlightsProvider} backed by the Amadeus Self-Service API.
 
 ### Constants
 

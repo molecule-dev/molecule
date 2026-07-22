@@ -219,7 +219,7 @@ function renderTemplate(template: EmailTemplate, variables?: EmailTemplateVariab
 
 - `template` — The template to render.
 - `variables` — Optional values used for `{{variable}}` interpolation.
-- `locale` — Optional locale override (e.g. `'fr'`); defaults to the
+- `locale` — Optional locale override (e.g. `'fr'`); defaults to the bonded i18n provider's current locale.
 
 **Returns:** The rendered subject, text, and (optional) html.
 

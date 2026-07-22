@@ -255,7 +255,7 @@ scrub it out.
 function createProvider(config?: LiveKitVideoRoomsConfig): VideoRoomsProvider
 ```
 
-- `config` — LiveKit provider configuration. Falls back to the
+- `config` — LiveKit provider configuration. Falls back to the `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET` env vars when the corresponding fields are omitted.
 
 **Returns:** A fully initialised `VideoRoomsProvider` backed by LiveKit.
 

@@ -79,7 +79,7 @@ Creates a Polygon.io equity-prices provider.
 function createProvider(config?: PolygonEquityPricesConfig): EquityPricesProvider
 ```
 
-- `config` — Provider configuration. The API key may be supplied
+- `config` — Provider configuration. The API key may be supplied here directly or via the `POLYGON_API_KEY` environment variable.
 
 **Returns:** An {@link EquityPricesProvider} backed by Polygon.io.
 

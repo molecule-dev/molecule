@@ -137,7 +137,7 @@ token is invalid, expired, or empty (never throws on a bad token).
 function verifyUserToken(token: string): Promise<ExternalAuthUser | null>
 ```
 
-- `token` — The raw token the app's frontend already sends (typically
+- `token` — The raw token the app's frontend already sends (typically the `Authorization: Bearer <token>` value).
 
 **Returns:** The verified user, or `null` if the token cannot be verified.
 

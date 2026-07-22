@@ -158,7 +158,7 @@ function computeLevel(score: number, thresholds?: readonly number[]): number
 ```
 
 - `score` — Cumulative reputation score.
-- `thresholds` — Ascending lower bounds per level. Defaults to
+- `thresholds` — Ascending lower bounds per level. Defaults to {@link DEFAULT_LEVEL_THRESHOLDS}. Must be non-empty and ascending.
 
 **Returns:** The derived level (always `>= 0`).
 

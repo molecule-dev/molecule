@@ -381,8 +381,7 @@ function editDistance(a: string, b: string): number
 - `a` — First string.
 - `b` — Second string.
 
-**Returns:** Number of single-character insertions, deletions, or
- *   substitutions required to turn `a` into `b`.
+**Returns:** Number of single-character insertions, deletions, or substitutions required to turn `a` into `b`.
 
 #### `gradeAnswer(question, answer, options)`
 

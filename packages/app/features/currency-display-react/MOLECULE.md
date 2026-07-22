@@ -112,9 +112,6 @@ Uses `Intl.NumberFormat` with `notation: 'compact'` when supported.
 function formatCurrencyCompact(amount: number, currency?: string, locale?: string): string
 ```
 
-- `amount` — *
-- `currency` — *
-
 ## Injection Notes
 
 ### Requirements

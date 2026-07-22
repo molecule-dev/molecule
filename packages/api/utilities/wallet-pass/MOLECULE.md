@@ -523,8 +523,7 @@ function createApplePass(passData: ApplePassData, certificates: ApplePassCertifi
 - `certificates` — Signing material — see {@link ApplePassCertificates}.
 - `assets` — Optional file-name → bytes map (icon.png, logo.png, ...).
 
-**Returns:** A `Buffer` of the zipped, signed `.pkpass` ready to send with
- *   `Content-Type: application/vnd.apple.pkpass`.
+**Returns:** A `Buffer` of the zipped, signed `.pkpass` ready to send with `Content-Type: application/vnd.apple.pkpass`.
 
 #### `createApplePassHandler(options)`
 
@@ -559,7 +558,7 @@ function createGoogleWalletJwt(passClass: GoogleWalletClass, passObject: GoogleW
 - `passObject` — Pass object definition (per-user instance).
 - `serviceAccount` — Service-account email + RSA private key.
 - `origins` — Optional origin domains; defaults to `['https://wallet.google']`.
-- `passType` — Google Wallet pass type; defaults to `'eventTicket'`. Use
+- `passType` — Google Wallet pass type; defaults to `'eventTicket'`. Use `'offer'` (or `'coupon'`) to issue a coupon. See {@link GoogleWalletPassType}.
 
 **Returns:** A signed JWT string.
 

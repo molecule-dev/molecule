@@ -91,7 +91,7 @@ Hashes a plain-text password using the bonded provider.
 function hash(password: string, saltRounds?: number): Promise<string>
 ```
 
-- `password` — The plain-text password to hash.
+- `password` — The plain-text password to hash. The env-derived default is clamped to a sane bcrypt-cost range of 10–16 (mirroring `@molecule/api-password-bcrypt`'s own default): the cost factor is EXPONENTIAL (each +1 doubles the work), so a misread `SALT_ROUNDS=32` would otherwise hang every signup for hours with zero error output, and `SALT_ROUNDS=4` would silently produce weak hashes. An explicitly passed `saltRounds` argument is honored as-is (a deliberate caller choice, e.g. fast test fixtures).
 - `saltRounds` — Number of salt rounds (cost factor); defaults to the `SALT_ROUNDS` env var (clamped to 10–16) or 12.
 
 **Returns:** The resulting password hash string.

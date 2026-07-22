@@ -134,7 +134,7 @@ Creates an Amadeus travel trip-planning provider.
 function createProvider(config?: AmadeusTravelConfig): TravelProvider
 ```
 
-- `config` — Provider configuration. Credentials may be supplied
+- `config` — Provider configuration. Credentials may be supplied here directly or via the `AMADEUS_CLIENT_ID` and `AMADEUS_CLIENT_SECRET` environment variables.
 
 **Returns:** A {@link TravelProvider} backed by Amadeus.
 

@@ -258,7 +258,7 @@ function deleteEvents(metric: string, scopeKey?: string): Promise<void>
 ```
 
 - `metric` — Metric identifier.
-- `scopeKey` — Optional scope partition. When omitted, **all**
+- `scopeKey` — Optional scope partition. When omitted, **all** events for the metric are deleted regardless of scope. When supplied, only matching scope events are deleted (use the literal `null`-equivalent by passing the empty string only if you persisted that explicitly — the column is `null` by default).
 
 **Returns:** Resolves once the deletion is dispatched.
 
@@ -348,7 +348,7 @@ reflects the latest aggregate state.
 function rollupLeaderboard(options: LeaderboardOptions, aggregation?: Aggregation): Promise<LeaderboardEntry[]>
 ```
 
-- `options` — Leaderboard query options. `limit` / `offset` are
+- `options` — Leaderboard query options. `limit` / `offset` are ignored — the full board is rolled up.
 - `aggregation` — Aggregation strategy. Defaults to `sum`.
 
 **Returns:** The ranked entries that were written.

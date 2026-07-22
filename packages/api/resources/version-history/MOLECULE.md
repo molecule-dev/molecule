@@ -329,8 +329,7 @@ function diffVersions(fromVersionId: string, toVersionId: string): Promise<Versi
 - `fromVersionId` — One version ID to compare.
 - `toVersionId` — The other version ID to compare.
 
-**Returns:** The {@link VersionDiff}, or `null` if either version is missing or
- *          the two versions belong to different resources.
+**Returns:** The {@link VersionDiff}, or `null` if either version is missing or the two versions belong to different resources.
 
 #### `getLatestVersion(resourceType, resourceId)`
 
@@ -424,7 +423,7 @@ cannot prove the caller owns.
 function isVersionAuthorized(res: MoleculeResponse, context: VersionOwnershipContext): Promise<boolean>
 ```
 
-- `res` — The response whose `locals.session`/`locals.versionHistoryAdmin`
+- `res` — The response whose `locals.session`/`locals.versionHistoryAdmin` is inspected.
 - `context` — The {@link VersionOwnershipContext} (parent resource + caller).
 
 **Returns:** `true` when the caller may access the parent resource's versions.
@@ -517,7 +516,7 @@ function registerOwnershipResolver(resourceType: string, resolver: VersionOwners
 ```
 
 - `resourceType` — The parent resource type the resolver authorizes.
-- `resolver` — The resolver to invoke when authorizing access to versions
+- `resolver` — The resolver to invoke when authorizing access to versions of this resource type.
 
 #### `restore(req, res)`
 
@@ -550,7 +549,7 @@ function restoreVersion(versionId: string, userId: string | null, reason?: strin
 
 - `versionId` — The version ID to restore.
 - `userId` — The user performing the restore, or `null` for system.
-- `reason` — Optional human-readable reason. When omitted, a default
+- `reason` — Optional human-readable reason. When omitted, a default `Restored from version <n>` reason is recorded.
 
 **Returns:** The newly-appended version, or `null` if `versionId` was not found.
 

@@ -382,8 +382,7 @@ function verifySignature(_headers: Record<string, string | string[] | undefined>
 - `_headers` — HTTP headers (unused — Mailgun signs via form fields).
 - `body` — Raw HTTP request body (form-encoded).
 
-**Returns:** `true` when the signature verifies and the timestamp is fresh;
- *   `false` for a malformed/stale/forged webhook.
+**Returns:** `true` when the signature verifies and the timestamp is fresh; `false` for a malformed/stale/forged webhook.
 
 ### Constants
 

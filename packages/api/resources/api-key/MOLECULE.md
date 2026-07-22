@@ -207,7 +207,7 @@ function maskPlaintextToken(plaintext: string, prefix?: string): string
 ```
 
 - `plaintext` — The plaintext token.
-- `prefix` — Optional prefix override. When omitted, the function infers it
+- `prefix` — Optional prefix override. When omitted, the function infers it from the leading `<word>_` segment of `plaintext`, falling back to {@link DEFAULT_PREFIX}.
 
 **Returns:** The masked display string.
 

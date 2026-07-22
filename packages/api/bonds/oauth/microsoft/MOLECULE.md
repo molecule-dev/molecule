@@ -492,8 +492,7 @@ function getAuthorizeUrl({
 
 - `params` — State, PKCE challenge, and optional redirect URI.
 
-**Returns:** The Microsoft authorize URL, or `null` when
- *   `OAUTH_MICROSOFT_CLIENT_ID` is unset (unconfigured).
+**Returns:** The Microsoft authorize URL, or `null` when `OAUTH_MICROSOFT_CLIENT_ID` is unset (unconfigured).
 
 #### `getJwks(tenantId, options)`
 
@@ -569,11 +568,10 @@ function verify(code: string, codeVerifier?: string, redirectUri?: string): Prom
 ```
 
 - `code` — The authorization code from the OAuth callback.
-- `codeVerifier` — PKCE code verifier matching the `code_challenge`
-- `redirectUri` — The redirect URI used in the authorization
+- `codeVerifier` — PKCE code verifier matching the `code_challenge` sent by `getAuthorizeUrl`. Required by Microsoft at redemption whenever the authorization request carried a challenge.
+- `redirectUri` — The redirect URI used in the authorization request. Falls back to `APP_ORIGIN`.
 
-**Returns:** Normalized `OAuthUserProps`, or `null` when the provider
- *   rejected the code.
+**Returns:** Normalized `OAuthUserProps`, or `null` when the provider rejected the code.
 
 #### `verifyMicrosoftIdToken(idToken, config, options)`
 

@@ -218,7 +218,7 @@ function decodeAndVerifyJWS(compactJWS: string, trustedRootDER: Buffer<ArrayBuff
 ```
 
 - `compactJWS` — The `header.payload.signature` JWS compact string.
-- `trustedRootDER` — The DER bytes of the CA the chain must terminate at
+- `trustedRootDER` — The DER bytes of the CA the chain must terminate at (e.g. `APPLE_ROOT_CA_G3_DER` from `./appleRootCertificate.js`).
 
 **Returns:** The decoded JSON payload — ONLY returned once every check above passes.
 
@@ -292,7 +292,7 @@ function normalizeSubscription(subscription: InAppPurchase, renewalResponse?: Ve
 ```
 
 - `subscription` — The Apple in-app purchase entry to normalize.
-- `renewalResponse` — Optional: the full receipt response `subscription` was extracted from
+- `renewalResponse` — Optional: the full receipt response `subscription` was extracted from (via {@link getLatestSubscription}). When provided, `willRenew` is read from its `pending_renewal_info.auto_renew_status` (via {@link getAutoRenewStatus}) — the actual auto-renew toggle — instead of being INFERRED from `isActive && !cancellation_date`. The inferred fallback conflates "not canceled/refunded" with "auto-renew is on": a user who turned OFF auto-renew mid-period (no `cancellation_date` — they keep access through the paid period) would otherwise report `willRenew: true` right up until expiry.
 
 **Returns:** A `NormalizedSubscription` with provider set to `'apple'` and dates converted to millisecond timestamps.
 

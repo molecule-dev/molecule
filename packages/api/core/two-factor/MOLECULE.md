@@ -301,10 +301,9 @@ Verifies a TOTP token against a secret using the bonded provider.
 function verify(params: TwoFactorVerifyParams): Promise<TwoFactorVerifyResult>
 ```
 
-- `params` — The verification parameters (secret, token, and optional
+- `params` — The verification parameters (secret, token, and optional `afterTimeStep` for single-use replay protection).
 
-**Returns:** A result indicating whether the token is `valid` and, on success,
- *   the matched `timeStep` to persist for replay protection.
+**Returns:** A result indicating whether the token is `valid` and, on success, the matched `timeStep` to persist for replay protection.
 
 ## Available Providers
 

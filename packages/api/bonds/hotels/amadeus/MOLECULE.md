@@ -126,7 +126,7 @@ Creates an Amadeus hotels provider.
 function createProvider(config?: AmadeusHotelsConfig): HotelsProvider
 ```
 
-- `config` — Provider configuration. Credentials may be supplied
+- `config` — Provider configuration. Credentials may be supplied here directly or via the `AMADEUS_CLIENT_ID` and `AMADEUS_CLIENT_SECRET` environment variables. Defaults to the Self-Service TEST host; set `useProduction` (or `AMADEUS_USE_PRODUCTION`) to route to production.
 
 **Returns:** A {@link HotelsProvider} backed by Amadeus.
 

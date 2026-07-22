@@ -70,7 +70,7 @@ providers can record unconditionally.
 function createHttpSink(options?: HttpActivitySinkOptions): ActivitySink
 ```
 
-- `options` — Endpoint URL, runtime token, and app id. Each falls back to
+- `options` — Endpoint URL, runtime token, and app id. Each falls back to its corresponding `MOLECULE_*` env var, resolved per-request. With no URL configured the sink does nothing — it never assumes a destination.
 
 **Returns:** An {@link ActivitySink} backed by an HTTP POST.
 

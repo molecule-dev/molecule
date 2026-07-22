@@ -315,7 +315,7 @@ session. When the opt-in {@link trashAdmin} middleware has set
 function list(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
-- `req` — The request, with optional `resourceType`, `limit`, `offset`,
+- `req` — The request, with optional `resourceType`, `limit`, `offset`, and `includeInactive` query params (`userId` is honored only for admins; ignored otherwise).
 - `res` — The response object (reads `locals.session`/`locals.trashAdmin`).
 
 #### `listTrashedItems(options)`
@@ -485,7 +485,7 @@ may instead count by any `req.query.userId` (or omit it to count all users').
 function trashCount(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 ```
 
-- `req` — The request, with optional `resourceType` and `includeInactive`
+- `req` — The request, with optional `resourceType` and `includeInactive` query params (`userId` is honored only for admins; ignored otherwise).
 - `res` — The response object (reads `locals.session`/`locals.trashAdmin`).
 
 #### `trashItem(input)`

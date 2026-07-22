@@ -297,7 +297,7 @@ Purchases a shipping label for a previously-quoted rate.
 function createLabel(shipmentId: string, rate: ShippingRate): Promise<ShippingLabel>
 ```
 
-- `shipmentId` — EasyPost shipment ID returned from a prior
+- `shipmentId` — EasyPost shipment ID returned from a prior {@link createShipment} call.
 - `rate` — The rate selected for purchase. Must include `rateId`.
 
 **Returns:** The purchased label normalized to `ShippingLabel`.

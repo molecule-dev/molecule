@@ -2000,7 +2000,7 @@ Registers global keyboard shortcuts on the document.
 function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]): void
 ```
 
-- `shortcuts` — Array of shortcut definitions. Callers should wrap
+- `shortcuts` — Array of shortcut definitions. Callers should wrap the array in `useMemo` to avoid unnecessary re-subscriptions.
 
 #### `UserAvatar(props)`
 

@@ -306,7 +306,7 @@ the id from the same core `createShipment` path.
 function createLabel(_shipmentId: string, rate: ShippingRate): Promise<ShippingLabel>
 ```
 
-- `_shipmentId` — Shipment identifier from {@link createShipment} (unused
+- `_shipmentId` — Shipment identifier from {@link createShipment} (unused by Shippo; the rate's `rateId` is the purchase handle).
 - `rate` — The rate selected for purchase. Must include `rateId`.
 
 **Returns:** The purchased label normalized to `ShippingLabel`.
@@ -385,7 +385,7 @@ means the refund was *requested*, not necessarily granted.
 function voidLabel(labelId: string): Promise<void>
 ```
 
-- `labelId` — Shippo transaction `object_id` returned by
+- `labelId` — Shippo transaction `object_id` returned by {@link createLabel} as `ShippingLabel.id`.
 
 ### Constants
 

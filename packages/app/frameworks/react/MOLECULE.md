@@ -1491,7 +1491,7 @@ function MoleculeProvider({
 }: MoleculeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
-- `props` — Component props (see {@link MoleculeProviderProps}) — each service is
+- `props` — Component props (see {@link MoleculeProviderProps}) — each service is optional, and ONLY the services passed are provided to the tree.
 
 **Returns:** The rendered combined provider element.
 

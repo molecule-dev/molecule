@@ -100,10 +100,9 @@ Returns a `runMigrations()` function bound to the given directory.
 function createMigrator(migrationsDir: string): () => Promise<void>
 ```
 
-- `migrationsDir` — Absolute path to the directory containing
+- `migrationsDir` — Absolute path to the directory containing ordered `*.sql` migration files. Resolve via `join(new URL('.', import.meta.url).pathname, '../../migrations')` from the app's `scripts/migrate.ts`.
 
-**Returns:** A no-arg `runMigrations()` that creates the database (if
- *   missing) and applies every migration file in lexical order.
+**Returns:** A no-arg `runMigrations()` that creates the database (if missing) and applies every migration file in lexical order.
 
 #### `getParamId(req, name?)`
 

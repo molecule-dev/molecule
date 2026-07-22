@@ -364,8 +364,7 @@ function instantiateTemplate(template: Pick<Template, "snapshot" | "variables">,
 - `template` — The template to instantiate.
 - `variables` — Caller-supplied variable values.
 
-**Returns:** The resolved payload, the merged variable map, and any
- *          unresolved variable names.
+**Returns:** The resolved payload, the merged variable map, and any unresolved variable names.
 
 #### `list(req, res)`
 

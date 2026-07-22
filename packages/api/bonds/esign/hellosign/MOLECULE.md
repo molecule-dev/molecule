@@ -285,7 +285,7 @@ already shaped like the inner event payload.
 function processWebhook(_headers: Record<string, string | string[] | undefined>, body: unknown): Promise<EsignWebhookEvent>
 ```
 
-- `_headers` — The HTTP request headers (unused; HelloSign places
+- `_headers` — The HTTP request headers (unused; HelloSign places the hash inside the body).
 - `body` — The parsed request body.
 
 **Returns:** The normalized webhook event.

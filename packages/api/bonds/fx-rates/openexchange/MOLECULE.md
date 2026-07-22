@@ -129,7 +129,7 @@ Creates an OpenExchangeRates FX-rates provider.
 function createProvider(config?: OpenExchangeFxRatesConfig): FxRatesProvider
 ```
 
-- `config` — Provider configuration. `appId` may be omitted to fall
+- `config` — Provider configuration. `appId` may be omitted to fall back to `process.env['OPENEXCHANGE_APP_ID']`.
 
 **Returns:** An {@link FxRatesProvider} backed by OpenExchangeRates.
 

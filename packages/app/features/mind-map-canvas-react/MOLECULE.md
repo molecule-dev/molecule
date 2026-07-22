@@ -198,7 +198,7 @@ function computeHorizontalTreePositions(root: MindMapNode, options?: LayoutOptio
 
 - `root` — Tree root.
 - `options` — Optional layout knobs.
-- `axis` — `'horizontal'` (default) places generations along +X;
+- `axis` — `'horizontal'` (default) places generations along +X; `'vertical'` places generations along +Y.
 
 **Returns:** Layout result with positions, edges, and the visible-node list.
 
@@ -277,8 +277,7 @@ function removeNode(root: MindMapNode, id: string): MindMapNode
 - `root` — Tree root.
 - `id` — Id of the node to remove.
 
-**Returns:** A new tree with the node removed, or the original tree if
- *   `id` matches the root.
+**Returns:** A new tree with the node removed, or the original tree if `id` matches the root.
 
 #### `setNodeText(root, id, text)`
 

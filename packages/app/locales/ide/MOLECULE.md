@@ -4,7 +4,7 @@ Translations for molecule IDE components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-ide` package which has 444 translation keys.
+Provides translations for the `@molecule/app-ide` package which has 449 translation keys.
 
 ## Languages
 
@@ -87,7 +87,12 @@ registerLocaleModule(locales)
 | `ide.chat.switchedToPlan` | Switched to plan mode |
 | `ide.chat.switchedToExecute` | Switched to execute mode |
 | `ide.chat.costError` | Unable to fetch usage data. |
-| `ide.chat.usageAllowanceLine` | This conversation has used ~{{percent}}% of a day |
+| `ide.chat.usageAllowanceTodayLine` | You |
+| `ide.chat.usageAllowanceUsedUpLine` | Today |
+| `ide.chat.resetSoon` | soon |
+| `ide.chat.resetUnderHour` | in under an hour |
+| `ide.chat.resetTomorrow` | tomorrow |
+| `ide.chat.resetInHours` | in about {{hours}} hours |
 | `ide.chat.models.colUsageRate` | Usage rate |
 | `ide.chat.models.usageRateHint` | How fast this model uses your AI allowance, relative to the most economical model |
 | `ide.chat.models.usageRateValue` | ×{{rate}} usage |

@@ -305,7 +305,7 @@ function fetchHtml(inputUrl: string, options?: GetLinkPreviewOptions): Promise<F
 ```
 
 - `inputUrl` — URL to fetch.
-- `options` — Caller-supplied options. See
+- `options` — Caller-supplied options. See {@link GetLinkPreviewOptions}.
 
 **Returns:** Truncated HTML body + final URL.
 
@@ -339,7 +339,7 @@ function getLinkPreview(url: string, options?: GetLinkPreviewOptions): Promise<L
 ```
 
 - `url` — URL to preview. Must be `http:` or `https:`.
-- `options` — Caller-supplied options. See
+- `options` — Caller-supplied options. See {@link GetLinkPreviewOptions}.
 
 **Returns:** Normalized link-preview metadata.
 
@@ -361,8 +361,7 @@ function hostResolvesToPrivate(hostname: string, dnsLookup?: HostLookup): Promis
 - `hostname` — Hostname to resolve and classify.
 - `dnsLookup` — Injectable resolver (defaults to node:dns/promises).
 
-**Returns:** `true` if the host resolves to a blocked address (or fails to
- *   resolve).
+**Returns:** `true` if the host resolves to a blocked address (or fails to resolve).
 
 #### `isHostBlocked(hostname, dnsLookup)`
 
@@ -477,11 +476,10 @@ Parse an HTML document into a {@link LinkPreview} record.
 function parseHtml(html: string, finalUrl: string): LinkPreview
 ```
 
-- `html` — HTML body (already truncated to a safe size by the
-- `finalUrl` — The final URL after redirects — used as the base
+- `html` — HTML body (already truncated to a safe size by the caller).
+- `finalUrl` — The final URL after redirects — used as the base for relative URL resolution and the `url` field in the output.
 
-**Returns:** Normalized link-preview metadata. All fields except `url`
- *   may be `undefined`.
+**Returns:** Normalized link-preview metadata. All fields except `url` may be `undefined`.
 
 #### `resolveUrl(maybeRelative, baseUrl)`
 
@@ -493,7 +491,7 @@ function resolveUrl(maybeRelative: string | undefined, baseUrl: string): string 
 ```
 
 - `maybeRelative` — URL string from the HTML.
-- `baseUrl` — Final resolved page URL (used as the resolution
+- `baseUrl` — Final resolved page URL (used as the resolution base).
 
 **Returns:** Absolute URL string, or `undefined`.
 
@@ -511,7 +509,7 @@ function validateUrl(rawUrl: string, allowPrivate: boolean): URL
 ```
 
 - `rawUrl` — URL string to validate.
-- `allowPrivate` — If `true`, private/loopback/link-local hosts are
+- `allowPrivate` — If `true`, private/loopback/link-local hosts are permitted.
 
 **Returns:** The parsed `URL` object.
 

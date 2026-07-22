@@ -656,12 +656,10 @@ mark cycle members with a `#CIRC!` error.
 function topologicalSort(dependents: ReadonlyMap<string, ReadonlySet<string>>, keys: readonly string[]): { order: string[]; cycle: Set<string>; }
 ```
 
-- `dependents` — Map from a key to the set of keys that depend on it.
+- `dependents` — Map from a key to the set of keys that depend on it. (i.e. forward edges in the recompute order.)
 - `keys` — Keys to sort.
 
-**Returns:** `{ order, cycle }` — `order` is the topological order;
- *   `cycle` is the set of keys participating in (or downstream of) a
- *   cycle.
+**Returns:** `{ order, cycle }` — `order` is the topological order; `cycle` is the set of keys participating in (or downstream of) a cycle.
 
 #### `toStringValue(value)`
 

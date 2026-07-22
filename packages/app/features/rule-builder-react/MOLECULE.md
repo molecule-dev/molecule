@@ -342,10 +342,6 @@ function RuleBuilder({ schema, rules, onChange, className }: RuleBuilderProps): 
 ```
 
 - `props` — Component props.
-- `props.schema` — *
-- `props.rules` — *
-- `props.onChange` — *
-- `props.className` — *
 
 **Returns:** The rendered rule builder.
 

@@ -787,8 +787,7 @@ function toLottie(doc: AnimationDocument, options: { fps: number; width: number;
 - `doc` — Source animation document.
 - `options` — FPS + dimensions overrides.
 
-**Returns:** A Lottie 5.x-shaped object that can be `JSON.stringify`-ed
- * directly into a `.json` payload.
+**Returns:** A Lottie 5.x-shaped object that can be `JSON.stringify`-ed directly into a `.json` payload.
 
 #### `valueAtTime(track, t)`
 

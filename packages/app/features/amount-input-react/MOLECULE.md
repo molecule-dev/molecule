@@ -115,9 +115,6 @@ Formats a numeric amount as a localized currency string.
 function formatCurrency(amount: number, currency?: string, locale?: string): string
 ```
 
-- `amount` — *
-- `currency` — *
-
 ## Injection Notes
 
 ### Requirements

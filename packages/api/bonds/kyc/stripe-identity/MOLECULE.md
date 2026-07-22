@@ -306,7 +306,7 @@ Creates a Stripe Identity provider.
 function createProvider(options?: StripeIdentityProviderOptions): KycProvider
 ```
 
-- `options` — Optional configuration. Falls back to
+- `options` — Optional configuration. Falls back to `STRIPE_SECRET_KEY` / `STRIPE_IDENTITY_WEBHOOK_SECRET` env vars when `secretKey` / `webhookSecret` are omitted.
 
 **Returns:** A {@link KycProvider} implementation.
 

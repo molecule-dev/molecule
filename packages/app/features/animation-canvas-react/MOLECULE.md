@@ -252,8 +252,7 @@ function cubicBezier(t: number, p1x: number, p1y: number, p2x: number, p2y: numb
 - `p2x` — Second control-point x.
 - `p2y` — Second control-point y.
 
-**Returns:** Eased y in `[0, 1]` (or slightly outside for over-shoot
- *   curves whose control points exceed the unit square).
+**Returns:** Eased y in `[0, 1]` (or slightly outside for over-shoot curves whose control points exceed the unit square).
 
 #### `interpolateState(keyframes, time)`
 
@@ -268,7 +267,7 @@ function interpolateState(keyframes: AnimationKeyframe[], time: number): ShapeSt
 ```
 
 - `keyframes` — Keyframes sorted ascending by `time`.
-- `time` — Playhead time. Clamped to `[firstKeyframe.time,
+- `time` — Playhead time. Clamped to `[firstKeyframe.time, lastKeyframe.time]` so callers can pass any value safely.
 
 **Returns:** Interpolated shape states ready to be rendered.
 
@@ -301,11 +300,10 @@ Resolution order (first match wins):
 function pickEasing(target: ShapeState, prop: AnimatableProp): Easing | undefined
 ```
 
-- `target` — The target shape state (the keyframe being eased
+- `target` — The target shape state (the keyframe being eased INTO).
 - `prop` — The animatable property name.
 
-**Returns:** The easing to apply to that property's segment, or
- *   `undefined` for linear.
+**Returns:** The easing to apply to that property's segment, or `undefined` for linear.
 
 #### `resolveEasing(easing)`
 

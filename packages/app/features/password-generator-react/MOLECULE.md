@@ -166,13 +166,6 @@ function PasswordGenerator({
 ```
 
 - `props` — Component props.
-- `props.defaultLength` — *
-- `props.defaultCharset` — *
-- `props.onPick` — *
-- `props.autoCopy` — *
-- `props.ariaLabel` — *
-- `props.dataMolId` — *
-- `props.className` — *
 
 **Returns:** The rendered password generator.
 

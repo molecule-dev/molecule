@@ -93,8 +93,7 @@ function createProvider(config?: OpenFoodFactsConfig): NutritionDatabaseProvider
 
 - `config` — Provider configuration. All fields are optional.
 
-**Returns:** A {@link NutritionDatabaseProvider} backed by the Open Food
- *   Facts API.
+**Returns:** A {@link NutritionDatabaseProvider} backed by the Open Food Facts API.
 
 ### Constants
 

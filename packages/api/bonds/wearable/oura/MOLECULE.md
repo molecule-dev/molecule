@@ -496,7 +496,7 @@ Creates an Oura wearable provider.
 function createProvider(options: OuraProviderOptions): OuraProvider
 ```
 
-- `options` — Required: `redirectUri` + `credentialsStore`. Falls
+- `options` — Required: `redirectUri` + `credentialsStore`. Falls back to `OAUTH_OURA_CLIENT_ID` / `OAUTH_OURA_CLIENT_SECRET` env vars when `clientId` / `clientSecret` are omitted.
 
 **Returns:** An Oura-flavored {@link OuraProvider}.
 

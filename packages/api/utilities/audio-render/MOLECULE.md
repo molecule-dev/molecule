@@ -448,8 +448,7 @@ function cancelRender(jobId: string): boolean
 
 - `jobId` — The id returned in `RenderJob.id` from {@link renderAudio}.
 
-**Returns:** `true` if the job was found and a cancellation flag applied,
- *          `false` if the id is unknown or the job is already terminal.
+**Returns:** `true` if the job was found and a cancellation flag applied, `false` if the id is unknown or the job is already terminal.
 
 #### `createAudioRenderRoutes(routeOptions)`
 
@@ -583,7 +582,7 @@ function renderAudio(session: AudioSession, options?: AudioRenderOptions): Promi
 ```
 
 - `session` — The multi-track session to render.
-- `options` — Output format / sample rate / channel count / bitrate
+- `options` — Output format / sample rate / channel count / bitrate overrides. All fields optional — sensible mp3 defaults.
 
 **Returns:** The freshly-enqueued render job.
 

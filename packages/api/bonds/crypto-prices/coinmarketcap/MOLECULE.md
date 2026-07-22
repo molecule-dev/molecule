@@ -80,10 +80,9 @@ Creates a CoinMarketCap crypto-prices provider.
 function createProvider(config?: CoinMarketCapCryptoPricesConfig): CryptoPricesProvider
 ```
 
-- `config` — Provider configuration. {@link CoinMarketCapCryptoPricesConfig.apiKey}
+- `config` — Provider configuration. {@link CoinMarketCapCryptoPricesConfig.apiKey} (or `COINMARKETCAP_API_KEY` in `process.env`) must be set for the upstream API to accept any request.
 
-**Returns:** A {@link CryptoPricesProvider} backed by the CoinMarketCap Pro
- *   v1 API.
+**Returns:** A {@link CryptoPricesProvider} backed by the CoinMarketCap Pro v1 API.
 
 ### Constants
 

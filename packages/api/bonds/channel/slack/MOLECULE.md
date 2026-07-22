@@ -183,7 +183,7 @@ the missing token name is surfaced, but never its value.
 function createProvider(config?: SlackChannelConfig): ChannelProvider
 ```
 
-- `config` — Provider configuration. All fields are optional; env
+- `config` — Provider configuration. All fields are optional; env vars cover the production wiring path.
 
 **Returns:** A `ChannelProvider` ready to be bonded under name `'slack'`.
 

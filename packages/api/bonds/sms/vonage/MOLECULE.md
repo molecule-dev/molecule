@@ -79,7 +79,7 @@ at `setProvider(createProvider())` startup time.
 function createProvider(config?: VonageSMSConfig): SMSProvider
 ```
 
-- `config` — Vonage provider configuration. Falls back to environment
+- `config` — Vonage provider configuration. Falls back to environment variables when individual fields are omitted.
 
 **Returns:** A fully initialised `SMSProvider` backed by Vonage.
 

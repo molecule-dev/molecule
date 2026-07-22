@@ -231,8 +231,8 @@ string — callers should treat that as the "no fingerprint" sentinel.
 function fingerprintError(input: FingerprintInput, options?: FingerprintOptions): string
 ```
 
-- `input` — Error fields. Pass a thrown `Error` after copying its
-- `options` — Override frame count / path normalizers / what
+- `input` — Error fields. Pass a thrown `Error` after copying its `name`/`message`/`stack` into this shape (or use the JSON form delivered over the wire).
+- `options` — Override frame count / path normalizers / what fields are mixed into the hash.
 
 **Returns:** Lowercase 40-char SHA-1 hex string.
 
@@ -246,11 +246,10 @@ surface first), with a sample of the first error encountered.
 function groupErrors(errors: Iterable<T>, options?: FingerprintOptions): ErrorGroup<T>[]
 ```
 
-- `errors` — Iterable of error inputs. Order is preserved when
+- `errors` — Iterable of error inputs. Order is preserved when selecting the `sampleError` for each group.
 - `options` — Forwarded to {@link fingerprintError}.
 
-**Returns:** One {@link ErrorGroup} per distinct fingerprint, sorted by
- *   `count` (descending). Ties are broken by first-seen order.
+**Returns:** One {@link ErrorGroup} per distinct fingerprint, sorted by `count` (descending). Ties are broken by first-seen order.
 
 #### `normalizeFrame(frame, options)`
 
@@ -268,10 +267,9 @@ function normalizeFrame(frame: StackFrame, options?: FingerprintOptions): Normal
 ```
 
 - `frame` — Parsed frame from {@link parseStackFrames}.
-- `options` — Fingerprint options. Only
+- `options` — Fingerprint options. Only {@link FingerprintOptions.pathNormalizers} is read here.
 
-**Returns:** Frame with `function` + normalized `file` only — line and
- *   column are intentionally omitted.
+**Returns:** Frame with `function` + normalized `file` only — line and column are intentionally omitted.
 
 #### `parseStackFrames(stack)`
 
@@ -291,6 +289,6 @@ the error message at the top, while SpiderMonkey's does not.
 function parseStackFrames(stack: string | null | undefined): StackFrame[]
 ```
 
-- `stack` — Multi-line stack-trace text. Returns `[]` for empty
+- `stack` — Multi-line stack-trace text. Returns `[]` for empty / undefined input.
 
 **Returns:** Parsed frames in original (top-to-bottom) order.

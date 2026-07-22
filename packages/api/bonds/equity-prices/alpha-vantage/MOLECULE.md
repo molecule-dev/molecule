@@ -75,7 +75,7 @@ Creates an Alpha Vantage equity-prices provider.
 function createProvider(config?: AlphaVantageEquityPricesConfig): EquityPricesProvider
 ```
 
-- `config` — Provider configuration. The API key may be supplied here
+- `config` — Provider configuration. The API key may be supplied here directly or via the `ALPHA_VANTAGE_API_KEY` environment variable.
 
 **Returns:** An {@link EquityPricesProvider} backed by Alpha Vantage.
 

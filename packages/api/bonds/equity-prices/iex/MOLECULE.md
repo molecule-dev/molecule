@@ -76,7 +76,7 @@ Creates an IEX Cloud equity-prices provider.
 function createProvider(config?: IexEquityPricesConfig): EquityPricesProvider
 ```
 
-- `config` — Provider configuration. The API key may be supplied here
+- `config` — Provider configuration. The API key may be supplied here directly or via the `IEX_API_KEY` environment variable.
 
 **Returns:** An {@link EquityPricesProvider} backed by IEX Cloud.
 

@@ -170,7 +170,7 @@ function verify(code: string, codeVerifier?: string, redirectUri?: string): Prom
 
 - `code` — The authorization code from the OAuth callback.
 - `codeVerifier` — The PKCE code verifier (if PKCE was used in the auth request).
-- `redirectUri` — The redirect URI used in the authorization request. Included in the
+- `redirectUri` — The redirect URI used in the authorization request. Included in the token exchange (falling back to `APP_ORIGIN`) — GitHub.com is lenient about a mismatch, but a redirect_uri-enforcing GitHub Enterprise instance or strict proxy would otherwise reject the exchange with an error that looks unrelated to the missing parameter.
 
 **Returns:** An `OAuthUserInfo` with the user's GitHub username, email, and OAuth ID.
 

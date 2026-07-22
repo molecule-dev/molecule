@@ -77,7 +77,7 @@ API crashing at `setProvider(createProvider())` startup time.
 function createProvider(config?: TwilioSMSConfig): SMSProvider
 ```
 
-- `config` — Twilio provider configuration. Falls back to environment
+- `config` — Twilio provider configuration. Falls back to environment variables when individual fields are omitted.
 
 **Returns:** A fully initialised `SMSProvider` backed by Twilio.
 

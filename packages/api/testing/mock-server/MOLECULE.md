@@ -353,8 +353,7 @@ function applyDelay(state: ResponseState): Promise<void>
 
 - `state` — The response state that may contain a delay
 
-**Returns:** A promise that resolves after the (possibly clamped) delay, or
- *   immediately if no delay was requested
+**Returns:** A promise that resolves after the (possibly clamped) delay, or immediately if no delay was requested
 
 #### `applySemanticRules(fieldName, rng, index, rules)`
 
@@ -510,10 +509,6 @@ function getResponseBody(state: ResponseState, method: HttpMethod, fixture: { su
 - `state` — The response state
 - `method` — The HTTP method
 - `fixture` — The fixture data containing success, empty, and error responses
-- `fixture.successResponse` — *
-- `fixture.emptyResponse` — *
-- `fixture.errorResponse` — *
-- `fixture.errorResponse.error` — *
 
 **Returns:** The response body, or null for 204 responses
 
@@ -573,10 +568,7 @@ function parseState(stateStr: string): ResponseState
 
 - `stateStr` — The state string (e.g. 'success', 'error', 'empty', 'unauthorized')
 
-**Returns:** The parsed ResponseState. An unrecognized string falls back to
- *   `DEFAULT_STATES.success` — the same forgiving behavior as the per-request
- *   `?_state` middleware (which additionally labels the response with an
- *   `X-Mock-Invalid-State` header so typos are detectable).
+**Returns:** The parsed ResponseState. An unrecognized string falls back to `DEFAULT_STATES.success` — the same forgiving behavior as the per-request `?_state` middleware (which additionally labels the response with an `X-Mock-Invalid-State` header so typos are detectable).
 
 #### `pick(rng, arr)`
 
@@ -695,7 +687,7 @@ and attaches them to res.locals for the route handler to use.
 function stateControlMiddleware(defaultState?: ResponseState | (() => ResponseState)): (req: Request, res: Response, next: NextFunction) => void
 ```
 
-- `defaultState` — The default state to use when no override is provided.
+- `defaultState` — The default state to use when no override is provided. Pass a function to have the default resolved per-request (a live getter) — required for `MockServer.setDefaultState()` to take effect after startup, since a plain object is captured once at middleware-creation time.
 
 **Returns:** Express middleware function
 

@@ -96,7 +96,7 @@ Creates a new `DockerSandboxProvider` instance with the given configuration.
 function createProvider(config?: DockerConfig): SandboxProvider
 ```
 
-- `config` — Optional Docker-specific configuration: daemon endpoint
+- `config` — Optional Docker-specific configuration: daemon endpoint (`socketPath`, or `host`/`port` for a TCP daemon; `DOCKER_HOST` is also honored), `baseImage`, CPU/memory defaults, and the sandbox `network`.
 
 **Returns:** A `SandboxProvider` that manages Docker containers as sandboxes.
 

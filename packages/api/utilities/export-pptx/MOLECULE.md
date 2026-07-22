@@ -398,8 +398,7 @@ function exportPptx(deck: Deck, options?: ExportPptxOptions): Promise<ExportPptx
 - `deck` — The deck description (slides + metadata).
 - `options` — Optional export tweaks (e.g. filename override).
 
-**Returns:** A {@link ExportPptxResult} with the buffer, suggested filename,
- *   and the canonical PPTX MIME type.
+**Returns:** A {@link ExportPptxResult} with the buffer, suggested filename, and the canonical PPTX MIME type.
 
 #### `sanitizeFilename(name)`
 

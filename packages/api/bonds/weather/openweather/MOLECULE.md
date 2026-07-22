@@ -75,7 +75,7 @@ Creates an OpenWeather (One Call API 3.0) weather provider.
 function createProvider(config?: OpenWeatherConfig): WeatherProvider
 ```
 
-- `config` — Provider configuration. `apiKey` is required at call
+- `config` — Provider configuration. `apiKey` is required at call time — either via this config or `OPENWEATHER_API_KEY` in the environment.
 
 **Returns:** A `WeatherProvider` backed by OpenWeather One Call 3.0.
 

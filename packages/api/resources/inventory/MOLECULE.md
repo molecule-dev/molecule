@@ -355,7 +355,7 @@ of the route middleware (defense-in-depth, fail-closed).
 function assertInventoryAdmin(res: MoleculeResponse): boolean
 ```
 
-- `res` — The response, whose `locals.session` is inspected and onto which
+- `res` — The response, whose `locals.session` is inspected and onto which an error is written when access is denied.
 
 **Returns:** `true` when the caller is an authorized admin, otherwise `false`.
 
@@ -375,7 +375,7 @@ created before ownership binding) is accessible only to admins.
 function assertReservationActor(res: MoleculeResponse, reservationUserId: string | null): boolean
 ```
 
-- `res` — The response, whose `locals.session` is inspected and onto which
+- `res` — The response, whose `locals.session` is inspected and onto which an error is written when access is denied.
 - `reservationUserId` — The `userId` recorded on the reservation, or `null`.
 
 **Returns:** `true` when the caller is the owner or an admin, otherwise `false`.
