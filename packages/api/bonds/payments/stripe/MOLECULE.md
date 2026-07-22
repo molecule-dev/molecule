@@ -490,6 +490,22 @@ function createPayout(params: CreatePayoutParams): Promise<CreatePayoutResult>
 
 **Returns:** The created payout.
 
+#### `createPortalSession(options)`
+
+Creates a Stripe Billing Portal session so the user can manage their
+subscription (update payment method, cancel, view invoices) in Stripe's
+hosted portal.
+
+```typescript
+function createPortalSession(options: { customerId: string; returnUrl?: string; }): Promise<{ id: string; url: string; } | null>
+```
+
+- `options` — Portal configuration.
+- `options.customerId` — The Stripe Customer ID to open the portal for.
+- `options.returnUrl` — URL Stripe returns the user to when they exit the portal. Falls back to APP_ORIGIN/ORIGIN when omitted.
+
+**Returns:** The portal session ID and URL, or `null` when Stripe rejects the request (e.g. unknown customer).
+
 #### `createSetupIntent(options)`
 
 Creates a Stripe SetupIntent for the saved-card flow.
@@ -657,8 +673,8 @@ function reportUsageOverage(options: { customerId: string; amountCents: number; 
 - `options.customerId` — The Stripe customer to bill (`cus_...`).
 - `options.amountCents` — The overage amount in cents (must be `> 0`).
 - `options.currency` — ISO currency (defaults to `usd`).
-- `options.priceId` — The metered/overage Price id this reports against;
-- `options.subscriptionId` — Optional subscription to attach the item to
+- `options.priceId` — The metered/overage Price id this reports against; recorded in metadata for reconciliation (the invoice item carries an explicit `amount`, so the price's unit amount is not used here).
+- `options.subscriptionId` — Optional subscription to attach the item to so it bills on that subscription's cycle invoice.
 - `options.description` — Human-readable line description.
 - `options.metadata` — Extra reconciliation metadata (e.g. period).
 - `options.idempotencyKey` — REQUIRED stable key (see IDEMPOTENCY above).
@@ -784,8 +800,9 @@ this — the functions below are framework-agnostic.** On a non-Express / non-mo
 your OWN route handlers:
 `import { createCheckoutSession, verifyWebhookSignature, getSubscription } from '@molecule/api-payments-stripe'`.
 They cover the whole flow — {@link createCheckoutSession} (server-owned `priceId`, so you
-never take a price/amount from the client), {@link verifyWebhookSignature}, and the
-subscription getters/updaters — and carry the security contract (config-not-configured
+never take a price/amount from the client), {@link createPortalSession} (hosted Billing
+Portal for payment-method updates/cancellation/invoices), {@link verifyWebhookSignature},
+and the subscription getters/updaters — and carry the security contract (config-not-configured
 errors, normalized status) for free, so reach for these instead of hand-rolling raw
 `stripe` calls. In a Next.js App Router route, read the RAW webhook body with
 `await req.text()` and the header with `req.headers.get('stripe-signature')`, then

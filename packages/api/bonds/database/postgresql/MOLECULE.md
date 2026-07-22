@@ -23,10 +23,9 @@ Returns a `runMigrations()` function bound to the given directory.
 function createMigrator(migrationsDir: string): () => Promise<void>
 ```
 
-- `migrationsDir` — Absolute path to the directory containing
+- `migrationsDir` — Absolute path to the directory containing ordered `*.sql` migration files. Resolve via `join(new URL('.', import.meta.url).pathname, '../../migrations')` from the app's `scripts/migrate.ts`.
 
-**Returns:** A no-arg `runMigrations()` that creates the database (if
- *   missing) and applies every migration file in lexical order.
+**Returns:** A no-arg `runMigrations()` that creates the database (if missing) and applies every migration file in lexical order.
 
 #### `createPool(config)`
 
@@ -224,6 +223,14 @@ from the `DATABASE_URL` env var (server-side) — don't hardcode credentials.
   the cause. An explicit `createPool(config)` is the caller's own choice and
   is not second-guessed. (The one-shot migration runner still defaults its
   URL but prints the `DATABASE_URL` to check on a connection failure.)
+- **Objects/arrays written to `json`/`jsonb` columns are JSON-serialized FOR
+  you** on `create`/`updateById`/`updateMany` (the column set is introspected +
+  cached per table, and only object/array values trigger it — scalar writes
+  pay no extra round-trip). Pass the JS value as-is; do NOT
+  `JSON.stringify` it yourself (that double-encodes), and do not rely on
+  node-pg's default object serialization (jsonb rejects it with `22P02`).
+  Reads come back already parsed (the pg driver deserializes json/jsonb), so
+  the round-trip is object-in → object-out.
 - One-off bootstrap SQL (grants, extensions, seed data) goes in `.sql` files
   under a `__setup__` directory (run via the exported `setup` namespace);
   versioned schema belongs in `migrations` only.

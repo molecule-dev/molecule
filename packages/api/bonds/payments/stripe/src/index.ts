@@ -15,8 +15,9 @@
  * your OWN route handlers:
  * `import { createCheckoutSession, verifyWebhookSignature, getSubscription } from '@molecule/api-payments-stripe'`.
  * They cover the whole flow — {@link createCheckoutSession} (server-owned `priceId`, so you
- * never take a price/amount from the client), {@link verifyWebhookSignature}, and the
- * subscription getters/updaters — and carry the security contract (config-not-configured
+ * never take a price/amount from the client), {@link createPortalSession} (hosted Billing
+ * Portal for payment-method updates/cancellation/invoices), {@link verifyWebhookSignature},
+ * and the subscription getters/updaters — and carry the security contract (config-not-configured
  * errors, normalized status) for free, so reach for these instead of hand-rolling raw
  * `stripe` calls. In a Next.js App Router route, read the RAW webhook body with
  * `await req.text()` and the header with `req.headers.get('stripe-signature')`, then
