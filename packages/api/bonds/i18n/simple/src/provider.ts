@@ -163,11 +163,18 @@ export const createSimpleI18nProvider = (
         if (enConfig) text = lookup(enConfig.translations ?? {})
       }
 
-      if (text === undefined) {
-        return options?.defaultValue || key
-      }
-
+      // Move allValues ABOVE the defaultValue branch: a missing key must
+      // interpolate its defaultValue too — the core no-provider fallback
+      // (`@molecule/api-i18n`'s `t()`) and i18next both do. Previously the
+      // fallback returned RAW, so every feature whose keys ship no locale
+      // bond (e.g. `@molecule/api-email-templates`' `emailTemplates.*`
+      // defaults) delivered literal `{{placeholders}}` in emails.
       const allValues = options?.count !== undefined ? { count: options.count, ...values } : values
+
+      if (text === undefined) {
+        const fallback = options?.defaultValue || key
+        return allValues ? interpolate(fallback, allValues) : fallback
+      }
 
       if (allValues) {
         return interpolate(text, allValues)

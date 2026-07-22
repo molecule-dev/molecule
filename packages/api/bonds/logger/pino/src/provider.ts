@@ -122,10 +122,20 @@ const createInstance = (options?: PinoLoggerOptions): pino.Logger => {
   // this instance instead of by the core gate they actually configured.
   const level = options?.level ? levelMap[options.level] : 'trace'
 
+  // Serialize Errors under BOTH `err` (pino's default) and `error`: the
+  // molecule logging convention is `logger.error('what failed', { error })`,
+  // and pino only applies its error serializer to the `err` key — a nested
+  // `error: Error` otherwise JSON-serializes to `{}` and the stack (the one
+  // detail a debugger needs) is silently lost.
+  const serializers = {
+    err: pino.stdSerializers.err,
+    error: pino.stdSerializers.err,
+  }
+
   // An explicit destination is the most specific intent — it wins over
   // pretty/transport (pino forbids combining a transport with a stream).
   if (options?.destination) {
-    return pino({ level, name: options.name }, options.destination)
+    return pino({ level, name: options.name, serializers }, options.destination)
   }
 
   let transport: pino.TransportSingleOptions | pino.TransportMultiOptions | undefined
@@ -145,6 +155,7 @@ const createInstance = (options?: PinoLoggerOptions): pino.Logger => {
   return pino({
     level,
     name: options?.name,
+    serializers,
     transport,
   })
 }

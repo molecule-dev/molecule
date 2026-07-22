@@ -57,8 +57,29 @@ const resolveWinstonLevel = (level?: LogLevel): { level: string; silent: boolean
   return { level: level ? levelMap[level] : 'silly', silent: false }
 }
 
+/**
+ * Serializes Error instances carried in the `error` / `err` meta keys.
+ *
+ * The molecule logging convention is `logger.error('what failed', { error })`.
+ * Winston's own `errors({ stack: true })` format only preserves the stack when
+ * the logged ENTRY itself is an Error — a nested `error: Error` meta value
+ * JSON-serializes to `{}` (Errors have no enumerable properties) and the stack
+ * is silently lost. This format runs first in both pipelines and converts such
+ * values to plain `{ type, message, stack }` objects.
+ */
+const serializeMetaErrors = winston.format((info) => {
+  for (const key of ['error', 'err'] as const) {
+    const value = info[key]
+    if (value instanceof Error) {
+      info[key] = { type: value.name, message: value.message, stack: value.stack }
+    }
+  }
+  return info
+})
+
 /** Default winston format: JSON with timestamps and error stack traces. */
 const defaultFormat = winston.format.combine(
+  serializeMetaErrors(),
   winston.format.timestamp(),
   winston.format.errors({ stack: true }),
   winston.format.json(),
@@ -66,6 +87,7 @@ const defaultFormat = winston.format.combine(
 
 /** Colorized console format for development with `HH:mm:ss` timestamps. */
 const consoleFormat = winston.format.combine(
+  serializeMetaErrors(),
   winston.format.colorize(),
   winston.format.timestamp({ format: 'HH:mm:ss' }),
   // Without errors({stack}), a logged Error's stack silently vanishes from

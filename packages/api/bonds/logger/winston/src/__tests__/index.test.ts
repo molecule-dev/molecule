@@ -23,14 +23,20 @@ const mockLoggerInstance = {
 
 const mockCreateLogger = vi.fn(() => mockLoggerInstance)
 
-const mockFormat = {
-  combine: vi.fn((...args: unknown[]) => ({ _combined: args })),
-  timestamp: vi.fn((opts?: object) => ({ _timestamp: opts })),
-  errors: vi.fn((opts: object) => ({ _errors: opts })),
-  json: vi.fn(() => ({ _json: true })),
-  colorize: vi.fn(() => ({ _colorize: true })),
-  printf: vi.fn((fn: (...args: unknown[]) => string) => ({ _printf: fn })),
-}
+const mockFormat = Object.assign(
+  // winston.format is itself callable (winston.format((info) => ...) creates a
+  // custom format FACTORY — calling the result yields the format object) —
+  // the provider uses that for its meta-Error serializer.
+  vi.fn((fn: unknown) => vi.fn(() => ({ _customFormat: fn }))),
+  {
+    combine: vi.fn((...args: unknown[]) => ({ _combined: args })),
+    timestamp: vi.fn((opts?: object) => ({ _timestamp: opts })),
+    errors: vi.fn((opts: object) => ({ _errors: opts })),
+    json: vi.fn(() => ({ _json: true })),
+    colorize: vi.fn(() => ({ _colorize: true })),
+    printf: vi.fn((fn: (...args: unknown[]) => string) => ({ _printf: fn })),
+  },
+)
 
 const mockConsoleTransport = vi.fn()
 

@@ -34,6 +34,11 @@ const mockChildLoggerInstance = {
 }
 
 const mockPino = vi.fn(() => mockLoggerInstance)
+// Mirror the real module surface the provider uses: pino.stdSerializers.err
+// (the provider maps both `err` and `error` meta keys through it).
+;(mockPino as unknown as { stdSerializers: unknown }).stdSerializers = {
+  err: vi.fn((e: unknown) => e),
+}
 
 mockChild.mockReturnValue(mockChildLoggerInstance)
 

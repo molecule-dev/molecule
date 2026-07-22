@@ -102,6 +102,24 @@ describe('@molecule/api-i18n-simple', () => {
       expect(i18n.t('unknown.key', undefined, { defaultValue: 'Fallback' })).toBe('Fallback')
     })
 
+    it('should interpolate values into the defaultValue when translation is missing', () => {
+      // The defaultValue is the rendered English fallback — it must be
+      // interpolated exactly like catalog text (the core no-provider fallback
+      // and i18next both do). Features whose keys ship no locale bond (e.g.
+      // @molecule/api-email-templates' built-in defaults) render ONLY through
+      // this path; returning the raw defaultValue shipped literal
+      // `{{placeholders}}` in transactional emails.
+      expect(i18n.t('unknown.key', { name: 'World' }, { defaultValue: 'Hello, {{name}}!' })).toBe(
+        'Hello, World!',
+      )
+    })
+
+    it('should interpolate count into the defaultValue when translation is missing', () => {
+      expect(i18n.t('unknown.key', undefined, { defaultValue: '{{count}} items', count: 3 })).toBe(
+        '3 items',
+      )
+    })
+
     it('should interpolate values', () => {
       expect(i18n.t('welcome', { name: 'World' })).toBe('Welcome, World!')
     })
