@@ -16,8 +16,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { LocaleConfig } from '../types.js'
 import { createI18nextProvider, provider as defaultProvider } from '../provider.js'
+import type { LocaleConfig } from '../types.js'
 
 const LOCALES: LocaleConfig[] = [
   {
