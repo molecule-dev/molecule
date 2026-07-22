@@ -60,8 +60,8 @@
  * @module
  */
 
-export * from './browser-guard.js'
 export * from './bondAdapter.js'
+export * from './browser-guard.js'
 export * from './connect.js'
 export * from './provider.js'
 export * from './secrets.js'
