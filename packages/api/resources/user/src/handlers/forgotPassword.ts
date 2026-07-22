@@ -67,6 +67,17 @@ export const forgotPassword = ({ name: _name, tableName, schema: _schema }: type
         const emailProvider = get<{ sendMail(opts: Record<string, unknown>): Promise<unknown> }>(
           'email',
         )
+        if (!emailProvider) {
+          // The token was persisted but no reset email can go out: with no
+          // email bond the flow silently degrades to "token in the DB nobody
+          // ever receives", and the 200-no-reveal response hides it from the
+          // caller too. Surface it in the logs so an operator sees the reset
+          // path is dead instead of discovering it from user complaints.
+          logger.warn(
+            'Password reset token created but NO email provider is bonded — the reset email was not sent. Bond an email transport (e.g. @molecule/api-emails-sendgrid) for the reset flow to deliver.',
+            { userId: user.id },
+          )
+        }
         if (emailProvider) {
           const appName = getConfig('APP_NAME', 'App') ?? 'App'
           const siteOrigin = getConfig('SITE_ORIGIN', '')

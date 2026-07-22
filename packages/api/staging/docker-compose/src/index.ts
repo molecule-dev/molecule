@@ -53,6 +53,7 @@
 // Compose generator
 export * from './browser-guard.js'
 export * from './compose-generator.js'
+export * from './dockerfile-generator.js'
 
 // Provider exports
 export * from './provider.js'

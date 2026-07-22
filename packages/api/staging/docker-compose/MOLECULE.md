@@ -98,9 +98,45 @@ function fallbackPort(base: number, slug: string, range?: number): number
 
 - `base` — The base port for this role (api/app/db).
 - `slug` — The environment slug to derive an offset from.
-- `range` — Width of the offset window (default 100 — kept narrow enough
+- `range` — Width of the offset window (default 100 — kept narrow enough that api/app/db's offset windows never overlap each other).
 
 **Returns:** `base` plus a slug-derived offset in `[0, range)`.
+
+#### `generateApiDockerfile()`
+
+Generates a multi-stage Dockerfile for the API server.
+
+Stage 1 (build): installs all deps, compiles TypeScript.
+Stage 2 (runtime): copies compiled output, installs production deps only.
+
+```typescript
+function generateApiDockerfile(): string
+```
+
+**Returns:** Dockerfile content as a string.
+
+#### `generateAppDockerfile(envVars)`
+
+Generates a multi-stage Dockerfile for the frontend app.
+
+Stage 1 (build): installs deps, injects Vite env vars via Docker ARG,
+then runs the Vite build. ARG → ENV ensures \`process.env.VITE_*\` is
+available to Vite at build time (takes precedence over .env files).
+
+Stage 2 (serve): copies built static assets into Nginx. The nginx.conf is
+copied from the \`staging\` named build context (the \`.molecule/staging/\`
+directory, wired via \`additional_contexts\` in the generated compose file) —
+NOT from the app build context: the app project has no nginx.conf of its
+own, so a plain \`COPY nginx.conf\` would fail every build with
+"not found in build context".
+
+```typescript
+function generateAppDockerfile(envVars?: Record<string, string>): string
+```
+
+- `envVars` — Build-time environment variables to inject (e.g. \`{ VITE_API_URL: '...' }\`).
+
+**Returns:** Dockerfile content as a string.
 
 #### `generateComposeFile(env, config)`
 
@@ -135,6 +171,19 @@ function generateComposeFile(env: StagingEnvironment, config: ComposeGeneratorCo
 - `config` — Port and path configuration.
 
 **Returns:** A Docker Compose YAML string.
+
+#### `generateNginxConf()`
+
+Generates an SPA-compatible Nginx configuration.
+
+Uses \`try_files\` to serve \`index.html\` for all routes, which is
+required for client-side routing (React Router, Vue Router, etc.).
+
+```typescript
+function generateNginxConf(): string
+```
+
+**Returns:** Nginx config content as a string.
 
 #### `isComposeVersionSufficient(version)`
 

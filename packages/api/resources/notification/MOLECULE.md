@@ -280,12 +280,15 @@ without one every call throws "provider not configured". There is NO create
 endpoint here: CREATE notifications through notification-center from your
 feature code.
 
-Table: `src/__setup__/notifications.sql` creates `notifications` with the
-snake_case columns the database provider's contract requires (`user_id`,
-`created_at`, …). An mlcl-scaffolded API replays `__setup__/*.sql`
-automatically on migrate; anywhere else run it once. Do NOT "normalise"
-the columns to camelCase — the provider maps rows itself and a mismatched
-column 500s every request.
+Tables: `src/__setup__/notifications.sql` creates BOTH tables the database
+provider's contract requires — `notifications` (snake_case `user_id`,
+`created_at`, …, plus `channels`, which the provider's `send()` ALWAYS
+writes: without that column every create 500s) and `notification_preferences`
+(one row per user: `email`/`push`/`sms` booleans + JSON `channels` map;
+without it the preferences routes 500). An mlcl-scaffolded API replays
+`__setup__/*.sql` automatically on migrate; anywhere else run it once. Do
+NOT "normalise" the columns to camelCase — the provider maps rows itself
+and a mismatched column 500s every request.
 
 The route table carries no auth middleware — each handler reads the
 authenticated user from `res.locals.session` (mount behind your global auth

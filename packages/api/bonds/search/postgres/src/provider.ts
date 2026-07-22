@@ -500,7 +500,12 @@ const bulkIndexSequential = async (
  * @returns The first string value found, or an empty string.
  */
 const getFirstTextField = (source: Record<string, unknown>): string => {
-  for (const value of Object.values(source)) {
+  for (const [key, value] of Object.entries(source)) {
+    // Skip the caller's own `id` field — a document id ("1") is never useful
+    // suggestion text. Matches the meilisearch/typesense bonds so a provider
+    // swap doesn't degrade typeahead suggestions to ids whenever callers
+    // keep the id inside the indexed document.
+    if (key === 'id') continue
     if (typeof value === 'string') return value
   }
   return ''
