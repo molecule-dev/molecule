@@ -67,7 +67,7 @@ interface AppFooterProps {
   privacyTo?: string
   /** Path for the Terms of Service route. Only used when `legalMode === 'route'`. Default: `/terms`. */
   termsTo?: string
-  /** Extra className on the outer `<section>` (composed with `cm.footerBar`). */
+  /** Extra className on the outer `<footer>` (composed with `cm.footerBar`). */
   className?: string
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string

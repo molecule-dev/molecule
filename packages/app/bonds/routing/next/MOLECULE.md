@@ -483,7 +483,7 @@ re-bonds on every route change so location/params stay current.
 function useMoleculeRouter(config: NextRouterConfig): Router
 ```
 
-- `config` — The Next.js router config (`navigation`, `pathname`, `searchParams`,
+- `config` — The Next.js router config (`navigation`, `pathname`, `searchParams`, `params`, optional `routes`) assembled from `next/navigation` hooks.
 
 **Returns:** The bonded molecule Router.
 

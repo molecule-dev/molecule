@@ -47,7 +47,7 @@ Creates a default color picker provider.
 function createProvider(config?: DefaultColorPickerConfig): ColorPickerProvider
 ```
 
-- `config` — Optional provider configuration. `config.format` supplies the
+- `config` — Optional provider configuration. `config.format` supplies the default color format for every picker that does not pass its own per-call `options.format`.
 
 **Returns:** A configured ColorPickerProvider.
 

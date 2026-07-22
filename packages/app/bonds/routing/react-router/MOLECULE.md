@@ -469,7 +469,7 @@ React Router adapter — no manual `setRouter` wiring required. Mount it once in
 function MoleculeRouterProvider(props: MoleculeRouterProviderProps): React.JSX.Element
 ```
 
-- `props` — The provider props (see {@link MoleculeRouterProviderProps}):
+- `props` — The provider props (see {@link MoleculeRouterProviderProps}): `children` (rendered inside the router context), `routes` (optional named-route definitions), and `onRouterReady` (optional callback invoked with the router after it is bonded, e.g. to register guards — bonding via `setRouter` happens regardless).
 
 **Returns:** The rendered provider wrapping children with the router context.
 

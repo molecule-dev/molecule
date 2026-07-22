@@ -105,7 +105,7 @@ Creates a Shepherd-based tour provider.
 function createProvider(config?: ShepherdConfig): TourProvider
 ```
 
-- `config` — Optional provider-level defaults for the resolved
+- `config` — Optional provider-level defaults for the resolved `overlay` / `showButtons` flags and the nav-button `labels`.
 
 **Returns:** A configured TourProvider.
 

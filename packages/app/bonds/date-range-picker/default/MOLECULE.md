@@ -56,7 +56,7 @@ Creates a default date range picker provider.
 function createProvider(config?: DefaultDateRangeConfig): DateRangePickerProvider
 ```
 
-- `config` — Optional provider configuration. `config.singleDate` supplies
+- `config` — Optional provider configuration. `config.singleDate` supplies the default single-date mode for every picker that does not pass its own per-call `options.singleDate`.
 
 **Returns:** A configured DateRangePickerProvider.
 

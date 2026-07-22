@@ -125,7 +125,9 @@ export function AccountSection(): JSX.Element {
             size="sm"
           />
           {error && (
-            <p className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}>{error}</p>
+            <p role="alert" className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}>
+              {error}
+            </p>
           )}
         </div>
       </div>

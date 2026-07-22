@@ -109,7 +109,7 @@
   --color-error-hover: color-mix(in srgb, var(--color-error) 85%, black);
   --color-error-active: color-mix(in srgb, var(--color-error) 75%, black);
   --color-foreground: var(--mol-color-text, #333333);
-  --color-foreground-secondary: var(--mol-color-text-secondary, #808080);
+  --color-foreground-secondary: var(--mol-color-text-secondary, #686868);
   --color-foreground-tertiary: var(--mol-color-text-tertiary, #555555);
   --color-foreground-inverse: var(--mol-color-text-inverse, #ffffff);
   --color-success: var(--mol-color-success, #309000);
@@ -123,12 +123,17 @@
   --color-border: var(--mol-color-border, #e0e0e0);
   --color-border-secondary: var(--mol-color-border-secondary, #d0d0d0);
   --color-border-focus: var(--mol-color-border-focus, #4070e0);
-  /* Button text colors — mix semantic colors with foreground for higher contrast */
-  --color-primary-text: color-mix(in srgb, var(--color-primary) 75%, var(--color-foreground));
-  --color-secondary-text: color-mix(in srgb, var(--color-secondary) 65%, var(--color-foreground));
-  --color-success-text: color-mix(in srgb, var(--color-success) 75%, var(--color-foreground));
-  --color-warning-text: color-mix(in srgb, var(--color-warning) 75%, var(--color-foreground));
-  --color-error-text: color-mix(in srgb, var(--color-error) 75%, var(--color-foreground));
+  /* Button text colors on tinted (bg-<color>/25) backgrounds. The per-variant
+     base percentages are the HIGHEST values still passing WCAG AA 4.5:1 against
+     the light theme's 25%-tinted button backgrounds (computed over both #f6f6f6
+     and #ffffff) — raising one reintroduces an axe color-contrast failure.
+     Mixing with --color-foreground (not black) keeps dark mode correct: the
+     dark foreground lightens the text for dark tinted backgrounds. */
+  --color-primary-text: color-mix(in srgb, var(--color-primary) 61%, var(--color-foreground));
+  --color-secondary-text: color-mix(in srgb, var(--color-secondary) 55%, var(--color-foreground));
+  --color-success-text: color-mix(in srgb, var(--color-success) 57%, var(--color-foreground));
+  --color-warning-text: color-mix(in srgb, var(--color-warning) 34%, var(--color-foreground));
+  --color-error-text: color-mix(in srgb, var(--color-error) 70%, var(--color-foreground));
 
   /* Material 3 derivative tokens — filled by scripts/fill-material3-tokens.mjs */
   --color-primary-container: color-mix(in srgb, var(--color-primary) 30%, var(--color-surface));
@@ -230,6 +235,21 @@
 
   body {
     overscroll-behavior: contain;
+  }
+
+  /* Honor the OS reduce-motion setting: collapse every animation/transition
+     to an instant. WCAG 2.3.3 — vestibular-trigger animations (button/toggle/
+     modal transitions, spinners) must be suppressible. 0.01ms (not 0) so
+     transitionend/animationend still fire for JS that waits on them. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   a {

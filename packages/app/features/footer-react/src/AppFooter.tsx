@@ -35,7 +35,7 @@ export interface AppFooterProps {
   privacyTo?: string
   /** Path for the Terms of Service route. Only used when `legalMode === 'route'`. Default: `/terms`. */
   termsTo?: string
-  /** Extra className on the outer `<section>` (composed with `cm.footerBar`). */
+  /** Extra className on the outer `<footer>` (composed with `cm.footerBar`). */
   className?: string
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
@@ -111,7 +111,10 @@ export function AppFooter({
 
   return (
     <>
-      <section className={cm.cn(cm.footerBar, className)} data-mol-id={dataMolId}>
+      {/* `<footer>` (contentinfo landmark), not a bare <section> — axe's
+          `region` rule requires all page content inside landmarks, and
+          screen-reader users jump to the footer by landmark. */}
+      <footer className={cm.cn(cm.footerBar, className)} data-mol-id={dataMolId}>
         {isExternalHref(aboutHref) ? (
           <a href={aboutHref} target="_blank" rel="noopener noreferrer" className={cm.footerLink}>
             {aboutLabel}
@@ -149,7 +152,7 @@ export function AppFooter({
           <Icon name="globe" size={14} /> {locales.find((l) => l.code === locale)?.name}
         </button>
         <span className={cm.footerLink}>{version}</span>
-      </section>
+      </footer>
       {legalMode === 'modal' && (
         <>
           <Modal

@@ -218,6 +218,74 @@ describe('@molecule/app-i18n-i18next × REAL i18next', () => {
     expect(formatDate('not-a-date')).toBe('Invalid Date')
   })
 
+  it('CONSUMER PROPERTY: a detected REGIONAL variant (?lng=en-US) resolves to its registered base locale', async () => {
+    // Browsers report regional codes (`en-US`, `pt-BR`). Without
+    // `supportedLngs` + `nonExplicitSupportedLngs`, i18next reports the raw
+    // detected code as `i18n.language` while translations resolve through the
+    // fallback chain — so `getLocale()` returned `en-US`, no registered
+    // locale config matched it, and language pickers rendered a BLANK
+    // current-language label. Exact registered codes must still win over the
+    // base (`zh-TW` stays `zh-TW`).
+    ;(globalThis as { window?: unknown }).window = {
+      location: { search: '?lng=en-US', hash: '' },
+    }
+    try {
+      const p = createI18nextProvider({ defaultLocale: 'en', locales: LOCALES })
+      await p.initialize()
+      expect(p.getLocale()).toBe('en')
+      expect(p.t('greeting')).toBe('Hello')
+    } finally {
+      delete (globalThis as { window?: unknown }).window
+    }
+  })
+
+  it('CONSUMER PROPERTY: <html lang> + <html dir> track the active locale (RTL switches direction)', async () => {
+    // Screen readers derive pronunciation rules from <html lang> (WCAG 3.1.1)
+    // and RTL locales only lay out right-to-left when <html dir="rtl"> is set.
+    // The bond must mirror the active locale onto the document root on init
+    // AND on every language change — previously neither happened, so Arabic
+    // rendered translated but left-to-right and lang stayed at the boot value.
+    const documentElement = { lang: 'en', dir: '' }
+    ;(globalThis as { document?: unknown }).document = { documentElement }
+    try {
+      const p = createI18nextProvider({
+        detection: false,
+        locales: [
+          LOCALES[0],
+          { code: 'ar', name: 'العربية', direction: 'rtl', translations: { greeting: 'مرحبا' } },
+        ],
+      })
+      await p.initialize()
+      expect(documentElement.lang).toBe('en')
+      expect(documentElement.dir).toBe('ltr')
+
+      await p.setLocale('ar')
+      expect(documentElement.lang).toBe('ar')
+      expect(documentElement.dir).toBe('rtl')
+
+      await p.setLocale('en')
+      expect(documentElement.lang).toBe('en')
+      expect(documentElement.dir).toBe('ltr')
+    } finally {
+      delete (globalThis as { document?: unknown }).document
+    }
+  })
+
+  it('CONSUMER PROPERTY: a locale added AFTER init stays switchable (supportedLngs stays in sync)', async () => {
+    // i18next consults `supportedLngs` on every changeLanguage(); the
+    // detection-anchor list would silently bounce a late-registered locale
+    // back to fallbackLng.
+    const p = createI18nextProvider({ detection: false, locales: LOCALES })
+    await p.initialize()
+    p.addLocale({ code: 'de', name: 'Deutsch', translations: { greeting: 'Hallo' } })
+    await p.setLocale('de')
+    expect(p.getLocale()).toBe('de')
+    expect(p.t('greeting')).toBe('Hallo')
+    // And removing it again makes setLocale reject it per the fleet contract.
+    expect(p.removeLocale('de')).toBe(true)
+    await expect(p.setLocale('de')).rejects.toThrow('Locale "de" not found')
+  })
+
   it('the module-level default provider initializes without a browser environment', async () => {
     // Import-time side effect: `provider` auto-initializes with detection on.
     // In Node (no window/document) this must degrade gracefully, not crash.

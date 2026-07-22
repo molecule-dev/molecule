@@ -28,7 +28,10 @@ export const lightTheme: Theme = {
     inputBackground: '#ffffff',
 
     text: '#333333',
-    textSecondary: '#808080',
+    // #686868 = the lightest grey passing WCAG AA 4.5:1 on EVERY light surface
+    // (#f6f6f6 bg 5.16, #eeeeee 4.80, #e8e8e8 4.55, #ffffff 5.57) — #808080
+    // was 3.65 on the page background and failed axe color-contrast.
+    textSecondary: '#686868',
     textTertiary: '#555555',
     textInverse: '#ffffff',
 

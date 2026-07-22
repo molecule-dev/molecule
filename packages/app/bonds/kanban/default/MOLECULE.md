@@ -57,7 +57,7 @@ Creates a default kanban provider.
 function createDefaultProvider(config?: DefaultKanbanConfig): KanbanProvider
 ```
 
-- `config` — Optional provider-specific configuration. Set
+- `config` — Optional provider-specific configuration. Set `cloneCardData: true` to deep-clone each card's `data` in every returned snapshot (see {@link DefaultKanbanConfig}).
 
 **Returns:** A `KanbanProvider` backed by in-memory state management.
 

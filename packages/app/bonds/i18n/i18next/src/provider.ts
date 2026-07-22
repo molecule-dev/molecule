@@ -78,6 +78,60 @@ export const createI18nextProvider = (
 
   // Initialize flag
   let initialized = false
+
+  // The provider-owned `supportedLngs` list — null when the initial `locales`
+  // config is empty (no anchor) or the caller manages `supportedLngs` via
+  // `i18nextOptions`. Passed BY REFERENCE into `init()` and mutated by
+  // `addLocale`/`removeLocale`/`addTranslations` so late-registered locales
+  // stay changeable: i18next consults `supportedLngs` on every
+  // `changeLanguage()`, and an unlisted code silently resolves to
+  // `fallbackLng` (a late `addLocale('de')` would render English while
+  // claiming to be German).
+  const supportedLngsList: string[] | null =
+    localeConfigs.size > 0 ? Array.from(localeConfigs.keys()) : null
+
+  /**
+   * Adds a locale to `supportedLngs` (see the `supportedLngsList` note). Covers
+   * both the pre-init window (mutates the list `init()` will read) and post-init
+   * (i18next may have cloned the array into `i18n.options`).
+   * @param code - The locale code to register.
+   */
+  const registerSupportedLng = (code: string): void => {
+    if (supportedLngsList && !supportedLngsList.includes(code)) supportedLngsList.push(code)
+    const live = i18n.options?.supportedLngs
+    if (Array.isArray(live) && live !== supportedLngsList && !live.includes(code)) live.push(code)
+  }
+
+  /**
+   * Removes a locale from `supportedLngs` (see {@link registerSupportedLng}).
+   * @param code - The locale code to unregister.
+   */
+  const unregisterSupportedLng = (code: string): void => {
+    if (supportedLngsList) {
+      const i = supportedLngsList.indexOf(code)
+      if (i !== -1) supportedLngsList.splice(i, 1)
+    }
+    const live = i18n.options?.supportedLngs
+    if (Array.isArray(live) && live !== supportedLngsList) {
+      const i = live.indexOf(code)
+      if (i !== -1) live.splice(i, 1)
+    }
+  }
+
+  /**
+   * Mirrors the active locale onto `<html lang>` + `<html dir>` so browsers,
+   * assistive tech, and CSS (`:dir(rtl)`, logical properties) see the real
+   * locale. Without this, screen readers kept the boot-time `lang` (wrong
+   * pronunciation rules — WCAG 3.1.1) and RTL locales (Arabic, Hebrew, Farsi,
+   * Urdu) rendered left-to-right. Guarded for non-DOM runtimes (SSR, native,
+   * vitest node).
+   * @param lng - The resolved locale code (post-detection/fallback).
+   */
+  const applyDocumentLocale = (lng: string): void => {
+    if (typeof document === 'undefined') return
+    document.documentElement.lang = lng
+    document.documentElement.dir = localeConfigs.get(lng)?.direction || i18n.dir(lng)
+  }
   // Memoized so concurrent callers (the auto-init at create time + a consumer's
   // own `await provider.initialize()` / `setLocale()`) share ONE `i18n.init()`
   // instead of racing a second init against the first.
@@ -110,6 +164,20 @@ export const createI18nextProvider = (
       fallbackLng: fallbackLocale || defaultLocale,
       debug,
       resources: localeConfigToResources(locales),
+      // Anchor detection to the registered locale set: i18next's
+      // `getBestMatchFromCodes` resolves a detected regional variant (`en-US`,
+      // `pt-BR`) to its registered base (`en`, `pt`) — but ONLY when the exact
+      // code isn't claimed supported. Without `supportedLngs`, detection
+      // reported the raw code as `i18n.language`, no locale config matched it,
+      // and language pickers rendered a BLANK current-language label. Exact
+      // registered codes still win (`zh-TW` detects as `zh-TW`, not `zh`).
+      // NOTE: `nonExplicitSupportedLngs: true` would DEFEAT this — it makes
+      // `isSupportedCode('en-US')` true via the base, so the raw `en-US` is
+      // accepted on the first pass instead of normalized to `en`. Callers can
+      // still override via `i18nextOptions.supportedLngs`. The list is the
+      // provider-owned `supportedLngsList` (mutated by addLocale/removeLocale
+      // — see above).
+      ...(supportedLngsList ? { supportedLngs: supportedLngsList } : {}),
       interpolation: {
         escapeValue: false, // Frameworks handle escaping
       },
@@ -151,10 +219,15 @@ export const createI18nextProvider = (
 
     // Listen for language changes
     i18n.on('languageChanged', (lng: string) => {
+      applyDocumentLocale(lng)
       listeners.forEach((listener) => listener(lng))
     })
 
     initialized = true
+
+    // Apply the initial (detected or default) locale to the document — the
+    // languageChanged listener only fires on *changes* after this point.
+    applyDocumentLocale(i18n.language || defaultLocale)
 
     // Replay bundles that were registered while init was still settling —
     // init just reset the store to `initOptions.resources`, dropping them.
@@ -225,6 +298,7 @@ export const createI18nextProvider = (
 
     addLocale(config: LocaleConfig): void {
       localeConfigs.set(config.code, config)
+      registerSupportedLng(config.code)
       if (!initialized) {
         pendingBundles.push({
           lng: config.code,
@@ -239,6 +313,7 @@ export const createI18nextProvider = (
     removeLocale(code: string): boolean {
       const removed = localeConfigs.delete(code)
       if (removed) {
+        unregisterSupportedLng(code)
         // Also drop any not-yet-replayed startup bundle so the deferred init
         // replay can't resurrect a locale that was explicitly removed.
         for (let i = pendingBundles.length - 1; i >= 0; i--) {
@@ -267,6 +342,7 @@ export const createI18nextProvider = (
       if (!existing) {
         existing = { code: locale, name: locale, translations: {} }
         localeConfigs.set(locale, existing)
+        registerSupportedLng(locale)
       }
       existing.translations = {
         ...existing.translations,
