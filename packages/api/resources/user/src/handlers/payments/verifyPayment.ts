@@ -64,10 +64,15 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Resour
         provider.verifyFlow === 'subscription' ||
         (!provider.verifyFlow && !!provider.verifySubscription)
       if (isSubscriptionFlow) {
-        // Stripe-style: subscriptionId in body or query.
-        const subscriptionId = (req.body?.subscriptionId ?? req.query?.subscriptionId) as
-          | string
-          | undefined
+        // Stripe-style: subscriptionId in body or query. Providers that redirect
+        // back to this endpoint append their OWN parameter names — PayPal adds
+        // `subscription_id` (billing subscriptions) or `token` (v2 orders) to the
+        // return_url query — so accept those snake_case echoes as fallbacks. The
+        // value is still verified with the provider below before anything grants.
+        const subscriptionId = (req.body?.subscriptionId ??
+          req.query?.subscriptionId ??
+          req.query?.subscription_id ??
+          req.query?.token) as string | undefined
 
         if (!subscriptionId) {
           return {

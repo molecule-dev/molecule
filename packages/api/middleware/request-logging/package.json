@@ -1,0 +1,41 @@
+{
+  "name": "@molecule/api-middleware-request-logging",
+  "version": "1.0.0",
+  "description": "Structured HTTP request-logging middleware for molecule.dev (method, path, status, duration via the bonded logger)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "author": "molecule.dev",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/api-logger": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-logger": "1.0.0",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/middleware/request-logging"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/middleware/request-logging",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
