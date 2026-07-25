@@ -275,6 +275,30 @@ function createTar(entries: readonly TarEntry[]): Uint8Array<ArrayBufferLike>
 
 **Returns:** The tar bytes (always a multiple of 512).
 
+#### `filterArchivableFiles(files, excludes)`
+
+Drops every file the archive should not carry, so a caller can filter a raw
+workspace walk in one call instead of reimplementing the rules (and getting
+them subtly wrong).
+
+Matching is SEGMENT-based, not substring-based: `node_modules` excludes
+`node_modules/x` and `api/node_modules/x`, but never a legitimate file called
+`node_modules_notes.md`. Dotenv files are matched by basename (`.env` and
+anything starting with `.env.`).
+
+`archive()` independently REFUSES the small non-negotiable set
+(`NEVER_ARCHIVE_SEGMENTS` + dotenv) rather than trusting this helper was used —
+this exists to make doing the right thing easy, not to be the only guard.
+
+```typescript
+function filterArchivableFiles(files: readonly T[], excludes?: readonly string[]): T[]
+```
+
+- `files` — The raw file set from a workspace walk.
+- `excludes` — Path segments to drop. Defaults to `DEFAULT_ARCHIVE_EXCLUDES`.
+
+**Returns:** A new array holding only the archivable files.
+
 #### `gunzipBytes(data, limits)`
 
 Gunzip-decompresses bytes, refusing to expand past `maxUncompressedBytes`.

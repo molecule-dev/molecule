@@ -209,6 +209,101 @@ const SOURCE_FILES: ArchiveSourceFile[] = [
 /** A stand-in for `pg_dump -Fc` output. */
 const DATABASE_DUMP = new Uint8Array([0x50, 0x47, 0x44, 0x4d, 0x50, 0x00, 0xff, 0x10])
 
+describe('archive() — reproducible bulk and secrets are REFUSED, history is KEPT', () => {
+  it('THROWS when node_modules is present, rather than shipping ~1.5 GB of it', async () => {
+    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
+
+    await expect(
+      archiver.archive({
+        projectId: 'bulk',
+        files: [
+          { path: 'package.json', content: bytes('{}') },
+          { path: 'node_modules/left-pad/index.js', content: bytes('module.exports = 1') },
+        ],
+      }),
+    ).rejects.toThrow(/never archivable/)
+  })
+
+  it('matches node_modules by SEGMENT, so a similarly-named real file is fine', async () => {
+    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
+
+    // Substring matching would wrongly reject this legitimate source file.
+    const result = await archiver.archive({
+      projectId: 'segment',
+      files: [{ path: 'docs/node_modules_notes.md', content: bytes('# notes') }],
+    })
+
+    expect(result.verified).toBe(true)
+  })
+
+  it('THROWS on a dotenv file — the artifact is plaintext at rest', async () => {
+    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
+
+    for (const secret of ['.env', '.env.production', 'api/.env.local']) {
+      await expect(
+        archiver.archive({
+          projectId: 'secret',
+          files: [
+            { path: 'package.json', content: bytes('{}') },
+            { path: secret, content: bytes('STRIPE_SECRET_KEY=sk_live_x') },
+          ],
+        }),
+      ).rejects.toThrow(/dotenv secret file/)
+    }
+  })
+
+  it('ARCHIVES .git — history is user work and is not reproducible from source', async () => {
+    const uploads = createFakeUploads()
+    const archiver = createProjectArchiveProvider({ uploads })
+    const files: ArchiveSourceFile[] = [
+      { path: 'package.json', content: bytes('{}') },
+      { path: '.git/HEAD', content: bytes('ref: refs/heads/main\n') },
+      { path: '.git/objects/ab/cdef', content: new Uint8Array([1, 2, 3]) },
+    ]
+
+    const result = await archiver.archive({ projectId: 'history', files })
+    expect(result.verified).toBe(true)
+
+    // The whole point: a restore gets the repository back, not just a snapshot.
+    const restored = await archiver.restore({
+      projectId: 'history',
+      storageId: result.storageId,
+    })
+    expect(restored.files.map((file) => file.path).sort()).toEqual([
+      '.git/HEAD',
+      '.git/objects/ab/cdef',
+      'package.json',
+    ])
+  })
+
+  it('keeps .git out of the default exclude list', () => {
+    expect(DEFAULT_ARCHIVE_EXCLUDES).not.toContain('.git')
+    expect(DEFAULT_ARCHIVE_EXCLUDES).toContain('node_modules')
+  })
+})
+
+describe('filterArchivableFiles()', () => {
+  it('drops reproducible bulk and secrets but preserves git history', () => {
+    const files: ArchiveSourceFile[] = [
+      { path: 'package.json', content: bytes('{}') },
+      { path: 'node_modules/x/index.js', content: bytes('x') },
+      { path: 'api/node_modules/y/index.js', content: bytes('y') },
+      { path: 'dist/bundle.js', content: bytes('b') },
+      { path: '.env', content: bytes('SECRET=1') },
+      { path: 'api/.env.production', content: bytes('SECRET=2') },
+      { path: '.git/HEAD', content: bytes('ref: refs/heads/main') },
+      { path: 'docs/node_modules_notes.md', content: bytes('n') },
+    ]
+
+    expect(
+      providerModule
+        .filterArchivableFiles(files)
+        .map((file) => file.path)
+        .sort(),
+    ).toEqual(['.git/HEAD', 'docs/node_modules_notes.md', 'package.json'])
+  })
+})
+
 describe('archive() — the file set is guarded before anything is packed', () => {
   it('THROWS on an empty file set instead of verifying an archive of nothing', async () => {
     const uploads = createFakeUploads()
@@ -1084,6 +1179,7 @@ describe('export shape', () => {
     expect('deriveStorageId' in providerModule).toBe(false)
     expect(Object.keys(providerModule).sort()).toEqual([
       'createProjectArchiveProvider',
+      'filterArchivableFiles',
       'provider',
       'verifyArtifactBytes',
     ])

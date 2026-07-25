@@ -38,9 +38,11 @@ import {
   type ArchiveStatus,
   type ArchiveVerification,
   DEFAULT_ARCHIVE_EXCLUDES,
+  NEVER_ARCHIVE_SEGMENTS,
   type ProjectArchiveProvider,
   type RestoreInput,
   type RestoreResult,
+  SECRET_FILE_PREFIX,
 } from '@molecule/api-project-archive'
 import { getProvider as getUploadsProvider, type UploadProvider } from '@molecule/api-uploads'
 
@@ -661,6 +663,44 @@ export function verifyArtifactBytes(input: ArtifactVerificationInput): ArchiveVe
 }
 
 /**
+ * Drops every file the archive should not carry, so a caller can filter a raw
+ * workspace walk in one call instead of reimplementing the rules (and getting
+ * them subtly wrong).
+ *
+ * Matching is SEGMENT-based, not substring-based: `node_modules` excludes
+ * `node_modules/x` and `api/node_modules/x`, but never a legitimate file called
+ * `node_modules_notes.md`. Dotenv files are matched by basename (`.env` and
+ * anything starting with `.env.`).
+ *
+ * `archive()` independently REFUSES the small non-negotiable set
+ * (`NEVER_ARCHIVE_SEGMENTS` + dotenv) rather than trusting this helper was used —
+ * this exists to make doing the right thing easy, not to be the only guard.
+ *
+ * @param files - The raw file set from a workspace walk.
+ * @param excludes - Path segments to drop. Defaults to `DEFAULT_ARCHIVE_EXCLUDES`.
+ * @returns A new array holding only the archivable files.
+ */
+export function filterArchivableFiles<T extends { path: string }>(
+  files: readonly T[],
+  excludes: readonly string[] = DEFAULT_ARCHIVE_EXCLUDES,
+): T[] {
+  // '.env.*' is a glob-ish marker in the exclude list, not a literal segment;
+  // dotenv files are handled by the basename rule below instead.
+  const segments = new Set(excludes.filter((entry) => !entry.startsWith(SECRET_FILE_PREFIX)))
+
+  return files.filter((file) => {
+    const parts = file.path.split('/')
+    if (parts.some((part) => segments.has(part))) return false
+
+    const basename = parts[parts.length - 1] ?? ''
+    if (basename === SECRET_FILE_PREFIX || basename.startsWith(`${SECRET_FILE_PREFIX}.`)) {
+      return false
+    }
+    return true
+  })
+}
+
+/**
  * Creates an object-storage-backed project archive provider.
  *
  * @param config - Provider configuration.
@@ -739,6 +779,35 @@ export function createProjectArchiveProvider(
         throw new Error(
           `Refusing to archive project "${input.projectId}": unsafe source path — ${messageOf(error)}`,
           { cause: error },
+        )
+      }
+
+      // Enforced, not advisory. DEFAULT_ARCHIVE_EXCLUDES is the caller's filter,
+      // but a caller who forgets it would silently ship ~1.5 GB of node_modules
+      // per project (destroying the reason this package exists) or write live
+      // credentials into object storage in plaintext. Refuse loudly instead of
+      // filtering silently: dropping files behind the caller's back would make
+      // the manifest describe a tree the caller never intended to archive.
+      const segments = file.path.split('/')
+      const offending = segments.find((segment) =>
+        (NEVER_ARCHIVE_SEGMENTS as readonly string[]).includes(segment),
+      )
+      if (offending !== undefined) {
+        throw new Error(
+          `Refusing to archive project "${input.projectId}": "${file.path}" is inside ` +
+            `"${offending}", which is never archivable — it is reproducible bulk, not source. ` +
+            `Filter the workspace walk with DEFAULT_ARCHIVE_EXCLUDES (or filterArchivableFiles) ` +
+            `before calling archive().`,
+        )
+      }
+
+      const basename = segments[segments.length - 1] ?? ''
+      if (basename === SECRET_FILE_PREFIX || basename.startsWith(`${SECRET_FILE_PREFIX}.`)) {
+        throw new Error(
+          `Refusing to archive project "${input.projectId}": "${file.path}" is a dotenv secret ` +
+            `file. This artifact is NOT encrypted at rest, so archiving it would write live ` +
+            `credentials into object storage in plaintext. Keep secrets in the platform vault ` +
+            `and re-inject them on restore.`,
         )
       }
 

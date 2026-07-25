@@ -25,6 +25,14 @@ export const ARCHIVE_FORMAT_VERSION = 1
  *    plaintext. Secrets belong in the platform's encrypted vault, and are
  *    re-injected when the project is restored.
  *
+ * **Secret caveat that comes with keeping `.git`:** a repository's
+ * `.git/config` can carry a remote URL with an embedded credential (the
+ * `user:token@host` userinfo form), and packed refs/logs can retain one from an
+ * earlier remote. Since the artifact is plaintext at rest, a caller that lets
+ * users set raw remote URLs should scrub or rewrite remotes before archiving —
+ * storing the credential in the platform's git-credential store instead keeps
+ * the history without shipping the token.
+ *
  * The `.env.*` entry is a GLOB-ish marker, not a literal filename: the caller's
  * workspace walk must treat it as "every dotfile whose name starts with
  * `.env.`" (`.env.production`, `.env.local.bak`, …), because the provider does
@@ -32,7 +40,8 @@ export const ARCHIVE_FORMAT_VERSION = 1
  */
 export const DEFAULT_ARCHIVE_EXCLUDES: readonly string[] = [
   'node_modules',
-  '.git',
+  // NOTE: `.git` is deliberately ABSENT. Git history is user work and is NOT
+  // reproducible from a source snapshot — see NEVER_ARCHIVE_SEGMENTS.
   'dist',
   'build',
   '.next',
@@ -50,6 +59,40 @@ export const DEFAULT_ARCHIVE_EXCLUDES: readonly string[] = [
   '.env.local',
   '.env.*',
 ]
+
+/**
+ * Path segments a conforming provider must REFUSE outright, rather than leaving
+ * to the caller's filter.
+ *
+ * {@link DEFAULT_ARCHIVE_EXCLUDES} is advisory — the caller filters — which means
+ * a caller that forgets silently archives 1.5 GB of `node_modules` per project and
+ * loses the entire reason this package exists. That one is enforced instead,
+ * because it is never legitimately part of a source tree and is always
+ * regenerable from the lockfile.
+ *
+ * Deliberately NARROWER than {@link DEFAULT_ARCHIVE_EXCLUDES}: `dist`, `build`,
+ * `tmp` and `coverage` are all plausible real source directory names
+ * (`src/build/`, `src/tmp/`), so hard-failing on them would reject legitimate
+ * projects. Those stay advisory; this one does not.
+ *
+ * **`.git` is deliberately NOT here, and not excluded by default.** Reproducibility
+ * is the test, and history fails it: commits, branches and stashes cannot be
+ * regenerated from a source snapshot, so dropping `.git` would silently destroy
+ * user work that the archive exists to preserve. It is also small — single-digit
+ * MB against 1.5 GB of dependencies — so it costs nothing to keep.
+ */
+export const NEVER_ARCHIVE_SEGMENTS: readonly string[] = ['node_modules']
+
+/**
+ * Filename prefix identifying dotenv secret files (`.env`, `.env.local`,
+ * `.env.production`, …).
+ *
+ * A conforming provider REFUSES any file whose basename is `.env` or starts with
+ * `.env.`. The artifact is not encrypted at rest, so archiving one would write
+ * live credentials into object storage in plaintext — the caller's filter is not
+ * a good enough guarantee for that.
+ */
+export const SECRET_FILE_PREFIX = '.env'
 
 /** A single source file captured into (or restored out of) an archive. */
 export interface ArchiveSourceFile {
