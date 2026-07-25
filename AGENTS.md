@@ -108,8 +108,47 @@ Enforced by `.npmrc` with `save-exact=true`. When writing code that touches depe
 
 ### 10. Package Naming
 
+A package name is a PUBLIC, PERMANENT interface. Once published, renaming it
+breaks every consumer, so the bar is "exceedingly clear", not "clear to whoever
+wrote it this afternoon".
+
 - Backend: `@molecule/api-*`, Frontend: `@molecule/app-*`
 - Names must be specific enough to be unambiguous. Ask: "Could this name mean something else?" If yes, add a qualifier (e.g., `app-ai-chat` not `app-chat`).
+
+**Before you name a new package, answer these three in writing.** Each one has
+been failed in practice; the third is the one that keeps being missed.
+
+1. **Could this name mean something else in a list of 900 packages?** A name
+   built from generic nouns — `state`, `data`, `core`, `common`, `manager`,
+   `service`, `handler`, `engine`, `tools`, `support` — describes nothing on its
+   own and must be qualified until it does. *Failed 2026-07-26:*
+   `@molecule/api-external-state` was created for "the state a project owns
+   outside its source tree"; the name equally suggests client state, session
+   state, feature flags, or a remote API's state. It was deleted the same day.
+2. **Does the name say what the package IS, not just what it is near?** A reader
+   who has never seen it should be able to place it from the name alone.
+3. **If it is inseparable from another package, does the name make the
+   relationship obvious?** A companion, an extension, or a second interface for
+   an existing category is not "related-ish" — it is part of that thing. Prefer
+   ADDING it to the existing package over minting a sibling with a name that
+   only makes sense once you already know the answer. `api-external-state`
+   existed solely to make `api-project-archive` complete; the fix was to fold it
+   in as `ProjectExternalStateProvider` rather than to find a cleverer name.
+
+**The structural trap: a name cannot say whether a package is a core, a bond, a
+framework binding, or a utility — so do not let the name imply the wrong one.**
+Bonds are `api-<category>-<provider>`, which means a CORE with the same shape is
+indistinguishable from a provider for a shorter category. This is real and
+current in the tree: under `@molecule/api-ai-*`, `anthropic` is a provider for
+`api-ai`, `embeddings` is its own core, `agents-llm` is a provider for
+`api-ai-agents`, and `email-composer` is a utility — four different kinds, one
+name shape. Same under `api-oauth-` (`github` = provider, `client` = core) and
+`app-ui-` (`tailwind` = provider, `react` = framework, `showcase` = core).
+Nothing but `registry.json`'s `type` field tells them apart.
+
+When adding to a namespace that already has bonds, either pick a name that
+cannot be read as a provider of the parent, or state the kind in the name. Do
+not add another collision to a namespace that already has them.
 
 ### 11. Cross-Stack Boundary
 

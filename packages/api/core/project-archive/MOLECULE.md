@@ -468,6 +468,139 @@ interface ProjectArchiveProvider {
 }
 ```
 
+#### `ProjectExternalStateCapture`
+
+What one external-state provider produced for a project.
+
+```typescript
+interface ProjectExternalStateCapture {
+  /** Artifact parts to pack, for resources whose bytes ride in the artifact. */
+  parts: ArchivePart[]
+  /** One record per captured resource. Empty when the project has none. */
+  records: ProjectExternalStateRecord[]
+}
+```
+
+#### `ProjectExternalStateCaptureInput`
+
+What an external-state provider is given to capture a project's state.
+
+```typescript
+interface ProjectExternalStateCaptureInput {
+  /** The project being archived. */
+  projectId: string
+  /**
+   * Absolute path of a scratch directory the provider may write intermediate
+   * files into. Created by the caller and removed after the archive completes,
+   * so a provider never has to manage its own temporary space.
+   */
+  workDir: string
+}
+```
+
+#### `ProjectExternalStateProvider`
+
+Captures and restores one KIND of state a project owns outside its source
+tree — a database, an object-storage bucket, a search index, a managed queue.
+
+One provider per kind, registered by name, so support for something new is a
+new bond rather than an edit to the archiver. A provider that finds nothing of
+its kind for a project returns empty arrays; that is the normal case, not an
+error, and it is how a project backed by an in-tree file (a SQLite database
+committed with the source) needs no provider at all — its data IS source, and
+whatever archives the source tree already carries it.
+
+## The contract that matters
+
+`capture` must either produce something a later `restore` can fully rebuild
+from, or THROW. It must never return a partial capture as if it were whole:
+the caller's next step is typically to destroy the original.
+
+```typescript
+interface ProjectExternalStateProvider {
+  /**
+   * Stable identifier for this provider, recorded on every record it produces
+   * and used to route those records back to it on restore. Changing it strands
+   * every archive that recorded the old value.
+   */
+  readonly kind: string
+
+  /**
+   * Capture everything of this kind that the project owns.
+   *
+   * @param input - The project and a scratch directory.
+   * @returns The parts to pack and the records to write into the index.
+   * @throws {Error} If anything of this kind exists but could not be captured
+   *   whole — the caller must not proceed to destroy the original.
+   */
+  capture(input: ProjectExternalStateCaptureInput): Promise<ProjectExternalStateCapture>
+
+  /**
+   * Put back what {@link ProjectExternalStateProvider.capture} produced.
+   *
+   * @param input - The project, this provider's own records, and a part resolver.
+   * @throws {Error} If the resource could not be fully restored. The caller
+   *   leaves the archive in place so a retry starts from the same bytes.
+   */
+  restore(input: ProjectExternalStateRestoreInput): Promise<void>
+}
+```
+
+#### `ProjectExternalStateRecord`
+
+One external resource that was captured for a project.
+
+Deliberately provider-shaped rather than database-shaped: `kind` says who
+produced it and therefore who can restore it, `id` is meaningful only to that
+provider, and `detail` carries whatever else that provider needs to put the
+resource back. Nothing here names an engine, a vendor, or a protocol.
+
+```typescript
+interface ProjectExternalStateRecord {
+  /** The {@link ProjectExternalStateProvider.kind} that produced this record. */
+  kind: string
+  /**
+   * Provider-scoped identifier — a database name, a bucket name, an index name.
+   * Opaque to everything except the provider that wrote it.
+   */
+  id: string
+  /**
+   * Artifact part path holding this resource's bytes, when they travel INSIDE
+   * the archive artifact.
+   *
+   * Omitted when the provider parked the bytes elsewhere (a server-side bucket
+   * copy, a managed snapshot), in which case `detail` must carry enough to find
+   * them again. Both are legitimate: a database dump is small enough to ride
+   * along, a user's uploads can be gigabytes and should not be.
+   */
+  part?: string
+  /** Anything else the provider needs to restore this resource. */
+  detail?: Record<string, string | number | boolean | null>
+}
+```
+
+#### `ProjectExternalStateRestoreInput`
+
+What an external-state provider is given to put a project's state back.
+
+```typescript
+interface ProjectExternalStateRestoreInput {
+  /** The project being restored. */
+  projectId: string
+  /** Only the records this provider produced, in the order it produced them. */
+  records: readonly ProjectExternalStateRecord[]
+  /**
+   * Resolve an artifact part path (as recorded in
+   * {@link ProjectExternalStateRecord.part}) to an absolute host path where the
+   * caller has already written those bytes.
+   *
+   * @param artifactPath - The recorded part path.
+   * @returns The absolute host path of the extracted part.
+   */
+  partPath: (artifactPath: string) => string
+}
+```
+
 #### `RestoreInput`
 
 Selector for a restore: the storage id `archive()` returned, plus the project
@@ -511,6 +644,36 @@ interface RestoreResult {
 
 ### Functions
 
+#### `getExternalStateProvider(kind)`
+
+One registered external-state provider by kind, or null.
+
+A restore that finds null for a kind it HAS records for must fail loudly
+rather than skip: the records exist because that state was captured, and
+silently not restoring it hands the user a project missing its data.
+
+```typescript
+function getExternalStateProvider(kind: string): ProjectExternalStateProvider | null
+```
+
+- `kind` — The {@link ProjectExternalStateProvider.kind} to look up.
+
+**Returns:** The provider, or null.
+
+#### `getExternalStateProviders()`
+
+Every registered external-state provider, keyed by kind.
+
+An archive captures from ALL of them; a restore routes each record back to the
+one whose kind matches. An empty map is legitimate — a deployment whose
+projects own nothing outside their source tree needs no providers.
+
+```typescript
+function getExternalStateProviders(): Map<string, ProjectExternalStateProvider>
+```
+
+**Returns:** The registered providers, keyed by {@link ProjectExternalStateProvider.kind}.
+
 #### `getProvider()`
 
 Get the active project archive provider, or null if none is configured.
@@ -520,6 +683,16 @@ function getProvider(): ProjectArchiveProvider | null
 ```
 
 **Returns:** The current provider or null.
+
+#### `hasExternalStateProviders()`
+
+Whether any external-state provider is registered.
+
+```typescript
+function hasExternalStateProviders(): boolean
+```
+
+**Returns:** True when at least one provider is bonded.
 
 #### `hasProvider()`
 
@@ -540,6 +713,22 @@ function requireProvider(): ProjectArchiveProvider
 ```
 
 **Returns:** The current provider.
+
+#### `setExternalStateProvider(provider)`
+
+Register an external-state provider under its own
+{@link ProjectExternalStateProvider.kind}.
+
+Registering under the provider's own `kind` rather than a caller-chosen name
+is what makes restore routing work: records carry `kind`, and that is the key
+they are looked up by. A provider bonded under a different name captures state
+that nothing can restore.
+
+```typescript
+function setExternalStateProvider(provider: ProjectExternalStateProvider): void
+```
+
+- `provider` — The provider to register.
 
 #### `setProvider(provider)`
 

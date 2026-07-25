@@ -465,3 +465,125 @@ export interface ProjectArchiveProvider {
   status(storageId: string): Promise<ArchiveStatus | null>
   remove(storageId: string): Promise<void>
 }
+
+// ---------------------------------------------------------------------------
+// The state a project owns OUTSIDE its source tree
+// ---------------------------------------------------------------------------
+//
+// An archive of a project's source tree is not an archive of the PROJECT. A
+// managed database, an object-storage bucket, a search index and a queue all sit
+// outside every repository, and each needs its own way to be captured and put
+// back. These contracts are how that stays open-ended: the archiver asks every
+// registered provider what the project owns of its kind, and names none of them.
+
+/**
+ * One external resource that was captured for a project.
+ *
+ * Deliberately provider-shaped rather than database-shaped: `kind` says who
+ * produced it and therefore who can restore it, `id` is meaningful only to that
+ * provider, and `detail` carries whatever else that provider needs to put the
+ * resource back. Nothing here names an engine, a vendor, or a protocol.
+ */
+export interface ProjectExternalStateRecord {
+  /** The {@link ProjectExternalStateProvider.kind} that produced this record. */
+  kind: string
+  /**
+   * Provider-scoped identifier — a database name, a bucket name, an index name.
+   * Opaque to everything except the provider that wrote it.
+   */
+  id: string
+  /**
+   * Artifact part path holding this resource's bytes, when they travel INSIDE
+   * the archive artifact.
+   *
+   * Omitted when the provider parked the bytes elsewhere (a server-side bucket
+   * copy, a managed snapshot), in which case `detail` must carry enough to find
+   * them again. Both are legitimate: a database dump is small enough to ride
+   * along, a user's uploads can be gigabytes and should not be.
+   */
+  part?: string
+  /** Anything else the provider needs to restore this resource. */
+  detail?: Record<string, string | number | boolean | null>
+}
+
+/** What one external-state provider produced for a project. */
+export interface ProjectExternalStateCapture {
+  /** Artifact parts to pack, for resources whose bytes ride in the artifact. */
+  parts: ArchivePart[]
+  /** One record per captured resource. Empty when the project has none. */
+  records: ProjectExternalStateRecord[]
+}
+
+/** What an external-state provider is given to capture a project's state. */
+export interface ProjectExternalStateCaptureInput {
+  /** The project being archived. */
+  projectId: string
+  /**
+   * Absolute path of a scratch directory the provider may write intermediate
+   * files into. Created by the caller and removed after the archive completes,
+   * so a provider never has to manage its own temporary space.
+   */
+  workDir: string
+}
+
+/** What an external-state provider is given to put a project's state back. */
+export interface ProjectExternalStateRestoreInput {
+  /** The project being restored. */
+  projectId: string
+  /** Only the records this provider produced, in the order it produced them. */
+  records: readonly ProjectExternalStateRecord[]
+  /**
+   * Resolve an artifact part path (as recorded in
+   * {@link ProjectExternalStateRecord.part}) to an absolute host path where the
+   * caller has already written those bytes.
+   *
+   * @param artifactPath - The recorded part path.
+   * @returns The absolute host path of the extracted part.
+   */
+  partPath: (artifactPath: string) => string
+}
+
+/**
+ * Captures and restores one KIND of state a project owns outside its source
+ * tree — a database, an object-storage bucket, a search index, a managed queue.
+ *
+ * One provider per kind, registered by name, so support for something new is a
+ * new bond rather than an edit to the archiver. A provider that finds nothing of
+ * its kind for a project returns empty arrays; that is the normal case, not an
+ * error, and it is how a project backed by an in-tree file (a SQLite database
+ * committed with the source) needs no provider at all — its data IS source, and
+ * whatever archives the source tree already carries it.
+ *
+ * ## The contract that matters
+ *
+ * `capture` must either produce something a later `restore` can fully rebuild
+ * from, or THROW. It must never return a partial capture as if it were whole:
+ * the caller's next step is typically to destroy the original.
+ */
+export interface ProjectExternalStateProvider {
+  /**
+   * Stable identifier for this provider, recorded on every record it produces
+   * and used to route those records back to it on restore. Changing it strands
+   * every archive that recorded the old value.
+   */
+  readonly kind: string
+
+  /**
+   * Capture everything of this kind that the project owns.
+   *
+   * @param input - The project and a scratch directory.
+   * @returns The parts to pack and the records to write into the index.
+   * @throws {Error} If anything of this kind exists but could not be captured
+   *   whole — the caller must not proceed to destroy the original.
+   */
+  capture(input: ProjectExternalStateCaptureInput): Promise<ProjectExternalStateCapture>
+
+  /**
+   * Put back what {@link ProjectExternalStateProvider.capture} produced.
+   *
+   * @param input - The project, this provider's own records, and a part resolver.
+   * @throws {Error} If the resource could not be fully restored. The caller
+   *   leaves the archive in place so a retry starts from the same bytes.
+   */
+  restore(input: ProjectExternalStateRestoreInput): Promise<void>
+}

@@ -30,14 +30,24 @@ describe('the public surface', () => {
   /** Every RUNTIME value the barrel exports. Types are erased, so they are not here. */
   const RUNTIME_EXPORTS = [
     'ARCHIVE_FORMAT_VERSION',
+    // The archive provider — one per deployment: where does the artifact live?
     'getProvider',
     'hasProvider',
     'requireProvider',
     'setProvider',
+    // External-state providers — as many as a project owns kinds of state:
+    // what else does this project own besides its source tree? Named apart from
+    // the four above because they answer a different question, and kept in THIS
+    // package because an archive that captures only the source tree is not an
+    // archive of the project.
+    'getExternalStateProvider',
+    'getExternalStateProviders',
+    'hasExternalStateProviders',
+    'setExternalStateProvider',
   ] as const
 
-  it('exports one constant and the four bond accessors, and nothing else', () => {
-    expect(Object.keys(projectArchive).sort()).toEqual([...RUNTIME_EXPORTS])
+  it('exports the constant plus both provider registries, and nothing else', () => {
+    expect(Object.keys(projectArchive).sort()).toEqual([...RUNTIME_EXPORTS].sort())
   })
 
   it('exports NO exclude list, policy, or preset — selection is the caller job', () => {

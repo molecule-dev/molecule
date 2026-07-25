@@ -11,9 +11,9 @@
  * @module
  */
 
-import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
+import { bond, expectBond, getAll, isBonded, require as bondRequire } from '@molecule/api-bond'
 
-import type { ProjectArchiveProvider } from './types.js'
+import type { ProjectArchiveProvider, ProjectExternalStateProvider } from './types.js'
 
 const BOND_TYPE = 'project-archive'
 expectBond(BOND_TYPE)
@@ -60,4 +60,70 @@ export function requireProvider(): ProjectArchiveProvider {
       { cause: error },
     )
   }
+}
+
+// ---------------------------------------------------------------------------
+// External-state providers (a NAMED, multi-provider category)
+// ---------------------------------------------------------------------------
+//
+// Separate from the archive provider above, and named separately, because they
+// answer different questions: `ProjectArchiveProvider` is "where does the
+// artifact live?" (one answer per deployment) and
+// `ProjectExternalStateProvider` is "what else does this project own?" (as many
+// answers as it owns kinds of state). Both live in this package because a
+// project archive that captures only the source tree is not an archive of the
+// project — they are one feature, not two.
+
+const EXTERNAL_STATE_BOND_TYPE = 'project-archive-external-state'
+expectBond(EXTERNAL_STATE_BOND_TYPE)
+
+/**
+ * Register an external-state provider under its own
+ * {@link ProjectExternalStateProvider.kind}.
+ *
+ * Registering under the provider's own `kind` rather than a caller-chosen name
+ * is what makes restore routing work: records carry `kind`, and that is the key
+ * they are looked up by. A provider bonded under a different name captures state
+ * that nothing can restore.
+ *
+ * @param provider - The provider to register.
+ */
+export function setExternalStateProvider(provider: ProjectExternalStateProvider): void {
+  bond(EXTERNAL_STATE_BOND_TYPE, provider.kind, provider)
+}
+
+/**
+ * Every registered external-state provider, keyed by kind.
+ *
+ * An archive captures from ALL of them; a restore routes each record back to the
+ * one whose kind matches. An empty map is legitimate — a deployment whose
+ * projects own nothing outside their source tree needs no providers.
+ *
+ * @returns The registered providers, keyed by {@link ProjectExternalStateProvider.kind}.
+ */
+export function getExternalStateProviders(): Map<string, ProjectExternalStateProvider> {
+  return getAll<ProjectExternalStateProvider>(EXTERNAL_STATE_BOND_TYPE)
+}
+
+/**
+ * One registered external-state provider by kind, or null.
+ *
+ * A restore that finds null for a kind it HAS records for must fail loudly
+ * rather than skip: the records exist because that state was captured, and
+ * silently not restoring it hands the user a project missing its data.
+ *
+ * @param kind - The {@link ProjectExternalStateProvider.kind} to look up.
+ * @returns The provider, or null.
+ */
+export function getExternalStateProvider(kind: string): ProjectExternalStateProvider | null {
+  return getExternalStateProviders().get(kind) ?? null
+}
+
+/**
+ * Whether any external-state provider is registered.
+ *
+ * @returns True when at least one provider is bonded.
+ */
+export function hasExternalStateProviders(): boolean {
+  return getExternalStateProviders().size > 0
 }
