@@ -1,0 +1,36 @@
+{
+  "name": "@molecule/api-git-workspace",
+  "version": "1.0.0",
+  "description": "Discover, checkpoint, bundle, verify, and restore every git repo in a polyrepo workspace (git-based source archival).",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "git",
+    "workspace",
+    "polyrepo",
+    "bundle",
+    "archive"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  }
+}
