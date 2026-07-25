@@ -814,10 +814,9 @@ const NODE_ANY_SEGMENT_EXCLUDES: readonly string[]
 Reproducible-bulk directories in a Node/JS project. NOT a universal default.
 
 Advisory: the caller filters its own walk and records the list on
-{@link ArchiveInput.excluded} as provenance. Every entry here is regenerable
-from the lockfile or a build, which is the whole economic point —
-`node_modules` measured 1.5 GB of a 1.9 GB workspace while real source is
-single-digit MB.
+{@link ArchiveInput.excluded} as provenance. Every entry here is regenerable,
+which is the whole economic point — `node_modules` measured 1.5 GB of a 1.9 GB
+workspace while real source is single-digit MB.
 
 ```typescript
 const NODE_PROJECT_EXCLUDES: readonly string[]

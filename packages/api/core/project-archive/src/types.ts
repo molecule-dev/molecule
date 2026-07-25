@@ -649,12 +649,23 @@ export const DOTENV_FILE_PREFIX = '.env'
  * Reproducible-bulk directories in a Node/JS project. NOT a universal default.
  *
  * Advisory: the caller filters its own walk and records the list on
- * {@link ArchiveInput.excluded} as provenance. Every entry here is regenerable
- * from the lockfile or a build, which is the whole economic point —
- * `node_modules` measured 1.5 GB of a 1.9 GB workspace while real source is
- * single-digit MB.
+ * {@link ArchiveInput.excluded} as provenance. Every entry here is regenerable,
+ * which is the whole economic point — `node_modules` measured 1.5 GB of a 1.9 GB
+ * workspace while real source is single-digit MB.
  *
  * @remarks
+ * **"Regenerable" does NOT reliably mean "reinstallable from the lockfile" — the
+ * CALLER owns the restore path and must know what actually produced the tree.**
+ * A concrete counter-example from the environment this package was built for:
+ * molecule.dev's sandbox image installs dependencies through a temporary
+ * `_superset` workspace, then deletes it and strips it from `package.json`, so
+ * the shipped lockfile does not describe the installed tree. `npm ci` there takes
+ * ~78 s and produces a `node_modules` with no `.bin/vite` in it, and
+ * `npm ci --offline` fails outright — the only correct restore source is the
+ * image layer that built it. Excluding these directories is still right; assuming
+ * a package manager can rebuild them is not. Verify the restore path before
+ * relying on the exclusion, or a dormant project wakes up broken.
+ *
  * `'.git'` is deliberately ABSENT: git history is user work and is NOT
  * reproducible from a source snapshot, so dropping it would destroy exactly
  * what the archive exists to preserve. It is also small, so it costs nothing to
