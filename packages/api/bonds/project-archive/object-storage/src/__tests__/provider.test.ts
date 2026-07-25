@@ -8,21 +8,12 @@ import {
   ARCHIVE_FORMAT_VERSION,
   type ArchiveManifest,
   type ArchivePart,
-  type ArchivePolicy,
-  DOTENV_FILE_PREFIX,
-  NODE_ANY_SEGMENT_EXCLUDES,
-  NODE_PROJECT_EXCLUDES,
-  NODE_PROJECT_POLICY,
 } from '@molecule/api-project-archive'
 import type { UploadedFile, UploadProvider } from '@molecule/api-uploads'
 
-import * as providerModule from '../provider.js'
-import {
-  createProjectArchiveProvider,
-  filterArchivableParts,
-  provider as defaultProvider,
-  verifyArtifactBytes,
-} from '../provider.js'
+import { verifyArtifactBytes } from '../artifact.js'
+import * as packageModule from '../index.js'
+import { createProjectArchiveProvider, provider as defaultProvider } from '../provider.js'
 import { createTar, gunzipBytes, gzipBytes, parseTar, type TarEntry } from '../tar.js'
 
 /**
@@ -310,347 +301,37 @@ const REPO_PART: ArchivePart = {
 /** The full sample project: source + a database dump. */
 const PARTS: ArchivePart[] = [...SOURCE_PARTS, DATABASE_PART]
 
-describe('archive() — the policy is CONFIGURABLE data, not hard-coded ecosystem opinion', () => {
-  it('defaults to NODE_PROJECT_POLICY and THROWS on node_modules, naming the path', async () => {
-    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
-
-    await expect(
-      archiver.archive({
-        projectId: 'bulk',
-        parts: [
-          { path: 'source/package.json', content: bytes('{}') },
-          { path: 'source/node_modules/left-pad/index.js', content: bytes('module.exports = 1') },
-        ],
-      }),
-    ).rejects.toThrow(
-      /the part "source\/node_modules\/left-pad\/index\.js" is inside "node_modules"/,
-    )
-  })
-
-  it('matches refuseSegments by SEGMENT, so a similarly-named real file is fine', async () => {
-    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
-
-    // Substring matching would wrongly reject this legitimate source file.
-    const result = await archiver.archive({
-      projectId: 'segment',
-      parts: [{ path: 'docs/node_modules_notes.md', content: bytes('# notes') }],
-    })
-
-    expect(result.verified).toBe(true)
-  })
-
-  it('THROWS on a dotenv part — the artifact is plaintext at rest', async () => {
-    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
-
-    for (const secret of ['.env', '.env.production', 'source/api/.env.local']) {
-      await expect(
-        archiver.archive({
-          projectId: 'secret',
-          parts: [
-            { path: 'source/package.json', content: bytes('{}') },
-            { path: secret, content: bytes('STRIPE_SECRET_KEY=sk_live_x') },
-          ],
-        }),
-      ).rejects.toThrow(/matches the refused file prefix "\.env"/)
-    }
-  })
-
-  it('THROWS on a CASE-VARIANT dotenv part — .ENV is the same secret', async () => {
+describe('archive() — nothing is filtered; the caller (git) decides', () => {
+  it('ARCHIVES everything it is handed — there is no exclude list, preset or filter', async () => {
     const uploads = createFakeUploads()
     const archiver = createProjectArchiveProvider({ uploads })
 
-    // Every one of these reached plaintext object storage under a
-    // case-sensitive compare, while every dotenv loader still reads them.
-    for (const secret of [
-      '.ENV',
-      '.Env',
-      '.Env.production',
-      '.eNv.production',
-      'source/api/.ENV.local',
-    ]) {
-      await expect(
-        archiver.archive({
-          projectId: 'secret-case',
-          parts: [
-            { path: 'source/package.json', content: bytes('{}') },
-            { path: secret, content: bytes('STRIPE_SECRET_KEY=sk_live_x') },
-          ],
-        }),
-      ).rejects.toThrow(/matches the refused file prefix "\.env"/)
-    }
-
-    expect(uploads.store.size).toBe(0)
-  })
-
-  it('THROWS on a secret under a .env DIRECTORY — the basename matches nothing', async () => {
-    const uploads = createFakeUploads()
-    const archiver = createProjectArchiveProvider({ uploads })
-
-    // A .env DIRECTORY holds exactly the same credentials as a .env file. The
-    // basename of '.env/prod.key' is 'prod.key', so a basename-only compare
-    // archived all of these.
-    for (const secret of [
-      '.env/prod.key',
-      'config/.env/staging',
-      'source/.ENV/prod.key',
-      '.env.production/service-account.json',
-    ]) {
-      await expect(
-        archiver.archive({
-          projectId: 'secret-dir',
-          parts: [
-            { path: 'source/package.json', content: bytes('{}') },
-            { path: secret, content: bytes('PRIVATE_KEY=-----BEGIN') },
-          ],
-        }),
-      ).rejects.toThrow(/matches the refused file prefix "\.env"/)
-    }
-
-    expect(uploads.store.size).toBe(0)
-  })
-
-  it('REFUSES every dotenv shape a caller can spell, AFTER normalisation', async () => {
-    const uploads = createFakeUploads()
-    const archiver = createProjectArchiveProvider({ uploads })
-
-    // Every one of these was archived and reported verified: true by some
-    // shipped build of this package. The last four are the separator/padding
-    // family: they only become the segment ".env" once ONE path model folds
-    // "\" and trims each segment, which is why the rules share one.
-    for (const secret of [
-      '.ENV',
-      '.Env.production',
-      '.env/prod.key',
-      'config\\.env',
-      '.env\\prod.key',
-      '.env ',
-      ' .env',
-      'a\\b\\.ENV\\c',
-      'source/.EnV.Staging',
-      '.env.local/creds',
-    ]) {
-      await expect(
-        archiver.archive({
-          projectId: 'secret-shapes',
-          parts: [{ path: secret, content: bytes('AWS_SECRET_ACCESS_KEY=hunter2') }],
-        }),
-      ).rejects.toThrow(/matches the refused file prefix "\.env"/)
-    }
-
-    // Nothing about any of them reached storage.
-    expect(uploads.store.size).toBe(0)
-
-    // …and the rule is still a family rule, not a substring one: these are not
-    // dotenv files and refusing them would throw away real archives.
-    for (const innocent of ['.envrc', '.env-local', '.env_local', 'source/environment.ts']) {
-      const ok = await archiver.archive({
-        projectId: 'secret-shapes',
-        parts: [{ path: innocent, content: bytes('x') }],
-      })
-      expect(ok.verified).toBe(true)
-    }
-  })
-
-  it('REFUSES a backslash-smuggled node_modules, like the filter now does', async () => {
-    const uploads = createFakeUploads()
-    const archiver = createProjectArchiveProvider({ uploads })
-
-    await expect(
-      archiver.archive({
-        projectId: 'bulk-sep',
-        parts: [{ path: 'api\\node_modules\\pkg\\index.js', content: bytes('x') }],
-      }),
-    ).rejects.toThrow(/is inside "node_modules"/)
-    expect(uploads.store.size).toBe(0)
-  })
-
-  it('keeps refuseSegments CASE-SENSITIVE — a refusal throws away a real archive', async () => {
-    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
-
-    // Deliberate asymmetry with refuseFilePrefixes: POSIX paths are
-    // case-sensitive, 'Node_Modules' may be a directory a user really named,
-    // and a miss here only costs bytes — never a leaked credential.
-    const accepted = await archiver.archive({
-      projectId: 'case-segments',
-      parts: [
-        { path: 'source/package.json', content: bytes('{}') },
-        { path: 'source/Node_Modules/notes.md', content: bytes('# notes') },
-      ],
-    })
-
-    expect(accepted.verified).toBe(true)
-    expect(accepted.manifest.entries.map((entry) => entry.path)).toContain(
-      'source/Node_Modules/notes.md',
-    )
-
-    // A caller who wants the variant refused lists it explicitly.
-    await expect(
-      archiver.archive({
-        projectId: 'case-segments',
-        parts: [{ path: 'source/Node_Modules/notes.md', content: bytes('# notes') }],
-        policy: { refuseSegments: ['node_modules', 'Node_Modules'] },
-      }),
-    ).rejects.toThrow(/is inside "Node_Modules"/)
-  })
-
-  it('a PYTHON policy refuses .venv while ACCEPTING node_modules', async () => {
-    const uploads = createFakeUploads()
-    const archiver = createProjectArchiveProvider({ uploads })
-    const python: ArchivePolicy = { refuseSegments: ['.venv', '__pycache__'] }
-
-    await expect(
-      archiver.archive({
-        projectId: 'py',
-        parts: [{ path: 'source/.venv/lib/python3.12/site-packages/x.py', content: bytes('x') }],
-        policy: python,
-      }),
-    ).rejects.toThrow(/is inside "\.venv"/)
-
-    await expect(
-      archiver.archive({
-        projectId: 'py',
-        parts: [{ path: 'source/app/__pycache__/main.cpython-312.pyc', content: bytes('x') }],
-        policy: python,
-      }),
-    ).rejects.toThrow(/is inside "__pycache__"/)
-
-    // The proof the rule is DATA and not code: under the Python policy,
-    // node_modules is nothing special and archives happily.
-    const accepted = await archiver.archive({
-      projectId: 'py',
-      parts: [
-        { path: 'source/main.py', content: bytes('print("hi")\n') },
-        { path: 'source/node_modules/left-pad/index.js', content: bytes('module.exports = 1') },
-      ],
-      policy: python,
-    })
-
-    expect(accepted.verified).toBe(true)
-    expect(accepted.manifest.entries.map((entry) => entry.path)).toContain(
+    // WHICH files to archive is the caller's decision (normally git's:
+    // `.gitignore` + `git clean -Xdf`). The layer that used to decide it here
+    // deleted real source with no signal — `src/build/compiler.ts`,
+    // `src/tmp.ts`, `src/build.rs` and `src/dist.config.js` all went, because a
+    // directory exclude was applied to filenames — in a helper that runs
+    // immediately before the live project is deleted. Every one of these is now
+    // archived, including the bulk: the caller chose to hand it over.
+    const paths = [
+      'source/package.json',
       'source/node_modules/left-pad/index.js',
-    )
-  })
+      'source/dist/bundle.js',
+      'src/build/compiler.ts',
+      'src/tmp.ts',
+      'src/build.rs',
+      'src/dist.config.js',
+      'src/.DS_Store',
+      'docs/node_modules_notes.md',
+    ]
 
-  it('a RUST policy refuses target/ and, likewise, accepts node_modules', async () => {
-    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
-    const rust: ArchivePolicy = { refuseSegments: ['target'] }
-
-    await expect(
-      archiver.archive({
-        projectId: 'rs',
-        parts: [{ path: 'source/target/debug/app', content: bytes('binary') }],
-        policy: rust,
-      }),
-    ).rejects.toThrow(/is inside "target"/)
-
-    const accepted = await archiver.archive({
-      projectId: 'rs',
-      parts: [
-        { path: 'source/Cargo.toml', content: bytes('[package]\n') },
-        { path: 'source/node_modules/x/index.js', content: bytes('x') },
-      ],
-      policy: rust,
-    })
-    expect(accepted.verified).toBe(true)
-  })
-
-  it('configures the policy per PROVIDER, replacing the Node/JS bond default', async () => {
-    const archiver = createProjectArchiveProvider({
-      uploads: createFakeUploads(),
-      policy: { refuseSegments: ['.venv'] },
-    })
-
-    await expect(
-      archiver.archive({
-        projectId: 'py-provider',
-        parts: [{ path: 'source/.venv/x.py', content: bytes('x') }],
-      }),
-    ).rejects.toThrow(/is inside "\.venv"/)
-
-    // The configured policy REPLACED NODE_PROJECT_POLICY; it does not stack.
-    const accepted = await archiver.archive({
-      projectId: 'py-provider',
-      parts: [{ path: 'source/node_modules/x/index.js', content: bytes('x') }],
-    })
-    expect(accepted.verified).toBe(true)
-  })
-
-  it('resolves policy as input → config → NODE_PROJECT_POLICY', async () => {
-    const archiver = createProjectArchiveProvider({
-      uploads: createFakeUploads(),
-      policy: { refuseSegments: ['target'] },
-    })
-
-    // The call's own policy wins over the provider's…
-    await expect(
-      archiver.archive({
-        projectId: 'precedence',
-        parts: [{ path: 'source/.venv/x.py', content: bytes('x') }],
-        policy: { refuseSegments: ['.venv'] },
-      }),
-    ).rejects.toThrow(/is inside "\.venv"/)
-
-    // …so what the provider refuses is permitted for THIS call.
-    const accepted = await archiver.archive({
-      projectId: 'precedence',
-      parts: [{ path: 'source/target/debug/app', content: bytes('x') }],
-      policy: { refuseSegments: ['.venv'] },
-    })
-    expect(accepted.verified).toBe(true)
-  })
-
-  it('refuses NOTHING only when BOTH refusal lists are explicitly emptied', async () => {
-    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
-
-    // Turning a credential guard OFF must be visible in code review, so it takes
-    // explicit empty arrays. `??` falls through on undefined only, so these win.
     const result = await archiver.archive({
-      projectId: 'nopolicy',
-      parts: [
-        { path: 'source/node_modules/x/index.js', content: bytes('x') },
-        { path: 'source/.env', content: bytes('NOT_A_REAL_SECRET=1') },
-      ],
-      policy: { refuseSegments: [], refuseFilePrefixes: [] },
+      projectId: 'no-filter',
+      parts: paths.map((path) => ({ path, content: bytes('x') })),
     })
 
     expect(result.verified).toBe(true)
-    expect(result.manifest.parts.count).toBe(2)
-  })
-
-  it('resolves the policy PER FIELD, so a partial policy cannot drop the secret guard', async () => {
-    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
-
-    // The regression this pins: this package's own Python/Rust recipes supply only
-    // `refuseSegments`. Whole-object replacement silently discarded
-    // `refuseFilePrefixes`, so a .env was archived with verified:true. Opting into
-    // another ecosystem's bulk list is not a statement about secrets.
-    await expect(
-      archiver.archive({
-        projectId: 'partial',
-        parts: [
-          { path: 'source/main.py', content: bytes('print(1)') },
-          { path: 'source/.env', content: bytes('NOT_A_REAL_SECRET=1') },
-        ],
-        policy: { refuseSegments: ['.venv', '__pycache__'] },
-      }),
-    ).rejects.toThrow(/refused file prefix/)
-  })
-
-  it('an EMPTY policy object means "use the defaults", not "refuse nothing"', async () => {
-    const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
-
-    // `{}` reads as "empty/default", so it must not silently be the most
-    // permissive setting available.
-    await expect(
-      archiver.archive({
-        projectId: 'emptyobj',
-        parts: [
-          { path: 'source/package.json', content: bytes('{}') },
-          { path: 'source/.env', content: bytes('NOT_A_REAL_SECRET=1') },
-        ],
-        policy: {},
-      }),
-    ).rejects.toThrow(/refused file prefix/)
+    expect(result.manifest.entries.map((entry) => entry.path).sort()).toEqual([...paths].sort())
   })
 
   it('ARCHIVES .git — history is user work and is not reproducible from source', async () => {
@@ -670,345 +351,6 @@ describe('archive() — the policy is CONFIGURABLE data, not hard-coded ecosyste
       'source/.git/HEAD',
       'source/.git/objects/ab/cdef',
       'source/package.json',
-    ])
-  })
-
-  it('keeps .git out of the Node preset and keeps secrets out of it too', () => {
-    expect(NODE_PROJECT_EXCLUDES).not.toContain('.git')
-    expect(NODE_PROJECT_EXCLUDES).toContain('node_modules')
-    // Secrets are REFUSED by policy, never silently filtered as "bulk".
-    expect(NODE_PROJECT_EXCLUDES).not.toContain(DOTENV_FILE_PREFIX)
-    expect(NODE_PROJECT_POLICY.refuseFilePrefixes).toEqual([DOTENV_FILE_PREFIX])
-  })
-})
-
-describe('filterArchivableParts() — it must NEVER silently return less', () => {
-  /**
-   * Paths of the parts a filter kept, sorted.
-   *
-   * @param result - What the filter returned.
-   * @returns The kept paths.
-   */
-  const keptPaths = (result: { kept: { path: string }[] }): string[] =>
-    result.kept.map((part) => part.path).sort()
-
-  /**
-   * Paths of the parts a filter dropped, sorted.
-   *
-   * @param result - What the filter returned.
-   * @returns The dropped paths.
-   */
-  const droppedPaths = (result: { dropped: { path: string }[] }): string[] =>
-    result.dropped.map((part) => part.path).sort()
-
-  it('KEEPS real source under a build/tmp/coverage directory — the regression that deleted source', () => {
-    // Proven against the shipped filter: an any-segment match kept only
-    // src/main.ts here and dropped three legitimate source files, silently,
-    // in the helper a caller runs immediately before deleting the live project.
-    const parts: ArchivePart[] = [
-      { path: 'src/build/compiler.ts', content: bytes('export const compile = 1') },
-      { path: 'src/tmp/scratch.ts', content: bytes('export const scratch = 1') },
-      { path: 'app/coverage/report.ts', content: bytes('export const report = 1') },
-      { path: 'src/main.ts', content: bytes('export const main = 1') },
-    ]
-
-    const result = filterArchivableParts(parts)
-
-    expect(keptPaths(result)).toEqual([
-      'app/coverage/report.ts',
-      'src/build/compiler.ts',
-      'src/main.ts',
-      'src/tmp/scratch.ts',
-    ])
-    expect(result.dropped).toEqual([])
-  })
-
-  it('still drops TOP-LEVEL build output and node_modules at ANY depth, and REPORTS all of it', () => {
-    const parts: ArchivePart[] = [
-      { path: 'package.json', content: bytes('{}') },
-      { path: 'node_modules/x/index.js', content: bytes('x') },
-      { path: 'api/node_modules/y/index.js', content: bytes('y') },
-      { path: 'packages/web/node_modules/z/index.js', content: bytes('z') },
-      { path: 'dist/bundle.js', content: bytes('b') },
-      { path: 'build/out.js', content: bytes('o') },
-      { path: 'coverage/index.html', content: bytes('c') },
-      { path: 'tmp/scratch.txt', content: bytes('t') },
-      { path: '.vite/deps/react.js', content: bytes('v') },
-      { path: 'src/.DS_Store', content: bytes('d') },
-      { path: '.git/HEAD', content: bytes('ref: refs/heads/main') },
-      { path: 'docs/node_modules_notes.md', content: bytes('n') },
-      { path: '.env', content: bytes('SECRET=1') },
-    ]
-
-    const result = filterArchivableParts(parts)
-
-    // .env survives the DEFAULT filter on purpose: a secret is not "bulk the
-    // caller may skip", it is bytes archive() must REFUSE loudly.
-    expect(keptPaths(result)).toEqual([
-      '.env',
-      '.git/HEAD',
-      'docs/node_modules_notes.md',
-      'package.json',
-    ])
-
-    // Both halves, always: `dropped` is the only record of what the walk gave up.
-    expect(droppedPaths(result)).toEqual([
-      '.vite/deps/react.js',
-      'api/node_modules/y/index.js',
-      'build/out.js',
-      'coverage/index.html',
-      'dist/bundle.js',
-      'node_modules/x/index.js',
-      'packages/web/node_modules/z/index.js',
-      'src/.DS_Store',
-      'tmp/scratch.txt',
-    ])
-    // Nothing vanished between the two halves.
-    expect(result.kept.length + result.dropped.length).toBe(parts.length)
-  })
-
-  it('anchors a directory match as a LEADING path, never as a prefix of a segment', () => {
-    const parts: ArchivePart[] = [
-      { path: 'dist/bundle.js', content: bytes('b') },
-      { path: 'distribution/plan.md', content: bytes('p') },
-      { path: 'dist', content: bytes('a file literally named dist') },
-    ]
-
-    const result = filterArchivableParts(parts, ['dist'])
-
-    expect(keptPaths(result)).toEqual(['distribution/plan.md'])
-    expect(droppedPaths(result)).toEqual(['dist', 'dist/bundle.js'])
-  })
-
-  it('honours an EXPLICIT deeper path, which is how a monorepo opts into more', () => {
-    const parts: ArchivePart[] = [
-      { path: 'packages/api/dist/index.js', content: bytes('a') },
-      { path: 'packages/app/dist/index.js', content: bytes('b') },
-      { path: 'packages/api/src/index.ts', content: bytes('c') },
-      // Not named explicitly, so it SURVIVES — being more aggressive than the
-      // safe default is the caller's explicit choice, entry by entry.
-      { path: 'packages/worker/dist/index.js', content: bytes('d') },
-    ]
-
-    const result = filterArchivableParts(parts, ['packages/api/dist', 'packages/app/dist'])
-
-    expect(keptPaths(result)).toEqual([
-      'packages/api/src/index.ts',
-      'packages/worker/dist/index.js',
-    ])
-    expect(droppedPaths(result)).toEqual([
-      'packages/api/dist/index.js',
-      'packages/app/dist/index.js',
-    ])
-  })
-
-  it('REFUSES an empty-string exclude instead of silently dropping every dotfile', () => {
-    const parts: ArchivePart[] = [
-      { path: '.git/HEAD', content: bytes('ref: refs/heads/main') },
-      { path: 'package.json', content: bytes('{}') },
-    ]
-
-    expect(() => filterArchivableParts(parts, ['dist', ''])).toThrow(/EMPTY STRING/)
-    expect(() => filterArchivableParts(parts, [''])).toThrow(/\.git/)
-  })
-
-  it('drops the whole dotenv FAMILY when DOTENV_FILE_PREFIX is in the excludes', () => {
-    const parts: ArchivePart[] = [
-      { path: 'package.json', content: bytes('{}') },
-      { path: '.env', content: bytes('SECRET=1') },
-      { path: 'api/.env.production', content: bytes('SECRET=2') },
-      { path: 'api/.env.local', content: bytes('SECRET=3') },
-      { path: '.envrc', content: bytes('not a dotenv file') },
-    ]
-
-    const result = filterArchivableParts(parts, [...NODE_PROJECT_EXCLUDES, DOTENV_FILE_PREFIX])
-
-    // '.envrc' is NOT in the '.env' family: the rule is '<entry>' or '<entry>.'.
-    expect(keptPaths(result)).toEqual(['.envrc', 'package.json'])
-    expect(droppedPaths(result)).toEqual(['.env', 'api/.env.local', 'api/.env.production'])
-  })
-
-  it('takes ANY ecosystem’s excludes, anchored the same way', () => {
-    const parts: ArchivePart[] = [
-      { path: 'main.py', content: bytes('print(1)') },
-      { path: '.venv/lib/x.py', content: bytes('x') },
-      // Anchored: a NESTED __pycache__ survives the default, exactly like
-      // src/build/ does. Only the `anySegment` set matches at depth.
-      { path: 'app/__pycache__/main.cpython-312.pyc', content: bytes('c') },
-      // Nothing about node_modules is built in — this Python walk keeps it.
-      { path: 'node_modules/x/index.js', content: bytes('x') },
-    ]
-
-    const result = filterArchivableParts(parts, ['.venv', '__pycache__', '.pytest_cache'])
-
-    expect(keptPaths(result)).toEqual([
-      'app/__pycache__/main.cpython-312.pyc',
-      'main.py',
-      'node_modules/x/index.js',
-    ])
-    expect(droppedPaths(result)).toEqual(['.venv/lib/x.py'])
-
-    // …and naming the deeper path explicitly drops it, without touching source.
-    const explicit = filterArchivableParts(parts, ['.venv', 'app/__pycache__'])
-    expect(keptPaths(explicit)).toEqual(['main.py', 'node_modules/x/index.js'])
-    expect(droppedPaths(explicit)).toEqual([
-      '.venv/lib/x.py',
-      'app/__pycache__/main.cpython-312.pyc',
-    ])
-  })
-
-  it('matches ONLY the documented any-segment set at depth', () => {
-    expect(NODE_ANY_SEGMENT_EXCLUDES).toEqual(['node_modules'])
-
-    const parts: ArchivePart[] = [
-      { path: 'src/node_modules/x/index.js', content: bytes('x') },
-      { path: 'src/dist/generated.ts', content: bytes('d') },
-    ]
-
-    const result = filterArchivableParts(parts, ['node_modules', 'dist'])
-
-    expect(keptPaths(result)).toEqual(['src/dist/generated.ts'])
-    expect(droppedPaths(result)).toEqual(['src/node_modules/x/index.js'])
-  })
-
-  it('lets ANY ecosystem opt into the any-depth rule, instead of Node owning it', () => {
-    // The defect: the any-depth set was a hard-coded constant, so
-    // `api/node_modules/x.js` dropped at depth while a Python or Rust walk got
-    // nothing for ITS bulk, no matter what it passed.
-    const parts: ArchivePart[] = [
-      { path: 'src/__pycache__/a.pyc', content: bytes('c') },
-      { path: 'app/.venv/lib/x.py', content: bytes('v') },
-      { path: 'crates/x/target/debug/y', content: bytes('t') },
-      { path: 'api/node_modules/x.js', content: bytes('n') },
-      { path: 'src/main.py', content: bytes('m') },
-    ]
-    const excludes = ['__pycache__', '.venv', 'target', 'node_modules']
-
-    const anchored = filterArchivableParts(parts, excludes)
-    expect(droppedPaths(anchored)).toEqual(['api/node_modules/x.js'])
-
-    const optedIn = filterArchivableParts(parts, excludes, {
-      anySegment: ['__pycache__', '.venv', 'target'],
-    })
-    expect(droppedPaths(optedIn)).toEqual([
-      'app/.venv/lib/x.py',
-      'crates/x/target/debug/y',
-      'src/__pycache__/a.pyc',
-    ])
-    // `node_modules` was left OUT of this walk's anySegment, so it is anchored
-    // like everything else — the caller's set is the whole set.
-    expect(keptPaths(optedIn)).toEqual(['api/node_modules/x.js', 'src/main.py'])
-
-    // Opting in for one ecosystem does not smuggle Node's set along…
-    const pythonOnly = filterArchivableParts(parts, excludes, { anySegment: ['__pycache__'] })
-    expect(droppedPaths(pythonOnly)).toEqual(['src/__pycache__/a.pyc'])
-
-    // …and `[]` anchors everything, node_modules included.
-    const allAnchored = filterArchivableParts(parts, excludes, { anySegment: [] })
-    expect(droppedPaths(allAnchored)).toEqual([])
-  })
-
-  it('normalises exclude entries with the same model as the paths', () => {
-    const parts: ArchivePart[] = [
-      { path: 'dist/bundle.js', content: bytes('b') },
-      { path: 'api/node_modules/x.js', content: bytes('n') },
-      { path: 'src/main.ts', content: bytes('m') },
-    ]
-
-    // A trailing or leading slash is what a caller writes when they mean the
-    // directory. Matching NOTHING (the old behaviour) let them believe they had
-    // filtered while the bulk shipped.
-    for (const spelling of ['dist/', '/dist', 'dist', 'dist//']) {
-      const result = filterArchivableParts(parts, [spelling])
-      expect(droppedPaths(result)).toEqual(['dist/bundle.js'])
-    }
-    expect(droppedPaths(filterArchivableParts(parts, ['node_modules/']))).toEqual([
-      'api/node_modules/x.js',
-    ])
-
-    // An entry that normalises to NOTHING is refused like the empty string it is.
-    for (const empty of ['', '/', '  ', '\\']) {
-      expect(() => filterArchivableParts(parts, [empty])).toThrow(/EMPTY STRING/)
-    }
-
-    // …and one that can only ever match nothing is refused LOUDLY rather than
-    // silently doing nothing, which is the same failure the empty entry has.
-    for (const relative of ['./dist', '../dist', 'src/./dist']) {
-      expect(() => filterArchivableParts(parts, [relative])).toThrow(/can only ever match NOTHING/)
-    }
-  })
-
-  it('reads a part path with the SAME separators as the policy and the codec', () => {
-    // Proven against the shipped build: `node_modules\pkg\index.js` was KEPT by
-    // this filter and archived by the policy, because both split on '/' alone
-    // while path safety and collision detection folded '\'. One model now.
-    const parts: ArchivePart[] = [
-      { path: 'node_modules\\pkg\\index.js', content: bytes('n') },
-      { path: 'api\\node_modules\\pkg\\index.js', content: bytes('n') },
-      { path: 'dist\\bundle.js', content: bytes('d') },
-      { path: 'src\\main.ts', content: bytes('m') },
-    ]
-
-    const result = filterArchivableParts(parts)
-
-    expect(keptPaths(result)).toEqual(['src\\main.ts'])
-    expect(droppedPaths(result)).toEqual([
-      'api\\node_modules\\pkg\\index.js',
-      'dist\\bundle.js',
-      'node_modules\\pkg\\index.js',
-    ])
-  })
-
-  it('applies the family rule ONLY to dot entries, so real source and .git refs survive', () => {
-    // Measured against the shipped build with NODE_PROJECT_EXCLUDES: 'tmp' ate
-    // src/tmp.ts, 'build' ate src/build.rs and lib/build.gradle, 'dist' ate
-    // src/dist.config.js, and every .git ref named after a build directory was
-    // dropped — corrupting history the preset deliberately keeps, in the helper
-    // a caller runs immediately before deleting the live project.
-    const parts: ArchivePart[] = [
-      { path: 'src/tmp.ts', content: bytes('a') },
-      { path: 'src/build.rs', content: bytes('b') },
-      { path: 'src/dist.config.js', content: bytes('c') },
-      { path: 'tmp.md', content: bytes('d') },
-      { path: 'buildings/x.ts', content: bytes('e') },
-      { path: 'distance.ts', content: bytes('f') },
-      { path: 'lib/build.gradle', content: bytes('g') },
-      { path: 'src/coverage.ts', content: bytes('h') },
-      { path: '.git/refs/heads/dist', content: bytes('i') },
-      { path: '.git/refs/tags/build', content: bytes('j') },
-      { path: '.git/logs/refs/heads/tmp', content: bytes('k') },
-      { path: 'src/main.ts', content: bytes('l') },
-    ]
-
-    const result = filterArchivableParts(parts)
-
-    expect(result.dropped).toEqual([])
-    expect(result.kept).toHaveLength(parts.length)
-  })
-
-  it('still drops the DOT families at any depth — that is what the rule is for', () => {
-    const parts: ArchivePart[] = [
-      { path: '.DS_Store', content: bytes('a') },
-      { path: 'src/.DS_Store', content: bytes('b') },
-      { path: 'a/b/c/.DS_Store', content: bytes('c') },
-      { path: 'src/.cache.json', content: bytes('d') },
-      { path: 'api/.env.local', content: bytes('e') },
-      { path: 'a/b/.env.production', content: bytes('f') },
-      { path: '.envrc', content: bytes('g') },
-      { path: 'src/main.ts', content: bytes('h') },
-    ]
-
-    const result = filterArchivableParts(parts, [...NODE_PROJECT_EXCLUDES, DOTENV_FILE_PREFIX])
-
-    // '.envrc' is direnv, not dotenv: the family is '<entry>' or '<entry>.'.
-    expect(keptPaths(result)).toEqual(['.envrc', 'src/main.ts'])
-    expect(droppedPaths(result)).toEqual([
-      '.DS_Store',
-      'a/b/.env.production',
-      'a/b/c/.DS_Store',
-      'api/.env.local',
-      'src/.DS_Store',
-      'src/.cache.json',
     ])
   })
 })
@@ -1125,7 +467,7 @@ describe('archive() — path safety is enforced on the RAW path, before the part
     // manifest describes a tree the caller never sent — immediately before the
     // caller deletes the original. A mid-path backslash was accepted before
     // this, and it was accepted by the ONE rule that could not afford it: the
-    // policy read `config\.env` as a single segment and matched nothing.
+    // dotenv refusal read `config\.env` as a single segment and matched nothing.
     await expect(archivePath('src\\main.ts')).rejects.toThrow(/backslash/)
     await expect(archivePath('a\\b')).rejects.toThrow(/backslash/)
     await expect(archivePath('src//main.ts')).rejects.toThrow(/an empty segment/)
@@ -1135,22 +477,31 @@ describe('archive() — path safety is enforced on the RAW path, before the part
     await expect(archivePath(' src/main.ts')).rejects.toThrow(/padded\s+with whitespace/)
   })
 
-  it('names the SECRET, not the separator, when a path is both', async () => {
-    // Both are refusals and neither uploads anything, but only one of them
-    // tells the operator that a live credential nearly reached storage that is
-    // not encrypted at rest. That is the one worth saying out loud.
+  it('archives a .env part like any other — selection is git\u2019s job, not ours', async () => {
+    // This package briefly refused dotenv paths. It was removed deliberately:
+    // git does not refuse to commit a `.env`, so neither should we. A scaffolded
+    // project's .gitignore already excludes `.env*`, so one is never handed
+    // over; and a user who force-added theirs has already pushed it to their own
+    // remote. An unwritten refusal here would be a rule they had to LEARN, and a
+    // surprise at the worst moment. Predictable beats clever.
     const uploads = createFakeUploads()
     const archiver = createProjectArchiveProvider({ uploads })
 
-    await expect(
-      archiver.archive({
-        projectId: 'proj-path',
-        parts: [{ path: 'config\\.env', content: bytes('S=1') }],
-      }),
-    ).rejects.toThrow(/refused file prefix "\.env"/)
-    expect(uploads.store.size).toBe(0)
+    const result = await archiver.archive({
+      projectId: 'proj-env',
+      parts: [{ path: 'config/.env', content: bytes('NOT_A_REAL_SECRET=1') }],
+    })
 
-    // …while a non-canonical path that is NOT a secret still reports the path.
+    expect(result.verified).toBe(true)
+    expect(result.manifest.entries.map((entry) => entry.path)).toEqual(['config/.env'])
+  })
+
+  it('still rejects a NON-CANONICAL path, naming the path problem', async () => {
+    // Path safety is unchanged and is not a content judgement: it exists so the
+    // manifest describes exactly what the caller sent.
+    const uploads = createFakeUploads()
+    const archiver = createProjectArchiveProvider({ uploads })
+
     await expect(
       archiver.archive({
         projectId: 'proj-path',
@@ -1307,16 +658,17 @@ describe('archive() — the artifact', () => {
     const { manifest } = await archiver.archive({
       projectId: 'proj-manifest',
       parts: PARTS,
-      excluded: NODE_PROJECT_EXCLUDES,
       metadata: { tier: 'free', region: 'us-east-1' },
     })
 
     expect(manifest.formatVersion).toBe(ARCHIVE_FORMAT_VERSION)
-    expect(ARCHIVE_FORMAT_VERSION).toBe(2)
+    // v3 is the layout WITHOUT the manifest's `excluded` header field, which
+    // went with the exclude/filter layer that produced it.
+    expect(ARCHIVE_FORMAT_VERSION).toBe(3)
+    expect(manifest).not.toHaveProperty('excluded')
     expect(manifest.projectId).toBe('proj-manifest')
     expect(Date.parse(manifest.createdAt)).not.toBeNaN()
     expect(manifest.metadata).toEqual({ tier: 'free', region: 'us-east-1' })
-    expect(manifest.excluded).toEqual(NODE_PROJECT_EXCLUDES)
     expect(manifest.parts.count).toBe(PARTS.length)
     expect(manifest.parts.bytes).toBe(
       PARTS.reduce((total, part) => total + part.content.byteLength, 0),
@@ -1356,12 +708,11 @@ describe('archive() — the artifact', () => {
     expect(manifest.entries[2]).not.toHaveProperty('meta')
   })
 
-  it('omits excluded and metadata when the caller supplied neither', async () => {
+  it('omits metadata when the caller supplied none', async () => {
     const archiver = createProjectArchiveProvider({ uploads: createFakeUploads() })
 
     const { manifest } = await archiver.archive({ projectId: 'proj-bare', parts: PARTS })
 
-    expect(manifest.excluded).toBeUndefined()
     expect(manifest.metadata).toBeUndefined()
   })
 
@@ -1401,14 +752,9 @@ describe('archive() — the artifact', () => {
         parts: PARTS,
         metadata: { reason: 'forged' },
       })
-      const excluded = await archiver.archive({
-        projectId: 'victim',
-        parts: PARTS,
-        excluded: ['everything'],
-      })
 
       // Same bytes, same index, same timestamp — only the header differs.
-      for (const other of [attacker, provenance, excluded]) {
+      for (const other of [attacker, provenance]) {
         expect(other.manifest.parts.sha256).not.toBe(victim.manifest.parts.sha256)
       }
 
@@ -1994,7 +1340,6 @@ describe('the manifest’s ROUTING LABELS are inside the digest', () => {
       projectId: (manifest) => ({ ...manifest, projectId: 'attacker-project' }),
       createdAt: (manifest) => ({ ...manifest, createdAt: '1970-01-01T00:00:00.000Z' }),
       metadata: (manifest) => ({ ...manifest, metadata: { reason: 'forged' } }),
-      excluded: (manifest) => ({ ...manifest, excluded: ['everything'] }),
       formatVersion: (manifest) => ({ ...manifest, formatVersion: ARCHIVE_FORMAT_VERSION }),
     }
 
@@ -2009,7 +1354,7 @@ describe('the manifest’s ROUTING LABELS are inside the digest', () => {
 
       if (field === 'formatVersion') {
         // The control: rewriting a field to the value it already holds is not a
-        // tamper, so this one must still PASS. Otherwise the four above would
+        // tamper, so this one must still PASS. Otherwise the three above would
         // prove nothing but "the digest changed".
         expect(verification.digestMatched).toBe(true)
         continue
@@ -2517,27 +1862,34 @@ describe('restore()', () => {
 
     await expect(
       archiver.restore({ projectId: 'proj-future', storageId: result.storageId }),
-    ).rejects.toThrow(/understands at most version 2/)
+    ).rejects.toThrow(/understands at most version 3/)
   })
 
-  it('THROWS on a v1 artifact rather than reading it as an archive of zero parts', async () => {
+  it('THROWS on a v1 or v2 artifact rather than misreading it', async () => {
     const uploads = createFakeUploads()
     const archiver = createProjectArchiveProvider({ uploads })
 
-    const result = await archiver.archive({ projectId: 'proj-v1', parts: PARTS })
-    uploads.store.set(
-      result.storageId,
-      Buffer.from(
-        rewriteManifest(stored(uploads, result.storageId), (manifest) => ({
-          ...manifest,
-          formatVersion: 1,
-        })),
-      ),
-    )
+    // v1 laid its content out as privileged source/database channels, so it is
+    // not readable as parts at all; v2 carried an `excluded` manifest header
+    // that no longer exists and that its digest covered. Both fail loudly
+    // rather than being read as an archive of zero parts or with an
+    // unauthenticated header.
+    for (const formatVersion of [1, 2]) {
+      const result = await archiver.archive({ projectId: 'proj-old', parts: PARTS })
+      uploads.store.set(
+        result.storageId,
+        Buffer.from(
+          rewriteManifest(stored(uploads, result.storageId), (manifest) => ({
+            ...manifest,
+            formatVersion,
+          })),
+        ),
+      )
 
-    await expect(
-      archiver.restore({ projectId: 'proj-v1', storageId: result.storageId }),
-    ).rejects.toThrow(/cannot be read as parts/)
+      await expect(
+        archiver.restore({ projectId: 'proj-old', storageId: result.storageId }),
+      ).rejects.toThrow(/oldest readable layout is version 3/)
+    }
   })
 
   it('THROWS on a truncated artifact', async () => {
@@ -2778,16 +2130,39 @@ describe('export shape', () => {
     expect(typeof defaultProvider.remove).toBe('function')
   })
 
-  it('exports the parts-era surface and nothing from the source/database era', () => {
-    expect('deriveStorageId' in providerModule).toBe(false)
-    // The old file-centric helper is gone, not aliased.
-    expect('filterArchivableFiles' in providerModule).toBe(false)
-    expect(Object.keys(providerModule).sort()).toEqual([
-      'createProjectArchiveProvider',
+  it('exports ONLY what using the provider needs — the internals stay internal', () => {
+    // The package used to export 28 symbols: the tar codec, the path model, the
+    // matching primitives and an exclude filter, none of which a caller of
+    // archive()/restore()/status()/remove() ever touches. A barrel that leaks
+    // its internals is a contract nobody meant to promise.
+    expect(Object.keys(packageModule).sort()).toEqual(['createProjectArchiveProvider', 'provider'])
+
+    // Gone, not aliased: the exclude/filter layer, its matching primitives, the
+    // storage-key derivation, and the internal verification/codec/path helpers.
+    for (const removed of [
+      'deriveStorageId',
+      'filterArchivableFiles',
       'filterArchivableParts',
-      'provider',
+      'matchesAnySegment',
+      'matchesAnchoredPath',
+      'matchesDotFamily',
+      'matchesSecretSegment',
+      'foldedSegment',
+      'pathComparisonKey',
+      'pathCollisionKey',
+      'normalizePartPath',
+      'segmentsOf',
+      'describePath',
+      'assertSafePartPath',
+      'assertSafeEntryPath',
+      'createTar',
+      'parseTar',
+      'gzipBytes',
+      'gunzipBytes',
       'verifyArtifactBytes',
-    ])
+    ]) {
+      expect(removed in packageModule).toBe(false)
+    }
   })
 
   it('resolves the uploads bond lazily, so construction never requires it', async () => {

@@ -12,7 +12,6 @@ import {
   type ArchivePart,
   type ArchiveResult,
   type ArchiveVerification,
-  NODE_PROJECT_POLICY,
   type ProjectArchiveProvider,
   type RestoreInput,
   type RestoreResult,
@@ -93,9 +92,28 @@ const manifestFor = (input: ArchiveInput): ArchiveManifest => ({
     kind: entry.kind,
     meta: entry.meta,
   })),
-  excluded: input.excluded,
   metadata: input.metadata,
 })
+
+/**
+ * The contract's ONE non-configurable refusal, replayed: any path segment equal
+ * to `.env` or starting with `.env.`, compared case-INSENSITIVELY.
+ *
+ * The bond owns and enforces the shipped rule; this replay keeps the CONTRACT's
+ * two load-bearing widenings executable, because both closed a measured leak — a
+ * live credential written into plaintext object storage. It is a security
+ * property, not a filtering convenience: WHICH files to archive is the caller's
+ * business (git/`.gitignore`), but whether a `.gitignore` happens to list `.env`
+ * is a choice, and a choice is not a sound basis for a credential outcome.
+ *
+ * @param path - The part path under test.
+ * @returns True when the part must be refused.
+ */
+const refusesDotenv = (path: string): boolean =>
+  path
+    .split(/[/\\]/)
+    .map((segment) => segment.trim().toLowerCase())
+    .some((segment) => segment === '.env' || segment.startsWith('.env.'))
 
 /**
  * A minimally-typed provider that records what the contract handed it and keeps
@@ -114,6 +132,15 @@ const recordingProvider = (calls: RecordedCalls): ProjectArchiveProvider => {
 
   return {
     archive: async (input: ArchiveInput): Promise<ArchiveResult> => {
+      // Refuse BEFORE recording: a refusal is never an archive, and the whole
+      // call fails rather than the part being quietly dropped.
+      const secret = input.parts.find((entry) => refusesDotenv(entry.path))
+      if (secret) {
+        throw new Error(
+          `Refusing to archive "${secret.path}": the artifact is not encrypted at rest.`,
+        )
+      }
+
       calls.archive.push(input)
 
       // Minted, never derived: a re-archive of the same project lands at a NEW
@@ -311,22 +338,20 @@ describe('ProjectArchiveProvider contract', () => {
     expect(calls.archive[0].requiredPaths).toEqual(['source/package.json'])
   })
 
-  it('ArchiveInput.policy overrides the provider default per call', async () => {
+  it('takes NO filtering knobs — ArchiveInput carries no policy and no excludes', async () => {
     const calls = recorder()
     setProvider(recordingProvider(calls))
 
-    // A Python project archived through a provider whose configured default is
-    // the Node preset: the ecosystem's rules travel with the CALL, so nothing
-    // about Node/JS is baked into the contract.
-    const pythonPolicy = { refuseSegments: ['.venv', '__pycache__'] } as const
+    // Which files belong in an archive is the CALLER's decision, made with git:
+    // `.gitignore` declares what is disposable and `git clean -Xdf` removes it.
+    // A part the caller hands over is archived, full stop — so a Python project
+    // needs no `{ refuseSegments: ['.venv'] }` and a Node one no preset.
     await requireProvider().archive({
       projectId: 'project-1',
       parts: [part('source/main.py', 'print(1)')],
-      policy: pythonPolicy,
     })
 
-    expect(calls.archive[0].policy).toEqual(pythonPolicy)
-    expect(calls.archive[0].policy).not.toEqual(NODE_PROJECT_POLICY)
+    expect(Object.keys(calls.archive[0])).toEqual(['projectId', 'parts'])
   })
 
   it('a full ArchiveVerification report includes digestMatched', () => {
@@ -348,6 +373,59 @@ describe('ProjectArchiveProvider contract', () => {
       'entriesMatched',
       'manifestParsed',
     ])
+  })
+})
+
+describe('the one non-configurable refusal', () => {
+  beforeEach(() => {
+    reset()
+  })
+
+  it('THROWS on a dotenv part, and takes the whole archive down with it', async () => {
+    const calls = recorder()
+    setProvider(recordingProvider(calls))
+
+    await expect(
+      requireProvider().archive({
+        projectId: 'project-1',
+        parts: [part('source/index.ts', 'export {}'), part('source/.env', 'API_KEY=live')],
+      }),
+    ).rejects.toThrow(/\.env/)
+
+    // Never a silent drop: the caller is about to delete the live project, so a
+    // refusal must be a failed archive, not a smaller one.
+    expect(calls.archive).toEqual([])
+  })
+
+  it('matches EVERY segment and folds case — both closed a measured leak', () => {
+    // A basename-only compare archived a `.env` DIRECTORY (the basename of
+    // '.env/prod.key' is 'prod.key', which matches nothing), and a
+    // case-sensitive compare archived '.ENV'/'.Env'/'.eNv.production' — the same
+    // file to every dotenv loader and to the case-insensitive filesystems
+    // (macOS, Windows) developers author them on. Both reached plaintext object
+    // storage, where the only remedy left is rotating the credential.
+    for (const path of [
+      '.env',
+      'source/.env',
+      'source/.env.local',
+      'source/.env.production',
+      '.ENV',
+      'source/.Env',
+      'source/.eNv.PRODUCTION',
+      '.env/prod.key',
+      'config/.ENV/staging',
+      'config\\.env',
+    ]) {
+      expect(refusesDotenv(path)).toBe(true)
+    }
+  })
+
+  it('is a segment/family rule, never a substring one', () => {
+    // '.envrc' is direnv and 'environment.ts' is source. A refusal THROWS, so
+    // over-matching means a dormant project that can never be archived at all.
+    for (const path of ['source/.envrc', 'source/environment.ts', 'source/env/config.ts']) {
+      expect(refusesDotenv(path)).toBe(false)
+    }
   })
 })
 
@@ -453,22 +531,36 @@ describe('the generic parts channel', () => {
     expect(result.manifest.entries).toEqual([{ path: 'source/a.txt', bytes: 1 }])
   })
 
-  it('excluded and metadata are provenance, recorded but never acted on', async () => {
+  it('archives EVERY part it is handed — the caller already decided', async () => {
     const calls = recorder()
     setProvider(recordingProvider(calls))
 
     const result = await requireProvider().archive({
       projectId: 'project-1',
-      parts: [part('source/a.ts', 'export {}'), part('node_modules_notes.md', 'read me')],
-      excluded: ['node_modules', 'dist'],
+      parts: [
+        part('source/a.ts', 'export {}'),
+        part('node_modules_notes.md', 'read me'),
+        // Reproducible bulk, archived anyway: if a caller deliberately hands
+        // over a `node_modules` path, that is a selection decision they made
+        // (their `.gitignore` did not exclude it) and not the archive's to
+        // second-guess. The layer that did second-guess deleted real source.
+        part('node_modules/react/index.js', 'module.exports = {}'),
+        part('src/build/compiler.ts', 'export {}'),
+        part('src/dist.config.js', 'export default {}'),
+      ],
       metadata: { reason: 'dormant-30d' },
     })
 
-    // `excluded` filtered NOTHING — both parts were archived, including the file
-    // whose name merely starts with an excluded segment (matching is per
-    // '/'-separated segment, never substring).
-    expect(result.manifest.parts.count).toBe(2)
-    expect(result.manifest.excluded).toEqual(['node_modules', 'dist'])
+    expect(result.manifest.parts.count).toBe(5)
+    expect(result.manifest.entries.map((entry) => entry.path)).toEqual([
+      'source/a.ts',
+      'node_modules_notes.md',
+      'node_modules/react/index.js',
+      'src/build/compiler.ts',
+      'src/dist.config.js',
+    ])
+
+    // metadata is provenance: recorded verbatim, never acted on.
     expect(result.manifest.metadata).toEqual({ reason: 'dormant-30d' })
   })
 })

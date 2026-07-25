@@ -1,5 +1,6 @@
 /**
- * Minimal, dependency-free POSIX ustar reader/writer plus gzip helpers.
+ * The ONE canonical path model, the path-safety guards built on it, and a
+ * minimal dependency-free POSIX ustar reader/writer plus gzip helpers.
  *
  * The archive artifact this bond writes is a plain `.tar.gz` — `tar -xzf` (GNU
  * tar, bsdtar, 7-Zip, macOS Archive Utility) extracts it with no molecule.dev
@@ -13,36 +14,44 @@
  * field are still standards-compliant), 512-byte data padding, and the
  * two-zero-block (1024-byte) end-of-archive marker.
  *
- * Hardening this codec applies, because the bytes it reads come back out of a
- * bucket and may not be the bytes it wrote:
+ * **The path model lives here because a path must mean ONE thing.** This
+ * package once held three different answers to "where does a path segment end",
+ * and the measured consequence — reproduced against the built package — was
+ * that `archive({ parts: [{ path: 'config\\.env', … }] })` was accepted,
+ * uploaded and reported `verified: true`: a live dotenv credential written into
+ * object storage that is NOT encrypted at rest, because the segment the secrets
+ * rule needed to see (`.env`) only exists once `'\'` is understood as a
+ * separator. `.env\prod.key`, `.env ` and ` .env` did the same. Therefore:
  *
- * - **Path safety on BOTH sides, on the UNPREFIXED path.** Validate the
- *   caller's raw part path with {@link assertSafePartPath} BEFORE any `parts/`
- *   prefix is applied — prefixing is exactly what turns `/etc/passwd` into the
- *   innocuous-looking `parts//etc/passwd`. Archive-internal paths are
- *   validated with {@link assertSafeEntryPath} on write AND on read.
- * - **One path model.** Every rule here reads the segments of
- *   `./path-model.js` — the single module that decides what a path's segments
- *   are — and a path that is not already CANONICAL under it (a `'\'`
- *   separator, a repeated or trailing separator, a whitespace-padded segment)
- *   is REJECTED rather than rewritten. Splitting a path anywhere else is what
- *   let `'\'` mean "separator" to this codec and "ordinary character" to the
- *   rule that keeps credentials out of the artifact.
- * - **Collision rejection.** Two entries that differ only by Unicode form or
- *   letter case would overwrite each other when restored onto a
- *   case-insensitive filesystem, so {@link createTar} and {@link parseTar}
- *   reject them using {@link pathCollisionKey}.
- * - **Checksums are verified, never trusted.** Every header's stored checksum
- *   is recomputed on read.
- * - **Modes are masked to `0o777` on write and on read**, stripping
- *   setuid/setgid/sticky (`0o7000`). A restored file can never carry setuid.
- * - **Size caps.** {@link gunzipBytes} refuses to expand a decompression bomb
- *   and {@link parseTar} refuses to accumulate past the same cap
- *   (`maxUncompressedBytes`, default 2 GiB).
- * - **Error hygiene.** No message thrown from this module embeds archive bytes
- *   or file contents. Paths appear only via {@link describePath}, which escapes
- *   control characters and truncates, so a hostile archive cannot inject into
- *   a log line.
+ * 1. **{@link segmentsOf} is the ONLY place in this package that splits a
+ *    path.** A test greps every non-test source file to keep it that way
+ *    (`__tests__/tar.test.ts` → "there is exactly ONE place that decides what a
+ *    path's segments are"). If you need segments, import them; do not write
+ *    `.split('/')`.
+ * 2. **Every rule consumes {@link normalizePartPath}'s segments** — path
+ *    safety, collision detection, and the provider's `.env` refusal.
+ * 3. **Normalisation is a TEST, not a transformation.** A path whose
+ *    normalisation would change it is REJECTED by {@link assertSafePartPath}
+ *    rather than silently rewritten: the path the caller sent and the path the
+ *    manifest records must be identical, or the manifest describes a tree the
+ *    caller did not send — immediately before the caller deletes the original.
+ *
+ * Unicode is normalised to NFC for COMPARISON only ({@link pathCollisionKey}),
+ * never in the stored path: a decomposed filename is a legitimate filename, and
+ * rewriting one would break the round trip this package exists to guarantee.
+ *
+ * Further hardening, because the bytes this codec reads come back out of a
+ * bucket and may not be the bytes it wrote: path safety is enforced on BOTH
+ * sides and on the UNPREFIXED path ({@link assertSafePartPath} before any
+ * `parts/` prefix, {@link assertSafeEntryPath} on write and read); entries that
+ * collide after Unicode/case folding are rejected; header checksums are
+ * recomputed rather than trusted; modes are masked to `0o777` both ways;
+ * {@link gunzipBytes} and {@link parseTar} both enforce `maxUncompressedBytes`;
+ * and no message thrown here embeds archive bytes — paths appear only via
+ * {@link describePath}, which escapes control characters and truncates.
+ *
+ * INTERNAL: nothing here is re-exported from the package barrel. The public
+ * surface is the provider — see `./provider.js`.
  *
  * @module
  */
@@ -50,7 +59,15 @@
 import { constants as bufferConstants } from 'node:buffer'
 import { gunzipSync, gzipSync } from 'node:zlib'
 
-import { normalizePartPath, pathComparisonKey, segmentsOf } from './path-model.js'
+/**
+ * Path separators this package recognises: POSIX `'/'` and Windows `'\'`.
+ *
+ * A caller that walked a workspace with `path.join()` on win32 hands over
+ * backslash-separated paths, and an attacker-influenced path list can spell a
+ * separator either way on purpose. Both are separators to EVERY rule here, or
+ * they are a hole in whichever rule disagrees.
+ */
+const SEPARATORS = /[/\\]/
 
 /** Size of every tar header and data block, in bytes. */
 const BLOCK_SIZE = 512
@@ -89,6 +106,41 @@ const DEFAULT_MAX_UNCOMPRESSED_BYTES = 2 * 1024 * 1024 * 1024
 
 /** Longest path fragment echoed into an error message. */
 const MAX_DESCRIBED_PATH_LENGTH = 120
+
+/**
+ * A part path decomposed by the canonical model.
+ */
+export interface NormalizedPartPath {
+  /** The canonical path: {@link NormalizedPartPath.segments} joined with `'/'`. */
+  path: string
+
+  /**
+   * The canonical segments: separator-folded, empty segments removed, each one
+   * trimmed of leading/trailing whitespace.
+   *
+   * This is the array EVERY rule matches against — path safety, collision
+   * detection, and the provider's `.env` refusal alike.
+   */
+  segments: string[]
+
+  /**
+   * True when normalising CHANGED the input — it contained a `'\'`, a repeated
+   * or trailing separator, or a whitespace-padded segment.
+   *
+   * {@link assertSafePartPath} REFUSES such a path rather than storing the
+   * normalised form.
+   */
+  changed: boolean
+
+  /**
+   * The raw segments, before empties were dropped and whitespace trimmed.
+   *
+   * Only path VALIDATION uses these, so it can name the precise defect (an
+   * empty segment, a `'.'` segment, a `'..'` traversal) instead of reporting
+   * every malformed path as "not canonical".
+   */
+  rawSegments: string[]
+}
 
 /**
  * A single entry in a tar archive.
@@ -146,6 +198,58 @@ export interface TarLimits {
 }
 
 /**
+ * Splits a path into raw segments on either separator.
+ *
+ * **The only path split in this package.** Everything else consumes
+ * {@link normalizePartPath}. A second splitter is how `'\'` came to mean two
+ * different things in one package and a `.env` reached plaintext storage.
+ *
+ * @param path - The path to split.
+ * @returns Its raw segments, in order, including empty ones (a repeated or
+ *   trailing separator yields an empty segment, which validation rejects).
+ */
+export function segmentsOf(path: string): string[] {
+  return path.split(SEPARATORS)
+}
+
+/**
+ * Decomposes a part path with the canonical model: folds `'\'` onto `'/'`,
+ * collapses repeated separators, and trims leading/trailing whitespace from
+ * EACH segment.
+ *
+ * Pure and non-throwing — it reports what the canonical form WOULD be and
+ * whether that differs from the input. Deciding what to do about a difference
+ * belongs to {@link assertSafePartPath}, which refuses it.
+ *
+ * @param path - The path to decompose.
+ * @returns The canonical path, its segments, whether normalisation changed the
+ *   input, and the raw segments for precise validation errors.
+ */
+export function normalizePartPath(path: string): NormalizedPartPath {
+  const rawSegments = segmentsOf(path)
+  const segments = rawSegments.map((segment) => segment.trim()).filter((segment) => segment !== '')
+  const normalized = segments.join('/')
+
+  return { path: normalized, segments, changed: normalized !== path, rawSegments }
+}
+
+/**
+ * The key two paths are compared by when deciding whether they would overwrite
+ * each other on restore.
+ *
+ * Built from the canonical model, so `a\b`, `a//b` and `a/b/` all key the same
+ * as `a/b`, then NFC-folded (so a precomposed `é` and a decomposed `é` compare
+ * equal) and lower-cased (so a case-insensitive filesystem cannot silently
+ * replace one entry with another). Comparison only — never stored.
+ *
+ * @param path - The path to key.
+ * @returns The comparison key.
+ */
+export function pathCollisionKey(path: string): string {
+  return normalizePartPath(path).path.normalize('NFC').toLowerCase()
+}
+
+/**
  * Views a `Uint8Array` as a `Buffer` without copying, so the parser can use
  * Buffer's string/slice helpers on caller-supplied bytes.
  *
@@ -165,11 +269,11 @@ function toBuffer(data: Uint8Array): Buffer {
  * or terminal escapes into a log line, and truncation keeps a 4 KB crafted
  * path out of the message.
  *
- * Exported because every module that names a path from a DOWNLOADED artifact
- * owes the same hygiene: the provider reports colliding parts, unindexed parts
- * and stowaway members by path, and all of those strings came out of a bucket.
- * An ordinary path passes through unchanged, so it is safe to wrap every such
- * message in it.
+ * Shared with the artifact layer because every module that names a path from a
+ * DOWNLOADED artifact owes the same hygiene: colliding parts, unindexed parts
+ * and stowaway members are all reported by path, and all of those strings came
+ * out of a bucket. An ordinary path passes through unchanged, so it is safe to
+ * wrap every such message in it.
  *
  * @param path - The raw path.
  * @returns A safe, bounded rendering of the path.
@@ -203,24 +307,6 @@ function resolveMaxUncompressedBytes(limits?: TarLimits): number {
     throw new Error(`Invalid maxUncompressedBytes: ${cap} (expected a positive number of bytes).`)
   }
   return Math.floor(cap)
-}
-
-/**
- * Normalises a path into the key used to detect entries that would collide
- * with one another when restored.
- *
- * A one-line consumer of the canonical model (`./path-model.js`): the model
- * folds Windows separators onto `/` and collapses repeated and trailing
- * separators, then this applies Unicode NFC (so a precomposed `é` and a
- * decomposed `é` compare equal) and lower-cases (so a case-insensitive
- * filesystem cannot silently overwrite one entry with another). Re-implementing
- * the folding here is what produced two disagreeing notions of a separator.
- *
- * @param path - The path to normalise.
- * @returns The comparison key.
- */
-export function pathCollisionKey(path: string): string {
-  return pathComparisonKey(path)
 }
 
 /**
@@ -316,8 +402,8 @@ function assertSafePath(path: string, label: string): void {
 }
 
 /**
- * Rejects a caller-supplied, UNPREFIXED {@link ArchivePart} path that would be
- * unsafe to archive or to restore.
+ * Rejects a caller-supplied, UNPREFIXED `ArchivePart` path that would be unsafe
+ * to archive or to restore.
  *
  * **Call this on the RAW path, before any `parts/` prefix is applied.** A
  * prefix is precisely what disguises a hostile path: `'parts/' + '/etc/passwd'`

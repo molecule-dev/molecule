@@ -1,21 +1,25 @@
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-import { normalizePartPath, pathComparisonKey } from '../path-model.js'
 import {
   assertSafeEntryPath,
   assertSafePartPath,
   createTar,
   gunzipBytes,
   gzipBytes,
+  normalizePartPath,
   parseTar,
   pathCollisionKey,
+  segmentsOf,
   type TarEntry,
 } from '../tar.js'
+
+const SRC = dirname(dirname(fileURLToPath(import.meta.url)))
 
 const BLOCK_SIZE = 512
 const NAME_SIZE = 100
@@ -289,13 +293,96 @@ describe('pathCollisionKey — DECISION 5, entries must not collide on restore',
     expect(pathCollisionKey('src/a.ts')).not.toBe(pathCollisionKey('src/b.ts'))
     expect(pathCollisionKey('src/a.ts')).not.toBe(pathCollisionKey('src/sub/a.ts'))
   })
+})
 
-  it('is the ONE model’s key, not a second implementation of the folding', () => {
-    // It used to re-implement the separator folding with its own regexes, which
-    // is how the package came to hold two disagreeing notions of a separator.
-    for (const path of ['a\\b\\c.ts', 'a//b/c.ts', 'a/b/', 'SRC/Café.ts', ' a /b ']) {
-      expect(pathCollisionKey(path)).toBe(pathComparisonKey(path))
+describe('there is exactly ONE place that decides what a path’s segments are', () => {
+  it('is the only module in src/ that splits a path', () => {
+    // The defect this pins: path safety split on /[/\\]/ while the secrets rule
+    // split on '/' — so '\' was a separator to the checks it could not harm and
+    // an ordinary character to the one rule that keeps credentials out of the
+    // artifact. `config\.env` archived with verified: true because of it.
+    const offenders = readdirSync(SRC, { recursive: true })
+      .map((entry) => String(entry))
+      .filter((name) => name.endsWith('.ts') && !name.includes('__tests__'))
+      // Comments are stripped first: the rule is about CODE. A doc `@example`
+      // showing a CALLER splitting `git ls-files` output is not a second path
+      // model, and failing on it would only teach the next author to delete the
+      // example rather than the split.
+      .filter((name) =>
+        readFileSync(join(SRC, name), 'utf8')
+          .replace(/\/\*[\s\S]*?\*\//g, '')
+          .replace(/\/\/[^\n]*/g, '')
+          .includes('.split('),
+      )
+
+    expect(offenders).toEqual(['tar.ts'])
+  })
+
+  it('exposes that splitter, so every other rule can consume it', () => {
+    expect(segmentsOf('a/b\\c')).toEqual(['a', 'b', 'c'])
+    // Raw: empty segments survive the split, because path VALIDATION needs to
+    // see them to name them (`a//b` is "an empty segment", not "not canonical").
+    expect(segmentsOf('a//b/')).toEqual(['a', '', 'b', ''])
+  })
+})
+
+describe('normalizePartPath — the canonical model every rule reads', () => {
+  it('folds "\\" onto "/"', () => {
+    expect(normalizePartPath('config\\.env').path).toBe('config/.env')
+    expect(normalizePartPath('a\\b\\c.ts').segments).toEqual(['a', 'b', 'c.ts'])
+  })
+
+  it('collapses repeated and trailing separators', () => {
+    expect(normalizePartPath('a//b').path).toBe('a/b')
+    expect(normalizePartPath('a/b/').path).toBe('a/b')
+    expect(normalizePartPath('/a/b').path).toBe('a/b')
+    expect(normalizePartPath('a\\\\b').path).toBe('a/b')
+  })
+
+  it('trims leading/trailing whitespace from EACH segment', () => {
+    expect(normalizePartPath('.env ').path).toBe('.env')
+    expect(normalizePartPath(' .env').path).toBe('.env')
+    expect(normalizePartPath('a/ b /c.ts').segments).toEqual(['a', 'b', 'c.ts'])
+    // Interior whitespace is part of the name and is left alone.
+    expect(normalizePartPath('my file.ts').path).toBe('my file.ts')
+  })
+
+  it('reports CHANGED for everything it would have rewritten', () => {
+    for (const path of [
+      'config\\.env',
+      '.env\\prod.key',
+      'a//b',
+      'a/b/',
+      '/a/b',
+      '.env ',
+      ' .env',
+      'a/ b/c.ts',
+    ]) {
+      expect(normalizePartPath(path).changed).toBe(true)
     }
+  })
+
+  it('leaves an ordinary path completely alone', () => {
+    for (const path of [
+      'src/main.ts',
+      '.env.local',
+      'database/main.dump',
+      'ドキュメント/説明.md',
+      'my file.ts',
+      'src/..hidden/file..ts',
+    ]) {
+      const model = normalizePartPath(path)
+      expect(model.changed).toBe(false)
+      expect(model.path).toBe(path)
+    }
+  })
+
+  it('does NOT re-compose Unicode — a decomposed filename is a real filename', () => {
+    const decomposed = 'source/café.txt'
+    expect(normalizePartPath(decomposed).path).toBe(decomposed)
+    expect(normalizePartPath(decomposed).changed).toBe(false)
+    // NFC is for COMPARISON only.
+    expect(pathCollisionKey(decomposed)).toBe(pathCollisionKey('source/café.txt'))
   })
 })
 

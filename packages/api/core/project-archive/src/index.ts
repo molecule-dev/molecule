@@ -3,20 +3,44 @@
  *
  * Defines the `ProjectArchiveProvider` contract — cold-storage `archive`,
  * `restore`, `status`, and `remove` for a DORMANT project — along with the
- * generic content channel (`ArchivePart`), the refusal rules
- * (`ArchivePolicy`), the artifact shape (`ArchiveManifest`, `ArchiveResult`,
- * `ArchiveVerification`), the never-drop-silently filter contract
- * (`PartFilterResult`, `PartFilterOptions`), the opt-in Node/JS presets
- * (`NODE_PROJECT_EXCLUDES`, `NODE_ANY_SEGMENT_EXCLUDES`, `NODE_PROJECT_POLICY`,
- * `DOTENV_FILE_PREFIX`), and the accessor
- * (`setProvider`/`getProvider`/`hasProvider`/`requireProvider`).
+ * generic content channel (`ArchivePart`), the artifact shape
+ * (`ArchiveManifest`, `ArchiveResult`, `ArchiveVerification`, `ArchiveStatus`),
+ * and the accessor (`setProvider`/`getProvider`/`hasProvider`/`requireProvider`).
  * Interface-only: bond a storage provider package to get an implementation.
+ *
+ * The job is exactly this: **store some bytes durably, prove they came back,
+ * give them back.**
  *
  * @remarks
  * - **Wire it at startup with `setProvider(...)` — or the equivalent
  *   `bond('project-archive', provider)`.** This core routes through the shared
  *   `@molecule/api-bond` registry, so either call registers the same provider and
  *   `validateBonds()` reports it as missing when unwired.
+ * - **Deciding WHICH files to archive is the CALLER's job, and this package
+ *   deliberately does not do it.** Use git. A project workspace is a repo,
+ *   `.gitignore` already declares what is disposable, `git clean -Xdf` removes
+ *   it, and `git ls-files --cached --others --exclude-standard` lists what
+ *   survives — twenty years of solved semantics that users already write. There
+ *   is no exclude list, no policy object, no per-ecosystem preset and no filter
+ *   helper in this package: every part you hand `archive()` is archived. The
+ *   layer that used to do this shipped two silent-data-loss bugs — a directory
+ *   exclude applied to filenames deleted `src/build/compiler.ts`, `src/tmp.ts`,
+ *   `src/build.rs` and `src/dist.config.js` with no signal, and a separator
+ *   disagreement let `config\.env` reach plaintext storage. It is gone.
+ * - **ONE exception, and it is a security rule rather than a filter: a part
+ *   whose path has ANY segment equal to `.env`, or starting with `.env.`
+ *   (case-INSENSITIVE), makes `archive()` THROW.** Not configurable, no opt-out,
+ *   no options object. The artifact is NOT encrypted at rest, so a dotenv part
+ *   writes live credentials into plaintext object storage and rotation is the
+ *   only remedy left; whether your `.gitignore` happens to exclude `.env` is
+ *   your choice, and a choice is not a sound basis for a credential outcome.
+ *   Both widenings are load-bearing: a basename-only compare archived
+ *   `.env/prod.key` and `config/.env/staging`, and a case-sensitive one archived
+ *   `.ENV`, `.Env` and `.eNv.production`. Keep secrets in the platform's
+ *   encrypted vault and re-inject them on restore. (The same applies to
+ *   `metadata`/`meta`, which the manifest carries in the clear, and to a
+ *   `.git/config` remote URL with an embedded `user:token@host` — scrub those
+ *   before archiving.)
  * - **NOTHING IS PRIVILEGED: an archive is a list of `parts`, and that is the
  *   whole content channel.** A source file, a `pg_dump`, a Redis snapshot, a
  *   Meilisearch index and a `git bundle` are all `ArchivePart`s — each just a
@@ -51,13 +75,12 @@
  *   `1`) is the floor, and `ArchiveInput.requiredPaths` is the stronger guard —
  *   list the parts a restore cannot do without (`source/package.json`, the
  *   lockfile, `database/main.dump`) and a partial walk throws instead of
- *   shipping an unrestorable artifact. Unsafe or duplicate paths, a part the
- *   effective `ArchivePolicy` refuses, an exceeded size cap, and a failed
- *   upload throw too; those are never archives, so there is nothing for the
- *   caller to weigh. (A provider caps the stored artifact BEFORE decompressing
- *   anything it downloads, caps the decompressed payload separately as the
- *   decompression-bomb guard, and never embeds archive bytes in an error
- *   message.)
+ *   shipping an unrestorable artifact. Unsafe or duplicate paths, a dotenv
+ *   part, an exceeded size cap, and a failed upload throw too; those are never
+ *   archives, so there is nothing for the caller to weigh. (A provider caps the
+ *   stored artifact BEFORE decompressing anything it downloads, caps the
+ *   decompressed payload separately as the decompression-bomb guard, and never
+ *   embeds archive bytes in an error message.)
  * - **Every `archive()` mints a NEW `storageId`; re-archiving NEVER overwrites
  *   the previous artifact.** The id comes from the uploads bond, which assigns
  *   its own (the shipped bonds mint a UUID and ignore the supplied filename) —
@@ -72,93 +95,10 @@
  *   `remove(storageId)` take the storage id, NOT a project id. `projectId` on
  *   `RestoreInput` is only the destination label; the artifact's own owner is
  *   `manifest.projectId`.
- * - **The artifact is NOT encrypted at rest by this package.** It is a plain
- *   compressed blob sitting in object storage, readable by anyone with bucket
- *   access. **So secrets never go in it** — not as a part, and not in
- *   `metadata`/`meta` (the manifest is the most readable thing in the
- *   artifact). Put secrets in the platform's encrypted vault and re-inject them
- *   on restore. `NODE_PROJECT_POLICY` REFUSES dotenv files (`.env` and the
- *   `.env.*` family, via `DOTENV_FILE_PREFIX`) for exactly this reason, and
- *   that refusal throws rather than silently dropping the part. Adding `.env`
- *   back "so restore is complete" writes production credentials into a
- *   plaintext blob — never do it. (Bucket-level SSE, if the deployment has it,
- *   is the deployment's guarantee, not this package's.)
- * - **`ArchivePolicy.refuseFilePrefixes` is CASE-INSENSITIVE and applies to
- *   EVERY path segment; `ArchivePolicy.refuseSegments` is case-SENSITIVE.** The
- *   asymmetry is deliberate, and both halves of it closed a real leak. A
- *   case-sensitive secret compare refused `.env` but archived `.ENV`, `.Env`
- *   and `.eNv.production` — the same file to every dotenv loader and to the
- *   case-insensitive filesystems (macOS, Windows) developers author them on. A
- *   basename-only compare archived a `.env` DIRECTORY (`.env/prod.key`,
- *   `config/.env/staging`), whose basename matches nothing. `refuseSegments`
- *   stays case-sensitive because Linux paths are: `Build/` and `build/` are
- *   genuinely different directories, refusing the wrong one THROWS and blocks a
- *   legitimate archive, and a miss there merely wastes bytes — whereas a missed
- *   secret is unrecoverable the moment the artifact is written. List a variant
- *   explicitly (`['node_modules', 'Node_Modules']`) if you want it refused.
- * - **The presets are ECOSYSTEM-SPECIFIC OPT-INS, not universal defaults.**
- *   `NODE_PROJECT_EXCLUDES` (advisory bulk the caller filters out) and
- *   `NODE_PROJECT_POLICY` (what a provider refuses) describe a Node/JS project
- *   and nothing else. Other ecosystems pass their own — a Python consumer
- *   `{ refuseSegments: ['.venv', '__pycache__'] }`, a Rust consumer
- *   `{ refuseSegments: ['target'] }` — per provider (configuration) or per call
- *   (`ArchiveInput.policy`). The object-storage bond defaults its policy to
- *   `NODE_PROJECT_POLICY` ONLY because Node/JS is the ecosystem molecule.dev
- *   scaffolds: that is a BOND default, NOT a contract-level truth. Never
- *   hard-code one ecosystem's bulk directories into the contract — that is the
- *   bug this version fixed.
- * - **`.git` is deliberately ARCHIVABLE and is absent from
- *   `NODE_PROJECT_EXCLUDES`.** Reproducibility is the test for excluding
- *   something, and history fails it: commits, branches and stashes cannot be
- *   regenerated from a source snapshot, so dropping `.git` silently destroys
- *   user work the archive exists to preserve. It is also small — single-digit
- *   MB against 1.5 GB of dependencies. (If a repo is large, archive a `git
- *   bundle` part instead of the `.git` directory; either way, keep the
- *   history. And scrub credentials out of remote URLs first — the artifact is
- *   plaintext.)
  * - **Archiving is for DORMANT projects.** Do NOT archive a project a user is
  *   actively editing — the artifact is a point-in-time snapshot, and writes that
  *   land after the parts are read are silently lost. Pick projects that have been
  *   idle long enough that a snapshot is the whole truth.
- * - **The caller filters, the provider refuses.** `ArchiveInput.excluded` is
- *   provenance recorded into the manifest — passing `NODE_PROJECT_EXCLUDES`
- *   there does NOT remove anything from `parts`. Apply the excludes while
- *   walking the workspace (treat `'.env.*'`-style secret names as a basename
- *   rule, not a literal filename). The policy is the loud backstop for the two
- *   cases where forgetting is catastrophic, not a substitute for the filter:
- *   excluding reproducible bulk is what makes the artifact small enough to be
- *   worth writing at all.
- * - **A filter NEVER silently returns less than it was given: it hands back
- *   `PartFilterResult` — `{ kept, dropped }`, both halves.** This package runs
- *   immediately before a caller DELETES a user's only copy, so an unreported
- *   drop is the most expensive bug it can have. Log or assert on `dropped`
- *   before releasing anything, and summarise it onto `ArchiveInput.excluded`.
- * - **Advisory excludes are ANCHORED at the FIRST path segment — except the
- *   `PartFilterOptions.anySegment` set, which defaults to
- *   `NODE_ANY_SEGMENT_EXCLUDES` (`node_modules`) and is matched at any depth.**
- *   So `'build'` drops `build/bundle.js` and leaves `src/build/compiler.ts`
- *   alone. Matching at any segment silently deleted real source: given
- *   `['src/build/compiler.ts', 'src/tmp/scratch.ts', 'app/coverage/report.ts',
- *   'src/main.ts']` and `NODE_PROJECT_EXCLUDES`, the filter kept only
- *   `src/main.ts` and dropped three legitimate source files, because `build`,
- *   `tmp` and `coverage` happened to appear deeper in the path. `node_modules`
- *   is the DEFAULT exception because a nested copy is real, is always bulk, and
- *   is never a source directory someone named on purpose — and it is a default,
- *   not a privilege: a Python walk passes `{ anySegment: ['__pycache__'] }`. A
- *   monorepo that wants every `packages/<name>/dist` gone passes those deeper
- *   paths EXPLICITLY (`'packages/api/dist'`, `'packages/app/dist'`) — the
- *   default is SAFE, and being more aggressive is the caller's explicit choice.
- *   An empty-string entry in an excludes list is REJECTED with a clear error,
- *   because `''` would degenerate the dot-entry family rule to `'.'` and
- *   silently drop every dotfile, `.git` included.
- * - **The `'<entry>.'` family rule applies ONLY to DOT entries.** `'.env'`
- *   catches `.env.local` and `'.DS_Store'` catches `.DS_Store`, wherever they
- *   sit — that is what the rule is for. A NON-dot entry (`tmp`, `build`,
- *   `dist`, `coverage`) matches a DIRECTORY segment only: never a filename and
- *   never a filename prefix, so `src/tmp.ts`, `src/build.rs`,
- *   `src/dist.config.js`, `tmp.md`, `buildings/x.ts`, `distance.ts` and a git
- *   ref named `.git/refs/heads/dist` all survive. Applied to non-dot entries it
- *   was the same silently-deletes-real-source defect one layer down.
  * - **`restore()` VALIDATES the payload against the manifest and throws on
  *   mismatch.** It re-checks the part count against `manifest.parts.count`, the
  *   recomputed parts digest against `manifest.parts.sha256`, and the total bytes
@@ -168,12 +108,12 @@
  * - **`manifest.parts.sha256` covers EVERYTHING the manifest asserts** — the
  *   part bytes, the per-part index you route on, and the header
  *   (`formatVersion`, `projectId`, `createdAt`, `parts.count`, `parts.bytes`,
- *   `excluded`, `metadata`) — and a manifest carrying any UNDECLARED key is
- *   refused outright. Anything outside the digest is an unauthenticated
- *   instruction to your restore path. **But the digest is UNKEYED and lives
- *   inside the artifact, so it cannot detect a WHOLESALE RE-FORGE** — an
- *   attacker with bucket write access replaces the artifact and recomputes a
- *   consistent digest. If that is in your threat model, persist
+ *   `metadata`) — and a manifest carrying any UNDECLARED key is refused
+ *   outright. Anything outside the digest is an unauthenticated instruction to
+ *   your restore path. **But the digest is UNKEYED and lives inside the
+ *   artifact, so it cannot detect a WHOLESALE RE-FORGE** — an attacker with
+ *   bucket write access replaces the artifact and recomputes a consistent
+ *   digest. If that is in your threat model, persist
  *   `result.manifest.parts.sha256` beside `result.storageId` and compare it on
  *   restore; nothing inside the artifact can do it for you.
  * - **`restore()` returns bytes; it does NOT recreate a sandbox, a database, or
@@ -190,24 +130,19 @@
  *   an absolute or escaping path would write outside the new workspace. A path
  *   that normalisation would CHANGE is REJECTED rather than rewritten, so the
  *   path you sent is the path the manifest records — and so ONE model decides
- *   what a segment is for path safety, the policy refusal, the excludes filter
- *   and collision detection alike. When those disagreed, `config\.env` archived
- *   and verified: a live credential in plaintext object storage. Modes are
- *   masked to `0o777`, so setuid/setgid/sticky bits never survive a round trip.
+ *   what a segment is for path safety, the dotenv refusal and collision
+ *   detection alike. When those disagreed, `config\.env` archived and verified:
+ *   a live credential in plaintext object storage. Modes are masked to `0o777`,
+ *   so setuid/setgid/sticky bits never survive a round trip.
  *
  * @example
  * ```typescript
  * import {
  *   type ArchivePart,
- *   NODE_PROJECT_EXCLUDES,
- *   NODE_PROJECT_POLICY,
  *   requireProvider,
  *   setProvider,
  * } from '@molecule/api-project-archive'
- * import {
- *   filterArchivableParts,
- *   provider as objectStorageArchive,
- * } from '@molecule/api-project-archive-object-storage'
+ * import { provider as objectStorageArchive } from '@molecule/api-project-archive-object-storage'
  *
  * // Wire at startup (equivalently: bond('project-archive', objectStorageArchive)).
  * setProvider(objectStorageArchive)
@@ -216,30 +151,23 @@
  * const archiveStore = requireProvider()
  * const previousStorageId = project.archiveStorageId // whatever we persisted last time
  *
+ * // WHICH files to archive is OUR call, and git already answers it: drop
+ * // everything .gitignore calls disposable, then list what is left. No exclude
+ * // list lives in the archive package.
+ * await exec('git', ['clean', '-Xdf'], { cwd: dir })
+ * const tracked = await exec('git', ['ls-files', '--cached', '--others', '--exclude-standard'], { cwd: dir })
+ *
  * // ONE generic channel. Source, a database dump and a git bundle are all parts —
  * // the archive stores their bytes verbatim and never interprets `kind`/`meta`.
- * // The CALLER filters: NODE_PROJECT_EXCLUDES drops reproducible bulk (it does
- * // NOT drop .git — history is user work and is not reproducible). Excludes are
- * // anchored at the FIRST path segment except the `anySegment` set (default
- * // NODE_ANY_SEGMENT_EXCLUDES), so `src/build/compiler.ts` and `src/build.rs`
- * // both survive while `build/bundle.js` does not.
- * const walked: ArchivePart[] = await readWorkspaceFiles(dir)
- *
- * // Both halves, always: `dropped` is the only record of what the walk gave up,
- * // and this runs just before the live project is deleted. Never ignore it.
- * const { kept, dropped } = filterArchivableParts(walked, NODE_PROJECT_EXCLUDES)
- * logger.debug('archive walk filtered reproducible bulk', {
- *   projectId,
- *   kept: kept.length,
- *   dropped: dropped.map((file) => file.path),
- * })
- *
- * const source: ArchivePart[] = kept.map(
- *   (file) => ({ path: `source/${file.path}`, content: file.content, mode: file.mode, kind: 'source' }),
- * )
- *
+ * // (`git ls-files` does not list history: archive a bundle for that.)
  * const parts: ArchivePart[] = [
- *   ...source,
+ *   ...(await Promise.all(
+ *     tracked.split('\n').filter(Boolean).map(async (file) => ({
+ *       path: `source/${file}`,
+ *       content: await readFile(join(dir, file)),
+ *       kind: 'source',
+ *     })),
+ *   )),
  *   {
  *     path: 'database/main.dump',
  *     content: await pgDumpCustom(projectId), // pg_dump -Fc bytes
@@ -256,17 +184,11 @@
  *
  * const result = await archiveStore.archive({
  *   projectId,
- *   parts,
- *   // Provenance only — recording what the walk dropped. It filters nothing.
- *   excluded: NODE_PROJECT_EXCLUDES,
+ *   parts, // every one of these is archived — a dotenv part would THROW
  *   // Guards against a silently-empty or partial walk: archive() THROWS rather
  *   // than returning a verified archive of nothing.
  *   minParts: 1,
  *   requiredPaths: ['source/package.json', 'source/package-lock.json', 'database/main.dump'],
- *   // Node/JS opt-in preset: refuses node_modules and dotenv files (the artifact
- *   // is NOT encrypted at rest). A Python project would pass
- *   // { refuseSegments: ['.venv', '__pycache__'] }; a Rust one { refuseSegments: ['target'] }.
- *   policy: NODE_PROJECT_POLICY,
  *   metadata: { reason: 'dormant-30d' },
  * })
  *
@@ -313,8 +235,8 @@
  *     await writeFile(sandbox, part.path.replace(/^source\//, ''), part.content, part.mode)
  *   }
  * }
- * await writeSecretsFromVault(sandbox, projectId) // dotenv files were REFUSED, never archived
- * await runInstallFromLockfile(sandbox)           // node_modules was never archived
+ * await writeSecretsFromVault(sandbox, projectId) // dotenv parts are REFUSED, never archived
+ * await runInstallFromLockfile(sandbox)           // node_modules was .gitignored, never walked
  * ```
  *
  * @module

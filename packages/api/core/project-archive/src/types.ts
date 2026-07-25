@@ -5,28 +5,30 @@
  * project, plus the provider contract a storage bond implements. No storage,
  * compression, or serialization logic lives here.
  *
- * The content channel is deliberately GENERIC. An archive carries a list of
- * {@link ArchivePart}s and nothing more: a source file, a database dump, a git
- * bundle and a search index are the same kind of thing to this contract, so a
- * consumer adds a new content type by adding a part — never by adding a field
- * to {@link ArchiveInput}. Ecosystem opinions (which directories are
- * reproducible bulk, what a secrets file is called) live in the OPT-IN presets
- * at the bottom of this file and in the caller-supplied {@link ArchivePolicy},
- * never in the contract itself.
+ * The package does exactly one job: **store some bytes durably, prove they came
+ * back, give them back.** The content channel is deliberately GENERIC — an
+ * archive carries a list of {@link ArchivePart}s and nothing more, so a source
+ * file, a database dump, a git bundle and a search index are the same kind of
+ * thing to this contract. A consumer adds a new content type by adding a part,
+ * never by adding a field to {@link ArchiveInput}.
  *
- * Everything here is written under one governing rule, because this package
- * runs immediately before a caller DELETES a user's only copy: **never silently
- * return less than you were given.** It is why an advisory filter hands back
- * {@link PartFilterResult} (both halves) instead of a bare array, why exclude
- * matching is ANCHORED at the first path segment except for
- * {@link NODE_ANY_SEGMENT_EXCLUDES}, and why a refusal by {@link ArchivePolicy}
- * THROWS instead of quietly dropping a part.
+ * **Deciding WHICH files to archive is the CALLER's job, and this package
+ * deliberately does not do it.** Use git: a workspace is a repo, `.gitignore`
+ * already declares what is disposable, and `git clean -Xdf` already removes it.
+ * This package used to ship its own exclude/refusal engine — presets, anchoring
+ * rules, a per-ecosystem policy object — and it was a mistake twice over: a
+ * directory exclude applied to filenames deleted `src/build/compiler.ts`,
+ * `src/tmp.ts`, `src/build.rs` and `src/dist.config.js` (real source, no
+ * signal), and `'\'` being a separator to one rule and an ordinary character to
+ * another let `config\.env` reach plaintext storage. Git solved "which files
+ * matter" twenty years ago; that layer is gone.
  *
- * One more rule ties those together: there is ONE canonical path model, and
- * every rule that reads a path — safety, refusal, filtering, collision
- * detection — consumes ITS segments. See {@link ArchivePart.path}. Three
- * different notions of "what a segment is" are what let a `.env` reach
- * plaintext object storage.
+ * Nothing survived it. There is no exclude list, no policy and no refusal — not
+ * even for `.env`. Git does not refuse to commit a dotenv file, so neither does
+ * this: a scaffolded `.gitignore` already excludes `.env*`, so one is never
+ * handed over, and a user who force-added theirs has already pushed it to their
+ * own remote. An unwritten rule here would be one more thing to learn and one
+ * more surprise. Predictable beats clever.
  *
  * @module
  */
@@ -38,10 +40,16 @@
  * REFUSE to read an artifact whose `formatVersion` is higher than the one it
  * understands, rather than silently misreading it.
  *
- * Version `2` replaced the v1 `source` + `database` pair with the single
- * generic `parts` channel, so a v1 artifact's layout is not readable as v2.
+ * @remarks
+ * Version `3` removed the manifest's `excluded` header field along with the
+ * exclude/filter layer that produced it. That field was inside
+ * `manifest.parts.sha256`'s digest input, so a v2 manifest neither parses (the
+ * field set is CLOSED) nor digests as a v3 one: v2 artifacts are not readable
+ * here, and a provider's minimum-readable floor belongs at `3`. Version `2` had
+ * itself replaced the v1 `source` + `database` pair with the single generic
+ * `parts` channel.
  */
-export const ARCHIVE_FORMAT_VERSION = 2
+export const ARCHIVE_FORMAT_VERSION = 3
 
 /**
  * A named byte-stream inside an archive.
@@ -72,14 +80,13 @@ export interface ArchivePart {
    *
    * @remarks
    * **ONE canonical path model decides what this string's SEGMENTS are, and
-   * every rule that reads a path uses it** — path safety, the
-   * {@link ArchivePolicy} refusal, the advisory excludes filter, and collision
-   * detection. A conforming provider normalises a path by folding `'\'` onto
-   * `'/'`, collapsing repeated separators, and trimming leading/trailing
-   * whitespace from EACH segment, compares segments under Unicode NFC, and then
-   * applies every rule to those segments. (The MODULE that implements this
-   * lives in the bond; this contract only states the rules, because the core is
-   * types and data.)
+   * every rule that reads a path uses it** — path safety, collision detection,
+   * and collision detection. A conforming provider normalises a path by folding
+   * `'\'` onto `'/'`, collapsing repeated separators, and trimming
+   * leading/trailing whitespace from EACH segment, compares segments under
+   * Unicode NFC, and applies every rule to those segments. (The MODULE that
+   * implements this lives in the bond; this contract only states the rules,
+   * because the core is types and data.)
    *
    * **A path whose normalisation would CHANGE it is REJECTED at archive time,
    * never silently rewritten.** The path the caller sent and the path the
@@ -93,7 +100,7 @@ export interface ArchivePart {
    * alone, `'config\.env'` was archived and `verified: true` — a live dotenv
    * credential written into plaintext object storage — because `'\'` was a
    * separator to the checks that could not be harmed by it and an ordinary
-   * character to the two rules that exist to prevent exactly that.
+   * character to the one rule that exists to prevent exactly that.
    */
   path: string
 
@@ -127,172 +134,6 @@ export interface ArchivePart {
   meta?: Record<string, string>
 }
 
-/**
- * What a provider REFUSES outright, rather than trusting the caller filtered.
- *
- * The caller does the filtering (see {@link ArchiveInput.excluded}); this is the
- * small, loud backstop for the cases where a forgotten filter is catastrophic
- * rather than merely wasteful — shipping gigabytes of reproducible dependencies
- * into cold storage, or writing live credentials into a plaintext artifact. A
- * refusal THROWS; it never silently drops a part behind the caller's back,
- * because that would make the manifest describe a tree the caller never
- * intended to archive.
- *
- * It is deliberately CONFIGURABLE and ecosystem-neutral. A Node consumer passes
- * {@link NODE_PROJECT_POLICY}; a Python consumer passes
- * `{ refuseSegments: ['.venv', '__pycache__'] }`; a Rust consumer passes
- * `{ refuseSegments: ['target'] }`. No ecosystem's bulk directories are
- * hard-coded into the contract, so no ecosystem gets protection the others are
- * denied.
- *
- * @remarks
- * Keep a policy NARROW. `dist`, `build`, `tmp` and `coverage` are all plausible
- * real source directory names (`src/build/`, `src/tmp/`), so refusing them
- * would reject legitimate projects — they belong in an advisory excludes list
- * such as {@link NODE_PROJECT_EXCLUDES}, not here.
- */
-export interface ArchivePolicy {
-  /**
-   * Path segments refused, matched per NORMALIZED segment, at ANY depth,
-   * CASE-SENSITIVELY.
-   *
-   * Segment-based, never substring-based: `'node_modules'` refuses
-   * `node_modules/x` and `api/node_modules/x`, but never a legitimate file
-   * called `node_modules_notes.md`.
-   *
-   * "Normalized" means the segments of the ONE canonical path model described
-   * on {@link ArchivePart.path} — `'\'` folded onto `'/'`, repeated separators
-   * collapsed, each segment whitespace-trimmed, compared under NFC. A
-   * separator-naive split is how `node_modules\pkg\index.js` slipped past this
-   * rule while path safety and collision detection both treated `'\'` as a
-   * separator.
-   *
-   * @remarks
-   * Case-SENSITIVE is the correct default here, and it is a deliberate
-   * asymmetry with {@link ArchivePolicy.refuseFilePrefixes}, which folds case.
-   * Two reasons, both about what a miss costs:
-   *
-   * 1. **Linux paths are case-sensitive**, and that is where these archives are
-   *    built. `Build/` and `build/` are two genuinely different directories, so
-   *    folding case would refuse a real source directory a user deliberately
-   *    named — and a refusal THROWS, which means an archive that never happens
-   *    and a dormant project that is never reclaimed.
-   * 2. **A miss here is bounded.** A case-variant bulk directory that slips
-   *    through only makes the artifact bigger; nothing is lost and nothing is
-   *    exposed. A miss in `refuseFilePrefixes` writes live credentials into
-   *    plaintext object storage, which is not recoverable — hence that rule
-   *    folds case and this one does not.
-   *
-   * A caller that wants a case variant refused lists it explicitly, e.g.
-   * `['node_modules', 'Node_Modules']`.
-   */
-  refuseSegments?: readonly string[]
-
-  /**
-   * Secret-file prefixes refused when ANY NORMALIZED path segment equals, or is
-   * prefixed by `'<prefix>.'`, an entry — compared CASE-INSENSITIVELY.
-   *
-   * `'.env'` therefore refuses `.env` and the whole `.env.*` family
-   * (`.env.local`, `.env.production`), which is the point: the artifact is not
-   * encrypted at rest.
-   *
-   * Post-normalisation, per the ONE model on {@link ArchivePart.path}: with
-   * `'\'` folded onto `'/'` and each segment whitespace-trimmed, `config\.env`,
-   * `.env\prod.key`, `.env ` and ` .env` are all refused too. (A conforming
-   * provider rejects those paths outright for being non-canonical; this rule
-   * matching them as well is deliberate belt-and-braces, because the cost of a
-   * miss here is a live credential in plaintext storage.)
-   *
-   * @remarks
-   * Two widenings over the obvious implementation, each of which closed a real
-   * credential leak — a secrets file that reached plaintext object storage:
-   *
-   * 1. **CASE-INSENSITIVE**, unlike {@link ArchivePolicy.refuseSegments}.
-   *    `.ENV`, `.Env` and `.eNv.production` were NOT refused under a
-   *    case-sensitive compare, yet they are the same secrets file to every
-   *    dotenv loader and to the case-insensitive filesystems (macOS, Windows)
-   *    developers routinely author them on. The asymmetry with `refuseSegments`
-   *    is deliberate and is explained there: missing reproducible bulk wastes
-   *    bytes, while missing a secret is unrecoverable — the credential is
-   *    exposed the moment the artifact is written, and rotating it is the only
-   *    remedy left.
-   * 2. **EVERY path segment, not just the basename.** A `.env` DIRECTORY holds
-   *    exactly the same credentials as a `.env` file, so `.env/prod.key` and
-   *    `config/.env/staging` are refused too. A basename-only compare archived
-   *    all of them: the basename of `.env/prod.key` is `prod.key`, which
-   *    matches nothing.
-   */
-  refuseFilePrefixes?: readonly string[]
-}
-
-/**
- * What an advisory excludes filter KEPT and what it DROPPED — both halves,
- * always.
- *
- * A filter helper over {@link ArchivePart}s returns this pair rather than a
- * bare array because of the governing rule of this package: it runs immediately
- * before a caller DELETES a user's only copy, so silently returning less than
- * it was given is the most expensive bug it can have — and it had it. Filtering
- * `['src/build/compiler.ts', 'src/tmp/scratch.ts', 'app/coverage/report.ts',
- * 'src/main.ts']` through {@link NODE_PROJECT_EXCLUDES} kept only `src/main.ts`
- * and dropped three legitimate source files, with nothing in the return value
- * to say so. Handing back {@link PartFilterResult.dropped} makes the loss
- * INSPECTABLE: log it, count it, assert on it in a test, or summarise it onto
- * {@link ArchiveInput.excluded} as provenance.
- *
- * @remarks
- * Declared here — in the contract — rather than left as one bond's private
- * convention, so every implementation of the helper has the same
- * never-drop-silently shape:
- * `filterArchivableParts<T extends { path: string }>(parts: readonly T[],
- * excludes?: readonly string[], options?: PartFilterOptions):
- * PartFilterResult<T>`.
- *
- * Filtering and refusal are different channels and must not be confused:
- * anything in `dropped` is reproducible bulk the CALLER chose to skip (silent
- * is fine — it is merely wasteful), whereas a part the effective
- * {@link ArchivePolicy} refuses is never filtered at all, it THROWS.
- */
-export interface PartFilterResult<T> {
-  /** The parts that survived the filter — the ones to archive. */
-  kept: T[]
-
-  /**
-   * The parts the filter removed.
-   *
-   * Never discard this: it is the only record of what the walk gave up, and it
-   * is checked before the live project is released.
-   */
-  dropped: T[]
-}
-
-/**
- * Knobs an advisory excludes filter accepts, so no ecosystem's directories get
- * a privilege another ecosystem cannot ask for.
- *
- * Everything here has a Node/JS default because Node/JS is what molecule.dev
- * scaffolds — and every one of those defaults is a NAMED, replaceable preset
- * (`NODE_*`), never an unlabelled truth baked into the matching rules.
- */
-export interface PartFilterOptions {
-  /**
-   * Exclude entries matched at EVERY path segment rather than anchored at the
-   * first one. Defaults to {@link NODE_ANY_SEGMENT_EXCLUDES}.
-   *
-   * The any-depth rule is a big hammer — it is what keeps a nested
-   * `api/node_modules/…` out of an archive — and it was previously reachable
-   * ONLY by the one Node directory hard-coded into the filter. A Python walk
-   * passes `{ anySegment: ['__pycache__'] }`, a Rust one
-   * `{ anySegment: ['target'] }`; pass `[]` to anchor every entry.
-   *
-   * Reach for it only where the entry can never be a real source directory a
-   * user named on purpose: `dist`, `build`, `tmp` and `coverage` all can be
-   * (`src/build/compiler.ts`), which is why anchoring is the default and
-   * matching at depth is an explicit opt-in.
-   */
-  anySegment?: readonly string[]
-}
-
 /** Everything a provider needs to build and upload one archive artifact. */
 export interface ArchiveInput {
   /** The project these bytes belong to; recorded in the manifest. */
@@ -302,7 +143,9 @@ export interface ArchiveInput {
    * The archive's entire content, as generic parts.
    *
    * Source files, database dumps, git bundles and search indexes all go here —
-   * there is no privileged sibling channel for any of them.
+   * there is no privileged sibling channel for any of them, and no filter: the
+   * caller decided which files these are (normally with git/`.gitignore`), and
+   * every part handed over is archived.
    */
   parts: ArchivePart[]
 
@@ -330,29 +173,6 @@ export interface ArchiveInput {
    * {@link ArchivePart.path} exactly.
    */
   requiredPaths?: readonly string[]
-
-  /**
-   * Recorded in the manifest as provenance only — the caller filters.
-   *
-   * Passing {@link NODE_PROJECT_EXCLUDES} here does NOT remove anything from
-   * {@link ArchiveInput.parts}; apply the excludes while walking and record
-   * here what was dropped, so a future reader knows what the artifact is
-   * missing and why.
-   *
-   * A conforming filter helper returns {@link PartFilterResult} — both `kept`
-   * and `dropped` — precisely so the second half can be inspected, logged, and
-   * summarised here instead of vanishing.
-   */
-  excluded?: readonly string[]
-
-  /**
-   * Overrides the provider's configured policy for this call.
-   *
-   * Use it when one archive has different rules from the provider's default —
-   * e.g. a Python project archived by a provider whose configured default is
-   * {@link NODE_PROJECT_POLICY}.
-   */
-  policy?: ArchivePolicy
 }
 
 /**
@@ -394,16 +214,16 @@ export interface ArchiveManifest {
      * Digest over the parts (path + mode + length + content, sorted by path),
      * the per-part {@link ArchiveManifest.entries} index, and the manifest
      * HEADER (`formatVersion`, `projectId`, `createdAt`, `parts.count`,
-     * `parts.bytes`, `excluded`, `metadata`) — each section length-framed
-     * behind its own marker so no arrangement of one can impersonate another.
+     * `parts.bytes`, `metadata`) — each section length-framed behind its own
+     * marker so no arrangement of one can impersonate another.
      *
      * @remarks
      * Everything the manifest asserts is inside it, because everything the
      * manifest asserts is acted upon: the caller ROUTES on `entries[].kind`,
      * and `status()` reports `projectId`/`createdAt` as FACT. A header outside
      * the digest meant an attacker with bucket write access could rewrite whose
-     * project an artifact was, and `restore()` and `verifyArtifactBytes()` both
-     * still passed.
+     * project an artifact was, and `restore()` and the read-back verification
+     * both still passed.
      *
      * It is UNKEYED and stored beside the bytes it covers, so it detects TAMPER
      * but NOT a wholesale re-forge — see {@link ArchiveVerification.digestMatched}.
@@ -432,9 +252,6 @@ export interface ArchiveManifest {
     /** The caller's {@link ArchivePart.meta}, recorded verbatim. */
     meta?: Record<string, string>
   }[]
-
-  /** What the caller reported dropping while walking — provenance only. */
-  excluded?: readonly string[]
 
   /** The caller's {@link ArchiveInput.metadata}, recorded verbatim. */
   metadata?: Record<string, string>
@@ -603,9 +420,24 @@ export interface ArchiveStatus {
  * `verification.error` populated — a verification failure must NOT throw, since
  * the caller decides what to do. `archive()` DOES throw when the part set is
  * empty (or violates `minParts`/`requiredPaths`), when a path is unsafe or
- * duplicated, when the effective {@link ArchivePolicy} refuses a part, when a
- * size cap is exceeded, and when the upload itself fails: those are never
- * archives, so there is nothing for the caller to weigh.
+ * duplicated, when a size cap is exceeded, and when the upload itself fails:
+ * those are never archives, so there is nothing for the caller to weigh.
+ *
+ * **The provider does NOT decide which files to archive.** Every part it is
+ * handed is archived. There is no exclude list, no policy object, no
+ * per-ecosystem preset and no refusal of any kind — not even for `.env`. The
+ * caller selects the parts, normally by walking a git worktree whose
+ * `.gitignore` already declares what is disposable (`git clean -Xdf` removes
+ * exactly that).
+ *
+ * A dotenv refusal briefly lived here and was removed on purpose. Git does not
+ * refuse to commit a `.env`; a scaffolded `.gitignore` excludes `.env*`, so one
+ * is never handed over, and a user who force-added theirs has already pushed it
+ * to their own remote — archiving it is no worse and entirely predictable. A
+ * rule of ours would have been the surprise: something to learn, sprung at the
+ * worst moment, on a package whose whole job is to behave the way git already
+ * taught everyone to expect. Secrets belong in the platform's encrypted vault
+ * and are re-injected on restore.
  *
  * `archive()` returns the storage id the uploads bond minted, ALWAYS a new one,
  * so it can never overwrite the previous artifact. `status()` and `remove()`
@@ -632,195 +464,4 @@ export interface ProjectArchiveProvider {
   restore(input: RestoreInput): Promise<RestoreResult>
   status(storageId: string): Promise<ArchiveStatus | null>
   remove(storageId: string): Promise<void>
-}
-
-/**
- * Dotenv basename prefix — the JS spelling of "a secrets file".
- *
- * Used as an {@link ArchivePolicy.refuseFilePrefixes} entry, so it refuses
- * `.env` and every `.env.`-prefixed file (`.env.local`, `.env.production`).
- * Other ecosystems spell the same idea differently (`secrets.yaml`,
- * `credentials`, `*.pem`) — pass those instead; nothing about `.env` is
- * universal.
- */
-export const DOTENV_FILE_PREFIX = '.env'
-
-/**
- * Reproducible-bulk directories in a Node/JS project. NOT a universal default.
- *
- * Advisory: the caller filters its own walk and records the list on
- * {@link ArchiveInput.excluded} as provenance. Every entry here is regenerable,
- * which is the whole economic point — `node_modules` measured 1.5 GB of a 1.9 GB
- * workspace while real source is single-digit MB.
- *
- * @remarks
- * **"Regenerable" does NOT reliably mean "reinstallable from the lockfile" — the
- * CALLER owns the restore path and must know what actually produced the tree.**
- * A concrete counter-example from the environment this package was built for:
- * molecule.dev's sandbox image installs dependencies through a temporary
- * `_superset` workspace, then deletes it and strips it from `package.json`, so
- * the shipped lockfile does not describe the installed tree. `npm ci` there takes
- * ~78 s and produces a `node_modules` with no `.bin/vite` in it, and
- * `npm ci --offline` fails outright — the only correct restore source is the
- * image layer that built it. Excluding these directories is still right; assuming
- * a package manager can rebuild them is not. Verify the restore path before
- * relying on the exclusion, or a dormant project wakes up broken.
- *
- * `'.git'` is deliberately ABSENT: git history is user work and is NOT
- * reproducible from a source snapshot, so dropping it would destroy exactly
- * what the archive exists to preserve. It is also small, so it costs nothing to
- * keep. (Caveat that comes with keeping it: a `.git/config` remote URL can
- * carry an embedded `user:token@host` credential, and the artifact is plaintext
- * at rest — scrub or rewrite remotes before archiving if users can set raw
- * remote URLs.)
- *
- * Secret files are NOT in this list either. They are not "bulk the caller may
- * skip", they are bytes a provider must REFUSE — see
- * {@link NODE_PROJECT_POLICY}.
- *
- * A Python project would pass its own list (`.venv`, `__pycache__`,
- * `.pytest_cache`), a Rust one `target`. This constant is an opt-in convenience
- * for one ecosystem, not a statement about projects in general.
- *
- * Every entry here is ANCHORED at the FIRST path segment — `'build'` drops
- * `build/bundle.js` but NOT `src/build/compiler.ts` — except the entries also
- * listed in {@link NODE_ANY_SEGMENT_EXCLUDES}. Read that constant before
- * assuming anything about how deep a match reaches; the anchoring is the fix
- * for a filter that deleted real source.
- *
- * A NON-DOT entry here (`dist`, `build`, `tmp`, `coverage`) matches a DIRECTORY
- * and nothing else. It never matches a filename and never matches a filename
- * PREFIX, so `src/tmp.ts`, `src/build.rs`, `src/dist.config.js`, `tmp.md`,
- * `lib/build.gradle`, `buildings/x.ts` and `distance.ts` all survive — as do a
- * git branch or tag named `dist`/`build`/`tmp` (`.git/refs/heads/dist`), which
- * a filename-prefix rule quietly deleted out of the one directory this preset
- * deliberately keeps. The `'<entry>.'` family rule applies ONLY to the DOT
- * entries (`.DS_Store`, `.cache`, and a `.env` added by the caller), which is
- * where it was needed and where it is safe: `.env` must also catch
- * `.env.local`.
- */
-export const NODE_PROJECT_EXCLUDES: readonly string[] = [
-  'node_modules',
-  'dist',
-  'build',
-  '.next',
-  '.nuxt',
-  '.svelte-kit',
-  '.vite',
-  '.turbo',
-  '.cache',
-  'coverage',
-  '.pnpm-store',
-  'tmp',
-  '.DS_Store',
-]
-
-/**
- * The Node/JS preset for "matched at any path depth". Everything else is
- * anchored at the FIRST path segment.
- *
- * An advisory exclude entry is matched against the START of a part's path, so
- * `'build'` drops `build/bundle.js` while `src/build/compiler.ts` survives.
- * Entries listed HERE are the documented exception, matched at every
- * normalized segment: a nested `node_modules` (`api/node_modules/…`,
- * `packages/web/node_modules/…`) is real in every workspace, is always
- * reproducible from the lockfile, and is never a source directory anyone named
- * on purpose — anchoring it would miss most of the ~1.5 GB the exclusion exists
- * to drop.
- *
- * @remarks
- * ECOSYSTEM-SPECIFIC OPT-IN, like every other `NODE_*` constant here — which is
- * why it carries the ecosystem in its NAME. It was once called
- * `ANY_SEGMENT_EXCLUDES`: an unlabelled constant holding one ecosystem's
- * directory, applied unconditionally by the filter, with no way for another
- * ecosystem to ask for the same treatment. That made any-depth matching a
- * privilege Node had and Python did not — `api/node_modules/x.js` dropped at
- * depth while `src/__pycache__/a.pyc`, `app/.venv/lib/x.py` and
- * `crates/x/target/debug/y` were kept, no matter what the caller passed. A
- * conforming filter takes the set as {@link PartFilterOptions.anySegment} and
- * merely DEFAULTS it to this preset.
- *
- * This anchoring governs the DIRECTORY match — which containing path an entry
- * reaches. The separate DOT-ENTRY family rule (a part's own filename equal to,
- * or prefixed by, `'<entry>.'`, applied only when the entry itself starts with
- * `'.'`) is what still drops `.DS_Store` and the `.env.local` family wherever
- * they sit. A non-dot entry never matches a filename at all, so `'build'` does
- * NOT match a file called `build.gradle` — that widening cost real source and
- * real git refs.
- *
- * WHY the default is anchored. An any-segment default silently deleted real
- * source. Proven against the shipped filter: given
- * `['src/build/compiler.ts', 'src/tmp/scratch.ts', 'app/coverage/report.ts',
- * 'src/main.ts']` and {@link NODE_PROJECT_EXCLUDES}, it kept only `src/main.ts`
- * and dropped the other three — every one of them legitimate source, matched
- * because `build`, `tmp` and `coverage` happened to appear at a deeper segment.
- * That is exactly the false positive this anchoring prevents, in a helper whose
- * whole job is to be the easy correct thing to call, in a package that runs
- * immediately before a caller DELETES a user's only copy.
- *
- * Nothing else qualifies for this set. `dist`, `build`, `tmp` and `coverage`
- * are all plausible real source directory names (`src/build/`, `src/tmp/`), so
- * matching them at depth trades a bounded saving (some bytes) against an
- * unbounded loss (a user's source).
- *
- * A monorepo that genuinely wants every `packages/<name>/dist` dropped passes
- * those DEEPER PATHS EXPLICITLY (`'packages/api/dist'`, `'packages/app/dist'`),
- * which the anchored match honours as a leading path. The default is SAFE — it
- * keeps real source — and being more aggressive than that is an EXPLICIT caller
- * choice, never something a preset does behind the caller's back.
- *
- * An empty-string entry in an excludes list is REJECTED with a clear error
- * rather than applied — as is any entry that NORMALIZES to nothing (`'/'`,
- * `'  '`). `''` would make the dot-entry family rule (`'<entry>.'`) degenerate
- * to `'.'` and match every dotfile — silently dropping `.git`, the one thing
- * this package deliberately refuses to lose.
- */
-export const NODE_ANY_SEGMENT_EXCLUDES: readonly string[] = ['node_modules']
-
-/**
- * Deprecated spelling of {@link NODE_ANY_SEGMENT_EXCLUDES}, kept so existing
- * imports keep resolving to the same array.
- *
- * @deprecated Use {@link NODE_ANY_SEGMENT_EXCLUDES}. The unlabelled name read as
- *   a contract-level truth while holding one ecosystem's directory; every other
- *   ecosystem preset here is `NODE_*`, and a caller that wants the same
- *   any-depth treatment for `__pycache__` or `target` passes
- *   {@link PartFilterOptions.anySegment} instead of inheriting Node's.
- */
-export const ANY_SEGMENT_EXCLUDES: readonly string[] = NODE_ANY_SEGMENT_EXCLUDES
-
-/**
- * Policy for a Node/JS project: refuses `node_modules` and dotenv files.
- *
- * Deliberately much narrower than {@link NODE_PROJECT_EXCLUDES}. Only two
- * things are worth throwing over: `node_modules` (never legitimately part of a
- * source tree, always regenerable from the lockfile, and forgetting it ships
- * ~1.5 GB per project) and dotenv files (the artifact is NOT encrypted at rest,
- * so archiving one writes live credentials into object storage in plaintext).
- * Everything else — `dist`, `build`, `tmp`, `coverage` — stays advisory,
- * because those are plausible real source directory names.
- *
- * Note how each half is matched, since the two rules deliberately differ (see
- * {@link ArchivePolicy}). `node_modules` is refused at any depth,
- * CASE-SENSITIVELY, because POSIX paths are and a miss only costs bytes.
- * `.env` is refused CASE-INSENSITIVELY (`.ENV`, `.Env`, `.eNv.production`) and
- * on EVERY path segment rather than the basename alone (so a `.env/` DIRECTORY
- * such as `.env/prod.key` is refused too), because a miss there is a live
- * credential in plaintext storage and cannot be undone. BOTH rules read the
- * NORMALIZED segments of {@link ArchivePart.path} — the one model — so
- * `node_modules\pkg\index.js`, `config\.env`, `.env ` and ` .env` cannot walk
- * past a rule by spelling their separator or padding differently.
- *
- * @remarks
- * ECOSYSTEM-SPECIFIC OPT-IN, not a contract-level truth. A Python consumer
- * passes `{ refuseSegments: ['.venv', '__pycache__'] }`; a Rust consumer passes
- * `{ refuseSegments: ['target'] }`. The object-storage bond defaults its
- * configured policy to this preset ONLY because Node/JS is the ecosystem
- * molecule.dev scaffolds — that is a BOND default, and any caller can replace
- * it per provider (configuration) or per call
- * ({@link ArchiveInput.policy}).
- */
-export const NODE_PROJECT_POLICY: ArchivePolicy = {
-  refuseSegments: ['node_modules'],
-  refuseFilePrefixes: [DOTENV_FILE_PREFIX],
 }
