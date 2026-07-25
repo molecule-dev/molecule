@@ -5,9 +5,10 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
+import { normalizePartPath, pathComparisonKey } from '../path-model.js'
 import {
   assertSafeEntryPath,
-  assertSafeSourcePath,
+  assertSafePartPath,
   createTar,
   gunzipBytes,
   gzipBytes,
@@ -131,90 +132,138 @@ function craftTar(options: CraftOptions = {}): Uint8Array {
   )
 }
 
-describe('assertSafeSourcePath — DECISION 5, validated on the UNPREFIXED path', () => {
+describe('assertSafePartPath — DECISION 5, validated on the UNPREFIXED path', () => {
   it('rejects absolute POSIX paths', () => {
-    expect(() => assertSafeSourcePath('/etc/passwd')).toThrow(/absolute paths are rejected/)
-    expect(() => assertSafeSourcePath('/')).toThrow(/absolute paths are rejected/)
+    expect(() => assertSafePartPath('/etc/passwd')).toThrow(/absolute paths are rejected/)
+    expect(() => assertSafePartPath('/')).toThrow(/absolute paths are rejected/)
   })
 
   it('rejects a leading backslash', () => {
-    expect(() => assertSafeSourcePath('\\etc\\passwd')).toThrow(/absolute paths are rejected/)
-    expect(() => assertSafeSourcePath('\\\\server\\share\\x')).toThrow(
-      /absolute paths are rejected/,
-    )
+    expect(() => assertSafePartPath('\\etc\\passwd')).toThrow(/absolute paths are rejected/)
+    expect(() => assertSafePartPath('\\\\server\\share\\x')).toThrow(/absolute paths are rejected/)
   })
 
   it('rejects drive-qualified paths', () => {
-    expect(() => assertSafeSourcePath('C:\\Windows\\system32\\drivers\\etc\\hosts')).toThrow(
+    expect(() => assertSafePartPath('C:\\Windows\\system32\\drivers\\etc\\hosts')).toThrow(
       /drive-qualified paths are rejected/,
     )
-    expect(() => assertSafeSourcePath('c:/temp/x.ts')).toThrow(/drive-qualified paths are rejected/)
+    expect(() => assertSafePartPath('c:/temp/x.ts')).toThrow(/drive-qualified paths are rejected/)
     // Drive-RELATIVE ("C:x", "a:b.ts") is rejected too — on Windows it resolves
     // against that drive's current directory, which is not the restore root.
-    expect(() => assertSafeSourcePath('C:x.ts')).toThrow(/drive-qualified paths are rejected/)
-    expect(() => assertSafeSourcePath('a:b.ts')).toThrow(/drive-qualified paths are rejected/)
+    expect(() => assertSafePartPath('C:x.ts')).toThrow(/drive-qualified paths are rejected/)
+    expect(() => assertSafePartPath('a:b.ts')).toThrow(/drive-qualified paths are rejected/)
   })
 
   it('rejects any ".." segment, wherever it appears', () => {
-    expect(() => assertSafeSourcePath('..')).toThrow(/path traversal/)
-    expect(() => assertSafeSourcePath('../evil')).toThrow(/path traversal/)
-    expect(() => assertSafeSourcePath('src/../../etc/passwd')).toThrow(/path traversal/)
-    expect(() => assertSafeSourcePath('src/app/..')).toThrow(/path traversal/)
-    expect(() => assertSafeSourcePath('src\\..\\..\\etc\\passwd')).toThrow(/path traversal/)
+    expect(() => assertSafePartPath('..')).toThrow(/path traversal/)
+    expect(() => assertSafePartPath('../evil')).toThrow(/path traversal/)
+    expect(() => assertSafePartPath('src/../../etc/passwd')).toThrow(/path traversal/)
+    expect(() => assertSafePartPath('src/app/..')).toThrow(/path traversal/)
+    expect(() => assertSafePartPath('src\\..\\..\\etc\\passwd')).toThrow(/path traversal/)
   })
 
   it('rejects NUL bytes', () => {
-    expect(() => assertSafeSourcePath('src/index.ts\0.png')).toThrow(/must not contain NUL bytes/)
-    expect(() => assertSafeSourcePath('\0')).toThrow(/must not contain NUL bytes/)
+    expect(() => assertSafePartPath('src/index.ts\0.png')).toThrow(/must not contain NUL bytes/)
+    expect(() => assertSafePartPath('\0')).toThrow(/must not contain NUL bytes/)
   })
 
   it('rejects empty and "."-only paths', () => {
-    expect(() => assertSafeSourcePath('')).toThrow(/the path is empty/)
-    expect(() => assertSafeSourcePath('.')).toThrow(/names no file/)
-    expect(() => assertSafeSourcePath('./')).toThrow(/names no file/)
-    expect(() => assertSafeSourcePath('././.')).toThrow(/names no file/)
-    expect(() => assertSafeSourcePath('/')).toThrow()
+    expect(() => assertSafePartPath('')).toThrow(/the path is empty/)
+    expect(() => assertSafePartPath('.')).toThrow(/names no file/)
+    expect(() => assertSafePartPath('./')).toThrow(/names no file/)
+    expect(() => assertSafePartPath('././.')).toThrow(/names no file/)
+    expect(() => assertSafePartPath('/')).toThrow()
   })
 
   it('rejects "." and empty segments anywhere in the path', () => {
-    expect(() => assertSafeSourcePath('./relative/ok.ts')).toThrow(/a "\." segment are rejected/)
-    expect(() => assertSafeSourcePath('src/./index.ts')).toThrow(/a "\." segment are rejected/)
-    expect(() => assertSafeSourcePath('src//index.ts')).toThrow(/an empty segment are rejected/)
-    expect(() => assertSafeSourcePath('src/index.ts/')).toThrow(/an empty segment are rejected/)
+    expect(() => assertSafePartPath('./relative/ok.ts')).toThrow(/a "\." segment are rejected/)
+    expect(() => assertSafePartPath('src/./index.ts')).toThrow(/a "\." segment are rejected/)
+    expect(() => assertSafePartPath('src//index.ts')).toThrow(/an empty segment are rejected/)
+    expect(() => assertSafePartPath('src/index.ts/')).toThrow(/an empty segment are rejected/)
   })
 
   it('accepts ordinary relative paths, including dotted and non-ASCII names', () => {
-    expect(() => assertSafeSourcePath('src/index.ts')).not.toThrow()
-    expect(() => assertSafeSourcePath('.env.example')).not.toThrow()
-    expect(() => assertSafeSourcePath('src/..hidden/file..ts')).not.toThrow()
-    expect(() => assertSafeSourcePath('ドキュメント/説明.md')).not.toThrow()
-    expect(() => assertSafeSourcePath('packages/api/core/src/index.ts')).not.toThrow()
+    expect(() => assertSafePartPath('src/index.ts')).not.toThrow()
+    expect(() => assertSafePartPath('.env.example')).not.toThrow()
+    expect(() => assertSafePartPath('src/..hidden/file..ts')).not.toThrow()
+    expect(() => assertSafePartPath('ドキュメント/説明.md')).not.toThrow()
+    expect(() => assertSafePartPath('packages/api/core/src/index.ts')).not.toThrow()
+    // Interior whitespace is part of a filename, not padding.
+    expect(() => assertSafePartPath('src/my file.ts')).not.toThrow()
   })
 
-  it('is the guard the "source/" prefix used to defeat (the regression this fixes)', () => {
+  it('rejects a backslash ANYWHERE, not just as a leading character', () => {
+    // The measured leak: `'\'` was a separator to THIS validator and to the
+    // collision key, and an ordinary character to the policy refusal and the
+    // excludes filter — so `config\.env` was archived, uploaded and reported
+    // verified: true. One model now decides, and a path that is not already
+    // canonical under it is REFUSED rather than folded.
+    expect(() => assertSafePartPath('config\\.env')).toThrow(/backslash/)
+    expect(() => assertSafePartPath('src\\main.ts')).toThrow(/backslash/)
+    expect(() => assertSafePartPath('a\\b')).toThrow(/backslash/)
+    // …and the error says what it would have become, without becoming it.
+    expect(() => assertSafePartPath('config\\.env')).toThrow(/config\/\.env/)
+  })
+
+  it('rejects a whitespace-padded segment, which is the same file on Windows/macOS', () => {
+    for (const path of ['.env ', ' .env', 'src/ main.ts', 'src/main.ts ', 'src/ /main.ts']) {
+      expect(() => assertSafePartPath(path)).toThrow(/padded\s+with whitespace|empty segment/)
+    }
+  })
+
+  it('states the invariant: normalising a valid path is a no-op', () => {
+    // The property that makes "the caller's path IS the stored path" true.
+    for (const path of [
+      'src/index.ts',
+      '.env.example',
+      'ドキュメント/説明.md',
+      'src/my file.ts',
+      'database/main.dump',
+    ]) {
+      expect(() => assertSafePartPath(path)).not.toThrow()
+      expect(normalizePartPath(path).path).toBe(path)
+      expect(normalizePartPath(path).changed).toBe(false)
+    }
+
+    // …and every path this validator rejects for being non-canonical is one
+    // normalisation WOULD have changed.
+    for (const path of ['config\\.env', 'a//b', 'a/b/', '.env ', ' .env']) {
+      expect(() => assertSafePartPath(path)).toThrow()
+      expect(normalizePartPath(path).changed).toBe(true)
+    }
+  })
+
+  it('is the guard the "parts/" prefix used to defeat (the regression this fixes)', () => {
     // The OLD guard only ever saw the prefixed form, which looks harmless:
     // it is not absolute, has no ".." segment, and is not drive-qualified.
-    const prefixed = `source/${'/etc/passwd'}`
-    expect(prefixed).toBe('source//etc/passwd')
+    const prefixed = `parts/${'/etc/passwd'}`
+    expect(prefixed).toBe('parts//etc/passwd')
     expect(prefixed.startsWith('/')).toBe(false)
     expect(prefixed.split('/').includes('..')).toBe(false)
     expect(/^[a-zA-Z]:/.test(prefixed)).toBe(false)
 
     // Validating the RAW path is what catches it.
-    expect(() => assertSafeSourcePath('/etc/passwd')).toThrow(/absolute paths are rejected/)
+    expect(() => assertSafePartPath('/etc/passwd')).toThrow(/absolute paths are rejected/)
 
     // Same story for a drive-qualified path, which prefixing hides completely.
-    expect(`source/${'C:\\Windows\\x'}`).toBe('source/C:\\Windows\\x')
-    expect(() => assertSafeSourcePath('C:\\Windows\\x')).toThrow(
-      /drive-qualified paths are rejected/,
-    )
+    expect(`parts/${'C:\\Windows\\x'}`).toBe('parts/C:\\Windows\\x')
+    expect(() => assertSafePartPath('C:\\Windows\\x')).toThrow(/drive-qualified paths are rejected/)
   })
 
   it('applies the same rules to archive-internal entry paths', () => {
-    expect(() => assertSafeEntryPath('source/src/index.ts')).not.toThrow()
-    expect(() => assertSafeEntryPath('source//etc/passwd')).toThrow(/an empty segment are rejected/)
-    expect(() => assertSafeEntryPath('source/../../etc/passwd')).toThrow(/path traversal/)
+    expect(() => assertSafeEntryPath('parts/source/src/index.ts')).not.toThrow()
+    expect(() => assertSafeEntryPath('parts//etc/passwd')).toThrow(/an empty segment are rejected/)
+    expect(() => assertSafeEntryPath('parts/../../etc/passwd')).toThrow(/path traversal/)
     expect(() => assertSafeEntryPath('')).toThrow(/the path is empty/)
+  })
+
+  it('applies the same rules to a database dump or a git bundle — no part is privileged', () => {
+    expect(() => assertSafePartPath('database/main.dump')).not.toThrow()
+    expect(() => assertSafePartPath('repos/api.bundle')).not.toThrow()
+    expect(() => assertSafePartPath('/var/lib/postgresql/main.dump')).toThrow(
+      /absolute paths are rejected/,
+    )
+    expect(() => assertSafePartPath('../../repos/api.bundle')).toThrow(/path traversal/)
   })
 })
 
@@ -239,6 +288,14 @@ describe('pathCollisionKey — DECISION 5, entries must not collide on restore',
   it('keeps genuinely different paths apart', () => {
     expect(pathCollisionKey('src/a.ts')).not.toBe(pathCollisionKey('src/b.ts'))
     expect(pathCollisionKey('src/a.ts')).not.toBe(pathCollisionKey('src/sub/a.ts'))
+  })
+
+  it('is the ONE model’s key, not a second implementation of the folding', () => {
+    // It used to re-implement the separator folding with its own regexes, which
+    // is how the package came to hold two disagreeing notions of a separator.
+    for (const path of ['a\\b\\c.ts', 'a//b/c.ts', 'a/b/', 'SRC/Café.ts', ' a /b ']) {
+      expect(pathCollisionKey(path)).toBe(pathComparisonKey(path))
+    }
   })
 })
 
@@ -501,6 +558,16 @@ describe('hostile archives fed to parseTar', () => {
     )
   })
 
+  it('REJECTS a non-canonical member path on read', () => {
+    // A DOWNLOADED artifact naming a member `parts/config\.env` was not written
+    // by this package, and that member means different things on different
+    // platforms — one file on Linux, a `config` directory holding `.env` on
+    // Windows. Refusing it on read closes the same hole on the way back that
+    // rejecting the path on the way in closes on the way out.
+    expect(() => parseTar(craftTar({ name: 'parts/config\\.env' }))).toThrow(/backslash/)
+    expect(() => parseTar(craftTar({ name: 'parts/.env ' }))).toThrow(/padded\s+with whitespace/)
+  })
+
   it('REJECTS "." and empty segments on read', () => {
     expect(() => parseTar(craftTar({ name: './x' }))).toThrow(/a "\." segment are rejected/)
     expect(() => parseTar(craftTar({ name: 'source//etc/passwd' }))).toThrow(
@@ -725,10 +792,12 @@ describe('system tar compatibility (the no-lock-in promise)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'molecule-tar-'))
     try {
       const tar = createTar([
-        { path: 'manifest.json', content: bytes('{"formatVersion":1}') },
-        { path: 'source/src/app/main.ts', content: bytes('console.log("hi")\n') },
+        { path: 'manifest.json', content: bytes('{"formatVersion":2}') },
+        { path: 'parts/source/src/app/main.ts', content: bytes('console.log("hi")\n') },
+        // A dump and a bundle are ordinary members — nothing is privileged.
+        { path: 'parts/database/main.dump', content: bytes('PGDMP\0') },
         // Requested setuid — the codec must strip it before it ever hits disk.
-        { path: 'source/scripts/run.sh', content: bytes('#!/bin/sh\n'), mode: 0o4755 },
+        { path: 'parts/source/scripts/run.sh', content: bytes('#!/bin/sh\n'), mode: 0o4755 },
       ])
       const archivePath = join(dir, 'artifact.tar.gz')
       writeFileSync(archivePath, Buffer.from(gzipBytes(tar)))
@@ -736,16 +805,19 @@ describe('system tar compatibility (the no-lock-in promise)', () => {
       const listed = execFileSync('tar', ['-tzf', archivePath], { encoding: 'utf8' })
       expect(listed.split('\n').filter(Boolean).sort()).toEqual([
         'manifest.json',
-        'source/scripts/run.sh',
-        'source/src/app/main.ts',
+        'parts/database/main.dump',
+        'parts/source/scripts/run.sh',
+        'parts/source/src/app/main.ts',
       ])
 
       execFileSync('tar', ['-xzf', archivePath, '-C', dir])
-      expect(readFileSync(join(dir, 'source/src/app/main.ts'), 'utf8')).toBe('console.log("hi")\n')
+      expect(readFileSync(join(dir, 'parts/source/src/app/main.ts'), 'utf8')).toBe(
+        'console.log("hi")\n',
+      )
       // Owner-execute survives any umask, unlike the full 0o755 bit pattern.
-      expect(statSync(join(dir, 'source/scripts/run.sh')).mode & 0o100).toBe(0o100)
+      expect(statSync(join(dir, 'parts/source/scripts/run.sh')).mode & 0o100).toBe(0o100)
       // ...but setuid/setgid/sticky must be gone.
-      expect(statSync(join(dir, 'source/scripts/run.sh')).mode & 0o7000).toBe(0)
+      expect(statSync(join(dir, 'parts/source/scripts/run.sh')).mode & 0o7000).toBe(0)
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }

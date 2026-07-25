@@ -17,10 +17,17 @@
  * bucket and may not be the bytes it wrote:
  *
  * - **Path safety on BOTH sides, on the UNPREFIXED path.** Validate the
- *   caller's raw path with {@link assertSafeSourcePath} BEFORE any `source/`
+ *   caller's raw part path with {@link assertSafePartPath} BEFORE any `parts/`
  *   prefix is applied — prefixing is exactly what turns `/etc/passwd` into the
- *   innocuous-looking `source//etc/passwd`. Archive-internal paths are
+ *   innocuous-looking `parts//etc/passwd`. Archive-internal paths are
  *   validated with {@link assertSafeEntryPath} on write AND on read.
+ * - **One path model.** Every rule here reads the segments of
+ *   `./path-model.js` — the single module that decides what a path's segments
+ *   are — and a path that is not already CANONICAL under it (a `'\'`
+ *   separator, a repeated or trailing separator, a whitespace-padded segment)
+ *   is REJECTED rather than rewritten. Splitting a path anywhere else is what
+ *   let `'\'` mean "separator" to this codec and "ordinary character" to the
+ *   rule that keeps credentials out of the artifact.
  * - **Collision rejection.** Two entries that differ only by Unicode form or
  *   letter case would overwrite each other when restored onto a
  *   case-insensitive filesystem, so {@link createTar} and {@link parseTar}
@@ -42,6 +49,8 @@
 
 import { constants as bufferConstants } from 'node:buffer'
 import { gunzipSync, gzipSync } from 'node:zlib'
+
+import { normalizePartPath, pathComparisonKey, segmentsOf } from './path-model.js'
 
 /** Size of every tar header and data block, in bytes. */
 const BLOCK_SIZE = 512
@@ -156,10 +165,16 @@ function toBuffer(data: Uint8Array): Buffer {
  * or terminal escapes into a log line, and truncation keeps a 4 KB crafted
  * path out of the message.
  *
+ * Exported because every module that names a path from a DOWNLOADED artifact
+ * owes the same hygiene: the provider reports colliding parts, unindexed parts
+ * and stowaway members by path, and all of those strings came out of a bucket.
+ * An ordinary path passes through unchanged, so it is safe to wrap every such
+ * message in it.
+ *
  * @param path - The raw path.
  * @returns A safe, bounded rendering of the path.
  */
-function describePath(path: string): string {
+export function describePath(path: string): string {
   let escaped = ''
   let truncated = false
   for (const character of path) {
@@ -194,31 +209,35 @@ function resolveMaxUncompressedBytes(limits?: TarLimits): number {
  * Normalises a path into the key used to detect entries that would collide
  * with one another when restored.
  *
- * Folds Windows separators onto `/`, collapses repeated and trailing
- * separators, applies Unicode NFC (so a precomposed `é` and a decomposed `é`
- * compare equal), and lower-cases (so a case-insensitive filesystem cannot
- * silently overwrite one entry with another).
+ * A one-line consumer of the canonical model (`./path-model.js`): the model
+ * folds Windows separators onto `/` and collapses repeated and trailing
+ * separators, then this applies Unicode NFC (so a precomposed `é` and a
+ * decomposed `é` compare equal) and lower-cases (so a case-insensitive
+ * filesystem cannot silently overwrite one entry with another). Re-implementing
+ * the folding here is what produced two disagreeing notions of a separator.
  *
  * @param path - The path to normalise.
  * @returns The comparison key.
  */
 export function pathCollisionKey(path: string): string {
-  return path
-    .replace(/\\/g, '/')
-    .replace(/\/+/g, '/')
-    .replace(/\/+$/, '')
-    .normalize('NFC')
-    .toLowerCase()
+  return pathComparisonKey(path)
 }
 
 /**
- * Shared path validator behind {@link assertSafeSourcePath} and
+ * Shared path validator behind {@link assertSafePartPath} and
  * {@link assertSafeEntryPath}.
+ *
+ * Order matters: the traversal and `.`/empty-segment checks run FIRST, so the
+ * most dangerous shape is always named as what it is (`src\..\..\etc\passwd` is
+ * reported as traversal, not as a separator problem), and the canonical-form
+ * checks run last as the catch-all that leaves no non-canonical path accepted.
  *
  * @param path - The path to validate.
  * @param label - How to name the path in error messages.
  * @throws {Error} If the path is empty, `.`-only, absolute, drive-qualified,
- *   contains a NUL byte, or contains a `..`, `.` or empty segment.
+ *   contains a NUL byte, contains a `..`, `.` or empty segment, or is not
+ *   already canonical (a `'\'` separator, a repeated or trailing separator, or
+ *   a whitespace-padded segment).
  */
 function assertSafePath(path: string, label: string): void {
   if (typeof path !== 'string' || path === '') {
@@ -234,7 +253,8 @@ function assertSafePath(path: string, label: string): void {
     throw new Error(`Unsafe ${label} "${describePath(path)}": drive-qualified paths are rejected.`)
   }
 
-  const segments = path.split(/[/\\]/)
+  const model = normalizePartPath(path)
+  const segments = model.rawSegments
 
   if (segments.every((segment) => segment === '.' || segment === '')) {
     throw new Error(
@@ -261,26 +281,65 @@ function assertSafePath(path: string, label: string): void {
       )
     }
   }
+
+  for (const segment of segments) {
+    if (segment !== segment.trim()) {
+      throw new Error(
+        `Unsafe ${label} "${describePath(path)}": the segment "${describePath(segment)}" is padded ` +
+          `with whitespace, which is rejected. Windows and macOS strip a trailing space, so ".env " ` +
+          `IS ".env" there — a padded segment is a different string to a matching rule and the same ` +
+          `file to the filesystem.`,
+      )
+    }
+  }
+
+  if (path.includes('\\')) {
+    throw new Error(
+      `Unsafe ${label} "${describePath(path)}": paths must use "/" as their separator, and this one ` +
+        `contains a backslash. It is REJECTED rather than folded to "${describePath(model.path)}", ` +
+        `because the path you send and the path the manifest records must be identical. (A "\\" that ` +
+        `some rules read as a separator and others as an ordinary character is how "config\\.env" ` +
+        `was archived past the secrets refusal.)`,
+    )
+  }
+
+  if (model.changed) {
+    // Unreachable via the checks above today; kept as the invariant's backstop,
+    // so no future normalisation rule can be added to the model without a path
+    // that violates it being refused here.
+    throw new Error(
+      `Unsafe ${label} "${describePath(path)}": it is not canonical — it normalises to ` +
+        `"${describePath(model.path)}". A path is REJECTED rather than rewritten, so the caller's ` +
+        `path and the stored path are always the same string.`,
+    )
+  }
 }
 
 /**
- * Rejects a caller-supplied, UNPREFIXED source path that would be unsafe to
- * archive or to restore.
+ * Rejects a caller-supplied, UNPREFIXED {@link ArchivePart} path that would be
+ * unsafe to archive or to restore.
  *
- * **Call this on the RAW path, before any `source/` prefix is applied.** A
- * prefix is precisely what disguises a hostile path: `'source/' + '/etc/passwd'`
- * is `'source//etc/passwd'`, which is neither absolute nor traversing and would
+ * **Call this on the RAW path, before any `parts/` prefix is applied.** A
+ * prefix is precisely what disguises a hostile path: `'parts/' + '/etc/passwd'`
+ * is `'parts//etc/passwd'`, which is neither absolute nor traversing and would
  * sail past a guard that only ever sees the prefixed form. It is the same
  * validation {@link assertSafeEntryPath} applies to archive-internal paths, run
  * one step earlier.
  *
- * @param path - The caller's relative path, exactly as supplied.
+ * Every part is the same to this guard: a source file, a database dump and a
+ * git bundle are all checked identically, because nothing about a part's
+ * `kind` makes an absolute or traversing path safe.
+ *
+ * @param path - The caller's relative part path, exactly as supplied.
  * @throws {Error} If the path is empty or `.`-only, absolute (`/x`), starts
- *   with a backslash, is drive-qualified (`C:\x`), contains a NUL byte, or
- *   contains a `..`, `.` or empty segment.
+ *   with a backslash, is drive-qualified (`C:\x`), contains a NUL byte,
+ *   contains a `..`, `.` or empty segment, or is not canonical under the one
+ *   path model — a backslash ANYWHERE (`config\.env`), a repeated or trailing
+ *   separator (`a//b`, `a/b/`), or a whitespace-padded segment (`.env `,
+ *   ` .env`). Non-canonical paths are refused, never silently rewritten.
  */
-export function assertSafeSourcePath(path: string): void {
-  assertSafePath(path, 'source path')
+export function assertSafePartPath(path: string): void {
+  assertSafePath(path, 'part path')
 }
 
 /**
@@ -295,7 +354,11 @@ export function assertSafeSourcePath(path: string): void {
  *   slash — {@link createTar} and {@link parseTar} strip a directory entry's
  *   trailing slash before validating).
  * @throws {Error} If the path is empty or `.`-only, absolute, drive-qualified,
- *   contains a NUL byte, or contains a `..`, `.` or empty segment.
+ *   contains a NUL byte, contains a `..`, `.` or empty segment, or is not
+ *   canonical (a backslash, a repeated separator, or a whitespace-padded
+ *   segment). A DOWNLOADED artifact naming a member non-canonically was not
+ *   written by this package, and its member paths would mean different things
+ *   on different platforms.
  */
 export function assertSafeEntryPath(path: string): void {
   assertSafePath(path, 'tar entry path')
@@ -422,7 +485,9 @@ function splitPath(path: string): { name: string; prefix: string } {
   if (Buffer.byteLength(path, 'utf8') <= NAME_SIZE) {
     return { name: path, prefix: '' }
   }
-  const parts = path.split('/')
+  // The canonical segments, like every other rule here — the path reached this
+  // function through assertSafeEntryPath, so it is already canonical.
+  const parts = segmentsOf(path)
   for (let i = 1; i < parts.length; i++) {
     const prefix = parts.slice(0, i).join('/')
     const name = parts.slice(i).join('/')

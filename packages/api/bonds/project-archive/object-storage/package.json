@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-project-archive-object-storage",
   "version": "1.0.0",
-  "description": "Object-storage project archive provider for molecule.dev — standard tar.gz artifacts persisted through @molecule/api-uploads under the storage id the uploads bond mints, verified by re-reading and UNPACKING the artifact (checksum, manifest, entry count, source digest), with size caps and zero external dependencies",
+  "description": "Object-storage project archive provider for molecule.dev — standard tar.gz artifacts of generic ArchiveParts (source, database dumps, git bundles: nothing privileged) persisted through @molecule/api-uploads under the storage id the uploads bond mints, verified by re-reading and UNPACKING the artifact (checksum, manifest, part count, parts digest), with a configurable refusal policy, size caps and zero external dependencies",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,14 +27,17 @@
     "tar",
     "backup",
     "restore",
-    "verification"
+    "verification",
+    "parts"
   ],
   "license": "MIT",
   "peerDependencies": {
+    "@molecule/api-logger": ">=1.0.0",
     "@molecule/api-project-archive": ">=1.0.0",
     "@molecule/api-uploads": ">=1.0.0"
   },
   "devDependencies": {
+    "@molecule/api-logger": "1.0.0",
     "@molecule/api-project-archive": "1.0.0",
     "@molecule/api-uploads": "1.0.0",
     "@types/node": "25.9.2",
