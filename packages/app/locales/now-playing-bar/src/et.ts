@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for et. */
 export const et: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Midagi ei esitata',
   'nowPlaying.aria.region': 'Nüüd mängib:<x> pealkiri</x>',
   'nowPlaying.aria.artwork': 'Kunstiteosed<x> pealkiri</x>',
   'nowPlaying.aria.play': 'Mängi',

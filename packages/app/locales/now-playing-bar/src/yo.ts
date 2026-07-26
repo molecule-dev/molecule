@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for yo. */
 export const yo: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Kò sí ohun tí ń dun',
   'nowPlaying.aria.region': 'N ṣere nisinsinyi:<x> {{akọle}}</x>',
   'nowPlaying.aria.artwork': 'Iṣẹ́ ọnà fún<x> {{akọle}}</x>',
   'nowPlaying.aria.play': 'Ṣeré',

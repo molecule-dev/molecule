@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for vi. */
 export const vi: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Không có gì đang phát',
   'nowPlaying.aria.play': 'Phát',
   'nowPlaying.aria.pause': 'Tạm dừng',
   'nowPlaying.aria.next': 'Bài tiếp theo',

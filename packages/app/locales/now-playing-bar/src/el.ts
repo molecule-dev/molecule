@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for el. */
 export const el: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Δεν αναπαράγεται τίποτα',
   'nowPlaying.aria.play': 'Αναπαραγωγή',
   'nowPlaying.aria.pause': 'Παύση',
   'nowPlaying.aria.region': 'Τώρα παίζει:<x> {{τίτλος}}</x>',

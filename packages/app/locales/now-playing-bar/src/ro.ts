@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for ro. */
 export const ro: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Nu se redă nimic',
   'nowPlaying.aria.play': 'Redați',
   'nowPlaying.aria.pause': 'Pauză',
   'nowPlaying.aria.region': 'Se redă acum:<x> {{titlu}}</x>',

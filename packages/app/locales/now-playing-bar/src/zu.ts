@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for zu. */
 export const zu: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Akukho okudlalayo',
   'nowPlaying.aria.region': 'Manje kuyadlalwa:<x> {{isihloko}}</x>',
   'nowPlaying.aria.artwork': 'Umsebenzi wobuciko we<x> {{isihloko}}</x>',
   'nowPlaying.aria.play': 'Dlala',

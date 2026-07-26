@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for fa. */
 export const fa: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'چیزی پخش نمی‌شود',
   'nowPlaying.aria.region': 'هم اکنون در حال پخش:<x> {{عنوان}}</x>',
   'nowPlaying.aria.artwork': 'آثار هنری برای<x> {{عنوان}}</x>',
   'nowPlaying.aria.play': 'بازی',

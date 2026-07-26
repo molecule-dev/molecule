@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for lo. */
 export const lo: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'ບໍ່ມີການຫຼິ້ນ',
   'nowPlaying.aria.region': 'ກຳລັງຫຼິ້ນຢູ່:<x> ຫົວຂໍ້</x>',
   'nowPlaying.aria.artwork': 'ຜົນງານສິລະປະສຳລັບ<x> ຫົວຂໍ້</x>',
   'nowPlaying.aria.play': 'ຫຼິ້ນ',

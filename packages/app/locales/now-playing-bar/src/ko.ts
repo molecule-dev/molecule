@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for ko. */
 export const ko: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': '재생 중인 항목 없음',
   'nowPlaying.aria.play': '재생',
   'nowPlaying.aria.pause': '일시정지',
   'nowPlaying.aria.next': '다음 곡',

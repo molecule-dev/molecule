@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for bn. */
 export const bn: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'কিছু বাজছে না',
   'nowPlaying.aria.region': 'এখন চলছে:<x> {{title}}</x>',
   'nowPlaying.aria.artwork': 'শিল্পকর্মের জন্য<x> {{title}}</x>',
   'nowPlaying.aria.play': 'খেলা',

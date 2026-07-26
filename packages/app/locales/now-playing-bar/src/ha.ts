@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for ha. */
 export const ha: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Babu abin da ake kunnawa',
   'nowPlaying.aria.region': 'Yanzu ana wasa:<x> {{take}}</x>',
   'nowPlaying.aria.artwork': 'Zane-zane na<x> {{take}}</x>',
   'nowPlaying.aria.play': 'Yi wasa',

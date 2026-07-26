@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for eu. */
 export const eu: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Ez da ezer erreproduzitzen',
   'nowPlaying.aria.region': 'Orain erreproduzitzen:<x> {{izenburua}}</x>',
   'nowPlaying.aria.artwork': 'Artelana<x> {{izenburua}}</x>',
   'nowPlaying.aria.play': 'Jolastu',

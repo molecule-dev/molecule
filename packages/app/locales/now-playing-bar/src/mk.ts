@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for mk. */
 export const mk: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Ништо не се репродуцира',
   'nowPlaying.aria.region': 'Сега се репродуцира:<x> {{наслов}}</x>',
   'nowPlaying.aria.artwork': 'Уметничко дело за<x> {{наслов}}</x>',
   'nowPlaying.aria.play': 'Играј',

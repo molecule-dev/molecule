@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for hi. */
 export const hi: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'कुछ नहीं चल रहा',
   'nowPlaying.aria.play': 'चलाएँ',
   'nowPlaying.aria.pause': 'रोकें',
   'nowPlaying.aria.next': 'अगला ट्रैक',

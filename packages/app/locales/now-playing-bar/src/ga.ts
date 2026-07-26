@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for ga. */
 export const ga: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Níl aon rud á sheinm',
   'nowPlaying.aria.region': 'Ag imirt anois:<x> {{teideal}}</x>',
   'nowPlaying.aria.artwork': 'Saothar ealaíne do<x> {{teideal}}</x>',
   'nowPlaying.aria.play': 'Seinn',

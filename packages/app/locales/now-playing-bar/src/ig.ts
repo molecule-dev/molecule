@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for ig. */
 export const ig: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Ọ dịghị ihe na-akpọ',
   'nowPlaying.aria.region': 'Ugbu a na-egwu egwu:<x> {{aha}}</x>',
   'nowPlaying.aria.artwork': 'Ọrụ nka maka<x> {{aha}}</x>',
   'nowPlaying.aria.play': 'Gwuo egwu',

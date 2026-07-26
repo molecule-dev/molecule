@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for zh-TW. */
 export const zhTW: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': '未在播放',
   'nowPlaying.aria.region': '正在播放：<x> {{標題}}</x>',
   'nowPlaying.aria.artwork': '為藝術作品{{標題}}',
   'nowPlaying.aria.play': '玩',

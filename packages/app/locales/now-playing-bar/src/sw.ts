@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for sw. */
 export const sw: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Hakuna kinachochezwa',
   'nowPlaying.aria.region': 'Sasa inacheza:<x> {{title}}</x>',
   'nowPlaying.aria.artwork': 'Kazi ya sanaa kwa<x> {{title}}</x>',
   'nowPlaying.aria.play': 'Cheza',

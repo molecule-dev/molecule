@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for ky. */
 export const ky: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Эч нерсе ойнотулбайт',
   'nowPlaying.aria.region': 'Азыр ойноп жатат:<x> {{аталышы}}</x>',
   'nowPlaying.aria.artwork': 'Сүрөт чыгармасы<x> {{аталышы}}</x>',
   'nowPlaying.aria.play': 'Ойнотуу',

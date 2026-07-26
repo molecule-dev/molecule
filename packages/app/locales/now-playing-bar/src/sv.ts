@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for sv. */
 export const sv: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Inget spelas upp',
   'nowPlaying.aria.play': 'Spela',
   'nowPlaying.aria.pause': 'Pausa',
   'nowPlaying.aria.next': 'Nästa spår',

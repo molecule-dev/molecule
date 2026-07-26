@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for hy. */
 export const hy: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Ոչինչ չի նվագարկվում',
   'nowPlaying.aria.region': 'Հիմա նվագարկվում է՝<x> {{վերնագիր}}</x>',
   'nowPlaying.aria.artwork': 'Գեղարվեստական աշխատանք<x> {{վերնագիր}}</x>',
   'nowPlaying.aria.play': 'Նվագարկել',

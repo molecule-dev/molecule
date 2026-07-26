@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for fi. */
 export const fi: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Ei toistoa',
   'nowPlaying.aria.play': 'Toista',
   'nowPlaying.aria.pause': 'Tauko',
   'nowPlaying.aria.region': 'Nyt toistetaan:<x> {{title}}</x>',

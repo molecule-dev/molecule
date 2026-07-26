@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for da. */
 export const da: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'Intet afspilles',
   'nowPlaying.aria.play': 'Afspil',
   'nowPlaying.aria.pause': 'Sæt på pause',
   'nowPlaying.aria.region': 'Nu afspilles:<x> {{titel}}</x>',

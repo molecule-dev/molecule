@@ -238,7 +238,14 @@ describe('@molecule/app-ui-react × REAL react-dom + REAL @molecule/app-ui bonds
         </Catcher>,
       )
       const iconError = second.getByTestId('caught').textContent ?? ''
-      expect(iconError).toContain("'icon-set'")
+      // Assert what the message must ACHIEVE, not the bond-type string it used
+      // to leak. `setIconSet` deliberately stopped raising the generic registry
+      // error ("no 'icon-set' bonded") in favour of one that names the fix and a
+      // concrete bond to reach for — this assertion was left pinned to the old
+      // wording and failed the improvement.
+      expect(iconError).toContain('@molecule/app-icons')
+      expect(iconError).toContain('setIconSet()') // names the fix, not just the failure
+      expect(iconError).toMatch(/@molecule\/app-icons-\w/) // …and a bond that satisfies it
       expect(iconError).not.toContain('UIClassMap')
       expect(iconError).not.toBe(classMapError)
       second.unmount()

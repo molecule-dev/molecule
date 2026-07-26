@@ -2,6 +2,7 @@ import type { NowPlayingBarTranslations } from './types.js'
 
 /** NowPlayingBar translations for ml. */
 export const ml: Partial<NowPlayingBarTranslations> = {
+  'nowPlaying.empty': 'ഒന്നും പ്ലേ ചെയ്യുന്നില്ല',
   'nowPlaying.aria.region': 'ഇപ്പോൾ പ്ലേ ചെയ്യുന്നത്:<x> {{ശീർഷകം}}</x>',
   'nowPlaying.aria.artwork': 'എന്നതിനായുള്ള കലാസൃഷ്‌ടി<x> {{ശീർഷകം}}</x>',
   'nowPlaying.aria.play': 'കളിക്കുക',
