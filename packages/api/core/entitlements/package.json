@@ -42,7 +42,6 @@
     "@molecule/api-payments-stripe": "1.0.0",
     "@molecule/api-rate-limit": "1.0.0",
     "@molecule/api-resource": "1.0.0",
-    "@molecule/api-resource-user": "1.0.0",
     "@types/node": "25.9.2",
     "stripe": "22.2.0",
     "typescript": "6.0.3",
