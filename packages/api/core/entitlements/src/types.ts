@@ -173,6 +173,17 @@ export interface PlanCacheEntry {
 
   /** Absolute timestamp (ms since epoch) at which this entry expires. */
   expiresAt: number
+
+  /**
+   * The user's stored plan expiry as read on the cache miss, or `null` when
+   * unset. Cached alongside the key because the row was already fetched:
+   * consumers that need the subscription's period boundary (e.g. an allowance
+   * that refreshes with the billing period) would otherwise re-read the user on
+   * every request, which is the exact load this cache exists to avoid. NOT the
+   * same as {@link PlanCacheEntry.expiresAt}, which is when the CACHE entry
+   * goes stale.
+   */
+  planExpiresAt: string | null
 }
 
 /**

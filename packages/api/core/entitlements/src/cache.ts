@@ -123,11 +123,34 @@ export const planCacheSize = (): number => {
  * @returns The effective plan key, or `null` for default-tier users.
  */
 export const getCachedPlanKey = async (userId: string): Promise<string | null> => {
+  return (await getCachedPlanState(userId)).planKey
+}
+
+/**
+ * Resolve a user's effective plan key AND the plan expiry it was derived from,
+ * hitting the same cache {@link getCachedPlanKey} uses.
+ *
+ * Exists because the expiry is already read on every cache miss: a consumer
+ * that needs the subscription's period boundary — an allowance that refreshes
+ * with the billing period, a renewal countdown — can have it for free instead
+ * of issuing its own per-request user lookup, which is precisely the database
+ * load this cache was introduced to remove.
+ *
+ * `planExpiresAt` is the STORED value, not an effective one: it is `null` for
+ * anonymous/free users and may be in the past for a plan that has just lapsed
+ * (in which case `planKey` is already demoted to `null`).
+ *
+ * @param userId - The user ID to look up.
+ * @returns The effective plan key and the stored plan expiry.
+ */
+export const getCachedPlanState = async (
+  userId: string,
+): Promise<{ planKey: string | null; planExpiresAt: string | null }> => {
   const now = Date.now()
   const cached = cache.get(userId)
 
   if (cached && cached.expiresAt > now) {
-    return cached.planKey
+    return { planKey: cached.planKey, planExpiresAt: cached.planExpiresAt }
   }
 
   const user = await findById<UserPlanFields>('users', userId)
@@ -168,9 +191,10 @@ export const getCachedPlanKey = async (userId: string): Promise<string | null> =
       expiresAt = Math.min(expiresAt, planExpiry)
     }
   }
-  cache.set(userId, { planKey, expiresAt })
+  const planExpiresAt = user?.planExpiresAt ?? null
+  cache.set(userId, { planKey, expiresAt, planExpiresAt })
 
-  return planKey
+  return { planKey, planExpiresAt }
 }
 
 /**
