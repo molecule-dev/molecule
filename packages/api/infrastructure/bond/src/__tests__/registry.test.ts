@@ -5,6 +5,7 @@ import {
   bondSingleton,
   clearProviders,
   configure,
+  expectBond,
   getAllNamed,
   getNamed,
   getSingleton,
@@ -14,6 +15,8 @@ import {
   reset,
   unbondNamed,
   unbondSingleton,
+  unexpectBond,
+  validateBonds,
 } from '../registry.js'
 
 describe('registry', () => {
@@ -196,6 +199,40 @@ describe('registry', () => {
       configure({ strict: true })
       bondSingleton('test', { name: 'test' })
       expect(() => bondSingleton('test', { name: 'test2' })).toThrow()
+    })
+  })
+
+  describe('validateBonds', () => {
+    // `expectedBonds` is module state that `reset()` deliberately does NOT clear
+    // (core packages register their expectations once, at import). Each case
+    // un-expects what it expects so it cannot leak into the next.
+    it('passes when an expected type has a singleton', () => {
+      expectBond('email')
+      bondSingleton('email', { name: 'email' })
+      expect(() => validateBonds()).not.toThrow()
+      unexpectBond('email')
+    })
+
+    it('reports an expected type with no provider at all as missing', () => {
+      expectBond('email')
+      expect(() => validateBonds()).toThrow(/Missing required bond providers: email/)
+      unexpectBond('email')
+    })
+
+    // A named-only registration used to be indistinguishable from wiring nothing,
+    // so the error told developers to wire bonds they HAD wired — which is what
+    // `expectBond('project-archive-external-state')` did to every boot. The bug in
+    // that shape is the core package's expectBond call, not the app's setupBonds.
+    it('distinguishes "bonded only as named providers" from "not wired at all"', () => {
+      expectBond('project-archive-external-state')
+      bondNamed('project-archive-external-state', 'postgresql', { name: 'pg' })
+
+      expect(() => validateBonds()).toThrow(/bonded ONLY as named providers/)
+      expect(() => validateBonds()).toThrow(/expectBond\(\) call in the core package/)
+      // Must NOT tell them to wire it in setupBonds() — they already did.
+      expect(() => validateBonds()).not.toThrow(/Missing required bond providers/)
+
+      unexpectBond('project-archive-external-state')
     })
   })
 })

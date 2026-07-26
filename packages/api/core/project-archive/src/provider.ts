@@ -75,7 +75,27 @@ export function requireProvider(): ProjectArchiveProvider {
 // project — they are one feature, not two.
 
 const EXTERNAL_STATE_BOND_TYPE = 'project-archive-external-state'
-expectBond(EXTERNAL_STATE_BOND_TYPE)
+// Deliberately NOT `expectBond(EXTERNAL_STATE_BOND_TYPE)`, for two independent
+// reasons — either alone is disqualifying:
+//
+// 1. It is UNSATISFIABLE. `setExternalStateProvider()` below registers NAMED
+//    providers (`bond(type, kind, provider)` → `registry.named`), but
+//    `validateBonds()` only inspects `registry.singletons`. An expectation on a
+//    named-only category can never be met, so the server refuses to boot no
+//    matter how many providers the app wires — with a message telling the
+//    developer to wire the bonds they already wired. (`api-ai` gets away with
+//    `expectBond` on a named category only because its `setProvider(name, p)`
+//    auto-promotes the first named provider to the singleton. This one does not,
+//    and should not: promoting one `kind` to "the" provider is meaningless here.)
+// 2. Even if it were satisfiable, requiring it would be WRONG. An empty provider
+//    map is legitimate (see `getExternalStateProviders()`) — a deployment whose
+//    projects own nothing outside their source tree needs no providers, and must
+//    still boot.
+//
+// Coverage of state-owning categories is enforced where it can actually be
+// checked: `mlcl/scripts/check-external-state-coverage.mjs`
+// (`npm run verify:external-state`), which knows which categories own
+// unregenerable state. A boot-time bond assertion cannot know that.
 
 /**
  * Register an external-state provider under its own

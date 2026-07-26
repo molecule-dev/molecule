@@ -230,15 +230,37 @@ export const unexpectBond = (type: string): void => {
  */
 export const validateBonds = (): void => {
   const missing: string[] = []
+  // Expected types that have NO singleton but DO have named providers. Reported
+  // separately because "wire them in setupBonds()" is actively misleading here:
+  // the app wired them, just into `registry.named`, which this check cannot see.
+  // That means `expectBond()` was called on a named-only category — a bug in the
+  // CORE package, not in the app's wiring, and unfixable from setupBonds().
+  const namedOnly: string[] = []
   for (const type of expectedBonds) {
-    if (!registry.singletons.has(type)) {
+    if (registry.singletons.has(type)) continue
+    if ((registry.named.get(type)?.size ?? 0) > 0) {
+      namedOnly.push(type)
+    } else {
       missing.push(type)
     }
   }
+  const problems: string[] = []
   if (missing.length > 0) {
-    throw new Error(
+    problems.push(
       `Missing required bond providers: ${missing.join(', ')}. ` +
         `Wire them in setupBonds() before starting the server.`,
     )
+  }
+  if (namedOnly.length > 0) {
+    problems.push(
+      `Bond types expected as singletons but bonded ONLY as named providers: ` +
+        `${namedOnly.join(', ')}. These ARE wired — the bug is the expectBond() ` +
+        `call in the core package for each type, which no setupBonds() wiring can ` +
+        `satisfy. Either drop that expectBond() (if the category is named and/or ` +
+        `optional) or have its setProvider promote a provider to the singleton.`,
+    )
+  }
+  if (problems.length > 0) {
+    throw new Error(problems.join(' '))
   }
 }
