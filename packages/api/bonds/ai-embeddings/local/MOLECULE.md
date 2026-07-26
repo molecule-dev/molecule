@@ -66,6 +66,22 @@ interface LocalEmbeddingsConfig {
    * or `false` when {@link localModelPath} is set.
    */
   allowRemoteModels?: boolean
+  /**
+   * How many texts to run through the model per forward pass (or the
+   * `MOL_EMBEDDINGS_LOCAL_BATCH_SIZE` env var). Defaults to 32.
+   *
+   * This is a MEMORY bound, not a throughput knob. Inference is in-process, so
+   * the whole batch's activations are resident at once and attention allocates
+   * on the order of `batch × heads × sequence²`. Handing the model an entire
+   * corpus in one call therefore scales peak RSS with the corpus: indexing 898
+   * documents unbatched peaked at ~3.8 GiB and was OOM-killed under a 1–2 GiB
+   * container limit — and since the kernel delivers that kill, no `catch` in
+   * the calling code can degrade gracefully.
+   *
+   * Raise it if you have headroom and want fewer, larger passes; lower it for a
+   * tighter memory ceiling. Values below 1 are clamped to 1.
+   */
+  batchSize?: number
 }
 ```
 

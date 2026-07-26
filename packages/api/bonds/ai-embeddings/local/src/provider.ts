@@ -8,6 +8,12 @@
  * deployments. Ideal for semantic search over a modest corpus without a hosted
  * embeddings dependency.
  *
+ * Because inference runs IN-PROCESS, memory is this provider's real constraint
+ * rather than rate limits or per-call cost. Every embedding path batches (see
+ * {@link LocalEmbeddingsConfig.batchSize}), so peak memory is a function of the
+ * batch size and not of how much the caller passes in — handing it a whole
+ * corpus is safe.
+ *
  * @module
  */
 
@@ -21,6 +27,16 @@ import type { LocalEmbeddingsConfig } from './types.js'
 
 /** Default model — small, fast, strong retrieval quality, 384-dim. */
 const DEFAULT_MODEL = 'Xenova/bge-small-en-v1.5'
+
+/**
+ * Texts per forward pass when the caller doesn't specify.
+ *
+ * Small enough that peak memory stays flat on a container with a modest limit,
+ * large enough that per-pass overhead stays amortized. See
+ * {@link LocalEmbeddingsConfig.batchSize} for why this is a memory bound rather
+ * than a tuning preference.
+ */
+const DEFAULT_BATCH_SIZE = 32
 
 /** Minimal structural view of a Transformers.js feature-extraction result tensor. */
 interface EmbeddingTensor {
@@ -36,10 +52,22 @@ type Extractor = (texts: string[]) => Promise<number[][]>
  * load cost, and so this module imports even where the native addon is absent
  * (the error then surfaces only when an embedding is actually requested).
  *
+ * The returned extractor embeds in fixed-size batches. Chunking lives HERE, not
+ * in the individual provider methods, so every path through the provider is
+ * bounded by construction — `embed`, `embedQuery` and `embedDocuments` all
+ * funnel through this one function, and a method added later inherits the bound
+ * instead of having to remember it.
+ *
+ * Sequence length needs no equivalent guard: the feature-extraction pipeline
+ * tokenizes with `truncation: true`, so an arbitrarily long input is cut to the
+ * model's maximum rather than widening the batch. Batch size is therefore the
+ * only unbounded dimension, and this closes it.
+ *
  * @param config - Provider configuration.
  * @param model - Resolved model id.
  * @param pooling - Resolved pooling strategy.
  * @param normalize - Whether to L2-normalize outputs.
+ * @param batchSize - Texts per forward pass (already resolved and clamped).
  * @returns An extractor function.
  */
 async function initExtractor(
@@ -47,6 +75,7 @@ async function initExtractor(
   model: string,
   pooling: NonNullable<LocalEmbeddingsConfig['pooling']>,
   normalize: boolean,
+  batchSize: number,
 ): Promise<Extractor> {
   const { pipeline, env } = await import('@huggingface/transformers')
 
@@ -62,11 +91,22 @@ async function initExtractor(
 
   const pipe = await pipeline('feature-extraction', model)
   return async (texts: string[]): Promise<number[][]> => {
-    // Transformers.js types the pipeline call as a broad task union; narrow to the
-    // feature-extraction tensor shape we know we get. (Boundary cast, not an
-    // error suppression — skipLibCheck already trusts the lib's own types.)
-    const tensor = (await pipe(texts, { pooling, normalize })) as unknown as EmbeddingTensor
-    return tensor.tolist()
+    const vectors: number[][] = []
+    for (let start = 0; start < texts.length; start += batchSize) {
+      // Sequential, not Promise.all: concurrent passes would each hold their own
+      // activations and reinstate exactly the peak this batching removes.
+      // Transformers.js types the pipeline call as a broad task union; narrow to
+      // the feature-extraction tensor shape we know we get. (Boundary cast, not
+      // an error suppression — skipLibCheck already trusts the lib's own types.)
+      const tensor = (await pipe(texts.slice(start, start + batchSize), {
+        pooling,
+        normalize,
+      })) as unknown as EmbeddingTensor
+      // Push per row rather than concat-ing arrays, so one output array grows in
+      // place instead of reallocating a copy of everything embedded so far.
+      for (const vector of tensor.tolist()) vectors.push(vector)
+    }
+    return vectors
   }
 }
 
@@ -81,18 +121,28 @@ export function createProvider(config: LocalEmbeddingsConfig = {}): AIEmbeddings
   const model = config.model ?? process.env.MOL_EMBEDDINGS_LOCAL_MODEL ?? DEFAULT_MODEL
   const pooling = config.pooling ?? 'cls'
   const normalize = config.normalize ?? true
+  // A malformed env var must not silently remove the memory bound, so anything
+  // non-numeric falls back to the default and anything under 1 clamps to 1
+  // (batchSize 0 would loop forever without embedding anything).
+  const configured = config.batchSize ?? Number(process.env.MOL_EMBEDDINGS_LOCAL_BATCH_SIZE)
+  const batchSize =
+    Number.isFinite(configured) && configured > 0
+      ? Math.max(1, Math.floor(configured))
+      : DEFAULT_BATCH_SIZE
 
   // Single-flight lazy init: the model + onnxruntime load only on the first
   // embedding request, and only once for the life of the provider.
   let extractorPromise: Promise<Extractor> | null = null
   const getExtractor = (): Promise<Extractor> => {
     if (!extractorPromise) {
-      extractorPromise = initExtractor(config, model, pooling, normalize).catch((error) => {
-        // Reset so a later call can retry a transient init failure (e.g. a
-        // first-run download hiccup) rather than being stuck on the rejection.
-        extractorPromise = null
-        throw error
-      })
+      extractorPromise = initExtractor(config, model, pooling, normalize, batchSize).catch(
+        (error) => {
+          // Reset so a later call can retry a transient init failure (e.g. a
+          // first-run download hiccup) rather than being stuck on the rejection.
+          extractorPromise = null
+          throw error
+        },
+      )
     }
     return extractorPromise
   }

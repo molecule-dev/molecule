@@ -25,6 +25,7 @@ describe('api-ai-embeddings-local', () => {
     delete process.env.MOL_EMBEDDINGS_LOCAL_MODEL
     delete process.env.MOL_EMBEDDINGS_LOCAL_MODEL_PATH
     delete process.env.MOL_EMBEDDINGS_LOCAL_CACHE_DIR
+    delete process.env.MOL_EMBEDDINGS_LOCAL_BATCH_SIZE
   })
 
   it('embedDocuments returns one 384-length vector per text', async () => {
@@ -90,6 +91,64 @@ describe('api-ai-embeddings-local', () => {
     await createProvider({ localModelPath: '/models' }).embedQuery('x')
     expect(envMock.localModelPath).toBe('/models')
     expect(envMock.allowRemoteModels).toBe(false)
+  })
+
+  it('splits a large corpus into bounded forward passes, preserving order', async () => {
+    // The whole point: inference is in-process, so an unbatched call holds every
+    // input's activations at once. Indexing ~900 documents in one pass peaked at
+    // ~3.8 GiB and was OOM-killed under a 1-2 GiB container limit — and a kernel
+    // kill bypasses every `catch`, so the caller's graceful degradation never ran.
+    const pipe = makePipe()
+    pipelineMock.mockResolvedValue(pipe)
+    const texts = Array.from({ length: 100 }, (_, i) => 'x'.repeat(i + 1))
+
+    const vectors = await createProvider({ batchSize: 32 }).embedDocuments(texts)
+
+    expect(pipe).toHaveBeenCalledTimes(4) // 32 + 32 + 32 + 4
+    expect(pipe.mock.calls.map(([batch]) => batch.length)).toEqual([32, 32, 32, 4])
+    // Order must survive the split — a vector is only meaningful paired with the
+    // document at the same index.
+    expect(vectors).toHaveLength(100)
+    expect(vectors.map((v) => v[0])).toEqual(texts.map((t) => t.length))
+  })
+
+  it('defaults to a bounded batch even when the caller passes everything at once', async () => {
+    const pipe = makePipe()
+    pipelineMock.mockResolvedValue(pipe)
+    await createProvider().embedDocuments(Array.from({ length: 70 }, (_, i) => `t${i}`))
+    expect(pipe.mock.calls.map(([batch]) => batch.length)).toEqual([32, 32, 6])
+  })
+
+  it('bounds every embedding path, not just embedDocuments', async () => {
+    const pipe = makePipe()
+    pipelineMock.mockResolvedValue(pipe)
+    await createProvider({ batchSize: 2 }).embed({ input: ['a', 'b', 'c'] })
+    expect(pipe.mock.calls.map(([batch]) => batch.length)).toEqual([2, 1])
+  })
+
+  it('reads the batch size from the environment', async () => {
+    const pipe = makePipe()
+    pipelineMock.mockResolvedValue(pipe)
+    process.env.MOL_EMBEDDINGS_LOCAL_BATCH_SIZE = '3'
+    await createProvider().embedDocuments(['a', 'b', 'c', 'd'])
+    expect(pipe.mock.calls.map(([batch]) => batch.length)).toEqual([3, 1])
+  })
+
+  it('a malformed or zero batch size falls back rather than removing the bound', async () => {
+    // A typo'd env var must not silently restore the unbatched behaviour, and 0
+    // would loop forever without ever embedding anything.
+    const pipe = makePipe()
+    pipelineMock.mockResolvedValue(pipe)
+    process.env.MOL_EMBEDDINGS_LOCAL_BATCH_SIZE = 'lots'
+    await createProvider().embedDocuments(Array.from({ length: 40 }, (_, i) => `t${i}`))
+    expect(pipe.mock.calls.map(([batch]) => batch.length)).toEqual([32, 8])
+
+    // batchSize 0 falls back to the default, so these two texts go in ONE pass
+    // and the loop terminates — rather than advancing by 0 forever.
+    pipe.mockClear()
+    const vectors = await createProvider({ batchSize: 0 }).embedDocuments(['a', 'b'])
+    expect(pipe.mock.calls.map(([batch]) => batch.length)).toEqual([2])
+    expect(vectors).toHaveLength(2)
   })
 
   it('retries initialization after a transient load failure', async () => {
