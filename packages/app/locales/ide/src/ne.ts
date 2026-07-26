@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ne. */
 export const ne: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'छोटो सोचें',
   'ide.chat.thinking': 'सोच्दै',
   'ide.chat.verificationPassed': 'चेक पास गरियो',
@@ -185,11 +185,11 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'लूप सीमा पुग्यो',
   'ide.chat.soundEvent.verification_result': 'प्रमाणीकरण परिणाम',
   'ide.chat.soundEvent.preview_error': 'पूर्वावलोकन त्रुटि',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'सिन्थेजले प्रतिक्रिया दिन सक्यो',
   'ide.chat.soundEventDesc.error': 'प्रतिक्रिया दिने क्रममा केही गडबड भयो।',
   'ide.chat.soundEventDesc.tool_result': 'एउटा उपकरण कल (फाइल पढ्ने, आदेश दिने, आदि) पूरा भयो।',
   'ide.chat.soundEventDesc.file_diff': 'फाइल सिर्जना वा परिमार्जन गरिएको थियो।',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'सिन्थेजले कमिट गर्न फाइलहरू सुझाव दिइरहेको छ',
   'ide.chat.soundEventDesc.mode': 'योजना मोड र कार्यान्वयन मोड बीच स्विच गरियो',
   'ide.chat.soundEventDesc.loop_limit_reached': 'अधिकतम उपकरण पुनरावृत्ति सीमा नाघ्नुहोस्',
   'ide.chat.soundEventDesc.verification_result': 'लिन्ट वा टाइप-चेक चलाउन सकियो',

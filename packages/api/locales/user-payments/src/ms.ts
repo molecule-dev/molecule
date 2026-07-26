@@ -7,8 +7,8 @@ export const ms: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt dan planKey diperlukan.',
   'user.payment.verificationNotConfigured':
     'Pengesahan pembayaran tidak dikonfigurasi untuk {{provider}}.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Pelan tidak sah.',
+  'user.payment.verificationFailed': 'Gagal mengesahkan langganan.',
   'user.payment.unknownPlan': 'Pelan tidak dikenali.',
   'user.payment.invalidWebhookEvent': 'Acara webhook tidak sah.',
 }

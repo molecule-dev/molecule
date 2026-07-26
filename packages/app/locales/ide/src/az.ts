@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for az. */
 export const az: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Qısaca düşündüm',
   'ide.chat.thinking': 'Düşünmək',
   'ide.chat.verificationPassed': 'Keçmiş yoxlamalar',

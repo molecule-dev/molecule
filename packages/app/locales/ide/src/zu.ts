@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for zu. */
 export const zu: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Kucatshangwe kafushane',
   'ide.chat.thinking': 'Ukucabanga',
   'ide.chat.verificationPassed': 'Amasheke adlulisiwe',

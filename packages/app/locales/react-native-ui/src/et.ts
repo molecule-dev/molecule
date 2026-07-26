@@ -22,7 +22,7 @@ export const et: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Viimane',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{value}}%',
+  'ui.progress.value': 'väärtus %',
   'ui.radioGroup.label': 'Raadio grupp',
   'ui.select.placeholder': 'Vali…',
   'ui.select.title': 'Vali',

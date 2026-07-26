@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for si. */
 export const si: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'කෙටියෙන් හිතුවා',
   'ide.chat.thinking': 'සිතමින්',
   'ide.chat.verificationPassed': 'සමත් වූ චෙක්පත්',
@@ -186,12 +186,12 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ලූප සීමාවට ළඟා විය',
   'ide.chat.soundEvent.verification_result': 'සත්‍යාපන ප්‍රතිඵලය',
   'ide.chat.soundEvent.preview_error': 'පෙරදසුන් දෝෂය',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'සින්තේස් ප්‍රතිචාර දැක්වීම අවසන් කළේය.',
   'ide.chat.soundEventDesc.error': 'ප්‍රතිචාරයක් අතරතුර යමක් වැරදී ඇත.',
   'ide.chat.soundEventDesc.tool_result':
     'මෙවලම් ඇමතුමක් (ගොනුව කියවීම, විධානය, ආදිය) සම්පූර්ණ කරන ලදී.',
   'ide.chat.soundEventDesc.file_diff': 'ගොනුවක් නිර්මාණය කර හෝ වෙනස් කර ඇත.',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'සින්තේස් විසින් ගොනු කැප කිරීමට යෝජනා කරයි',
   'ide.chat.soundEventDesc.mode': 'සැලසුම් ප්‍රකාරය සහ ක්‍රියාත්මක කිරීමේ ප්‍රකාරය අතර මාරු විය',
   'ide.chat.soundEventDesc.loop_limit_reached': 'උපරිම මෙවලම් පුනරාවර්තන සීමාවට ළඟා වන්න',
   'ide.chat.soundEventDesc.verification_result': 'ලින්ට් හෝ ටයිප්-චෙක් ධාවනය අවසන් විය',

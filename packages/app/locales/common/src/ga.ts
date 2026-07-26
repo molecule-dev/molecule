@@ -2,7 +2,7 @@ import type { CommonTranslations } from './types.js'
 
 /** Common translations for ga. */
 export const ga: Partial<CommonTranslations> = {
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'Overdue Tasks',
   'common.close': 'Dún',
   'common.continue': 'Lean ar aghaidh',
@@ -36,10 +36,10 @@ export const ga: Partial<CommonTranslations> = {
   'auth.signup.password': 'Pasfhocal (Riachtanach)',
   'auth.signup.signUp': 'Cláraigh',
   'auth.signup.signingUp': 'Ag clárú...',
-  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}: {{status}} {{error}}',
-  'codeSandbox.docker.error.deleteFailed': 'Failed to delete {{path}}: {{error}}',
-  'codeSandbox.docker.error.readFailed': 'Failed to read {{path}}: {{error}}',
-  'codeSandbox.docker.error.writeFailed': 'Failed to write {{path}}: {{error}}',
+  'codeSandbox.docker.error.apiError': 'API Docker {{modh}} {{cosán}} : {{stádas}} earráid',
+  'codeSandbox.docker.error.deleteFailed': 'Theip ar an scriosadh {{cosán}} : earráid',
+  'codeSandbox.docker.error.readFailed': 'Theip ar an léamh {{cosán}} : earráid',
+  'codeSandbox.docker.error.writeFailed': 'Theip ar scríobh {{cosán}} : earráid',
   'conversation.error.aiNotConfigured': 'Níl an soláthraí AI cumraithe',
   'conversation.error.messageRequired': 'tá teachtaireacht ag teastáil',
   'conversation.error.notFound': 'Níor aimsíodh aon chomhrá',
@@ -98,7 +98,7 @@ export const ga: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Ní féidir nuashonrú a dhéanamh {{name}} .',
   'resource.error.unauthorized': 'Gan údarú.',
   'resource.error.unknownError': 'Earráid anaithnid.',
-  'routing.error.missingParam': 'Missing param "{{name}}" for path "{{pattern}}"',
+  'routing.error.missingParam': 'Paraiméadar ar iarraidh " {{ainm}} "don chosán" patrún "',
   'routing.error.routeNotFound': 'Bealach " {{name}} "níor aimsíodh',
   'routing.error.useMoleculeRouterOutsideProvider':
     'Ní mór useMoleculeRouter a úsáid laistigh de Sholáthraí MoleculeRouter',

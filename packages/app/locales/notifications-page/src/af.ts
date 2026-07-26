@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for af. */
 export const af: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Kennisgewings',
   'notificationsPage.markAllRead': 'Merk {{count}} soos gelees',
   'notificationsPage.filterUnread': 'Ongelees',

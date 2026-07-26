@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for uz. */
 export const uz: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': "Qisqacha o'ylanib qoldim",
   'ide.chat.thinking': 'Fikrlash',
   'ide.chat.verificationPassed': "Tekshiruvlar o'tdi",

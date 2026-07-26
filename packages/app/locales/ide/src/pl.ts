@@ -13,7 +13,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Kontynuuj',
   'upgrade.viewPlans': 'Ulepsz',
   'upgrade.signUp': 'Zarejestruj się',
-  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
+  'ide.chat.modelUpgradeRequired': 'Zarejestruj się',
   'ide.chat.autoFixCountdown': 'Wznów',
   'ide.chat.autoFixPause': 'Pauza',
   'ide.chat.autoFixCancel': 'Anuluj',
@@ -191,7 +191,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Osiągnięto limit pętli',
   'ide.chat.soundEvent.verification_result': 'Wynik weryfikacji',
   'ide.chat.soundEvent.preview_error': 'Błąd podglądu',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Syntaza zakończyła odpowiedź',
   'ide.chat.soundEventDesc.error': 'Wystąpił błąd podczas odpowiedzi',
   'ide.chat.soundEventDesc.tool_result':
     'Zakończono wywołanie narzędzia (odczyt pliku, polecenie itp.)',

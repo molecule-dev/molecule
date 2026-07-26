@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for pa. */
 export const pa: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'ਸੰਖੇਪ ਵਿੱਚ ਸੋਚਿਆ',
   'ide.chat.thinking': 'ਸੋਚਣਾ',
   'ide.chat.verificationPassed': 'ਚੈੱਕ ਪਾਸ ਹੋਏ',
@@ -78,7 +78,7 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'ਰੈਜ਼ਿਊਮੇ',
   'ide.chat.autoFixPause': 'ਵਿਰਾਮ',
   'ide.chat.autoFixCancel': 'ਰੱਦ ਕਰੋ',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'ਅਣੂ.ਦੇਵ v0.1.0',
   'ide.chat.selectModel': 'ਮਾਡਲ ਚੁਣੋ',
   'ide.chat.currentBadge': 'ਮੌਜੂਦਾ',
   'ide.chat.proRequired': 'ਪ੍ਰੋ',
@@ -186,11 +186,11 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ਲੂਪ ਸੀਮਾ ਪੂਰੀ ਹੋ ਗਈ',
   'ide.chat.soundEvent.verification_result': 'ਪੁਸ਼ਟੀਕਰਨ ਨਤੀਜਾ',
   'ide.chat.soundEvent.preview_error': 'ਪੂਰਵਦਰਸ਼ਨ ਗਲਤੀ',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'ਸਿੰਥੇਸ ਨੇ ਜਵਾਬ ਦੇਣਾ ਪੂਰਾ ਕਰ ਲਿਆ',
   'ide.chat.soundEventDesc.error': 'ਜਵਾਬ ਦੌਰਾਨ ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ।',
   'ide.chat.soundEventDesc.tool_result': 'ਇੱਕ ਟੂਲ ਕਾਲ (ਫਾਈਲ ਰੀਡ, ਕਮਾਂਡ, ਆਦਿ) ਪੂਰੀ ਹੋਈ।',
   'ide.chat.soundEventDesc.file_diff': 'ਇੱਕ ਫਾਈਲ ਬਣਾਈ ਜਾਂ ਸੋਧੀ ਗਈ ਸੀ।',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'ਸਿੰਥੇਸ ਫਾਈਲਾਂ ਨੂੰ ਕਮਿਟ ਕਰਨ ਦਾ ਸੁਝਾਅ ਦੇ ਰਿਹਾ ਹੈ',
   'ide.chat.soundEventDesc.mode': 'ਪਲਾਨ ਮੋਡ ਅਤੇ ਐਗਜ਼ੀਕਿਊਟ ਮੋਡ ਵਿਚਕਾਰ ਸਵਿੱਚ ਕੀਤਾ ਗਿਆ',
   'ide.chat.soundEventDesc.loop_limit_reached': 'ਵੱਧ ਤੋਂ ਵੱਧ ਟੂਲ ਦੁਹਰਾਓ ਸੀਮਾ ਪੂਰੀ ਕਰੋ',
   'ide.chat.soundEventDesc.verification_result': 'ਲਿੰਟ ਜਾਂ ਟਾਈਪ-ਚੈੱਕ ਚੱਲਣਾ ਪੂਰਾ ਹੋਇਆ',

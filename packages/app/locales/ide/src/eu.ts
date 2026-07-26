@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for eu. */
 export const eu: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Laburki pentsatu',
   'ide.chat.thinking': 'Pentsatzen',
   'ide.chat.verificationPassed': 'Txekeak gaindituta',
@@ -186,7 +186,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Begizta mugara iritsi da',
   'ide.chat.soundEvent.verification_result': 'Egiaztapenaren emaitza',
   'ide.chat.soundEvent.preview_error': 'Aurrebista errorea',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Sintesiak erantzuna amaitu du',
   'ide.chat.soundEventDesc.error': 'Zerbait gaizki joan da erantzun batean zehar',
   'ide.chat.soundEventDesc.tool_result':
     'Tresna-dei bat (fitxategi-irakurketa, komandoa, etab.) osatu da',

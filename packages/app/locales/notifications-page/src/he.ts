@@ -3,7 +3,7 @@ import type { NotificationsPageTranslations } from './types.js'
 /** NotificationsPage translations for he. */
 export const he: Partial<NotificationsPageTranslations> = {
   'notificationsPage.title': 'התראות',
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.feedAriaLabel': 'התראות',
   'notificationsPage.markAllRead': 'סִימָן {{count}} כפי שנקרא',
   'notificationsPage.filterUnread': 'לא נקרא',

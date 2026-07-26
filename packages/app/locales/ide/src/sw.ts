@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sw. */
 export const sw: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Wazo fupi',
   'ide.chat.thinking': 'Kufikiri',
   'ide.chat.verificationPassed': 'Hundi zimepitishwa',
@@ -78,7 +78,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Wasifu',
   'ide.chat.autoFixPause': 'Sitisha',
   'ide.chat.autoFixCancel': 'Ghairi',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'Molekuli.dev v0.1.0',
   'ide.chat.selectModel': 'Chagua modeli',
   'ide.chat.currentBadge': 'mkondo',
   'ide.chat.proRequired': 'Mtaalamu',

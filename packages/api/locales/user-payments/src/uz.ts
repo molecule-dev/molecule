@@ -6,8 +6,8 @@ export const uz: UserPaymentTranslations = {
   'user.payment.subscriptionIdRequired': 'subscriptionId talab qilinadi.',
   'user.payment.receiptAndPlanRequired': 'receipt va planKey talab qilinadi.',
   'user.payment.verificationNotConfigured': "{{provider}} uchun to'lov tekshiruvi sozlanmagan.",
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': "Noto'g'ri reja.",
+  'user.payment.verificationFailed': "Obunani tekshirish muvaffaqiyatsiz bo'ldi.",
   'user.payment.unknownPlan': "Noma'lum reja.",
   'user.payment.invalidWebhookEvent': "Noto'g'ri webhook hodisasi.",
 }

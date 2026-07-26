@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for kk. */
 export const kk: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Хабарландырулар',
   'notificationsPage.markAllRead': 'Марк {{count}} оқылғандай',
   'notificationsPage.filterUnread': 'Оқылмаған',

@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for lv. */
 export const lv: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Īsi pārdomāju',
   'ide.chat.thinking': 'Domāšana',
   'ide.chat.verificationPassed': 'Pārbaudes nokārtotas',
@@ -186,7 +186,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Sasniegts cilpas ierobežojums',
   'ide.chat.soundEvent.verification_result': 'Verifikācijas rezultāts',
   'ide.chat.soundEvent.preview_error': 'Priekšskatījuma kļūda',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Sintāze pabeidza atbildi',
   'ide.chat.soundEventDesc.error': 'Atbildes laikā kaut kas nogāja greizi',
   'ide.chat.soundEventDesc.tool_result':
     'Rīka izsaukums (faila nolasīšana, komanda utt.) ir pabeigts',

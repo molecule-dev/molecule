@@ -48,7 +48,9 @@ function walk(dir) {
             console.error(
               `ERROR: ${pkg.name} has peerDependency "${name}" but it's missing from devDependencies.`,
             )
-            console.error(`  Add it: npm install ${name} --save-dev --workspace=${full.replace(PACKAGES_DIR + '/', 'packages/')}`)
+            console.error(
+              `  Add it: npm install ${name} --save-dev --workspace=${full.replace(PACKAGES_DIR + '/', 'packages/')}`,
+            )
             errors++
           }
         }

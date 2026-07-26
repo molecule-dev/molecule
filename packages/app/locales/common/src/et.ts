@@ -2,7 +2,7 @@ import type { CommonTranslations } from './types.js'
 
 /** Common translations for et. */
 export const et: Partial<CommonTranslations> = {
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'Overdue Tasks',
   'common.close': 'Sule',
   'common.continue': 'Jätka',
@@ -64,7 +64,7 @@ export const et: Partial<CommonTranslations> = {
   'forms.invalidFormat': 'Sobimatu vorming',
   'forms.invalidUrl': 'Kehtetu URL',
   'forms.invalidValue': 'Kehtetu väärtus',
-  'forms.max': 'Value must be at most {{max}}',
+  'forms.max': 'Väärtus peab olema maksimaalselt Maksimaalne',
   'forms.maxLength': 'Peab olema maksimaalselt {{maxLength}} tegelased',
   'forms.min': 'Väärtus peab olema vähemalt {{min}}',
   'forms.minLength': 'Peab olema vähemalt {{minLength}} tegelased',
@@ -291,7 +291,7 @@ export const et: Partial<CommonTranslations> = {
   'common.countWords': '{{count}} sõnad',
   'common.minutesMin': '{{minutes}} minuti',
   'common.photographOf': 'Foto kasutajast {{name}}',
-  'common.savedAt': 'Saved at {{time}}',
+  'common.savedAt': 'Salvestatud aadressil aeg',
   'common.weSentAPasswordResetLink': 'Saatsime parooli lähtestamise lingi aadressile {{email}} .',
   'auth.login.signInButton': 'Logi sisse',
   'auth.login.signInTitle': 'Tere tulemast tagasi',

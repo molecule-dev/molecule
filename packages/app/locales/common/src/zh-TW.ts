@@ -4,7 +4,7 @@ import type { CommonTranslations } from './types.js'
 export const zhTW: Partial<CommonTranslations> = {
   'common.getStarted': '開始',
   'common.justNow': '剛剛',
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': '逾期工作',
   'nav.settings': '設定',
   'nav.dashboard': '儀表板',

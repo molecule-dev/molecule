@@ -13,7 +13,7 @@ export const sv: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA-bidrag',
   'gradebook.col.posted': 'Postat',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'out of {{max}}',
+  'gradebook.gpa.outOf': 'ut ur max',
   'gradebook.gpa.trend.up': 'Trendar uppåt',
   'gradebook.gpa.trend.down': 'Trendar nedåt',
 }

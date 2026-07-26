@@ -2,7 +2,7 @@ import type { FooterTranslations } from './types.js'
 
 /** Footer translations for ga. */
 export const ga: Partial<FooterTranslations> = {
-  'footer.version': 'v{{version}}',
+  'footer.version': 'v leagan',
   'footer.privacyPolicy': 'Polasaí Príobháideachais',
   'footer.termsOfService': 'Téarmaí Seirbhíse',
   'footer.language': 'Teanga',

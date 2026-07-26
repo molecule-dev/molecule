@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for hr. */
 export const hr: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Kratko razmišljanje',
   'ide.chat.thinking': 'Razmišljanje',
   'ide.chat.verificationPassed': 'Provjere su prošle',
@@ -187,7 +187,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Dosegnuto je ograničenje petlje',
   'ide.chat.soundEvent.verification_result': 'Rezultat provjere',
   'ide.chat.soundEvent.preview_error': 'Pogreška pregleda',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Sintaza je završila s odgovorom',
   'ide.chat.soundEventDesc.error': 'Došlo je do pogreške tijekom odgovora',
   'ide.chat.soundEventDesc.tool_result': 'Poziv alata (čitanje datoteke, naredba itd.) je završen',
   'ide.chat.soundEventDesc.file_diff': 'Datoteka je kreirana ili izmijenjena',

@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for my. */
 export const my: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'ခဏလေး စဉ်းစားမိတယ်',
   'ide.chat.thinking': 'စဉ်းစားတွေးခေါ်ခြင်း',
   'ide.chat.verificationPassed': 'စစ်ဆေးမှုများ အောင်မြင်ပြီး',

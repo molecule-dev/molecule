@@ -4,7 +4,7 @@ import type { CommonTranslations } from './types.js'
 export const ne: Partial<CommonTranslations> = {
   'common.getStarted': 'सुरु गर्नुहोस्',
   'common.justNow': 'भर्खरै',
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'म्याद नाघेका कार्यहरू',
   'nav.settings': 'सेटिङहरू',
   'nav.dashboard': 'ड्यासबोर्ड',

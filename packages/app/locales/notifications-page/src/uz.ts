@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for uz. */
 export const uz: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Bildirishnomalar',
   'notificationsPage.markAllRead': "Mark {{count}} o'qilganidek",
   'notificationsPage.filterUnread': "O'qilmagan",

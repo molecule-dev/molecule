@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for mt. */
 export const mt: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Notifiki',
   'notificationsPage.markAllRead': 'Mark {{count}} kif moqri',
   'notificationsPage.filterUnread': 'Mhux moqri',

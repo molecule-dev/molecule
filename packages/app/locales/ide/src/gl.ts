@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for gl. */
 export const gl: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Pensou brevemente',
   'ide.chat.thinking': 'Pensando',
   'ide.chat.verificationPassed': 'Comprobacións aprobadas',
@@ -78,7 +78,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'Currículo',
   'ide.chat.autoFixPause': 'Pausa',
   'ide.chat.autoFixCancel': 'Cancelar',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'Molécula.dev v0.1.0',
   'ide.chat.selectModel': 'Seleccionar modelo',
   'ide.chat.currentBadge': 'actual',
   'ide.chat.proRequired': 'Profesional',
@@ -186,12 +186,12 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Alcanzouse o límite do bucle',
   'ide.chat.soundEvent.verification_result': 'Resultado da verificación',
   'ide.chat.soundEvent.preview_error': 'Erro de vista previa',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'A sintase rematou de responder',
   'ide.chat.soundEventDesc.error': 'Algo fallou durante unha resposta',
   'ide.chat.soundEventDesc.tool_result':
     'Completouse unha chamada de ferramenta (lectura de ficheiro, comando, etc.)',
   'ide.chat.soundEventDesc.file_diff': 'Creouse ou modificouse un ficheiro',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'A sintase suxire ficheiros para enviar',
   'ide.chat.soundEventDesc.mode': 'Cambiouse entre o modo de planificación e o modo de execución',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Alcanzar o límite máximo de iteracións da ferramenta',

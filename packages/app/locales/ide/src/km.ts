@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for km. */
 export const km: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'គិត​មួយ​ភ្លែត',
   'ide.chat.thinking': 'កំពុងគិត',
   'ide.chat.verificationPassed': 'ការត្រួតពិនិត្យបានឆ្លងកាត់',
@@ -36,7 +36,7 @@ export const km: Partial<IdeTranslations> = {
   'guest.reminder.logIn': 'ចូល',
   'ide.chat.soundsError': 'មិនអាចធ្វើបច្ចុប្បន្នភាពការកំណត់សំឡេងបានទេ។',
   'ide.chat.commitFailed': 'ការប្តេជ្ញាចិត្តបរាជ័យ',
-  'ide.chat.fileTooLarge': 'File is too large. Maximum size is {{maxSize}}MB.',
+  'ide.chat.fileTooLarge': 'ឯកសារធំពេក។ ទំហំអតិបរមាគឺ ទំហំអតិបរមា ម.ប.',
   'ide.chat.modelSet': 'គំរូជជែកត្រូវបានកំណត់ទៅ {{name}}',
   'ide.chat.compacting': 'ការបង្រួមការសន្ទនា...',
   'ide.chat.compacted': 'ការប្រើប្រាស់បរិបទមានកម្រិតទាប — មិនចាំបាច់បង្រួមទេ។',
@@ -187,7 +187,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'បានឈានដល់ដែនកំណត់រង្វិលជុំ',
   'ide.chat.soundEvent.verification_result': 'លទ្ធផលផ្ទៀងផ្ទាត់',
   'ide.chat.soundEvent.preview_error': 'កំហុសក្នុងការមើលជាមុន',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'ស៊ីនថេសបានបញ្ចប់ការឆ្លើយតប',
   'ide.chat.soundEventDesc.error': 'មានអ្វីមួយខុសប្រក្រតីអំឡុងពេលឆ្លើយតប',
   'ide.chat.soundEventDesc.tool_result': 'ការហៅឧបករណ៍ (អានឯកសារ ពាក្យបញ្ជា។ល។) បានបញ្ចប់',
   'ide.chat.soundEventDesc.file_diff': 'ឯកសារមួយត្រូវបានបង្កើត ឬកែប្រែ',

@@ -13,7 +13,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Tiếp tục',
   'upgrade.viewPlans': 'Nâng cấp',
   'upgrade.signUp': 'Đăng ký',
-  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
+  'ide.chat.modelUpgradeRequired': 'Đăng ký',
   'ide.chat.autoFixCountdown': 'Tiếp tục',
   'ide.chat.autoFixPause': 'Tạm dừng',
   'ide.chat.autoFixCancel': 'Hủy',

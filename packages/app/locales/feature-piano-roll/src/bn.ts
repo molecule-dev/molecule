@@ -6,6 +6,5 @@ export const bn: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.keys': 'পিয়ানোর চাবি',
   'pianoRoll.aria.grid': 'নোট গ্রিড',
   'pianoRoll.aria.resize': 'নোটের আকার পরিবর্তন করুন',
-  'pianoRoll.aria.note':
-    'Note {{pitch}} starting at beat {{startBeat}} for {{durationBeats}} beats',
+  'pianoRoll.aria.note': 'দ্রষ্টব্য পিচ বিটে শুরু হচ্ছে {{startBeat}} জন্য {{durationBeats}} বিটস',
 }

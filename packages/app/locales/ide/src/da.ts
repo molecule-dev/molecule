@@ -12,7 +12,7 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Fortsæt',
   'upgrade.viewPlans': 'Opgrader',
   'upgrade.signUp': 'Tilmeld dig',
-  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
+  'ide.chat.modelUpgradeRequired': 'Tilmeld dig',
   'ide.chat.autoFixCountdown': 'Genoptag',
   'ide.chat.autoFixPause': 'Sæt på pause',
   'ide.chat.autoFixCancel': 'Annuller',

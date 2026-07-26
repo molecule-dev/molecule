@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mn. */
 export const mn: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Товчхон бодов',
   'ide.chat.thinking': 'Сэтгэлгээ',
   'ide.chat.verificationPassed': 'Шалгалтууд давсан',
@@ -186,7 +186,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Давталтын хязгаарт хүрсэн',
   'ide.chat.soundEvent.verification_result': 'Баталгаажуулалтын үр дүн',
   'ide.chat.soundEvent.preview_error': 'Урьдчилан харах алдаа',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Синтез хариу өгч дууслаа',
   'ide.chat.soundEventDesc.error': 'Хариу өгөх явцад ямар нэгэн алдаа гарлаа',
   'ide.chat.soundEventDesc.tool_result':
     'Хэрэгслийн дуудлага (файл унших, команд өгөх гэх мэт) дууссан',

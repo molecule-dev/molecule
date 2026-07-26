@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for gl. */
 export const gl: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Notificacións',
   'notificationsPage.markAllRead': 'Marcos {{count}} como lido',
   'notificationsPage.filterUnread': 'Sen ler',

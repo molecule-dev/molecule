@@ -13,7 +13,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Συνέχεια',
   'upgrade.viewPlans': 'Αναβάθμιση',
   'upgrade.signUp': 'Εγγραφή',
-  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
+  'ide.chat.modelUpgradeRequired': 'Εγγραφή',
   'ide.chat.autoFixCountdown': 'Συνέχιση',
   'ide.chat.autoFixPause': 'Παύση',
   'ide.chat.autoFixCancel': 'Ακύρωση',
@@ -190,7 +190,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Συμπληρώθηκε το όριο του βρόχου',
   'ide.chat.soundEvent.verification_result': 'Αποτέλεσμα επαλήθευσης',
   'ide.chat.soundEvent.preview_error': 'Σφάλμα προεπισκόπησης',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Η συνθετάση ολοκλήρωσε την απόκριση',
   'ide.chat.soundEventDesc.error': 'Κάτι πήγε στραβά κατά τη διάρκεια μιας απάντησης',
   'ide.chat.soundEventDesc.tool_result':
     'Ολοκληρώθηκε μια κλήση εργαλείου (ανάγνωση αρχείου, εντολή κ.λπ.)',

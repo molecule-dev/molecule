@@ -13,7 +13,7 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Continuar',
   'upgrade.viewPlans': 'Mejorar',
   'upgrade.signUp': 'Registrarse',
-  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
+  'ide.chat.modelUpgradeRequired': 'Registrarse',
   'ide.chat.autoFixCountdown': 'Reanudar',
   'ide.chat.autoFixPause': 'Pausar',
   'ide.chat.autoFixCancel': 'Cancelar',
@@ -192,7 +192,7 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Se ha alcanzado el límite del bucle.',
   'ide.chat.soundEvent.verification_result': 'Resultado de la verificación',
   'ide.chat.soundEvent.preview_error': 'Error de vista previa',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'La sintasa terminó de responder.',
   'ide.chat.soundEventDesc.error': 'Algo salió mal durante una respuesta.',
   'ide.chat.soundEventDesc.tool_result':
     'Se ha completado una llamada a una herramienta (lectura de archivo, comando, etc.)',

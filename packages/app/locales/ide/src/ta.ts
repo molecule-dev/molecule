@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ta. */
 export const ta: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'சுருக்கமாக சிந்தித்தேன்',
   'ide.chat.thinking': 'சிந்தனை',
   'ide.chat.verificationPassed': 'காசோலைகள் நிறைவேற்றப்பட்டன',
@@ -78,7 +78,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'சுயவிவரம்',
   'ide.chat.autoFixPause': 'இடைநிறுத்தம்',
   'ide.chat.autoFixCancel': 'ரத்துசெய்',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'மூலக்கூறு.dev பதிப்பு 0.1.0',
   'ide.chat.selectModel': 'மாதிரியைத் தேர்ந்தெடுக்கவும்',
   'ide.chat.currentBadge': 'தற்போதைய',
   'ide.chat.proRequired': 'புரோ',
@@ -186,12 +186,13 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'வளைய வரம்பு எட்டப்பட்டது',
   'ide.chat.soundEvent.verification_result': 'சரிபார்ப்பு முடிவு',
   'ide.chat.soundEvent.preview_error': 'முன்னோட்டப் பிழை',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'சிந்தேஸ் பதிலளிப்பதை முடித்தது',
   'ide.chat.soundEventDesc.error': 'பதிலளிக்கும்போது ஏதோ தவறு ஏற்பட்டது',
   'ide.chat.soundEventDesc.tool_result':
     'ஒரு கருவி அழைப்பு (கோப்பு வாசிப்பு, கட்டளை போன்றவை) நிறைவடைந்தது.',
   'ide.chat.soundEventDesc.file_diff': 'ஒரு கோப்பு உருவாக்கப்பட்டது அல்லது மாற்றியமைக்கப்பட்டது',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    'சிந்தேஸ் கமிட் செய்வதற்கான கோப்புகளைப் பரிந்துரைக்கிறது.',
   'ide.chat.soundEventDesc.mode':
     'திட்டமிடல் முறைக்கும் செயல்படுத்துதல் முறைக்கும் இடையில் மாற்றப்பட்டது',
   'ide.chat.soundEventDesc.loop_limit_reached': 'அதிகபட்ச கருவி மறுசெயல் வரம்பை எட்டியது',

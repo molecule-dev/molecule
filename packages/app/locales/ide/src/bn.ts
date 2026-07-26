@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for bn. */
 export const bn: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'সংক্ষেপে ভেবেছিলাম',
   'ide.chat.thinking': 'চিন্তা',
   'ide.chat.verificationPassed': 'চেক পাস হয়েছে',
@@ -187,11 +187,11 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'লুপের সীমায় পৌঁছেছে',
   'ide.chat.soundEvent.verification_result': 'যাচাইয়ের ফলাফল',
   'ide.chat.soundEvent.preview_error': 'প্রিভিউ ত্রুটি',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'সিন্থেস প্রতিক্রিয়া জানানো শেষ করেছে',
   'ide.chat.soundEventDesc.error': 'একটি প্রতিক্রিয়ার সময় কিছু ভুল হয়েছে।',
   'ide.chat.soundEventDesc.tool_result': 'একটি টুল কল (ফাইল রিড, কমান্ড, ইত্যাদি) সম্পন্ন হয়েছে।',
   'ide.chat.soundEventDesc.file_diff': 'একটি ফাইল তৈরি বা পরিবর্তন করা হয়েছে',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'সিন্থেস কমিট করার জন্য ফাইলগুলির পরামর্শ দিচ্ছে',
   'ide.chat.soundEventDesc.mode': 'প্ল্যান মোড এবং এক্সিকিউট মোডের মধ্যে পরিবর্তন করা হয়েছে',
   'ide.chat.soundEventDesc.loop_limit_reached': 'টুল পুনরাবৃত্তির সর্বোচ্চ সীমায় পৌঁছেছেন',
   'ide.chat.soundEventDesc.verification_result': 'লিন্ট বা টাইপ-চেক চালানো শেষ হয়েছে।',

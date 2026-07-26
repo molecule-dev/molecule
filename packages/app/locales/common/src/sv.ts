@@ -404,7 +404,7 @@ export const sv: Partial<CommonTranslations> = {
   'forms.invalidFormat': 'Ogiltigt format',
   'forms.invalidUrl': 'Ogiltig URL',
   'forms.invalidValue': 'Ogiltigt värde',
-  'forms.max': 'Value must be at most {{max}}',
+  'forms.max': 'Värdet får vara högst max',
   'forms.maxLength': 'Måste vara högst {{maxLength}} karaktärer',
   'forms.min': 'Värdet måste vara minst {{min}}',
   'forms.minLength': 'Måste vara minst {{minLength}} karaktärer',

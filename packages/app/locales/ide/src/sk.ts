@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sk. */
 export const sk: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Krátko sa zamyslel',
   'ide.chat.thinking': 'Myslenie',
   'ide.chat.verificationPassed': 'Kontroly prešli',
@@ -186,7 +186,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Dosiahnutý limit slučiek',
   'ide.chat.soundEvent.verification_result': 'Výsledok overenia',
   'ide.chat.soundEvent.preview_error': 'Chyba ukážky',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Syntáza dokončila reakciu',
   'ide.chat.soundEventDesc.error': 'Počas odpovede sa niečo pokazilo',
   'ide.chat.soundEventDesc.tool_result':
     'Volanie nástroja (čítanie súboru, príkaz atď.) bolo dokončené',

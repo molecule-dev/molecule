@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for bg. */
 export const bg: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Помислих си накратко',
   'ide.chat.thinking': 'Мислене',
   'ide.chat.verificationPassed': 'Проверките са преминали',
@@ -189,7 +189,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Достигнат е лимитът на цикъла',
   'ide.chat.soundEvent.verification_result': 'Резултат от проверката',
   'ide.chat.soundEvent.preview_error': 'Грешка в предварителния преглед',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Синтазата приключи с отговора',
   'ide.chat.soundEventDesc.error': 'Нещо се обърка по време на отговора',
   'ide.chat.soundEventDesc.tool_result':
     'Извикване на инструмент (четене на файл, команда и др.) е завършено',

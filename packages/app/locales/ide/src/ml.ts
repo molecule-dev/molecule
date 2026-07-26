@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ml. */
 export const ml: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'ചുരുക്കത്തിൽ ചിന്തിച്ചു',
   'ide.chat.thinking': 'ചിന്തിക്കുന്നു',
   'ide.chat.verificationPassed': 'പരിശോധനകൾ പാസായി',
@@ -78,7 +78,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'പുനരാരംഭിക്കുക',
   'ide.chat.autoFixPause': 'താൽക്കാലികമായി നിർത്തുക',
   'ide.chat.autoFixCancel': 'റദ്ദാക്കുക',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'മോളിക്യൂൾ.ഡെവ് v0.1.0',
   'ide.chat.selectModel': 'മോഡൽ തിരഞ്ഞെടുക്കുക',
   'ide.chat.currentBadge': 'നിലവിലുള്ളത്',
   'ide.chat.proRequired': 'പ്രോ',
@@ -187,11 +187,12 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ലൂപ്പ് പരിധി എത്തി',
   'ide.chat.soundEvent.verification_result': 'പരിശോധനാ ഫലം',
   'ide.chat.soundEvent.preview_error': 'പ്രിവ്യൂ പിശക്',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'സിന്തസിസ് മറുപടി നൽകുന്നത് പൂർത്തിയാക്കി.',
   'ide.chat.soundEventDesc.error': 'മറുപടി നൽകുന്നതിനിടെ എന്തോ കുഴപ്പം സംഭവിച്ചു.',
   'ide.chat.soundEventDesc.tool_result': 'ഒരു ടൂൾ കോൾ (ഫയൽ റീഡ്, കമാൻഡ്, മുതലായവ) പൂർത്തിയായി.',
   'ide.chat.soundEventDesc.file_diff': 'ഒരു ഫയൽ സൃഷ്ടിച്ചു അല്ലെങ്കിൽ പരിഷ്കരിച്ചു.',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    'സിന്തസിസ് ഫയലുകൾ കമ്മിറ്റ് ചെയ്യാൻ നിർദ്ദേശിക്കുന്നു',
   'ide.chat.soundEventDesc.mode': 'പ്ലാൻ മോഡിലേക്കും എക്സിക്യൂട്ട് മോഡിലേക്കും മാറി',
   'ide.chat.soundEventDesc.loop_limit_reached': 'പരമാവധി ടൂൾ ആവർത്തന പരിധിയിലെത്തുക',
   'ide.chat.soundEventDesc.verification_result':

@@ -6,8 +6,8 @@ export const ar: UserPaymentTranslations = {
   'user.payment.subscriptionIdRequired': 'مطلوب subscriptionId.',
   'user.payment.receiptAndPlanRequired': 'مطلوب receipt و planKey.',
   'user.payment.verificationNotConfigured': 'لم يتم تكوين التحقق من الدفع لـ {{provider}}.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'خطة غير صالحة.',
+  'user.payment.verificationFailed': 'فشل التحقق من الاشتراك.',
   'user.payment.unknownPlan': 'خطة غير معروفة.',
   'user.payment.invalidWebhookEvent': 'حدث خطاف غير صالح.',
 }

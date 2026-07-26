@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mt. */
 export const mt: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Ħsieb fil-qosor',
   'ide.chat.thinking': 'Ħsieb',
   'ide.chat.verificationPassed': 'Verifiki għaddew',
@@ -186,7 +186,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Intlaħaq il-limitu tal-linja',
   'ide.chat.soundEvent.verification_result': 'Riżultat tal-verifika',
   'ide.chat.soundEvent.preview_error': 'Żball fil-previżjoni',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Is-sintasi spiċċat tirrispondi',
   'ide.chat.soundEventDesc.error': 'Xi ħaġa marret ħażin waqt rispons',
   'ide.chat.soundEventDesc.tool_result': "Sejħa ta' għodda (qari ta' fajl, kmand, eċċ.) kompluta",
   'ide.chat.soundEventDesc.file_diff': 'Fajl inħoloq jew ġie modifikat',

@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for hy. */
 export const hy: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Կարճ մտածեց',
   'ide.chat.thinking': 'Մտածում',
   'ide.chat.verificationPassed': 'Հանձնված ստուգումներ',
@@ -187,11 +187,11 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Լուծման սահմանաչափը լրացել է',
   'ide.chat.soundEvent.verification_result': 'Հաստատման արդյունք',
   'ide.chat.soundEvent.preview_error': 'Նախադիտման սխալ',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Սինթազը ավարտեց արձագանքը',
   'ide.chat.soundEventDesc.error': 'Պատասխանի ժամանակ ինչ-որ բան սխալ է տեղի ունեցել',
   'ide.chat.soundEventDesc.tool_result': 'Գործիքի կանչը (ֆայլի ընթերցում, հրաման և այլն) ավարտվեց',
   'ide.chat.soundEventDesc.file_diff': 'Ֆայլը ստեղծվել կամ փոփոխվել է',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'Սինթազը առաջարկում է ֆայլերը հաստատման համար',
   'ide.chat.soundEventDesc.mode': 'Անցում պլանավորման և կատարման ռեժիմների միջև',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Հասեք գործիքի առավելագույն կրկնությունների սահմանաչափին',

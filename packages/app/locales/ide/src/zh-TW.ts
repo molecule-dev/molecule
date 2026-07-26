@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for zh-TW. */
 export const zhTW: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': '簡要思考',
   'ide.chat.thinking': '思維',
   'ide.chat.verificationPassed': '檢查通過',
@@ -183,7 +183,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': '已達到循環限制',
   'ide.chat.soundEvent.verification_result': '驗證結果',
   'ide.chat.soundEvent.preview_error': '預覽錯誤',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': '合成酶停止回應',
   'ide.chat.soundEventDesc.error': '響應過程中出現錯誤',
   'ide.chat.soundEventDesc.tool_result': '工具呼叫（檔案讀取、命令等）已完成',
   'ide.chat.soundEventDesc.file_diff': '文件已建立或修改',

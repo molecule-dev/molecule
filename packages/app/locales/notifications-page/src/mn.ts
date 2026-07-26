@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for mn. */
 export const mn: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Мэдэгдэл',
   'notificationsPage.markAllRead': 'Марк {{count}} уншсан байдлаар',
   'notificationsPage.filterUnread': 'Уншаагүй',

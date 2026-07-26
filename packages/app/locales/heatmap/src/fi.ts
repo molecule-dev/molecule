@@ -5,7 +5,7 @@ export const fi: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': 'Su',
   'heatmap.weekday.sat': 'La',
   'heatmap.aria.grid': 'Aktiivisuuslämpökartta',
-  'heatmap.cell.tooltip': '{{date}}: {{value}}',
+  'heatmap.cell.tooltip': 'päivämäärä : {{arvo}}',
   'heatmap.month.jan': 'tammikuu',
   'heatmap.month.feb': 'helmikuu',
   'heatmap.month.mar': 'Maaliskuu',

@@ -4,7 +4,7 @@ import type { CommonTranslations } from './types.js'
 export const ka: Partial<CommonTranslations> = {
   'common.getStarted': 'დაწყება',
   'common.justNow': 'ახლახან',
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'ვადაგადაცილებული დავალებები',
   'nav.settings': 'პარამეტრები',
   'nav.dashboard': 'დეშბორდი',

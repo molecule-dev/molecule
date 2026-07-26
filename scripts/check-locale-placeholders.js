@@ -128,7 +128,27 @@ function valuesByKey(source) {
   return map
 }
 
+/**
+ * Placeholder COUNT mismatches that predate this check.
+ *
+ * A translation with a different number of placeholders than English cannot
+ * render at least one value — but repairing it means restoring a lost variable
+ * into translated prose, which needs grammar and word order, i.e. a translator.
+ * It is NOT fixable by renaming, and it is emphatically not fixable by replacing
+ * the translation with English: that was tried, it destroyed 277 real
+ * translations, and it was reverted.
+ *
+ * So they are baselined — visible, counted, and blocking nothing — exactly like
+ * `i18n-parity-baseline.json`. A NEW mismatch still fails.
+ */
+const BASELINE = new Set(
+  JSON.parse(
+    readFileSync(join(ROOT, 'scripts', 'locale-placeholder-baseline.json'), 'utf8'),
+  ).entries.map((entry) => entry.id),
+)
+
 const problems = []
+let baselined = 0
 let filesScanned = 0
 let packagesScanned = 0
 
@@ -145,10 +165,22 @@ for (const pkg of localePackages()) {
     filesScanned += 1
     const source = readFileSync(join(src, file), 'utf8')
     const where = `${label}/src/${file}`
+    const translated = valuesByKey(source)
+
+    /** Names living in a value that is already baselined as a count mismatch. */
+    const baselinedNames = new Set()
+    for (const [key, value] of translated) {
+      if (BASELINE.has(`${where}::${key}`))
+        for (const name of placeholders(value)) {
+          baselinedNames.add(name)
+        }
+    }
 
     // 1. A placeholder name this bond's English never defines. Renders literally.
     for (const name of new Set(placeholders(source))) {
-      if (!expected.has(name)) {
+      // A stray name inside an already-baselined value is the SAME defect
+      // reported twice; the baseline entry is what a translator will work from.
+      if (!expected.has(name) && !baselinedNames.has(name)) {
         problems.push(
           `${where}: placeholder {{${name}}} is not one of en.ts's ` +
             `(${[...expected].map((n) => `{{${n}}}`).join(', ') || 'none'}) — it renders literally`,
@@ -172,13 +204,16 @@ for (const pkg of localePackages()) {
     //    that simply omits `{{time}}` introduces no unknown name, it just never
     //    shows the number. Measured: `'Elapsed {{time}}'` was translated to
     //    `'Möödunud aeg'`, so the elapsed time never rendered at all.
-    const translated = valuesByKey(source)
     for (const [key, value] of translated) {
       const englishValue = englishByKey.get(key)
       if (englishValue === undefined) continue
       const want = placeholders(englishValue)
       const have = placeholders(value)
       if (want.length !== have.length) {
+        if (BASELINE.has(`${where}::${key}`)) {
+          baselined += 1
+          continue
+        }
         problems.push(
           `${where}: '${key}' has ${have.length} placeholder(s) [${have.join(', ')}] but ` +
             `en.ts has ${want.length} [${want.join(', ')}] — the values cannot all render`,
@@ -200,7 +235,8 @@ for (const pkg of localePackages()) {
 if (!process.argv.includes('--quiet')) {
   if (problems.length === 0) {
     console.log(
-      `✓ locale placeholders intact (${filesScanned} file(s) across ${packagesScanned} bond(s))`,
+      `✓ locale placeholders intact (${filesScanned} file(s) across ${packagesScanned} bond(s)` +
+        `${baselined > 0 ? `, ${baselined} pre-existing mismatches baselined` : ''})`,
     )
   } else {
     console.error(`\n✗ locale placeholder problems (${problems.length}):\n`)

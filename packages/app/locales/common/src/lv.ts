@@ -2,7 +2,7 @@ import type { CommonTranslations } from './types.js'
 
 /** Common translations for lv. */
 export const lv: Partial<CommonTranslations> = {
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'Overdue Tasks',
   'common.close': 'Aizvērt',
   'common.continue': 'Turpināt',
@@ -291,7 +291,7 @@ export const lv: Partial<CommonTranslations> = {
   'common.countWords': '{{count}} vārdi',
   'common.minutesMin': '{{minutes}} min',
   'common.photographOf': 'Fotogrāfija ar {{name}}',
-  'common.savedAt': 'Saved at {{time}}',
+  'common.savedAt': 'Saglabāts plkst. laiks',
   'common.weSentAPasswordResetLink': 'Mēs nosūtījām paroles atiestatīšanas saiti uz {{email}} .',
   'auth.login.signInButton': 'Pierakstīties',
   'auth.login.signInTitle': 'Laipni lūgti atpakaļ',

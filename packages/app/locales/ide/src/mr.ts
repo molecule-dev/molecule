@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mr. */
 export const mr: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'थोडक्यात विचार केला',
   'ide.chat.thinking': 'विचार करणे',
   'ide.chat.verificationPassed': 'तपासणी यशस्वी झाली.',
@@ -78,7 +78,7 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'सारांश',
   'ide.chat.autoFixPause': 'थांबा',
   'ide.chat.autoFixCancel': 'रद्द करा',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'मॉलिक्यूल.देव v0.1.0',
   'ide.chat.selectModel': 'मॉडेल निवडा',
   'ide.chat.currentBadge': 'वर्तमान',
   'ide.chat.proRequired': 'प्रो',
@@ -186,11 +186,11 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'लूपची मर्यादा गाठली.',
   'ide.chat.soundEvent.verification_result': 'पडताळणी निकाल',
   'ide.chat.soundEvent.preview_error': 'पूर्वावलोकन त्रुटी',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'सिंथेसने प्रतिसाद देणे पूर्ण केले.',
   'ide.chat.soundEventDesc.error': 'प्रतिसाद देताना काहीतरी चूक झाली.',
   'ide.chat.soundEventDesc.tool_result': 'एक टूल कॉल (फाइल वाचन, कमांड, इत्यादी) पूर्ण झाला.',
   'ide.chat.soundEventDesc.file_diff': 'एक फाईल तयार केली किंवा सुधारित केली गेली',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'सिंथेस कमिट करण्यासाठी फाइल्स सुचवत आहे',
   'ide.chat.soundEventDesc.mode': 'प्लॅन मोड आणि एक्झिक्युट मोडमध्ये स्विच केले.',
   'ide.chat.soundEventDesc.loop_limit_reached': 'टूलच्या पुनरावृत्तीची कमाल मर्यादा गाठली.',
   'ide.chat.soundEventDesc.verification_result': 'लिंट किंवा टाईप-चेक चालून पूर्ण झाले.',

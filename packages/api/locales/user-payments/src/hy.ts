@@ -7,8 +7,8 @@ export const hy: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt ev planKey pahanjvum en.',
   'user.payment.verificationNotConfigured':
     'Vcharvogi stugumny kargavorvac che {{provider}}-i hamar.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Anvaverakan plan.',
+  'user.payment.verificationFailed': 'Bajanarordutyuny stugely dzakhogvec.',
   'user.payment.unknownPlan': 'Anhayt plan.',
   'user.payment.invalidWebhookEvent': 'Anvaverakan webhook iradarcutyun.',
 }

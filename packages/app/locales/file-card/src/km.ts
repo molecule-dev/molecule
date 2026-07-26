@@ -12,7 +12,7 @@ export const km: Partial<FileCardTranslations> = {
   'file-card.kind.folder': 'ថតឯកសារ',
   'file-card.kind.other': 'ឯកសារ',
   'file-card.aria.root': '{{name}} , {{kind}}',
-  'file-card.aria.size': 'Size {{size}}',
+  'file-card.aria.size': 'ទំហំ ទំហំ',
   'file-card.aria.modified': 'បានកែប្រែ {{when}}',
   'file-card.modified.minute-one': '១ នាទីមុន',
   'file-card.modified.minute-other': '{{count}} នាទីមុន',

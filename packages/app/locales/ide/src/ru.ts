@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ru. */
 export const ru: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Кратко подумал',
   'ide.chat.thinking': 'Мышление',
   'ide.chat.verificationPassed': 'Проверки пройдены',
@@ -186,7 +186,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Достигнут лимит циклов',
   'ide.chat.soundEvent.verification_result': 'Результат проверки',
   'ide.chat.soundEvent.preview_error': 'Ошибка предварительного просмотра',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Синтезаза завершила ответ',
   'ide.chat.soundEventDesc.error': 'В процессе ответа произошла ошибка.',
   'ide.chat.soundEventDesc.tool_result':
     'Вызов инструмента (чтение файла, команда и т. д.) завершен.',

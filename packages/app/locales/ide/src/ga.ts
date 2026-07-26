@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ga. */
 export const ga: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Smaoinigh go hachomair',
   'ide.chat.thinking': 'Ag smaoineamh',
   'ide.chat.verificationPassed': 'Seiceálacha rite',

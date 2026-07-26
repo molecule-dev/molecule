@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for am. */
 export const am: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'ማሳወቂያዎች',
   'notificationsPage.markAllRead': 'ማርክ {{count}} እንደተነበበው',
   'notificationsPage.filterUnread': 'ያልተነበበ',

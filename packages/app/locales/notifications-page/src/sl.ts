@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for sl. */
 export const sl: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Obvestila',
   'notificationsPage.markAllRead': 'Marko {{count}} kot prebrano',
   'notificationsPage.filterUnread': 'Neprebrano',

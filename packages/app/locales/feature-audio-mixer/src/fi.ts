@@ -6,7 +6,7 @@ export const fi: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'Äänimikserikonsoli',
   'audioMixer.aria.fader': '{{name}} häivytin',
   'audioMixer.aria.pan': '{{name}} panoroida',
-  'audioMixer.aria.send': '{{channel}} send to {{send}}',
+  'audioMixer.aria.send': '{{kanava}} lähetä Lähetä',
   'audioMixer.button.mute': 'Mykistä',
   'audioMixer.button.solo': 'Yksin',
   'audioMixer.master': 'Hallita',

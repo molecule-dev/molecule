@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for gu. */
 export const gu: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'ટૂંકમાં વિચાર્યું',
   'ide.chat.thinking': 'વિચારવું',
   'ide.chat.verificationPassed': 'ચેક પાસ થયા',
@@ -77,7 +77,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'ફરી શરૂ કરો',
   'ide.chat.autoFixPause': 'થોભો',
   'ide.chat.autoFixCancel': 'રદ કરો',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'મોલેક્યુલ.ડેવ v0.1.0',
   'ide.chat.selectModel': 'મોડેલ પસંદ કરો',
   'ide.chat.currentBadge': 'વર્તમાન',
   'ide.chat.proRequired': 'પ્રો',
@@ -185,12 +185,12 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'લૂપ મર્યાદા પહોંચી ગઈ',
   'ide.chat.soundEvent.verification_result': 'ચકાસણી પરિણામ',
   'ide.chat.soundEvent.preview_error': 'પૂર્વાવલોકન ભૂલ',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'સિન્થેસે જવાબ આપવાનું પૂર્ણ કર્યું',
   'ide.chat.soundEventDesc.error': 'પ્રતિભાવ દરમિયાન કંઈક ખોટું થયું.',
   'ide.chat.soundEventDesc.tool_result': 'ટૂલ કોલ (ફાઇલ રીડ, કમાન્ડ, વગેરે) પૂર્ણ થયો.',
   'ide.chat.soundEventDesc.file_diff':
     'ફાઇલ બનાવવામાં આવી હતી અથવા તેમાં ફેરફાર કરવામાં આવ્યો હતો.',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'સિન્થેઝ કમિટ કરવા માટે ફાઇલો સૂચવી રહ્યું છે',
   'ide.chat.soundEventDesc.mode': 'પ્લાન મોડ અને એક્ઝિક્યુટ મોડ વચ્ચે સ્વિચ કર્યું',
   'ide.chat.soundEventDesc.loop_limit_reached': 'મહત્તમ ટૂલ પુનરાવર્તન મર્યાદા સુધી પહોંચો',
   'ide.chat.soundEventDesc.verification_result': 'લિન્ટ અથવા ટાઇપ-ચેક પૂર્ણ થયું',

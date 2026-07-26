@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ur. */
 export const ur: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'مختصراً سوچا۔',
   'ide.chat.thinking': 'سوچنا',
   'ide.chat.verificationPassed': 'چیک پاس ہو گئے۔',
@@ -186,7 +186,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'لوپ کی حد تک پہنچ گئی۔',
   'ide.chat.soundEvent.verification_result': 'تصدیقی نتیجہ',
   'ide.chat.soundEvent.preview_error': 'پیش نظارہ کی خرابی۔',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'سنتھیس نے جواب دینا ختم کیا۔',
   'ide.chat.soundEventDesc.error': 'جواب کے دوران کچھ غلط ہو گیا۔',
   'ide.chat.soundEventDesc.tool_result': 'ایک ٹول کال (فائل ریڈ، کمانڈ، وغیرہ) مکمل ہو گئی۔',
   'ide.chat.soundEventDesc.file_diff': 'ایک فائل بنائی گئی تھی یا اس میں ترمیم کی گئی تھی۔',

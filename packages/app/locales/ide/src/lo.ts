@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for lo. */
 export const lo: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'ຄິດສັ້ນໆ',
   'ide.chat.thinking': 'ກຳລັງຄິດຢູ່',
   'ide.chat.verificationPassed': 'ການກວດສອບຜ່ານແລ້ວ',
@@ -36,7 +36,7 @@ export const lo: Partial<IdeTranslations> = {
   'guest.reminder.logIn': 'ເຂົ້າສູ່ລະບົບ',
   'ide.chat.soundsError': 'ອັບເດດການຕັ້ງຄ່າສຽງບໍ່ສຳເລັດ.',
   'ide.chat.commitFailed': 'ການສົ່ງຄຳຮ້ອງຂໍລົ້ມເຫຼວ',
-  'ide.chat.fileTooLarge': 'File is too large. Maximum size is {{maxSize}}MB.',
+  'ide.chat.fileTooLarge': 'ໄຟລ໌ໃຫຍ່ເກີນໄປ. ຂະໜາດສູງສຸດແມ່ນ ຂະໜາດສູງສຸດ ມບ.',
   'ide.chat.modelSet': 'ຮູບແບບການສົນທະນາຖືກຕັ້ງຄ່າເປັນ {{name}}',
   'ide.chat.compacting': 'ກຳລັງຫຍໍ້ການສົນທະນາ...',
   'ide.chat.compacted': 'ການໃຊ້ບໍລິບົດແມ່ນຕໍ່າ - ບໍ່ຈຳເປັນຕ້ອງມີການບີບອັດ.',

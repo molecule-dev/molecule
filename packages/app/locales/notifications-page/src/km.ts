@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for km. */
 export const km: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'ការជូនដំណឹង',
   'notificationsPage.markAllRead': 'ម៉ាក {{count}} ដូចបានអាន',
   'notificationsPage.filterUnread': 'មិនទាន់អាន',

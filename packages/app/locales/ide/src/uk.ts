@@ -13,7 +13,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Продовжити',
   'upgrade.viewPlans': 'Оновити',
   'upgrade.signUp': 'Зареєструватися',
-  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
+  'ide.chat.modelUpgradeRequired': 'Зареєструватися',
   'ide.chat.autoFixCountdown': 'Відновити',
   'ide.chat.autoFixPause': 'Пауза',
   'ide.chat.autoFixCancel': 'Скасувати',
@@ -190,7 +190,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Досягнуто ліміту циклів',
   'ide.chat.soundEvent.verification_result': 'Результат перевірки',
   'ide.chat.soundEvent.preview_error': 'Помилка попереднього перегляду',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Синтаза завершила відповідь',
   'ide.chat.soundEventDesc.error': 'Щось пішло не так під час відповіді',
   'ide.chat.soundEventDesc.tool_result':
     'Виклик інструменту (читання файлу, команда тощо) завершено',

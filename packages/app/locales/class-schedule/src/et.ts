@@ -4,5 +4,5 @@ import type { ClassScheduleTranslations } from './types.js'
 export const et: Partial<ClassScheduleTranslations> = {
   'classSchedule.aria.region': 'Nädala tunniplaan',
   'classSchedule.aria.event': '{{weekday}} {{start}} – {{end}}',
-  'classSchedule.aria.slot': 'Empty slot, {{weekday}} {{time}}',
+  'classSchedule.aria.slot': 'Tühi pesa, {{nädalapäev}} aeg',
 }

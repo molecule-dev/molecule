@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for gu. */
 export const gu: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'સૂચનાઓ',
   'notificationsPage.markAllRead': 'માર્ક {{count}} વાંચ્યા મુજબ',
   'notificationsPage.filterUnread': 'વાંચ્યા વગરનું',

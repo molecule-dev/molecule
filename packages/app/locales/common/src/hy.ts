@@ -4,7 +4,7 @@ import type { CommonTranslations } from './types.js'
 export const hy: Partial<CommonTranslations> = {
   'common.getStarted': 'Սկսել',
   'common.justNow': 'հենց հիմա',
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'Ուշացած առաջադրանքներ',
   'nav.settings': 'Կարգավորումներ',
   'nav.dashboard': 'Կառավարման վահանակ',

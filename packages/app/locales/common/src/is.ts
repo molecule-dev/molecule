@@ -2,7 +2,7 @@ import type { CommonTranslations } from './types.js'
 
 /** Common translations for is. */
 export const is: Partial<CommonTranslations> = {
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'Overdue Tasks',
   'common.close': 'Loka',
   'common.continue': 'Halda áfram',

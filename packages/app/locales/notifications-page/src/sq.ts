@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for sq. */
 export const sq: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Njoftime',
   'notificationsPage.markAllRead': 'Mark {{count}} siç lexohet',
   'notificationsPage.filterUnread': 'I palexuar',

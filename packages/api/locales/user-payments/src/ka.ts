@@ -7,8 +7,8 @@ export const ka: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'qvitari da planKey sachiroa.',
   'user.payment.verificationNotConfigured':
     'Gadakhdis veripikacia ar aris konphiguratsirebulia {{provider}}-istvis.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Aratsvalidi gegma.',
+  'user.payment.verificationFailed': 'Gamotseris veripikacia ver mokherkhda.',
   'user.payment.unknownPlan': 'Uchnobi gegma.',
   'user.payment.invalidWebhookEvent': 'Aratsvalidi webhook movlena.',
 }

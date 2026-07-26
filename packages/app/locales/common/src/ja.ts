@@ -404,7 +404,7 @@ export const ja: Partial<CommonTranslations> = {
   'forms.invalidFormat': '無効な形式',
   'forms.invalidUrl': '無効なURL',
   'forms.invalidValue': '無効な値',
-  'forms.max': 'Value must be at most {{max}}',
+  'forms.max': '価値は最大で最大',
   'forms.maxLength': '最大で{{maxLength}}キャラクター',
   'forms.min': '値は少なくとも{{min}}',
   'forms.minLength': '少なくとも{{minLength}}キャラクター',

@@ -7,8 +7,8 @@ export const my: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt နှင့် planKey လိုအပ်ပါသည်။',
   'user.payment.verificationNotConfigured':
     '{{provider}} အတွက် ငွေပေးချေမှု အတည်ပြုခြင်း ပြင်ဆင်မထားပါ။',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'အစီအစဉ် မမှန်ကန်ပါ။',
+  'user.payment.verificationFailed': 'စာရင်းသွင်းမှု အတည်ပြုရန် မအောင်မြင်ပါ။',
   'user.payment.unknownPlan': 'မသိသော အစီအစဉ်။',
   'user.payment.invalidWebhookEvent': 'Webhook event မမှန်ကန်ပါ။',
 }

@@ -12,7 +12,7 @@ export const et: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA panus',
   'gradebook.col.posted': 'Postitatud',
   'gradebook.gpa.title': 'Keskmine hindepunkt',
-  'gradebook.gpa.outOf': 'out of {{max}}',
+  'gradebook.gpa.outOf': 'välja Maksimaalne',
   'gradebook.gpa.trend.up': 'Tõusev trend',
   'gradebook.gpa.trend.down': 'Langev trend',
   'gradebook.gpa.trend.flat': 'Stabiilne',

@@ -4,7 +4,7 @@ import type { CommonTranslations } from './types.js'
 export const ru: Partial<CommonTranslations> = {
   'common.getStarted': 'Начать',
   'common.justNow': 'только что',
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'Просроченные задачи',
   'nav.settings': 'Настройки',
   'nav.dashboard': 'Панель',

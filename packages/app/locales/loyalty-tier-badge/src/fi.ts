@@ -2,6 +2,6 @@ import type { LoyaltyTierBadgeTranslations } from './types.js'
 
 /** LoyaltyTierBadge translations for fi. */
 export const fi: Partial<LoyaltyTierBadgeTranslations> = {
-  'loyaltyTierBadge.group': '{{tier}} tier',
+  'loyaltyTierBadge.group': 'taso taso',
   'loyaltyTierBadge.progress': 'Edistyminen {{next}}',
 }

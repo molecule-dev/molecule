@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for ga. */
 export const ga: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Fógraí',
   'notificationsPage.markAllRead': 'Marc {{count}} mar a léitear',
   'notificationsPage.filterUnread': 'Gan léamh',

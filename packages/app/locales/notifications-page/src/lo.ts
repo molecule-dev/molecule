@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for lo. */
 export const lo: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'ການແຈ້ງເຕືອນ',
   'notificationsPage.markAllRead': 'ໝາຍ {{count}} ຕາມທີ່ອ່ານ',
   'notificationsPage.filterUnread': 'ຍັງບໍ່ໄດ້ອ່ານ',

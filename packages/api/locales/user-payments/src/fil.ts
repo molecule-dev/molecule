@@ -7,8 +7,8 @@ export const fil: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'Kailangan ang receipt at planKey.',
   'user.payment.verificationNotConfigured':
     'Hindi naka-configure ang payment verification para sa {{provider}}.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Hindi valid na plan.',
+  'user.payment.verificationFailed': 'Nabigo ang pag-verify ng subscription.',
   'user.payment.unknownPlan': 'Hindi kilalang plan.',
   'user.payment.invalidWebhookEvent': 'Hindi valid na webhook event.',
 }

@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sr. */
 export const sr: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Укратко размислио',
   'ide.chat.thinking': 'Размишљање',
   'ide.chat.verificationPassed': 'Провере су прошле',
@@ -187,11 +187,11 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Достигнуто је ограничење петљи',
   'ide.chat.soundEvent.verification_result': 'Резултат верификације',
   'ide.chat.soundEvent.preview_error': 'Грешка у прегледу',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Синтаза је завршила са одговором',
   'ide.chat.soundEventDesc.error': 'Дошло је до грешке током одговора',
   'ide.chat.soundEventDesc.tool_result': 'Позив алата (читање датотеке, команда итд.) је завршен',
   'ide.chat.soundEventDesc.file_diff': 'Датотека је креирана или измењена',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'Синтаза предлаже датотеке за коммитовање (commit)',
   'ide.chat.soundEventDesc.mode': 'Пребацивање између режима планирања и режима извршавања',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Достигнут је максималан број итерација алата',
   'ide.chat.soundEventDesc.verification_result': 'Провера линт или типа је завршена',

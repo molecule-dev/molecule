@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for zh-TW. */
 export const zhTW: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': '通知',
   'notificationsPage.markAllRead': '標記{{count}}已讀',
   'notificationsPage.filterUnread': '未讀',

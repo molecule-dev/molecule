@@ -7,8 +7,8 @@ export const ca: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'Es requereixen receipt i planKey.',
   'user.payment.verificationNotConfigured':
     'La verificació de pagament no està configurada per a {{provider}}.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Pla no vàlid.',
+  'user.payment.verificationFailed': "No s'ha pogut verificar la subscripció.",
   'user.payment.unknownPlan': 'Pla desconegut.',
   'user.payment.invalidWebhookEvent': 'Esdeveniment de webhook no vàlid.',
 }

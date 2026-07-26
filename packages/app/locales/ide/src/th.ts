@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for th. */
 export const th: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'คิดคร่าวๆ',
   'ide.chat.thinking': 'การคิด',
   'ide.chat.verificationPassed': 'การตรวจสอบผ่านแล้ว',
@@ -186,7 +186,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ถึงขีดจำกัดของลูปแล้ว',
   'ide.chat.soundEvent.verification_result': 'ผลการตรวจสอบ',
   'ide.chat.soundEvent.preview_error': 'ข้อผิดพลาดในการแสดงตัวอย่าง',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'เอนไซม์ซินเทสตอบสนองเสร็จสิ้นแล้ว',
   'ide.chat.soundEventDesc.error': 'เกิดข้อผิดพลาดบางอย่างระหว่างการตอบสนอง',
   'ide.chat.soundEventDesc.tool_result':
     'การเรียกใช้เครื่องมือ (อ่านไฟล์, คำสั่ง ฯลฯ) เสร็จสมบูรณ์แล้ว',

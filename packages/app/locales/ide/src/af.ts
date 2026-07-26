@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for af. */
 export const af: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Kortliks gedink',
   'ide.chat.thinking': 'Denke',
   'ide.chat.verificationPassed': 'Tjeks geslaag',
@@ -78,7 +78,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'CV',
   'ide.chat.autoFixPause': 'Pouseer',
   'ide.chat.autoFixCancel': 'Kanselleer',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'Molekule.dev v0.1.0',
   'ide.chat.selectModel': 'Kies model',
   'ide.chat.currentBadge': 'huidige',
   'ide.chat.proRequired': 'Pro',

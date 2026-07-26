@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const lt: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Vaizdo įrašo laiko juosta',
   'videoTimeline.aria.ruler': 'Laiko valdovas',
-  'videoTimeline.aria.playhead': 'Playhead at {{time}}s',
+  'videoTimeline.aria.playhead': 'Žaislo galvutė ties laikas s',
   'videoTimeline.aria.zoom': 'Laiko juostos priartinimas',
   'videoTimeline.aria.mode': 'Redagavimo režimas',
   'videoTimeline.zoom.in': 'Priartinti',

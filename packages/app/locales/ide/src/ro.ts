@@ -13,7 +13,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Continuați',
   'upgrade.viewPlans': 'Actualizați',
   'upgrade.signUp': 'Înregistrați-vă',
-  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
+  'ide.chat.modelUpgradeRequired': 'Înregistrați-vă',
   'ide.chat.autoFixCountdown': 'Reia',
   'ide.chat.autoFixPause': 'Pauză',
   'ide.chat.autoFixCancel': 'Anulați',
@@ -191,7 +191,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Limita de buclă a fost atinsă',
   'ide.chat.soundEvent.verification_result': 'Rezultatul verificării',
   'ide.chat.soundEvent.preview_error': 'Eroare de previzualizare',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Sintaza a terminat de răspuns',
   'ide.chat.soundEventDesc.error': 'Ceva nu a mers bine în timpul unui răspuns',
   'ide.chat.soundEventDesc.tool_result':
     'Un apel de instrument (citire fișier, comandă etc.) s-a finalizat',

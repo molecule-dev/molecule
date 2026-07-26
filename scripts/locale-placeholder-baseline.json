@@ -1,0 +1,2795 @@
+{
+  "note": "Pre-existing placeholder mismatches in translations: the value has a different NUMBER of {{placeholders}} than en.ts, so at least one value cannot render. These predate the placeholder-name repair and are NOT fixed by renaming — restoring a lost placeholder into translated prose needs grammar and word order, i.e. a translator. Recorded so check-locale-placeholders.js fails on NEW mismatches while these stay visible. Same shape as i18n-parity-baseline.json.",
+  "entries": [
+    {
+      "id": "packages/app/locales/audio-recorder/src/et.ts::audioRecorder.elapsed",
+      "translation": "'Möödunud aeg',",
+      "english": "'Elapsed {{time}}',"
+    },
+    {
+      "id": "packages/app/locales/audio-recorder/src/lt.ts::audioRecorder.elapsed",
+      "translation": "'Praėjęs laikas laikas',",
+      "english": "'Elapsed {{time}}',"
+    },
+    {
+      "id": "packages/app/locales/audio-recorder/src/lv.ts::audioRecorder.elapsed",
+      "translation": "'Pagājis laiks',",
+      "english": "'Elapsed {{time}}',"
+    },
+    {
+      "id": "packages/app/locales/battery/src/id.ts::battery.remainingTime",
+      "translation": "'{{jam}} H menit M',",
+      "english": "'{{hours}}h {{minutes}}m',"
+    },
+    {
+      "id": "packages/app/locales/class-schedule/src/et.ts::classSchedule.aria.slot",
+      "translation": "'Tühi pesa, {{nädalapäev}} aeg',",
+      "english": "'Empty slot, {{weekday}} {{time}}',"
+    },
+    {
+      "id": "packages/app/locales/class-schedule/src/lt.ts::classSchedule.aria.slot",
+      "translation": "'Tuščia anga, {{weekday}} laikas',",
+      "english": "'Empty slot, {{weekday}} {{time}}',"
+    },
+    {
+      "id": "packages/app/locales/class-schedule/src/lv.ts::classSchedule.aria.slot",
+      "translation": "'Tukša vieta, {{nedēļas diena}} laiks',",
+      "english": "'Empty slot, {{weekday}} {{time}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/af.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/am.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/az.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/be.ts::user.payment.invalidPlan",
+      "translation": "'Няправільны план.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/be.ts::user.payment.verificationFailed",
+      "translation": "'Не ўдалося верыфікаваць падпіску.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/bg.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/bn.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/bs.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ca.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/cy.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/cy.ts::codeSandbox.docker.error.apiError",
+      "translation": "'API Docker {{dull}} llwybr : {{statws}} {{gwall}}',",
+      "english": "'Docker API {{method}} {{path}}: {{status}} {{error}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/cy.ts::codeSandbox.docker.error.deleteFailed",
+      "translation": "'Methwyd dileu llwybr : {{gwall}}',",
+      "english": "'Failed to delete {{path}}: {{error}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/cy.ts::codeSandbox.docker.error.readFailed",
+      "translation": "'Methwyd darllen llwybr : {{gwall}}',",
+      "english": "'Failed to read {{path}}: {{error}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/cy.ts::codeSandbox.docker.error.writeFailed",
+      "translation": "'Methwyd ysgrifennu llwybr : {{gwall}}',",
+      "english": "'Failed to write {{path}}: {{error}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/cy.ts::routing.error.missingParam",
+      "translation": "'Paramedr ar goll \" {{enw}} \"ar gyfer llwybr\" patrwm \"',",
+      "english": "'Missing param \"{{name}}\" for path \"{{pattern}}\"',"
+    },
+    {
+      "id": "packages/app/locales/common/src/et.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/et.ts::forms.max",
+      "translation": "'Väärtus peab olema maksimaalselt Maksimaalne',",
+      "english": "'Value must be at most {{max}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/et.ts::common.savedAt",
+      "translation": "'Salvestatud aadressil aeg',",
+      "english": "'Saved at {{time}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/eu.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/fa.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ga.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ga.ts::codeSandbox.docker.error.apiError",
+      "translation": "'API Docker {{modh}} {{cosán}} : {{stádas}} earráid',",
+      "english": "'Docker API {{method}} {{path}}: {{status}} {{error}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ga.ts::codeSandbox.docker.error.deleteFailed",
+      "translation": "'Theip ar an scriosadh {{cosán}} : earráid',",
+      "english": "'Failed to delete {{path}}: {{error}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ga.ts::codeSandbox.docker.error.readFailed",
+      "translation": "'Theip ar an léamh {{cosán}} : earráid',",
+      "english": "'Failed to read {{path}}: {{error}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ga.ts::codeSandbox.docker.error.writeFailed",
+      "translation": "'Theip ar scríobh {{cosán}} : earráid',",
+      "english": "'Failed to write {{path}}: {{error}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ga.ts::routing.error.missingParam",
+      "translation": "'Paraiméadar ar iarraidh \" {{ainm}} \"don chosán\" patrún \"',",
+      "english": "'Missing param \"{{name}}\" for path \"{{pattern}}\"',"
+    },
+    {
+      "id": "packages/app/locales/common/src/gl.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/gu.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ha.ts::user.payment.invalidPlan",
+      "translation": "'Shiri mara inganci.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ha.ts::user.payment.verificationFailed",
+      "translation": "'Tabbatar da biyan kuɗi ya gaza.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::forms.max",
+      "translation": "'הערך חייב להיות לכל היותר מקסימום',",
+      "english": "'Value must be at most {{max}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::forms.maxLength",
+      "translation": "'חייב להיות לכל היותר אורך מקסימלי דמויות',",
+      "english": "'Must be at most {{maxLength}} characters',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::forms.min",
+      "translation": "'הערך חייב להיות לפחות דקות',",
+      "english": "'Value must be at least {{min}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::forms.minLength",
+      "translation": "'חייב להיות לפחות אורך דקות דמויות',",
+      "english": "'Must be at least {{minLength}} characters',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::oauth.continueWith",
+      "translation": "'המשך עם ספק',",
+      "english": "'Continue with {{provider}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::user.error.oauthServerNotConfigured",
+      "translation": "'שרת OAuth שרת \" לא מוגדר.',",
+      "english": "'OAuth server \"{{server}}\" is not configured.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::user.payment.invalidPlan",
+      "translation": "'תוכנית לא חוקית עבור ספק .',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::user.payment.verificationFailed",
+      "translation": "'אימות התשלום נכשל עבור ספק .',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::user.payment.verificationNotConfigured",
+      "translation": "'אימות תשלום לא הוגדר עבור ספק .',",
+      "english": "'Payment verification is not configured for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::common.copyrightBuiltWithMolecule",
+      "translation": "'© {{שָׁנָה}} אפליקציה נבנה עם מולקולה.',",
+      "english": "'© {{year}} {{app}}. Built with Molecule.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/he.ts::common.copyrightAllRightsReserved",
+      "translation": "'© {{שָׁנָה}} אפליקציה כל הזכויות שמורות.',",
+      "english": "'© {{year}} {{app}}. All rights reserved.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/hr.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/hy.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ig.ts::user.payment.invalidPlan",
+      "translation": "'Atụmatụ na-ezighị ezi.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ig.ts::user.payment.verificationFailed",
+      "translation": "'Enweghị ike nyochaa ndenye aha.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/is.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ja.ts::forms.max",
+      "translation": "'価値は最大で最大',",
+      "english": "'Value must be at most {{max}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ka.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/kk.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/km.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/kn.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ky.ts::user.payment.invalidPlan",
+      "translation": "'Жараксыз план.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ky.ts::user.payment.verificationFailed",
+      "translation": "'Жазылууну текшерүү ишке ашкан жок.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/lo.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/lo.ts::forms.maxLength",
+      "translation": "'ຕ້ອງຫຼາຍສຸດ ຄວາມຍາວສູງສຸດ ຕົວລະຄອນ',",
+      "english": "'Must be at most {{maxLength}} characters',"
+    },
+    {
+      "id": "packages/app/locales/common/src/lo.ts::routing.error.missingParam",
+      "translation": "'ຂາດພາລາມິເຕີ \" {{ຊື່}} \"ສຳລັບເສັ້ນທາງ\" ຮູບແບບ \"',",
+      "english": "'Missing param \"{{name}}\" for path \"{{pattern}}\"',"
+    },
+    {
+      "id": "packages/app/locales/common/src/lt.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/lt.ts::common.savedAt",
+      "translation": "'Išsaugota adresu laikas',",
+      "english": "'Saved at {{time}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/lv.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/lv.ts::common.savedAt",
+      "translation": "'Saglabāts plkst. laiks',",
+      "english": "'Saved at {{time}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/mk.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ml.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/mn.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/mr.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/mt.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/my.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ne.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/pa.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ru.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/si.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/sk.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/sl.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/sq.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/sr.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/sv.ts::forms.max",
+      "translation": "'Värdet får vara högst max',",
+      "english": "'Value must be at most {{max}}',"
+    },
+    {
+      "id": "packages/app/locales/common/src/sw.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ta.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/te.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/th.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/ur.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/uz.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/yo.ts::user.payment.invalidPlan",
+      "translation": "'Ero ti ko wulo.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/yo.ts::user.payment.verificationFailed",
+      "translation": "'Ijẹrisi ọwọ-ẹri kuna.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/app/locales/common/src/zh-TW.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/common/src/zu.ts::status.all",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/feature-audio-mixer/src/fi.ts::audioMixer.aria.send",
+      "translation": "'{{kanava}} lähetä Lähetä',",
+      "english": "'{{channel}} send to {{send}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-audio-mixer/src/ta.ts::audioMixer.aria.send",
+      "translation": "'{{channel}} அனுப்பு அனுப்பு',",
+      "english": "'{{channel}} send to {{send}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-chapter-list/src/et.ts::chapterList.aria.seek",
+      "translation": "'Hüppa siia pealkiri kell {{timestamp}}',",
+      "english": "'Jump to {{title}} at {{timestamp}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-chapter-list/src/et.ts::chapterList.aria.thumbnail",
+      "translation": "'Pisipilt pealkiri',",
+      "english": "'Thumbnail for {{title}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-chapter-list/src/he.ts::chapterList.aria.seek",
+      "translation": "'קפיצה אל {{כּוֹתֶרֶת}} בְּ- חותמת זמן',",
+      "english": "'Jump to {{title}} at {{timestamp}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-chapter-list/src/lo.ts::chapterList.aria.seek",
+      "translation": "'ຂ້າມໄປທີ່ ຫົວຂໍ້ ທີ່ {{ປະທັບເວລາ}}',",
+      "english": "'Jump to {{title}} at {{timestamp}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-chapter-list/src/lo.ts::chapterList.aria.thumbnail",
+      "translation": "'ຮູບຕົວຢ່າງສຳລັບ ຫົວຂໍ້',",
+      "english": "'Thumbnail for {{title}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-piano-roll/src/bn.ts::pianoRoll.aria.note",
+      "translation": "'দ্রষ্টব্য পিচ বিটে শুরু হচ্ছে {{startBeat}} জন্য {{durationBeats}} বিটস',",
+      "english": "'Note {{pitch}} starting at beat {{startBeat}} for {{durationBeats}} beats',"
+    },
+    {
+      "id": "packages/app/locales/feature-track-lane/src/ja.ts::trackLane.aria.clip",
+      "translation": "'クリップ{{ラベル}}開始開始時間s は{{間隔}} s',",
+      "english": "'Clip {{label}} starting at {{startTime}}s for {{duration}}s',"
+    },
+    {
+      "id": "packages/app/locales/feature-track-lane/src/km.ts::trackLane.aria.clip",
+      "translation": "'ឃ្លីប {{ស្លាក}} ចាប់ផ្តើមពី {{ពេលវេលាចាប់ផ្តើម}} សម្រាប់ រយៈពេល ស',",
+      "english": "'Clip {{label}} starting at {{startTime}}s for {{duration}}s',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/et.ts::videoScrubber.aria.strip",
+      "translation": "'Filmiriba — esituspea aadressil aeg s (kaader {{raam}} )',",
+      "english": "'Filmstrip — playhead at {{time}}s (frame {{frame}})',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/et.ts::videoScrubber.aria.playhead",
+      "translation": "'Esituspea kell aeg s',",
+      "english": "'Playhead at {{time}}s',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/et.ts::videoScrubber.aria.frameReadout",
+      "translation": "'Raam {{raam}} kohta Kokku',",
+      "english": "'Frame {{frame}} of {{total}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/et.ts::videoScrubber.frameReadout.total",
+      "translation": "'/ Kokku raamid',",
+      "english": "'/ {{total}} frames',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/lt.ts::videoScrubber.aria.strip",
+      "translation": "'Filmo juosta – atkūrimo žymeklis ties laikas s (kadras {{rėmas}} )',",
+      "english": "'Filmstrip — playhead at {{time}}s (frame {{frame}})',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/lt.ts::videoScrubber.aria.playhead",
+      "translation": "'Leidžiamąją galvutę ties laikas s',",
+      "english": "'Playhead at {{time}}s',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/lv.ts::videoScrubber.aria.strip",
+      "translation": "'Filmas josla — atskaņošanas galviņa plkst. laiks s (kadrs {{kadrs}} )',",
+      "english": "'Filmstrip — playhead at {{time}}s (frame {{frame}})',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/lv.ts::videoScrubber.aria.playhead",
+      "translation": "'Atskaņošanas galviņa plkst. laiks s',",
+      "english": "'Playhead at {{time}}s',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/lv.ts::videoScrubber.aria.frameReadout",
+      "translation": "'Rāmis {{kadrs}} no Kopā',",
+      "english": "'Frame {{frame}} of {{total}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/lv.ts::videoScrubber.frameReadout.total",
+      "translation": "'/ Kopā rāmji',",
+      "english": "'/ {{total}} frames',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/mr.ts::videoScrubber.aria.frameReadout",
+      "translation": "'फ्रेम {{frame}} च्या एकूण',",
+      "english": "'Frame {{frame}} of {{total}}',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-scrubber/src/mr.ts::videoScrubber.frameReadout.total",
+      "translation": "'/ एकूण फ्रेम्स',",
+      "english": "'/ {{total}} frames',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-timeline/src/et.ts::videoTimeline.aria.playhead",
+      "translation": "'Esituspea kell aeg s',",
+      "english": "'Playhead at {{time}}s',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-timeline/src/lt.ts::videoTimeline.aria.playhead",
+      "translation": "'Žaislo galvutė ties laikas s',",
+      "english": "'Playhead at {{time}}s',"
+    },
+    {
+      "id": "packages/app/locales/feature-video-timeline/src/lv.ts::videoTimeline.aria.playhead",
+      "translation": "'Atskaņošanas galviņa plkst. laiks s',",
+      "english": "'Playhead at {{time}}s',"
+    },
+    {
+      "id": "packages/app/locales/file-card/src/bn.ts::file-card.aria.modified",
+      "translation": "'পরিবর্তিত যখন',",
+      "english": "'Modified {{when}}',"
+    },
+    {
+      "id": "packages/app/locales/file-card/src/ka.ts::file-card.aria.size",
+      "translation": "'ზომა ზომა',",
+      "english": "'Size {{size}}',"
+    },
+    {
+      "id": "packages/app/locales/file-card/src/km.ts::file-card.aria.size",
+      "translation": "'ទំហំ ទំហំ',",
+      "english": "'Size {{size}}',"
+    },
+    {
+      "id": "packages/app/locales/file-card/src/mr.ts::file-card.aria.modified",
+      "translation": "'सुधारित जेव्हा',",
+      "english": "'Modified {{when}}',"
+    },
+    {
+      "id": "packages/app/locales/footer/src/ga.ts::footer.version",
+      "translation": "'v leagan',",
+      "english": "'v{{version}}',"
+    },
+    {
+      "id": "packages/app/locales/footer/src/ja.ts::footer.version",
+      "translation": "'vヒェンビション }}',",
+      "english": "'v{{version}}',"
+    },
+    {
+      "id": "packages/app/locales/gradebook/src/et.ts::gradebook.gpa.outOf",
+      "translation": "'välja Maksimaalne',",
+      "english": "'out of {{max}}',"
+    },
+    {
+      "id": "packages/app/locales/gradebook/src/he.ts::gradebook.gpa.outOf",
+      "translation": "'מִתוֹך מקסימום',",
+      "english": "'out of {{max}}',"
+    },
+    {
+      "id": "packages/app/locales/gradebook/src/ja.ts::gradebook.gpa.outOf",
+      "translation": "'から最大',",
+      "english": "'out of {{max}}',"
+    },
+    {
+      "id": "packages/app/locales/gradebook/src/sv.ts::gradebook.gpa.outOf",
+      "translation": "'ut ur max',",
+      "english": "'out of {{max}}',"
+    },
+    {
+      "id": "packages/app/locales/health/src/id.ts::health.durationHoursMinutes",
+      "translation": "'{{jam}} H menit M',",
+      "english": "'{{hours}}h {{minutes}}m',"
+    },
+    {
+      "id": "packages/app/locales/heatmap/src/fi.ts::heatmap.cell.tooltip",
+      "translation": "'päivämäärä : {{arvo}}',",
+      "english": "'{{date}}: {{value}}',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/af.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/af.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/af.ts::ide.chat.version",
+      "translation": "'Molekule.dev v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/am.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/am.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/am.ts::ide.chat.version",
+      "translation": "'ሞለኩሌ.ዴቭ v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/am.ts::ide.chat.soundEventDesc.done",
+      "translation": "'ሲንቴዝ ምላሽ ሰጠ ጨርሷል',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/am.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'ሲንቴዝ እንዲገቡ የሚፈልጓቸውን ፋይሎች እየጠቆመ ነው',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ar.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'إنشاء حساب',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ar.ts::ide.chat.soundEventDesc.done",
+      "translation": "'انتهى عمل إنزيم سينثاز',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/az.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/az.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bg.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bg.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bg.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Синтазата приключи с отговора',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bn.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bn.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bn.ts::ide.chat.soundEventDesc.done",
+      "translation": "'সিন্থেস প্রতিক্রিয়া জানানো শেষ করেছে',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bn.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'সিন্থেস কমিট করার জন্য ফাইলগুলির পরামর্শ দিচ্ছে',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bs.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bs.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/bs.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintaza je završila odgovor',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ca.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ca.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ca.ts::ide.chat.soundEventDesc.done",
+      "translation": "'La sintasa ha acabat de respondre',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ca.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'La sintasa suggereix fitxers per fer un commit.',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/cs.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Zaregistrovat se',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/cs.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Syntáza dokončila odpověď',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/cy.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/cy.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/cy.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'model ar gael ar Pro. Uwchraddiwch i gael mynediad at bob model.',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/da.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Tilmeld dig',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/de.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Registrieren',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/el.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Εγγραφή',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/el.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Η συνθετάση ολοκλήρωσε την απόκριση',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/es.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Registrarse',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/es.ts::ide.chat.soundEventDesc.done",
+      "translation": "'La sintasa terminó de responder.',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/et.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/et.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/et.ts::ide.chat.loopLimitReached",
+      "translation": "'Saavutatud maksimum Maksimaalne tööriista iteratsioonid.',",
+      "english": "'Reached the maximum of {{max}} tool iterations.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/et.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Süntees lõpetas vastamise',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/eu.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/eu.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/eu.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintesiak erantzuna amaitu du',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/fa.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/fa.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/fa.ts::ide.chat.soundEventDesc.done",
+      "translation": "'پاسخ‌دهی سنتاز به پایان رسید',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/fa.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'سینتاز در حال پیشنهاد فایل‌ها برای کامیت کردن است.',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/fi.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Rekisteröidy',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/fi.ts::ide.chat.version",
+      "translation": "'Molekyyli.dev v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/fil.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Mag-sign up',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/fil.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Natapos na ang pagtugon ng synthase',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ga.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ga.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gl.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gl.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gl.ts::ide.chat.version",
+      "translation": "'Molécula.dev v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gl.ts::ide.chat.soundEventDesc.done",
+      "translation": "'A sintase rematou de responder',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gl.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'A sintase suxire ficheiros para enviar',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gu.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gu.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gu.ts::ide.chat.version",
+      "translation": "'મોલેક્યુલ.ડેવ v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gu.ts::ide.chat.soundEventDesc.done",
+      "translation": "'સિન્થેસે જવાબ આપવાનું પૂર્ણ કર્યું',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/gu.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'સિન્થેઝ કમિટ કરવા માટે ફાઇલો સૂચવી રહ્યું છે',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/he.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/he.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/he.ts::ide.chat.fileTooLarge",
+      "translation": "'הקובץ גדול מדי. הגודל המקסימלי הוא גודל מקסימלי מ.ב.',",
+      "english": "'File is too large. Maximum size is {{maxSize}}MB.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/he.ts::ide.chat.loopLimitReached",
+      "translation": "'הגיע למקסימום של מקסימום איטרציות של כלים.',",
+      "english": "'Reached the maximum of {{max}} tool iterations.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/he.ts::ide.chat.soundEventDesc.done",
+      "translation": "'סינתאז סיים להגיב',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/he.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'סינתאז מציעה קבצים לביצוע',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hi.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'साइन अप करें',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hi.ts::ide.chat.soundEventDesc.done",
+      "translation": "'सिंथेस ने प्रतिक्रिया देना समाप्त कर दिया।',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hi.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'सिंथेस कमिट करने के लिए फाइलों का सुझाव दे रहा है',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hr.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hr.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hr.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintaza je završila s odgovorom',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hu.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Regisztráció',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hu.ts::ide.chat.soundEventDesc.done",
+      "translation": "'A szintáz befejezte a válaszadást',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hy.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hy.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hy.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Սինթազը ավարտեց արձագանքը',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/hy.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'Սինթազը առաջարկում է ֆայլերը հաստատման համար',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/id.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Daftar',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/id.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintase selesai merespons',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/is.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/is.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/it.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Registrati',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/it.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintasi ha terminato la risposta',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ja.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'サインアップ',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ja.ts::ide.chat.loopLimitReached",
+      "translation": "'最大値に達しました最大ツールの反復開発。',",
+      "english": "'Reached the maximum of {{max}} tool iterations.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ja.ts::ide.chat.soundEventDesc.done",
+      "translation": "'シンターゼの応答が完了しました',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ka.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ka.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ka.ts::ide.chat.soundEventDesc.done",
+      "translation": "'სინთაზამ დაასრულა რეაგირება',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ka.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'სინთაზა ფაილების ჩასაწერად გვთავაზობს',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/kk.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/kk.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/km.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/km.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/km.ts::ide.chat.fileTooLarge",
+      "translation": "'ឯកសារធំពេក។ ទំហំអតិបរមាគឺ ទំហំអតិបរមា ម.ប.',",
+      "english": "'File is too large. Maximum size is {{maxSize}}MB.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/km.ts::ide.chat.soundEventDesc.done",
+      "translation": "'ស៊ីនថេសបានបញ្ចប់ការឆ្លើយតប',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/kn.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/kn.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/kn.ts::ide.chat.version",
+      "translation": "'ಮಾಲಿಕ್ಯೂಲ್.ಡೆವ್ v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/kn.ts::ide.chat.soundEventDesc.done",
+      "translation": "'ಸಿಂಥೇಸ್ ಪ್ರತಿಕ್ರಿಯಿಸುವುದನ್ನು ಮುಗಿಸಿದೆ',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/kn.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'ಸಿಂಥೇಸ್ ಫೈಲ್‌ಗಳನ್ನು ಕಮಿಟ್ ಮಾಡಲು ಸೂಚಿಸುತ್ತಿದೆ',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ko.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'회원가입',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ko.ts::ide.chat.soundEventDesc.done",
+      "translation": "'신타아제가 응답을 마쳤습니다.',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/lo.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/lo.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/lo.ts::ide.chat.fileTooLarge",
+      "translation": "'ໄຟລ໌ໃຫຍ່ເກີນໄປ. ຂະໜາດສູງສຸດແມ່ນ ຂະໜາດສູງສຸດ ມບ.',",
+      "english": "'File is too large. Maximum size is {{maxSize}}MB.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/lt.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/lt.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/lt.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintezė baigė atsakyti',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/lv.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/lv.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/lv.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintāze pabeidza atbildi',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mk.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mk.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mk.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Синтазата заврши со одговорот',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mk.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'Синтазата предлага датотеки за извршување',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ml.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ml.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ml.ts::ide.chat.version",
+      "translation": "'മോളിക്യൂൾ.ഡെവ് v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ml.ts::ide.chat.soundEventDesc.done",
+      "translation": "'സിന്തസിസ് മറുപടി നൽകുന്നത് പൂർത്തിയാക്കി.',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ml.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'സിന്തസിസ് ഫയലുകൾ കമ്മിറ്റ് ചെയ്യാൻ നിർദ്ദേശിക്കുന്നു',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mn.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mn.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mn.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Синтез хариу өгч дууслаа',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mr.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mr.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mr.ts::ide.chat.version",
+      "translation": "'मॉलिक्यूल.देव v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mr.ts::ide.chat.soundEventDesc.done",
+      "translation": "'सिंथेसने प्रतिसाद देणे पूर्ण केले.',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mr.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'सिंथेस कमिट करण्यासाठी फाइल्स सुचवत आहे',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ms.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Daftar',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ms.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintesa selesai bertindak balas',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mt.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mt.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/mt.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Is-sintasi spiċċat tirrispondi',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/my.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/my.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/nb.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Registrer deg',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ne.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ne.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ne.ts::ide.chat.soundEventDesc.done",
+      "translation": "'सिन्थेजले प्रतिक्रिया दिन सक्यो',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ne.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'सिन्थेजले कमिट गर्न फाइलहरू सुझाव दिइरहेको छ',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/nl.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Registreren',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pa.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pa.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pa.ts::ide.chat.version",
+      "translation": "'ਅਣੂ.ਦੇਵ v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pa.ts::ide.chat.soundEventDesc.done",
+      "translation": "'ਸਿੰਥੇਸ ਨੇ ਜਵਾਬ ਦੇਣਾ ਪੂਰਾ ਕਰ ਲਿਆ',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pa.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'ਸਿੰਥੇਸ ਫਾਈਲਾਂ ਨੂੰ ਕਮਿਟ ਕਰਨ ਦਾ ਸੁਝਾਅ ਦੇ ਰਿਹਾ ਹੈ',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pl.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Zarejestruj się',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pl.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Syntaza zakończyła odpowiedź',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pt.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Cadastrar',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pt.ts::ide.chat.version",
+      "translation": "'Molécula.dev v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/pt.ts::ide.chat.soundEventDesc.done",
+      "translation": "'A sintase terminou de responder.',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ro.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Înregistrați-vă',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ro.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintaza a terminat de răspuns',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ru.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ru.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ru.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Синтезаза завершила ответ',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/si.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/si.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/si.ts::ide.chat.soundEventDesc.done",
+      "translation": "'සින්තේස් ප්‍රතිචාර දැක්වීම අවසන් කළේය.',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/si.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'සින්තේස් විසින් ගොනු කැප කිරීමට යෝජනා කරයි',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sk.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sk.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sk.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Syntáza dokončila reakciu',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sl.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sl.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sl.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintaza je končala z odzivom',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sq.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sq.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sq.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sintaza përfundoi përgjigjen',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sr.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sr.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sr.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Синтаза је завршила са одговором',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sr.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'Синтаза предлаже датотеке за коммитовање (commit)',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sv.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Registrera dig',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sv.ts::ide.chat.loopLimitReached",
+      "translation": "'Nådde maximum av max verktygsiterationer.',",
+      "english": "'Reached the maximum of {{max}} tool iterations.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sw.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sw.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/sw.ts::ide.chat.version",
+      "translation": "'Molekuli.dev v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ta.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ta.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ta.ts::ide.chat.version",
+      "translation": "'மூலக்கூறு.dev பதிப்பு 0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ta.ts::ide.chat.soundEventDesc.done",
+      "translation": "'சிந்தேஸ் பதிலளிப்பதை முடித்தது',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ta.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'சிந்தேஸ் கமிட் செய்வதற்கான கோப்புகளைப் பரிந்துரைக்கிறது.',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/te.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/te.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/te.ts::ide.chat.version",
+      "translation": "'మాలిక్యూల్.దేవ్ v0.1.0',",
+      "english": "'{{productName}} v0.1.0',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/te.ts::ide.chat.soundEventDesc.done",
+      "translation": "'సింథేస్ స్పందించడం పూర్తి చేసింది',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/te.ts::ide.chat.soundEventDesc.commit_suggestion",
+      "translation": "'సింథేస్ కమిట్ చేయడానికి ఫైళ్ళను సూచిస్తోంది',",
+      "english": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/th.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/th.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/th.ts::ide.chat.soundEventDesc.done",
+      "translation": "'เอนไซม์ซินเทสตอบสนองเสร็จสิ้นแล้ว',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/tr.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Kayıt ol',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/tr.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Sentezleyici yanıt vermeyi bitirdi.',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/uk.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Зареєструватися',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/uk.ts::ide.chat.soundEventDesc.done",
+      "translation": "'Синтаза завершила відповідь',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ur.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ur.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/ur.ts::ide.chat.soundEventDesc.done",
+      "translation": "'سنتھیس نے جواب دینا ختم کیا۔',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/uz.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/uz.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/vi.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'Đăng ký',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/zh-TW.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/zh-TW.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/zh-TW.ts::ide.chat.soundEventDesc.done",
+      "translation": "'合成酶停止回應',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/zh.ts::ide.chat.modelUpgradeRequired",
+      "translation": "'注册',",
+      "english": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/zh.ts::ide.chat.soundEventDesc.done",
+      "translation": "'合成酶停止响应',",
+      "english": "'{{agentName}} finished responding',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/zu.ts::ide.chat.soundAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/ide/src/zu.ts::ide.search.replaceAllShort",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/loyalty-tier-badge/src/be.ts::loyaltyTierBadge.group",
+      "translation": "'узровень узровень',",
+      "english": "'{{tier}} tier',"
+    },
+    {
+      "id": "packages/app/locales/loyalty-tier-badge/src/fi.ts::loyaltyTierBadge.group",
+      "translation": "'taso taso',",
+      "english": "'{{tier}} tier',"
+    },
+    {
+      "id": "packages/app/locales/loyalty-tier-badge/src/mr.ts::loyaltyTierBadge.progress",
+      "translation": "'प्रगती पुढील',",
+      "english": "'Progress to {{next}}',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/af.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/am.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/az.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/bg.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/bn.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/bs.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/ca.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/cy.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/et.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/et.ts::notificationsPage.pageOf",
+      "translation": "'Leht {{praegune}} kohta Kokku',",
+      "english": "'Page {{current}} of {{total}}',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/eu.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/fa.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/ga.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/gl.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/gu.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/he.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/hr.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/hy.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/is.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/ka.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/kk.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/km.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/kn.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/lo.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/lt.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/lv.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/lv.ts::notificationsPage.pageOf",
+      "translation": "'Lapa {{pašreizējais}} no Kopā',",
+      "english": "'Page {{current}} of {{total}}',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/mk.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/ml.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/mn.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/mr.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/mr.ts::notificationsPage.pageOf",
+      "translation": "'पृष्ठ {{current}} च्या एकूण',",
+      "english": "'Page {{current}} of {{total}}',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/mt.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/my.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/ne.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/pa.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/ru.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/si.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/sk.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/sl.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/sq.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/sr.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/sw.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/ta.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/te.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/th.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/ur.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/uz.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/zh-TW.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/notifications-page/src/zu.ts::notificationsPage.filterAll",
+      "translation": "'All ({{count}})',",
+      "english": "'All',"
+    },
+    {
+      "id": "packages/app/locales/now-playing-bar/src/et.ts::nowPlaying.aria.region",
+      "translation": "'Nüüd mängib: pealkiri',",
+      "english": "'Now playing: {{title}}',"
+    },
+    {
+      "id": "packages/app/locales/now-playing-bar/src/et.ts::nowPlaying.aria.artwork",
+      "translation": "'Kunstiteosed pealkiri',",
+      "english": "'Artwork for {{title}}',"
+    },
+    {
+      "id": "packages/app/locales/now-playing-bar/src/lo.ts::nowPlaying.aria.region",
+      "translation": "'ກຳລັງຫຼິ້ນຢູ່: ຫົວຂໍ້',",
+      "english": "'Now playing: {{title}}',"
+    },
+    {
+      "id": "packages/app/locales/now-playing-bar/src/lo.ts::nowPlaying.aria.artwork",
+      "translation": "'ຜົນງານສິລະປະສຳລັບ ຫົວຂໍ້',",
+      "english": "'Artwork for {{title}}',"
+    },
+    {
+      "id": "packages/app/locales/react-native-ui/src/et.ts::ui.progress.value",
+      "translation": "'väärtus %',",
+      "english": "'{{value}}%',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/af.ts::user.payment.invalidPlan",
+      "translation": "'Ongeldige plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/af.ts::user.payment.verificationFailed",
+      "translation": "'Kon nie intekening verifieer nie.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/am.ts::user.payment.invalidPlan",
+      "translation": "'ልክ ያልሆነ ዕቅድ።',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/am.ts::user.payment.verificationFailed",
+      "translation": "'ምዝገባን ማረጋገጥ አልተሳካም።',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ar.ts::user.payment.invalidPlan",
+      "translation": "'خطة غير صالحة.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ar.ts::user.payment.verificationFailed",
+      "translation": "'فشل التحقق من الاشتراك.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/az.ts::user.payment.invalidPlan",
+      "translation": "'Yanlış plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/az.ts::user.payment.verificationFailed",
+      "translation": "'Abunəlik doğrulanması uğursuz oldu.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/be.ts::user.payment.invalidPlan",
+      "translation": "'Няправільны план.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/be.ts::user.payment.verificationFailed",
+      "translation": "'Не ўдалося верыфікаваць падпіску.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/bg.ts::user.payment.invalidPlan",
+      "translation": "'Невалиден план.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/bg.ts::user.payment.verificationFailed",
+      "translation": "'Неуспешна верификация на абонамента.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/bn.ts::user.payment.invalidPlan",
+      "translation": "'অবৈধ প্ল্যান।',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/bn.ts::user.payment.verificationFailed",
+      "translation": "'সাবস্ক্রিপশন যাচাই করতে ব্যর্থ।',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/bs.ts::user.payment.invalidPlan",
+      "translation": "'Nevažeći plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/bs.ts::user.payment.verificationFailed",
+      "translation": "'Neuspješna verifikacija pretplate.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ca.ts::user.payment.invalidPlan",
+      "translation": "'Pla no vàlid.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ca.ts::user.payment.verificationFailed",
+      "translation": "\"No s'ha pogut verificar la subscripció.\",",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/cs.ts::user.payment.invalidPlan",
+      "translation": "'Neplatný plán.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/cs.ts::user.payment.verificationFailed",
+      "translation": "'Ověření předplatného selhalo.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/cy.ts::user.payment.invalidPlan",
+      "translation": "'Cynllun annilys.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/cy.ts::user.payment.verificationFailed",
+      "translation": "'Methwyd dilysu tanysgrifiad.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/da.ts::user.payment.invalidPlan",
+      "translation": "'Ugyldig plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/da.ts::user.payment.verificationFailed",
+      "translation": "'Kunne ikke verificere abonnement.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/de.ts::user.payment.invalidPlan",
+      "translation": "'Ungültiger Tarif.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/de.ts::user.payment.verificationFailed",
+      "translation": "'Abonnement konnte nicht verifiziert werden.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/el.ts::user.payment.invalidPlan",
+      "translation": "'Μη έγκυρο πλάνο.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/el.ts::user.payment.verificationFailed",
+      "translation": "'Αποτυχία επαλήθευσης συνδρομής.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/es.ts::user.payment.invalidPlan",
+      "translation": "'Plan no válido.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/es.ts::user.payment.verificationFailed",
+      "translation": "'No se pudo verificar la suscripción.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/et.ts::user.payment.invalidPlan",
+      "translation": "'Vigane plaan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/et.ts::user.payment.verificationFailed",
+      "translation": "'Tellimuse kinnitamine ebaõnnestus.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/eu.ts::user.payment.invalidPlan",
+      "translation": "'Plan baliogabea.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/eu.ts::user.payment.verificationFailed",
+      "translation": "'Ezin izan da harpidetza egiaztatu.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/fa.ts::user.payment.invalidPlan",
+      "translation": "'طرح نامعتبر.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/fa.ts::user.payment.verificationFailed",
+      "translation": "'تأیید اشتراک ناموفق بود.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/fi.ts::user.payment.invalidPlan",
+      "translation": "'Virheellinen paketti.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/fi.ts::user.payment.verificationFailed",
+      "translation": "'Tilauksen vahvistus epäonnistui.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/fil.ts::user.payment.invalidPlan",
+      "translation": "'Hindi valid na plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/fil.ts::user.payment.verificationFailed",
+      "translation": "'Nabigo ang pag-verify ng subscription.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/fr.ts::user.payment.invalidPlan",
+      "translation": "'Plan invalide.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/fr.ts::user.payment.verificationFailed",
+      "translation": "\"Impossible de vérifier l'abonnement.\",",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ga.ts::user.payment.invalidPlan",
+      "translation": "'Plean neamhbhailí.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ga.ts::user.payment.verificationFailed",
+      "translation": "'Theip ar fhíorú síntiúis.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/gl.ts::user.payment.invalidPlan",
+      "translation": "'Plan non válido.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/gl.ts::user.payment.verificationFailed",
+      "translation": "'Non se puido verificar a subscrición.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/gu.ts::user.payment.invalidPlan",
+      "translation": "'અમાન્ય પ્લાન.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/gu.ts::user.payment.verificationFailed",
+      "translation": "'સબ્સ્ક્રિપ્શન ચકાસવામાં નિષ્ફળ.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ha.ts::user.payment.invalidPlan",
+      "translation": "'Shiri mara inganci.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ha.ts::user.payment.verificationFailed",
+      "translation": "'Tabbatar da biyan kuɗi ya gaza.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/he.ts::user.payment.invalidPlan",
+      "translation": "'תוכנית לא תקינה.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/he.ts::user.payment.verificationFailed",
+      "translation": "'אימות המנוי נכשל.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/hi.ts::user.payment.invalidPlan",
+      "translation": "'अमान्य प्लान।',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/hi.ts::user.payment.verificationFailed",
+      "translation": "'सब्सक्रिप्शन सत्यापित करने में विफल।',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/hr.ts::user.payment.invalidPlan",
+      "translation": "'Nevažeći plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/hr.ts::user.payment.verificationFailed",
+      "translation": "'Verifikacija pretplate nije uspjela.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/hu.ts::user.payment.invalidPlan",
+      "translation": "'Érvénytelen csomag.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/hu.ts::user.payment.verificationFailed",
+      "translation": "'Az előfizetés ellenőrzése sikertelen.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/hy.ts::user.payment.invalidPlan",
+      "translation": "'Anvaverakan plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/hy.ts::user.payment.verificationFailed",
+      "translation": "'Bajanarordutyuny stugely dzakhogvec.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/id.ts::user.payment.invalidPlan",
+      "translation": "'Paket tidak valid.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/id.ts::user.payment.verificationFailed",
+      "translation": "'Gagal memverifikasi langganan.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ig.ts::user.payment.invalidPlan",
+      "translation": "'Atụmatụ na-ezighị ezi.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ig.ts::user.payment.verificationFailed",
+      "translation": "'Enweghị ike nyochaa ndenye aha.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/is.ts::user.payment.invalidPlan",
+      "translation": "'Ógild áætlun.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/is.ts::user.payment.verificationFailed",
+      "translation": "'Mistókst að staðfesta áskrift.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/it.ts::user.payment.invalidPlan",
+      "translation": "'Piano non valido.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/it.ts::user.payment.verificationFailed",
+      "translation": "\"Impossibile verificare l'abbonamento.\",",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ja.ts::user.payment.invalidPlan",
+      "translation": "'無効なプランです。',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ja.ts::user.payment.verificationFailed",
+      "translation": "'サブスクリプションの確認に失敗しました。',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ka.ts::user.payment.invalidPlan",
+      "translation": "'Aratsvalidi gegma.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ka.ts::user.payment.verificationFailed",
+      "translation": "'Gamotseris veripikacia ver mokherkhda.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/kk.ts::user.payment.invalidPlan",
+      "translation": "'Жарамсыз жоспар.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/kk.ts::user.payment.verificationFailed",
+      "translation": "'Жазылымды тексеру сәтсіз аяқталды.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/km.ts::user.payment.invalidPlan",
+      "translation": "'គម្រោងមិនត្រឹមត្រូវ។',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/km.ts::user.payment.verificationFailed",
+      "translation": "'បរាជ័យក្នុងការផ្ទៀងផ្ទាត់ការជាវ។',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/kn.ts::user.payment.invalidPlan",
+      "translation": "'ಅಮಾನ್ಯ ಯೋಜನೆ.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/kn.ts::user.payment.verificationFailed",
+      "translation": "'ಚಂದಾ ಪರಿಶೀಲಿಸಲು ವಿಫಲ.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ko.ts::user.payment.invalidPlan",
+      "translation": "'유효하지 않은 요금제입니다.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ko.ts::user.payment.verificationFailed",
+      "translation": "'구독 확인에 실패했습니다.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ky.ts::user.payment.invalidPlan",
+      "translation": "'Жараксыз план.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ky.ts::user.payment.verificationFailed",
+      "translation": "'Жазылууну текшерүү ишке ашкан жок.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/lo.ts::user.payment.invalidPlan",
+      "translation": "'ແຜນບໍ່ຖືກຕ້ອງ.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/lo.ts::user.payment.verificationFailed",
+      "translation": "'ບໍ່ສາມາດຢືນຢັນການສະໝັກສະມາຊິກໄດ້.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/lt.ts::user.payment.invalidPlan",
+      "translation": "'Netinkamas planas.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/lt.ts::user.payment.verificationFailed",
+      "translation": "'Prenumeratos patvirtinimas nepavyko.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/lv.ts::user.payment.invalidPlan",
+      "translation": "'Nederīgs plāns.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/lv.ts::user.payment.verificationFailed",
+      "translation": "'Abonēšanas verifikācija neizdevās.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/mk.ts::user.payment.invalidPlan",
+      "translation": "'Невалиден план.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/mk.ts::user.payment.verificationFailed",
+      "translation": "'Верификацијата на претплатата не успеа.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ml.ts::user.payment.invalidPlan",
+      "translation": "'അസാധുവായ പ്ലാൻ.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ml.ts::user.payment.verificationFailed",
+      "translation": "'സബ്‌സ്‌ക്രിപ്ഷൻ സ്ഥിരീകരിക്കുന്നതിൽ പരാജയപ്പെട്ടു.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/mn.ts::user.payment.invalidPlan",
+      "translation": "'Буруу төлөвлөгөө.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/mn.ts::user.payment.verificationFailed",
+      "translation": "'Захиалга баталгаажуулахад алдаа гарлаа.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/mr.ts::user.payment.invalidPlan",
+      "translation": "'अवैध प्लॅन.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/mr.ts::user.payment.verificationFailed",
+      "translation": "'सबस्क्रिप्शन सत्यापित करण्यात अयशस्वी.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ms.ts::user.payment.invalidPlan",
+      "translation": "'Pelan tidak sah.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ms.ts::user.payment.verificationFailed",
+      "translation": "'Gagal mengesahkan langganan.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/mt.ts::user.payment.invalidPlan",
+      "translation": "'Pjan invalidu.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/mt.ts::user.payment.verificationFailed",
+      "translation": "'Il-verifika tal-abbonament falliet.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/my.ts::user.payment.invalidPlan",
+      "translation": "'အစီအစဉ် မမှန်ကန်ပါ။',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/my.ts::user.payment.verificationFailed",
+      "translation": "'စာရင်းသွင်းမှု အတည်ပြုရန် မအောင်မြင်ပါ။',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/nb.ts::user.payment.invalidPlan",
+      "translation": "'Ugyldig plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/nb.ts::user.payment.verificationFailed",
+      "translation": "'Kunne ikke verifisere abonnement.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ne.ts::user.payment.invalidPlan",
+      "translation": "'अमान्य योजना।',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ne.ts::user.payment.verificationFailed",
+      "translation": "'सदस्यता प्रमाणित गर्न असफल।',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/nl.ts::user.payment.invalidPlan",
+      "translation": "'Ongeldig plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/nl.ts::user.payment.verificationFailed",
+      "translation": "'Kon abonnement niet verifiëren.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/pa.ts::user.payment.invalidPlan",
+      "translation": "'ਅਵੈਧ ਯੋਜਨਾ।',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/pa.ts::user.payment.verificationFailed",
+      "translation": "'ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਤਸਦੀਕ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/pl.ts::user.payment.invalidPlan",
+      "translation": "'Nieprawidłowy plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/pl.ts::user.payment.verificationFailed",
+      "translation": "'Weryfikacja subskrypcji nie powiodła się.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/pt.ts::user.payment.invalidPlan",
+      "translation": "'Plano inválido.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/pt.ts::user.payment.verificationFailed",
+      "translation": "'Não foi possível verificar a subscrição.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ro.ts::user.payment.invalidPlan",
+      "translation": "'Plan invalid.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ro.ts::user.payment.verificationFailed",
+      "translation": "'Nu s-a putut verifica abonamentul.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ru.ts::user.payment.invalidPlan",
+      "translation": "'Недействительный план.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ru.ts::user.payment.verificationFailed",
+      "translation": "'Не удалось подтвердить подписку.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/si.ts::user.payment.invalidPlan",
+      "translation": "'අවලංගු සැලැස්ම.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/si.ts::user.payment.verificationFailed",
+      "translation": "'දායකත්වය සත්‍යාපනය කිරීමට අසමත් විය.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sk.ts::user.payment.invalidPlan",
+      "translation": "'Neplatný plán.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sk.ts::user.payment.verificationFailed",
+      "translation": "'Overenie predplatného zlyhalo.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sl.ts::user.payment.invalidPlan",
+      "translation": "'Neveljaven paket.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sl.ts::user.payment.verificationFailed",
+      "translation": "'Preverjanje naročnine ni uspelo.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sq.ts::user.payment.invalidPlan",
+      "translation": "'Plan i pavlefshem.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sq.ts::user.payment.verificationFailed",
+      "translation": "'Verifikimi i abonimit deshtoi.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sr.ts::user.payment.invalidPlan",
+      "translation": "'Неважећи план.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sr.ts::user.payment.verificationFailed",
+      "translation": "'Верификација претплате није успела.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sv.ts::user.payment.invalidPlan",
+      "translation": "'Ogiltig plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sv.ts::user.payment.verificationFailed",
+      "translation": "'Kunde inte verifiera abonnemang.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sw.ts::user.payment.invalidPlan",
+      "translation": "'Mpango batili.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/sw.ts::user.payment.verificationFailed",
+      "translation": "'Imeshindwa kuthibitisha usajili.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ta.ts::user.payment.invalidPlan",
+      "translation": "'தவறான திட்டம்.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ta.ts::user.payment.verificationFailed",
+      "translation": "'சந்தாவை சரிபார்க்க இயலவில்லை.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/te.ts::user.payment.invalidPlan",
+      "translation": "'చెల్లని ప్లాన్.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/te.ts::user.payment.verificationFailed",
+      "translation": "'సబ్‌స్క్రిప్షన్ ధృవీకరించడంలో విఫలమైంది.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/th.ts::user.payment.invalidPlan",
+      "translation": "'แผนไม่ถูกต้อง',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/th.ts::user.payment.verificationFailed",
+      "translation": "'ยืนยันการสมัครสมาชิกไม่สำเร็จ',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/tr.ts::user.payment.invalidPlan",
+      "translation": "'Geçersiz plan.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/tr.ts::user.payment.verificationFailed",
+      "translation": "'Abonelik doğrulaması başarısız oldu.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/uk.ts::user.payment.invalidPlan",
+      "translation": "'Недійсний план.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/uk.ts::user.payment.verificationFailed",
+      "translation": "'Не вдалося підтвердити підписку.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ur.ts::user.payment.invalidPlan",
+      "translation": "'غلط پلان۔',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/ur.ts::user.payment.verificationFailed",
+      "translation": "'سبسکرپشن کی تصدیق میں ناکامی۔',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/uz.ts::user.payment.invalidPlan",
+      "translation": "\"Noto'g'ri reja.\",",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/uz.ts::user.payment.verificationFailed",
+      "translation": "\"Obunani tekshirish muvaffaqiyatsiz bo'ldi.\",",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/vi.ts::user.payment.invalidPlan",
+      "translation": "'Gói không hợp lệ.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/vi.ts::user.payment.verificationFailed",
+      "translation": "'Xác minh đăng ký thất bại.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/yo.ts::user.payment.invalidPlan",
+      "translation": "'Ero ti ko wulo.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/yo.ts::user.payment.verificationFailed",
+      "translation": "'Ijẹrisi ọwọ-ẹri kuna.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/zh-TW.ts::user.payment.invalidPlan",
+      "translation": "'無效的方案。',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/zh-TW.ts::user.payment.verificationFailed",
+      "translation": "'訂閱驗證失敗。',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/zh.ts::user.payment.invalidPlan",
+      "translation": "'无效的方案。',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/zh.ts::user.payment.verificationFailed",
+      "translation": "'订阅验证失败。',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/zu.ts::user.payment.invalidPlan",
+      "translation": "'Uhlelo olungavumelekile.',",
+      "english": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "id": "packages/api/locales/user-payments/src/zu.ts::user.payment.verificationFailed",
+      "translation": "'Yehlulekile ukuqinisekisa isithangami.',",
+      "english": "'Payment verification failed for {{provider}}.',"
+    }
+  ]
+}

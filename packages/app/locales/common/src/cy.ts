@@ -2,7 +2,7 @@ import type { CommonTranslations } from './types.js'
 
 /** Common translations for cy. */
 export const cy: Partial<CommonTranslations> = {
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'Overdue Tasks',
   'common.close': 'Cau',
   'common.continue': 'Parhau',
@@ -36,10 +36,10 @@ export const cy: Partial<CommonTranslations> = {
   'auth.signup.password': 'Cyfrinair (Angenrheidiol)',
   'auth.signup.signUp': 'Cofrestru',
   'auth.signup.signingUp': 'Yn cofrestru...',
-  'codeSandbox.docker.error.apiError': 'Docker API {{method}} {{path}}: {{status}} {{error}}',
-  'codeSandbox.docker.error.deleteFailed': 'Failed to delete {{path}}: {{error}}',
-  'codeSandbox.docker.error.readFailed': 'Failed to read {{path}}: {{error}}',
-  'codeSandbox.docker.error.writeFailed': 'Failed to write {{path}}: {{error}}',
+  'codeSandbox.docker.error.apiError': 'API Docker {{dull}} llwybr : {{statws}} {{gwall}}',
+  'codeSandbox.docker.error.deleteFailed': 'Methwyd dileu llwybr : {{gwall}}',
+  'codeSandbox.docker.error.readFailed': 'Methwyd darllen llwybr : {{gwall}}',
+  'codeSandbox.docker.error.writeFailed': 'Methwyd ysgrifennu llwybr : {{gwall}}',
   'conversation.error.aiNotConfigured': 'Darparwr AI heb ei ffurfweddu',
   'conversation.error.messageRequired': 'mae angen neges',
   'conversation.error.notFound': 'Ni chanfuwyd unrhyw sgwrs',
@@ -98,7 +98,7 @@ export const cy: Partial<CommonTranslations> = {
   'resource.error.unableToUpdate': 'Methu diweddaru {{name}} .',
   'resource.error.unauthorized': 'Heb awdurdod.',
   'resource.error.unknownError': 'Gwall anhysbys.',
-  'routing.error.missingParam': 'Missing param "{{name}}" for path "{{pattern}}"',
+  'routing.error.missingParam': 'Paramedr ar goll " {{enw}} "ar gyfer llwybr" patrwm "',
   'routing.error.routeNotFound': 'Llwybr " {{name}} " heb ei ganfod',
   'routing.error.useMoleculeRouterOutsideProvider':
     'Rhaid defnyddio useMoleculeRouter o fewn Darparwr MoleculeRouter',

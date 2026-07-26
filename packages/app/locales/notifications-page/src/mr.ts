@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for mr. */
 export const mr: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'सूचना',
   'notificationsPage.markAllRead': 'मार्क {{count}} वाचल्याप्रमाणे',
   'notificationsPage.filterUnread': 'न वाचलेले',
@@ -14,7 +14,7 @@ export const mr: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'तुम्हाला सर्व काही समजले आहे.',
   'notificationsPage.emptyBody': 'नवीन सूचना येथे दिसतील.',
   'notificationsPage.paginationAriaLabel': 'पृष्ठांकन',
-  'notificationsPage.pageOf': 'Page {{current}} of {{total}}',
+  'notificationsPage.pageOf': 'पृष्ठ {{current}} च्या एकूण',
   'notificationsPage.prev': 'मागील',
   'notificationsPage.next': 'पुढील',
 }

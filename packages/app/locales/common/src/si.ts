@@ -4,7 +4,7 @@ import type { CommonTranslations } from './types.js'
 export const si: Partial<CommonTranslations> = {
   'common.getStarted': 'ආරම්භ කරන්න',
   'common.justNow': 'මේ දැන්',
-  'status.all': 'All',
+  'status.all': 'All ({{count}})',
   'status.overdue': 'කල් ඉකුත් වූ කාර්යයන්',
   'nav.settings': 'සැකසීම්',
   'nav.dashboard': 'උපකරණ පුවරුව',

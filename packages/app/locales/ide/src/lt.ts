@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for lt. */
 export const lt: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Trumpai pagalvojau',
   'ide.chat.thinking': 'Mąstymas',
   'ide.chat.verificationPassed': 'Patikrinimai sėkmingi',
@@ -186,7 +186,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Pasiekta ciklo riba',
   'ide.chat.soundEvent.verification_result': 'Patvirtinimo rezultatas',
   'ide.chat.soundEvent.preview_error': 'Peržiūros klaida',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Sintezė baigė atsakyti',
   'ide.chat.soundEventDesc.error': 'Atsakymo metu kažkas nepavyko',
   'ide.chat.soundEventDesc.tool_result':
     'Įrankio iškvietimas (failo nuskaitymas, komanda ir pan.) baigtas',

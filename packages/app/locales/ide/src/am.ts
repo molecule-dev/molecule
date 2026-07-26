@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for am. */
 export const am: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'በአጭሩ አሰብኩ',
   'ide.chat.thinking': 'ማሰብ',
   'ide.chat.verificationPassed': 'ቼኮች ተላልፈዋል',
@@ -75,7 +75,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'የስራ ልምድ ማስረጃ',
   'ide.chat.autoFixPause': 'ለአፍታ አቁም',
   'ide.chat.autoFixCancel': 'ሰርዝ',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'ሞለኩሌ.ዴቭ v0.1.0',
   'ide.chat.selectModel': 'ሞዴል ይምረጡ',
   'ide.chat.currentBadge': 'የአሁኑ',
   'ide.chat.proRequired': 'ፕሮ',
@@ -183,11 +183,11 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'የዙር ገደብ ላይ ተደርሷል',
   'ide.chat.soundEvent.verification_result': 'የማረጋገጫ ውጤት',
   'ide.chat.soundEvent.preview_error': 'የቅድመ እይታ ስህተት',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'ሲንቴዝ ምላሽ ሰጠ ጨርሷል',
   'ide.chat.soundEventDesc.error': 'በምላሽ ወቅት የሆነ ችግር ተፈጥሯል',
   'ide.chat.soundEventDesc.tool_result': 'የመሳሪያ ጥሪ (የፋይል ንባብ፣ ትዕዛዝ፣ ወዘተ) ተጠናቋል',
   'ide.chat.soundEventDesc.file_diff': 'ፋይል ተፈጥሯል ወይም ተሻሽሏል',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'ሲንቴዝ እንዲገቡ የሚፈልጓቸውን ፋይሎች እየጠቆመ ነው',
   'ide.chat.soundEventDesc.mode': 'በእቅድ ሁነታ እና በአፈፃፀም ሁነታ መካከል ተቀያይሯል',
   'ide.chat.soundEventDesc.loop_limit_reached': 'ከፍተኛውን የመሳሪያ ድግግሞሽ ገደብ ይድረሱ',
   'ide.chat.soundEventDesc.verification_result': 'ሊንት ወይም የአይነት-ቼክ ስራውን አጠናቋል',

@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for ml. */
 export const ml: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'അറിയിപ്പുകൾ',
   'notificationsPage.markAllRead': 'അടയാളപ്പെടുത്തുക {{count}} വായിച്ചതുപോലെ',
   'notificationsPage.filterUnread': 'വായിക്കാത്തത്',

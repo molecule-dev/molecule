@@ -9,7 +9,7 @@ export const lv: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Pauze',
   'audioRecorder.resume': 'CV',
   'audioRecorder.stop': 'Apstāties',
-  'audioRecorder.elapsed': 'Elapsed {{time}}',
+  'audioRecorder.elapsed': 'Pagājis laiks',
   'audioRecorder.statusPaused': 'Apturēts',
   'audioRecorder.statusProcessed': 'Ierakstīts',
   'audioRecorder.statusError': 'Kļūda',

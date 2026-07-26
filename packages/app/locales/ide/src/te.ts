@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for te. */
 export const te: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'క్లుప్తంగా ఆలోచించారు',
   'ide.chat.thinking': 'ఆలోచిస్తున్నాను',
   'ide.chat.verificationPassed': 'చెక్కులు ఆమోదించబడ్డాయి',
@@ -78,7 +78,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'పునఃప్రారంభం',
   'ide.chat.autoFixPause': 'విరామం',
   'ide.chat.autoFixCancel': 'రద్దు చేయండి',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'మాలిక్యూల్.దేవ్ v0.1.0',
   'ide.chat.selectModel': 'మోడల్‌ను ఎంచుకోండి',
   'ide.chat.currentBadge': 'ప్రస్తుత',
   'ide.chat.proRequired': 'ప్రో',
@@ -187,11 +187,11 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'లూప్ పరిమితికి చేరుకుంది',
   'ide.chat.soundEvent.verification_result': 'ధృవీకరణ ఫలితం',
   'ide.chat.soundEvent.preview_error': 'ప్రివ్యూ లోపం',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'సింథేస్ స్పందించడం పూర్తి చేసింది',
   'ide.chat.soundEventDesc.error': 'ప్రతిస్పందన సమయంలో ఏదో పొరపాటు జరిగింది',
   'ide.chat.soundEventDesc.tool_result': 'టూల్ కాల్ (ఫైల్ రీడ్, కమాండ్, మొదలైనవి) పూర్తయింది',
   'ide.chat.soundEventDesc.file_diff': 'ఒక ఫైల్ సృష్టించబడింది లేదా సవరించబడింది',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'సింథేస్ కమిట్ చేయడానికి ఫైళ్ళను సూచిస్తోంది',
   'ide.chat.soundEventDesc.mode': 'ప్లాన్ మోడ్ మరియు ఎగ్జిక్యూట్ మోడ్ మధ్య మారడం',
   'ide.chat.soundEventDesc.loop_limit_reached': 'గరిష్ట టూల్ పునరావృతాల పరిమితిని చేరుకుంది',
   'ide.chat.soundEventDesc.verification_result': 'లింట్ లేదా టైప్-చెక్ రన్ అవ్వడం పూర్తయింది',

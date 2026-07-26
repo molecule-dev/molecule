@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for kn. */
 export const kn: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'ಸಂಕ್ಷಿಪ್ತವಾಗಿ ಯೋಚಿಸಿದೆ',
   'ide.chat.thinking': 'ಆಲೋಚನೆ',
   'ide.chat.verificationPassed': 'ಚೆಕ್‌ಗಳು ಪಾಸಾಗಿವೆ',
@@ -78,7 +78,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.autoFixCountdown': 'ಪುನರಾರಂಭ',
   'ide.chat.autoFixPause': 'ವಿರಾಮಗೊಳಿಸಿ',
   'ide.chat.autoFixCancel': 'ರದ್ದುಮಾಡಿ',
-  'ide.chat.version': '{{productName}} v0.1.0',
+  'ide.chat.version': 'ಮಾಲಿಕ್ಯೂಲ್.ಡೆವ್ v0.1.0',
   'ide.chat.selectModel': 'ಮಾದರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
   'ide.chat.currentBadge': 'ಪ್ರಸ್ತುತ',
   'ide.chat.proRequired': 'ಪ್ರೊ',
@@ -186,12 +186,12 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ಲೂಪ್ ಮಿತಿ ತಲುಪಿದೆ',
   'ide.chat.soundEvent.verification_result': 'ಪರಿಶೀಲನೆ ಫಲಿತಾಂಶ',
   'ide.chat.soundEvent.preview_error': 'ಪೂರ್ವವೀಕ್ಷಣೆ ದೋಷ',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'ಸಿಂಥೇಸ್ ಪ್ರತಿಕ್ರಿಯಿಸುವುದನ್ನು ಮುಗಿಸಿದೆ',
   'ide.chat.soundEventDesc.error': 'ಪ್ರತಿಕ್ರಿಯೆ ನೀಡುವಾಗ ಏನೋ ತಪ್ಪಾಗಿದೆ.',
   'ide.chat.soundEventDesc.tool_result':
     'ಒಂದು ಟೂಲ್ ಕಾಲ್ (ಫೈಲ್ ಓದುವುದು, ಆಜ್ಞೆ, ಇತ್ಯಾದಿ) ಪೂರ್ಣಗೊಂಡಿದೆ.',
   'ide.chat.soundEventDesc.file_diff': 'ಫೈಲ್ ಅನ್ನು ರಚಿಸಲಾಗಿದೆ ಅಥವಾ ಮಾರ್ಪಡಿಸಲಾಗಿದೆ',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'ಸಿಂಥೇಸ್ ಫೈಲ್‌ಗಳನ್ನು ಕಮಿಟ್ ಮಾಡಲು ಸೂಚಿಸುತ್ತಿದೆ',
   'ide.chat.soundEventDesc.mode': 'ಪ್ಲಾನ್ ಮೋಡ್ ಮತ್ತು ಎಕ್ಸಿಕ್ಯೂಟ್ ಮೋಡ್ ನಡುವೆ ಬದಲಾಯಿಸಲಾಗಿದೆ',
   'ide.chat.soundEventDesc.loop_limit_reached': 'ಗರಿಷ್ಠ ಪರಿಕರ ಪುನರಾವರ್ತನೆಗಳ ಮಿತಿಯನ್ನು ತಲುಪಿ',
   'ide.chat.soundEventDesc.verification_result': 'ಲಿಂಟ್ ಅಥವಾ ಟೈಪ್-ಚೆಕ್ ಚಾಲನೆ ಪೂರ್ಣಗೊಂಡಿದೆ',

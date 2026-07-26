@@ -4,5 +4,5 @@ import type { ClassScheduleTranslations } from './types.js'
 export const lv: Partial<ClassScheduleTranslations> = {
   'classSchedule.aria.region': 'Nedēļas nodarbību grafiks',
   'classSchedule.aria.event': '{{weekday}} {{start}} – {{end}}',
-  'classSchedule.aria.slot': 'Empty slot, {{weekday}} {{time}}',
+  'classSchedule.aria.slot': 'Tukša vieta, {{nedēļas diena}} laiks',
 }

@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for kn. */
 export const kn: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'ಅಧಿಸೂಚನೆಗಳು',
   'notificationsPage.markAllRead': 'ಗುರುತು {{count}} ಓದಿದಂತೆ',
   'notificationsPage.filterUnread': 'ಓದದಿರುವುದು',

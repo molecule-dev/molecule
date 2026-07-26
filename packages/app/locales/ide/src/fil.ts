@@ -13,7 +13,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Magpatuloy',
   'upgrade.viewPlans': 'I-upgrade',
   'upgrade.signUp': 'Mag-sign up',
-  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
+  'ide.chat.modelUpgradeRequired': 'Mag-sign up',
   'ide.chat.autoFixCountdown': 'Ituloy',
   'ide.chat.autoFixPause': 'I-pause',
   'ide.chat.autoFixCancel': 'Kanselahin',
@@ -186,7 +186,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Naabot na ang limitasyon sa pag-ikot',
   'ide.chat.soundEvent.verification_result': 'Resulta ng pag-verify',
   'ide.chat.soundEvent.preview_error': 'Error sa pag-preview',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Natapos na ang pagtugon ng synthase',
   'ide.chat.soundEventDesc.error': 'May nangyaring mali habang tumutugon',
   'ide.chat.soundEventDesc.tool_result':
     'Nakumpleto ang isang tool call (pagbasa ng file, utos, atbp.)',

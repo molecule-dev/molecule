@@ -6,8 +6,8 @@ export const am: UserPaymentTranslations = {
   'user.payment.subscriptionIdRequired': 'subscriptionId ያስፈልጋል።',
   'user.payment.receiptAndPlanRequired': 'ደረሰኝ እና planKey ያስፈልጋሉ።',
   'user.payment.verificationNotConfigured': 'የክፍያ ማረጋገጫ ለ{{provider}} አልተዋቀረም።',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'ልክ ያልሆነ ዕቅድ።',
+  'user.payment.verificationFailed': 'ምዝገባን ማረጋገጥ አልተሳካም።',
   'user.payment.unknownPlan': 'ያልታወቀ ዕቅድ።',
   'user.payment.invalidWebhookEvent': 'ልክ ያልሆነ የዌብሁክ ክስተት።',
 }

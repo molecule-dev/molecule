@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for cy. */
 export const cy: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Hysbysiadau',
   'notificationsPage.markAllRead': "Marc {{count}} fel y'i darllenwyd",
   'notificationsPage.filterUnread': 'Heb ei ddarllen',

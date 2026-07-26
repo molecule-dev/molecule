@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for th. */
 export const th: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'การแจ้งเตือน',
   'notificationsPage.markAllRead': 'เครื่องหมาย {{count}} ตามที่อ่าน',
   'notificationsPage.filterUnread': 'ยังไม่ได้อ่าน',

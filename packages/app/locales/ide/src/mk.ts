@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mk. */
 export const mk: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Размислив накратко',
   'ide.chat.thinking': 'Размислување',
   'ide.chat.verificationPassed': 'Положени чекови',
@@ -186,12 +186,12 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Достигнато е ограничувањето на јамката',
   'ide.chat.soundEvent.verification_result': 'Резултат од верификацијата',
   'ide.chat.soundEvent.preview_error': 'Грешка во прегледот',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'Синтазата заврши со одговорот',
   'ide.chat.soundEventDesc.error': 'Нешто тргна наопаку за време на одговорот',
   'ide.chat.soundEventDesc.tool_result':
     'Повик на алатка (читање на датотека, команда, итн.) завршен',
   'ide.chat.soundEventDesc.file_diff': 'Датотека е креирана или изменета',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'Синтазата предлага датотеки за извршување',
   'ide.chat.soundEventDesc.mode': 'Префрлено помеѓу режим на планирање и режим на извршување',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Достигнете го ограничувањето за максимални итерации на алатката',

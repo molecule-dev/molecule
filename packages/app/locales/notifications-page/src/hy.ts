@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for hy. */
 export const hy: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'Ծանուցումներ',
   'notificationsPage.markAllRead': 'Մարկ {{count}} ինչպես կարդացվել է',
   'notificationsPage.filterUnread': 'Չկարդացված',

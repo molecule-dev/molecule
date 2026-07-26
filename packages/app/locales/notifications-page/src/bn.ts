@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for bn. */
 export const bn: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All',
+  'notificationsPage.filterAll': 'All ({{count}})',
   'notificationsPage.title': 'বিজ্ঞপ্তি',
   'notificationsPage.markAllRead': 'মার্ক {{count}} যেমন পড়া হয়েছে',
   'notificationsPage.filterUnread': 'অপঠিত',

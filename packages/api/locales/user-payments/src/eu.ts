@@ -7,8 +7,8 @@ export const eu: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt eta planKey beharrezkoak dira.',
   'user.payment.verificationNotConfigured':
     'Ordainketa egiaztapena ez dago konfiguratuta {{provider}}-rako.',
-  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
-  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
+  'user.payment.invalidPlan': 'Plan baliogabea.',
+  'user.payment.verificationFailed': 'Ezin izan da harpidetza egiaztatu.',
   'user.payment.unknownPlan': 'Plan ezezaguna.',
   'user.payment.invalidWebhookEvent': 'Webhook gertaera baliogabea.',
 }

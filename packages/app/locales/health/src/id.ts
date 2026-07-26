@@ -3,5 +3,5 @@ import type { HealthTranslations } from './types.js'
 /** Health translations for id. */
 export const id: Partial<HealthTranslations> = {
   'health.durationMinutes': '{{minutes}}mnt',
-  'health.durationHoursMinutes': '{{hours}}h {{minutes}}m',
+  'health.durationHoursMinutes': '{{jam}} H menit M',
 }

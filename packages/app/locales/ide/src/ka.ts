@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ka. */
 export const ka: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'მოკლედ დაფიქრდა',
   'ide.chat.thinking': 'ფიქრი',
   'ide.chat.verificationPassed': 'ჩეკები გავლილია',
@@ -186,12 +186,12 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ციკლის ლიმიტი მიღწეულია',
   'ide.chat.soundEvent.verification_result': 'ვერიფიკაციის შედეგი',
   'ide.chat.soundEvent.preview_error': 'გადახედვის შეცდომა',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'სინთაზამ დაასრულა რეაგირება',
   'ide.chat.soundEventDesc.error': 'პასუხის გაცემისას რაღაც შეცდომა მოხდა',
   'ide.chat.soundEventDesc.tool_result':
     'ინსტრუმენტის გამოძახება (ფაილის წაკითხვა, ბრძანება და ა.შ.) დასრულდა',
   'ide.chat.soundEventDesc.file_diff': 'ფაილი შეიქმნა ან შეიცვალა',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'სინთაზა ფაილების ჩასაწერად გვთავაზობს',
   'ide.chat.soundEventDesc.mode': 'გადართვა დაგეგმვისა და შესრულების რეჟიმებს შორის',
   'ide.chat.soundEventDesc.loop_limit_reached': 'მიაღწიეთ ხელსაწყოს მაქსიმალური იტერაციების ლიმიტს',
   'ide.chat.soundEventDesc.verification_result': 'ლინტის ან ტიპის შემოწმების შესრულება დასრულდა',

@@ -2,8 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for fa. */
 export const fa: Partial<IdeTranslations> = {
-  'ide.chat.soundAll': 'All',
-  'ide.search.replaceAllShort': 'All',
+  'ide.chat.soundAll': 'All ({{count}})',
+  'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'مختصراً فکر کرد',
   'ide.chat.thinking': 'تفکر',
   'ide.chat.verificationPassed': 'چک‌ها پاس شدند',
@@ -186,11 +186,11 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'به حد مجاز حلقه رسیده است',
   'ide.chat.soundEvent.verification_result': 'نتیجه تأیید',
   'ide.chat.soundEvent.preview_error': 'خطای پیش‌نمایش',
-  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
+  'ide.chat.soundEventDesc.done': 'پاسخ‌دهی سنتاز به پایان رسید',
   'ide.chat.soundEventDesc.error': 'در حین پاسخ، مشکلی پیش آمد',
   'ide.chat.soundEventDesc.tool_result': 'فراخوانی ابزار (خواندن فایل، دستور و غیره) تکمیل شد',
   'ide.chat.soundEventDesc.file_diff': 'یک فایل ایجاد یا اصلاح شد',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'سینتاز در حال پیشنهاد فایل‌ها برای کامیت کردن است.',
   'ide.chat.soundEventDesc.mode': 'بین حالت برنامه‌ریزی و حالت اجرا جابجا شد',
   'ide.chat.soundEventDesc.loop_limit_reached': 'به حداکثر حد تکرار ابزار برسید',
   'ide.chat.soundEventDesc.verification_result': 'اجرای Lint یا type-check به پایان رسید',
