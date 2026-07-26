@@ -1,0 +1,39 @@
+{
+  "name": "@molecule/api-project-archive-external-state-postgresql",
+  "version": "1.0.0",
+  "description": "Object-storage project archive provider for molecule.dev — standard tar.gz artifacts of generic ArchiveParts (source, database dumps, git bundles: nothing privileged) persisted through @molecule/api-uploads under the storage id the uploads bond mints, verified by re-reading and UNPACKING the artifact (checksum, manifest, part count, parts digest). Deciding which files to archive is the caller's job (use git); the one refusal is a non-configurable .env guard. Size caps, zero external dependencies",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "project",
+    "archive",
+    "postgresql",
+    "backup"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@molecule/api-project-archive": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-project-archive": "1.0.0",
+    "@types/node": "25.9.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  }
+}

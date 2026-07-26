@@ -175,6 +175,45 @@ Never discard a caught error silently. Every `catch` (and `.catch()`) must do **
 
 Always **bind** the error (`catch (error)`) — never bindingless `catch {}`; you can't log what you don't bind. `.catch(() => {})` with no log and no justifying comment is forbidden. The log message must give a future debugger a starting point (which operation, which resource) — a vague `logger.warn('failed')` that drops the actual `error` is itself a silent swallow. This rule exists because a single swallowed provisioning `catch` made an entire class of "api server down" failures nearly impossible to trace.
 
+### 15. State a Project Cannot Regenerate Needs an External-State Bond
+
+`@molecule/api-project-archive` captures a project and the caller then DESTROYS
+the original on `result.verified` — but it captures only from the
+`ProjectExternalStateProvider` bonds that are REGISTERED. State whose provider
+was never written is captured by nobody, verifies clean, and is then permanently
+deleted. That is silent data loss, not a missing feature.
+
+So every provider bond in a **state-owning** category — today `database`
+(`@molecule/api-database`) and uploads (`@molecule/api-uploads`) — needs a
+matching bond under `packages/api/bonds/project-archive-external-state/`, or a
+written exemption saying where that provider's data already survives.
+
+**Write it per-provider: capture needs that provider's own tooling** (`pg_dump`
+cannot dump MySQL). A single bond written against the CORE interface sounds
+tidier and was tried; it does not work for uploads, because `UploadProvider.upload()`
+takes no key and every bond mints a bare uuid at the backend root — so nothing
+generic can tell which objects belong to one project. Both uploads bonds are
+exempt for that reason, with the reason written down.
+
+**These bonds never DISCOVER what a project owns; configuration declares it.**
+That is the whole design, and it is not a style preference — it is the outcome of
+two adversarial rounds. Every attempt to ask a server "does this project have a
+database?" is indistinguishable from a permissions failure (MySQL's
+`information_schema` omits rows the account cannot see; so does `SHOW TABLES`, so
+the dump is no second witness), and every attempt to ask a filesystem is
+indistinguishable from a bad path template. Since the caller destroys the project
+on a successful capture, an inferred absence deletes live data. So: an empty
+result from the injected resolver is the ONLY way to say "owns nothing", and a
+resolver returning anything else — `undefined`, `''`, a `Set` — is an error, not
+an absence.
+
+Enforced by `mlcl/scripts/check-external-state-coverage.mjs` — `npm run
+verify:external-state`, and mlcl's `npm test`, which its CI runs. A NEW
+state-owning category is settled by one question, *if this resource were deleted,
+could the project regenerate it from its source tree?*, and a "no" means adding
+it to that script's `STATE_OWNING` ledger; `cache`, `queue` and `search` are
+recorded there as "yes", with reasons.
+
 ---
 
 ## Anti-Patterns
@@ -194,6 +233,7 @@ Always **bind** the error (`catch (error)`) — never bindingless `catch {}`; yo
 13. Using ClassMap classes without checking their definitions in the bond package first
 14. Baking consumer-specific stream events or cards into a shared package. App-specific chat/stream events (e.g. molecule.dev's `build_degraded` upgrade notice) must NOT be added to the core `@molecule/app-ai-chat` event union or hardcoded in `@molecule/app-ide-react`'s ChatPanel. Use the generic `{ type: 'custom', name, data }` event + the `registerCustomEventCard(name, factory)` registry, and implement the specifics in the consuming app (e.g. `molecule-dev/`). The shared package stays generic; only the app knows about its own events. Same test as the Decoupling Principle: "would a *different* app using this package ever want this exact event/card?" If no, it belongs in the app, not the package.
 15. Silent error swallows — `} catch {}`, `} catch { return null }` with no log, `.catch(() => {})`, or a vague `logger.warn('failed')` that drops the actual `error`. Bind the error and log it (severity by impact), re-throw it, or document why the noop is safe with a `catch (_error)` + comment. See Rule 14.
+16. A provider bond that owns state a project cannot regenerate (a database, an uploads backend) with no matching bond under `packages/api/bonds/project-archive-external-state/`. The project archive destroys the original after capturing it, so uncovered state is silently, permanently deleted. See Rule 15.
 
 ---
 
