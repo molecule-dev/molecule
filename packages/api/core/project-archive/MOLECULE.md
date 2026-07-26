@@ -758,6 +758,9 @@ const ARCHIVE_FORMAT_VERSION: 3
 
 | Provider | Package |
 |----------|---------|
+| MySQL / MariaDB Database | `@molecule/api-project-archive-external-state-mysql` |
+| PostgreSQL Database | `@molecule/api-project-archive-external-state-postgresql` |
+| SQLite Database File | `@molecule/api-project-archive-external-state-sqlite` |
 | Project Archive | `@molecule/api-project-archive-object-storage` |
 
 ## Injection Notes

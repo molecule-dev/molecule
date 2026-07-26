@@ -611,6 +611,7 @@ function isConfigNotConfiguredError(error: unknown): boolean
 |----------|---------|
 | Apple IAP | `@molecule/api-payments-apple` |
 | Google Play | `@molecule/api-payments-google` |
+| PayPal | `@molecule/api-payments-paypal` |
 | Stripe | `@molecule/api-payments-stripe` |
 
 ## Injection Notes

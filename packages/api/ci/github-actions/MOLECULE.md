@@ -218,7 +218,7 @@ Pre-built workflow template factories. Each method returns a complete
 `WorkflowConfig` ready to pass to `generateWorkflow()` and write to disk.
 
 ```typescript
-const workflows: { ci: () => WorkflowConfig; ciMatrix: (nodeVersions?: string[]) => WorkflowConfig; release: () => WorkflowConfig; integrationTests: () => WorkflowConfig; stagingDeploy: (options?: { driver?: string; excludeBranches?: string[]; }) => WorkflowConfig; stagingTeardown: () => WorkflowConfig; }
+const workflows: { ci: () => WorkflowConfig; projectCi: (options?: { database?: boolean; e2e?: boolean; }) => WorkflowConfig; ciMatrix: (nodeVersions?: string[]) => WorkflowConfig; release: () => WorkflowConfig; integrationTests: () => WorkflowConfig; stagingDeploy: (options?: { driver?: string; excludeBranches?: string[]; }) => WorkflowConfig; stagingTeardown: () => WorkflowConfig; }
 ```
 
 ## Injection Notes
