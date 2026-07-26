@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const et: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Video ajajoon',
   'videoTimeline.aria.ruler': 'Ajajoonlaud',
-  'videoTimeline.aria.playhead': 'Esituspea kell<x> aeg</x> s',
+  'videoTimeline.aria.playhead': 'Playhead at {{time}}s',
   'videoTimeline.aria.zoom': 'Ajajoone suum',
   'videoTimeline.aria.mode': 'Redigeerimisrežiim',
   'videoTimeline.zoom.in': 'Suumi sisse',

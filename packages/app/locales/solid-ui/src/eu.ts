@@ -11,7 +11,7 @@ export const eu: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Orrialde-kopurua',
   'ui.pagination.first': 'Joan lehen orrialdera',
   'ui.pagination.previous': 'Joan aurreko orrialdera',
-  'ui.pagination.goToPage': 'Joan orrialdera<x> {{orria}}</x>',
+  'ui.pagination.goToPage': 'Joan orrialdera {{page}}',
   'ui.pagination.last': 'Joan azken orrialdera',
   'ui.progress.label': 'Aurrerapena',
   'ui.radioGroup.label': 'Irrati taldea',

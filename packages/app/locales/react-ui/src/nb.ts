@@ -16,7 +16,7 @@ export const nb: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Paginering',
   'ui.pagination.first': 'Gå til første side',
   'ui.pagination.previous': 'Gå til forrige side',
-  'ui.pagination.goToPage': 'Gå til side<x> {{side}}</x>',
+  'ui.pagination.goToPage': 'Gå til side {{page}}',
   'ui.pagination.last': 'Gå til siste side',
   'ui.radioGroup.label': 'Radiogruppe',
   'sidebar.memberStatus': 'Premium-medlem',

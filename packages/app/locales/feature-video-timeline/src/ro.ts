@@ -7,7 +7,7 @@ export const ro: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Inserați',
   'videoTimeline.aria.root': 'Cronologie video',
   'videoTimeline.aria.ruler': 'Riglă de timp',
-  'videoTimeline.aria.playhead': 'Cap de redare la<x> {{timp}}</x> s',
+  'videoTimeline.aria.playhead': 'Cap de redare la {{time}} s',
   'videoTimeline.aria.zoom': 'Zoom cronologic',
   'videoTimeline.aria.mode': 'Mod de editare',
   'videoTimeline.zoom.in.icon': '+',

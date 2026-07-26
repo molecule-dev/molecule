@@ -8,7 +8,7 @@ export const he: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'הַפסָקָה',
   'audioRecorder.resume': 'קוֹרוֹת חַיִים',
   'audioRecorder.stop': 'לְהַפְסִיק',
-  'audioRecorder.elapsed': 'חלף<x> {{זְמַן}}</x>',
+  'audioRecorder.elapsed': 'חלף {{time}}',
   'audioRecorder.statusPaused': 'מושהה',
   'audioRecorder.statusProcessed': 'מוּקלָט',
   'audioRecorder.statusError': 'שְׁגִיאָה',

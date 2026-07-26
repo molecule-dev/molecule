@@ -8,8 +8,7 @@ export const ar: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'عدل',
   'passwordStrengthMeter.label.3': 'جيد',
   'passwordStrengthMeter.label.4': 'قوي',
-  'passwordStrengthMeter.ariaValueText':
-    'قوة كلمة المرور:<x> {{ملصق}}</x> (<x> {{نتيجة}}</x> من 4)',
+  'passwordStrengthMeter.ariaValueText': 'قوة كلمة المرور: {{label}} ( {{score}} من 4)',
   'passwordStrengthMeter.rule.upper': 'يحتوي على حرف كبير',
   'passwordStrengthMeter.rule.lower': 'يحتوي على حرف صغير',
   'passwordStrengthMeter.rule.digit': 'يحتوي على رقم',

@@ -7,5 +7,5 @@ export const it: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Griglia di note',
   'pianoRoll.aria.resize': 'Ridimensiona nota',
   'pianoRoll.aria.note':
-    'Nota<x> {{pece}}</x> a partire dal battito<x> {{startBeat}}</x> per<x> {{durationBeats}}</x> battiti',
+    'Nota {{pitch}} a partire dal battito {{startBeat}} per {{durationBeats}} battiti',
 }

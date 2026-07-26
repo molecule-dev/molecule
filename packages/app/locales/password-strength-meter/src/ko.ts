@@ -8,7 +8,7 @@ export const ko: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': '공정한',
   'passwordStrengthMeter.label.3': '좋은',
   'passwordStrengthMeter.label.4': '강한',
-  'passwordStrengthMeter.ariaValueText': '비밀번호 강도:<x> {{상표}}</x> (<x> {{점수}}</x> 4)',
+  'passwordStrengthMeter.ariaValueText': '비밀번호 강도: {{label}} ( {{score}} 4)',
   'passwordStrengthMeter.rule.upper': '대문자가 포함되어 있습니다.',
   'passwordStrengthMeter.rule.lower': '소문자가 포함되어 있습니다.',
   'passwordStrengthMeter.rule.digit': '숫자가 포함되어 있습니다.',

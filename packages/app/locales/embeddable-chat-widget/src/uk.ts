@@ -4,7 +4,7 @@ import type { EmbeddableChatWidgetTranslations } from './types.js'
 export const uk: Partial<EmbeddableChatWidgetTranslations> = {
   'embeddableChatWidget.composer.send': 'Надіслати',
   'embeddableChatWidget.launcher.openLabel': 'Відкрити чат',
-  'embeddableChatWidget.panel.headerLabel': 'Спілкуйтеся з<x> {{brandName}}</x>',
+  'embeddableChatWidget.panel.headerLabel': 'Спілкуйтеся з {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Закрити чат',
   'embeddableChatWidget.panel.emptyState': 'Задайте питання, щоб розпочати.',
   'embeddableChatWidget.panel.assistantTyping': 'Асистент друкує…',

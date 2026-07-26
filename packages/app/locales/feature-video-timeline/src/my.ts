@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const my: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'ဗီဒီယို အချိန်ဇယား',
   'videoTimeline.aria.ruler': 'အချိန်တိုင်းကိရိယာ',
-  'videoTimeline.aria.playhead': 'Playhead မှာ<x> {{အချိန်}}</x> s',
+  'videoTimeline.aria.playhead': 'Playhead မှာ {{time}} s',
   'videoTimeline.aria.zoom': 'အချိန်ဇယားချဲ့ခြင်း',
   'videoTimeline.aria.mode': 'တည်းဖြတ်မုဒ်',
   'videoTimeline.zoom.in': 'ချဲ့ကြည့်ပါ',

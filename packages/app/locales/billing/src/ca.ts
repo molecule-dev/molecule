@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for ca. */
 export const ca: Partial<BillingTranslations> = {
   'billing.status.loading': "S'està carregant…",
-  'billing.status.currentPlan': 'Pla actual:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Pla actual: {{tierName}}',
   'billing.status.cancelCta': 'Cancel·la la subscripció',
   'billing.status.cancelError': "No s'ha pogut cancel·lar. Torna-ho a provar.",
   'billing.pricing.loading': "S'estan carregant els plans…",
@@ -14,5 +14,5 @@ export const ca: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Més popular',
   'billing.pricing.tierEyebrow': 'Nivell',
   'billing.pricing.perSeat': 'per seient',
-  'billing.pricing.upgradeCta': 'Actualitza a<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Actualitza a {{tierName}}',
 }

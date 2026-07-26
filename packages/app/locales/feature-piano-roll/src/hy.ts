@@ -7,5 +7,5 @@ export const hy: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Նոտաների ցանց',
   'pianoRoll.aria.resize': 'Չափափոխել նշումը',
   'pianoRoll.aria.note':
-    'Նշում<x> {{խոսք}}</x> սկսած ռիթմից<x> {{startBeat}}</x> համար<x> {{տևողության զարկեր}}</x> ռիթմերը',
+    'Նշում {{pitch}} սկսած ռիթմից {{startBeat}} համար {{durationBeats}} ռիթմերը',
 }

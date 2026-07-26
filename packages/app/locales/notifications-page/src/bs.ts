@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for bs. */
 export const bs: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Obavještenja',
-  'notificationsPage.markAllRead': 'Marko<x> {{broj}}</x> kao što je pročitano',
+  'notificationsPage.markAllRead': 'Marko {{count}} kao što je pročitano',
   'notificationsPage.filterUnread': 'Nepročitano',
   'notificationsPage.filterMentions': 'Spominjanja',
   'notificationsPage.filterAriaLabel': 'Filtriraj obavještenja',
@@ -14,7 +14,7 @@ export const bs: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Sve ste pročitali/sagledali',
   'notificationsPage.emptyBody': 'Nova obavještenja će se pojaviti ovdje.',
   'notificationsPage.paginationAriaLabel': 'Paginacija',
-  'notificationsPage.pageOf': 'Stranica<x> {{trenutni}}</x> od<x> {{ukupno}}</x>',
+  'notificationsPage.pageOf': 'Stranica {{current}} od {{total}}',
   'notificationsPage.prev': 'Prethodno',
   'notificationsPage.next': 'Sljedeće',
 }

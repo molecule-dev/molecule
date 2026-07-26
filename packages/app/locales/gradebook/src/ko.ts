@@ -13,7 +13,7 @@ export const ko: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA 기여도',
   'gradebook.col.posted': '게시됨',
   'gradebook.gpa.title': '학점 평균',
-  'gradebook.gpa.outOf': '~의<x> {{max}}</x>',
+  'gradebook.gpa.outOf': '~의 {{max}}',
   'gradebook.gpa.trend.up': '상승세',
   'gradebook.gpa.trend.down': '하락세',
 }

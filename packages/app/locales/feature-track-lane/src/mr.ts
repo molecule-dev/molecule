@@ -2,9 +2,8 @@ import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for mr. */
 export const mr: Partial<TrackLaneTranslations> = {
-  'trackLane.aria.lane': 'ट्रॅक लेन<x> {{name}}</x>',
-  'trackLane.aria.clip':
-    'क्लिप<x> {{label}}</x> पासून सुरू होणारे<x> {{startTime}}</x> साठी<x> {{कालावधी}}</x> एस',
+  'trackLane.aria.lane': 'ट्रॅक लेन {{name}}',
+  'trackLane.aria.clip': 'क्लिप {{label}} पासून सुरू होणारे {{startTime}} साठी {{duration}} एस',
   'trackLane.aria.resize': 'क्लिपचा आकार बदला',
   'trackLane.header': 'ट्रॅक',
 }

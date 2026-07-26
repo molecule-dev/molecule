@@ -10,7 +10,7 @@ export const tr: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Mikrofon izni reddedildi. Erişime izin verin ve tekrar deneyin.',
   'audioRecorder.stop': 'Durmak',
-  'audioRecorder.elapsed': 'Geçen süre<x> {{zaman}}</x>',
+  'audioRecorder.elapsed': 'Geçen süre {{time}}',
   'audioRecorder.statusProcessed': 'Kaydedildi',
   'audioRecorder.statusError': 'Hata',
   'audioRecorder.statusIdle': 'Kayda hazır',

@@ -12,7 +12,7 @@ export const lt: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA indėlis',
   'gradebook.col.posted': 'Paskelbta',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'iš<x> {{maks.}}</x>',
+  'gradebook.gpa.outOf': 'iš {{max}}',
   'gradebook.gpa.trend.up': 'Kylanti tendencija',
   'gradebook.gpa.trend.down': 'Mažėjančios tendencijos',
   'gradebook.gpa.trend.flat': 'Pastovus',

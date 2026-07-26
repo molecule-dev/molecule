@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for te. */
 export const te: Partial<BillingTranslations> = {
   'billing.status.loading': 'లోడ్ అవుతోంది…',
-  'billing.status.currentPlan': 'ప్రస్తుత ప్రణాళిక:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'ప్రస్తుత ప్రణాళిక: {{tierName}}',
   'billing.status.cancelCta': 'సభ్యత్వాన్ని రద్దు చేయండి',
   'billing.status.cancelError': 'రద్దు చేయలేకపోయాము. దయచేసి మళ్ళీ ప్రయత్నించండి.',
   'billing.pricing.loading': 'ప్రణాళికలు లోడ్ అవుతున్నాయి…',
@@ -14,5 +14,5 @@ export const te: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'అత్యంత ప్రజాదరణ పొందిన',
   'billing.pricing.tierEyebrow': 'శ్రేణి',
   'billing.pricing.perSeat': 'ఒక్కో సీటుకు',
-  'billing.pricing.upgradeCta': 'అప్‌గ్రేడ్ చేయండి<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'అప్‌గ్రేడ్ చేయండి {{tierName}}',
 }

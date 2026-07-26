@@ -11,7 +11,7 @@ export const hr: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Paginacija',
   'ui.pagination.first': 'Idi na prvu stranicu',
   'ui.pagination.previous': 'Idi na prethodnu stranicu',
-  'ui.pagination.goToPage': 'Idi na stranicu<x> {{stranica}}</x>',
+  'ui.pagination.goToPage': 'Idi na stranicu {{page}}',
   'ui.pagination.last': 'Idi na posljednju stranicu',
   'ui.progress.label': 'Napredak',
   'ui.radioGroup.label': 'Radio grupa',

@@ -10,7 +10,7 @@ export const yo: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Ìforúkọsílẹ̀ ojú ìwé',
   'ui.pagination.first': 'Lọ sí ojú ìwé àkọ́kọ́',
   'ui.pagination.previous': 'Lọ sí ojú ìwé tó ti kọjá',
-  'ui.pagination.goToPage': 'Lọ sí ojú ìwé<x> {{ojú ìwé}}</x>',
+  'ui.pagination.goToPage': 'Lọ sí ojú ìwé {{page}}',
   'ui.pagination.last': 'Lọ sí ojú ìwé tó kẹ́yìn',
   'ui.progress.label': 'Ilọsiwaju',
   'ui.radioGroup.label': 'Ẹgbẹ́ rédíò',

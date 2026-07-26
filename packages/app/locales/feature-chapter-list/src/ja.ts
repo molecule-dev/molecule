@@ -4,7 +4,7 @@ import type { ChapterListTranslations } from './types.js'
 export const ja: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'チャプター',
   'chapterList.current': '再生中',
-  'chapterList.aria.seek': 'ジャンプ先{{タイトル}}で{{タイムスタンプ}}',
-  'chapterList.aria.thumbnail': 'サムネイル{{タイトル}}',
+  'chapterList.aria.seek': 'ジャンプ先{{title}}で{{timestamp}}',
+  'chapterList.aria.thumbnail': 'サムネイル{{title}}',
   'chapterList.empty': 'このエピソードにはチャプターがありません。',
 }

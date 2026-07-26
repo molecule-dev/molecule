@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for sk. */
 export const sk: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Upozornenia',
-  'notificationsPage.markAllRead': 'Mark<x> {{počet}}</x> ako prečítané',
+  'notificationsPage.markAllRead': 'Mark {{count}} ako prečítané',
   'notificationsPage.filterUnread': 'Neprečítané',
   'notificationsPage.filterMentions': 'Zmienky',
   'notificationsPage.filterAriaLabel': 'Filtrovať upozornenia',
@@ -14,7 +14,7 @@ export const sk: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Všetko máte prehľad',
   'notificationsPage.emptyBody': 'Nové upozornenia sa zobrazia tu.',
   'notificationsPage.paginationAriaLabel': 'Stránkovanie',
-  'notificationsPage.pageOf': 'Strana<x> {{aktuálne}}</x> z<x> {{celkom}}</x>',
+  'notificationsPage.pageOf': 'Strana {{current}} z {{total}}',
   'notificationsPage.prev': 'Predchádzajúce',
   'notificationsPage.next': 'Ďalej',
 }

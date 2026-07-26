@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for sl. */
 export const sl: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'Nič se ne predvaja',
-  'nowPlaying.aria.region': 'Zdaj predvaja:<x> {{naslov}}</x>',
-  'nowPlaying.aria.artwork': 'Umetniško delo za<x> {{naslov}}</x>',
+  'nowPlaying.aria.region': 'Zdaj predvaja: {{title}}',
+  'nowPlaying.aria.artwork': 'Umetniško delo za {{title}}',
   'nowPlaying.aria.play': 'Predvajaj',
   'nowPlaying.aria.pause': 'Začasno ustavi',
   'nowPlaying.aria.next': 'Naslednja skladba',

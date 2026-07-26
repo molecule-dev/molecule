@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for th. */
 export const th: Partial<BillingTranslations> = {
   'billing.status.loading': 'กำลังโหลด…',
-  'billing.status.currentPlan': 'แผนปัจจุบัน:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'แผนปัจจุบัน: {{tierName}}',
   'billing.status.cancelCta': 'ยกเลิกการสมัครสมาชิก',
   'billing.status.cancelError': 'ไม่สามารถยกเลิกได้ โปรดลองอีกครั้ง',
   'billing.pricing.loading': 'กำลังโหลดแผน…',
@@ -13,5 +13,5 @@ export const th: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'ยอดนิยมที่สุด',
   'billing.pricing.tierEyebrow': 'ชั้น',
   'billing.pricing.perSeat': 'ต่อที่นั่ง',
-  'billing.pricing.upgradeCta': 'อัปเกรดเป็น<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'อัปเกรดเป็น {{tierName}}',
 }

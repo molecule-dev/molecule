@@ -9,7 +9,7 @@ export const da: Partial<AudioRecorderTranslations> = {
   'audioRecorder.error': 'Optagelsen mislykkedes. Prøv igen.',
   'audioRecorder.permissionDenied': 'Mikrofontilladelse nægtet. Tillad adgang, og prøv igen.',
   'audioRecorder.stop': 'Stop',
-  'audioRecorder.elapsed': 'Forløbet<x> {{tid}}</x>',
+  'audioRecorder.elapsed': 'Forløbet {{time}}',
   'audioRecorder.statusProcessed': 'Optaget',
   'audioRecorder.statusError': 'Fejl',
   'audioRecorder.statusIdle': 'Klar til optagelse',

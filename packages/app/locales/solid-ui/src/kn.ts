@@ -10,7 +10,7 @@ export const kn: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'ಪುಟ ವಿನ್ಯಾಸ',
   'ui.pagination.first': 'ಮೊದಲ ಪುಟಕ್ಕೆ ಹೋಗಿ',
   'ui.pagination.previous': 'ಹಿಂದಿನ ಪುಟಕ್ಕೆ ಹೋಗಿ',
-  'ui.pagination.goToPage': 'ಪುಟಕ್ಕೆ ಹೋಗಿ<x> {{ಪುಟ}}</x>',
+  'ui.pagination.goToPage': 'ಪುಟಕ್ಕೆ ಹೋಗಿ {{page}}',
   'ui.pagination.last': 'ಕೊನೆಯ ಪುಟಕ್ಕೆ ಹೋಗಿ',
   'ui.progress.label': 'ಪ್ರಗತಿ',
   'ui.radioGroup.label': 'ರೇಡಿಯೋ ಗುಂಪು',

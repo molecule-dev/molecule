@@ -8,8 +8,7 @@ export const he: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'הוֹגֶן',
   'passwordStrengthMeter.label.3': 'טוֹב',
   'passwordStrengthMeter.label.4': 'חָזָק',
-  'passwordStrengthMeter.ariaValueText':
-    'חוזק הסיסמה:<x> {{מַדבֵּקָה}}</x> (<x> {{צִיוּן}}</x> מתוך 4)',
+  'passwordStrengthMeter.ariaValueText': 'חוזק הסיסמה: {{label}} ( {{score}} מתוך 4)',
   'passwordStrengthMeter.rule.upper': 'מכיל אות גדולה',
   'passwordStrengthMeter.rule.lower': 'מכיל אות קטנה',
   'passwordStrengthMeter.rule.digit': 'מכיל ספרה',

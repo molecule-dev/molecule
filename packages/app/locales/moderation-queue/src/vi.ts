@@ -29,7 +29,7 @@ export const vi: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': 'Chọn mục',
   'moderationQueue.loading': 'Đang tải hàng đợi kiểm duyệt…',
   'moderationQueue.empty': 'Không có mục nào đang chờ kiểm duyệt.',
-  'moderationQueue.selectedCount': '{{đếm}} đã chọn',
+  'moderationQueue.selectedCount': '{{count}} đã chọn',
   'moderationQueue.reportedBy': 'Được báo cáo bởi',
   'moderationQueue.kind.image': 'Hình ảnh',
 }

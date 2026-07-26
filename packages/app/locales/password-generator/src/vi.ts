@@ -6,7 +6,7 @@ export const vi: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': 'Sao chép',
   'password-generator.copied': 'Đã sao chép!',
   'password-generator.regenerate': 'Tạo lại',
-  'password-generator.length': 'Chiều dài:<x> {{chiều dài}}</x>',
+  'password-generator.length': 'Chiều dài: {{length}}',
   'password-generator.lengthLabel': 'Độ dài mật khẩu',
   'password-generator.toggle.uppercase': 'Chữ in hoa (AZ)',
   'password-generator.toggle.lowercase': 'Chữ thường (az)',

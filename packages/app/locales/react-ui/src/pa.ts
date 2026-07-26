@@ -12,7 +12,7 @@ export const pa: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'ਪੰਨਾਬੰਦੀ',
   'ui.pagination.first': "ਪਹਿਲੇ ਪੰਨੇ 'ਤੇ ਜਾਓ",
   'ui.pagination.previous': "ਪਿਛਲੇ ਪੰਨੇ 'ਤੇ ਜਾਓ",
-  'ui.pagination.goToPage': "ਪੰਨੇ 'ਤੇ ਜਾਓ<x> {{ਪੰਨਾ}}</x>",
+  'ui.pagination.goToPage': "ਪੰਨੇ 'ਤੇ ਜਾਓ {{page}}",
   'ui.pagination.last': "ਆਖਰੀ ਪੰਨੇ 'ਤੇ ਜਾਓ",
   'ui.progress.label': 'ਤਰੱਕੀ',
   'ui.radioGroup.label': 'ਰੇਡੀਓ ਸਮੂਹ',

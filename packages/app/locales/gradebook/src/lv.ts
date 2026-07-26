@@ -12,7 +12,7 @@ export const lv: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Vidējās atzīmes ieguldījums',
   'gradebook.col.posted': 'Publicēts',
   'gradebook.gpa.title': 'Vidējā atzīme',
-  'gradebook.gpa.outOf': 'ārpus<x> {{maks.}}</x>',
+  'gradebook.gpa.outOf': 'ārpus {{max}}',
   'gradebook.gpa.trend.up': 'Augšupejoša tendence',
   'gradebook.gpa.trend.down': 'Lejupejoša tendence',
   'gradebook.gpa.trend.flat': 'Stabils',

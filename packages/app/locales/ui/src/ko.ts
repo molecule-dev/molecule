@@ -14,7 +14,7 @@ export const ko: Partial<UiTranslations> = {
   'ui.pagination.previous': '이전 페이지로 이동',
   'ui.pagination.next': '다음 페이지로 이동',
   'ui.pagination.last': '이전 페이지로 이동',
-  'ui.pagination.goToPage': '페이지로 이동<x> {{페이지}}</x>',
+  'ui.pagination.goToPage': '페이지로 이동 {{page}}',
   'ui.table.empty': '사용 가능한 데이터가 없습니다.',
   'ui.radioGroup.label': '라디오 그룹',
 }

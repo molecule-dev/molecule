@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for hy. */
 export const hy: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Ծանուցումներ',
-  'notificationsPage.markAllRead': 'Մարկ<x> {{քանակ}}</x> ինչպես կարդացվել է',
+  'notificationsPage.markAllRead': 'Մարկ {{count}} ինչպես կարդացվել է',
   'notificationsPage.filterUnread': 'Չկարդացված',
   'notificationsPage.filterMentions': 'Հիշատակումներ',
   'notificationsPage.filterAriaLabel': 'Զտել ծանուցումները',
@@ -14,7 +14,7 @@ export const hy: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Դուք ամեն ինչ գիտեք',
   'notificationsPage.emptyBody': 'Նոր ծանուցումները կհայտնվեն այստեղ։',
   'notificationsPage.paginationAriaLabel': 'Էջերի դասակարգում',
-  'notificationsPage.pageOf': 'Էջ<x> {{ընթացիկ}}</x> -ի<x> {{ընդհանուր}}</x>',
+  'notificationsPage.pageOf': 'Էջ {{current}} -ի {{total}}',
   'notificationsPage.prev': 'Նախորդը',
   'notificationsPage.next': 'Հաջորդը',
 }

@@ -3,9 +3,9 @@ import type { AudioMixerTranslations } from './types.js'
 /** FeatureAudioMixer translations for gl. */
 export const gl: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'Consola de mestura de son',
-  'audioMixer.aria.fader': '{{nome}} atenuador',
-  'audioMixer.aria.pan': '{{nome}} tixola',
-  'audioMixer.aria.send': '{{canle}} enviar a<x> {{enviar}}</x>',
+  'audioMixer.aria.fader': '{{name}} atenuador',
+  'audioMixer.aria.pan': '{{name}} tixola',
+  'audioMixer.aria.send': '{{channel}} enviar a {{send}}',
   'audioMixer.button.mute': 'Silenciar',
   'audioMixer.button.solo': 'Só',
   'audioMixer.master': 'Mestre',

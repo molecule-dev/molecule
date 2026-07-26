@@ -1,0 +1,3354 @@
+{
+  "note": "Translations reset to English because their placeholder count did not match en.ts — the dynamic value would never have rendered. `was` is the original text, kept so a translator can restore the placeholder with correct grammar rather than re-translate.",
+  "generatedBy": "scripts/fix-locale-placeholder-mismatch.mjs",
+  "entries": [
+    {
+      "where": "packages/app/locales/audio-recorder/src/et.ts",
+      "key": "audioRecorder.elapsed",
+      "from": "'Möödunud aeg',",
+      "to": "'Elapsed {{time}}',"
+    },
+    {
+      "where": "packages/app/locales/audio-recorder/src/lt.ts",
+      "key": "audioRecorder.elapsed",
+      "from": "'Praėjęs laikas laikas',",
+      "to": "'Elapsed {{time}}',"
+    },
+    {
+      "where": "packages/app/locales/audio-recorder/src/lv.ts",
+      "key": "audioRecorder.elapsed",
+      "from": "'Pagājis laiks',",
+      "to": "'Elapsed {{time}}',"
+    },
+    {
+      "where": "packages/app/locales/battery/src/id.ts",
+      "key": "battery.remainingTime",
+      "from": "'{{jam}} H menit M',",
+      "to": "'{{hours}}h {{minutes}}m',"
+    },
+    {
+      "where": "packages/app/locales/class-schedule/src/et.ts",
+      "key": "classSchedule.aria.slot",
+      "from": "'Tühi pesa, {{nädalapäev}} aeg',",
+      "to": "'Empty slot, {{weekday}} {{time}}',"
+    },
+    {
+      "where": "packages/app/locales/class-schedule/src/lt.ts",
+      "key": "classSchedule.aria.slot",
+      "from": "'Tuščia anga, {{weekday}} laikas',",
+      "to": "'Empty slot, {{weekday}} {{time}}',"
+    },
+    {
+      "where": "packages/app/locales/class-schedule/src/lv.ts",
+      "key": "classSchedule.aria.slot",
+      "from": "'Tukša vieta, {{nedēļas diena}} laiks',",
+      "to": "'Empty slot, {{weekday}} {{time}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/af.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/am.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/az.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/be.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Няправільны план.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/be.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Не ўдалося верыфікаваць падпіску.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/bg.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/bn.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/bs.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ca.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/cy.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/cy.ts",
+      "key": "codeSandbox.docker.error.apiError",
+      "from": "'API Docker {{dull}} llwybr : {{statws}} {{gwall}}',",
+      "to": "'Docker API {{method}} {{path}}: {{status}} {{error}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/cy.ts",
+      "key": "codeSandbox.docker.error.deleteFailed",
+      "from": "'Methwyd dileu llwybr : {{gwall}}',",
+      "to": "'Failed to delete {{path}}: {{error}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/cy.ts",
+      "key": "codeSandbox.docker.error.readFailed",
+      "from": "'Methwyd darllen llwybr : {{gwall}}',",
+      "to": "'Failed to read {{path}}: {{error}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/cy.ts",
+      "key": "codeSandbox.docker.error.writeFailed",
+      "from": "'Methwyd ysgrifennu llwybr : {{gwall}}',",
+      "to": "'Failed to write {{path}}: {{error}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/cy.ts",
+      "key": "routing.error.missingParam",
+      "from": "'Paramedr ar goll \" {{enw}} \"ar gyfer llwybr\" patrwm \"',",
+      "to": "'Missing param \"{{name}}\" for path \"{{pattern}}\"',"
+    },
+    {
+      "where": "packages/app/locales/common/src/et.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/et.ts",
+      "key": "forms.max",
+      "from": "'Väärtus peab olema maksimaalselt Maksimaalne',",
+      "to": "'Value must be at most {{max}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/et.ts",
+      "key": "common.savedAt",
+      "from": "'Salvestatud aadressil aeg',",
+      "to": "'Saved at {{time}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/eu.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/fa.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ga.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ga.ts",
+      "key": "codeSandbox.docker.error.apiError",
+      "from": "'API Docker {{modh}} {{cosán}} : {{stádas}} earráid',",
+      "to": "'Docker API {{method}} {{path}}: {{status}} {{error}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ga.ts",
+      "key": "codeSandbox.docker.error.deleteFailed",
+      "from": "'Theip ar an scriosadh {{cosán}} : earráid',",
+      "to": "'Failed to delete {{path}}: {{error}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ga.ts",
+      "key": "codeSandbox.docker.error.readFailed",
+      "from": "'Theip ar an léamh {{cosán}} : earráid',",
+      "to": "'Failed to read {{path}}: {{error}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ga.ts",
+      "key": "codeSandbox.docker.error.writeFailed",
+      "from": "'Theip ar scríobh {{cosán}} : earráid',",
+      "to": "'Failed to write {{path}}: {{error}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ga.ts",
+      "key": "routing.error.missingParam",
+      "from": "'Paraiméadar ar iarraidh \" {{ainm}} \"don chosán\" patrún \"',",
+      "to": "'Missing param \"{{name}}\" for path \"{{pattern}}\"',"
+    },
+    {
+      "where": "packages/app/locales/common/src/gl.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/gu.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ha.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Shiri mara inganci.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ha.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Tabbatar da biyan kuɗi ya gaza.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "forms.max",
+      "from": "'הערך חייב להיות לכל היותר מקסימום',",
+      "to": "'Value must be at most {{max}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "forms.maxLength",
+      "from": "'חייב להיות לכל היותר אורך מקסימלי דמויות',",
+      "to": "'Must be at most {{maxLength}} characters',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "forms.min",
+      "from": "'הערך חייב להיות לפחות דקות',",
+      "to": "'Value must be at least {{min}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "forms.minLength",
+      "from": "'חייב להיות לפחות אורך דקות דמויות',",
+      "to": "'Must be at least {{minLength}} characters',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "oauth.continueWith",
+      "from": "'המשך עם ספק',",
+      "to": "'Continue with {{provider}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "user.error.oauthServerNotConfigured",
+      "from": "'שרת OAuth שרת \" לא מוגדר.',",
+      "to": "'OAuth server \"{{server}}\" is not configured.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'תוכנית לא חוקית עבור ספק .',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'אימות התשלום נכשל עבור ספק .',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "user.payment.verificationNotConfigured",
+      "from": "'אימות תשלום לא הוגדר עבור ספק .',",
+      "to": "'Payment verification is not configured for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "common.copyrightBuiltWithMolecule",
+      "from": "'© {{שָׁנָה}} אפליקציה נבנה עם מולקולה.',",
+      "to": "'© {{year}} {{app}}. Built with Molecule.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/he.ts",
+      "key": "common.copyrightAllRightsReserved",
+      "from": "'© {{שָׁנָה}} אפליקציה כל הזכויות שמורות.',",
+      "to": "'© {{year}} {{app}}. All rights reserved.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/hr.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/hy.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ig.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Atụmatụ na-ezighị ezi.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ig.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Enweghị ike nyochaa ndenye aha.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/is.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ja.ts",
+      "key": "forms.max",
+      "from": "'価値は最大で最大',",
+      "to": "'Value must be at most {{max}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ka.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/kk.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/km.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/kn.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ky.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Жараксыз план.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ky.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Жазылууну текшерүү ишке ашкан жок.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/lo.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/lo.ts",
+      "key": "forms.maxLength",
+      "from": "'ຕ້ອງຫຼາຍສຸດ ຄວາມຍາວສູງສຸດ ຕົວລະຄອນ',",
+      "to": "'Must be at most {{maxLength}} characters',"
+    },
+    {
+      "where": "packages/app/locales/common/src/lo.ts",
+      "key": "routing.error.missingParam",
+      "from": "'ຂາດພາລາມິເຕີ \" {{ຊື່}} \"ສຳລັບເສັ້ນທາງ\" ຮູບແບບ \"',",
+      "to": "'Missing param \"{{name}}\" for path \"{{pattern}}\"',"
+    },
+    {
+      "where": "packages/app/locales/common/src/lt.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/lt.ts",
+      "key": "common.savedAt",
+      "from": "'Išsaugota adresu laikas',",
+      "to": "'Saved at {{time}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/lv.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/lv.ts",
+      "key": "common.savedAt",
+      "from": "'Saglabāts plkst. laiks',",
+      "to": "'Saved at {{time}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/mk.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ml.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/mn.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/mr.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/mt.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/my.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ne.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/pa.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ru.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/si.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/sk.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/sl.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/sq.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/sr.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/sv.ts",
+      "key": "forms.max",
+      "from": "'Värdet får vara högst max',",
+      "to": "'Value must be at most {{max}}',"
+    },
+    {
+      "where": "packages/app/locales/common/src/sw.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ta.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/te.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/th.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/ur.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/uz.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/yo.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Ero ti ko wulo.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/yo.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Ijẹrisi ọwọ-ẹri kuna.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/app/locales/common/src/zh-TW.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/common/src/zu.ts",
+      "key": "status.all",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/feature-audio-mixer/src/fi.ts",
+      "key": "audioMixer.aria.send",
+      "from": "'{{kanava}} lähetä Lähetä',",
+      "to": "'{{channel}} send to {{send}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-audio-mixer/src/ta.ts",
+      "key": "audioMixer.aria.send",
+      "from": "'{{channel}} அனுப்பு அனுப்பு',",
+      "to": "'{{channel}} send to {{send}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-chapter-list/src/et.ts",
+      "key": "chapterList.aria.seek",
+      "from": "'Hüppa siia pealkiri kell {{timestamp}}',",
+      "to": "'Jump to {{title}} at {{timestamp}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-chapter-list/src/et.ts",
+      "key": "chapterList.aria.thumbnail",
+      "from": "'Pisipilt pealkiri',",
+      "to": "'Thumbnail for {{title}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-chapter-list/src/he.ts",
+      "key": "chapterList.aria.seek",
+      "from": "'קפיצה אל {{כּוֹתֶרֶת}} בְּ- חותמת זמן',",
+      "to": "'Jump to {{title}} at {{timestamp}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-chapter-list/src/lo.ts",
+      "key": "chapterList.aria.seek",
+      "from": "'ຂ້າມໄປທີ່ ຫົວຂໍ້ ທີ່ {{ປະທັບເວລາ}}',",
+      "to": "'Jump to {{title}} at {{timestamp}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-chapter-list/src/lo.ts",
+      "key": "chapterList.aria.thumbnail",
+      "from": "'ຮູບຕົວຢ່າງສຳລັບ ຫົວຂໍ້',",
+      "to": "'Thumbnail for {{title}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-piano-roll/src/bn.ts",
+      "key": "pianoRoll.aria.note",
+      "from": "'দ্রষ্টব্য পিচ বিটে শুরু হচ্ছে {{startBeat}} জন্য {{durationBeats}} বিটস',",
+      "to": "'Note {{pitch}} starting at beat {{startBeat}} for {{durationBeats}} beats',"
+    },
+    {
+      "where": "packages/app/locales/feature-track-lane/src/ja.ts",
+      "key": "trackLane.aria.clip",
+      "from": "'クリップ{{ラベル}}開始開始時間s は{{間隔}} s',",
+      "to": "'Clip {{label}} starting at {{startTime}}s for {{duration}}s',"
+    },
+    {
+      "where": "packages/app/locales/feature-track-lane/src/km.ts",
+      "key": "trackLane.aria.clip",
+      "from": "'ឃ្លីប {{ស្លាក}} ចាប់ផ្តើមពី {{ពេលវេលាចាប់ផ្តើម}} សម្រាប់ រយៈពេល ស',",
+      "to": "'Clip {{label}} starting at {{startTime}}s for {{duration}}s',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/et.ts",
+      "key": "videoScrubber.aria.strip",
+      "from": "'Filmiriba — esituspea aadressil aeg s (kaader {{raam}} )',",
+      "to": "'Filmstrip — playhead at {{time}}s (frame {{frame}})',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/et.ts",
+      "key": "videoScrubber.aria.playhead",
+      "from": "'Esituspea kell aeg s',",
+      "to": "'Playhead at {{time}}s',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/et.ts",
+      "key": "videoScrubber.aria.frameReadout",
+      "from": "'Raam {{raam}} kohta Kokku',",
+      "to": "'Frame {{frame}} of {{total}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/et.ts",
+      "key": "videoScrubber.frameReadout.total",
+      "from": "'/ Kokku raamid',",
+      "to": "'/ {{total}} frames',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/lt.ts",
+      "key": "videoScrubber.aria.strip",
+      "from": "'Filmo juosta – atkūrimo žymeklis ties laikas s (kadras {{rėmas}} )',",
+      "to": "'Filmstrip — playhead at {{time}}s (frame {{frame}})',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/lt.ts",
+      "key": "videoScrubber.aria.playhead",
+      "from": "'Leidžiamąją galvutę ties laikas s',",
+      "to": "'Playhead at {{time}}s',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/lv.ts",
+      "key": "videoScrubber.aria.strip",
+      "from": "'Filmas josla — atskaņošanas galviņa plkst. laiks s (kadrs {{kadrs}} )',",
+      "to": "'Filmstrip — playhead at {{time}}s (frame {{frame}})',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/lv.ts",
+      "key": "videoScrubber.aria.playhead",
+      "from": "'Atskaņošanas galviņa plkst. laiks s',",
+      "to": "'Playhead at {{time}}s',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/lv.ts",
+      "key": "videoScrubber.aria.frameReadout",
+      "from": "'Rāmis {{kadrs}} no Kopā',",
+      "to": "'Frame {{frame}} of {{total}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/lv.ts",
+      "key": "videoScrubber.frameReadout.total",
+      "from": "'/ Kopā rāmji',",
+      "to": "'/ {{total}} frames',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/mr.ts",
+      "key": "videoScrubber.aria.frameReadout",
+      "from": "'फ्रेम {{frame}} च्या एकूण',",
+      "to": "'Frame {{frame}} of {{total}}',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-scrubber/src/mr.ts",
+      "key": "videoScrubber.frameReadout.total",
+      "from": "'/ एकूण फ्रेम्स',",
+      "to": "'/ {{total}} frames',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-timeline/src/et.ts",
+      "key": "videoTimeline.aria.playhead",
+      "from": "'Esituspea kell aeg s',",
+      "to": "'Playhead at {{time}}s',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-timeline/src/lt.ts",
+      "key": "videoTimeline.aria.playhead",
+      "from": "'Žaislo galvutė ties laikas s',",
+      "to": "'Playhead at {{time}}s',"
+    },
+    {
+      "where": "packages/app/locales/feature-video-timeline/src/lv.ts",
+      "key": "videoTimeline.aria.playhead",
+      "from": "'Atskaņošanas galviņa plkst. laiks s',",
+      "to": "'Playhead at {{time}}s',"
+    },
+    {
+      "where": "packages/app/locales/file-card/src/bn.ts",
+      "key": "file-card.aria.modified",
+      "from": "'পরিবর্তিত যখন',",
+      "to": "'Modified {{when}}',"
+    },
+    {
+      "where": "packages/app/locales/file-card/src/ka.ts",
+      "key": "file-card.aria.size",
+      "from": "'ზომა ზომა',",
+      "to": "'Size {{size}}',"
+    },
+    {
+      "where": "packages/app/locales/file-card/src/km.ts",
+      "key": "file-card.aria.size",
+      "from": "'ទំហំ ទំហំ',",
+      "to": "'Size {{size}}',"
+    },
+    {
+      "where": "packages/app/locales/file-card/src/mr.ts",
+      "key": "file-card.aria.modified",
+      "from": "'सुधारित जेव्हा',",
+      "to": "'Modified {{when}}',"
+    },
+    {
+      "where": "packages/app/locales/footer/src/ga.ts",
+      "key": "footer.version",
+      "from": "'v leagan',",
+      "to": "'v{{version}}',"
+    },
+    {
+      "where": "packages/app/locales/footer/src/ja.ts",
+      "key": "footer.version",
+      "from": "'vヒェンビション }}',",
+      "to": "'v{{version}}',"
+    },
+    {
+      "where": "packages/app/locales/gradebook/src/et.ts",
+      "key": "gradebook.gpa.outOf",
+      "from": "'välja Maksimaalne',",
+      "to": "'out of {{max}}',"
+    },
+    {
+      "where": "packages/app/locales/gradebook/src/he.ts",
+      "key": "gradebook.gpa.outOf",
+      "from": "'מִתוֹך מקסימום',",
+      "to": "'out of {{max}}',"
+    },
+    {
+      "where": "packages/app/locales/gradebook/src/ja.ts",
+      "key": "gradebook.gpa.outOf",
+      "from": "'から最大',",
+      "to": "'out of {{max}}',"
+    },
+    {
+      "where": "packages/app/locales/gradebook/src/sv.ts",
+      "key": "gradebook.gpa.outOf",
+      "from": "'ut ur max',",
+      "to": "'out of {{max}}',"
+    },
+    {
+      "where": "packages/app/locales/health/src/id.ts",
+      "key": "health.durationHoursMinutes",
+      "from": "'{{jam}} H menit M',",
+      "to": "'{{hours}}h {{minutes}}m',"
+    },
+    {
+      "where": "packages/app/locales/heatmap/src/fi.ts",
+      "key": "heatmap.cell.tooltip",
+      "from": "'päivämäärä : {{arvo}}',",
+      "to": "'{{date}}: {{value}}',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/af.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/af.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/af.ts",
+      "key": "ide.chat.version",
+      "from": "'Molekule.dev v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/am.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/am.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/am.ts",
+      "key": "ide.chat.version",
+      "from": "'ሞለኩሌ.ዴቭ v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/am.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'ሲንቴዝ ምላሽ ሰጠ ጨርሷል',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/am.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'ሲንቴዝ እንዲገቡ የሚፈልጓቸውን ፋይሎች እየጠቆመ ነው',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ar.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'إنشاء حساب',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ar.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'انتهى عمل إنزيم سينثاز',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/az.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/az.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bg.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bg.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bg.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Синтазата приключи с отговора',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bn.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bn.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bn.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'সিন্থেস প্রতিক্রিয়া জানানো শেষ করেছে',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bn.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'সিন্থেস কমিট করার জন্য ফাইলগুলির পরামর্শ দিচ্ছে',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bs.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bs.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/bs.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintaza je završila odgovor',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ca.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ca.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ca.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'La sintasa ha acabat de respondre',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ca.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'La sintasa suggereix fitxers per fer un commit.',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/cs.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Zaregistrovat se',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/cs.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Syntáza dokončila odpověď',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/cy.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/cy.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/cy.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'model ar gael ar Pro. Uwchraddiwch i gael mynediad at bob model.',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/da.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Tilmeld dig',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/de.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Registrieren',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/el.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Εγγραφή',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/el.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Η συνθετάση ολοκλήρωσε την απόκριση',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/es.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Registrarse',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/es.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'La sintasa terminó de responder.',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/et.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/et.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/et.ts",
+      "key": "ide.chat.loopLimitReached",
+      "from": "'Saavutatud maksimum Maksimaalne tööriista iteratsioonid.',",
+      "to": "'Reached the maximum of {{max}} tool iterations.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/et.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Süntees lõpetas vastamise',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/eu.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/eu.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/eu.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintesiak erantzuna amaitu du',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/fa.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/fa.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/fa.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'پاسخ‌دهی سنتاز به پایان رسید',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/fa.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'سینتاز در حال پیشنهاد فایل‌ها برای کامیت کردن است.',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/fi.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Rekisteröidy',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/fi.ts",
+      "key": "ide.chat.version",
+      "from": "'Molekyyli.dev v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/fil.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Mag-sign up',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/fil.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Natapos na ang pagtugon ng synthase',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ga.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ga.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gl.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gl.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gl.ts",
+      "key": "ide.chat.version",
+      "from": "'Molécula.dev v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gl.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'A sintase rematou de responder',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gl.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'A sintase suxire ficheiros para enviar',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gu.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gu.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gu.ts",
+      "key": "ide.chat.version",
+      "from": "'મોલેક્યુલ.ડેવ v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gu.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'સિન્થેસે જવાબ આપવાનું પૂર્ણ કર્યું',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/gu.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'સિન્થેઝ કમિટ કરવા માટે ફાઇલો સૂચવી રહ્યું છે',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/he.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/he.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/he.ts",
+      "key": "ide.chat.fileTooLarge",
+      "from": "'הקובץ גדול מדי. הגודל המקסימלי הוא גודל מקסימלי מ.ב.',",
+      "to": "'File is too large. Maximum size is {{maxSize}}MB.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/he.ts",
+      "key": "ide.chat.loopLimitReached",
+      "from": "'הגיע למקסימום של מקסימום איטרציות של כלים.',",
+      "to": "'Reached the maximum of {{max}} tool iterations.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/he.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'סינתאז סיים להגיב',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/he.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'סינתאז מציעה קבצים לביצוע',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hi.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'साइन अप करें',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hi.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'सिंथेस ने प्रतिक्रिया देना समाप्त कर दिया।',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hi.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'सिंथेस कमिट करने के लिए फाइलों का सुझाव दे रहा है',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hr.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hr.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hr.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintaza je završila s odgovorom',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hu.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Regisztráció',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hu.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'A szintáz befejezte a válaszadást',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hy.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hy.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hy.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Սինթազը ավարտեց արձագանքը',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/hy.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'Սինթազը առաջարկում է ֆայլերը հաստատման համար',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/id.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Daftar',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/id.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintase selesai merespons',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/is.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/is.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/it.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Registrati',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/it.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintasi ha terminato la risposta',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ja.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'サインアップ',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ja.ts",
+      "key": "ide.chat.loopLimitReached",
+      "from": "'最大値に達しました最大ツールの反復開発。',",
+      "to": "'Reached the maximum of {{max}} tool iterations.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ja.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'シンターゼの応答が完了しました',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ka.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ka.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ka.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'სინთაზამ დაასრულა რეაგირება',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ka.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'სინთაზა ფაილების ჩასაწერად გვთავაზობს',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/kk.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/kk.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/km.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/km.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/km.ts",
+      "key": "ide.chat.fileTooLarge",
+      "from": "'ឯកសារធំពេក។ ទំហំអតិបរមាគឺ ទំហំអតិបរមា ម.ប.',",
+      "to": "'File is too large. Maximum size is {{maxSize}}MB.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/km.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'ស៊ីនថេសបានបញ្ចប់ការឆ្លើយតប',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/kn.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/kn.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/kn.ts",
+      "key": "ide.chat.version",
+      "from": "'ಮಾಲಿಕ್ಯೂಲ್.ಡೆವ್ v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/kn.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'ಸಿಂಥೇಸ್ ಪ್ರತಿಕ್ರಿಯಿಸುವುದನ್ನು ಮುಗಿಸಿದೆ',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/kn.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'ಸಿಂಥೇಸ್ ಫೈಲ್‌ಗಳನ್ನು ಕಮಿಟ್ ಮಾಡಲು ಸೂಚಿಸುತ್ತಿದೆ',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ko.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'회원가입',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ko.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'신타아제가 응답을 마쳤습니다.',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/lo.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/lo.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/lo.ts",
+      "key": "ide.chat.fileTooLarge",
+      "from": "'ໄຟລ໌ໃຫຍ່ເກີນໄປ. ຂະໜາດສູງສຸດແມ່ນ ຂະໜາດສູງສຸດ ມບ.',",
+      "to": "'File is too large. Maximum size is {{maxSize}}MB.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/lt.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/lt.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/lt.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintezė baigė atsakyti',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/lv.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/lv.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/lv.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintāze pabeidza atbildi',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mk.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mk.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mk.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Синтазата заврши со одговорот',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mk.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'Синтазата предлага датотеки за извршување',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ml.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ml.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ml.ts",
+      "key": "ide.chat.version",
+      "from": "'മോളിക്യൂൾ.ഡെവ് v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ml.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'സിന്തസിസ് മറുപടി നൽകുന്നത് പൂർത്തിയാക്കി.',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ml.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'സിന്തസിസ് ഫയലുകൾ കമ്മിറ്റ് ചെയ്യാൻ നിർദ്ദേശിക്കുന്നു',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mn.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mn.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mn.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Синтез хариу өгч дууслаа',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mr.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mr.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mr.ts",
+      "key": "ide.chat.version",
+      "from": "'मॉलिक्यूल.देव v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mr.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'सिंथेसने प्रतिसाद देणे पूर्ण केले.',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mr.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'सिंथेस कमिट करण्यासाठी फाइल्स सुचवत आहे',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ms.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Daftar',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ms.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintesa selesai bertindak balas',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mt.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mt.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/mt.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Is-sintasi spiċċat tirrispondi',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/my.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/my.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/nb.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Registrer deg',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ne.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ne.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ne.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'सिन्थेजले प्रतिक्रिया दिन सक्यो',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ne.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'सिन्थेजले कमिट गर्न फाइलहरू सुझाव दिइरहेको छ',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/nl.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Registreren',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pa.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pa.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pa.ts",
+      "key": "ide.chat.version",
+      "from": "'ਅਣੂ.ਦੇਵ v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pa.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'ਸਿੰਥੇਸ ਨੇ ਜਵਾਬ ਦੇਣਾ ਪੂਰਾ ਕਰ ਲਿਆ',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pa.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'ਸਿੰਥੇਸ ਫਾਈਲਾਂ ਨੂੰ ਕਮਿਟ ਕਰਨ ਦਾ ਸੁਝਾਅ ਦੇ ਰਿਹਾ ਹੈ',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pl.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Zarejestruj się',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pl.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Syntaza zakończyła odpowiedź',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pt.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Cadastrar',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pt.ts",
+      "key": "ide.chat.version",
+      "from": "'Molécula.dev v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/pt.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'A sintase terminou de responder.',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ro.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Înregistrați-vă',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ro.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintaza a terminat de răspuns',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ru.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ru.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ru.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Синтезаза завершила ответ',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/si.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/si.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/si.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'සින්තේස් ප්‍රතිචාර දැක්වීම අවසන් කළේය.',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/si.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'සින්තේස් විසින් ගොනු කැප කිරීමට යෝජනා කරයි',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sk.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sk.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sk.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Syntáza dokončila reakciu',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sl.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sl.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sl.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintaza je končala z odzivom',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sq.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sq.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sq.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sintaza përfundoi përgjigjen',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sr.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sr.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sr.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Синтаза је завршила са одговором',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sr.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'Синтаза предлаже датотеке за коммитовање (commit)',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sv.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Registrera dig',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sv.ts",
+      "key": "ide.chat.loopLimitReached",
+      "from": "'Nådde maximum av max verktygsiterationer.',",
+      "to": "'Reached the maximum of {{max}} tool iterations.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sw.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sw.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/sw.ts",
+      "key": "ide.chat.version",
+      "from": "'Molekuli.dev v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ta.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ta.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ta.ts",
+      "key": "ide.chat.version",
+      "from": "'மூலக்கூறு.dev பதிப்பு 0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ta.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'சிந்தேஸ் பதிலளிப்பதை முடித்தது',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ta.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'சிந்தேஸ் கமிட் செய்வதற்கான கோப்புகளைப் பரிந்துரைக்கிறது.',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/te.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/te.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/te.ts",
+      "key": "ide.chat.version",
+      "from": "'మాలిక్యూల్.దేవ్ v0.1.0',",
+      "to": "'{{productName}} v0.1.0',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/te.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'సింథేస్ స్పందించడం పూర్తి చేసింది',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/te.ts",
+      "key": "ide.chat.soundEventDesc.commit_suggestion",
+      "from": "'సింథేస్ కమిట్ చేయడానికి ఫైళ్ళను సూచిస్తోంది',",
+      "to": "'{{agentName}} is suggesting files to commit',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/th.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/th.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/th.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'เอนไซม์ซินเทสตอบสนองเสร็จสิ้นแล้ว',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/tr.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Kayıt ol',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/tr.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Sentezleyici yanıt vermeyi bitirdi.',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/uk.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Зареєструватися',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/uk.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'Синтаза завершила відповідь',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ur.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ur.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/ur.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'سنتھیس نے جواب دینا ختم کیا۔',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/uz.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/uz.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/vi.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'Đăng ký',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/zh-TW.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/zh-TW.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/zh-TW.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'合成酶停止回應',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/zh.ts",
+      "key": "ide.chat.modelUpgradeRequired",
+      "from": "'注册',",
+      "to": "'{{model}} is available on Pro. Upgrade to access all models.',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/zh.ts",
+      "key": "ide.chat.soundEventDesc.done",
+      "from": "'合成酶停止响应',",
+      "to": "'{{agentName}} finished responding',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/zu.ts",
+      "key": "ide.chat.soundAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/ide/src/zu.ts",
+      "key": "ide.search.replaceAllShort",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/loyalty-tier-badge/src/be.ts",
+      "key": "loyaltyTierBadge.group",
+      "from": "'узровень узровень',",
+      "to": "'{{tier}} tier',"
+    },
+    {
+      "where": "packages/app/locales/loyalty-tier-badge/src/fi.ts",
+      "key": "loyaltyTierBadge.group",
+      "from": "'taso taso',",
+      "to": "'{{tier}} tier',"
+    },
+    {
+      "where": "packages/app/locales/loyalty-tier-badge/src/mr.ts",
+      "key": "loyaltyTierBadge.progress",
+      "from": "'प्रगती पुढील',",
+      "to": "'Progress to {{next}}',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/af.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/am.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/az.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/bg.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/bn.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/bs.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/ca.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/cy.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/et.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/et.ts",
+      "key": "notificationsPage.pageOf",
+      "from": "'Leht {{praegune}} kohta Kokku',",
+      "to": "'Page {{current}} of {{total}}',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/eu.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/fa.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/ga.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/gl.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/gu.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/he.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/hr.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/hy.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/is.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/ka.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/kk.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/km.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/kn.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/lo.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/lt.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/lv.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/lv.ts",
+      "key": "notificationsPage.pageOf",
+      "from": "'Lapa {{pašreizējais}} no Kopā',",
+      "to": "'Page {{current}} of {{total}}',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/mk.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/ml.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/mn.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/mr.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/mr.ts",
+      "key": "notificationsPage.pageOf",
+      "from": "'पृष्ठ {{current}} च्या एकूण',",
+      "to": "'Page {{current}} of {{total}}',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/mt.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/my.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/ne.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/pa.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/ru.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/si.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/sk.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/sl.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/sq.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/sr.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/sw.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/ta.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/te.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/th.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/ur.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/uz.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/zh-TW.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/notifications-page/src/zu.ts",
+      "key": "notificationsPage.filterAll",
+      "from": "'All ({{count}})',",
+      "to": "'All',"
+    },
+    {
+      "where": "packages/app/locales/now-playing-bar/src/et.ts",
+      "key": "nowPlaying.aria.region",
+      "from": "'Nüüd mängib: pealkiri',",
+      "to": "'Now playing: {{title}}',"
+    },
+    {
+      "where": "packages/app/locales/now-playing-bar/src/et.ts",
+      "key": "nowPlaying.aria.artwork",
+      "from": "'Kunstiteosed pealkiri',",
+      "to": "'Artwork for {{title}}',"
+    },
+    {
+      "where": "packages/app/locales/now-playing-bar/src/lo.ts",
+      "key": "nowPlaying.aria.region",
+      "from": "'ກຳລັງຫຼິ້ນຢູ່: ຫົວຂໍ້',",
+      "to": "'Now playing: {{title}}',"
+    },
+    {
+      "where": "packages/app/locales/now-playing-bar/src/lo.ts",
+      "key": "nowPlaying.aria.artwork",
+      "from": "'ຜົນງານສິລະປະສຳລັບ ຫົວຂໍ້',",
+      "to": "'Artwork for {{title}}',"
+    },
+    {
+      "where": "packages/app/locales/react-native-ui/src/et.ts",
+      "key": "ui.progress.value",
+      "from": "'väärtus %',",
+      "to": "'{{value}}%',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/af.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Ongeldige plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/af.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Kon nie intekening verifieer nie.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/am.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'ልክ ያልሆነ ዕቅድ።',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/am.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'ምዝገባን ማረጋገጥ አልተሳካም።',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ar.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'خطة غير صالحة.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ar.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'فشل التحقق من الاشتراك.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/az.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Yanlış plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/az.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Abunəlik doğrulanması uğursuz oldu.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/be.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Няправільны план.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/be.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Не ўдалося верыфікаваць падпіску.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/bg.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Невалиден план.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/bg.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Неуспешна верификация на абонамента.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/bn.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'অবৈধ প্ল্যান।',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/bn.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'সাবস্ক্রিপশন যাচাই করতে ব্যর্থ।',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/bs.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Nevažeći plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/bs.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Neuspješna verifikacija pretplate.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ca.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Pla no vàlid.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ca.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "\"No s'ha pogut verificar la subscripció.\",",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/cs.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Neplatný plán.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/cs.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Ověření předplatného selhalo.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/cy.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Cynllun annilys.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/cy.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Methwyd dilysu tanysgrifiad.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/da.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Ugyldig plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/da.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Kunne ikke verificere abonnement.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/de.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Ungültiger Tarif.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/de.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Abonnement konnte nicht verifiziert werden.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/el.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Μη έγκυρο πλάνο.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/el.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Αποτυχία επαλήθευσης συνδρομής.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/es.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Plan no válido.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/es.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'No se pudo verificar la suscripción.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/et.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Vigane plaan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/et.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Tellimuse kinnitamine ebaõnnestus.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/eu.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Plan baliogabea.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/eu.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Ezin izan da harpidetza egiaztatu.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/fa.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'طرح نامعتبر.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/fa.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'تأیید اشتراک ناموفق بود.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/fi.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Virheellinen paketti.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/fi.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Tilauksen vahvistus epäonnistui.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/fil.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Hindi valid na plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/fil.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Nabigo ang pag-verify ng subscription.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/fr.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Plan invalide.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/fr.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "\"Impossible de vérifier l'abonnement.\",",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ga.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Plean neamhbhailí.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ga.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Theip ar fhíorú síntiúis.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/gl.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Plan non válido.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/gl.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Non se puido verificar a subscrición.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/gu.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'અમાન્ય પ્લાન.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/gu.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'સબ્સ્ક્રિપ્શન ચકાસવામાં નિષ્ફળ.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ha.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Shiri mara inganci.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ha.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Tabbatar da biyan kuɗi ya gaza.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/he.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'תוכנית לא תקינה.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/he.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'אימות המנוי נכשל.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/hi.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'अमान्य प्लान।',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/hi.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'सब्सक्रिप्शन सत्यापित करने में विफल।',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/hr.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Nevažeći plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/hr.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Verifikacija pretplate nije uspjela.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/hu.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Érvénytelen csomag.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/hu.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Az előfizetés ellenőrzése sikertelen.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/hy.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Anvaverakan plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/hy.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Bajanarordutyuny stugely dzakhogvec.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/id.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Paket tidak valid.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/id.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Gagal memverifikasi langganan.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ig.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Atụmatụ na-ezighị ezi.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ig.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Enweghị ike nyochaa ndenye aha.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/is.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Ógild áætlun.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/is.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Mistókst að staðfesta áskrift.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/it.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Piano non valido.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/it.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "\"Impossibile verificare l'abbonamento.\",",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ja.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'無効なプランです。',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ja.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'サブスクリプションの確認に失敗しました。',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ka.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Aratsvalidi gegma.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ka.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Gamotseris veripikacia ver mokherkhda.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/kk.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Жарамсыз жоспар.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/kk.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Жазылымды тексеру сәтсіз аяқталды.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/km.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'គម្រោងមិនត្រឹមត្រូវ។',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/km.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'បរាជ័យក្នុងការផ្ទៀងផ្ទាត់ការជាវ។',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/kn.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'ಅಮಾನ್ಯ ಯೋಜನೆ.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/kn.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'ಚಂದಾ ಪರಿಶೀಲಿಸಲು ವಿಫಲ.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ko.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'유효하지 않은 요금제입니다.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ko.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'구독 확인에 실패했습니다.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ky.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Жараксыз план.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ky.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Жазылууну текшерүү ишке ашкан жок.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/lo.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'ແຜນບໍ່ຖືກຕ້ອງ.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/lo.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'ບໍ່ສາມາດຢືນຢັນການສະໝັກສະມາຊິກໄດ້.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/lt.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Netinkamas planas.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/lt.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Prenumeratos patvirtinimas nepavyko.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/lv.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Nederīgs plāns.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/lv.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Abonēšanas verifikācija neizdevās.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/mk.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Невалиден план.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/mk.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Верификацијата на претплатата не успеа.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ml.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'അസാധുവായ പ്ലാൻ.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ml.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'സബ്‌സ്‌ക്രിപ്ഷൻ സ്ഥിരീകരിക്കുന്നതിൽ പരാജയപ്പെട്ടു.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/mn.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Буруу төлөвлөгөө.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/mn.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Захиалга баталгаажуулахад алдаа гарлаа.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/mr.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'अवैध प्लॅन.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/mr.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'सबस्क्रिप्शन सत्यापित करण्यात अयशस्वी.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ms.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Pelan tidak sah.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ms.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Gagal mengesahkan langganan.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/mt.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Pjan invalidu.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/mt.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Il-verifika tal-abbonament falliet.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/my.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'အစီအစဉ် မမှန်ကန်ပါ။',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/my.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'စာရင်းသွင်းမှု အတည်ပြုရန် မအောင်မြင်ပါ။',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/nb.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Ugyldig plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/nb.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Kunne ikke verifisere abonnement.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ne.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'अमान्य योजना।',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ne.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'सदस्यता प्रमाणित गर्न असफल।',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/nl.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Ongeldig plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/nl.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Kon abonnement niet verifiëren.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/pa.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'ਅਵੈਧ ਯੋਜਨਾ।',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/pa.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਤਸਦੀਕ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/pl.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Nieprawidłowy plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/pl.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Weryfikacja subskrypcji nie powiodła się.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/pt.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Plano inválido.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/pt.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Não foi possível verificar a subscrição.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ro.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Plan invalid.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ro.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Nu s-a putut verifica abonamentul.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ru.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Недействительный план.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ru.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Не удалось подтвердить подписку.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/si.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'අවලංගු සැලැස්ම.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/si.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'දායකත්වය සත්‍යාපනය කිරීමට අසමත් විය.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sk.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Neplatný plán.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sk.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Overenie predplatného zlyhalo.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sl.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Neveljaven paket.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sl.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Preverjanje naročnine ni uspelo.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sq.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Plan i pavlefshem.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sq.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Verifikimi i abonimit deshtoi.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sr.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Неважећи план.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sr.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Верификација претплате није успела.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sv.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Ogiltig plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sv.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Kunde inte verifiera abonnemang.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sw.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Mpango batili.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/sw.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Imeshindwa kuthibitisha usajili.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ta.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'தவறான திட்டம்.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ta.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'சந்தாவை சரிபார்க்க இயலவில்லை.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/te.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'చెల్లని ప్లాన్.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/te.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'సబ్‌స్క్రిప్షన్ ధృవీకరించడంలో విఫలమైంది.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/th.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'แผนไม่ถูกต้อง',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/th.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'ยืนยันการสมัครสมาชิกไม่สำเร็จ',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/tr.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Geçersiz plan.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/tr.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Abonelik doğrulaması başarısız oldu.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/uk.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Недійсний план.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/uk.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Не вдалося підтвердити підписку.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ur.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'غلط پلان۔',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/ur.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'سبسکرپشن کی تصدیق میں ناکامی۔',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/uz.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "\"Noto'g'ri reja.\",",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/uz.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "\"Obunani tekshirish muvaffaqiyatsiz bo'ldi.\",",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/vi.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Gói không hợp lệ.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/vi.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Xác minh đăng ký thất bại.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/yo.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Ero ti ko wulo.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/yo.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Ijẹrisi ọwọ-ẹri kuna.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/zh-TW.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'無效的方案。',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/zh-TW.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'訂閱驗證失敗。',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/zh.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'无效的方案。',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/zh.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'订阅验证失败。',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/zu.ts",
+      "key": "user.payment.invalidPlan",
+      "from": "'Uhlelo olungavumelekile.',",
+      "to": "'Invalid plan for {{provider}}.',"
+    },
+    {
+      "where": "packages/api/locales/user-payments/src/zu.ts",
+      "key": "user.payment.verificationFailed",
+      "from": "'Yehlulekile ukuqinisekisa isithangami.',",
+      "to": "'Payment verification failed for {{provider}}.',"
+    }
+  ]
+}

@@ -12,7 +12,7 @@ export const ga: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Ranníocaíocht GPA',
   'gradebook.col.posted': 'Postáilte',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'as<x> {{uasmhéid}}</x>',
+  'gradebook.gpa.outOf': 'as {{max}}',
   'gradebook.gpa.trend.up': 'Ag treochtáil suas',
   'gradebook.gpa.trend.down': 'Ag treochtú anuas',
   'gradebook.gpa.trend.flat': 'Seasmhach',

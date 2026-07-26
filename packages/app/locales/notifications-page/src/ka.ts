@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for ka. */
 export const ka: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'შეტყობინებები',
-  'notificationsPage.markAllRead': 'მარკი<x> {{count}}</x> როგორც წაიკითხა',
+  'notificationsPage.markAllRead': 'მარკი {{count}} როგორც წაიკითხა',
   'notificationsPage.filterUnread': 'წაუკითხავი',
   'notificationsPage.filterMentions': 'ხსენებები',
   'notificationsPage.filterAriaLabel': 'შეტყობინებების ფილტრი',
@@ -14,7 +14,7 @@ export const ka: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'ყველაფერი გასაგებია',
   'notificationsPage.emptyBody': 'ახალი შეტყობინებები აქ გამოჩნდება.',
   'notificationsPage.paginationAriaLabel': 'გვერდების დახარისხება',
-  'notificationsPage.pageOf': 'გვერდი<x> {{მიმდინარე}}</x> -ის<x> {{სულ}}</x>',
+  'notificationsPage.pageOf': 'გვერდი {{current}} -ის {{total}}',
   'notificationsPage.prev': 'წინა',
   'notificationsPage.next': 'შემდეგი',
 }

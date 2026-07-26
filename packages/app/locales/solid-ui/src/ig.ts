@@ -10,7 +10,7 @@ export const ig: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Ibe peeji',
   'ui.pagination.first': 'Gaa na ibe mbụ',
   'ui.pagination.previous': 'Gaa na ibe gara aga',
-  'ui.pagination.goToPage': 'Gaa na ibe<x> {{peeji}}</x>',
+  'ui.pagination.goToPage': 'Gaa na ibe {{page}}',
   'ui.pagination.last': 'Gaa na peeji ikpeazụ',
   'ui.progress.label': 'Ọganihu',
   'ui.radioGroup.label': 'Otu redio',

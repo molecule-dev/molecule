@@ -5,7 +5,7 @@ export const vi: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Chính sách bảo mật',
   'footer.termsOfService': 'Điều khoản dịch vụ',
   'footer.language': 'Ngôn ngữ',
-  'footer.version': 'v<x> {{phiên bản}}</x>',
+  'footer.version': 'v {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
 }

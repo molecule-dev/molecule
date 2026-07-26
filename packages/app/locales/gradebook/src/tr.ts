@@ -13,7 +13,7 @@ export const tr: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA katkısı',
   'gradebook.col.posted': 'Yayınlandı',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'dışında<x> {{maks}}</x>',
+  'gradebook.gpa.outOf': 'dışında {{max}}',
   'gradebook.gpa.trend.up': 'Yükseliş trendinde',
   'gradebook.gpa.trend.down': 'Düşüş eğiliminde',
 }

@@ -3,9 +3,9 @@ import type { AudioMixerTranslations } from './types.js'
 /** FeatureAudioMixer translations for et. */
 export const et: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'Helimikserpult',
-  'audioMixer.aria.fader': '{{nimi}} hääbumislamp',
-  'audioMixer.aria.pan': '{{nimi}} pann',
-  'audioMixer.aria.send': '{{kanal}} saada<x> {{saat}}</x>',
+  'audioMixer.aria.fader': '{{name}} hääbumislamp',
+  'audioMixer.aria.pan': '{{name}} pann',
+  'audioMixer.aria.send': '{{channel}} saada {{send}}',
   'audioMixer.button.mute': 'Vaigista',
   'audioMixer.button.solo': 'Soolo',
   'audioMixer.master': 'Meister',

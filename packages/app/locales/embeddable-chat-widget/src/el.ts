@@ -4,7 +4,7 @@ import type { EmbeddableChatWidgetTranslations } from './types.js'
 export const el: Partial<EmbeddableChatWidgetTranslations> = {
   'embeddableChatWidget.composer.send': 'Αποστολή',
   'embeddableChatWidget.launcher.openLabel': 'Άνοιγμα συνομιλίας',
-  'embeddableChatWidget.panel.headerLabel': 'Συνομιλία με<x> {{brandName}}</x>',
+  'embeddableChatWidget.panel.headerLabel': 'Συνομιλία με {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Κλείσιμο συνομιλίας',
   'embeddableChatWidget.panel.emptyState': 'Κάντε μια ερώτηση για να ξεκινήσετε.',
   'embeddableChatWidget.panel.assistantTyping': 'Ο Βοηθός πληκτρολογεί…',

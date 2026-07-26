@@ -22,7 +22,7 @@ export const kn: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'ಕೊನೆಯದು',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{ಮೌಲ್ಯ}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'ರೇಡಿಯೋ ಗುಂಪು',
   'ui.select.placeholder': 'ಆಯ್ಕೆ ಮಾಡಿ...',
   'ui.select.title': 'ಆಯ್ಕೆ ಮಾಡಿ',

@@ -9,7 +9,7 @@ export const hu: Partial<BillingTranslations> = {
   'billing.pricing.checkoutError': 'Nem sikerült elindítani a pénztárat. Kérjük, próbálja újra.',
   'billing.pricing.mostPopular': 'Legnépszerűbb',
   'billing.pricing.upgradeCta': 'Váltás: {{tierName}}',
-  'billing.status.currentPlan': 'Jelenlegi terv:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Jelenlegi terv: {{tierName}}',
   'billing.status.cancelError': 'Nem sikerült megszakítani. Próbáld újra.',
   'billing.pricing.reassurance': 'Bármikor lemondható · Nem szükséges hitelkártya a kezdéshez',
   'billing.pricing.tierEyebrow': 'Szint',

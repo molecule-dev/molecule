@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for te. */
 export const te: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'నోటిఫికేషన్లు',
-  'notificationsPage.markAllRead': 'మార్క్<x> {{count}}</x> చదివినట్లుగా',
+  'notificationsPage.markAllRead': 'మార్క్ {{count}} చదివినట్లుగా',
   'notificationsPage.filterUnread': 'చదవని',
   'notificationsPage.filterMentions': 'ప్రస్తావనలు',
   'notificationsPage.filterAriaLabel': 'నోటిఫికేషన్‌లను ఫిల్టర్ చేయండి',
@@ -14,7 +14,7 @@ export const te: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'మీరు అంతా తెలుసుకున్నారు',
   'notificationsPage.emptyBody': 'కొత్త నోటిఫికేషన్‌లు ఇక్కడ కనిపిస్తాయి.',
   'notificationsPage.paginationAriaLabel': 'పేజీల సంఖ్య',
-  'notificationsPage.pageOf': 'పేజీ<x> {{current}}</x> యొక్క<x> {{మొత్తం}}</x>',
+  'notificationsPage.pageOf': 'పేజీ {{current}} యొక్క {{total}}',
   'notificationsPage.prev': 'మునుపటి',
   'notificationsPage.next': 'తరువాత',
 }

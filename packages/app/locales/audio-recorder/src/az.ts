@@ -9,7 +9,7 @@ export const az: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Fasilə',
   'audioRecorder.resume': 'CV',
   'audioRecorder.stop': 'Dayan',
-  'audioRecorder.elapsed': 'Keçmiş<x> {{time}}</x>',
+  'audioRecorder.elapsed': 'Keçmiş {{time}}',
   'audioRecorder.statusPaused': 'Dayandırıldı',
   'audioRecorder.statusProcessed': 'Qeydə alınıb',
   'audioRecorder.statusError': 'Xəta',

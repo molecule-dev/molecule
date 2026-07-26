@@ -12,7 +12,7 @@ export const kn: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA ಕೊಡುಗೆ',
   'gradebook.col.posted': 'ಪೋಸ್ಟ್ ಮಾಡಲಾಗಿದೆ',
   'gradebook.gpa.title': 'ಜಿಪಿಎ',
-  'gradebook.gpa.outOf': 'ಹೊರಗೆ<x> {{ಗರಿಷ್ಠ}}</x>',
+  'gradebook.gpa.outOf': 'ಹೊರಗೆ {{max}}',
   'gradebook.gpa.trend.up': 'ಟ್ರೆಂಡಿಂಗ್ ಅಪ್',
   'gradebook.gpa.trend.down': 'ಟ್ರೆಂಡಿಂಗ್ ಇಳಿಮುಖವಾಗಿದೆ',
   'gradebook.gpa.trend.flat': 'ಸ್ಥಿರವಾಗಿದೆ',

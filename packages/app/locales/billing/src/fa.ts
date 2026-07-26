@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for fa. */
 export const fa: Partial<BillingTranslations> = {
   'billing.status.loading': 'در حال بارگذاری…',
-  'billing.status.currentPlan': 'طرح فعلی:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'طرح فعلی: {{tierName}}',
   'billing.status.cancelCta': 'لغو اشتراک',
   'billing.status.cancelError': 'لغو نشد. لطفا دوباره امتحان کنید.',
   'billing.pricing.loading': 'در حال بارگذاری نقشه‌ها…',
@@ -13,5 +13,5 @@ export const fa: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'محبوب ترین',
   'billing.pricing.tierEyebrow': 'ردیف',
   'billing.pricing.perSeat': 'به ازای هر صندلی',
-  'billing.pricing.upgradeCta': 'ارتقا به<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'ارتقا به {{tierName}}',
 }

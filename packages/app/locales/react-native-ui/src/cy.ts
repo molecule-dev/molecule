@@ -22,7 +22,7 @@ export const cy: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Diwethaf',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{gwerth}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Grŵp radio',
   'ui.select.placeholder': 'Dewiswch…',
   'ui.select.title': 'Dewis',

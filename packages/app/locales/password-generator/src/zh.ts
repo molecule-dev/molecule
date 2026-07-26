@@ -6,7 +6,7 @@ export const zh: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': '复制',
   'password-generator.copied': '已复制！',
   'password-generator.regenerate': '重新生成',
-  'password-generator.length': '长度：<x> {{长度}}</x>',
+  'password-generator.length': '长度： {{length}}',
   'password-generator.lengthLabel': '密码长度',
   'password-generator.toggle.uppercase': '大写字母 (AZ)',
   'password-generator.toggle.lowercase': '小写字母 (az)',

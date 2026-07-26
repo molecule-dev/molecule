@@ -22,7 +22,7 @@ export const fa: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'آخرین',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{مقدار}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'گروه رادیویی',
   'ui.select.placeholder': 'انتخاب کنید…',
   'ui.select.title': 'انتخاب کنید',

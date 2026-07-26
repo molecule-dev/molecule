@@ -11,7 +11,7 @@ export const mn: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Хуудаслалт',
   'ui.pagination.first': 'Эхний хуудас руу очих',
   'ui.pagination.previous': 'Өмнөх хуудас руу очих',
-  'ui.pagination.goToPage': 'Хуудас руу очих<x> {{хуудас}}</x>',
+  'ui.pagination.goToPage': 'Хуудас руу очих {{page}}',
   'ui.pagination.last': 'Сүүлийн хуудас руу очих',
   'ui.progress.label': 'Дэвшил',
   'ui.radioGroup.label': 'Радио бүлэг',

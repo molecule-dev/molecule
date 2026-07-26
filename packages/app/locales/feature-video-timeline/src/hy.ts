@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const hy: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Տեսանյութերի ժամանակագրություն',
   'videoTimeline.aria.ruler': 'Ժամանակի քանոն',
-  'videoTimeline.aria.playhead': 'Նվագարկիչի գլխիկ<x> {{ժամանակ}}</x> ներ',
+  'videoTimeline.aria.playhead': 'Նվագարկիչի գլխիկ {{time}} ներ',
   'videoTimeline.aria.zoom': 'Ժամանակացույցի մեծացում',
   'videoTimeline.aria.mode': 'Խմբագրման ռեժիմ',
   'videoTimeline.zoom.in': 'Մեծացնել',

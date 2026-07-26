@@ -12,7 +12,7 @@ export const mk: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Пагинација',
   'ui.pagination.first': 'Оди на првата страница',
   'ui.pagination.previous': 'Оди на претходната страница',
-  'ui.pagination.goToPage': 'Оди на страница<x> {{страница}}</x>',
+  'ui.pagination.goToPage': 'Оди на страница {{page}}',
   'ui.pagination.last': 'Оди на последната страница',
   'ui.progress.label': 'Напредок',
   'ui.radioGroup.label': 'Радио група',

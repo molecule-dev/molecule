@@ -24,7 +24,7 @@ export const cs: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Poslední',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{hodnota}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Rádiová skupina',
   'ui.select.title': 'Vybrat',
   'ui.spinner.loading': 'Načítání',

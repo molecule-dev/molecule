@@ -6,7 +6,7 @@ export const de: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': 'Kopieren',
   'password-generator.copied': 'Kopiert!',
   'password-generator.regenerate': 'Neu generieren',
-  'password-generator.length': 'Länge:<x> {{Länge}}</x>',
+  'password-generator.length': 'Länge: {{length}}',
   'password-generator.lengthLabel': 'Passwortlänge',
   'password-generator.toggle.uppercase': 'Großbuchstaben (AZ)',
   'password-generator.toggle.lowercase': 'Kleinbuchstabe (az)',

@@ -12,7 +12,7 @@ export const el: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Μετάβαση στην προηγούμενη σελίδα',
   'ui.pagination.next': 'Μετάβαση στην επόμενη σελίδα',
   'ui.pagination.last': 'Μετάβαση στην τελευταία σελίδα',
-  'ui.pagination.goToPage': 'Μετάβαση στη σελίδα<x> {{σελίδα}}</x>',
+  'ui.pagination.goToPage': 'Μετάβαση στη σελίδα {{page}}',
   'ui.table.empty': 'Δεν υπάρχουν διαθέσιμα δεδομένα',
   'ui.avatar.alt': 'Άβαταρ',
   'ui.spinner.loading': 'Φόρτωση',

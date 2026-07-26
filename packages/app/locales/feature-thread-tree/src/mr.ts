@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for mr. */
 export const mr: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'विस्तार करा<x> {{count}}</x> उत्तर',
+  'threadTree.expand': 'विस्तार करा {{count}} उत्तर',
   'threadTree.collapse': 'थ्रेड संकुचित करा',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

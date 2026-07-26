@@ -6,7 +6,7 @@ export const ko: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': '복사',
   'password-generator.copied': '복사되었습니다!',
   'password-generator.regenerate': '다시 생성',
-  'password-generator.length': '길이:<x> {{길이}}</x>',
+  'password-generator.length': '길이: {{length}}',
   'password-generator.lengthLabel': '비밀번호 길이',
   'password-generator.toggle.uppercase': '대문자(AZ)',
   'password-generator.toggle.lowercase': '소문자(az)',

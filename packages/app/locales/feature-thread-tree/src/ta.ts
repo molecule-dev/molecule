@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ta. */
 export const ta: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'விரிவாக்கு<x> {{count}}</x> பதில்கள்',
+  'threadTree.expand': 'விரிவாக்கு {{count}} பதில்கள்',
   'threadTree.collapse': 'நூலைச் சுருக்கு',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

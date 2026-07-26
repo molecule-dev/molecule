@@ -7,7 +7,7 @@ export const el: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Εισαγωγή',
   'videoTimeline.aria.root': 'Χρονολόγιο βίντεο',
   'videoTimeline.aria.ruler': 'Χάρακας χρόνου',
-  'videoTimeline.aria.playhead': 'Κεφαλή αναπαραγωγής στο<x> {{φορά}}</x> μικρό',
+  'videoTimeline.aria.playhead': 'Κεφαλή αναπαραγωγής στο {{time}} μικρό',
   'videoTimeline.aria.zoom': 'Ζουμ χρονολογίου',
   'videoTimeline.aria.mode': 'Λειτουργία επεξεργασίας',
   'videoTimeline.zoom.in.icon': '+',

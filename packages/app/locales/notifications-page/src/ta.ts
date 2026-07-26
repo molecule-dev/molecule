@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for ta. */
 export const ta: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'அறிவிப்புகள்',
-  'notificationsPage.markAllRead': 'மார்க்<x> {{count}}</x> படித்தபடி',
+  'notificationsPage.markAllRead': 'மார்க் {{count}} படித்தபடி',
   'notificationsPage.filterUnread': 'படிக்காத',
   'notificationsPage.filterMentions': 'குறிப்புகள்',
   'notificationsPage.filterAriaLabel': 'அறிவிப்புகளை வடிகட்டவும்',
@@ -14,7 +14,7 @@ export const ta: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'நீங்கள் அனைத்தையும் தெரிந்துகொண்டீர்கள்',
   'notificationsPage.emptyBody': 'புதிய அறிவிப்புகள் இங்கே தோன்றும்.',
   'notificationsPage.paginationAriaLabel': 'பக்க எண்',
-  'notificationsPage.pageOf': 'பக்கம்<x> {{current}}</x> இன்<x> {{மொத்தம்}}</x>',
+  'notificationsPage.pageOf': 'பக்கம் {{current}} இன் {{total}}',
   'notificationsPage.prev': 'முந்தைய',
   'notificationsPage.next': 'அடுத்து',
 }

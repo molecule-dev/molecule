@@ -12,7 +12,7 @@ export const fil: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Pumunta sa nakaraang pahina',
   'ui.pagination.next': 'Pumunta sa susunod na pahina',
   'ui.pagination.last': 'Pumunta sa huling pahina',
-  'ui.pagination.goToPage': 'Pumunta sa pahina<x> {{pahina}}</x>',
+  'ui.pagination.goToPage': 'Pumunta sa pahina {{page}}',
   'ui.table.empty': 'Walang datos na magagamit',
   'ui.avatar.alt': 'Avatar',
   'ui.spinner.loading': 'Naglo-load',

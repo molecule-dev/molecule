@@ -10,10 +10,10 @@ export const he: Partial<PricingPageTranslations> = {
   'pricingPage.error': 'לא ניתן היה לטעון את התמחור. נסה שוב מאוחר יותר.',
   'pricingPage.checkoutError': 'לא ניתן היה להתחיל את תהליך התשלום. אנא נסה שוב.',
   'pricingPage.perSeat': 'לכל מושב',
-  'pricingPage.upgradeCta': 'שדרג ל<x> {{tierName}}</x>',
+  'pricingPage.upgradeCta': 'שדרג ל {{tierName}}',
   'pricingPage.periodToggle.label': 'תקופת חיוב',
   'pricingPage.planUpdated.heading': 'התוכנית שלך עודכנה',
   'pricingPage.planUpdated.body':
     'תודה ששדרגת. התוכנית החדשה שלך פעילה באופן מיידי וקבלה נשלחה אליך בדוא"ל.',
-  'pricingPage.planUpdated.headingNamed': 'אתה עכשיו על ה<x> {{שם התוכנית}}</x> לְתַכְנֵן',
+  'pricingPage.planUpdated.headingNamed': 'אתה עכשיו על ה {{planName}} לְתַכְנֵן',
 }

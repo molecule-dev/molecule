@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for th. */
 export const th: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'การแจ้งเตือน',
-  'notificationsPage.markAllRead': 'เครื่องหมาย<x> {{นับ}}</x> ตามที่อ่าน',
+  'notificationsPage.markAllRead': 'เครื่องหมาย {{count}} ตามที่อ่าน',
   'notificationsPage.filterUnread': 'ยังไม่ได้อ่าน',
   'notificationsPage.filterMentions': 'กล่าวถึง',
   'notificationsPage.filterAriaLabel': 'การแจ้งเตือนตัวกรอง',
@@ -14,7 +14,7 @@ export const th: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'คุณตามทันหมดแล้ว',
   'notificationsPage.emptyBody': 'การแจ้งเตือนใหม่จะปรากฏที่นี่',
   'notificationsPage.paginationAriaLabel': 'การแบ่งหน้า',
-  'notificationsPage.pageOf': 'หน้าหนังสือ<x> {{ปัจจุบัน}}</x> ของ<x> {{ทั้งหมด}}</x>',
+  'notificationsPage.pageOf': 'หน้าหนังสือ {{current}} ของ {{total}}',
   'notificationsPage.prev': 'ก่อนหน้า',
   'notificationsPage.next': 'ต่อไป',
 }

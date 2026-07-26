@@ -11,7 +11,7 @@ export const mt: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Paġinazzjoni',
   'ui.pagination.first': 'Mur fl-ewwel paġna',
   'ui.pagination.previous': "Mur fil-paġna ta' qabel",
-  'ui.pagination.goToPage': 'Mur fil-paġna<x> {{paġna}}</x>',
+  'ui.pagination.goToPage': 'Mur fil-paġna {{page}}',
   'ui.pagination.last': 'Mur fl-aħħar paġna',
   'ui.progress.label': 'Progress',
   'ui.radioGroup.label': 'Grupp tar-radju',

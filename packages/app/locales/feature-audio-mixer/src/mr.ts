@@ -5,7 +5,7 @@ export const mr: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'ऑडिओ मिक्सर कन्सोल',
   'audioMixer.aria.fader': '{{name}} फॅडर',
   'audioMixer.aria.pan': '{{name}} पॅन',
-  'audioMixer.aria.send': '{{चॅनल}} पाठवा<x> {{पाठवा}}</x>',
+  'audioMixer.aria.send': '{{channel}} पाठवा {{send}}',
   'audioMixer.button.mute': 'म्यूट',
   'audioMixer.button.solo': 'सोलो',
   'audioMixer.master': 'मास्टर',

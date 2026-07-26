@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for eu. */
 export const eu: Partial<BillingTranslations> = {
   'billing.status.loading': 'Kargatzen…',
-  'billing.status.currentPlan': 'Uneko plana:<x> {{mailaIzena}}</x>',
+  'billing.status.currentPlan': 'Uneko plana: {{tierName}}',
   'billing.status.cancelCta': 'Harpidetza bertan behera utzi',
   'billing.status.cancelError': 'Ezin izan da bertan behera utzi. Saiatu berriro.',
   'billing.pricing.loading': 'Planak kargatzen…',
@@ -14,5 +14,5 @@ export const eu: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Ezagunenak',
   'billing.pricing.tierEyebrow': 'Maila',
   'billing.pricing.perSeat': 'eserleku bakoitzeko',
-  'billing.pricing.upgradeCta': 'Berritu honetara<x> {{mailaIzena}}</x>',
+  'billing.pricing.upgradeCta': 'Berritu honetara {{tierName}}',
 }

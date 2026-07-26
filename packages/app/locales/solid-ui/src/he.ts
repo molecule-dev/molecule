@@ -12,7 +12,7 @@ export const he: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'דִפּוּף',
   'ui.pagination.first': 'עבור לעמוד הראשון',
   'ui.pagination.previous': 'עבור לעמוד הקודם',
-  'ui.pagination.goToPage': 'עבור לדף<x> {{עַמוּד}}</x>',
+  'ui.pagination.goToPage': 'עבור לדף {{page}}',
   'ui.pagination.last': 'עבור לעמוד האחרון',
   'ui.radioGroup.label': 'קבוצת רדיו',
   'ui.spinner.loading': 'טְעִינָה',

@@ -18,7 +18,7 @@ export const pt: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Paginação',
   'ui.pagination.first': 'Ir para a primeira página',
   'ui.pagination.previous': 'Ir para a página anterior',
-  'ui.pagination.goToPage': 'Acesse a página<x> {{página}}</x>',
+  'ui.pagination.goToPage': 'Acesse a página {{page}}',
   'ui.pagination.last': 'Ir para a última página',
   'ui.radioGroup.label': 'Grupo de rádio',
   'sidebar.memberStatus': 'Membro Premium',

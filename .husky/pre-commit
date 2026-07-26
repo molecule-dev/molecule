@@ -38,6 +38,14 @@ npm run check:peer-deps
 # checked against its owning locale bond in package B.)
 npm run check:i18n-parity
 
+# Interpolation placeholders — a {{name}} in a translation is a VARIABLE, not
+# prose. An upstream machine-translation step translated the names themselves
+# ({{title}} -> {{titel}}) and leaked its own <x> markup, so 5,816 values across
+# 40 bonds rendered the raw token instead of the value — mostly in aria-labels,
+# i.e. squarely on screen-reader users. Key-presence tests cannot see it: the
+# value is a non-empty string either way. Whole-tree and ~0.3s.
+npm run check:locale-placeholders
+
 # Registry export-drift gate (same spirit as i18n-parity, but cross-REPO). A
 # package's public exports are the source of truth, yet they are recorded in
 # mlcl/registry.json — a SEPARATE repo whose CI never checks this one out, so a

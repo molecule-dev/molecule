@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for zh-TW. */
 export const zhTW: Partial<BillingTranslations> = {
   'billing.status.loading': '載入中…',
-  'billing.status.currentPlan': '目前計劃：<x> {{tierName}}</x>',
+  'billing.status.currentPlan': '目前計劃： {{tierName}}',
   'billing.status.cancelCta': '取消訂閱',
   'billing.status.cancelError': '取消操作失敗，請稍後再試。',
   'billing.pricing.loading': '正在加載計劃…',

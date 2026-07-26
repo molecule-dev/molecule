@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ka. */
 export const ka: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'გაფართოება<x> {{count}}</x> პასუხები',
+  'threadTree.expand': 'გაფართოება {{count}} პასუხები',
   'threadTree.collapse': 'ჩაკეცეთ თემა',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

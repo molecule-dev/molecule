@@ -10,7 +10,7 @@ export const sk: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Stránkovanie',
   'ui.pagination.first': 'Prejsť na prvú stránku',
   'ui.pagination.previous': 'Prejsť na predchádzajúcu stránku',
-  'ui.pagination.goToPage': 'Prejsť na stránku<x> {{stránka}}</x>',
+  'ui.pagination.goToPage': 'Prejsť na stránku {{page}}',
   'ui.pagination.last': 'Prejsť na poslednú stránku',
   'ui.progress.label': 'Pokrok',
   'ui.radioGroup.label': 'Rádiová skupina',

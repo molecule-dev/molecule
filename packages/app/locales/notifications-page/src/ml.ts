@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for ml. */
 export const ml: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'അറിയിപ്പുകൾ',
-  'notificationsPage.markAllRead': 'അടയാളപ്പെടുത്തുക<x> {{എണ്ണം}}</x> വായിച്ചതുപോലെ',
+  'notificationsPage.markAllRead': 'അടയാളപ്പെടുത്തുക {{count}} വായിച്ചതുപോലെ',
   'notificationsPage.filterUnread': 'വായിക്കാത്തത്',
   'notificationsPage.filterMentions': 'പരാമർശങ്ങൾ',
   'notificationsPage.filterAriaLabel': 'അറിയിപ്പുകൾ ഫിൽട്ടർ ചെയ്യുക',
@@ -14,7 +14,7 @@ export const ml: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'നിങ്ങൾ എല്ലാം പൂർത്തിയാക്കി.',
   'notificationsPage.emptyBody': 'പുതിയ അറിയിപ്പുകൾ ഇവിടെ ദൃശ്യമാകും.',
   'notificationsPage.paginationAriaLabel': 'പേജിനേഷൻ',
-  'notificationsPage.pageOf': 'പേജ്<x> {{നിലവിലുള്ളത്}}</x> യുടെ<x> {{ആകെ}}</x>',
+  'notificationsPage.pageOf': 'പേജ് {{current}} യുടെ {{total}}',
   'notificationsPage.prev': 'മുമ്പത്തേത്',
   'notificationsPage.next': 'അടുത്തത്',
 }

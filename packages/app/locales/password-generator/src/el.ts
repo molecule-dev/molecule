@@ -6,7 +6,7 @@ export const el: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copied': 'Αντιγράφηκε!',
   'password-generator.regenerate': 'Επαναδημιουργία',
   'password-generator.readoutLabel': 'Δημιουργήθηκε κωδικός πρόσβασης',
-  'password-generator.length': 'Μήκος:<x> {{μήκος}}</x>',
+  'password-generator.length': 'Μήκος: {{length}}',
   'password-generator.lengthLabel': 'Μήκος κωδικού πρόσβασης',
   'password-generator.toggle.uppercase': 'Κεφαλαία γράμματα (AZ)',
   'password-generator.toggle.lowercase': 'Πεζά γράμματα (az)',

@@ -7,5 +7,5 @@ export const sv: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Anteckningsrutnät',
   'pianoRoll.aria.resize': 'Ändra storlek på anteckningen',
   'pianoRoll.aria.note':
-    'Notera<x> {{tonhöjd}}</x> börjar på taktslag<x> {{startBeat}}</x> för<x> {{durationBeats}}</x> taktslag',
+    'Notera {{pitch}} börjar på taktslag {{startBeat}} för {{durationBeats}} taktslag',
 }

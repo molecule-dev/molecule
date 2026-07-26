@@ -3,10 +3,10 @@ import type { VideoScrubberTranslations } from './types.js'
 /** FeatureVideoScrubber translations for fa. */
 export const fa: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'اسکرابر ویدیویی',
-  'videoScrubber.aria.strip': 'فیلم استریپ — پلی‌هد در<x> {{زمان}}</x> ها (قاب<x> {{قاب}}</x> )',
-  'videoScrubber.aria.playhead': 'پلی‌هد در<x> {{زمان}}</x> ها',
-  'videoScrubber.aria.frameReadout': 'قاب<x> {{قاب}}</x> از<x> {{کل}}</x>',
+  'videoScrubber.aria.strip': 'فیلم استریپ — پلی‌هد در {{time}} ها (قاب {{frame}} )',
+  'videoScrubber.aria.playhead': 'پلی‌هد در {{time}} ها',
+  'videoScrubber.aria.frameReadout': 'قاب {{frame}} از {{total}}',
   'videoScrubber.aria.thumbnail': 'پیش‌نمایش قاب',
   'videoScrubber.thumbnails.empty': 'بدون پیش‌نمایش',
-  'videoScrubber.frameReadout.total': '/<x> {{کل}}</x> قاب‌ها',
+  'videoScrubber.frameReadout.total': '/ {{total}} قاب‌ها',
 }

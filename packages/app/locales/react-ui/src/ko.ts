@@ -18,7 +18,7 @@ export const ko: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': '쪽수 매기기',
   'ui.pagination.first': '첫 페이지로 이동',
   'ui.pagination.previous': '이전 페이지로 이동',
-  'ui.pagination.goToPage': '페이지로 이동<x> {{페이지}}</x>',
+  'ui.pagination.goToPage': '페이지로 이동 {{page}}',
   'ui.pagination.last': '이전 페이지로 이동',
   'ui.radioGroup.label': '라디오 그룹',
   'sidebar.memberStatus': '프리미엄 회원',

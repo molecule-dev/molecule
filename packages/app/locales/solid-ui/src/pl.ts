@@ -13,7 +13,7 @@ export const pl: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Paginacja',
   'ui.pagination.first': 'Przejdź do pierwszej strony',
   'ui.pagination.previous': 'Przejdź do poprzedniej strony',
-  'ui.pagination.goToPage': 'Przejdź do strony<x> {{strona}}</x>',
+  'ui.pagination.goToPage': 'Przejdź do strony {{page}}',
   'ui.pagination.last': 'Przejdź do ostatniej strony',
   'ui.radioGroup.label': 'Grupa radiowa',
   'ui.table.empty': 'Brak dostępnych danych',

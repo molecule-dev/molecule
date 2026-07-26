@@ -3,8 +3,8 @@ import type { ChapterListTranslations } from './types.js'
 /** FeatureChapterList translations for am. */
 export const am: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'ምዕራፎች',
-  'chapterList.aria.seek': 'ዝለል ወደ<x> {{ርዕስ}}</x> በ<x> {{የጊዜ ማህተም}}</x>',
-  'chapterList.aria.thumbnail': 'የጥፍር አከል<x> {{ርዕስ}}</x>',
+  'chapterList.aria.seek': 'ዝለል ወደ {{title}} በ {{timestamp}}',
+  'chapterList.aria.thumbnail': 'የጥፍር አከል {{title}}',
   'chapterList.empty': 'ለዚህ ክፍል ምንም ምዕራፎች የሉም።',
   'chapterList.current': 'አሁን እየተጫወተ ነው',
 }

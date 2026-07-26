@@ -14,7 +14,7 @@ export const it: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Paginazione',
   'ui.pagination.first': 'Vai alla prima pagina',
   'ui.pagination.previous': 'Vai alla pagina precedente',
-  'ui.pagination.goToPage': 'Vai alla pagina<x> {{pagina}}</x>',
+  'ui.pagination.goToPage': 'Vai alla pagina {{page}}',
   'ui.pagination.last': "Vai all'ultima pagina",
   'ui.radioGroup.label': 'Gruppo radiofonico',
   'ui.table.empty': 'Nessun dato disponibile',

@@ -12,7 +12,7 @@ export const lo: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'ການຈັດແບ່ງໜ້າ',
   'ui.pagination.first': 'ໄປຫາໜ້າທຳອິດ',
   'ui.pagination.previous': 'ໄປຫາໜ້າກ່ອນໜ້ານີ້',
-  'ui.pagination.goToPage': 'ໄປທີ່ໜ້າ<x> {{ໜ້າ}}</x>',
+  'ui.pagination.goToPage': 'ໄປທີ່ໜ້າ {{page}}',
   'ui.pagination.last': 'ໄປຫາໜ້າສຸດທ້າຍ',
   'ui.progress.label': 'ຄວາມຄືບໜ້າ',
   'ui.radioGroup.label': 'ກຸ່ມວິທະຍຸ',

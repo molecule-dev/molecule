@@ -5,7 +5,7 @@ export const el: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': 'Κυρ',
   'heatmap.weekday.sat': 'Σάβ',
   'heatmap.aria.grid': 'Χάρτης θερμότητας δραστηριότητας',
-  'heatmap.cell.tooltip': '{{ημερομηνία}} :<x> {{αξία}}</x>',
+  'heatmap.cell.tooltip': '{{date}} : {{value}}',
   'heatmap.month.jan': 'Ιαν',
   'heatmap.month.feb': 'Φεβ',
   'heatmap.month.mar': 'Αφανίζω',

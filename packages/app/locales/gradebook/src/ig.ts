@@ -12,7 +12,7 @@ export const ig: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Ntinye aka GPA',
   'gradebook.col.posted': 'E bipụtara',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'si na<x> {{kachasị}}</x>',
+  'gradebook.gpa.outOf': 'si na {{max}}',
   'gradebook.gpa.trend.up': 'Na-ewu ewu',
   'gradebook.gpa.trend.down': 'Na-ada ada',
   'gradebook.gpa.trend.flat': 'Nkwụsi Ike',

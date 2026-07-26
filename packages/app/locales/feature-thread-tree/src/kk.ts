@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for kk. */
 export const kk: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'Кеңейту<x> {{count}}</x> жауаптар',
+  'threadTree.expand': 'Кеңейту {{count}} жауаптар',
   'threadTree.collapse': 'Тақырыпты жию',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

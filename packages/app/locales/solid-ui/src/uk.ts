@@ -13,7 +13,7 @@ export const uk: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Пагінація',
   'ui.pagination.first': 'Перейти на першу сторінку',
   'ui.pagination.previous': 'Перейти на попередню сторінку',
-  'ui.pagination.goToPage': 'Перейти на сторінку<x> {{сторінка}}</x>',
+  'ui.pagination.goToPage': 'Перейти на сторінку {{page}}',
   'ui.pagination.last': 'Перейти на останню сторінку',
   'ui.radioGroup.label': 'Радіогрупа',
   'ui.spinner.loading': 'Завантаження',

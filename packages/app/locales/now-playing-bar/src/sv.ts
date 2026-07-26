@@ -9,6 +9,6 @@ export const sv: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.aria.prev': 'Föregående spår',
   'nowPlaying.aria.seek': 'Sök',
   'nowPlaying.aria.volume': 'Volym',
-  'nowPlaying.aria.region': 'Nu spelas:<x> {{titel}}</x>',
-  'nowPlaying.aria.artwork': 'Konstverk för<x> {{titel}}</x>',
+  'nowPlaying.aria.region': 'Nu spelas: {{title}}',
+  'nowPlaying.aria.artwork': 'Konstverk för {{title}}',
 }

@@ -22,7 +22,7 @@ export const sw: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Mwisho',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{thamani}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Kikundi cha redio',
   'ui.select.placeholder': 'Chagua…',
   'ui.select.title': 'Chagua',

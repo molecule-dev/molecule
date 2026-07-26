@@ -3,8 +3,7 @@ import type { TrackLaneTranslations } from './types.js'
 /** FeatureTrackLane translations for vi. */
 export const vi: Partial<TrackLaneTranslations> = {
   'trackLane.header': 'Theo dõi',
-  'trackLane.aria.lane': 'Làn đường ray<x> {{tên}}</x>',
-  'trackLane.aria.clip':
-    'Clip<x> {{nhãn}}</x> bắt đầu từ<x> {{startTime}}</x> s cho<x> {{khoảng thời gian}}</x> S',
+  'trackLane.aria.lane': 'Làn đường ray {{name}}',
+  'trackLane.aria.clip': 'Clip {{label}} bắt đầu từ {{startTime}} s cho {{duration}} S',
   'trackLane.aria.resize': 'Thay đổi kích thước clip',
 }

@@ -12,7 +12,7 @@ export const ta: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'பக்க எண்',
   'ui.pagination.first': 'முதல் பக்கத்திற்குச் செல்லவும்',
   'ui.pagination.previous': 'முந்தைய பக்கத்திற்குச் செல்லவும்',
-  'ui.pagination.goToPage': 'பக்கத்திற்குச் செல்லவும்<x> {{பக்கம்}}</x>',
+  'ui.pagination.goToPage': 'பக்கத்திற்குச் செல்லவும் {{page}}',
   'ui.pagination.last': 'கடைசிப் பக்கத்திற்குச் செல்லவும்',
   'ui.progress.label': 'முன்னேற்றம்',
   'ui.radioGroup.label': 'வானொலி குழு',

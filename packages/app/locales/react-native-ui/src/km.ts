@@ -22,7 +22,7 @@ export const km: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'ចុងក្រោយ',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{តម្លៃ}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'ក្រុមវិទ្យុ',
   'ui.select.placeholder': 'ជ្រើសរើស…',
   'ui.select.title': 'ជ្រើសរើស',

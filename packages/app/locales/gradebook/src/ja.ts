@@ -13,7 +13,7 @@ export const ja: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPAへの貢献',
   'gradebook.col.posted': '投稿済み',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'から<x>最大</x>',
+  'gradebook.gpa.outOf': 'out of {{max}}',
   'gradebook.gpa.trend.up': '上昇傾向',
   'gradebook.gpa.trend.down': '下降傾向',
 }

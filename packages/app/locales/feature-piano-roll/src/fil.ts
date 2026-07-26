@@ -7,5 +7,5 @@ export const fil: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Grid ng tala',
   'pianoRoll.aria.resize': 'Baguhin ang laki ng tala',
   'pianoRoll.aria.note':
-    'Tala<x> {{pitch}}</x> nagsisimula sa beat<x> {{startBeat}}</x> para sa<x> {{durationBeats}}</x> mga ritmo',
+    'Tala {{pitch}} nagsisimula sa beat {{startBeat}} para sa {{durationBeats}} mga ritmo',
 }

@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const cy: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Llinell amser fideo',
   'videoTimeline.aria.ruler': 'Rheolwr amser',
-  'videoTimeline.aria.playhead': 'Pen chwarae yn<x> {{amser}}</x> au',
+  'videoTimeline.aria.playhead': 'Pen chwarae yn {{time}} au',
   'videoTimeline.aria.zoom': "Chwyddo'r llinell amser",
   'videoTimeline.aria.mode': 'Modd golygu',
   'videoTimeline.zoom.in': 'Chwyddo i mewn',

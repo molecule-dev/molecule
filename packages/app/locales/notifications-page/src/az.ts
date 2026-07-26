@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for az. */
 export const az: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Bildirişlər',
-  'notificationsPage.markAllRead': 'Mark<x> {{count}}</x> oxunduğu kimi',
+  'notificationsPage.markAllRead': 'Mark {{count}} oxunduğu kimi',
   'notificationsPage.filterUnread': 'Oxunmamış',
   'notificationsPage.filterMentions': 'Qeydlər',
   'notificationsPage.filterAriaLabel': 'Bildirişləri filtrləyin',
@@ -14,7 +14,7 @@ export const az: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Hamınız məlumatlısınız',
   'notificationsPage.emptyBody': 'Yeni bildirişlər burada görünəcək.',
   'notificationsPage.paginationAriaLabel': 'Səhifələmə',
-  'notificationsPage.pageOf': 'Səhifə<x> {{cari}}</x> -ın<x> {{cəmi}}</x>',
+  'notificationsPage.pageOf': 'Səhifə {{current}} -ın {{total}}',
   'notificationsPage.prev': 'Əvvəlki',
   'notificationsPage.next': 'Növbəti',
 }

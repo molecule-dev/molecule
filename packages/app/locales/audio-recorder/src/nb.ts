@@ -9,7 +9,7 @@ export const nb: Partial<AudioRecorderTranslations> = {
   'audioRecorder.error': 'Opptaket mislyktes. Prøv på nytt.',
   'audioRecorder.permissionDenied': 'Mikrofontillatelse nektet. Gi tilgang og prøv på nytt.',
   'audioRecorder.stop': 'Stoppe',
-  'audioRecorder.elapsed': 'Utløpt<x> {{tid}}</x>',
+  'audioRecorder.elapsed': 'Utløpt {{time}}',
   'audioRecorder.statusProcessed': 'Innspilt',
   'audioRecorder.statusError': 'Feil',
   'audioRecorder.statusIdle': 'Klar til opptak',

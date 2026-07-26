@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for mk. */
 export const mk: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'Прошири<x> {{count}}</x> одговори',
+  'threadTree.expand': 'Прошири {{count}} одговори',
   'threadTree.collapse': 'Собери ја нишката',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

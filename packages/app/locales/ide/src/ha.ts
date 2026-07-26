@@ -274,7 +274,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.tip.commit':
     'Shawara: yi amfani da /commit don adana canje-canjenku azaman git commit da zaku iya komawa akai-akai.',
   'ide.chat.tip.report':
-    'Shawara: wani abu ya lalace? /rahoton yana aika kuskure ko ra&#39;ayi ga ƙungiyar tare da an haɗa tattaunawar ku ta baya-bayan nan.',
+    "Shawara: wani abu ya lalace? /rahoton yana aika kuskure ko ra'ayi ga ƙungiyar tare da an haɗa tattaunawar ku ta baya-bayan nan.",
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',

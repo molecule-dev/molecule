@@ -10,7 +10,7 @@ export const cs: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Přístup k mikrofonu byl zamítnut. Povolte přístup a zkuste to znovu.',
   'audioRecorder.stop': 'Zastávka',
-  'audioRecorder.elapsed': 'Uplynulo<x> {{čas}}</x>',
+  'audioRecorder.elapsed': 'Uplynulo {{time}}',
   'audioRecorder.statusProcessed': 'Nahráno',
   'audioRecorder.statusError': 'Chyba',
   'audioRecorder.statusIdle': 'Připraveno k nahrávání',

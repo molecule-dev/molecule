@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for is. */
 export const is: Partial<BillingTranslations> = {
   'billing.status.loading': 'Hleður…',
-  'billing.status.currentPlan': 'Núverandi áætlun:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Núverandi áætlun: {{tierName}}',
   'billing.status.cancelCta': 'Hætta áskrift',
   'billing.status.cancelError': 'Ekki tókst að hætta við. Reyndu aftur.',
   'billing.pricing.loading': 'Hleður áætlanir…',
@@ -13,5 +13,5 @@ export const is: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Vinsælast',
   'billing.pricing.tierEyebrow': 'Stig',
   'billing.pricing.perSeat': 'á sæti',
-  'billing.pricing.upgradeCta': 'Uppfæra í<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Uppfæra í {{tierName}}',
 }

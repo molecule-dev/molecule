@@ -9,7 +9,7 @@ export const uz: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': "To'xtatib turish",
   'audioRecorder.resume': 'Rezyume; qayta boshlash',
   'audioRecorder.stop': 'STOP',
-  'audioRecorder.elapsed': "O'tgan<x> {{vaqt}}</x>",
+  'audioRecorder.elapsed': "O'tgan {{time}}",
   'audioRecorder.statusPaused': "To'xtatildi",
   'audioRecorder.statusProcessed': 'Yozib olingan',
   'audioRecorder.statusError': 'Xato',

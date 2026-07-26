@@ -6,7 +6,7 @@ export const fi: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copied': 'Kopioitu!',
   'password-generator.regenerate': 'Luo uudelleen',
   'password-generator.readoutLabel': 'Luotu salasana',
-  'password-generator.length': 'Pituus:<x> {{pituus}}</x>',
+  'password-generator.length': 'Pituus: {{length}}',
   'password-generator.lengthLabel': 'Salasanan pituus',
   'password-generator.toggle.uppercase': 'Isot kirjaimet (A–Z)',
   'password-generator.toggle.lowercase': 'Pienet kirjaimet (az)',

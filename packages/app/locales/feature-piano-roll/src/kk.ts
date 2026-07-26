@@ -7,5 +7,5 @@ export const kk: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Нота торы',
   'pianoRoll.aria.resize': 'Ескертпенің өлшемін өзгерту',
   'pianoRoll.aria.note':
-    'Ескерту<x> {{ұсыныс}}</x> соғудан бастап<x> {{startBeat}}</x> үшін<x> {{durationBeats}}</x> соққылар',
+    'Ескерту {{pitch}} соғудан бастап {{startBeat}} үшін {{durationBeats}} соққылар',
 }

@@ -4,10 +4,10 @@ import type { VideoScrubberTranslations } from './types.js'
 export const sr: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Видео клизач',
   'videoScrubber.aria.strip':
-    'Филмска трака — позиција за репродукцију на<x> {{време}}</x> с (оквир<x> {{frame}}</x> )',
-  'videoScrubber.aria.playhead': 'Показивач репродукције на<x> {{време}}</x> с',
-  'videoScrubber.aria.frameReadout': 'Оквир<x> {{frame}}</x> од<x> {{укупно}}</x>',
+    'Филмска трака — позиција за репродукцију на {{time}} с (оквир {{frame}} )',
+  'videoScrubber.aria.playhead': 'Показивач репродукције на {{time}} с',
+  'videoScrubber.aria.frameReadout': 'Оквир {{frame}} од {{total}}',
   'videoScrubber.aria.thumbnail': 'Преглед кадра',
   'videoScrubber.thumbnails.empty': 'Без прегледа',
-  'videoScrubber.frameReadout.total': '/<x> {{укупно}}</x> оквири',
+  'videoScrubber.frameReadout.total': '/ {{total}} оквири',
 }

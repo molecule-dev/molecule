@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const mn: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Видеоны цагийн хуваарь',
   'videoTimeline.aria.ruler': 'Цаг хугацааны захирагч',
-  'videoTimeline.aria.playhead': 'Тоглоомын толгой<x> {{цаг}}</x> с',
+  'videoTimeline.aria.playhead': 'Тоглоомын толгой {{time}} с',
   'videoTimeline.aria.zoom': 'Цагийн шугамын томруулалт',
   'videoTimeline.aria.mode': 'Засварлах горим',
   'videoTimeline.zoom.in': 'Томруулж харах',

@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for fa. */
 export const fa: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'اعلان‌ها',
-  'notificationsPage.markAllRead': 'مارک<x> {{شمارش}}</x> همانطور که خوانده شد',
+  'notificationsPage.markAllRead': 'مارک {{count}} همانطور که خوانده شد',
   'notificationsPage.filterUnread': 'خوانده نشده',
   'notificationsPage.filterMentions': 'اشاره‌ها',
   'notificationsPage.filterAriaLabel': 'فیلتر کردن اعلان‌ها',
@@ -14,7 +14,7 @@ export const fa: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'همه‌تون گرفتارید',
   'notificationsPage.emptyBody': 'اعلان‌های جدید اینجا نمایش داده می‌شوند.',
   'notificationsPage.paginationAriaLabel': 'صفحه بندی',
-  'notificationsPage.pageOf': 'صفحه<x> {{فعلی}}</x> از<x> {{کل}}</x>',
+  'notificationsPage.pageOf': 'صفحه {{current}} از {{total}}',
   'notificationsPage.prev': 'قبلی',
   'notificationsPage.next': 'بعدی',
 }

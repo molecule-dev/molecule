@@ -6,7 +6,7 @@ export const tr: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': 'Kopyala',
   'password-generator.copied': 'Kopyalandı!',
   'password-generator.regenerate': 'Yeniden oluştur',
-  'password-generator.length': 'Uzunluk:<x> {{uzunluk}}</x>',
+  'password-generator.length': 'Uzunluk: {{length}}',
   'password-generator.lengthLabel': 'Parola uzunluğu',
   'password-generator.toggle.uppercase': 'Büyük harf (AZ)',
   'password-generator.toggle.lowercase': 'Küçük harf (az)',

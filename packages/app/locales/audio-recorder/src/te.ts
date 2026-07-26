@@ -9,7 +9,7 @@ export const te: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'విరామం',
   'audioRecorder.resume': 'పునఃప్రారంభం',
   'audioRecorder.stop': 'ఆపండి',
-  'audioRecorder.elapsed': 'గడిచిపోయింది<x> {{సమయం}}</x>',
+  'audioRecorder.elapsed': 'గడిచిపోయింది {{time}}',
   'audioRecorder.statusPaused': 'పాజ్ చేయబడింది',
   'audioRecorder.statusProcessed': 'రికార్డ్ చేయబడింది',
   'audioRecorder.statusError': 'లోపం',

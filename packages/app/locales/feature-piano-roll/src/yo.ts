@@ -7,5 +7,5 @@ export const yo: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Àkójọ àkọsílẹ̀',
   'pianoRoll.aria.resize': 'Ṣe àtúnṣe ìwọ̀n àkọsílẹ̀',
   'pianoRoll.aria.note':
-    'Àkíyèsí<x> {{ìpè}}</x> bẹ̀rẹ̀ ní ìlù<x> {{ìbẹ̀rẹ̀Ìlù}}</x> fún<x> {{igbadun Awọn ere}}</x> awọn lù',
+    'Àkíyèsí {{pitch}} bẹ̀rẹ̀ ní ìlù {{startBeat}} fún {{durationBeats}} awọn lù',
 }

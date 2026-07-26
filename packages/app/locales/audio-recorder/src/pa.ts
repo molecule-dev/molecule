@@ -9,7 +9,7 @@ export const pa: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'ਵਿਰਾਮ',
   'audioRecorder.resume': 'ਰੈਜ਼ਿਊਮੇ',
   'audioRecorder.stop': 'ਰੂਕੋ',
-  'audioRecorder.elapsed': 'ਬੀਤ ਗਿਆ<x> {{ਸਮਾਂ}}</x>',
+  'audioRecorder.elapsed': 'ਬੀਤ ਗਿਆ {{time}}',
   'audioRecorder.statusPaused': 'ਰੁਕਿਆ ਹੋਇਆ',
   'audioRecorder.statusProcessed': 'ਰਿਕਾਰਡ ਕੀਤਾ ਗਿਆ',
   'audioRecorder.statusError': 'ਗਲਤੀ',

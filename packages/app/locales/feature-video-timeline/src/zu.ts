@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const zu: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Umugqa wesikhathi wevidiyo',
   'videoTimeline.aria.ruler': 'Umbusi wesikhathi',
-  'videoTimeline.aria.playhead': 'I-Playhead ku-<x> {{isikhathi}}</x> s',
+  'videoTimeline.aria.playhead': 'I-Playhead ku- {{time}} s',
   'videoTimeline.aria.zoom': 'Ukusondeza umugqa wesikhathi',
   'videoTimeline.aria.mode': 'Imodi yokuhlela',
   'videoTimeline.zoom.in': 'Sondeza isithombe',

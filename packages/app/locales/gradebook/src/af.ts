@@ -12,7 +12,7 @@ export const af: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA-bydrae',
   'gradebook.col.posted': 'Geplaas',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'uit<x> {{maks}}</x>',
+  'gradebook.gpa.outOf': 'uit {{max}}',
   'gradebook.gpa.trend.up': 'Opwaarts neigend',
   'gradebook.gpa.trend.down': 'Neiging afwaarts',
   'gradebook.gpa.trend.flat': 'Bestendig',

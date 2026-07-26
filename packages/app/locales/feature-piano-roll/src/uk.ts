@@ -7,5 +7,5 @@ export const uk: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Сітка нотаток',
   'pianoRoll.aria.resize': 'Змінити розмір нотатки',
   'pianoRoll.aria.note':
-    'Примітка<x> {{пропозиція}}</x> починаючи з такту<x> {{startBeat}}</x> для<x> {{durationBeats}}</x> ритми',
+    'Примітка {{pitch}} починаючи з такту {{startBeat}} для {{durationBeats}} ритми',
 }

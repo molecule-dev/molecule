@@ -12,7 +12,7 @@ export const cs: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Přejít na předchozí stránku',
   'ui.pagination.next': 'Přejít na další stránku',
   'ui.pagination.last': 'Přejít na poslední stránku',
-  'ui.pagination.goToPage': 'Přejít na stránku<x> {{strana}}</x>',
+  'ui.pagination.goToPage': 'Přejít na stránku {{page}}',
   'ui.table.empty': 'Nejsou k dispozici žádná data',
   'ui.avatar.alt': 'Avatar',
   'ui.spinner.loading': 'Načítání',

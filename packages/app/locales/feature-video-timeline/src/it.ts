@@ -7,7 +7,7 @@ export const it: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Inserisci',
   'videoTimeline.aria.root': 'Cronologia video',
   'videoTimeline.aria.ruler': 'Regolatore del tempo',
-  'videoTimeline.aria.playhead': 'Playhead a<x> {{tempo}}</x> S',
+  'videoTimeline.aria.playhead': 'Playhead a {{time}} S',
   'videoTimeline.aria.zoom': 'Zoom sulla linea temporale',
   'videoTimeline.aria.mode': 'Modalità di modifica',
   'videoTimeline.zoom.in.icon': '+',

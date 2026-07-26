@@ -4,10 +4,10 @@ import type { ThreadTreeTranslations } from './types.js'
 export const ar: Partial<ThreadTreeTranslations> = {
   'threadTree.upvote': 'تصويت إيجابي',
   'threadTree.reply': 'رد',
-  'threadTree.expand': 'يوسع<x> {{عدد}}</x> الردود',
+  'threadTree.expand': 'يوسع {{count}} الردود',
   'threadTree.collapse': 'طي الموضوع',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',
-  'threadTree.score': '{{عدد}} نقاط',
-  'threadTree.hiddenReplies': '{{عدد}} مختفي',
+  'threadTree.score': '{{count}} نقاط',
+  'threadTree.hiddenReplies': '{{count}} مختفي',
 }

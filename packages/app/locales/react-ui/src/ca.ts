@@ -11,7 +11,7 @@ export const ca: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Paginació',
   'ui.pagination.first': 'Anar a la primera pàgina',
   'ui.pagination.previous': 'Anar a la pàgina anterior',
-  'ui.pagination.goToPage': 'Anar a la pàgina<x> {{pàgina}}</x>',
+  'ui.pagination.goToPage': 'Anar a la pàgina {{page}}',
   'ui.pagination.last': "Anar a l'última pàgina",
   'ui.progress.label': 'Progrés',
   'ui.radioGroup.label': 'Grup de ràdio',

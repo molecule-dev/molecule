@@ -12,7 +12,7 @@ export const ca: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Contribució del GPA',
   'gradebook.col.posted': 'Publicat',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'fora de<x> {{màx}}</x>',
+  'gradebook.gpa.outOf': 'fora de {{max}}',
   'gradebook.gpa.trend.up': "Tendència a l'alça",
   'gradebook.gpa.trend.down': 'Tendència a la baixa',
   'gradebook.gpa.trend.flat': 'Constant',

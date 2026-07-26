@@ -10,7 +10,7 @@ export const km: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'ការបែងចែកទំព័រ',
   'ui.pagination.first': 'ចូលទៅកាន់ទំព័រដំបូង',
   'ui.pagination.previous': 'ចូលទៅកាន់ទំព័រមុន',
-  'ui.pagination.goToPage': 'ចូលទៅកាន់ទំព័រ<x> {{ទំព័រ}}</x>',
+  'ui.pagination.goToPage': 'ចូលទៅកាន់ទំព័រ {{page}}',
   'ui.pagination.last': 'ចូលទៅកាន់ទំព័រចុងក្រោយ',
   'ui.progress.label': 'វឌ្ឍនភាព',
   'ui.radioGroup.label': 'ក្រុមវិទ្យុ',

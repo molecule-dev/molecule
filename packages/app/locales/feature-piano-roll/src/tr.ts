@@ -7,5 +7,5 @@ export const tr: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Not tablosu',
   'pianoRoll.aria.resize': 'Yeniden boyutlandırma notu',
   'pianoRoll.aria.note':
-    'Not<x> {{saha}}</x> vuruştan başlayarak<x> {{startBeat}}</x> için<x> {{durationBeats}}</x> vuruşlar',
+    'Not {{pitch}} vuruştan başlayarak {{startBeat}} için {{durationBeats}} vuruşlar',
 }

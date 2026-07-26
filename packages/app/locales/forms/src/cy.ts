@@ -9,6 +9,6 @@ export const cy: Partial<FormsTranslations> = {
   'forms.invalidUrl': 'URL annilys',
   'forms.invalidValue': 'Gwerth annilys',
   'forms.required': "Mae'r maes hwn yn ofynnol",
-  'forms.min': "Rhaid i'r gwerth fod o leiaf<x> {{mun}}</x>",
-  'forms.max': "Rhaid i'r gwerth fod ar y mwyaf<x> {{uchafswm}}</x>",
+  'forms.min': "Rhaid i'r gwerth fod o leiaf {{min}}",
+  'forms.max': "Rhaid i'r gwerth fod ar y mwyaf {{max}}",
 }

@@ -16,5 +16,5 @@ export const tr: Partial<NotificationsPageTranslations> = {
   'notificationsPage.prev': 'Önceki',
   'notificationsPage.next': 'Sonraki',
   'notificationsPage.paginationAriaLabel': 'Sayfalama',
-  'notificationsPage.pageOf': 'Sayfa<x> {{akım}}</x> ile ilgili<x> {{toplam}}</x>',
+  'notificationsPage.pageOf': 'Sayfa {{current}} ile ilgili {{total}}',
 }

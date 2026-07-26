@@ -9,7 +9,7 @@ export const km: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'ផ្អាក',
   'audioRecorder.resume': 'ប្រវត្តិរូបសង្ខេប',
   'audioRecorder.stop': 'ឈប់',
-  'audioRecorder.elapsed': 'កន្លងផុតទៅ<x> {{ពេលវេលា}}</x>',
+  'audioRecorder.elapsed': 'កន្លងផុតទៅ {{time}}',
   'audioRecorder.statusPaused': 'បានផ្អាក',
   'audioRecorder.statusProcessed': 'បានថតទុក',
   'audioRecorder.statusError': 'កំហុស',

@@ -22,7 +22,7 @@ export const ta: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'கடைசி',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{மதிப்பு}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'வானொலி குழு',
   'ui.select.placeholder': 'தேர்ந்தெடுக்கவும்…',
   'ui.select.title': 'தேர்ந்தெடுக்கவும்',

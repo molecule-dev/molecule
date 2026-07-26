@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const yo: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Àkókò fídíò',
   'videoTimeline.aria.ruler': 'Alákòóso àkókò',
-  'videoTimeline.aria.playhead': 'Olórí eré ní<x> {{àkókò}}</x> s',
+  'videoTimeline.aria.playhead': 'Olórí eré ní {{time}} s',
   'videoTimeline.aria.zoom': 'Sísúnmọ́ Àkókò Àkókò',
   'videoTimeline.aria.mode': 'Ipò àtúnṣe',
   'videoTimeline.zoom.in': 'Sún un sí i',

@@ -7,7 +7,7 @@ export const ms: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Masukkan',
   'videoTimeline.aria.root': 'Garis masa video',
   'videoTimeline.aria.ruler': 'Pembaris masa',
-  'videoTimeline.aria.playhead': 'Playhead di<x> {{masa}}</x> s',
+  'videoTimeline.aria.playhead': 'Playhead di {{time}} s',
   'videoTimeline.aria.zoom': 'Zum garis masa',
   'videoTimeline.aria.mode': 'Mod edit',
   'videoTimeline.zoom.in.icon': '+',

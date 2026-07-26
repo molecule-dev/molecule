@@ -11,7 +11,7 @@ export const ha: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Shafin shafi',
   'ui.pagination.first': 'Je zuwa shafi na farko',
   'ui.pagination.previous': 'Je zuwa shafin da ya gabata',
-  'ui.pagination.goToPage': 'Je zuwa shafi<x> {{shafi}}</x>',
+  'ui.pagination.goToPage': 'Je zuwa shafi {{page}}',
   'ui.pagination.last': 'Je zuwa shafin ƙarshe',
   'ui.progress.label': 'Ci gaba',
   'ui.radioGroup.label': 'Ƙungiyar rediyo',

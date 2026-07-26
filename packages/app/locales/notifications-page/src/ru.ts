@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for ru. */
 export const ru: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Уведомления',
-  'notificationsPage.markAllRead': 'Отметка<x> {{считать}}</x> как прочитано',
+  'notificationsPage.markAllRead': 'Отметка {{count}} как прочитано',
   'notificationsPage.filterUnread': 'Непрочитано',
   'notificationsPage.filterMentions': 'Упоминания',
   'notificationsPage.filterAriaLabel': 'Фильтрация уведомлений',
@@ -14,7 +14,7 @@ export const ru: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Вы всё успели!',
   'notificationsPage.emptyBody': 'Здесь будут появляться новые уведомления.',
   'notificationsPage.paginationAriaLabel': 'Пагинация',
-  'notificationsPage.pageOf': 'Страница<x> {{текущий}}</x> из<x> {{общий}}</x>',
+  'notificationsPage.pageOf': 'Страница {{current}} из {{total}}',
   'notificationsPage.prev': 'Предыдущий',
   'notificationsPage.next': 'Следующий',
 }

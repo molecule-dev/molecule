@@ -4,7 +4,7 @@ import type { ChapterListTranslations } from './types.js'
 export const de: Partial<ChapterListTranslations> = {
   'chapterList.aria.region': 'Kapitel',
   'chapterList.current': 'Wird abgespielt',
-  'chapterList.aria.seek': 'Springe zu<x> {{Titel}}</x> bei<x> {{timestamp}}</x>',
-  'chapterList.aria.thumbnail': 'Vorschaubild für<x> {{Titel}}</x>',
+  'chapterList.aria.seek': 'Springe zu {{title}} bei {{timestamp}}',
+  'chapterList.aria.thumbnail': 'Vorschaubild für {{title}}',
   'chapterList.empty': 'Für diese Folge sind keine Kapitel verfügbar.',
 }

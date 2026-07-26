@@ -4,9 +4,9 @@ import type { AudioMixerTranslations } from './types.js'
 export const hu: Partial<AudioMixerTranslations> = {
   'audioMixer.sends': 'Küldések',
   'audioMixer.aria.console': 'Hangkeverőpult',
-  'audioMixer.aria.fader': '{{név}} fader',
-  'audioMixer.aria.pan': '{{név}} Pán',
-  'audioMixer.aria.send': '{{csatorna}} küldés ide<x> {{elküld}}</x>',
+  'audioMixer.aria.fader': '{{name}} fader',
+  'audioMixer.aria.pan': '{{name}} Pán',
+  'audioMixer.aria.send': '{{channel}} küldés ide {{send}}',
   'audioMixer.button.mute': 'Néma',
   'audioMixer.button.solo': 'Szóló',
   'audioMixer.master': 'Fő',

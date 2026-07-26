@@ -7,5 +7,5 @@ export const vi: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Ghi chú lưới',
   'pianoRoll.aria.resize': 'Ghi chú thay đổi kích thước',
   'pianoRoll.aria.note':
-    'Ghi chú<x> {{sân bóng đá}}</x> bắt đầu từ nhịp<x> {{startBeat}}</x> vì<x> {{durationBeats}}</x> nhịp điệu',
+    'Ghi chú {{pitch}} bắt đầu từ nhịp {{startBeat}} vì {{durationBeats}} nhịp điệu',
 }

@@ -4,9 +4,9 @@ import type { AudioMixerTranslations } from './types.js'
 export const fil: Partial<AudioMixerTranslations> = {
   'audioMixer.sends': 'Mga pagpapadala',
   'audioMixer.aria.console': 'Konsol ng panghalo ng audio',
-  'audioMixer.aria.fader': '{{pangalan}} pangkupas',
-  'audioMixer.aria.pan': '{{pangalan}} kawali',
-  'audioMixer.aria.send': '{{kanal}} ipadala sa<x> {{ipadala}}</x>',
+  'audioMixer.aria.fader': '{{name}} pangkupas',
+  'audioMixer.aria.pan': '{{name}} kawali',
+  'audioMixer.aria.send': '{{channel}} ipadala sa {{send}}',
   'audioMixer.button.mute': 'I-mute',
   'audioMixer.button.solo': 'Nag-iisa',
   'audioMixer.master': 'Guro',

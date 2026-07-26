@@ -10,7 +10,7 @@ export const sv: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Mest populär',
   'billing.pricing.tierEyebrow': 'Nivå',
   'billing.pricing.upgradeCta': 'Uppgradera till {{tierName}}',
-  'billing.status.currentPlan': 'Nuvarande plan:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Nuvarande plan: {{tierName}}',
   'billing.status.cancelError': 'Kunde inte avbryta. Försök igen.',
   'billing.pricing.reassurance': 'Avbryt när som helst · Inget kreditkort krävs för att starta',
   'billing.pricing.perSeat': 'per säte',

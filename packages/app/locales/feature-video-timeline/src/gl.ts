@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const gl: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Liña de tempo do vídeo',
   'videoTimeline.aria.ruler': 'Regra do tempo',
-  'videoTimeline.aria.playhead': 'Cabeza de reprodución en<x> {{hora}}</x> s',
+  'videoTimeline.aria.playhead': 'Cabeza de reprodución en {{time}} s',
   'videoTimeline.aria.zoom': 'Zoom da liña de tempo',
   'videoTimeline.aria.mode': 'Modo de edición',
   'videoTimeline.zoom.in': 'Achegar',

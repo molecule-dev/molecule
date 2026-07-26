@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for sw. */
 export const sw: Partial<BillingTranslations> = {
   'billing.status.loading': 'Inapakia…',
-  'billing.status.currentPlan': 'Mpango wa sasa:<x> {{Jina la tier}}</x>',
+  'billing.status.currentPlan': 'Mpango wa sasa: {{tierName}}',
   'billing.status.cancelCta': 'Ghairi usajili',
   'billing.status.cancelError': 'Haikuweza kughairi. Tafadhali jaribu tena.',
   'billing.pricing.loading': 'Inapakia mipango…',
@@ -13,5 +13,5 @@ export const sw: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Maarufu zaidi',
   'billing.pricing.tierEyebrow': 'Ngazi',
   'billing.pricing.perSeat': 'kwa kila kiti',
-  'billing.pricing.upgradeCta': 'Boresha hadi<x> {{Jina la tier}}</x>',
+  'billing.pricing.upgradeCta': 'Boresha hadi {{tierName}}',
 }

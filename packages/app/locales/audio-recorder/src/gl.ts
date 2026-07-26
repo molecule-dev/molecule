@@ -9,7 +9,7 @@ export const gl: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Pausa',
   'audioRecorder.resume': 'Currículo',
   'audioRecorder.stop': 'Parar',
-  'audioRecorder.elapsed': 'Transcorrido<x> {{hora}}</x>',
+  'audioRecorder.elapsed': 'Transcorrido {{time}}',
   'audioRecorder.statusPaused': 'En pausa',
   'audioRecorder.statusProcessed': 'Gravado',
   'audioRecorder.statusError': 'Erro',

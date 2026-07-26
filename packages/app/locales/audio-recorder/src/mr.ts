@@ -9,7 +9,7 @@ export const mr: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'थांबा',
   'audioRecorder.resume': 'सारांश',
   'audioRecorder.stop': 'थांबा',
-  'audioRecorder.elapsed': 'गेलेला वेळ<x> {{वेळ}}</x>',
+  'audioRecorder.elapsed': 'गेलेला वेळ {{time}}',
   'audioRecorder.statusPaused': 'थांबवले',
   'audioRecorder.statusProcessed': 'रेकॉर्ड केले',
   'audioRecorder.statusError': 'त्रुटी',

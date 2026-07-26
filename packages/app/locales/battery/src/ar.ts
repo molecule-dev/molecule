@@ -9,5 +9,5 @@ export const ar: Partial<BatteryTranslations> = {
   'battery.discharging': 'يعمل بالبطارية',
   'battery.full': 'مشحون بالكامل',
   'battery.not-charging': 'لا يتم الشحن',
-  'battery.remainingTime': '{{ساعات}} ح<x> {{دقائق}}</x> م',
+  'battery.remainingTime': '{{hours}} ح {{minutes}} م',
 }

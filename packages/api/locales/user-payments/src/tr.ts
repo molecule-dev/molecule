@@ -7,8 +7,8 @@ export const tr: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt ve planKey gereklidir.',
   'user.payment.verificationNotConfigured':
     '{{provider}} için ödeme doğrulaması yapılandırılmamış.',
-  'user.payment.invalidPlan': 'Geçersiz plan.',
-  'user.payment.verificationFailed': 'Abonelik doğrulaması başarısız oldu.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Bilinmeyen plan.',
   'user.payment.invalidWebhookEvent': 'Geçersiz webhook olayı.',
 }

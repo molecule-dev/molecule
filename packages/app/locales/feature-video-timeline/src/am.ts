@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const am: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'የቪዲዮ የጊዜ መስመር',
   'videoTimeline.aria.ruler': 'የጊዜ መቆጣጠሪያ',
-  'videoTimeline.aria.playhead': 'የጨዋታ መሪ በ<x> {{ጊዜ}}</x> ኤስ',
+  'videoTimeline.aria.playhead': 'የጨዋታ መሪ በ {{time}} ኤስ',
   'videoTimeline.aria.zoom': 'የጊዜ መስመር አጉላ',
   'videoTimeline.aria.mode': 'የአርትዖት ሁነታ',
   'videoTimeline.zoom.in': 'አጉላ',

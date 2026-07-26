@@ -22,7 +22,7 @@ export const lt: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Paskutinis',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{vertė}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Radijo grupė',
   'ui.select.placeholder': 'Pasirinkite…',
   'ui.select.title': 'Pasirinkite',

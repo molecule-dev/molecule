@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for ca. */
 export const ca: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Notificacions',
-  'notificationsPage.markAllRead': 'Marc<x> {{count}}</x> tal com es llegeix',
+  'notificationsPage.markAllRead': 'Marc {{count}} tal com es llegeix',
   'notificationsPage.filterUnread': 'No llegit',
   'notificationsPage.filterMentions': 'Mencions',
   'notificationsPage.filterAriaLabel': 'Filtrar notificacions',
@@ -14,7 +14,7 @@ export const ca: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Estàs tot al dia',
   'notificationsPage.emptyBody': 'Les noves notificacions apareixeran aquí.',
   'notificationsPage.paginationAriaLabel': 'Paginació',
-  'notificationsPage.pageOf': 'Pàgina<x> {{actual}}</x> de<x> {{total}}</x>',
+  'notificationsPage.pageOf': 'Pàgina {{current}} de {{total}}',
   'notificationsPage.prev': 'Anterior',
   'notificationsPage.next': 'Següent',
 }

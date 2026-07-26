@@ -6,7 +6,7 @@ export const ar: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': 'نسخ',
   'password-generator.copied': 'تم النسخ!',
   'password-generator.regenerate': 'إعادة التوليد',
-  'password-generator.length': 'طول:<x> {{طول}}</x>',
+  'password-generator.length': 'طول: {{length}}',
   'password-generator.lengthLabel': 'طول كلمة المرور',
   'password-generator.toggle.uppercase': 'الأحرف الكبيرة (AZ)',
   'password-generator.toggle.lowercase': '(az)',

@@ -12,7 +12,7 @@ export const si: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA දායකත්වය',
   'gradebook.col.posted': 'පළ කරන ලදී',
   'gradebook.gpa.title': 'ජීපීඒ',
-  'gradebook.gpa.outOf': 'පිටතට<x> {{උපරිම}}</x>',
+  'gradebook.gpa.outOf': 'පිටතට {{max}}',
   'gradebook.gpa.trend.up': 'ඉහළට නැඹුරු වෙමින්',
   'gradebook.gpa.trend.down': 'පහළට නැඹුරු වෙමින් පවතී',
   'gradebook.gpa.trend.flat': 'ස්ථාවරයි',

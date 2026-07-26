@@ -12,7 +12,7 @@ export const fil: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Kontribusyon sa GPA',
   'gradebook.col.posted': 'Na-post',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'mula sa<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'mula sa {{max}}',
   'gradebook.gpa.trend.up': 'Pataas ang trend',
   'gradebook.gpa.trend.down': 'Pababa ang trend',
   'gradebook.gpa.trend.flat': 'Matatag',

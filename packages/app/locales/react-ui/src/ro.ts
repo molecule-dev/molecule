@@ -17,7 +17,7 @@ export const ro: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Paginare',
   'ui.pagination.first': 'Mergi la prima pagină',
   'ui.pagination.previous': 'Mergi la pagina anterioară',
-  'ui.pagination.goToPage': 'Mergi la pagina<x> {{pagină}}</x>',
+  'ui.pagination.goToPage': 'Mergi la pagina {{page}}',
   'ui.pagination.last': 'Mergi la ultima pagină',
   'ui.radioGroup.label': 'Grup radio',
   'sidebar.memberStatus': 'Membru Premium',

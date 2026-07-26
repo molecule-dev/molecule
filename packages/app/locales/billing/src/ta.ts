@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for ta. */
 export const ta: Partial<BillingTranslations> = {
   'billing.status.loading': 'ஏற்றப்படுகிறது…',
-  'billing.status.currentPlan': 'தற்போதைய திட்டம்:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'தற்போதைய திட்டம்: {{tierName}}',
   'billing.status.cancelCta': 'சந்தாவை ரத்துசெய்',
   'billing.status.cancelError': 'ரத்து செய்ய முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
   'billing.pricing.loading': 'திட்டங்கள் ஏற்றப்படுகின்றன…',
@@ -15,5 +15,5 @@ export const ta: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'மிகவும் பிரபலமான',
   'billing.pricing.tierEyebrow': 'அடுக்கு',
   'billing.pricing.perSeat': 'ஒரு இருக்கைக்கு',
-  'billing.pricing.upgradeCta': 'மேம்படுத்த<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'மேம்படுத்த {{tierName}}',
 }

@@ -8,8 +8,7 @@ export const ja: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': '公平',
   'passwordStrengthMeter.label.3': '良い',
   'passwordStrengthMeter.label.4': '強い',
-  'passwordStrengthMeter.ariaValueText':
-    'パスワードの強度:<x> {{ラベル}}</x> （<x> {{スコア}}</x> 4分の1)',
+  'passwordStrengthMeter.ariaValueText': 'パスワードの強度: {{label}} （ {{score}} 4分の1)',
   'passwordStrengthMeter.rule.upper': '大文字が含まれています',
   'passwordStrengthMeter.rule.lower': '小文字が含まれています',
   'passwordStrengthMeter.rule.digit': '数字が含まれています',

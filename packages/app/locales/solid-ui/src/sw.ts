@@ -11,7 +11,7 @@ export const sw: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Upagani',
   'ui.pagination.first': 'Nenda kwenye ukurasa wa kwanza',
   'ui.pagination.previous': 'Nenda kwenye ukurasa uliopita',
-  'ui.pagination.goToPage': 'Nenda kwenye ukurasa<x> {{ukurasa}}</x>',
+  'ui.pagination.goToPage': 'Nenda kwenye ukurasa {{page}}',
   'ui.pagination.last': 'Nenda kwenye ukurasa wa mwisho',
   'ui.progress.label': 'Maendeleo',
   'ui.radioGroup.label': 'Kikundi cha redio',

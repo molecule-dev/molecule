@@ -13,7 +13,7 @@ export const zh: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': '分页',
   'ui.pagination.first': '返回首页',
   'ui.pagination.previous': '返回上一页',
-  'ui.pagination.goToPage': '前往页面{{页}}',
+  'ui.pagination.goToPage': '前往页面{{page}}',
   'ui.pagination.last': '返回最后一页',
   'ui.radioGroup.label': '广播集团',
   'ui.table.empty': '暂无数据',

@@ -22,7 +22,7 @@ export const ga: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Deireanach',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{luach}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Grúpa raidió',
   'ui.select.placeholder': 'Roghnaigh…',
   'ui.select.title': 'Roghnaigh',

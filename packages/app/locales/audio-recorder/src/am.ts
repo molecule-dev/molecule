@@ -8,7 +8,7 @@ export const am: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'ለአፍታ አቁም',
   'audioRecorder.resume': 'የስራ ልምድ ማስረጃ',
   'audioRecorder.stop': 'ተወ',
-  'audioRecorder.elapsed': 'አልፏል<x> {{ጊዜ}}</x>',
+  'audioRecorder.elapsed': 'አልፏል {{time}}',
   'audioRecorder.statusPaused': 'ለአፍታ ቆሟል',
   'audioRecorder.statusProcessed': 'ተመዝግቧል',
   'audioRecorder.statusError': 'ስህተት',

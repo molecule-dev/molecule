@@ -15,7 +15,7 @@ export const he: Partial<ModerationQueueTranslations> = {
   'moderationQueue.loading': 'טוען את תור הפיקוח...',
   'moderationQueue.empty': 'אין פריטים הממתינים לאישור.',
   'moderationQueue.selectAll': 'בחר הכל',
-  'moderationQueue.selectedCount': '{{לִסְפּוֹר}} נִבחָר',
+  'moderationQueue.selectedCount': '{{count}} נִבחָר',
   'moderationQueue.reportedBy': 'דווח על ידי',
   'moderationQueue.reason': 'לְנַמֵק',
   'moderationQueue.action.approve': 'לְאַשֵׁר',

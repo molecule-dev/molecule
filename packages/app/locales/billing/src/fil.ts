@@ -9,7 +9,7 @@ export const fil: Partial<BillingTranslations> = {
   'billing.pricing.checkoutError': 'Hindi masimulan ang checkout. Pakisubukang muli.',
   'billing.pricing.mostPopular': 'Pinakasikat',
   'billing.pricing.upgradeCta': 'I-upgrade sa {{tierName}}',
-  'billing.status.currentPlan': 'Kasalukuyang plano:<x> {{TierName}}</x>',
+  'billing.status.currentPlan': 'Kasalukuyang plano: {{tierName}}',
   'billing.status.cancelError': 'Hindi makansela. Pakisubukang muli.',
   'billing.pricing.reassurance':
     'Kanselahin anumang oras · Hindi kailangan ng credit card para makapagsimula',

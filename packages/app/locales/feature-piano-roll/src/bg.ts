@@ -7,5 +7,5 @@ export const bg: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Решетка за бележки',
   'pianoRoll.aria.resize': 'Преоразмеряване на бележката',
   'pianoRoll.aria.note':
-    'Забележка<x> {{pitch}}</x> започвайки от такта<x> {{startBeat}}</x> за<x> {{durationBeats}}</x> бийтове',
+    'Забележка {{pitch}} започвайки от такта {{startBeat}} за {{durationBeats}} бийтове',
 }

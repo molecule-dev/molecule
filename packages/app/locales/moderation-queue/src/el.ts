@@ -24,7 +24,7 @@ export const el: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.mute': 'Βουβός',
   'moderationQueue.loading': 'Φόρτωση ουράς εποπτείας…',
   'moderationQueue.empty': 'Δεν υπάρχουν στοιχεία σε αναμονή εποπτείας.',
-  'moderationQueue.selectedCount': '{{κόμης}} επιλεγμένο',
+  'moderationQueue.selectedCount': '{{count}} επιλεγμένο',
   'moderationQueue.reportedBy': 'Αναφέρθηκε από',
   'moderationQueue.action.mute': 'Βουβός',
   'moderationQueue.bulk.mute': 'Βουβός',

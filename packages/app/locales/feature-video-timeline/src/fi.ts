@@ -7,7 +7,7 @@ export const fi: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Lisää',
   'videoTimeline.aria.root': 'Videon aikajana',
   'videoTimeline.aria.ruler': 'Aikaviivoitin',
-  'videoTimeline.aria.playhead': 'Toistopää osoitteessa<x> {{aika}}</x> s',
+  'videoTimeline.aria.playhead': 'Toistopää osoitteessa {{time}} s',
   'videoTimeline.aria.zoom': 'Aikajanan zoomaus',
   'videoTimeline.aria.mode': 'Muokkaustila',
   'videoTimeline.zoom.in.icon': '+',

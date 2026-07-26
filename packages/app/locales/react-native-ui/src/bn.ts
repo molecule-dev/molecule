@@ -22,7 +22,7 @@ export const bn: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'শেষ',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{মান}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'রেডিও গ্রুপ',
   'ui.select.placeholder': 'নির্বাচন করুন…',
   'ui.select.title': 'নির্বাচন করুন',

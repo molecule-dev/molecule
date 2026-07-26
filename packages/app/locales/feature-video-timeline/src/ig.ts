@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const ig: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Usoro iheomume vidiyo',
   'videoTimeline.aria.ruler': 'Onye na-achịkwa oge',
-  'videoTimeline.aria.playhead': 'Isi egwuregwu na<x> {{oge}}</x> s',
+  'videoTimeline.aria.playhead': 'Isi egwuregwu na {{time}} s',
   'videoTimeline.aria.zoom': 'Mbugharị usoro oge',
   'videoTimeline.aria.mode': 'Dezie ọnọdụ',
   'videoTimeline.zoom.in': 'Bugharịa gaa na',

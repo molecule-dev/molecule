@@ -13,7 +13,7 @@ export const hu: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Lapszámozás',
   'ui.pagination.first': 'Ugrás az első oldalra',
   'ui.pagination.previous': 'Ugrás az előző oldalra',
-  'ui.pagination.goToPage': 'Ugrás az oldalra<x> {{oldal}}</x>',
+  'ui.pagination.goToPage': 'Ugrás az oldalra {{page}}',
   'ui.pagination.last': 'Ugrás az utolsó oldalra',
   'ui.radioGroup.label': 'Rádiócsoport',
   'ui.spinner.loading': 'Terhelés',

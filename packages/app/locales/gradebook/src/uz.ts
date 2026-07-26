@@ -12,7 +12,7 @@ export const uz: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA hissasi',
   'gradebook.col.posted': 'Joylashtirilgan',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'tashqarida<x> {{maks}}</x>',
+  'gradebook.gpa.outOf': 'tashqarida {{max}}',
   'gradebook.gpa.trend.up': 'Trendda',
   'gradebook.gpa.trend.down': 'Trend pasaymoqda',
   'gradebook.gpa.trend.flat': 'Barqaror',

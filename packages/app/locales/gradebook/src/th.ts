@@ -12,7 +12,7 @@ export const th: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'การมีส่วนร่วมของ GPA',
   'gradebook.col.posted': 'โพสต์',
   'gradebook.gpa.title': 'เกรดเฉลี่ย',
-  'gradebook.gpa.outOf': 'จาก<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'จาก {{max}}',
   'gradebook.gpa.trend.up': 'แนวโน้มขาขึ้น',
   'gradebook.gpa.trend.down': 'แนวโน้มลดลง',
   'gradebook.gpa.trend.flat': 'มั่นคง',

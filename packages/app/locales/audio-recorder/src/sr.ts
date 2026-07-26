@@ -9,7 +9,7 @@ export const sr: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Пауза',
   'audioRecorder.resume': 'Резиме',
   'audioRecorder.stop': 'Заустави',
-  'audioRecorder.elapsed': 'Протекло<x> {{време}}</x>',
+  'audioRecorder.elapsed': 'Протекло {{time}}',
   'audioRecorder.statusPaused': 'Паузирано',
   'audioRecorder.statusProcessed': 'Снимљено',
   'audioRecorder.statusError': 'Грешка',

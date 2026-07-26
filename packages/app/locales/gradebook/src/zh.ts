@@ -13,7 +13,7 @@ export const zh: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA贡献',
   'gradebook.col.posted': '发布',
   'gradebook.gpa.title': '平均绩点',
-  'gradebook.gpa.outOf': '出{{最大限度}}',
+  'gradebook.gpa.outOf': '出{{max}}',
   'gradebook.gpa.trend.up': '趋势上升',
   'gradebook.gpa.trend.down': '呈下降趋势',
 }

@@ -9,7 +9,7 @@ export const fa: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'مکث',
   'audioRecorder.resume': 'رزومه',
   'audioRecorder.stop': 'توقف',
-  'audioRecorder.elapsed': 'سپری شده<x> {{زمان}}</x>',
+  'audioRecorder.elapsed': 'سپری شده {{time}}',
   'audioRecorder.statusPaused': 'مکث کرد',
   'audioRecorder.statusProcessed': 'ضبط شده',
   'audioRecorder.statusError': 'خطا',

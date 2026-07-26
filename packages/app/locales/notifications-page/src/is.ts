@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for is. */
 export const is: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Tilkynningar',
-  'notificationsPage.markAllRead': 'Mark<x> {{teljandi}}</x> eins og lesið',
+  'notificationsPage.markAllRead': 'Mark {{count}} eins og lesið',
   'notificationsPage.filterUnread': 'Ólesið',
   'notificationsPage.filterMentions': 'Umsagnir',
   'notificationsPage.filterAriaLabel': 'Sía tilkynningar',
@@ -14,7 +14,7 @@ export const is: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Þú ert alveg kominn með það',
   'notificationsPage.emptyBody': 'Nýjar tilkynningar munu birtast hér.',
   'notificationsPage.paginationAriaLabel': 'Síðunúmeraskipti',
-  'notificationsPage.pageOf': 'Síða<x> {{núverandi}}</x> af<x> {{samtals}}</x>',
+  'notificationsPage.pageOf': 'Síða {{current}} af {{total}}',
   'notificationsPage.prev': 'Fyrri',
   'notificationsPage.next': 'Næst',
 }

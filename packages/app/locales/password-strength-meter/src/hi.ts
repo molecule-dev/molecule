@@ -8,7 +8,7 @@ export const hi: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'गोरा',
   'passwordStrengthMeter.label.3': 'अच्छा',
   'passwordStrengthMeter.label.4': 'मज़बूत',
-  'passwordStrengthMeter.ariaValueText': 'पासवर्ड की मजबूती:<x> {{लेबल}}</x> (<x> {{अंक}}</x> 4)',
+  'passwordStrengthMeter.ariaValueText': 'पासवर्ड की मजबूती: {{label}} ( {{score}} 4)',
   'passwordStrengthMeter.rule.upper': 'इसमें एक बड़ा अक्षर शामिल है',
   'passwordStrengthMeter.rule.lower': 'इसमें एक छोटा अक्षर है',
   'passwordStrengthMeter.rule.digit': 'इसमें एक अंक शामिल है',

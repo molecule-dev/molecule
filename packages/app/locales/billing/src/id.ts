@@ -10,7 +10,7 @@ export const id: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Paling populer',
   'billing.pricing.tierEyebrow': 'Tingkat',
   'billing.pricing.upgradeCta': 'Tingkatkan ke {{tierName}}',
-  'billing.status.currentPlan': 'Rencana saat ini:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Rencana saat ini: {{tierName}}',
   'billing.status.cancelError': 'Pembatalan tidak berhasil. Silakan coba lagi.',
   'billing.pricing.reassurance':
     'Batalkan kapan saja · Tidak diperlukan kartu kredit untuk memulai',

@@ -6,6 +6,5 @@ export const ur: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.keys': 'پیانو کی چابیاں',
   'pianoRoll.aria.grid': 'نوٹ گرڈ',
   'pianoRoll.aria.resize': 'نوٹ کا سائز تبدیل کریں۔',
-  'pianoRoll.aria.note':
-    'نوٹ<x> {{پچ}}</x> بیٹ سے شروع<x> {{startBeat}}</x> کے لیے<x> {{durationBeats}}</x> دھڑکن',
+  'pianoRoll.aria.note': 'نوٹ {{pitch}} بیٹ سے شروع {{startBeat}} کے لیے {{durationBeats}} دھڑکن',
 }

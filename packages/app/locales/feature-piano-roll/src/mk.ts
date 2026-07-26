@@ -7,5 +7,5 @@ export const mk: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Мрежа со белешки',
   'pianoRoll.aria.resize': 'Промени ја големината на белешката',
   'pianoRoll.aria.note':
-    'Забелешка<x> {{точ}}</x> почнувајќи од ритам<x> {{startBeat}}</x> за<x> {{durationBeats}}</x> ритмови',
+    'Забелешка {{pitch}} почнувајќи од ритам {{startBeat}} за {{durationBeats}} ритмови',
 }

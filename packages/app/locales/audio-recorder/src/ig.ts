@@ -8,7 +8,7 @@ export const ig: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Kwụsịtụ',
   'audioRecorder.resume': 'Ọmụmụ ihe malitegharịa',
   'audioRecorder.stop': 'Kwụsị',
-  'audioRecorder.elapsed': 'Agafeela<x> {{oge}}</x>',
+  'audioRecorder.elapsed': 'Agafeela {{time}}',
   'audioRecorder.statusPaused': 'Akwụsịtụla',
   'audioRecorder.statusProcessed': 'Edekọọla',
   'audioRecorder.statusError': 'Njehie',

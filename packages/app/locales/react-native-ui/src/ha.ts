@@ -22,7 +22,7 @@ export const ha: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Na ƙarshe',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{darajar}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Ƙungiyar rediyo',
   'ui.select.placeholder': 'Zaɓi…',
   'ui.select.title': 'Zaɓi',

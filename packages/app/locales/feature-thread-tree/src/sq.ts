@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for sq. */
 export const sq: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'Zgjero<x> {{count}}</x> përgjigjet',
+  'threadTree.expand': 'Zgjero {{count}} përgjigjet',
   'threadTree.collapse': 'Mbyll fijen',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

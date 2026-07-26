@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for ur. */
 export const ur: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'اطلاعات',
-  'notificationsPage.markAllRead': 'نشان<x> {{count}}</x> جیسا کہ پڑھا',
+  'notificationsPage.markAllRead': 'نشان {{count}} جیسا کہ پڑھا',
   'notificationsPage.filterUnread': 'ان پڑھ',
   'notificationsPage.filterMentions': 'تذکرہ',
   'notificationsPage.filterAriaLabel': 'اطلاعات کو فلٹر کریں۔',
@@ -14,7 +14,7 @@ export const ur: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'آپ سب پکڑے گئے ہیں۔',
   'notificationsPage.emptyBody': 'نئی اطلاعات یہاں ظاہر ہوں گی۔',
   'notificationsPage.paginationAriaLabel': 'صفحہ بندی',
-  'notificationsPage.pageOf': 'صفحہ<x> {{موجودہ}}</x> کی<x> {{کل}}</x>',
+  'notificationsPage.pageOf': 'صفحہ {{current}} کی {{total}}',
   'notificationsPage.prev': 'پچھلا',
   'notificationsPage.next': 'اگلا',
 }

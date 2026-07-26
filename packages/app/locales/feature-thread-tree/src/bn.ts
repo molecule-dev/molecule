@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for bn. */
 export const bn: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'প্রসারিত করুন<x> {{count}}</x> উত্তর',
+  'threadTree.expand': 'প্রসারিত করুন {{count}} উত্তর',
   'threadTree.collapse': 'থ্রেড সংকুচিত করুন',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

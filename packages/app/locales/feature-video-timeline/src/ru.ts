@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const ru: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Видеохронология',
   'videoTimeline.aria.ruler': 'линейка времени',
-  'videoTimeline.aria.playhead': 'Playhead на<x> {{время}}</x> с',
+  'videoTimeline.aria.playhead': 'Playhead на {{time}} с',
   'videoTimeline.aria.zoom': 'масштабирование временной шкалы',
   'videoTimeline.aria.mode': 'Режим редактирования',
   'videoTimeline.zoom.in': 'Увеличить масштаб',

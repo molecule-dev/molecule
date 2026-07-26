@@ -6,6 +6,5 @@ export const af: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.keys': 'Klaviersleutels',
   'pianoRoll.aria.grid': 'Nota-rooster',
   'pianoRoll.aria.resize': 'Verander notagrootte',
-  'pianoRoll.aria.note':
-    'Nota<x> {{toonhoogte}}</x> begin by maat<x> {{beginBeat}}</x> vir<x> {{durationBeats}}</x> slae',
+  'pianoRoll.aria.note': 'Nota {{pitch}} begin by maat {{startBeat}} vir {{durationBeats}} slae',
 }

@@ -29,7 +29,7 @@ export const ko: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': '항목을 선택하세요',
   'moderationQueue.loading': '검토 대기열을 불러오는 중…',
   'moderationQueue.empty': '검토 대기 중인 항목이 없습니다.',
-  'moderationQueue.selectedCount': '{{세다}} 선택된',
+  'moderationQueue.selectedCount': '{{count}} 선택된',
   'moderationQueue.reportedBy': '보고자:',
   'moderationQueue.kind.image': '영상',
 }

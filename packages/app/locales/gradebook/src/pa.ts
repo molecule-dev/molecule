@@ -12,7 +12,7 @@ export const pa: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA ਯੋਗਦਾਨ',
   'gradebook.col.posted': 'ਪੋਸਟ ਕੀਤਾ ਗਿਆ',
   'gradebook.gpa.title': 'ਜੀਪੀਏ',
-  'gradebook.gpa.outOf': 'ਤੋਂ ਬਾਹਰ<x> {{ਵੱਧ ਤੋਂ ਵੱਧ}}</x>',
+  'gradebook.gpa.outOf': 'ਤੋਂ ਬਾਹਰ {{max}}',
   'gradebook.gpa.trend.up': 'ਰੁਝਾਨ ਵਧ ਰਿਹਾ ਹੈ',
   'gradebook.gpa.trend.down': 'ਰੁਝਾਨ ਹੇਠਾਂ ਆ ਰਿਹਾ ਹੈ',
   'gradebook.gpa.trend.flat': 'ਸਥਿਰ',

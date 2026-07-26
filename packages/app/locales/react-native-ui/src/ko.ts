@@ -26,7 +26,7 @@ export const ko: Partial<ReactNativeUiTranslations> = {
   'ui.icon.ellipsis': '…',
   'ui.icon.chevronRight': '›',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{값}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': '라디오 그룹',
   'ui.icon.sortAsc': '↑',
   'ui.icon.sortDesc': '↓',

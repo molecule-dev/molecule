@@ -24,7 +24,7 @@ export const nb: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.mute': 'Stum',
   'moderationQueue.loading': 'Laster inn modereringskøen …',
   'moderationQueue.empty': 'Ingen elementer venter på moderering.',
-  'moderationQueue.selectedCount': '{{telle}} valgt',
+  'moderationQueue.selectedCount': '{{count}} valgt',
   'moderationQueue.reportedBy': 'Rapportert av',
   'moderationQueue.action.mute': 'Stum',
   'moderationQueue.bulk.mute': 'Stum',

@@ -12,7 +12,7 @@ export const eu: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPAren ekarpena',
   'gradebook.col.posted': 'Argitaratua',
   'gradebook.gpa.title': 'Batez besteko batez bestekoa',
-  'gradebook.gpa.outOf': 'kanpoan<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'kanpoan {{max}}',
   'gradebook.gpa.trend.up': 'Goranzko joera',
   'gradebook.gpa.trend.down': 'Beheranzko joera',
   'gradebook.gpa.trend.flat': 'Egonkorra',

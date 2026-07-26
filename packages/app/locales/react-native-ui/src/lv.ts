@@ -22,7 +22,7 @@ export const lv: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Pēdējais',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{vērtība}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Radio grupa',
   'ui.select.placeholder': 'Izvēlieties…',
   'ui.select.title': 'Atlasīt',

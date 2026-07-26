@@ -9,7 +9,7 @@ export const hy: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Դադար',
   'audioRecorder.resume': 'Ռեզյումե',
   'audioRecorder.stop': 'Կանգ առեք',
-  'audioRecorder.elapsed': 'Անցած<x> {{ժամանակ}}</x>',
+  'audioRecorder.elapsed': 'Անցած {{time}}',
   'audioRecorder.statusPaused': 'Դադարեցված է',
   'audioRecorder.statusProcessed': 'Ձայնագրված է',
   'audioRecorder.statusError': 'Սխալ',

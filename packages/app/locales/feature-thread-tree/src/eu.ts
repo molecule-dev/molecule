@@ -2,12 +2,12 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for eu. */
 export const eu: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'Zabaldu<x> {{kopurua}}</x> erantzunak',
+  'threadTree.expand': 'Zabaldu {{count}} erantzunak',
   'threadTree.collapse': 'Tolestu haria',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',
-  'threadTree.score': '{{kopurua}} puntuak',
-  'threadTree.hiddenReplies': '{{kopurua}} ezkutuan',
+  'threadTree.score': '{{count}} puntuak',
+  'threadTree.hiddenReplies': '{{count}} ezkutuan',
   'threadTree.upvote': 'Bozkatu alde',
   'threadTree.reply': 'Erantzun',
 }

@@ -11,7 +11,7 @@ export const si: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'පිටු සැකසුම',
   'ui.pagination.first': 'පළමු පිටුවට යන්න',
   'ui.pagination.previous': 'පෙර පිටුවට යන්න',
-  'ui.pagination.goToPage': 'පිටුවට යන්න<x> {{පිටුව}}</x>',
+  'ui.pagination.goToPage': 'පිටුවට යන්න {{page}}',
   'ui.pagination.last': 'අවසාන පිටුවට යන්න',
   'ui.progress.label': 'ප්‍රගතිය',
   'ui.radioGroup.label': 'ගුවන්විදුලි කණ්ඩායම',

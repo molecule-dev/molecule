@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for sr. */
 export const sr: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'Ништа се не репродукује',
-  'nowPlaying.aria.region': 'Сада се репродукује:<x> {{наслов}}</x>',
-  'nowPlaying.aria.artwork': 'Уметничко дело за<x> {{наслов}}</x>',
+  'nowPlaying.aria.region': 'Сада се репродукује: {{title}}',
+  'nowPlaying.aria.artwork': 'Уметничко дело за {{title}}',
   'nowPlaying.aria.play': 'Играј',
   'nowPlaying.aria.pause': 'Пауза',
   'nowPlaying.aria.next': 'Следећа нумера',

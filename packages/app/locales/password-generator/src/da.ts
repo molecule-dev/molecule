@@ -6,7 +6,7 @@ export const da: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copied': 'Kopieret!',
   'password-generator.regenerate': 'Generér igen',
   'password-generator.readoutLabel': 'Genereret adgangskode',
-  'password-generator.length': 'Længde:<x> {{længde}}</x>',
+  'password-generator.length': 'Længde: {{length}}',
   'password-generator.lengthLabel': 'Adgangskodelængde',
   'password-generator.toggle.uppercase': 'Store bogstaver (AZ)',
   'password-generator.toggle.lowercase': 'Små bogstaver (az)',

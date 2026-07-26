@@ -7,5 +7,5 @@ export const el: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Πλέγμα σημειώσεων',
   'pianoRoll.aria.resize': 'Αλλαγή μεγέθους σημείωσης',
   'pianoRoll.aria.note':
-    'Σημείωμα<x> {{πίσσα}}</x> ξεκινώντας από τον ρυθμό<x> {{startBeat}}</x> για<x> {{διάρκειαΚλείματος}}</x> ρυθμοί',
+    'Σημείωμα {{pitch}} ξεκινώντας από τον ρυθμό {{startBeat}} για {{durationBeats}} ρυθμοί',
 }

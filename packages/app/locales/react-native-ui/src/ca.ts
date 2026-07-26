@@ -22,7 +22,7 @@ export const ca: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Últim',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{valor}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Grup de ràdio',
   'ui.select.placeholder': 'Selecciona…',
   'ui.select.title': 'Selecciona',

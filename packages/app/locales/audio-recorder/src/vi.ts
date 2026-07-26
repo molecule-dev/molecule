@@ -10,7 +10,7 @@ export const vi: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Quyền truy cập micro bị từ chối. Vui lòng cho phép và thử lại.',
   'audioRecorder.stop': 'Dừng lại',
-  'audioRecorder.elapsed': 'Đã trôi qua<x> {{thời gian}}</x>',
+  'audioRecorder.elapsed': 'Đã trôi qua {{time}}',
   'audioRecorder.statusProcessed': 'Đã ghi âm',
   'audioRecorder.statusError': 'Lỗi',
   'audioRecorder.statusIdle': 'Sẵn sàng ghi âm',

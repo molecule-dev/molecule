@@ -7,5 +7,5 @@ export const sl: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Mreža opomb',
   'pianoRoll.aria.resize': 'Spremeni velikost zapiska',
   'pianoRoll.aria.note':
-    'Opomba<x> {{predstavitev}}</x> začenši na ritmu<x> {{startBeat}}</x> za<x> {{durationBeats}}</x> ritmi',
+    'Opomba {{pitch}} začenši na ritmu {{startBeat}} za {{durationBeats}} ritmi',
 }

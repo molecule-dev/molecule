@@ -14,7 +14,7 @@ export const zh: Partial<UiTranslations> = {
   'ui.pagination.previous': '返回上一页',
   'ui.pagination.next': '前往下一页',
   'ui.pagination.last': '返回最后一页',
-  'ui.pagination.goToPage': '前往页面{{页}}',
+  'ui.pagination.goToPage': '前往页面{{page}}',
   'ui.table.empty': '暂无数据',
   'ui.radioGroup.label': '广播集团',
 }

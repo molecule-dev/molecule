@@ -3,8 +3,7 @@ import type { TrackLaneTranslations } from './types.js'
 /** FeatureTrackLane translations for de. */
 export const de: Partial<TrackLaneTranslations> = {
   'trackLane.header': 'Verfolgen',
-  'trackLane.aria.lane': 'Bahnspur<x> {{Name}}</x>',
-  'trackLane.aria.clip':
-    'Clip<x> {{Etikett}}</x> beginnend bei<x> {{startTime}}</x> s für<x> {{Dauer}}</x> S',
+  'trackLane.aria.lane': 'Bahnspur {{name}}',
+  'trackLane.aria.clip': 'Clip {{label}} beginnend bei {{startTime}} s für {{duration}} S',
   'trackLane.aria.resize': 'Clipgröße ändern',
 }

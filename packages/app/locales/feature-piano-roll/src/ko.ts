@@ -7,5 +7,5 @@ export const ko: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': '노트 그리드',
   'pianoRoll.aria.resize': '크기 조정 메모',
   'pianoRoll.aria.note':
-    '메모<x> {{정점}}</x> 박자에서 시작<x> {{startBeat}}</x> ~을 위한<x> {{durationBeats}}</x> 비트',
+    '메모 {{pitch}} 박자에서 시작 {{startBeat}} ~을 위한 {{durationBeats}} 비트',
 }

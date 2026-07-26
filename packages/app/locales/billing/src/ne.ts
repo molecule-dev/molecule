@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for ne. */
 export const ne: Partial<BillingTranslations> = {
   'billing.status.loading': 'लोड हुँदै...',
-  'billing.status.currentPlan': 'हालको योजना:<x> {{स्तरीय नाम}}</x>',
+  'billing.status.currentPlan': 'हालको योजना: {{tierName}}',
   'billing.status.cancelCta': 'सदस्यता रद्द गर्नुहोस्',
   'billing.status.cancelError': 'रद्द गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।',
   'billing.pricing.loading': 'योजनाहरू लोड गर्दै...',
@@ -14,5 +14,5 @@ export const ne: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'सबैभन्दा लोकप्रिय',
   'billing.pricing.tierEyebrow': 'तह',
   'billing.pricing.perSeat': 'प्रति सिट',
-  'billing.pricing.upgradeCta': 'स्तरोन्नति गर्नुहोस्<x> {{स्तरीय नाम}}</x>',
+  'billing.pricing.upgradeCta': 'स्तरोन्नति गर्नुहोस् {{tierName}}',
 }

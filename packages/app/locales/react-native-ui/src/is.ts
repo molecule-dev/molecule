@@ -22,7 +22,7 @@ export const is: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Síðasta',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{gildi}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Útvarpshópur',
   'ui.select.placeholder': 'Veldu…',
   'ui.select.title': 'Veldu',

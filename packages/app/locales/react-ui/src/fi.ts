@@ -16,7 +16,7 @@ export const fi: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Sivunumerointi',
   'ui.pagination.first': 'Siirry ensimmäiselle sivulle',
   'ui.pagination.previous': 'Siirry edelliselle sivulle',
-  'ui.pagination.goToPage': 'Siirry sivulle<x> {{sivu}}</x>',
+  'ui.pagination.goToPage': 'Siirry sivulle {{page}}',
   'ui.pagination.last': 'Siirry viimeiselle sivulle',
   'ui.radioGroup.label': 'Radioryhmä',
   'sidebar.memberStatus': 'Premium-jäsen',

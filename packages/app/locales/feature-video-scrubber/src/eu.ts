@@ -4,10 +4,10 @@ import type { VideoScrubberTranslations } from './types.js'
 export const eu: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Bideo-garbigailua',
   'videoScrubber.aria.strip':
-    'Film-banda — erreprodukzio-burua hemen:<x> {{denbora}}</x> s (markoa<x> {{frame}}</x> )',
-  'videoScrubber.aria.playhead': 'Erreproduzitzeko burua hemen:<x> {{denbora}}</x> ak',
-  'videoScrubber.aria.frameReadout': 'Markoa<x> {{frame}}</x> -ren<x> {{guztira}}</x>',
+    'Film-banda — erreprodukzio-burua hemen: {{time}} s (markoa {{frame}} )',
+  'videoScrubber.aria.playhead': 'Erreproduzitzeko burua hemen: {{time}} ak',
+  'videoScrubber.aria.frameReadout': 'Markoa {{frame}} -ren {{total}}',
   'videoScrubber.aria.thumbnail': 'Markoaren aurrebista',
   'videoScrubber.thumbnails.empty': 'Aurrebistarik ez',
-  'videoScrubber.frameReadout.total': '/<x> {{guztira}}</x> markoak',
+  'videoScrubber.frameReadout.total': '/ {{total}} markoak',
 }

@@ -10,7 +10,7 @@ export const nl: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Meest populair',
   'billing.pricing.tierEyebrow': 'Niveau',
   'billing.pricing.upgradeCta': 'Upgrade naar {{tierName}}',
-  'billing.status.currentPlan': 'Huidig plan:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Huidig plan: {{tierName}}',
   'billing.status.cancelError': 'Annuleren is niet gelukt. Probeer het opnieuw.',
   'billing.pricing.reassurance': 'Annuleer op elk moment · Geen creditcard nodig om te beginnen',
   'billing.pricing.perSeat': 'per stoel',

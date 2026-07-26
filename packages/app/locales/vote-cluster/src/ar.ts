@@ -6,6 +6,6 @@ export const ar: Partial<VoteClusterTranslations> = {
   'vote-cluster.downvote': 'تصويت سلبي',
   'vote-cluster.removeUpvote': 'إزالة التصويت الإيجابي',
   'vote-cluster.removeDownvote': 'إزالة التصويت السلبي',
-  'vote-cluster.score': 'نتيجة:<x> {{نتيجة}}</x>',
-  'vote-cluster.group': 'مجموعة الأصوات، النتيجة الحالية<x> {{نتيجة}}</x>',
+  'vote-cluster.score': 'نتيجة: {{score}}',
+  'vote-cluster.group': 'مجموعة الأصوات، النتيجة الحالية {{score}}',
 }

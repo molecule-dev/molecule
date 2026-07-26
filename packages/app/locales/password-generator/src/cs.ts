@@ -6,7 +6,7 @@ export const cs: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copied': 'Zkopírováno!',
   'password-generator.regenerate': 'Znovu vygenerovat',
   'password-generator.readoutLabel': 'Vygenerované heslo',
-  'password-generator.length': 'Délka:<x> {{délka}}</x>',
+  'password-generator.length': 'Délka: {{length}}',
   'password-generator.lengthLabel': 'Délka hesla',
   'password-generator.toggle.uppercase': 'Velká písmena (AZ)',
   'password-generator.toggle.lowercase': 'Malá písmena (az)',

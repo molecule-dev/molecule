@@ -22,7 +22,7 @@ export const eu: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Azkena',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{balioa}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Irrati taldea',
   'ui.select.placeholder': 'Hautatu…',
   'ui.select.title': 'Hautatu',

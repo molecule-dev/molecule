@@ -22,7 +22,7 @@ export const hy: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Վերջին',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{արժեք}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Ռադիո խումբ',
   'ui.select.placeholder': 'Ընտրեք…',
   'ui.select.title': 'Ընտրել',

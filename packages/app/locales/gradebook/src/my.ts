@@ -12,7 +12,7 @@ export const my: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA ပံ့ပိုးမှု',
   'gradebook.col.posted': 'တင်ထားသည်',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'မှ ထွက်လာသော<x> {{အမြင့်ဆုံး}}</x>',
+  'gradebook.gpa.outOf': 'မှ ထွက်လာသော {{max}}',
   'gradebook.gpa.trend.up': 'လူကြိုက်များလာခြင်း',
   'gradebook.gpa.trend.down': 'ကျဆင်းနေသော လမ်းကြောင်း',
   'gradebook.gpa.trend.flat': 'တည်ငြိမ်သော',

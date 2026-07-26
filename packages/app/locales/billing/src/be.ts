@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for be. */
 export const be: Partial<BillingTranslations> = {
   'billing.status.loading': 'Загрузка…',
-  'billing.status.currentPlan': 'Бягучы план:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Бягучы план: {{tierName}}',
   'billing.status.cancelCta': 'Адмяніць падпіску',
   'billing.status.cancelError': 'Не атрымалася адмяніць. Паўтарыце спробу.',
   'billing.pricing.loading': 'Загрузка планаў…',
@@ -13,5 +13,5 @@ export const be: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Найбольш папулярныя',
   'billing.pricing.tierEyebrow': 'Узровень',
   'billing.pricing.perSeat': 'на месца',
-  'billing.pricing.upgradeCta': 'Абнавіць да<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Абнавіць да {{tierName}}',
 }

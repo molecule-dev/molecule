@@ -10,7 +10,7 @@ export const it: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Più popolare',
   'billing.pricing.tierEyebrow': 'Livello',
   'billing.pricing.upgradeCta': 'Aggiorna a {{tierName}}',
-  'billing.status.currentPlan': 'Piano attuale:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Piano attuale: {{tierName}}',
   'billing.status.cancelError': 'Impossibile annullare. Riprova.',
   'billing.pricing.reassurance':
     'Annulla in qualsiasi momento · Non è richiesta alcuna carta di credito per iniziare',

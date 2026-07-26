@@ -11,7 +11,7 @@ export const zhTW: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': '分頁',
   'ui.pagination.first': '回首頁',
   'ui.pagination.previous': '回上一頁',
-  'ui.pagination.goToPage': '前往頁面{{頁}}',
+  'ui.pagination.goToPage': '前往頁面{{page}}',
   'ui.pagination.last': '返回最後一頁',
   'ui.progress.label': '進步',
   'ui.radioGroup.label': '廣播集團',

@@ -4,7 +4,7 @@ import type { FooterTranslations } from './types.js'
 export const fr: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Politique de confidentialité',
   'footer.language': 'Langue',
-  'footer.version': 'v<x> {{version}}</x>',
+  'footer.version': 'v {{version}}',
   'footer.termsOfService': "Conditions d'utilisation",
   'content.privacyPolicy': '',
   'content.termsOfService': '',

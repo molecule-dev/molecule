@@ -7,5 +7,5 @@ export const ky: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Ноталар торчосу',
   'pianoRoll.aria.resize': 'Эскертменин өлчөмүн өзгөртүү',
   'pianoRoll.aria.note':
-    'Эскертүү<x> {{pitch}}</x> соккудан баштап<x> {{startBeat}}</x> үчүн<x> {{durationBeats}}</x> соккулар',
+    'Эскертүү {{pitch}} соккудан баштап {{startBeat}} үчүн {{durationBeats}} соккулар',
 }

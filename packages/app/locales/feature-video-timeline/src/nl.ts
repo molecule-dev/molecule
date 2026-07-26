@@ -7,7 +7,7 @@ export const nl: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Invoegen',
   'videoTimeline.aria.root': 'Videotijdlijn',
   'videoTimeline.aria.ruler': 'Tijdsschaal',
-  'videoTimeline.aria.playhead': 'Playhead bij<x> {{tijd}}</x> S',
+  'videoTimeline.aria.playhead': 'Playhead bij {{time}} S',
   'videoTimeline.aria.zoom': 'Tijdlijnzoom',
   'videoTimeline.aria.mode': 'Bewerkingsmodus',
   'videoTimeline.zoom.in.icon': '+',

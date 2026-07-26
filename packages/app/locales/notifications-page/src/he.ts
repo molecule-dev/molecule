@@ -3,9 +3,9 @@ import type { NotificationsPageTranslations } from './types.js'
 /** NotificationsPage translations for he. */
 export const he: Partial<NotificationsPageTranslations> = {
   'notificationsPage.title': 'התראות',
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.feedAriaLabel': 'התראות',
-  'notificationsPage.markAllRead': 'סִימָן<x> {{לִסְפּוֹר}}</x> כפי שנקרא',
+  'notificationsPage.markAllRead': 'סִימָן {{count}} כפי שנקרא',
   'notificationsPage.filterUnread': 'לא נקרא',
   'notificationsPage.filterMentions': 'אזכורים',
   'notificationsPage.filterAriaLabel': 'סנן התראות',
@@ -14,7 +14,7 @@ export const he: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'אתם מעודכנים',
   'notificationsPage.emptyBody': 'התראות חדשות יופיעו כאן.',
   'notificationsPage.paginationAriaLabel': 'דִפּוּף',
-  'notificationsPage.pageOf': 'עַמוּד<x> {{נוֹכְחִי}}</x> שֶׁל<x> {{סַך הַכֹּל}}</x>',
+  'notificationsPage.pageOf': 'עַמוּד {{current}} שֶׁל {{total}}',
   'notificationsPage.prev': 'קוֹדֵם',
   'notificationsPage.next': 'הַבָּא',
 }

@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const eu: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Bideoaren denbora-lerroa',
   'videoTimeline.aria.ruler': 'Denbora-erregela',
-  'videoTimeline.aria.playhead': 'Erreproduzitzeko burua hemen:<x> {{denbora}}</x> ak',
+  'videoTimeline.aria.playhead': 'Erreproduzitzeko burua hemen: {{time}} ak',
   'videoTimeline.aria.zoom': 'Denbora-lerroaren zooma',
   'videoTimeline.aria.mode': 'Editatzeko modua',
   'videoTimeline.zoom.in': 'Handiagotu',

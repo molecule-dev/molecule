@@ -14,7 +14,7 @@ export const ar: Partial<UiTranslations> = {
   'ui.pagination.previous': 'انتقل إلى الصفحة السابقة',
   'ui.pagination.next': 'انتقل إلى الصفحة التالية',
   'ui.pagination.last': 'انتقل إلى الصفحة الأخيرة',
-  'ui.pagination.goToPage': 'انتقل إلى الصفحة<x> {{صفحة}}</x>',
+  'ui.pagination.goToPage': 'انتقل إلى الصفحة {{page}}',
   'ui.table.empty': 'لا توجد بيانات متاحة',
   'ui.radioGroup.label': 'مجموعة راديو',
 }

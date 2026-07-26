@@ -10,7 +10,7 @@ export const tr: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'En popüler',
   'billing.pricing.tierEyebrow': 'Kademe',
   'billing.pricing.upgradeCta': '{{tierName}} planına yükseltin',
-  'billing.status.currentPlan': 'Mevcut plan:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Mevcut plan: {{tierName}}',
   'billing.status.cancelError': 'İptal işlemi gerçekleştirilemedi. Lütfen tekrar deneyin.',
   'billing.pricing.reassurance':
     'İstediğiniz zaman iptal edebilirsiniz · Başlamak için kredi kartı gerekmez',

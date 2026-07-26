@@ -11,7 +11,7 @@ export const ky: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Барактоо',
   'ui.pagination.first': 'Биринчи бетке өтүү',
   'ui.pagination.previous': 'Мурунку бетке өтүү',
-  'ui.pagination.goToPage': 'Баракка өтүү<x> {{баракча}}</x>',
+  'ui.pagination.goToPage': 'Баракка өтүү {{page}}',
   'ui.pagination.last': 'Акыркы бетке өтүү',
   'ui.progress.label': 'Прогресс',
   'ui.radioGroup.label': 'Радио тобу',

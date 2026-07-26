@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for pa. */
 export const pa: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'ਸੂਚਨਾਵਾਂ',
-  'notificationsPage.markAllRead': 'ਮਾਰਕ<x> {{ਗਿਣਤੀ}}</x> ਜਿਵੇਂ ਪੜ੍ਹਿਆ ਗਿਆ ਹੈ',
+  'notificationsPage.markAllRead': 'ਮਾਰਕ {{count}} ਜਿਵੇਂ ਪੜ੍ਹਿਆ ਗਿਆ ਹੈ',
   'notificationsPage.filterUnread': 'ਨਾ ਪੜ੍ਹਿਆ ਹੋਇਆ',
   'notificationsPage.filterMentions': 'ਜ਼ਿਕਰ',
   'notificationsPage.filterAriaLabel': 'ਸੂਚਨਾਵਾਂ ਫਿਲਟਰ ਕਰੋ',
@@ -14,7 +14,7 @@ export const pa: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'ਤੁਸੀਂ ਸਭ ਕੁਝ ਕਰ ਲਿਆ ਹੈ',
   'notificationsPage.emptyBody': 'ਨਵੀਆਂ ਸੂਚਨਾਵਾਂ ਇੱਥੇ ਦਿਖਾਈ ਦੇਣਗੀਆਂ।',
   'notificationsPage.paginationAriaLabel': 'ਪੰਨਾਬੰਦੀ',
-  'notificationsPage.pageOf': 'ਪੰਨਾ<x> {{ਮੌਜੂਦਾ}}</x> ਦੇ<x> {{ਕੁੱਲ}}</x>',
+  'notificationsPage.pageOf': 'ਪੰਨਾ {{current}} ਦੇ {{total}}',
   'notificationsPage.prev': 'ਪਿਛਲਾ',
   'notificationsPage.next': 'ਅਗਲਾ',
 }

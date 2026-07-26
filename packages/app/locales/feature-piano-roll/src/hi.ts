@@ -7,5 +7,5 @@ export const hi: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'नोट ग्रिड',
   'pianoRoll.aria.resize': 'नोट का आकार बदलें',
   'pianoRoll.aria.note':
-    'टिप्पणी<x> {{आवाज़ का उतार-चढ़ाव}}</x> ताल से शुरू<x> {{startBeat}}</x> के लिए<x> {{durationBeats}}</x> धड़कनें',
+    'टिप्पणी {{pitch}} ताल से शुरू {{startBeat}} के लिए {{durationBeats}} धड़कनें',
 }

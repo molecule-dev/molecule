@@ -5,7 +5,7 @@ export const fr: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': 'Dim',
   'heatmap.weekday.sat': 'Sam',
   'heatmap.aria.grid': "Carte thermique d'activité",
-  'heatmap.cell.tooltip': '{{date}} :<x> {{valeur}}</x>',
+  'heatmap.cell.tooltip': '{{date}} : {{value}}',
   'heatmap.month.jan': 'Jan',
   'heatmap.month.feb': 'Fév',
   'heatmap.month.mar': 'Mar',

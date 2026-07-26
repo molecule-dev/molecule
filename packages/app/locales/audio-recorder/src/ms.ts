@@ -9,7 +9,7 @@ export const ms: Partial<AudioRecorderTranslations> = {
   'audioRecorder.error': 'Rakaman gagal. Sila cuba lagi.',
   'audioRecorder.permissionDenied': 'Kebenaran mikrofon ditolak. Benarkan akses dan cuba lagi.',
   'audioRecorder.stop': 'Berhenti',
-  'audioRecorder.elapsed': 'Berlalu<x> {{masa}}</x>',
+  'audioRecorder.elapsed': 'Berlalu {{time}}',
   'audioRecorder.statusProcessed': 'Dirakam',
   'audioRecorder.statusError': 'Ralat',
   'audioRecorder.statusIdle': 'Bersedia untuk dirakam',

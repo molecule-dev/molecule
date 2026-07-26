@@ -7,7 +7,7 @@ export const uk: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Вставити',
   'videoTimeline.aria.root': 'Хронологія відео',
   'videoTimeline.aria.ruler': 'Правитель часу',
-  'videoTimeline.aria.playhead': 'Точка відтворення на<x> {{час}}</x> с',
+  'videoTimeline.aria.playhead': 'Точка відтворення на {{time}} с',
   'videoTimeline.aria.zoom': 'Масштабування часової шкали',
   'videoTimeline.aria.mode': 'Режим редагування',
   'videoTimeline.zoom.in.icon': '+',

@@ -22,7 +22,7 @@ export const si: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'අවසන්',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{අගය}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'ගුවන්විදුලි කණ්ඩායම',
   'ui.select.placeholder': 'තෝරන්න...',
   'ui.select.title': 'තෝරන්න',

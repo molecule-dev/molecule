@@ -11,7 +11,7 @@ export const fa: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'صفحه بندی',
   'ui.pagination.first': 'رفتن به صفحه اول',
   'ui.pagination.previous': 'رفتن به صفحه قبل',
-  'ui.pagination.goToPage': 'رفتن به صفحه<x> {{صفحه}}</x>',
+  'ui.pagination.goToPage': 'رفتن به صفحه {{page}}',
   'ui.pagination.last': 'رفتن به آخرین صفحه',
   'ui.progress.label': 'پیشرفت',
   'ui.radioGroup.label': 'گروه رادیویی',

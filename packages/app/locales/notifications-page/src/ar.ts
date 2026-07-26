@@ -16,5 +16,5 @@ export const ar: Partial<NotificationsPageTranslations> = {
   'notificationsPage.prev': 'السابق',
   'notificationsPage.next': 'التالي',
   'notificationsPage.paginationAriaLabel': 'ترقيم الصفحات',
-  'notificationsPage.pageOf': 'صفحة<x> {{حاضِر}}</x> ل<x> {{المجموع}}</x>',
+  'notificationsPage.pageOf': 'صفحة {{current}} ل {{total}}',
 }

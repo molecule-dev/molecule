@@ -12,7 +12,7 @@ export const mn: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Голч дүн',
   'gradebook.col.posted': 'Нийтэлсэн',
   'gradebook.gpa.title': 'Голч дүн',
-  'gradebook.gpa.outOf': 'гарч<x> {{хамгийн их}}</x>',
+  'gradebook.gpa.outOf': 'гарч {{max}}',
   'gradebook.gpa.trend.up': 'Өсөж буй чиг хандлага',
   'gradebook.gpa.trend.down': 'Доош чиг хандлагатай байна',
   'gradebook.gpa.trend.flat': 'Тогтвортой',

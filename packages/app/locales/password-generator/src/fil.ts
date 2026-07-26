@@ -6,7 +6,7 @@ export const fil: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copied': 'Nakopya!',
   'password-generator.regenerate': 'I-regenerate',
   'password-generator.readoutLabel': 'Nabuo na password',
-  'password-generator.length': 'Haba:<x> {{haba}}</x>',
+  'password-generator.length': 'Haba: {{length}}',
   'password-generator.lengthLabel': 'Haba ng password',
   'password-generator.toggle.uppercase': 'Malaking titik (AZ)',
   'password-generator.toggle.lowercase': 'Maliit na titik (az)',

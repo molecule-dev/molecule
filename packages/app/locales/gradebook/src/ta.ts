@@ -12,7 +12,7 @@ export const ta: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA பங்களிப்பு',
   'gradebook.col.posted': 'பதிவுசெய்யப்பட்டது',
   'gradebook.gpa.title': 'ஜிபிஏ',
-  'gradebook.gpa.outOf': 'வெளியே<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'வெளியே {{max}}',
   'gradebook.gpa.trend.up': 'மேல்நோக்கிய போக்கு',
   'gradebook.gpa.trend.down': 'கீழ்நோக்கிய போக்கு',
   'gradebook.gpa.trend.flat': 'நிலையான',

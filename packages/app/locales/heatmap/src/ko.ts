@@ -5,7 +5,7 @@ export const ko: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': '일',
   'heatmap.weekday.sat': '토',
   'heatmap.aria.grid': '활동 히트맵',
-  'heatmap.cell.tooltip': '{{날짜}} :<x> {{값}}</x>',
+  'heatmap.cell.tooltip': '{{date}} : {{value}}',
   'heatmap.month.jan': '얀',
   'heatmap.month.feb': '2월',
   'heatmap.month.mar': '3월',

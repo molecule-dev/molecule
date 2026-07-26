@@ -3,9 +3,9 @@ import type { AudioMixerTranslations } from './types.js'
 /** FeatureAudioMixer translations for th. */
 export const th: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'คอนโซลผสมเสียง',
-  'audioMixer.aria.fader': '{{ชื่อ}} เฟดเดอร์',
-  'audioMixer.aria.pan': '{{ชื่อ}} กระทะ',
-  'audioMixer.aria.send': '{{ช่อง}} ส่งไปยัง<x> {{ส่ง}}</x>',
+  'audioMixer.aria.fader': '{{name}} เฟดเดอร์',
+  'audioMixer.aria.pan': '{{name}} กระทะ',
+  'audioMixer.aria.send': '{{channel}} ส่งไปยัง {{send}}',
   'audioMixer.button.mute': 'ปิดเสียง',
   'audioMixer.button.solo': 'โซโล',
   'audioMixer.master': 'ผู้เชี่ยวชาญ',

@@ -6,6 +6,5 @@ export const ar: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.keys': 'مفاتيح البيانو',
   'pianoRoll.aria.grid': 'شبكة الملاحظات',
   'pianoRoll.aria.resize': 'ملاحظة تغيير الحجم',
-  'pianoRoll.aria.note':
-    'ملحوظة<x> {{يقذف}}</x> بدء الإيقاع<x> {{startBeat}}</x> ل<x> {{durationBeats}}</x> إيقاعات',
+  'pianoRoll.aria.note': 'ملحوظة {{pitch}} بدء الإيقاع {{startBeat}} ل {{durationBeats}} إيقاعات',
 }

@@ -24,7 +24,7 @@ export const hu: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Utolsó',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{érték}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Rádiócsoport',
   'ui.select.title': 'Válasszon',
   'ui.spinner.loading': 'Terhelés',

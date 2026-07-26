@@ -29,7 +29,7 @@ export const de: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': 'Element auswählen',
   'moderationQueue.loading': 'Moderationswarteschlange wird geladen…',
   'moderationQueue.empty': 'Keine Artikel, die auf Freigabe warten.',
-  'moderationQueue.selectedCount': '{{zählen}} ausgewählt',
+  'moderationQueue.selectedCount': '{{count}} ausgewählt',
   'moderationQueue.reportedBy': 'Bericht von',
   'moderationQueue.kind.image': 'Bild',
 }

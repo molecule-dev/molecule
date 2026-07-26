@@ -12,7 +12,7 @@ export const km: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'ការចូលរួមចំណែក GPA',
   'gradebook.col.posted': 'បានបង្ហោះ',
   'gradebook.gpa.title': 'មធ្យមភាគ',
-  'gradebook.gpa.outOf': 'ចេញពី<x> {{អតិបរមា}}</x>',
+  'gradebook.gpa.outOf': 'ចេញពី {{max}}',
   'gradebook.gpa.trend.up': 'និន្នាការឡើងថ្លៃ',
   'gradebook.gpa.trend.down': 'និន្នាការធ្លាក់ចុះ',
   'gradebook.gpa.trend.flat': 'ស្ថិរភាព',

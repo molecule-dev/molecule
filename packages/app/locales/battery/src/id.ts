@@ -9,5 +9,5 @@ export const id: Partial<BatteryTranslations> = {
   'battery.discharging': 'Menggunakan Baterai',
   'battery.full': 'Terisi Penuh',
   'battery.not-charging': 'Tidak Menagih',
-  'battery.remainingTime': '{{jam}} H<x> menit</x> M',
+  'battery.remainingTime': '{{hours}}h {{minutes}}m',
 }

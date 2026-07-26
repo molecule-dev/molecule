@@ -12,7 +12,7 @@ export const ur: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA کی شراکت',
   'gradebook.col.posted': 'پوسٹ کیا گیا',
   'gradebook.gpa.title': 'جی پی اے',
-  'gradebook.gpa.outOf': 'سے باہر<x> {{زیادہ سے زیادہ}}</x>',
+  'gradebook.gpa.outOf': 'سے باہر {{max}}',
   'gradebook.gpa.trend.up': 'رجحان بڑھ رہا ہے۔',
   'gradebook.gpa.trend.down': 'نیچے کا رجحان',
   'gradebook.gpa.trend.flat': 'مستحکم',

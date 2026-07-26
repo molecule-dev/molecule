@@ -3,11 +3,10 @@ import type { VideoScrubberTranslations } from './types.js'
 /** FeatureVideoScrubber translations for is. */
 export const is: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Myndbandsskrúbbari',
-  'videoScrubber.aria.strip':
-    'Filmræma — spilunarhaus á<x> {{tími}}</x> s (rammi<x> {{rammi}}</x> )',
-  'videoScrubber.aria.playhead': 'Spilunarhaus kl.<x> {{tími}}</x> s',
-  'videoScrubber.aria.frameReadout': 'Rammi<x> {{rammi}}</x> af<x> {{samtals}}</x>',
+  'videoScrubber.aria.strip': 'Filmræma — spilunarhaus á {{time}} s (rammi {{frame}} )',
+  'videoScrubber.aria.playhead': 'Spilunarhaus kl. {{time}} s',
+  'videoScrubber.aria.frameReadout': 'Rammi {{frame}} af {{total}}',
   'videoScrubber.aria.thumbnail': 'Forskoðun ramma',
   'videoScrubber.thumbnails.empty': 'Engin forskoðun',
-  'videoScrubber.frameReadout.total': '/<x> {{samtals}}</x> rammar',
+  'videoScrubber.frameReadout.total': '/ {{total}} rammar',
 }

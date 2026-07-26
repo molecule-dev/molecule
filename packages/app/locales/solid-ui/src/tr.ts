@@ -14,7 +14,7 @@ export const tr: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Sayfalama',
   'ui.pagination.first': 'İlk sayfaya git',
   'ui.pagination.previous': 'Önceki sayfaya git',
-  'ui.pagination.goToPage': 'Sayfaya git<x> {{sayfa}}</x>',
+  'ui.pagination.goToPage': 'Sayfaya git {{page}}',
   'ui.pagination.last': 'Son sayfaya git',
   'ui.radioGroup.label': 'Radyo grubu',
   'ui.table.empty': 'Veri mevcut değil.',

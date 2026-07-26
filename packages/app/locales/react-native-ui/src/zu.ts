@@ -22,7 +22,7 @@ export const zu: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Okokugcina',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{inani}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Iqembu lomsakazo',
   'ui.select.placeholder': 'Khetha…',
   'ui.select.title': 'Khetha',

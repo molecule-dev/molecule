@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for lo. */
 export const lo: Partial<BillingTranslations> = {
   'billing.status.loading': 'ກຳລັງໂຫຼດ…',
-  'billing.status.currentPlan': 'ແຜນການປະຈຸບັນ:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'ແຜນການປະຈຸບັນ: {{tierName}}',
   'billing.status.cancelCta': 'ຍົກເລີກການສະໝັກໃຊ້',
   'billing.status.cancelError': 'ບໍ່ສາມາດຍົກເລີກໄດ້. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ.',
   'billing.pricing.loading': 'ກຳລັງໂຫຼດແຜນການ…',
@@ -13,5 +13,5 @@ export const lo: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'ຍອດນິຍົມທີ່ສຸດ',
   'billing.pricing.tierEyebrow': 'ຊັ້ນ',
   'billing.pricing.perSeat': 'ຕໍ່ບ່ອນນັ່ງ',
-  'billing.pricing.upgradeCta': 'ອັບເກຣດເປັນ<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'ອັບເກຣດເປັນ {{tierName}}',
 }

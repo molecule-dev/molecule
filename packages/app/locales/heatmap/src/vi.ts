@@ -5,7 +5,7 @@ export const vi: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': 'CN',
   'heatmap.weekday.sat': 'T7',
   'heatmap.aria.grid': 'Bản đồ nhiệt hoạt động',
-  'heatmap.cell.tooltip': '{{ngày}} :<x> {{giá trị}}</x>',
+  'heatmap.cell.tooltip': '{{date}} : {{value}}',
   'heatmap.month.jan': 'Tháng một',
   'heatmap.month.feb': 'Tháng Hai',
   'heatmap.month.mar': 'Tháng 3',

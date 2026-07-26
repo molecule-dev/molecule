@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const ka: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'ვიდეო ქრონოლოგია',
   'videoTimeline.aria.ruler': 'დროის საზომი',
-  'videoTimeline.aria.playhead': 'დაკვრის თავი<x> {{დრო}}</x> ს',
+  'videoTimeline.aria.playhead': 'დაკვრის თავი {{time}} ს',
   'videoTimeline.aria.zoom': 'ქრონოლოგიის მასშტაბირება',
   'videoTimeline.aria.mode': 'რედაქტირების რეჟიმი',
   'videoTimeline.zoom.in': 'მასშტაბირება',

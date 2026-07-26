@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const is: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Tímalína myndbands',
   'videoTimeline.aria.ruler': 'Tímastjórnandi',
-  'videoTimeline.aria.playhead': 'Spilunarhaus kl.<x> {{tími}}</x> s',
+  'videoTimeline.aria.playhead': 'Spilunarhaus kl. {{time}} s',
   'videoTimeline.aria.zoom': 'Tímalínu aðdráttur',
   'videoTimeline.aria.mode': 'Breytingarstilling',
   'videoTimeline.zoom.in': 'Aðdráttur',

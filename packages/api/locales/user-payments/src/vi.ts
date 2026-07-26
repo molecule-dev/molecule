@@ -7,8 +7,8 @@ export const vi: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'Yêu cầu receipt và planKey.',
   'user.payment.verificationNotConfigured':
     'Xác minh thanh toán chưa được cấu hình cho {{provider}}.',
-  'user.payment.invalidPlan': 'Gói không hợp lệ.',
-  'user.payment.verificationFailed': 'Xác minh đăng ký thất bại.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Gói không xác định.',
   'user.payment.invalidWebhookEvent': 'Sự kiện webhook không hợp lệ.',
 }

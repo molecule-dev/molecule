@@ -13,7 +13,7 @@ export const id: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Kontribusi IPK',
   'gradebook.col.posted': 'Diposting',
   'gradebook.gpa.title': 'IPK',
-  'gradebook.gpa.outOf': 'dari<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'dari {{max}}',
   'gradebook.gpa.trend.up': 'Tren naik',
   'gradebook.gpa.trend.down': 'Tren menurun',
 }

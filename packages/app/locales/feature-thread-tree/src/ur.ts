@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ur. */
 export const ur: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'پھیلائیں۔<x> {{count}}</x> جوابات',
+  'threadTree.expand': 'پھیلائیں۔ {{count}} جوابات',
   'threadTree.collapse': 'دھاگے کو سمیٹیں۔',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

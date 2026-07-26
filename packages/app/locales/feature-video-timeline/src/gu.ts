@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const gu: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'વિડિઓ સમયરેખા',
   'videoTimeline.aria.ruler': 'સમય નિયમક',
-  'videoTimeline.aria.playhead': 'પ્લેહેડ પર<x> {{સમય}}</x> ઓ',
+  'videoTimeline.aria.playhead': 'પ્લેહેડ પર {{time}} ઓ',
   'videoTimeline.aria.zoom': 'સમયરેખા ઝૂમ',
   'videoTimeline.aria.mode': 'સંપાદન મોડ',
   'videoTimeline.zoom.in': 'ઝૂમ ઇન કરો',

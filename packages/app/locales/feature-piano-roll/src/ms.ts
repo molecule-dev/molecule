@@ -7,5 +7,5 @@ export const ms: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Grid nota',
   'pianoRoll.aria.resize': 'Ubah saiz nota',
   'pianoRoll.aria.note':
-    'Nota<x> {{pancang}}</x> bermula pada rentak<x> {{startBeat}}</x> untuk<x> {{durationBeats}}</x> rentak',
+    'Nota {{pitch}} bermula pada rentak {{startBeat}} untuk {{durationBeats}} rentak',
 }

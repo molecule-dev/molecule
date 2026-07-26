@@ -8,7 +8,7 @@ export const is: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Gera hlé',
   'audioRecorder.resume': 'Ferilskrá',
   'audioRecorder.stop': 'Stöðva',
-  'audioRecorder.elapsed': 'Liðinn<x> {{tími}}</x>',
+  'audioRecorder.elapsed': 'Liðinn {{time}}',
   'audioRecorder.statusPaused': 'Hlé gert',
   'audioRecorder.statusProcessed': 'Upptekið',
   'audioRecorder.statusError': 'Villa',

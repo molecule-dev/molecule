@@ -13,7 +13,7 @@ export const ar: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'مساهمة المعدل التراكمي',
   'gradebook.col.posted': 'تم النشر',
   'gradebook.gpa.title': 'المعدل التراكمي',
-  'gradebook.gpa.outOf': 'من خارج<x> {{الأعلى}}</x>',
+  'gradebook.gpa.outOf': 'من خارج {{max}}',
   'gradebook.gpa.trend.up': 'يتزايد رواجاً',
   'gradebook.gpa.trend.down': 'الاتجاه تنازلي',
 }

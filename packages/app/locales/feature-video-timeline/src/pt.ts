@@ -8,7 +8,7 @@ export const pt: Partial<VideoTimelineTranslations> = {
   'videoTimeline.trackKind.video': 'Vídeo',
   'videoTimeline.aria.root': 'Linha do tempo do vídeo',
   'videoTimeline.aria.ruler': 'Régua do tempo',
-  'videoTimeline.aria.playhead': 'Playhead em<x> {{tempo}}</x> s',
+  'videoTimeline.aria.playhead': 'Playhead em {{time}} s',
   'videoTimeline.aria.zoom': 'Zoom da linha do tempo',
   'videoTimeline.aria.mode': 'Modo de edição',
   'videoTimeline.zoom.in.icon': '+',

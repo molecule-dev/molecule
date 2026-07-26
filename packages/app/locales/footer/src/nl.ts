@@ -5,7 +5,7 @@ export const nl: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'Privacybeleid',
   'footer.termsOfService': 'Servicevoorwaarden',
   'footer.language': 'Taal',
-  'footer.version': 'v<x> {{versie}}</x>',
+  'footer.version': 'v {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
 }

@@ -7,7 +7,7 @@ export const vi: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Chèn',
   'videoTimeline.aria.root': 'Dòng thời gian video',
   'videoTimeline.aria.ruler': 'Người cai trị thời gian',
-  'videoTimeline.aria.playhead': 'Playhead tại<x> {{thời gian}}</x> S',
+  'videoTimeline.aria.playhead': 'Playhead tại {{time}} S',
   'videoTimeline.aria.zoom': 'Thu phóng dòng thời gian',
   'videoTimeline.aria.mode': 'Chế độ chỉnh sửa',
   'videoTimeline.zoom.in.icon': '+',

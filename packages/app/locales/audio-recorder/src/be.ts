@@ -9,7 +9,7 @@ export const be: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Паўза',
   'audioRecorder.resume': 'Рэзюмэ',
   'audioRecorder.stop': 'Спыніцца',
-  'audioRecorder.elapsed': 'Прайшло<x> {{час}}</x>',
+  'audioRecorder.elapsed': 'Прайшло {{time}}',
   'audioRecorder.statusPaused': 'Прыпынена',
   'audioRecorder.statusProcessed': 'Запісана',
   'audioRecorder.statusError': 'Памылка',

@@ -7,5 +7,5 @@ export const pl: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Siatka notatek',
   'pianoRoll.aria.resize': 'Zmień rozmiar notatki',
   'pianoRoll.aria.note':
-    'Notatka<x> {{poziom}}</x> zaczynając od uderzenia<x> {{startBeat}}</x> Do<x> {{durationBeats}}</x> bije',
+    'Notatka {{pitch}} zaczynając od uderzenia {{startBeat}} Do {{durationBeats}} bije',
 }

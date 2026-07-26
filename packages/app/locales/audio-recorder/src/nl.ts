@@ -10,7 +10,7 @@ export const nl: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Toegang tot de microfoon geweigerd. Geef toestemming en probeer het opnieuw.',
   'audioRecorder.stop': 'Stop',
-  'audioRecorder.elapsed': 'Verstreken<x> {{tijd}}</x>',
+  'audioRecorder.elapsed': 'Verstreken {{time}}',
   'audioRecorder.statusProcessed': 'Opgenomen',
   'audioRecorder.statusError': 'Fout',
   'audioRecorder.statusIdle': 'Klaar om op te nemen',

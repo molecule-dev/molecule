@@ -11,7 +11,7 @@ export const sq: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Faqet',
   'ui.pagination.first': 'Shko te faqja e parë',
   'ui.pagination.previous': 'Shko te faqja e mëparshme',
-  'ui.pagination.goToPage': 'Shko te faqja<x> {{faqe}}</x>',
+  'ui.pagination.goToPage': 'Shko te faqja {{page}}',
   'ui.pagination.last': 'Shko te faqja e fundit',
   'ui.progress.label': 'Progresi',
   'ui.radioGroup.label': 'Grupi i radios',

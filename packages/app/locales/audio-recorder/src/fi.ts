@@ -10,7 +10,7 @@ export const fi: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Mikrofonin käyttöoikeus evätty. Salli käyttö ja yritä uudelleen.',
   'audioRecorder.stop': 'Stop',
-  'audioRecorder.elapsed': 'Kulunut<x> {{aika}}</x>',
+  'audioRecorder.elapsed': 'Kulunut {{time}}',
   'audioRecorder.statusProcessed': 'Tallennettu',
   'audioRecorder.statusError': 'Virhe',
   'audioRecorder.statusIdle': 'Valmis tallentamaan',

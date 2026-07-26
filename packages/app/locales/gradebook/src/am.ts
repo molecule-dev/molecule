@@ -12,7 +12,7 @@ export const am: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'የጂፒኤ አስተዋጽዖ',
   'gradebook.col.posted': 'የተለጠፈ',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'ውጪ<x> {{ከፍተኛ}}</x>',
+  'gradebook.gpa.outOf': 'ውጪ {{max}}',
   'gradebook.gpa.trend.up': 'በመታየት ላይ',
   'gradebook.gpa.trend.down': 'በመውረድ ላይ',
   'gradebook.gpa.trend.flat': 'ስቴዲ',

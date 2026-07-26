@@ -22,7 +22,7 @@ export const gu: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'છેલ્લા',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{મૂલ્ય}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'રેડિયો ગ્રુપ',
   'ui.select.placeholder': 'પસંદ કરો...',
   'ui.select.title': 'પસંદ કરો',

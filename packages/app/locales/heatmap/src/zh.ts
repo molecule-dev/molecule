@@ -5,7 +5,7 @@ export const zh: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': '周日',
   'heatmap.weekday.sat': '周六',
   'heatmap.aria.grid': '活动热图',
-  'heatmap.cell.tooltip': '{{日期}} ：<x> {{价值}}</x>',
+  'heatmap.cell.tooltip': '{{date}} ： {{value}}',
   'heatmap.month.jan': '一月',
   'heatmap.month.feb': '二月',
   'heatmap.month.mar': '三月',

@@ -29,7 +29,7 @@ export const id: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': 'Pilih item',
   'moderationQueue.loading': 'Memuat antrian moderasi…',
   'moderationQueue.empty': 'Tidak ada item yang menunggu moderasi.',
-  'moderationQueue.selectedCount': '{{menghitung}} terpilih',
+  'moderationQueue.selectedCount': '{{count}} terpilih',
   'moderationQueue.reportedBy': 'Dilaporkan oleh',
   'moderationQueue.kind.image': 'Gambar',
 }

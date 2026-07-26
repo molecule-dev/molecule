@@ -4,10 +4,10 @@ import type { ThreadTreeTranslations } from './types.js'
 export const de: Partial<ThreadTreeTranslations> = {
   'threadTree.upvote': 'Hochwerten',
   'threadTree.reply': 'Antworten',
-  'threadTree.expand': 'Expandieren<x> {{zählen}}</x> Antworten',
+  'threadTree.expand': 'Expandieren {{count}} Antworten',
   'threadTree.collapse': 'Thread ausklappen',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',
-  'threadTree.score': '{{zählen}} Punkte',
-  'threadTree.hiddenReplies': '{{zählen}} versteckt',
+  'threadTree.score': '{{count}} Punkte',
+  'threadTree.hiddenReplies': '{{count}} versteckt',
 }

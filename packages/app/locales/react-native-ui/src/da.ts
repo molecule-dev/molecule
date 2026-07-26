@@ -24,7 +24,7 @@ export const da: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Sidst',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{værdi}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Radiogruppe',
   'ui.select.title': 'Vælge',
   'ui.spinner.loading': 'Indlæser',

@@ -9,7 +9,7 @@ export const si: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'විරාමය',
   'audioRecorder.resume': 'අරඹන්න',
   'audioRecorder.stop': 'නවත්වන්න',
-  'audioRecorder.elapsed': 'ගතවී ඇත<x> {{වේලාව}}</x>',
+  'audioRecorder.elapsed': 'ගතවී ඇත {{time}}',
   'audioRecorder.statusPaused': 'විරාම කරන ලදී',
   'audioRecorder.statusProcessed': 'පටිගත කරන ලදී',
   'audioRecorder.statusError': 'දෝෂය',

@@ -22,7 +22,7 @@ export const mn: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Сүүлийн',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{утга}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Радио бүлэг',
   'ui.select.placeholder': 'Сонгох...',
   'ui.select.title': 'Сонгох',

@@ -10,7 +10,7 @@ export const hu: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Mikrofonengedély megtagadva. Engedélyezze a hozzáférést, és próbálja újra.',
   'audioRecorder.stop': 'Stop',
-  'audioRecorder.elapsed': 'Eltelt idő<x> {{idő}}</x>',
+  'audioRecorder.elapsed': 'Eltelt idő {{time}}',
   'audioRecorder.statusProcessed': 'Felvétel',
   'audioRecorder.statusError': 'Hiba',
   'audioRecorder.statusIdle': 'Készen áll a felvételre',

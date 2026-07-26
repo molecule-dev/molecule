@@ -5,9 +5,9 @@ export const de: Partial<AudioMixerTranslations> = {
   'audioMixer.button.mute': 'Stumm',
   'audioMixer.sends': 'Sendungen',
   'audioMixer.aria.console': 'Audiomischpult',
-  'audioMixer.aria.fader': '{{Name}} Fader',
-  'audioMixer.aria.pan': '{{Name}} Pfanne',
-  'audioMixer.aria.send': '{{Kanal}} senden an<x> {{schicken}}</x>',
+  'audioMixer.aria.fader': '{{name}} Fader',
+  'audioMixer.aria.pan': '{{name}} Pfanne',
+  'audioMixer.aria.send': '{{channel}} senden an {{send}}',
   'audioMixer.button.solo': 'Solo',
   'audioMixer.master': 'Master',
 }

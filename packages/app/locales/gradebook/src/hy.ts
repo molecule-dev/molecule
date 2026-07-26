@@ -12,7 +12,7 @@ export const hy: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA ներդրում',
   'gradebook.col.posted': 'Հրապարակված',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'դուրս<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'դուրս {{max}}',
   'gradebook.gpa.trend.up': 'Աճող միտում',
   'gradebook.gpa.trend.down': 'Նվազող միտում',
   'gradebook.gpa.trend.flat': 'Կայուն',

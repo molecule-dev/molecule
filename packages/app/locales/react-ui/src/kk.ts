@@ -11,7 +11,7 @@ export const kk: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Беттеу',
   'ui.pagination.first': 'Бірінші бетке өту',
   'ui.pagination.previous': 'Алдыңғы бетке өту',
-  'ui.pagination.goToPage': 'Бетке өту<x> {{page}}</x>',
+  'ui.pagination.goToPage': 'Бетке өту {{page}}',
   'ui.pagination.last': 'Соңғы бетке өту',
   'ui.progress.label': 'Прогресс',
   'ui.radioGroup.label': 'Радио тобы',

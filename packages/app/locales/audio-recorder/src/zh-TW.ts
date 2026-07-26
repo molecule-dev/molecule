@@ -8,7 +8,7 @@ export const zhTW: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': '暫停',
   'audioRecorder.resume': '恢復',
   'audioRecorder.stop': '停止',
-  'audioRecorder.elapsed': '過去{{時間}}',
+  'audioRecorder.elapsed': '過去{{time}}',
   'audioRecorder.statusPaused': '暫停',
   'audioRecorder.statusProcessed': '已錄製',
   'audioRecorder.statusError': '錯誤',

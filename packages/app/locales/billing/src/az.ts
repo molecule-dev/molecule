@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for az. */
 export const az: Partial<BillingTranslations> = {
   'billing.status.loading': 'Yüklənir…',
-  'billing.status.currentPlan': 'Cari plan:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Cari plan: {{tierName}}',
   'billing.status.cancelCta': 'Abunəliyi ləğv edin',
   'billing.status.cancelError': 'Ləğv etmək mümkün olmadı. Yenidən cəhd edin.',
   'billing.pricing.loading': 'Planlar yüklənir…',
@@ -14,5 +14,5 @@ export const az: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Ən populyar',
   'billing.pricing.tierEyebrow': 'Səviyyə',
   'billing.pricing.perSeat': 'hər oturacaq üçün',
-  'billing.pricing.upgradeCta': 'Təkmilləşdirin<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Təkmilləşdirin {{tierName}}',
 }

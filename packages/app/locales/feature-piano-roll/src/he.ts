@@ -7,5 +7,5 @@ export const he: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'רשת הערות',
   'pianoRoll.aria.resize': 'שינוי גודל של הערה',
   'pianoRoll.aria.note':
-    'פֶּתֶק<x> {{פְּסִיעָה}}</x> מתחיל בקצב<x> {{startBeat}}</x> עֲבוּר<x> {{משך פעימות}}</x> פעימות',
+    'פֶּתֶק {{pitch}} מתחיל בקצב {{startBeat}} עֲבוּר {{durationBeats}} פעימות',
 }

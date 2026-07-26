@@ -6,7 +6,7 @@ export const ja: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': 'コピー',
   'password-generator.copied': 'コピーしました！',
   'password-generator.regenerate': '再生成',
-  'password-generator.length': '長さ：<x> {{長さ}}</x>',
+  'password-generator.length': '長さ： {{length}}',
   'password-generator.lengthLabel': 'パスワードの長さ',
   'password-generator.toggle.uppercase': '大文字 (AZ)',
   'password-generator.toggle.lowercase': '小文字 (az)',

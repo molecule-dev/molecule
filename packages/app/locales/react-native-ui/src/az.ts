@@ -22,7 +22,7 @@ export const az: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Sonuncu',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{dəyər}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Radio qrupu',
   'ui.select.placeholder': 'Seçin…',
   'ui.select.title': 'Seçin',

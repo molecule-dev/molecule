@@ -12,7 +12,7 @@ export const hu: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Ugrás az előző oldalra',
   'ui.pagination.next': 'Ugrás a következő oldalra',
   'ui.pagination.last': 'Ugrás az utolsó oldalra',
-  'ui.pagination.goToPage': 'Ugrás az oldalra<x> {{oldal}}</x>',
+  'ui.pagination.goToPage': 'Ugrás az oldalra {{page}}',
   'ui.table.empty': 'Nincsenek elérhető adatok',
   'ui.avatar.alt': 'Avatar',
   'ui.spinner.loading': 'Terhelés',

@@ -10,11 +10,11 @@ export const uk: Partial<NotificationsPageTranslations> = {
   'notificationsPage.loading': 'Завантаження сповіщень…',
   'notificationsPage.error': 'Не вдалося завантажити сповіщення.',
   'notificationsPage.prev': 'Попереднє',
-  'notificationsPage.markAllRead': 'Марк<x> {{кількість}}</x> як прочитано',
+  'notificationsPage.markAllRead': 'Марк {{count}} як прочитано',
   'notificationsPage.filterUnread': 'Непрочитане',
   'notificationsPage.emptyTitle': 'Ви все ознайомилися',
   'notificationsPage.emptyBody': 'Нові сповіщення з’являтимуться тут.',
   'notificationsPage.paginationAriaLabel': 'Пагінація',
-  'notificationsPage.pageOf': 'Сторінка<x> {{поточний}}</x> з<x> {{всього}}</x>',
+  'notificationsPage.pageOf': 'Сторінка {{current}} з {{total}}',
   'notificationsPage.next': 'Далі',
 }

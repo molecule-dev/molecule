@@ -9,5 +9,5 @@ export const ko: Partial<BatteryTranslations> = {
   'battery.discharging': '배터리 사용 시',
   'battery.full': '완전 충전됨',
   'battery.not-charging': '충전 안 함',
-  'battery.remainingTime': '{{시간}} 시간<x> {{분}}</x> 중',
+  'battery.remainingTime': '{{hours}} 시간 {{minutes}} 중',
 }

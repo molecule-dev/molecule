@@ -22,7 +22,7 @@ export const mt: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'L-aħħar',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{valur}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Grupp tar-radju',
   'ui.select.placeholder': 'Agħżel…',
   'ui.select.title': 'Agħżel',

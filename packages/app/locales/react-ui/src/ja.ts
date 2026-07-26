@@ -18,7 +18,7 @@ export const ja: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'ページネーション',
   'ui.pagination.first': '最初のページへ移動',
   'ui.pagination.previous': '前のページへ',
-  'ui.pagination.goToPage': 'ページへ移動{{ページ}}',
+  'ui.pagination.goToPage': 'ページへ移動{{page}}',
   'ui.pagination.last': '最後のページへ',
   'ui.radioGroup.label': 'ラジオグループ',
   'sidebar.memberStatus': 'プレミアム会員',

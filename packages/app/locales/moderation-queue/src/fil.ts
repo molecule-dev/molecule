@@ -23,7 +23,7 @@ export const fil: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.mute': 'I-mute',
   'moderationQueue.loading': 'Naglo-load ng pila ng moderasyon…',
   'moderationQueue.empty': 'Walang mga aytem na naghihintay ng moderasyon.',
-  'moderationQueue.selectedCount': '{{bilang}} napili',
+  'moderationQueue.selectedCount': '{{count}} napili',
   'moderationQueue.reportedBy': 'Iniulat ni',
   'moderationQueue.action.mute': 'I-mute',
   'moderationQueue.bulk.mute': 'I-mute',

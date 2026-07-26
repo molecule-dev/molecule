@@ -13,7 +13,7 @@ export const vi: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Đóng góp vào điểm trung bình tích lũy',
   'gradebook.col.posted': 'Đã đăng',
   'gradebook.gpa.title': 'Điểm trung bình',
-  'gradebook.gpa.outOf': 'ngoài<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'ngoài {{max}}',
   'gradebook.gpa.trend.up': 'Đang có xu hướng tăng',
   'gradebook.gpa.trend.down': 'Xu hướng giảm',
 }

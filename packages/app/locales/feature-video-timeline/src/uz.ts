@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const uz: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Video xronologiyasi',
   'videoTimeline.aria.ruler': "Vaqt o'lchagichi",
-  'videoTimeline.aria.playhead': 'Playhead da<x> {{vaqt}}</x> s',
+  'videoTimeline.aria.playhead': 'Playhead da {{time}} s',
   'videoTimeline.aria.zoom': "Vaqt chizig'ini kattalashtirish",
   'videoTimeline.aria.mode': 'Tahrirlash rejimi',
   'videoTimeline.zoom.in': 'Yaqinlashtirish',

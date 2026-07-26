@@ -9,7 +9,7 @@ export const fr: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Le plus populaire',
   'billing.pricing.tierEyebrow': 'Niveau',
   'billing.pricing.upgradeCta': 'Passer à {{tierName}}',
-  'billing.status.currentPlan': 'Plan actuel :<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Plan actuel : {{tierName}}',
   'billing.status.cancelCta': "Annuler l'abonnement",
   'billing.status.cancelError': 'Annulation impossible. Veuillez réessayer.',
   'billing.pricing.reassurance':

@@ -9,7 +9,7 @@ export const yo: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Dúró díẹ̀',
   'audioRecorder.resume': 'Ìbẹ̀rẹ̀ iṣẹ́-ṣíwájú',
   'audioRecorder.stop': 'Duro',
-  'audioRecorder.elapsed': 'Ti kọja<x> {{àkókò}}</x>',
+  'audioRecorder.elapsed': 'Ti kọja {{time}}',
   'audioRecorder.statusPaused': 'Dúró dúró díẹ̀',
   'audioRecorder.statusProcessed': 'Ti gba sílẹ̀',
   'audioRecorder.statusError': 'Àṣìṣe',

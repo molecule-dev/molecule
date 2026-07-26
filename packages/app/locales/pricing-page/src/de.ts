@@ -15,6 +15,5 @@ export const de: Partial<PricingPageTranslations> = {
   'pricingPage.periodToggle.label': 'Abrechnungszeitraum',
   'pricingPage.planUpdated.body':
     'Vielen Dank für Ihr Upgrade. Ihr neuer Tarif ist ab sofort aktiv und Sie haben eine Bestätigung per E-Mail erhalten.',
-  'pricingPage.planUpdated.headingNamed':
-    'Sie befinden sich jetzt auf der<x> {{planName}}</x> planen',
+  'pricingPage.planUpdated.headingNamed': 'Sie befinden sich jetzt auf der {{planName}} planen',
 }

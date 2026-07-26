@@ -6,7 +6,7 @@ export const uk: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copied': 'Скопійовано!',
   'password-generator.regenerate': 'Згенерувати знову',
   'password-generator.readoutLabel': 'Згенерований пароль',
-  'password-generator.length': 'Довжина:<x> {{довжина}}</x>',
+  'password-generator.length': 'Довжина: {{length}}',
   'password-generator.lengthLabel': 'Довжина пароля',
   'password-generator.toggle.uppercase': 'Великі літери (Аризона)',
   'password-generator.toggle.lowercase': 'Малі літери (az)',

@@ -8,6 +8,6 @@ export const nl: Partial<BatteryTranslations> = {
   'battery.discharging': 'Op de batterij',
   'battery.full': 'Volledig opgeladen',
   'battery.not-charging': 'Niet opladen',
-  'battery.remainingTime': '{{uren}} H<x> {{notulen}}</x> M',
-  'battery.remainingMinutes': '{{notulen}} M',
+  'battery.remainingTime': '{{hours}} H {{minutes}} M',
+  'battery.remainingMinutes': '{{minutes}} M',
 }

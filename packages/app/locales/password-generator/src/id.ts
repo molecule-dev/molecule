@@ -6,7 +6,7 @@ export const id: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': 'Salin',
   'password-generator.copied': 'Disalin!',
   'password-generator.regenerate': 'Buat ulang',
-  'password-generator.length': 'Panjang:<x> {{panjang}}</x>',
+  'password-generator.length': 'Panjang: {{length}}',
   'password-generator.lengthLabel': 'Panjang kata sandi',
   'password-generator.toggle.uppercase': 'Huruf Kapital (AZ)',
   'password-generator.toggle.lowercase': 'Huruf kecil (az)',

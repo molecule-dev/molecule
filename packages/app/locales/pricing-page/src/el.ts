@@ -16,5 +16,5 @@ export const el: Partial<PricingPageTranslations> = {
   'pricingPage.planUpdated.heading': 'Το πρόγραμμά σας έχει ενημερωθεί',
   'pricingPage.planUpdated.body':
     'Ευχαριστούμε για την αναβάθμιση. Το νέο σας πρόγραμμα είναι άμεσα ενεργό και σας έχει σταλεί μέσω email μια απόδειξη.',
-  'pricingPage.planUpdated.headingNamed': 'Βρίσκεστε τώρα στο<x> {{όνομα_σχεδίου}}</x> σχέδιο',
+  'pricingPage.planUpdated.headingNamed': 'Βρίσκεστε τώρα στο {{planName}} σχέδιο',
 }

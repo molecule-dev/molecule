@@ -24,7 +24,7 @@ export const uk: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.mute': 'Вимкнути звук',
   'moderationQueue.loading': 'Завантаження черги модерації…',
   'moderationQueue.empty': 'Немає елементів, що очікують модерації.',
-  'moderationQueue.selectedCount': '{{кількість}} вибраний',
+  'moderationQueue.selectedCount': '{{count}} вибраний',
   'moderationQueue.reportedBy': 'Повідомив',
   'moderationQueue.action.mute': 'Вимкнути звук',
   'moderationQueue.bulk.mute': 'Вимкнути звук',

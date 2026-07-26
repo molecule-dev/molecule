@@ -7,5 +7,5 @@ export const mr: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'नोट ग्रिड',
   'pianoRoll.aria.resize': 'आकार बदलण्याची सूचना',
   'pianoRoll.aria.note':
-    'टीप<x> {{pitch}}</x> बीट पासून सुरू होत आहे<x> {{startBeat}}</x> साठी<x> {{durationBeats}}</x> बीट्स',
+    'टीप {{pitch}} बीट पासून सुरू होत आहे {{startBeat}} साठी {{durationBeats}} बीट्स',
 }

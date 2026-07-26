@@ -8,7 +8,7 @@ export const ko: Partial<VideoTimelineTranslations> = {
   'videoTimeline.trackKind.video': '비디오',
   'videoTimeline.aria.root': '비디오 타임라인',
   'videoTimeline.aria.ruler': '시간의 지배자',
-  'videoTimeline.aria.playhead': 'Playhead에서<x> {{시간}}</x> 에스',
+  'videoTimeline.aria.playhead': 'Playhead에서 {{time}} 에스',
   'videoTimeline.aria.zoom': '타임라인 확대',
   'videoTimeline.aria.mode': '편집 모드',
   'videoTimeline.zoom.in.icon': '+',

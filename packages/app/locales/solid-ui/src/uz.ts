@@ -11,7 +11,7 @@ export const uz: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Sahifalash',
   'ui.pagination.first': "Birinchi sahifaga o'tish",
   'ui.pagination.previous': "Oldingi sahifaga o'tish",
-  'ui.pagination.goToPage': "Sahifaga o'tish<x> {{sahifa}}</x>",
+  'ui.pagination.goToPage': "Sahifaga o'tish {{page}}",
   'ui.pagination.last': "Oxirgi sahifaga o'tish",
   'ui.progress.label': 'Jarayon',
   'ui.radioGroup.label': 'Radio guruhi',

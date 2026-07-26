@@ -9,7 +9,7 @@ export const sv: Partial<AudioRecorderTranslations> = {
   'audioRecorder.error': 'Inspelningen misslyckades. Försök igen.',
   'audioRecorder.permissionDenied': 'Mikrofonåtkomst nekad. Tillåt åtkomst och försök igen.',
   'audioRecorder.stop': 'Stopp',
-  'audioRecorder.elapsed': 'Förflutit<x> {{tid}}</x>',
+  'audioRecorder.elapsed': 'Förflutit {{time}}',
   'audioRecorder.statusProcessed': 'Inspelad',
   'audioRecorder.statusError': 'Fel',
   'audioRecorder.statusIdle': 'Klar att spela in',

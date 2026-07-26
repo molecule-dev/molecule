@@ -3,9 +3,9 @@ import type { AudioMixerTranslations } from './types.js'
 /** FeatureAudioMixer translations for sl. */
 export const sl: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'Konzola za mešalnik zvoka',
-  'audioMixer.aria.fader': '{{ime}} fader',
-  'audioMixer.aria.pan': '{{ime}} ponev',
-  'audioMixer.aria.send': '{{kanal}} pošlji<x> {{pošlji}}</x>',
+  'audioMixer.aria.fader': '{{name}} fader',
+  'audioMixer.aria.pan': '{{name}} ponev',
+  'audioMixer.aria.send': '{{channel}} pošlji {{send}}',
   'audioMixer.button.mute': 'Izklopi zvok',
   'audioMixer.button.solo': 'Solo',
   'audioMixer.master': 'Mojster',

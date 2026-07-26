@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for ga. */
 export const ga: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'Leathnaigh<x> {{count}}</x> freagraí',
+  'threadTree.expand': 'Leathnaigh {{count}} freagraí',
   'threadTree.collapse': 'Laghdaigh an snáithe',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

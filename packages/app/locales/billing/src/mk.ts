@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for mk. */
 export const mk: Partial<BillingTranslations> = {
   'billing.status.loading': 'Се вчитува…',
-  'billing.status.currentPlan': 'Тековен план:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Тековен план: {{tierName}}',
   'billing.status.cancelCta': 'Откажи претплата',
   'billing.status.cancelError': 'Не може да се откаже. Обидете се повторно.',
   'billing.pricing.loading': 'Се вчитуваат планови…',
@@ -14,5 +14,5 @@ export const mk: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Најпопуларни',
   'billing.pricing.tierEyebrow': 'Ниво',
   'billing.pricing.perSeat': 'по седиште',
-  'billing.pricing.upgradeCta': 'Надгради на<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Надгради на {{tierName}}',
 }

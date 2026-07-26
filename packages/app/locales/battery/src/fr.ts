@@ -9,5 +9,5 @@ export const fr: Partial<BatteryTranslations> = {
   'battery.discharging': 'Sur batterie',
   'battery.full': 'Entièrement chargé',
   'battery.not-charging': 'Pas de facturation',
-  'battery.remainingTime': '{{heures}} h<x> {{minutes}}</x> m',
+  'battery.remainingTime': '{{hours}} h {{minutes}} m',
 }

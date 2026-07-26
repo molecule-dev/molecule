@@ -6,7 +6,7 @@ export const sv: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': 'Kopiera',
   'password-generator.copied': 'Kopierat!',
   'password-generator.regenerate': 'Generera om',
-  'password-generator.length': 'Längd:<x> {{längd}}</x>',
+  'password-generator.length': 'Längd: {{length}}',
   'password-generator.lengthLabel': 'Lösenordslängd',
   'password-generator.toggle.uppercase': 'Stora bokstäver (AZ)',
   'password-generator.toggle.lowercase': 'Gemener (az)',

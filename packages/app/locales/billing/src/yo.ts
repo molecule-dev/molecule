@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for yo. */
 export const yo: Partial<BillingTranslations> = {
   'billing.status.loading': 'N n gbe…',
-  'billing.status.currentPlan': 'Ètò lọ́wọ́lọ́wọ́:<x> {{Orúkọ ìpele}}</x>',
+  'billing.status.currentPlan': 'Ètò lọ́wọ́lọ́wọ́: {{tierName}}',
   'billing.status.cancelCta': 'Fagilee iforukọsilẹ',
   'billing.status.cancelError': 'Kò le fagilé. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan síi.',
   'billing.pricing.loading': 'N n gbe awọn eto…',
@@ -13,5 +13,5 @@ export const yo: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Gbajúmọ̀ jùlọ',
   'billing.pricing.tierEyebrow': 'Ipele',
   'billing.pricing.perSeat': 'fún ìjókòó kọ̀ọ̀kan',
-  'billing.pricing.upgradeCta': 'Ṣe igbesoke si<x> {{Orúkọ ìpele}}</x>',
+  'billing.pricing.upgradeCta': 'Ṣe igbesoke si {{tierName}}',
 }

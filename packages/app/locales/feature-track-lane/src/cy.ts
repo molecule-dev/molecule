@@ -2,9 +2,8 @@ import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for cy. */
 export const cy: Partial<TrackLaneTranslations> = {
-  'trackLane.aria.lane': 'Lôn trac<x> {{enw}}</x>',
-  'trackLane.aria.clip':
-    'Clip<x> {{label}}</x> gan ddechrau am<x> {{Amser cychwyn}}</x> s ar gyfer<x> {{hyd}}</x> au',
+  'trackLane.aria.lane': 'Lôn trac {{name}}',
+  'trackLane.aria.clip': 'Clip {{label}} gan ddechrau am {{startTime}} s ar gyfer {{duration}} au',
   'trackLane.aria.resize': 'Newid maint y clip',
   'trackLane.header': 'Trac',
 }

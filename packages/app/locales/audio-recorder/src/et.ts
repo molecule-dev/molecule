@@ -9,7 +9,7 @@ export const et: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Paus',
   'audioRecorder.resume': 'CV',
   'audioRecorder.stop': 'Stopp',
-  'audioRecorder.elapsed': 'Möödunud<x> aeg</x>',
+  'audioRecorder.elapsed': 'Elapsed {{time}}',
   'audioRecorder.statusPaused': 'Peatatud',
   'audioRecorder.statusProcessed': 'Salvestatud',
   'audioRecorder.statusError': 'Viga',

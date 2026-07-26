@@ -2,6 +2,6 @@ import type { AdjustmentSliderTranslations } from './types.js'
 
 /** AdjustmentSlider translations for ga. */
 export const ga: Partial<AdjustmentSliderTranslations> = {
-  'adjustmentSlider.aria': '{{lipéad}}',
-  'adjustmentSlider.reset.aria': 'Athshocraigh<x> {{lipéad}}</x>',
+  'adjustmentSlider.aria': '{{label}}',
+  'adjustmentSlider.reset.aria': 'Athshocraigh {{label}}',
 }

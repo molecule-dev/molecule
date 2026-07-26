@@ -11,7 +11,7 @@ export const gu: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'પૃષ્ઠ ક્રમાંકન',
   'ui.pagination.first': 'પહેલા પેજ પર જાઓ',
   'ui.pagination.previous': 'પાછલા પૃષ્ઠ પર જાઓ',
-  'ui.pagination.goToPage': 'પૃષ્ઠ પર જાઓ<x> {{પાનું}}</x>',
+  'ui.pagination.goToPage': 'પૃષ્ઠ પર જાઓ {{page}}',
   'ui.pagination.last': 'છેલ્લા પેજ પર જાઓ',
   'ui.progress.label': 'પ્રગતિ',
   'ui.radioGroup.label': 'રેડિયો ગ્રુપ',

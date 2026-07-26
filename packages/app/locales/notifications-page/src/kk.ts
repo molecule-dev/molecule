@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for kk. */
 export const kk: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Хабарландырулар',
-  'notificationsPage.markAllRead': 'Марк<x> {{count}}</x> оқылғандай',
+  'notificationsPage.markAllRead': 'Марк {{count}} оқылғандай',
   'notificationsPage.filterUnread': 'Оқылмаған',
   'notificationsPage.filterMentions': 'Айтылымдар',
   'notificationsPage.filterAriaLabel': 'Хабарландыруларды сүзгіден өткізу',
@@ -14,7 +14,7 @@ export const kk: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Барлық жаңалықтарды қарап шықтыңыз',
   'notificationsPage.emptyBody': 'Жаңа хабарландырулар осында пайда болады.',
   'notificationsPage.paginationAriaLabel': 'Беттеу',
-  'notificationsPage.pageOf': 'Бет<x> {{ағымдағы}}</x> -ның<x> {{жалпы}}</x>',
+  'notificationsPage.pageOf': 'Бет {{current}} -ның {{total}}',
   'notificationsPage.prev': 'Алдыңғы',
   'notificationsPage.next': 'Келесі',
 }

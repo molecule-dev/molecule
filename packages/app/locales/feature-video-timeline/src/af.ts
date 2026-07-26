@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const af: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Videotydlyn',
   'videoTimeline.aria.ruler': 'Tydsheerser',
-  'videoTimeline.aria.playhead': 'Speelkop by<x> {{tyd}}</x> s',
+  'videoTimeline.aria.playhead': 'Speelkop by {{time}} s',
   'videoTimeline.aria.zoom': 'Tydlyn-zoom',
   'videoTimeline.aria.mode': 'Wysigmodus',
   'videoTimeline.zoom.in': 'Zoem in',

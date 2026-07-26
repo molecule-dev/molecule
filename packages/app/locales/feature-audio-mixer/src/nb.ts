@@ -4,9 +4,9 @@ import type { AudioMixerTranslations } from './types.js'
 export const nb: Partial<AudioMixerTranslations> = {
   'audioMixer.sends': 'Utsendelser',
   'audioMixer.aria.console': 'Lydmikserkonsoll',
-  'audioMixer.aria.fader': '{{navn}} fader',
-  'audioMixer.aria.pan': '{{navn}} panne',
-  'audioMixer.aria.send': '{{kanal}} send til<x> {{sende}}</x>',
+  'audioMixer.aria.fader': '{{name}} fader',
+  'audioMixer.aria.pan': '{{name}} panne',
+  'audioMixer.aria.send': '{{channel}} send til {{send}}',
   'audioMixer.button.mute': 'Stum',
   'audioMixer.button.solo': 'Alene',
   'audioMixer.master': 'Herre',

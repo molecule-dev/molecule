@@ -12,7 +12,7 @@ export const fa: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'سهم معدل',
   'gradebook.col.posted': 'ارسال شده',
   'gradebook.gpa.title': 'معدل',
-  'gradebook.gpa.outOf': 'خارج از<x> {{حداکثر}}</x>',
+  'gradebook.gpa.outOf': 'خارج از {{max}}',
   'gradebook.gpa.trend.up': 'روند صعودی',
   'gradebook.gpa.trend.down': 'روند نزولی',
   'gradebook.gpa.trend.flat': 'ثابت',

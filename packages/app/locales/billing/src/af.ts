@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for af. */
 export const af: Partial<BillingTranslations> = {
   'billing.status.loading': 'Laai tans…',
-  'billing.status.currentPlan': 'Huidige plan:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Huidige plan: {{tierName}}',
   'billing.status.cancelCta': 'Kanselleer intekening',
   'billing.status.cancelError': 'Kon nie kanselleer nie. Probeer asseblief weer.',
   'billing.pricing.loading': 'Laai planne…',
@@ -13,5 +13,5 @@ export const af: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Mees gewild',
   'billing.pricing.tierEyebrow': 'Vlak',
   'billing.pricing.perSeat': 'per sitplek',
-  'billing.pricing.upgradeCta': 'Gradeer op na<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Gradeer op na {{tierName}}',
 }

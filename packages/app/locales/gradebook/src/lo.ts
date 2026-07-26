@@ -12,7 +12,7 @@ export const lo: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'ການປະກອບສ່ວນ GPA',
   'gradebook.col.posted': 'ໂພສແລ້ວ',
   'gradebook.gpa.title': 'ເກຣດສະເລ່ຍ',
-  'gradebook.gpa.outOf': 'ອອກຈາກ<x> {{ສູງສຸດ}}</x>',
+  'gradebook.gpa.outOf': 'ອອກຈາກ {{max}}',
   'gradebook.gpa.trend.up': 'ກຳລັງມີທ່າອ່ຽງເພີ່ມຂຶ້ນ',
   'gradebook.gpa.trend.down': 'ມີທ່າອ່ຽງຫຼຸດລົງ',
   'gradebook.gpa.trend.flat': 'ໝັ້ນຄົງ',

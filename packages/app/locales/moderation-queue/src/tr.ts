@@ -29,7 +29,7 @@ export const tr: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': 'Öğe seçin',
   'moderationQueue.loading': 'Moderasyon kuyruğu yükleniyor…',
   'moderationQueue.empty': 'Onay bekleyen öğe yok.',
-  'moderationQueue.selectedCount': '{{saymak}} seçildi',
+  'moderationQueue.selectedCount': '{{count}} seçildi',
   'moderationQueue.reportedBy': 'Bildiren:',
   'moderationQueue.kind.image': 'Görüntü',
 }

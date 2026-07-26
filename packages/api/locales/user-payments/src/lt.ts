@@ -7,8 +7,8 @@ export const lt: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'Būtinas kvitas ir planKey.',
   'user.payment.verificationNotConfigured':
     'Mokėjimo patvirtinimas nesukonfigūruotas {{provider}}.',
-  'user.payment.invalidPlan': 'Netinkamas planas.',
-  'user.payment.verificationFailed': 'Prenumeratos patvirtinimas nepavyko.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Nežinomas planas.',
   'user.payment.invalidWebhookEvent': 'Netinkamas webhook įvykis.',
 }

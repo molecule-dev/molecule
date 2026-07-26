@@ -16,5 +16,5 @@ export const sv: Partial<NotificationsPageTranslations> = {
   'notificationsPage.prev': 'Föregående',
   'notificationsPage.next': 'Nästa',
   'notificationsPage.paginationAriaLabel': 'Paginering',
-  'notificationsPage.pageOf': 'Sida<x> {{nuvarande}}</x> av<x> {{total}}</x>',
+  'notificationsPage.pageOf': 'Sida {{current}} av {{total}}',
 }

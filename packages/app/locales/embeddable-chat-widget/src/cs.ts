@@ -4,7 +4,7 @@ import type { EmbeddableChatWidgetTranslations } from './types.js'
 export const cs: Partial<EmbeddableChatWidgetTranslations> = {
   'embeddableChatWidget.composer.send': 'Odeslat',
   'embeddableChatWidget.launcher.openLabel': 'Otevřít chat',
-  'embeddableChatWidget.panel.headerLabel': 'Chatujte s<x> {{brandName}}</x>',
+  'embeddableChatWidget.panel.headerLabel': 'Chatujte s {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Zavřít chat',
   'embeddableChatWidget.panel.emptyState': 'Pro začátek se zeptejte.',
   'embeddableChatWidget.panel.assistantTyping': 'Asistent píše…',

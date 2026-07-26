@@ -9,7 +9,7 @@ export const ga: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Sos',
   'audioRecorder.resume': 'Atosú',
   'audioRecorder.stop': 'Stop',
-  'audioRecorder.elapsed': 'Imithe thart<x> {{am}}</x>',
+  'audioRecorder.elapsed': 'Imithe thart {{time}}',
   'audioRecorder.statusPaused': 'Sosaithe',
   'audioRecorder.statusProcessed': 'Taifeadta',
   'audioRecorder.statusError': 'Earráid',

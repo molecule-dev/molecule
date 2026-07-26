@@ -7,7 +7,7 @@ export const de: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Einfügen',
   'videoTimeline.aria.root': 'Video-Zeitleiste',
   'videoTimeline.aria.ruler': 'Zeitmesser',
-  'videoTimeline.aria.playhead': 'Abspielkopf bei<x> {{Zeit}}</x> S',
+  'videoTimeline.aria.playhead': 'Abspielkopf bei {{time}} S',
   'videoTimeline.aria.zoom': 'Zeitleisten-Zoom',
   'videoTimeline.aria.mode': 'Bearbeitungsmodus',
   'videoTimeline.zoom.in.icon': '+',

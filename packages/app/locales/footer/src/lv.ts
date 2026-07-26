@@ -2,7 +2,7 @@ import type { FooterTranslations } from './types.js'
 
 /** Footer translations for lv. */
 export const lv: Partial<FooterTranslations> = {
-  'footer.version': 'v<x> {{versija}}</x>',
+  'footer.version': 'v {{version}}',
   'footer.privacyPolicy': 'Privātuma politika',
   'footer.termsOfService': 'Pakalpojumu sniegšanas noteikumi',
   'footer.language': 'Valoda',

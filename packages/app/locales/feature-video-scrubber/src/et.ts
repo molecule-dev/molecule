@@ -3,11 +3,10 @@ import type { VideoScrubberTranslations } from './types.js'
 /** FeatureVideoScrubber translations for et. */
 export const et: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Video käiguvahetaja',
-  'videoScrubber.aria.strip':
-    'Filmiriba — esituspea aadressil<x> aeg</x> s (kaader<x> {{raam}}</x> )',
-  'videoScrubber.aria.playhead': 'Esituspea kell<x> aeg</x> s',
-  'videoScrubber.aria.frameReadout': 'Raam<x> {{raam}}</x> kohta<x> Kokku</x>',
+  'videoScrubber.aria.strip': 'Filmstrip — playhead at {{time}}s (frame {{frame}})',
+  'videoScrubber.aria.playhead': 'Playhead at {{time}}s',
+  'videoScrubber.aria.frameReadout': 'Frame {{frame}} of {{total}}',
   'videoScrubber.aria.thumbnail': 'Raami eelvaade',
   'videoScrubber.thumbnails.empty': 'Eelvaadet pole',
-  'videoScrubber.frameReadout.total': '/<x> Kokku</x> raamid',
+  'videoScrubber.frameReadout.total': '/ {{total}} frames',
 }

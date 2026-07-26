@@ -10,7 +10,7 @@ export const et: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Lehekülgede arv',
   'ui.pagination.first': 'Mine esimesele lehele',
   'ui.pagination.previous': 'Mine eelmisele lehele',
-  'ui.pagination.goToPage': 'Mine lehele<x> {{leht}}</x>',
+  'ui.pagination.goToPage': 'Mine lehele {{page}}',
   'ui.pagination.last': 'Mine viimasele lehele',
   'ui.progress.label': 'Edusammud',
   'ui.radioGroup.label': 'Raadio grupp',

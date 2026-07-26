@@ -12,7 +12,7 @@ export const ha: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Gudummawar GPA',
   'gradebook.col.posted': 'An buga',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'daga cikin<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'daga cikin {{max}}',
   'gradebook.gpa.trend.up': 'Yana tasowa a kasuwa',
   'gradebook.gpa.trend.down': 'Faduwar farashi',
   'gradebook.gpa.trend.flat': 'Tsayayye',

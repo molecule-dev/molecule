@@ -10,7 +10,7 @@ export const ro: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Permisiunea de acces la microfon este refuzată. Permiteți accesul și încercați din nou.',
   'audioRecorder.stop': 'Stop',
-  'audioRecorder.elapsed': 'Trecut<x> {{timp}}</x>',
+  'audioRecorder.elapsed': 'Trecut {{time}}',
   'audioRecorder.statusProcessed': 'Înregistrat',
   'audioRecorder.statusError': 'Eroare',
   'audioRecorder.statusIdle': 'Gata de înregistrare',

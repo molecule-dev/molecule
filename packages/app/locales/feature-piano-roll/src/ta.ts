@@ -7,5 +7,5 @@ export const ta: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'குறிப்பு கட்டம்',
   'pianoRoll.aria.resize': 'குறிப்பை மறுஅளவாக்கு',
   'pianoRoll.aria.note':
-    'குறிப்பு<x> {{pitch}}</x> தாளத்தில் தொடங்குகிறது<x> {{startBeat}}</x> க்காக<x> {{durationBeats}}</x> பீட்ஸ்',
+    'குறிப்பு {{pitch}} தாளத்தில் தொடங்குகிறது {{startBeat}} க்காக {{durationBeats}} பீட்ஸ்',
 }

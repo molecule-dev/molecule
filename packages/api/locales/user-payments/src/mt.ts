@@ -7,8 +7,8 @@ export const mt: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt u planKey mehtieghin.',
   'user.payment.verificationNotConfigured':
     'Il-verifika tal-pagament mhijiex konfigurata ghal {{provider}}.',
-  'user.payment.invalidPlan': 'Pjan invalidu.',
-  'user.payment.verificationFailed': 'Il-verifika tal-abbonament falliet.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Pjan mhux maghruf.',
   'user.payment.invalidWebhookEvent': 'Avveniment webhook invalidu.',
 }

@@ -7,5 +7,5 @@ export const km: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'ក្រឡាចត្រង្គចំណាំ',
   'pianoRoll.aria.resize': 'ប្ដូរទំហំកំណត់ចំណាំ',
   'pianoRoll.aria.note':
-    'កំណត់ចំណាំ<x> {{pitch}}</x> ចាប់ផ្តើមដោយចង្វាក់<x> {{ចាប់ផ្តើមវាយ}}</x> សម្រាប់<x> {{durationBeats}}</x> ចង្វាក់',
+    'កំណត់ចំណាំ {{pitch}} ចាប់ផ្តើមដោយចង្វាក់ {{startBeat}} សម្រាប់ {{durationBeats}} ចង្វាក់',
 }

@@ -22,7 +22,7 @@ export const my: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'နောက်ဆုံး',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{တန်ဖိုး}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'ရေဒီယိုအဖွဲ့',
   'ui.select.placeholder': 'ရွေးချယ်ပါ…',
   'ui.select.title': 'ရွေးချယ်ပါ',

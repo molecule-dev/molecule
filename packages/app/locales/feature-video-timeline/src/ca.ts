@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const ca: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Cronologia del vídeo',
   'videoTimeline.aria.ruler': 'Regle del temps',
-  'videoTimeline.aria.playhead': 'Capçal de reproducció a<x> {{hora}}</x> s',
+  'videoTimeline.aria.playhead': 'Capçal de reproducció a {{time}} s',
   'videoTimeline.aria.zoom': 'Zoom de la línia de temps',
   'videoTimeline.aria.mode': "Mode d'edició",
   'videoTimeline.zoom.in': 'Amplia la imatge',

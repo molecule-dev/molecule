@@ -5,7 +5,7 @@ export const ja: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': '日',
   'heatmap.weekday.sat': '土',
   'heatmap.aria.grid': 'アクティビティヒートマップ',
-  'heatmap.cell.tooltip': '{{日付}} :<x> {{価値}}</x>',
+  'heatmap.cell.tooltip': '{{date}} : {{value}}',
   'heatmap.month.jan': 'ジャン',
   'heatmap.month.feb': '2月',
   'heatmap.month.mar': '3月',

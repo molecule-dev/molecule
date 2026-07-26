@@ -12,7 +12,7 @@ export const el: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Συνεισφορά GPA',
   'gradebook.col.posted': 'Δημοσιεύτηκε',
   'gradebook.gpa.title': 'Μέσος όρος βαθμολογίας',
-  'gradebook.gpa.outOf': 'έξω από<x> {{μέγιστο}}</x>',
+  'gradebook.gpa.outOf': 'έξω από {{max}}',
   'gradebook.gpa.trend.up': 'Ανοδική τάση',
   'gradebook.gpa.trend.down': 'Πτωτική τάση',
   'gradebook.gpa.trend.flat': 'Σταθερός',

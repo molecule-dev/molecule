@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const sq: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Kronologjia e videos',
   'videoTimeline.aria.ruler': 'Sundimtari i kohës',
-  'videoTimeline.aria.playhead': 'Koka e luajtjes në<x> {{kohë}}</x> s',
+  'videoTimeline.aria.playhead': 'Koka e luajtjes në {{time}} s',
   'videoTimeline.aria.zoom': 'Zmadhimi i kronologjisë',
   'videoTimeline.aria.mode': 'Modaliteti i modifikimit',
   'videoTimeline.zoom.in': 'Zmadho',

@@ -7,5 +7,5 @@ export const mt: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Grilja tan-noti',
   'pianoRoll.aria.resize': 'Ibdel id-daqs tan-nota',
   'pianoRoll.aria.note':
-    'Nota<x> {{pitch}}</x> tibda bit-taħbita<x> {{startBeat}}</x> għal<x> {{durationBeats}}</x> taħbitiet',
+    'Nota {{pitch}} tibda bit-taħbita {{startBeat}} għal {{durationBeats}} taħbitiet',
 }

@@ -13,7 +13,7 @@ export const de: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Zur vorherigen Seite',
   'ui.pagination.next': 'Weiter zur nächsten Seite',
   'ui.pagination.last': 'Zur letzten Seite',
-  'ui.pagination.goToPage': 'Zur Seite<x> {{Seite}}</x>',
+  'ui.pagination.goToPage': 'Zur Seite {{page}}',
   'ui.table.empty': 'Keine Daten verfügbar',
   'ui.avatar.alt': 'Avatar',
   'ui.radioGroup.label': 'Radiogruppe',

@@ -29,7 +29,7 @@ export const ja: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': 'アイテムを選択してください',
   'moderationQueue.loading': 'モデレーションキューを読み込んでいます…',
   'moderationQueue.empty': '審査待ちの項目はありません。',
-  'moderationQueue.selectedCount': '{{カウント}}選択済み',
+  'moderationQueue.selectedCount': '{{count}}選択済み',
   'moderationQueue.reportedBy': '報告者',
   'moderationQueue.kind.image': '画像',
 }

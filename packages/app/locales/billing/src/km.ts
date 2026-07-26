@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for km. */
 export const km: Partial<BillingTranslations> = {
   'billing.status.loading': 'កំពុងផ្ទុក…',
-  'billing.status.currentPlan': 'ផែនការបច្ចុប្បន្ន៖<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'ផែនការបច្ចុប្បន្ន៖ {{tierName}}',
   'billing.status.cancelCta': 'បោះបង់ការជាវ',
   'billing.status.cancelError': 'មិនអាចលុបចោលបានទេ។ សូមព្យាយាមម្តងទៀត។',
   'billing.pricing.loading': 'កំពុងផ្ទុកផែនការ…',
@@ -13,5 +13,5 @@ export const km: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'ពេញនិយមបំផុត',
   'billing.pricing.tierEyebrow': 'កម្រិត',
   'billing.pricing.perSeat': 'ក្នុងមួយកៅអី',
-  'billing.pricing.upgradeCta': 'ធ្វើឱ្យប្រសើរឡើងទៅ<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'ធ្វើឱ្យប្រសើរឡើងទៅ {{tierName}}',
 }

@@ -8,7 +8,7 @@ export const fr: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.aria.next': 'Titre suivant',
   'nowPlaying.aria.prev': 'Titre précédent',
   'nowPlaying.aria.seek': 'Recherche',
-  'nowPlaying.aria.region': 'Lecture en cours :<x> {{titre}}</x>',
-  'nowPlaying.aria.artwork': "Œuvres d'art pour<x> {{titre}}</x>",
+  'nowPlaying.aria.region': 'Lecture en cours : {{title}}',
+  'nowPlaying.aria.artwork': "Œuvres d'art pour {{title}}",
   'nowPlaying.aria.volume': 'Volume',
 }

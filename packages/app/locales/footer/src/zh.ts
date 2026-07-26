@@ -5,7 +5,7 @@ export const zh: Partial<FooterTranslations> = {
   'footer.privacyPolicy': '隐私政策',
   'footer.termsOfService': '服务条款',
   'footer.language': '语言',
-  'footer.version': 'v<x> {{版本}}</x>',
+  'footer.version': 'v {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
 }

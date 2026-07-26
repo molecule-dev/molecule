@@ -8,7 +8,7 @@ export const pl: Partial<VideoTimelineTranslations> = {
   'videoTimeline.trackKind.video': 'Wideo',
   'videoTimeline.aria.root': 'Oś czasu wideo',
   'videoTimeline.aria.ruler': 'Władca czasu',
-  'videoTimeline.aria.playhead': 'Głowica odtwarzania w<x> {{czas}}</x> S',
+  'videoTimeline.aria.playhead': 'Głowica odtwarzania w {{time}} S',
   'videoTimeline.aria.zoom': 'Powiększenie osi czasu',
   'videoTimeline.aria.mode': 'Tryb edycji',
   'videoTimeline.zoom.in.icon': '+',

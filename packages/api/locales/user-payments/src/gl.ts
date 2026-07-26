@@ -7,8 +7,8 @@ export const gl: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'Requírense receipt e planKey.',
   'user.payment.verificationNotConfigured':
     'A verificación de pagamento non está configurada para {{provider}}.',
-  'user.payment.invalidPlan': 'Plan non válido.',
-  'user.payment.verificationFailed': 'Non se puido verificar a subscrición.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Plan descoñecido.',
   'user.payment.invalidWebhookEvent': 'Evento de webhook non válido.',
 }

@@ -11,7 +11,7 @@ export const my: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'စာမျက်နှာခွဲခြင်း',
   'ui.pagination.first': 'ပထမစာမျက်နှာသို့သွားပါ',
   'ui.pagination.previous': 'ယခင်စာမျက်နှာသို့ သွားပါ',
-  'ui.pagination.goToPage': 'စာမျက်နှာသို့ သွားပါ<x> {{စာမျက်နှာ}}</x>',
+  'ui.pagination.goToPage': 'စာမျက်နှာသို့ သွားပါ {{page}}',
   'ui.pagination.last': 'နောက်ဆုံးစာမျက်နှာသို့သွားပါ',
   'ui.progress.label': 'တိုးတက်မှု',
   'ui.radioGroup.label': 'ရေဒီယိုအဖွဲ့',

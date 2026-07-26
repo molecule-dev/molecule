@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for ml. */
 export const ml: Partial<BillingTranslations> = {
   'billing.status.loading': 'ലോഡ് ചെയ്യുന്നു...',
-  'billing.status.currentPlan': 'നിലവിലെ പ്ലാൻ:<x> {{ടയർനെയിം}}</x>',
+  'billing.status.currentPlan': 'നിലവിലെ പ്ലാൻ: {{tierName}}',
   'billing.status.cancelCta': 'സബ്‌സ്‌ക്രിപ്‌ഷൻ റദ്ദാക്കുക',
   'billing.status.cancelError': 'റദ്ദാക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക.',
   'billing.pricing.loading': 'പ്ലാനുകൾ ലോഡ് ചെയ്യുന്നു...',
@@ -14,5 +14,5 @@ export const ml: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'ഏറ്റവും ജനപ്രിയമായത്',
   'billing.pricing.tierEyebrow': 'ടയർ',
   'billing.pricing.perSeat': 'സീറ്റ് അനുസരിച്ച്',
-  'billing.pricing.upgradeCta': 'ഇതിലേക്ക് അപ്‌ഗ്രേഡ് ചെയ്യുക<x> {{ടയർനെയിം}}</x>',
+  'billing.pricing.upgradeCta': 'ഇതിലേക്ക് അപ്‌ഗ്രേഡ് ചെയ്യുക {{tierName}}',
 }

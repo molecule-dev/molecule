@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for ga. */
 export const ga: Partial<BillingTranslations> = {
   'billing.status.loading': 'Ag lódáil…',
-  'billing.status.currentPlan': 'Plean reatha:<x> {{AinmLeibhéal}}</x>',
+  'billing.status.currentPlan': 'Plean reatha: {{tierName}}',
   'billing.status.cancelCta': 'Cealaigh an síntiús',
   'billing.status.cancelError': 'Níorbh fhéidir cealú. Déan iarracht arís.',
   'billing.pricing.loading': 'Ag lódáil pleananna…',
@@ -13,5 +13,5 @@ export const ga: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Is mó tóir',
   'billing.pricing.tierEyebrow': 'Sraith',
   'billing.pricing.perSeat': 'in aghaidh an tsuíocháin',
-  'billing.pricing.upgradeCta': 'Uasghrádaigh go<x> {{AinmLeibhéal}}</x>',
+  'billing.pricing.upgradeCta': 'Uasghrádaigh go {{tierName}}',
 }

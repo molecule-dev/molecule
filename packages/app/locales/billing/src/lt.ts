@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for lt. */
 export const lt: Partial<BillingTranslations> = {
   'billing.status.loading': 'Kraunama…',
-  'billing.status.currentPlan': 'Dabartinis planas:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Dabartinis planas: {{tierName}}',
   'billing.status.cancelCta': 'Atšaukti prenumeratą',
   'billing.status.cancelError': 'Nepavyko atšaukti. Bandykite dar kartą.',
   'billing.pricing.loading': 'Įkeliami planai…',
@@ -14,5 +14,5 @@ export const lt: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Populiariausi',
   'billing.pricing.tierEyebrow': 'Pakopa',
   'billing.pricing.perSeat': 'vienai vietai',
-  'billing.pricing.upgradeCta': 'Atnaujinti į<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Atnaujinti į {{tierName}}',
 }

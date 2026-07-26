@@ -24,7 +24,7 @@ export const fi: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.mute': 'Mykistä',
   'moderationQueue.loading': 'Ladataan moderointijonoa…',
   'moderationQueue.empty': 'Ei moderointia odottavia kohteita.',
-  'moderationQueue.selectedCount': '{{laskea}} valittu',
+  'moderationQueue.selectedCount': '{{count}} valittu',
   'moderationQueue.reportedBy': 'Ilmoittaja',
   'moderationQueue.action.mute': 'Mykistä',
   'moderationQueue.bulk.mute': 'Mykistä',

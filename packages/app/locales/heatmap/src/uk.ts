@@ -5,7 +5,7 @@ export const uk: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': 'Нд',
   'heatmap.weekday.sat': 'Сб',
   'heatmap.aria.grid': 'Теплова карта активності',
-  'heatmap.cell.tooltip': '{{дата}} :<x> {{значення}}</x>',
+  'heatmap.cell.tooltip': '{{date}} : {{value}}',
   'heatmap.month.jan': 'Січ',
   'heatmap.month.feb': 'Лютий',
   'heatmap.month.mar': 'Бер',

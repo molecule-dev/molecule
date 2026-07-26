@@ -13,7 +13,7 @@ export const he: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'דִפּוּף',
   'ui.pagination.first': 'עבור לעמוד הראשון',
   'ui.pagination.previous': 'עבור לעמוד הקודם',
-  'ui.pagination.goToPage': 'עבור לדף<x> {{עַמוּד}}</x>',
+  'ui.pagination.goToPage': 'עבור לדף {{page}}',
   'ui.pagination.last': 'עבור לעמוד האחרון',
   'ui.radioGroup.label': 'קבוצת רדיו',
   'sidebar.memberStatus': 'חבר פרימיום',

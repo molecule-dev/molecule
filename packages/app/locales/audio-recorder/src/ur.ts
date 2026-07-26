@@ -9,7 +9,7 @@ export const ur: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'توقف',
   'audioRecorder.resume': 'دوبارہ شروع کریں۔',
   'audioRecorder.stop': 'رک جاؤ',
-  'audioRecorder.elapsed': 'گزر گیا<x> {{وقت}}</x>',
+  'audioRecorder.elapsed': 'گزر گیا {{time}}',
   'audioRecorder.statusPaused': 'روک دیا گیا',
   'audioRecorder.statusProcessed': 'ریکارڈ شدہ',
   'audioRecorder.statusError': 'خرابی',

@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const hr: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Vremenska crta videozapisa',
   'videoTimeline.aria.ruler': 'Vladar vremena',
-  'videoTimeline.aria.playhead': 'Položaj reprodukcije na<x> {{vrijeme}}</x> s',
+  'videoTimeline.aria.playhead': 'Položaj reprodukcije na {{time}} s',
   'videoTimeline.aria.zoom': 'Zumiranje vremenske trake',
   'videoTimeline.aria.mode': 'Način uređivanja',
   'videoTimeline.zoom.in': 'Uvećaj',

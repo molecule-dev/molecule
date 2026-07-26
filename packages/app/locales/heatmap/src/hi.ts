@@ -5,7 +5,7 @@ export const hi: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': 'रवि',
   'heatmap.weekday.sat': 'शनि',
   'heatmap.aria.grid': 'गतिविधि हीटमैप',
-  'heatmap.cell.tooltip': '{{तारीख}} :<x> {{कीमत}}</x>',
+  'heatmap.cell.tooltip': '{{date}} : {{value}}',
   'heatmap.month.jan': 'जनवरी',
   'heatmap.month.feb': 'फ़रवरी',
   'heatmap.month.mar': 'मार्च',

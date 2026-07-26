@@ -7,5 +7,5 @@ export const ca: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Graella de notes',
   'pianoRoll.aria.resize': 'Canviar la mida de la nota',
   'pianoRoll.aria.note':
-    'Nota<x> {{pitch}}</x> començant al ritme<x> {{startBeat}}</x> per<x> {{duracióBeats}}</x> batecs',
+    'Nota {{pitch}} començant al ritme {{startBeat}} per {{durationBeats}} batecs',
 }

@@ -3,11 +3,10 @@ import type { VideoScrubberTranslations } from './types.js'
 /** FeatureVideoScrubber translations for de. */
 export const de: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Video-Scrubber',
-  'videoScrubber.aria.strip':
-    'Filmstreifen — Abspielkopf bei<x> {{Zeit}}</x> s (Rahmen)<x> {{rahmen}}</x> )',
-  'videoScrubber.aria.playhead': 'Abspielkopf bei<x> {{Zeit}}</x> S',
-  'videoScrubber.aria.frameReadout': 'Rahmen<x> {{rahmen}}</x> von<x> {{gesamt}}</x>',
+  'videoScrubber.aria.strip': 'Filmstreifen — Abspielkopf bei {{time}} s (Rahmen) {{frame}} )',
+  'videoScrubber.aria.playhead': 'Abspielkopf bei {{time}} S',
+  'videoScrubber.aria.frameReadout': 'Rahmen {{frame}} von {{total}}',
   'videoScrubber.aria.thumbnail': 'Frame-Vorschau',
   'videoScrubber.thumbnails.empty': 'Keine Vorschau',
-  'videoScrubber.frameReadout.total': '/<x> {{gesamt}}</x> Rahmen',
+  'videoScrubber.frameReadout.total': '/ {{total}} Rahmen',
 }

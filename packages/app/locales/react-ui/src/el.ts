@@ -17,7 +17,7 @@ export const el: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Σελιδοποίηση',
   'ui.pagination.first': 'Μετάβαση στην πρώτη σελίδα',
   'ui.pagination.previous': 'Μετάβαση στην προηγούμενη σελίδα',
-  'ui.pagination.goToPage': 'Μετάβαση στη σελίδα<x> {{σελίδα}}</x>',
+  'ui.pagination.goToPage': 'Μετάβαση στη σελίδα {{page}}',
   'ui.pagination.last': 'Μετάβαση στην τελευταία σελίδα',
   'ui.radioGroup.label': 'Ομάδα ραδιοφώνου',
   'sidebar.memberStatus': 'Premium Μέλος',

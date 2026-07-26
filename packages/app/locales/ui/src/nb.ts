@@ -12,7 +12,7 @@ export const nb: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Gå til forrige side',
   'ui.pagination.next': 'Gå til neste side',
   'ui.pagination.last': 'Gå til siste side',
-  'ui.pagination.goToPage': 'Gå til side<x> {{side}}</x>',
+  'ui.pagination.goToPage': 'Gå til side {{page}}',
   'ui.table.empty': 'Ingen data tilgjengelig',
   'ui.avatar.alt': 'Avatar',
   'ui.spinner.loading': 'Laster',

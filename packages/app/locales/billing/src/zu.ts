@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for zu. */
 export const zu: Partial<BillingTranslations> = {
   'billing.status.loading': 'Iyalayisha…',
-  'billing.status.currentPlan': 'Uhlelo lwamanje:<x> {{igama le-tier}}</x>',
+  'billing.status.currentPlan': 'Uhlelo lwamanje: {{tierName}}',
   'billing.status.cancelCta': 'Khansela okubhalisele',
   'billing.status.cancelError': 'Ayikwazanga ukukhansela. Sicela uzame futhi.',
   'billing.pricing.loading': 'Ilayisha izinhlelo…',
@@ -14,5 +14,5 @@ export const zu: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Okudumile kakhulu',
   'billing.pricing.tierEyebrow': 'Izinga',
   'billing.pricing.perSeat': 'ngesihlalo ngasinye',
-  'billing.pricing.upgradeCta': 'Thuthukela ku-<x> {{igama le-tier}}</x>',
+  'billing.pricing.upgradeCta': 'Thuthukela ku- {{tierName}}',
 }

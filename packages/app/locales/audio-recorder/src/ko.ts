@@ -10,7 +10,7 @@ export const ko: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     '마이크 권한이 거부되었습니다. 접근을 허용하고 다시 시도하세요.',
   'audioRecorder.stop': '멈추다',
-  'audioRecorder.elapsed': '경과 시간<x> {{시간}}</x>',
+  'audioRecorder.elapsed': '경과 시간 {{time}}',
   'audioRecorder.statusProcessed': '녹음됨',
   'audioRecorder.statusError': '오류',
   'audioRecorder.statusIdle': '녹화 준비 완료',

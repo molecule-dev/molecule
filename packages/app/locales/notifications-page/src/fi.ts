@@ -11,10 +11,10 @@ export const fi: Partial<NotificationsPageTranslations> = {
   'notificationsPage.error': 'Ilmoituksia ei voitu ladata.',
   'notificationsPage.emptyBody': 'Uudet ilmoitukset näkyvät täällä.',
   'notificationsPage.prev': 'Edellinen',
-  'notificationsPage.markAllRead': 'Mark<x> {{laskea}}</x> luettuna',
+  'notificationsPage.markAllRead': 'Mark {{count}} luettuna',
   'notificationsPage.filterUnread': 'Lukematon',
   'notificationsPage.emptyTitle': 'Olet ajan tasalla',
   'notificationsPage.paginationAriaLabel': 'Sivunumerointi',
-  'notificationsPage.pageOf': 'Sivu<x> {{nykyinen}}</x> jostakin<x> {{kokonais}}</x>',
+  'notificationsPage.pageOf': 'Sivu {{current}} jostakin {{total}}',
   'notificationsPage.next': 'Seuraava',
 }

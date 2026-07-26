@@ -7,5 +7,5 @@ export const eu: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Ohar-sareta',
   'pianoRoll.aria.resize': 'Aldatu oharra tamaina',
   'pianoRoll.aria.note':
-    'Oharra<x> {{tonua}}</x> erritmoan hasita<x> {{startBeat}}</x> -rako<x> {{iraupenaTaupadak}}</x> taupadak',
+    'Oharra {{pitch}} erritmoan hasita {{startBeat}} -rako {{durationBeats}} taupadak',
 }

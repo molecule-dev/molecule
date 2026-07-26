@@ -10,7 +10,7 @@ export const cy: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Tudalennu',
   'ui.pagination.first': "Ewch i'r dudalen gyntaf",
   'ui.pagination.previous': "Mynd i'r dudalen flaenorol",
-  'ui.pagination.goToPage': "Ewch i'r dudalen<x> {{tudalen}}</x>",
+  'ui.pagination.goToPage': "Ewch i'r dudalen {{page}}",
   'ui.pagination.last': "Mynd i'r dudalen olaf",
   'ui.progress.label': 'Cynnydd',
   'ui.radioGroup.label': 'Grŵp radio',

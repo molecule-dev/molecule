@@ -12,7 +12,7 @@ export const fi: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Siirry edelliselle sivulle',
   'ui.pagination.next': 'Siirry seuraavalle sivulle',
   'ui.pagination.last': 'Siirry viimeiselle sivulle',
-  'ui.pagination.goToPage': 'Siirry sivulle<x> {{sivu}}</x>',
+  'ui.pagination.goToPage': 'Siirry sivulle {{page}}',
   'ui.table.empty': 'Ei tietoja saatavilla',
   'ui.avatar.alt': 'Avatar',
   'ui.spinner.loading': 'Ladataan',

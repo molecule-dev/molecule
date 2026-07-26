@@ -7,5 +7,5 @@ export const et: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Märkmete ruudustik',
   'pianoRoll.aria.resize': 'Märkme suuruse muutmine',
   'pianoRoll.aria.note':
-    'Märkus<x> {{pigi}}</x> alustades löögist<x> {{startBeat}}</x> eest<x> {{durationBeats}}</x> rütmid',
+    'Märkus {{pitch}} alustades löögist {{startBeat}} eest {{durationBeats}} rütmid',
 }

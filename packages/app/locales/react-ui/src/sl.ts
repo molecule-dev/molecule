@@ -11,7 +11,7 @@ export const sl: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Oštevilčenje strani',
   'ui.pagination.first': 'Pojdi na prvo stran',
   'ui.pagination.previous': 'Pojdi na prejšnjo stran',
-  'ui.pagination.goToPage': 'Pojdi na stran<x> {{stran}}</x>',
+  'ui.pagination.goToPage': 'Pojdi na stran {{page}}',
   'ui.pagination.last': 'Pojdi na zadnjo stran',
   'ui.progress.label': 'Napredek',
   'ui.radioGroup.label': 'Radijska skupina',

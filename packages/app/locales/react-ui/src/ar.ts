@@ -17,7 +17,7 @@ export const ar: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'ترقيم الصفحات',
   'ui.pagination.first': 'انتقل إلى الصفحة الأولى',
   'ui.pagination.previous': 'انتقل إلى الصفحة السابقة',
-  'ui.pagination.goToPage': 'انتقل إلى الصفحة<x> {{صفحة}}</x>',
+  'ui.pagination.goToPage': 'انتقل إلى الصفحة {{page}}',
   'ui.pagination.last': 'انتقل إلى الصفحة الأخيرة',
   'ui.radioGroup.label': 'مجموعة راديو',
   'sidebar.memberStatus': 'عضو مميز',

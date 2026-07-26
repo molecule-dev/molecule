@@ -6,7 +6,7 @@ export const fil: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.down': 'Hindi available',
   'statusDashboard.label.services': 'Mga serbisyo',
   'statusDashboard.error.noProvider': 'Hindi na-configure ang provider ng status dashboard.',
-  'statusDashboard.error.fetchFailed': 'Nabigong makuha ang katayuan: HTTP<x> {{katayuan}}</x>',
+  'statusDashboard.error.fetchFailed': 'Nabigong makuha ang katayuan: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Lahat ng Sistema ay Operasyonal',
   'statusDashboard.label.someIssues': 'Ang Ilang Sistema ay Nakakaranas ng mga Problema',
   'statusDashboard.label.majorOutage': 'Malaking Pagkawala ng Sistema',
@@ -14,7 +14,7 @@ export const fil: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.unknown': 'Hindi Kilala',
   'statusDashboard.label.incidents': 'Mga Insidente',
   'statusDashboard.label.uptime': 'Oras ng paggamit',
-  'statusDashboard.label.lastChecked': 'Huling nasuri<x> {{oras}}</x>',
-  'statusDashboard.label.latency': '{{MS}} MS',
+  'statusDashboard.label.lastChecked': 'Huling nasuri {{time}}',
+  'statusDashboard.label.latency': '{{ms}} MS',
   'statusDashboard.label.noIncidents': 'Walang naiulat na insidente.',
 }

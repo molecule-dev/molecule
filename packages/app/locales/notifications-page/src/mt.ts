@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for mt. */
 export const mt: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Notifiki',
-  'notificationsPage.markAllRead': 'Mark<x> {{għadd}}</x> kif moqri',
+  'notificationsPage.markAllRead': 'Mark {{count}} kif moqri',
   'notificationsPage.filterUnread': 'Mhux moqri',
   'notificationsPage.filterMentions': 'Isemmi',
   'notificationsPage.filterAriaLabel': 'Iffiltra n-notifiki',
@@ -14,7 +14,7 @@ export const mt: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Int imlaħħaqt',
   'notificationsPage.emptyBody': 'Notifiki ġodda se jidhru hawn.',
   'notificationsPage.paginationAriaLabel': 'Paġinazzjoni',
-  'notificationsPage.pageOf': "Paġna<x> {{kurrenti}}</x> ta'<x> {{total}}</x>",
+  'notificationsPage.pageOf': "Paġna {{current}} ta' {{total}}",
   'notificationsPage.prev': 'Preċedenti',
   'notificationsPage.next': 'Li jmiss',
 }

@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const si: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'වීඩියෝ කාලරේඛාව',
   'videoTimeline.aria.ruler': 'කාල පාලකයා',
-  'videoTimeline.aria.playhead': 'ප්ලේහෙඩ්<x> {{වේලාව}}</x> එස්',
+  'videoTimeline.aria.playhead': 'ප්ලේහෙඩ් {{time}} එස්',
   'videoTimeline.aria.zoom': 'කාලරේඛා විශාලනය',
   'videoTimeline.aria.mode': 'සංස්කරණ ප්‍රකාරය',
   'videoTimeline.zoom.in': 'විශාලනය කරන්න',

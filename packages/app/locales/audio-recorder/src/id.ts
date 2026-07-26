@@ -10,7 +10,7 @@ export const id: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Izin penggunaan mikrofon ditolak. Izinkan akses dan coba lagi.',
   'audioRecorder.stop': 'Berhenti',
-  'audioRecorder.elapsed': 'Waktu berlalu<x> {{waktu}}</x>',
+  'audioRecorder.elapsed': 'Waktu berlalu {{time}}',
   'audioRecorder.statusProcessed': 'Tercatat',
   'audioRecorder.statusError': 'Kesalahan',
   'audioRecorder.statusIdle': 'Siap merekam',

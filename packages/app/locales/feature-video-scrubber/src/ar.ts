@@ -3,11 +3,10 @@ import type { VideoScrubberTranslations } from './types.js'
 /** FeatureVideoScrubber translations for ar. */
 export const ar: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'شريط تمرير الفيديو',
-  'videoScrubber.aria.strip':
-    'شريط الفيلم — رأس التشغيل في<x> {{وقت}}</x> s (إطار<x> {{إطار}}</x> )',
-  'videoScrubber.aria.playhead': 'بلاي هيد في<x> {{وقت}}</x> s',
-  'videoScrubber.aria.frameReadout': 'إطار<x> {{إطار}}</x> ل<x> {{المجموع}}</x>',
+  'videoScrubber.aria.strip': 'شريط الفيلم — رأس التشغيل في {{time}} s (إطار {{frame}} )',
+  'videoScrubber.aria.playhead': 'بلاي هيد في {{time}} s',
+  'videoScrubber.aria.frameReadout': 'إطار {{frame}} ل {{total}}',
   'videoScrubber.aria.thumbnail': 'معاينة الإطار',
   'videoScrubber.thumbnails.empty': 'لا توجد معاينة',
-  'videoScrubber.frameReadout.total': '/<x> {{المجموع}}</x> إطارات',
+  'videoScrubber.frameReadout.total': '/ {{total}} إطارات',
 }

@@ -11,7 +11,7 @@ export const bg: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Пагинация',
   'ui.pagination.first': 'Отидете на първата страница',
   'ui.pagination.previous': 'Отидете на предишната страница',
-  'ui.pagination.goToPage': 'Отидете на страницата<x> {{страница}}</x>',
+  'ui.pagination.goToPage': 'Отидете на страницата {{page}}',
   'ui.pagination.last': 'Отидете на последната страница',
   'ui.progress.label': 'Напредък',
   'ui.radioGroup.label': 'Радио група',

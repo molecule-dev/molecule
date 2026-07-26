@@ -13,7 +13,7 @@ export const fil: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Paginasyon',
   'ui.pagination.first': 'Pumunta sa unang pahina',
   'ui.pagination.previous': 'Pumunta sa nakaraang pahina',
-  'ui.pagination.goToPage': 'Pumunta sa pahina<x> {{pahina}}</x>',
+  'ui.pagination.goToPage': 'Pumunta sa pahina {{page}}',
   'ui.pagination.last': 'Pumunta sa huling pahina',
   'ui.radioGroup.label': 'Grupo sa radyo',
   'ui.spinner.loading': 'Naglo-load',

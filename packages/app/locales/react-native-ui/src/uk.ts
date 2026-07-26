@@ -24,7 +24,7 @@ export const uk: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Останній',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{значення}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Радіогрупа',
   'ui.select.title': 'Виберіть',
   'ui.spinner.loading': 'Завантаження',

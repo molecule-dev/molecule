@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for am. */
 export const am: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'ማሳወቂያዎች',
-  'notificationsPage.markAllRead': 'ማርክ<x> {{ቆጠራ}}</x> እንደተነበበው',
+  'notificationsPage.markAllRead': 'ማርክ {{count}} እንደተነበበው',
   'notificationsPage.filterUnread': 'ያልተነበበ',
   'notificationsPage.filterMentions': 'የተጠቀሱ',
   'notificationsPage.filterAriaLabel': 'የማጣሪያ ማሳወቂያዎች',
@@ -14,7 +14,7 @@ export const am: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'ሁሉንም ነገር ተረድተሃል',
   'notificationsPage.emptyBody': 'አዲስ ማሳወቂያዎች እዚህ ይታያሉ።',
   'notificationsPage.paginationAriaLabel': 'ገጽ አሰጣጥ',
-  'notificationsPage.pageOf': 'ገጽ<x> {{አሁን}}</x> የ<x> {{ጠቅላላ}}</x>',
+  'notificationsPage.pageOf': 'ገጽ {{current}} የ {{total}}',
   'notificationsPage.prev': 'ቀዳሚ',
   'notificationsPage.next': 'ቀጣይ',
 }

@@ -12,7 +12,7 @@ export const zhTW: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA貢獻',
   'gradebook.col.posted': '發布',
   'gradebook.gpa.title': '平均績點',
-  'gradebook.gpa.outOf': '出{{最大限度}}',
+  'gradebook.gpa.outOf': '出{{max}}',
   'gradebook.gpa.trend.up': '趨勢上升',
   'gradebook.gpa.trend.down': '呈下降趨勢',
   'gradebook.gpa.trend.flat': '穩定的',

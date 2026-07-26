@@ -2,9 +2,8 @@ import type { TrackLaneTranslations } from './types.js'
 
 /** FeatureTrackLane translations for pa. */
 export const pa: Partial<TrackLaneTranslations> = {
-  'trackLane.aria.lane': 'ਟਰੈਕ ਲੇਨ<x> {{ਨਾਮ}}</x>',
-  'trackLane.aria.clip':
-    'ਕਲਿੱਪ<x> {{ਲੇਬਲ}}</x> ਤੋਂ ਸ਼ੁਰੂ ਹੋ ਰਿਹਾ ਹੈ<x> {{ਸ਼ੁਰੂਆਤੀ ਸਮਾਂ}}</x> ਲਈ<x> {{ਮਿਆਦ}}</x> ਸ',
+  'trackLane.aria.lane': 'ਟਰੈਕ ਲੇਨ {{name}}',
+  'trackLane.aria.clip': 'ਕਲਿੱਪ {{label}} ਤੋਂ ਸ਼ੁਰੂ ਹੋ ਰਿਹਾ ਹੈ {{startTime}} ਲਈ {{duration}} ਸ',
   'trackLane.aria.resize': 'ਕਲਿੱਪ ਦਾ ਆਕਾਰ ਬਦਲੋ',
   'trackLane.header': 'ਟਰੈਕ',
 }

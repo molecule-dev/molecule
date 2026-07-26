@@ -24,7 +24,7 @@ export const ms: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Terakhir',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{nilai}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Kumpulan radio',
   'ui.select.title': 'Pilih',
   'ui.spinner.loading': 'Memuatkan',

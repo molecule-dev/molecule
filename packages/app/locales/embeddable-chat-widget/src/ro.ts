@@ -4,7 +4,7 @@ import type { EmbeddableChatWidgetTranslations } from './types.js'
 export const ro: Partial<EmbeddableChatWidgetTranslations> = {
   'embeddableChatWidget.composer.send': 'Trimiteți',
   'embeddableChatWidget.launcher.openLabel': 'Deschide chatul',
-  'embeddableChatWidget.panel.headerLabel': 'Chat cu<x> {{nume de marcă}}</x>',
+  'embeddableChatWidget.panel.headerLabel': 'Chat cu {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Închide chatul',
   'embeddableChatWidget.panel.emptyState': 'Pune o întrebare pentru a începe.',
   'embeddableChatWidget.panel.assistantTyping': 'Asistentul tastează…',

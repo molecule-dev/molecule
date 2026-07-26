@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for mn. */
 export const mn: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'Юу ч тоглуулаагүй',
-  'nowPlaying.aria.region': 'Одоо тоглож байна:<x> {{гарчиг}}</x>',
-  'nowPlaying.aria.artwork': 'Урлагийн бүтээл<x> {{гарчиг}}</x>',
+  'nowPlaying.aria.region': 'Одоо тоглож байна: {{title}}',
+  'nowPlaying.aria.artwork': 'Урлагийн бүтээл {{title}}',
   'nowPlaying.aria.play': 'Тоглох',
   'nowPlaying.aria.pause': 'Түр зогсоох',
   'nowPlaying.aria.next': 'Дараагийн дуу',

@@ -24,7 +24,7 @@ export const ms: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.mute': 'Bisu',
   'moderationQueue.loading': 'Memuatkan baris gilir penyederhanaan…',
   'moderationQueue.empty': 'Tiada item yang menunggu penyederhanaan.',
-  'moderationQueue.selectedCount': '{{kiraan}} dipilih',
+  'moderationQueue.selectedCount': '{{count}} dipilih',
   'moderationQueue.reportedBy': 'Dilaporkan oleh',
   'moderationQueue.action.mute': 'Bisu',
   'moderationQueue.bulk.mute': 'Bisu',

@@ -9,7 +9,7 @@ export const mn: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Түр зогсоох',
   'audioRecorder.resume': 'Анкет',
   'audioRecorder.stop': 'Зогсоох',
-  'audioRecorder.elapsed': 'Хугацаа дууссан<x> {{цаг}}</x>',
+  'audioRecorder.elapsed': 'Хугацаа дууссан {{time}}',
   'audioRecorder.statusPaused': 'Түр зогссон',
   'audioRecorder.statusProcessed': 'Бичлэг хийгдсэн',
   'audioRecorder.statusError': 'Алдаа',

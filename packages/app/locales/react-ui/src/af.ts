@@ -11,7 +11,7 @@ export const af: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Paginering',
   'ui.pagination.first': 'Gaan na die eerste bladsy',
   'ui.pagination.previous': 'Gaan na vorige bladsy',
-  'ui.pagination.goToPage': 'Gaan na bladsy<x> {{bladsy}}</x>',
+  'ui.pagination.goToPage': 'Gaan na bladsy {{page}}',
   'ui.pagination.last': 'Gaan na laaste bladsy',
   'ui.progress.label': 'Vordering',
   'ui.radioGroup.label': 'Radiogroep',

@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for lv. */
 export const lv: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'Nekas netiek atskaņots',
-  'nowPlaying.aria.region': 'Tagad spēlē:<x> {{title}}</x>',
-  'nowPlaying.aria.artwork': 'Mākslas darbs priekš<x> {{title}}</x>',
+  'nowPlaying.aria.region': 'Tagad spēlē: {{title}}',
+  'nowPlaying.aria.artwork': 'Mākslas darbs priekš {{title}}',
   'nowPlaying.aria.play': 'Spēlēt',
   'nowPlaying.aria.pause': 'Pauze',
   'nowPlaying.aria.next': 'Nākamā dziesma',

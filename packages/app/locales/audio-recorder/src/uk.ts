@@ -10,7 +10,7 @@ export const uk: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Доступ до мікрофона відхилено. Надайте доступ і спробуйте ще раз.',
   'audioRecorder.stop': 'СТІЙ',
-  'audioRecorder.elapsed': 'Минуло<x> {{час}}</x>',
+  'audioRecorder.elapsed': 'Минуло {{time}}',
   'audioRecorder.statusProcessed': 'Записано',
   'audioRecorder.statusError': 'Помилка',
   'audioRecorder.statusIdle': 'Готовий до запису',

@@ -13,7 +13,7 @@ export const hi: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'जीपीए योगदान',
   'gradebook.col.posted': 'की तैनाती',
   'gradebook.gpa.title': 'जीपीए',
-  'gradebook.gpa.outOf': 'में से<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'में से {{max}}',
   'gradebook.gpa.trend.up': 'रुझान बढ़ रहा है',
   'gradebook.gpa.trend.down': 'रुझान नीचे की ओर है',
 }

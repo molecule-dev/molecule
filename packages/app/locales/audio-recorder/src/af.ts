@@ -9,7 +9,7 @@ export const af: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Pouseer',
   'audioRecorder.resume': 'CV',
   'audioRecorder.stop': 'Stop',
-  'audioRecorder.elapsed': 'Verstreke<x> {{tyd}}</x>',
+  'audioRecorder.elapsed': 'Verstreke {{time}}',
   'audioRecorder.statusPaused': 'Onderbreek',
   'audioRecorder.statusProcessed': 'Opgeneem',
   'audioRecorder.statusError': 'Fout',

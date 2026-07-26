@@ -12,7 +12,7 @@ export const sq: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Kontributi i GPA-së',
   'gradebook.col.posted': 'Postuar',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'jashtë<x> {{maksimumi}}</x>',
+  'gradebook.gpa.outOf': 'jashtë {{max}}',
   'gradebook.gpa.trend.up': 'Në trend në rritje',
   'gradebook.gpa.trend.down': 'Në rënie',
   'gradebook.gpa.trend.flat': 'I qëndrueshëm',

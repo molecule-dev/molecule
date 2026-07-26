@@ -5,7 +5,7 @@ export const fr: Partial<EmbeddableChatWidgetTranslations> = {
   'embeddableChatWidget.launcher.openLabel': 'Ouvrir le chat',
   'embeddableChatWidget.composer.placeholder': 'Saisissez votre message…',
   'embeddableChatWidget.composer.send': 'Envoyer',
-  'embeddableChatWidget.panel.headerLabel': 'Discuter avec<x> {{brandName}}</x>',
+  'embeddableChatWidget.panel.headerLabel': 'Discuter avec {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Fermer la conversation',
   'embeddableChatWidget.panel.emptyState': 'Posez une question pour commencer.',
   'embeddableChatWidget.panel.assistantTyping': "L'assistant est en train de taper…",

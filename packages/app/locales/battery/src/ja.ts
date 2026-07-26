@@ -9,5 +9,5 @@ export const ja: Partial<BatteryTranslations> = {
   'battery.discharging': 'バッテリー駆動時',
   'battery.full': 'フル充電済み',
   'battery.not-charging': '充電していません',
-  'battery.remainingTime': '{{時間}} h<x> {{分}}</x> m',
+  'battery.remainingTime': '{{hours}} h {{minutes}} m',
 }

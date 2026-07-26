@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const fa: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'جدول زمانی ویدیو',
   'videoTimeline.aria.ruler': 'خط کش زمان',
-  'videoTimeline.aria.playhead': 'پلی‌هد در<x> {{زمان}}</x> ها',
+  'videoTimeline.aria.playhead': 'پلی‌هد در {{time}} ها',
   'videoTimeline.aria.zoom': 'بزرگنمایی تایم‌لاین',
   'videoTimeline.aria.mode': 'حالت ویرایش',
   'videoTimeline.zoom.in': 'بزرگنمایی',

@@ -7,8 +7,8 @@ export const es: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'Se requieren receipt y planKey.',
   'user.payment.verificationNotConfigured':
     'La verificación de pago no está configurada para {{provider}}.',
-  'user.payment.invalidPlan': 'Plan no válido.',
-  'user.payment.verificationFailed': 'No se pudo verificar la suscripción.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Plan desconocido.',
   'user.payment.invalidWebhookEvent': 'Evento de webhook no válido.',
 }

@@ -7,7 +7,7 @@ export const da: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Indsæt',
   'videoTimeline.aria.root': 'Videoens tidslinje',
   'videoTimeline.aria.ruler': 'Tidslinje',
-  'videoTimeline.aria.playhead': 'Afspilningshoved ved<x> {{tid}}</x> s',
+  'videoTimeline.aria.playhead': 'Afspilningshoved ved {{time}} s',
   'videoTimeline.aria.zoom': 'Tidslinjezoom',
   'videoTimeline.aria.mode': 'Redigeringstilstand',
   'videoTimeline.zoom.in.icon': '+',

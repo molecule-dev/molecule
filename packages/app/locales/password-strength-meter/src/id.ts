@@ -8,8 +8,7 @@ export const id: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Adil',
   'passwordStrengthMeter.label.3': 'Bagus',
   'passwordStrengthMeter.label.4': 'Kuat',
-  'passwordStrengthMeter.ariaValueText':
-    'Kekuatan kata sandi:<x> {{label}}</x> (<x> {{skor}}</x> dari 4)',
+  'passwordStrengthMeter.ariaValueText': 'Kekuatan kata sandi: {{label}} ( {{score}} dari 4)',
   'passwordStrengthMeter.rule.upper': 'Mengandung huruf kapital',
   'passwordStrengthMeter.rule.lower': 'Mengandung huruf kecil',
   'passwordStrengthMeter.rule.digit': 'Berisi angka',

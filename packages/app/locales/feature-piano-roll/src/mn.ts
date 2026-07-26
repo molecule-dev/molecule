@@ -7,5 +7,5 @@ export const mn: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Тэмдэглэлийн тор',
   'pianoRoll.aria.resize': 'Тэмдэглэлийн хэмжээг өөрчлөх',
   'pianoRoll.aria.note':
-    'Тэмдэглэл<x> {{pitch}}</x> хэмнэлээр эхлэх<x> {{startBeat}}</x> хувьд<x> {{durationBeats}}</x> цохилтууд',
+    'Тэмдэглэл {{pitch}} хэмнэлээр эхлэх {{startBeat}} хувьд {{durationBeats}} цохилтууд',
 }

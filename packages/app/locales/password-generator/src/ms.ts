@@ -6,7 +6,7 @@ export const ms: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copied': 'Disalin!',
   'password-generator.regenerate': 'Jana Semula',
   'password-generator.readoutLabel': 'Kata laluan yang dijana',
-  'password-generator.length': 'Panjang:<x> {{panjang}}</x>',
+  'password-generator.length': 'Panjang: {{length}}',
   'password-generator.lengthLabel': 'Panjang kata laluan',
   'password-generator.toggle.uppercase': 'Huruf Besar (AZ)',
   'password-generator.toggle.lowercase': 'Huruf kecil (az)',

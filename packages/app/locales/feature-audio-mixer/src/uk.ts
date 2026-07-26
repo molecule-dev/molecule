@@ -4,9 +4,9 @@ import type { AudioMixerTranslations } from './types.js'
 export const uk: Partial<AudioMixerTranslations> = {
   'audioMixer.sends': 'Відправлення',
   'audioMixer.aria.console': 'Пульт аудіомікшера',
-  'audioMixer.aria.fader': "{{ім'я}} фейдер",
-  'audioMixer.aria.pan': "{{ім'я}} сковорода",
-  'audioMixer.aria.send': '{{канал}} надіслати<x> {{відправити}}</x>',
+  'audioMixer.aria.fader': '{{name}} фейдер',
+  'audioMixer.aria.pan': '{{name}} сковорода',
+  'audioMixer.aria.send': '{{channel}} надіслати {{send}}',
   'audioMixer.button.mute': 'Вимкнути звук',
   'audioMixer.button.solo': 'Соло',
   'audioMixer.master': 'Майстер',

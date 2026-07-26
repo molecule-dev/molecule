@@ -24,7 +24,7 @@ export const ro: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.mute': 'Mut',
   'moderationQueue.loading': 'Se încarcă coada de moderare…',
   'moderationQueue.empty': 'Niciun element nu așteaptă moderare.',
-  'moderationQueue.selectedCount': '{{conta}} selectat',
+  'moderationQueue.selectedCount': '{{count}} selectat',
   'moderationQueue.reportedBy': 'Raportat de',
   'moderationQueue.action.mute': 'Mut',
   'moderationQueue.bulk.mute': 'Mut',

@@ -12,7 +12,7 @@ export const cy: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Cyfraniad GPA',
   'gradebook.col.posted': "Wedi'i bostio",
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'allan o<x> {{uchafswm}}</x>',
+  'gradebook.gpa.outOf': 'allan o {{max}}',
   'gradebook.gpa.trend.up': 'Yn tueddu i fyny',
   'gradebook.gpa.trend.down': 'Tueddu i lawr',
   'gradebook.gpa.trend.flat': 'Cyson',

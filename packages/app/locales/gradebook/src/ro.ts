@@ -12,7 +12,7 @@ export const ro: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Contribuția GPA',
   'gradebook.col.posted': 'Publicat',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'din<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'din {{max}}',
   'gradebook.gpa.trend.up': 'În creștere',
   'gradebook.gpa.trend.down': 'Tendință descendentă',
   'gradebook.gpa.trend.flat': 'Constant',

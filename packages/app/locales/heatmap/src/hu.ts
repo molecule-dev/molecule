@@ -5,7 +5,7 @@ export const hu: Partial<HeatmapTranslations> = {
   'heatmap.weekday.sun': 'Vas',
   'heatmap.weekday.sat': 'Szo',
   'heatmap.aria.grid': 'Aktivitási hőtérkép',
-  'heatmap.cell.tooltip': '{{dátum}} :<x> {{érték}}</x>',
+  'heatmap.cell.tooltip': '{{date}} : {{value}}',
   'heatmap.month.jan': 'Január',
   'heatmap.month.feb': 'Február',
   'heatmap.month.mar': 'Március',

@@ -13,7 +13,7 @@ export const pl: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Wkład do GPA',
   'gradebook.col.posted': 'Opublikowano',
   'gradebook.gpa.title': 'Średnia ocen',
-  'gradebook.gpa.outOf': 'z<x> {{maks.}}</x>',
+  'gradebook.gpa.outOf': 'z {{max}}',
   'gradebook.gpa.trend.up': 'Trend wzrostowy',
   'gradebook.gpa.trend.down': 'Tendencja spadkowa',
 }

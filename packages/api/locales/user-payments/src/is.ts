@@ -7,8 +7,8 @@ export const is: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'kvittun og planKey eru nauðsynleg.',
   'user.payment.verificationNotConfigured':
     'Greiðslustaðfesting er ekki stillt fyrir {{provider}}.',
-  'user.payment.invalidPlan': 'Ógild áætlun.',
-  'user.payment.verificationFailed': 'Mistókst að staðfesta áskrift.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Óþekkt áætlun.',
   'user.payment.invalidWebhookEvent': 'Ógilt vefkrókaatvik.',
 }

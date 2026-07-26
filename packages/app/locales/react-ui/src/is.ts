@@ -11,7 +11,7 @@ export const is: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Síðunúmeraskipti',
   'ui.pagination.first': 'Fara á fyrstu síðu',
   'ui.pagination.previous': 'Fara á fyrri síðu',
-  'ui.pagination.goToPage': 'Fara á síðu<x> {{síða}}</x>',
+  'ui.pagination.goToPage': 'Fara á síðu {{page}}',
   'ui.pagination.last': 'Fara á síðustu síðu',
   'ui.progress.label': 'Framfarir',
   'ui.radioGroup.label': 'Útvarpshópur',

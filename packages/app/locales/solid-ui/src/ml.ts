@@ -10,7 +10,7 @@ export const ml: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'പേജിനേഷൻ',
   'ui.pagination.first': 'ആദ്യ പേജിലേക്ക് പോകുക',
   'ui.pagination.previous': 'മുമ്പത്തെ പേജിലേക്ക് പോകുക',
-  'ui.pagination.goToPage': 'പേജിലേക്ക് പോകുക<x> {{പേജ്}}</x>',
+  'ui.pagination.goToPage': 'പേജിലേക്ക് പോകുക {{page}}',
   'ui.pagination.last': 'അവസാന പേജിലേക്ക് പോകുക',
   'ui.progress.label': 'പുരോഗതി',
   'ui.radioGroup.label': 'റേഡിയോ ഗ്രൂപ്പ്',

@@ -9,7 +9,7 @@ export const sk: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Pozastaviť',
   'audioRecorder.resume': 'Životopis',
   'audioRecorder.stop': 'Zastaviť',
-  'audioRecorder.elapsed': 'Uplynulý čas<x> {{čas}}</x>',
+  'audioRecorder.elapsed': 'Uplynulý čas {{time}}',
   'audioRecorder.statusPaused': 'Pozastavené',
   'audioRecorder.statusProcessed': 'Zaznamenané',
   'audioRecorder.statusError': 'Chyba',

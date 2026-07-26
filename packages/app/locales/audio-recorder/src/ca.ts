@@ -9,7 +9,7 @@ export const ca: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Pausa',
   'audioRecorder.resume': 'Currículum vitae',
   'audioRecorder.stop': 'Atura',
-  'audioRecorder.elapsed': 'Transcorregut<x> {{hora}}</x>',
+  'audioRecorder.elapsed': 'Transcorregut {{time}}',
   'audioRecorder.statusPaused': 'En pausa',
   'audioRecorder.statusProcessed': 'Enregistrat',
   'audioRecorder.statusError': 'Error',

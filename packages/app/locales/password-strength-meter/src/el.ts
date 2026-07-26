@@ -8,8 +8,7 @@ export const el: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Εκθεση',
   'passwordStrengthMeter.label.3': 'Καλός',
   'passwordStrengthMeter.label.4': 'Ισχυρός',
-  'passwordStrengthMeter.ariaValueText':
-    'Ισχύς κωδικού πρόσβασης:<x> {{επιγραφή}}</x> (<x> {{σκορ}}</x> από 4)',
+  'passwordStrengthMeter.ariaValueText': 'Ισχύς κωδικού πρόσβασης: {{label}} ( {{score}} από 4)',
   'passwordStrengthMeter.rule.upper': 'Περιέχει ένα κεφαλαίο γράμμα',
   'passwordStrengthMeter.rule.lower': 'Περιέχει ένα πεζό γράμμα',
   'passwordStrengthMeter.rule.digit': 'Περιέχει ένα ψηφίο',

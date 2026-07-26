@@ -8,7 +8,7 @@ export const sq: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Pauzë',
   'audioRecorder.resume': 'Rezyme',
   'audioRecorder.stop': 'Ndalo',
-  'audioRecorder.elapsed': 'Kaloi<x> {{kohë}}</x>',
+  'audioRecorder.elapsed': 'Kaloi {{time}}',
   'audioRecorder.statusPaused': 'U ndalua',
   'audioRecorder.statusProcessed': 'Regjistruar',
   'audioRecorder.statusError': 'Gabim',

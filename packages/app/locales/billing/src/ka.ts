@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for ka. */
 export const ka: Partial<BillingTranslations> = {
   'billing.status.loading': 'იტვირთება…',
-  'billing.status.currentPlan': 'მიმდინარე გეგმა:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'მიმდინარე გეგმა: {{tierName}}',
   'billing.status.cancelCta': 'გამოწერის გაუქმება',
   'billing.status.cancelError': 'გაუქმება ვერ მოხერხდა. გთხოვთ, სცადოთ ხელახლა.',
   'billing.pricing.loading': 'გეგმები იტვირთება…',
@@ -15,5 +15,5 @@ export const ka: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'ყველაზე პოპულარული',
   'billing.pricing.tierEyebrow': 'იარუსი',
   'billing.pricing.perSeat': 'თითო ადგილზე',
-  'billing.pricing.upgradeCta': 'განახლება<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'განახლება {{tierName}}',
 }

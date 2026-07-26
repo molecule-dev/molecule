@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for cy. */
 export const cy: Partial<BillingTranslations> = {
   'billing.status.loading': 'Yn llwytho…',
-  'billing.status.currentPlan': 'Cynllun cyfredol:<x> {{EnwHaen}}</x>',
+  'billing.status.currentPlan': 'Cynllun cyfredol: {{tierName}}',
   'billing.status.cancelCta': 'Canslo tanysgrifiad',
   'billing.status.cancelError': 'Methwyd canslo. Rhowch gynnig arall arni.',
   'billing.pricing.loading': "Wrthi'n llwytho cynlluniau…",
@@ -13,5 +13,5 @@ export const cy: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Mwyaf poblogaidd',
   'billing.pricing.tierEyebrow': 'Haen',
   'billing.pricing.perSeat': 'fesul sedd',
-  'billing.pricing.upgradeCta': 'Uwchraddio i<x> {{EnwHaen}}</x>',
+  'billing.pricing.upgradeCta': 'Uwchraddio i {{tierName}}',
 }

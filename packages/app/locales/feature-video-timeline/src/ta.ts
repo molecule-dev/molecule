@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const ta: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'வீடியோ காலவரிசை',
   'videoTimeline.aria.ruler': 'நேர ஆட்சியாளர்',
-  'videoTimeline.aria.playhead': 'பிளேஹெட் அட்<x> {{நேரம்}}</x> s',
+  'videoTimeline.aria.playhead': 'பிளேஹெட் அட் {{time}} s',
   'videoTimeline.aria.zoom': 'காலவரிசை பெரிதாக்கம்',
   'videoTimeline.aria.mode': 'திருத்து முறை',
   'videoTimeline.zoom.in': 'பெரிதாக்கு',

@@ -13,7 +13,7 @@ export const id: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Kembali ke halaman sebelumnya',
   'ui.pagination.next': 'Lanjut ke halaman berikutnya',
   'ui.pagination.last': 'Kembali ke halaman sebelumnya',
-  'ui.pagination.goToPage': 'Buka halaman<x> {{halaman}}</x>',
+  'ui.pagination.goToPage': 'Buka halaman {{page}}',
   'ui.table.empty': 'Tidak ada data yang tersedia',
   'ui.avatar.alt': 'Avatar',
   'ui.radioGroup.label': 'Grup radio',

@@ -9,5 +9,5 @@ export const hi: Partial<BatteryTranslations> = {
   'battery.discharging': 'बैटरी पर',
   'battery.full': 'पूर्णतःउर्जित',
   'battery.not-charging': 'चार्ज नही हो रहा हैं',
-  'battery.remainingTime': '{{घंटे}} एच<x> {{मिनट}}</x> एम',
+  'battery.remainingTime': '{{hours}} एच {{minutes}} एम',
 }

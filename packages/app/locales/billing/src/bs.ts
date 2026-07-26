@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for bs. */
 export const bs: Partial<BillingTranslations> = {
   'billing.status.loading': 'Učitavanje…',
-  'billing.status.currentPlan': 'Trenutni plan:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Trenutni plan: {{tierName}}',
   'billing.status.cancelCta': 'Otkaži pretplatu',
   'billing.status.cancelError': 'Nije moguće otkazati. Pokušajte ponovo.',
   'billing.pricing.loading': 'Učitavanje planova…',
@@ -13,5 +13,5 @@ export const bs: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Najpopularnije',
   'billing.pricing.tierEyebrow': 'Nivo',
   'billing.pricing.perSeat': 'po sjedištu',
-  'billing.pricing.upgradeCta': 'Nadogradite na<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Nadogradite na {{tierName}}',
 }

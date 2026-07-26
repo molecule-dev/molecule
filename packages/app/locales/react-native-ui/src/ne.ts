@@ -22,7 +22,7 @@ export const ne: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'अन्तिम',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{मान}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'रेडियो समूह',
   'ui.select.placeholder': 'चयन गर्नुहोस्...',
   'ui.select.title': 'चयन गर्नुहोस्',

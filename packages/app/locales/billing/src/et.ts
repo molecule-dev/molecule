@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for et. */
 export const et: Partial<BillingTranslations> = {
   'billing.status.loading': 'Laadimine…',
-  'billing.status.currentPlan': 'Praegune plaan:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Praegune plaan: {{tierName}}',
   'billing.status.cancelCta': 'Tühista tellimus',
   'billing.status.cancelError': 'Tühistamine ebaõnnestus. Palun proovige uuesti.',
   'billing.pricing.loading': 'Plaanide laadimine…',
@@ -13,5 +13,5 @@ export const et: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Kõige populaarsem',
   'billing.pricing.tierEyebrow': 'Tasand',
   'billing.pricing.perSeat': 'istekoha kohta',
-  'billing.pricing.upgradeCta': 'Uuenda versioonile<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Uuenda versioonile {{tierName}}',
 }

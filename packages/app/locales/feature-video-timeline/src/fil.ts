@@ -7,7 +7,7 @@ export const fil: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Ipasok',
   'videoTimeline.aria.root': 'Timeline ng video',
   'videoTimeline.aria.ruler': 'Tagapamahala ng oras',
-  'videoTimeline.aria.playhead': 'Playhead sa<x> {{oras}}</x> mga',
+  'videoTimeline.aria.playhead': 'Playhead sa {{time}} mga',
   'videoTimeline.aria.zoom': 'Pag-zoom sa timeline',
   'videoTimeline.aria.mode': 'Paraan ng pag-edit',
   'videoTimeline.zoom.in.icon': '+',

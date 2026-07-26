@@ -9,7 +9,7 @@ export const ha: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Dakatar da',
   'audioRecorder.resume': 'Ci gaba da karatu',
   'audioRecorder.stop': 'Tsaya',
-  'audioRecorder.elapsed': 'Ya shuɗe<x> {{lokaci}}</x>',
+  'audioRecorder.elapsed': 'Ya shuɗe {{time}}',
   'audioRecorder.statusPaused': 'An Dakatar',
   'audioRecorder.statusProcessed': 'An yi rikodin',
   'audioRecorder.statusError': 'Kuskure',

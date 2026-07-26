@@ -10,7 +10,7 @@ export const fr: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     "Autorisation d'accès au microphone refusée. Veuillez autoriser l'accès et réessayer.",
   'audioRecorder.stop': 'Arrêt',
-  'audioRecorder.elapsed': 'Échéance<x> {{temps}}</x>',
+  'audioRecorder.elapsed': 'Échéance {{time}}',
   'audioRecorder.statusProcessed': 'Enregistré',
   'audioRecorder.statusError': 'Erreur',
   'audioRecorder.statusIdle': 'Prêt à enregistrer',

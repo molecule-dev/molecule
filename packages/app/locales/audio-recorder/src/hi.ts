@@ -10,7 +10,7 @@ export const hi: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'माइक्रोफ़ोन की अनुमति नहीं दी गई। कृपया अनुमति दें और पुनः प्रयास करें।',
   'audioRecorder.stop': 'रुकना',
-  'audioRecorder.elapsed': 'बीता हुआ समय<x> {{समय}}</x>',
+  'audioRecorder.elapsed': 'बीता हुआ समय {{time}}',
   'audioRecorder.statusProcessed': 'रिकॉर्डेड',
   'audioRecorder.statusError': 'गलती',
   'audioRecorder.statusIdle': 'रिकॉर्डिंग के लिए तैयार',

@@ -4,7 +4,7 @@ import type { EmbeddableChatWidgetTranslations } from './types.js'
 export const hu: Partial<EmbeddableChatWidgetTranslations> = {
   'embeddableChatWidget.composer.send': 'Küldés',
   'embeddableChatWidget.launcher.openLabel': 'Csevegés megnyitása',
-  'embeddableChatWidget.panel.headerLabel': 'Csevegés<x> {{márkanév}}</x>',
+  'embeddableChatWidget.panel.headerLabel': 'Csevegés {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Csevegés bezárása',
   'embeddableChatWidget.panel.emptyState': 'Tegyen fel egy kérdést a kezdéshez.',
   'embeddableChatWidget.panel.assistantTyping': 'Asszisztens gépel…',

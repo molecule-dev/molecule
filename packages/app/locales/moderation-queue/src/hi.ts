@@ -29,7 +29,7 @@ export const hi: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': 'आइटम चुनें',
   'moderationQueue.loading': 'मॉडरेशन क्यू लोड हो रहा है…',
   'moderationQueue.empty': 'कोई भी आइटम मॉडरेशन के लिए लंबित नहीं है।',
-  'moderationQueue.selectedCount': '{{गिनती करना}} चयनित',
+  'moderationQueue.selectedCount': '{{count}} चयनित',
   'moderationQueue.reportedBy': 'के द्वारा रिपोर्ट किया गया',
   'moderationQueue.kind.image': 'छवि',
 }

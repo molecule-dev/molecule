@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for lv. */
 export const lv: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Paziņojumi',
-  'notificationsPage.markAllRead': 'Marks<x> {{skaits}}</x> kā lasīts',
+  'notificationsPage.markAllRead': 'Marks {{count}} kā lasīts',
   'notificationsPage.filterUnread': 'Nelasīts',
   'notificationsPage.filterMentions': 'Pieminējumi',
   'notificationsPage.filterAriaLabel': 'Filtrēt paziņojumus',
@@ -14,7 +14,7 @@ export const lv: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Jūs visu esat iepazinies',
   'notificationsPage.emptyBody': 'Šeit tiks parādīti jauni paziņojumi.',
   'notificationsPage.paginationAriaLabel': 'Lappušu numerācija',
-  'notificationsPage.pageOf': 'Lapa<x> {{pašreizējais}}</x> no<x> Kopā</x>',
+  'notificationsPage.pageOf': 'Page {{current}} of {{total}}',
   'notificationsPage.prev': 'Iepriekšējais',
   'notificationsPage.next': 'Nākamais',
 }

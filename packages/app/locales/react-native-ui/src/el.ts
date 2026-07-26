@@ -24,7 +24,7 @@ export const el: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Τελευταίος',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{αξία}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Ομάδα ραδιοφώνου',
   'ui.select.title': 'Επιλέγω',
   'ui.spinner.loading': 'Φόρτωση',

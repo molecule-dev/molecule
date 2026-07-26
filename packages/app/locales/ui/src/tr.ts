@@ -13,7 +13,7 @@ export const tr: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Önceki sayfaya git',
   'ui.pagination.next': 'Sonraki sayfaya git',
   'ui.pagination.last': 'Son sayfaya git',
-  'ui.pagination.goToPage': 'Sayfaya git<x> {{sayfa}}</x>',
+  'ui.pagination.goToPage': 'Sayfaya git {{page}}',
   'ui.table.empty': 'Veri mevcut değil.',
   'ui.avatar.alt': 'Avatar',
   'ui.radioGroup.label': 'Radyo grubu',

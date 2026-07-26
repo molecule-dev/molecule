@@ -9,7 +9,7 @@ export const kn: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'ವಿರಾಮಗೊಳಿಸಿ',
   'audioRecorder.resume': 'ಪುನರಾರಂಭ',
   'audioRecorder.stop': 'ನಿಲ್ಲಿಸಿ',
-  'audioRecorder.elapsed': 'ಕಳೆದುಹೋಯಿತು<x> {{ಸಮಯ}}</x>',
+  'audioRecorder.elapsed': 'ಕಳೆದುಹೋಯಿತು {{time}}',
   'audioRecorder.statusPaused': 'ವಿರಾಮಗೊಳಿಸಲಾಗಿದೆ',
   'audioRecorder.statusProcessed': 'ರೆಕಾರ್ಡ್ ಮಾಡಲಾಗಿದೆ',
   'audioRecorder.statusError': 'ದೋಷ',

@@ -10,7 +10,7 @@ export const lv: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Lappušu numerācija',
   'ui.pagination.first': 'Doties uz pirmo lapu',
   'ui.pagination.previous': 'Doties uz iepriekšējo lapu',
-  'ui.pagination.goToPage': 'Doties uz lapu<x> {{lapa}}</x>',
+  'ui.pagination.goToPage': 'Doties uz lapu {{page}}',
   'ui.pagination.last': 'Doties uz pēdējo lapu',
   'ui.progress.label': 'Progress',
   'ui.radioGroup.label': 'Radio grupa',

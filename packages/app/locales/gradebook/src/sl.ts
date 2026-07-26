@@ -12,7 +12,7 @@ export const sl: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Prispevek k povprečni oceni',
   'gradebook.col.posted': 'Objavljeno',
   'gradebook.gpa.title': 'Povprečna ocena',
-  'gradebook.gpa.outOf': 'izven<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'izven {{max}}',
   'gradebook.gpa.trend.up': 'V porastu',
   'gradebook.gpa.trend.down': 'Trend pada',
   'gradebook.gpa.trend.flat': 'Stacionarno',

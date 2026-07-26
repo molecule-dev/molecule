@@ -29,7 +29,7 @@ export const zh: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': '选择项目',
   'moderationQueue.loading': '正在加载审核队列……',
   'moderationQueue.empty': '没有待审核的项目。',
-  'moderationQueue.selectedCount': '{{数数}}选定',
+  'moderationQueue.selectedCount': '{{count}}选定',
   'moderationQueue.reportedBy': '据报道',
   'moderationQueue.kind.image': '图像',
 }

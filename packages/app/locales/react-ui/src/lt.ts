@@ -11,7 +11,7 @@ export const lt: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Puslapavimas',
   'ui.pagination.first': 'Eiti į pirmąjį puslapį',
   'ui.pagination.previous': 'Eiti į ankstesnį puslapį',
-  'ui.pagination.goToPage': 'Eiti į puslapį<x> {{puslapis}}</x>',
+  'ui.pagination.goToPage': 'Eiti į puslapį {{page}}',
   'ui.pagination.last': 'Eiti į paskutinį puslapį',
   'ui.progress.label': 'Pažanga',
   'ui.radioGroup.label': 'Radijo grupė',

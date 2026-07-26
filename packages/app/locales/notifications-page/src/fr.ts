@@ -16,5 +16,5 @@ export const fr: Partial<NotificationsPageTranslations> = {
   'notificationsPage.filterMentions': 'Mentions',
   'notificationsPage.feedAriaLabel': 'Notifications',
   'notificationsPage.paginationAriaLabel': 'Pagination',
-  'notificationsPage.pageOf': 'Page<x> {{actuel}}</x> de<x> {{total}}</x>',
+  'notificationsPage.pageOf': 'Page {{current}} de {{total}}',
 }

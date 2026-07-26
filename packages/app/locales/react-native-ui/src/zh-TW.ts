@@ -22,7 +22,7 @@ export const zhTW: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': '最後的',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{價值}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': '廣播集團',
   'ui.select.placeholder': '選擇…',
   'ui.select.title': '選擇',

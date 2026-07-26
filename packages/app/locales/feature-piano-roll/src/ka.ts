@@ -7,5 +7,5 @@ export const ka: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'ნოტების ბადე',
   'pianoRoll.aria.resize': 'ჩანიშვნის ზომის შეცვლა',
   'pianoRoll.aria.note':
-    'შენიშვნა<x> {{პიჩი}}</x> რიტმიდან დაწყებული<x> {{startBeat}}</x> ამისთვის<x> {{ხანგრძლივობის დარტყმები}}</x> რიტმები',
+    'შენიშვნა {{pitch}} რიტმიდან დაწყებული {{startBeat}} ამისთვის {{durationBeats}} რიტმები',
 }

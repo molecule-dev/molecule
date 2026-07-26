@@ -14,7 +14,7 @@ export const vi: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Quay lại trang trước',
   'ui.pagination.next': 'Chuyển sang trang tiếp theo',
   'ui.pagination.last': 'Quay lại trang cuối',
-  'ui.pagination.goToPage': 'Đi đến trang<x> {{trang}}</x>',
+  'ui.pagination.goToPage': 'Đi đến trang {{page}}',
   'ui.table.empty': 'Không có dữ liệu nào khả dụng.',
   'ui.radioGroup.label': 'Nhóm phát thanh',
 }

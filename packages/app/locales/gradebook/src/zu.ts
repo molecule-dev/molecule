@@ -12,7 +12,7 @@ export const zu: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Umnikelo we-GPA',
   'gradebook.col.posted': 'Kuthunyelwe',
   'gradebook.gpa.title': 'I-GPA',
-  'gradebook.gpa.outOf': 'koku<x> {{ubuningi}}</x>',
+  'gradebook.gpa.outOf': 'koku {{max}}',
   'gradebook.gpa.trend.up': 'Okuthrendayo kuya phezulu',
   'gradebook.gpa.trend.down': 'Ukuthambekela kwehla',
   'gradebook.gpa.trend.flat': 'Izinzile',

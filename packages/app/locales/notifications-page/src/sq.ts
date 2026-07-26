@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for sq. */
 export const sq: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Njoftime',
-  'notificationsPage.markAllRead': 'Mark<x> {{count}}</x> siç lexohet',
+  'notificationsPage.markAllRead': 'Mark {{count}} siç lexohet',
   'notificationsPage.filterUnread': 'I palexuar',
   'notificationsPage.filterMentions': 'Përmendjet',
   'notificationsPage.filterAriaLabel': 'Filtro njoftimet',
@@ -14,7 +14,7 @@ export const sq: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Je plotësisht i informuar',
   'notificationsPage.emptyBody': 'Njoftimet e reja do të shfaqen këtu.',
   'notificationsPage.paginationAriaLabel': 'Faqet',
-  'notificationsPage.pageOf': 'Faqe<x> {{aktuale}}</x> e<x> {{totali}}</x>',
+  'notificationsPage.pageOf': 'Faqe {{current}} e {{total}}',
   'notificationsPage.prev': 'Mëparshme',
   'notificationsPage.next': 'Tjetra',
 }

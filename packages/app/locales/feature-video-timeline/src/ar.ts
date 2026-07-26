@@ -8,7 +8,7 @@ export const ar: Partial<VideoTimelineTranslations> = {
   'videoTimeline.trackKind.video': 'فيديو',
   'videoTimeline.aria.root': 'الجدول الزمني للفيديو',
   'videoTimeline.aria.ruler': 'مسطرة الزمن',
-  'videoTimeline.aria.playhead': 'بلاي هيد في<x> {{وقت}}</x> s',
+  'videoTimeline.aria.playhead': 'بلاي هيد في {{time}} s',
   'videoTimeline.aria.zoom': 'تكبير/تصغير الجدول الزمني',
   'videoTimeline.aria.mode': 'وضع التحرير',
   'videoTimeline.zoom.in.icon': '+',

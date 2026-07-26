@@ -11,7 +11,7 @@ export const mr: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'पृष्ठांकन',
   'ui.pagination.first': 'पहिल्या पानावर जा',
   'ui.pagination.previous': 'मागील पानावर जा',
-  'ui.pagination.goToPage': 'पृष्ठावर जा<x> {{page}}</x>',
+  'ui.pagination.goToPage': 'पृष्ठावर जा {{page}}',
   'ui.pagination.last': 'शेवटच्या पानावर जा',
   'ui.progress.label': 'प्रगती',
   'ui.radioGroup.label': 'रेडिओ गट',

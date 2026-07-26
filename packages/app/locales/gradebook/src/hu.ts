@@ -12,7 +12,7 @@ export const hu: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA-hozzájárulás',
   'gradebook.col.posted': 'Közzétéve',
   'gradebook.gpa.title': 'Átlag',
-  'gradebook.gpa.outOf': 'ki a<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'ki a {{max}}',
   'gradebook.gpa.trend.up': 'Feljövőben lévő trendek',
   'gradebook.gpa.trend.down': 'Csökkenő trend',
   'gradebook.gpa.trend.flat': 'Állandó',

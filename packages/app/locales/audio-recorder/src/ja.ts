@@ -10,7 +10,7 @@ export const ja: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'マイクの使用許可が拒否されました。アクセスを許可して、もう一度お試しください。',
   'audioRecorder.stop': '停止',
-  'audioRecorder.elapsed': '経過時間{{時間}}',
+  'audioRecorder.elapsed': '経過時間{{time}}',
   'audioRecorder.statusProcessed': '録音済み',
   'audioRecorder.statusError': 'エラー',
   'audioRecorder.statusIdle': '録音準備完了',

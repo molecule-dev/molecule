@@ -13,7 +13,7 @@ export const uk: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Перейти на попередню сторінку',
   'ui.pagination.next': 'Перейти на наступну сторінку',
   'ui.pagination.last': 'Перейти на останню сторінку',
-  'ui.pagination.goToPage': 'Перейти на сторінку<x> {{сторінка}}</x>',
+  'ui.pagination.goToPage': 'Перейти на сторінку {{page}}',
   'ui.table.empty': 'Дані недоступні',
   'ui.spinner.loading': 'Завантаження',
   'ui.radioGroup.label': 'Радіогрупа',

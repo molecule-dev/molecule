@@ -7,5 +7,5 @@ export const ha: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Grid ɗin bayanin kula',
   'pianoRoll.aria.resize': 'Sake girman bayanin kula',
   'pianoRoll.aria.note':
-    'Bayani<x> {{faɗa}}</x> farawa daga kida<x> {{startBeat}}</x> don<x> {{durationBeats}}</x> bugu',
+    'Bayani {{pitch}} farawa daga kida {{startBeat}} don {{durationBeats}} bugu',
 }

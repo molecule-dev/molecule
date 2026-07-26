@@ -9,7 +9,7 @@ export const th: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'หยุดชั่วคราว',
   'audioRecorder.resume': 'ประวัติย่อ',
   'audioRecorder.stop': 'หยุด',
-  'audioRecorder.elapsed': 'เวลาที่ผ่านไป<x> {{เวลา}}</x>',
+  'audioRecorder.elapsed': 'เวลาที่ผ่านไป {{time}}',
   'audioRecorder.statusPaused': 'หยุดชั่วคราว',
   'audioRecorder.statusProcessed': 'บันทึกแล้ว',
   'audioRecorder.statusError': 'ข้อผิดพลาด',

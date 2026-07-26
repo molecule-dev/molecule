@@ -29,7 +29,7 @@ export const sv: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': 'Välj objekt',
   'moderationQueue.loading': 'Läser in modereringskön…',
   'moderationQueue.empty': 'Inga objekt väntar på moderering.',
-  'moderationQueue.selectedCount': '{{räkna}} vald',
+  'moderationQueue.selectedCount': '{{count}} vald',
   'moderationQueue.reportedBy': 'Rapporterad av',
   'moderationQueue.kind.image': 'Bild',
 }

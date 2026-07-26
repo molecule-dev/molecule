@@ -12,7 +12,7 @@ export const yo: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Àfikún GPA',
   'gradebook.col.posted': 'Ti fiweranṣẹ',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'láti inú<x> {{pupọ julọ}}</x>',
+  'gradebook.gpa.outOf': 'láti inú {{max}}',
   'gradebook.gpa.trend.up': 'Ó ń gbilẹ̀ síi',
   'gradebook.gpa.trend.down': 'Ó ń yípadà sí ìsàlẹ̀',
   'gradebook.gpa.trend.flat': 'Dídúróṣinṣin',

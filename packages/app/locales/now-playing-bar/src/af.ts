@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for af. */
 export const af: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'Niks speel nie',
-  'nowPlaying.aria.region': 'Nou speel:<x> {{titel}}</x>',
-  'nowPlaying.aria.artwork': 'Kunswerk vir<x> {{titel}}</x>',
+  'nowPlaying.aria.region': 'Nou speel: {{title}}',
+  'nowPlaying.aria.artwork': 'Kunswerk vir {{title}}',
   'nowPlaying.aria.play': 'Speel',
   'nowPlaying.aria.pause': 'Pouseer',
   'nowPlaying.aria.next': 'Volgende snit',

@@ -11,7 +11,7 @@ export const ne: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'पृष्ठांकन',
   'ui.pagination.first': 'पहिलो पृष्ठमा जानुहोस्',
   'ui.pagination.previous': 'अघिल्लो पृष्ठमा जानुहोस्',
-  'ui.pagination.goToPage': 'पृष्ठमा जानुहोस्<x> {{पृष्ठ}}</x>',
+  'ui.pagination.goToPage': 'पृष्ठमा जानुहोस् {{page}}',
   'ui.pagination.last': 'अन्तिम पृष्ठमा जानुहोस्',
   'ui.progress.label': 'प्रगति',
   'ui.radioGroup.label': 'रेडियो समूह',

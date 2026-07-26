@@ -5,7 +5,7 @@ export const bs: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'Konzola za audio mikser',
   'audioMixer.aria.fader': '{{name}} fader',
   'audioMixer.aria.pan': '{{name}} tava',
-  'audioMixer.aria.send': '{{kanal}} poslati<x> {{pošalji}}</x>',
+  'audioMixer.aria.send': '{{channel}} poslati {{send}}',
   'audioMixer.button.mute': 'Isključi zvuk',
   'audioMixer.button.solo': 'Solo',
   'audioMixer.master': 'Majstor',

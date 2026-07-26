@@ -11,7 +11,7 @@ export const be: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Пагінацыя',
   'ui.pagination.first': 'Перайсці на першую старонку',
   'ui.pagination.previous': 'Перайсці на папярэднюю старонку',
-  'ui.pagination.goToPage': 'Перайсці на старонку<x> {{старонка}}</x>',
+  'ui.pagination.goToPage': 'Перайсці на старонку {{page}}',
   'ui.pagination.last': 'Перайсці на апошнюю старонку',
   'ui.progress.label': 'Прагрэс',
   'ui.radioGroup.label': 'Радыёгрупа',

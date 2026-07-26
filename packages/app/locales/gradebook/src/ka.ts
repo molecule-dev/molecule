@@ -12,7 +12,7 @@ export const ka: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA-ს წვლილი',
   'gradebook.col.posted': 'გამოქვეყნებულია',
   'gradebook.gpa.title': 'საშუალო ქულა',
-  'gradebook.gpa.outOf': 'გარეთ<x> {{მაქს}}</x>',
+  'gradebook.gpa.outOf': 'გარეთ {{max}}',
   'gradebook.gpa.trend.up': 'ტენდენცია იზრდება',
   'gradebook.gpa.trend.down': 'კლების ტენდენცია',
   'gradebook.gpa.trend.flat': 'სტაბილური',

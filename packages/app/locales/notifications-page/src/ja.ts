@@ -16,5 +16,5 @@ export const ja: Partial<NotificationsPageTranslations> = {
   'notificationsPage.prev': '前へ',
   'notificationsPage.next': '次へ',
   'notificationsPage.paginationAriaLabel': 'ページネーション',
-  'notificationsPage.pageOf': 'ページ{{現在}}の{{合計}}',
+  'notificationsPage.pageOf': 'ページ{{current}}の{{total}}',
 }

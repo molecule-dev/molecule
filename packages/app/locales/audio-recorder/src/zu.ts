@@ -9,7 +9,7 @@ export const zu: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Misa isikhashana',
   'audioRecorder.resume': 'Qalisa kabusha',
   'audioRecorder.stop': 'Ima',
-  'audioRecorder.elapsed': 'Kudlulile<x> {{isikhathi}}</x>',
+  'audioRecorder.elapsed': 'Kudlulile {{time}}',
   'audioRecorder.statusPaused': 'Kumiswe isikhashana',
   'audioRecorder.statusProcessed': 'Kuqoshiwe',
   'audioRecorder.statusError': 'Iphutha',

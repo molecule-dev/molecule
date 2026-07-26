@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for km. */
 export const km: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'មិនមានការចាក់ទេ',
-  'nowPlaying.aria.region': 'កំពុងលេងឥឡូវនេះ៖<x> {{ចំណងជើង}}</x>',
-  'nowPlaying.aria.artwork': 'ស្នាដៃសិល្បៈសម្រាប់<x> {{ចំណងជើង}}</x>',
+  'nowPlaying.aria.region': 'កំពុងលេងឥឡូវនេះ៖ {{title}}',
+  'nowPlaying.aria.artwork': 'ស្នាដៃសិល្បៈសម្រាប់ {{title}}',
   'nowPlaying.aria.play': 'លេង',
   'nowPlaying.aria.pause': 'ផ្អាក',
   'nowPlaying.aria.next': 'បទបន្ទាប់',

@@ -12,7 +12,7 @@ export const sk: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Príspevok k GPA',
   'gradebook.col.posted': 'Publikované',
   'gradebook.gpa.title': 'Priemerné hodnotenie',
-  'gradebook.gpa.outOf': 'z<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'z {{max}}',
   'gradebook.gpa.trend.up': 'Rastúci trend',
   'gradebook.gpa.trend.down': 'Klesajúci trend',
   'gradebook.gpa.trend.flat': 'Stabilný',

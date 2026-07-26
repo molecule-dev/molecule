@@ -9,7 +9,7 @@ export const eu: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Pausatu',
   'audioRecorder.resume': 'Curriculuma',
   'audioRecorder.stop': 'Gelditu',
-  'audioRecorder.elapsed': 'Iragana<x> {{denbora}}</x>',
+  'audioRecorder.elapsed': 'Iragana {{time}}',
   'audioRecorder.statusPaused': 'Pausatua',
   'audioRecorder.statusProcessed': 'Grabatua',
   'audioRecorder.statusError': 'Errorea',

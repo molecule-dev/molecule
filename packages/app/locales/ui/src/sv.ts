@@ -13,7 +13,7 @@ export const sv: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Gå till föregående sida',
   'ui.pagination.next': 'Gå till nästa sida',
   'ui.pagination.last': 'Gå till sista sidan',
-  'ui.pagination.goToPage': 'Gå till sidan<x> {{sida}}</x>',
+  'ui.pagination.goToPage': 'Gå till sidan {{page}}',
   'ui.table.empty': 'Inga data tillgängliga',
   'ui.avatar.alt': 'Avatar',
   'ui.radioGroup.label': 'Radiogrupp',

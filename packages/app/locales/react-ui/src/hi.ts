@@ -18,7 +18,7 @@ export const hi: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'पृष्ठ पर अंक लगाना',
   'ui.pagination.first': 'पहले पृष्ठ पर जाएं',
   'ui.pagination.previous': 'पिछले पृष्ठ पर जाएं',
-  'ui.pagination.goToPage': 'पृष्ठ पर जाओ<x> {{पृष्ठ}}</x>',
+  'ui.pagination.goToPage': 'पृष्ठ पर जाओ {{page}}',
   'ui.pagination.last': 'अंतिम पृष्ठ पर जाएं',
   'ui.radioGroup.label': 'रेडियो समूह',
   'sidebar.memberStatus': 'प्रीमियम सदस्य',

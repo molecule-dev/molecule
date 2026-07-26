@@ -26,7 +26,7 @@ export const vi: Partial<ReactNativeUiTranslations> = {
   'ui.icon.ellipsis': '…',
   'ui.icon.chevronRight': '›',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{giá trị}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Nhóm phát thanh',
   'ui.icon.sortAsc': '↑',
   'ui.icon.sortDesc': '↓',

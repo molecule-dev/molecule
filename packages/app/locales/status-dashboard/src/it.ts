@@ -11,11 +11,11 @@ export const it: Partial<StatusDashboardTranslations> = {
   'statusDashboard.label.uptime': 'Tempo di attività',
   'statusDashboard.error.noProvider':
     'Provider del pannello di controllo dello stato non configurato.',
-  'statusDashboard.error.fetchFailed': 'Impossibile recuperare lo stato: HTTP<x> {{stato}}</x>',
+  'statusDashboard.error.fetchFailed': 'Impossibile recuperare lo stato: HTTP {{status}}',
   'statusDashboard.label.allOperational': 'Tutti i sistemi sono operativi',
   'statusDashboard.label.someIssues': 'Alcuni sistemi stanno riscontrando problemi',
   'statusDashboard.label.majorOutage': 'Interruzione di sistema di grave entità',
-  'statusDashboard.label.lastChecked': 'Ultimo controllo<x> {{tempo}}</x>',
-  'statusDashboard.label.latency': '{{SM}} SM',
+  'statusDashboard.label.lastChecked': 'Ultimo controllo {{time}}',
+  'statusDashboard.label.latency': '{{ms}} SM',
   'statusDashboard.label.noIncidents': 'Nessun incidente segnalato.',
 }

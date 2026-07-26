@@ -5,7 +5,7 @@ export const tr: Partial<EmbeddableChatWidgetTranslations> = {
   'embeddableChatWidget.launcher.openLabel': 'Sohbeti aç',
   'embeddableChatWidget.composer.placeholder': 'Mesajınızı yazın…',
   'embeddableChatWidget.composer.send': 'Gönder',
-  'embeddableChatWidget.panel.headerLabel': 'Sohbet et<x> {{brandName}}</x>',
+  'embeddableChatWidget.panel.headerLabel': 'Sohbet et {{brandName}}',
   'embeddableChatWidget.panel.closeLabel': 'Sohbeti kapat',
   'embeddableChatWidget.panel.emptyState': 'Başlamak için bir soru sorun.',
   'embeddableChatWidget.panel.assistantTyping': 'Asistan yazıyor…',

@@ -12,7 +12,7 @@ export const be: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Унёсак у сярэдні бал',
   'gradebook.col.posted': 'Апублікавана',
   'gradebook.gpa.title': 'Сярэдні бал',
-  'gradebook.gpa.outOf': 'з<x> {{макс}}</x>',
+  'gradebook.gpa.outOf': 'з {{max}}',
   'gradebook.gpa.trend.up': 'Папулярнасць',
   'gradebook.gpa.trend.down': 'Тэндэнцыя зніжэння',
   'gradebook.gpa.trend.flat': 'Пастаянны',

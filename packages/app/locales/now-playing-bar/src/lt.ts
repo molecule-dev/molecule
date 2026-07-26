@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for lt. */
 export const lt: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'Niekas negroja',
-  'nowPlaying.aria.region': 'Dabar groja:<x> {{title}}</x>',
-  'nowPlaying.aria.artwork': 'Meno kūrinys skirtas<x> {{title}}</x>',
+  'nowPlaying.aria.region': 'Dabar groja: {{title}}',
+  'nowPlaying.aria.artwork': 'Meno kūrinys skirtas {{title}}',
   'nowPlaying.aria.play': 'Žaisti',
   'nowPlaying.aria.pause': 'Pauzė',
   'nowPlaying.aria.next': 'Kitas takelis',

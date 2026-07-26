@@ -7,7 +7,7 @@ export const cs: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Vložit',
   'videoTimeline.aria.root': 'Časová osa videa',
   'videoTimeline.aria.ruler': 'Vládce času',
-  'videoTimeline.aria.playhead': 'Přehrávací bod na<x> {{čas}}</x> s',
+  'videoTimeline.aria.playhead': 'Přehrávací bod na {{time}} s',
   'videoTimeline.aria.zoom': 'Přiblížení časové osy',
   'videoTimeline.aria.mode': 'Režim úprav',
   'videoTimeline.zoom.in.icon': '+',

@@ -7,7 +7,7 @@ export const id: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Sisipkan',
   'videoTimeline.aria.root': 'Garis waktu video',
   'videoTimeline.aria.ruler': 'Penggaris waktu',
-  'videoTimeline.aria.playhead': 'Playhead pada<x> {{waktu}}</x> S',
+  'videoTimeline.aria.playhead': 'Playhead pada {{time}} S',
   'videoTimeline.aria.zoom': 'Perbesar garis waktu',
   'videoTimeline.aria.mode': 'Mode edit',
   'videoTimeline.zoom.in.icon': '+',

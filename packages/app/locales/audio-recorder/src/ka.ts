@@ -9,7 +9,7 @@ export const ka: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'პაუზა',
   'audioRecorder.resume': 'რეზიუმე',
   'audioRecorder.stop': 'გაჩერება',
-  'audioRecorder.elapsed': 'გასული<x> {{დრო}}</x>',
+  'audioRecorder.elapsed': 'გასული {{time}}',
   'audioRecorder.statusPaused': 'შეჩერებულია',
   'audioRecorder.statusProcessed': 'ჩაწერილია',
   'audioRecorder.statusError': 'შეცდომა',

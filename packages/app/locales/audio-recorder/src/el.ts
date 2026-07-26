@@ -10,7 +10,7 @@ export const el: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Δεν επιτράπηκε η πρόσβαση στο μικρόφωνο. Επιτρέψτε την πρόσβαση και δοκιμάστε ξανά.',
   'audioRecorder.stop': 'Στάση',
-  'audioRecorder.elapsed': 'Παρέλθει<x> {{φορά}}</x>',
+  'audioRecorder.elapsed': 'Παρέλθει {{time}}',
   'audioRecorder.statusProcessed': 'Εγγεγραμμένος',
   'audioRecorder.statusError': 'Σφάλμα',
   'audioRecorder.statusIdle': 'Έτοιμο για εγγραφή',

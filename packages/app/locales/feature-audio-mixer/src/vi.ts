@@ -5,9 +5,9 @@ export const vi: Partial<AudioMixerTranslations> = {
   'audioMixer.button.mute': 'Tắt tiếng',
   'audioMixer.sends': 'Lượt gửi',
   'audioMixer.aria.console': 'Bàn trộn âm thanh',
-  'audioMixer.aria.fader': '{{tên}} cần gạt',
-  'audioMixer.aria.pan': '{{tên}} chảo',
-  'audioMixer.aria.send': '{{kênh}} gửi tới<x> {{gửi}}</x>',
+  'audioMixer.aria.fader': '{{name}} cần gạt',
+  'audioMixer.aria.pan': '{{name}} chảo',
+  'audioMixer.aria.send': '{{channel}} gửi tới {{send}}',
   'audioMixer.button.solo': 'Độc lập',
   'audioMixer.master': 'Bậc thầy',
 }

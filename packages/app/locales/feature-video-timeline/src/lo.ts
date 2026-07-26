@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const lo: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'ທາມລາຍວິດີໂອ',
   'videoTimeline.aria.ruler': 'ເຄື່ອງໝາຍຈັບເວລາ',
-  'videoTimeline.aria.playhead': 'ຫົວຫຼິ້ນຢູ່ທີ່<x> {{ເວລາ}}</x> ສ',
+  'videoTimeline.aria.playhead': 'ຫົວຫຼິ້ນຢູ່ທີ່ {{time}} ສ',
   'videoTimeline.aria.zoom': 'ຊູມຕາມເວລາ',
   'videoTimeline.aria.mode': 'ໂໝດແກ້ໄຂ',
   'videoTimeline.zoom.in': 'ຊູມເຂົ້າ',

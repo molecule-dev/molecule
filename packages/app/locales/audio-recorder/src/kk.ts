@@ -9,7 +9,7 @@ export const kk: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Кідірту',
   'audioRecorder.resume': 'Түйіндеме',
   'audioRecorder.stop': 'Тоқта',
-  'audioRecorder.elapsed': 'Өткен<x> {{уақыт}}</x>',
+  'audioRecorder.elapsed': 'Өткен {{time}}',
   'audioRecorder.statusPaused': 'Кідіртілді',
   'audioRecorder.statusProcessed': 'Жазылған',
   'audioRecorder.statusError': 'Қате',

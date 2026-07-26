@@ -22,7 +22,7 @@ export const ka: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'ბოლო',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{მნიშვნელობა}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'რადიო ჯგუფი',
   'ui.select.placeholder': 'აირჩიეთ…',
   'ui.select.title': 'არჩევა',

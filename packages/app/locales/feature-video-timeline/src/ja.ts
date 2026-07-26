@@ -8,7 +8,7 @@ export const ja: Partial<VideoTimelineTranslations> = {
   'videoTimeline.trackKind.video': 'ビデオ',
   'videoTimeline.aria.root': '動画タイムライン',
   'videoTimeline.aria.ruler': 'タイムルーラー',
-  'videoTimeline.aria.playhead': 'プレイヘッド{{時間}} s',
+  'videoTimeline.aria.playhead': 'プレイヘッド{{time}} s',
   'videoTimeline.aria.zoom': 'タイムラインズーム',
   'videoTimeline.aria.mode': '編集モード',
   'videoTimeline.zoom.in.icon': '+',

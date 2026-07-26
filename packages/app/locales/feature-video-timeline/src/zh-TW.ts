@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const zhTW: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': '視訊時間軸',
   'videoTimeline.aria.ruler': '時間統治者',
-  'videoTimeline.aria.playhead': '播放頭{{時間}} s',
+  'videoTimeline.aria.playhead': '播放頭{{time}} s',
   'videoTimeline.aria.zoom': '時間軸縮放',
   'videoTimeline.aria.mode': '編輯模式',
   'videoTimeline.zoom.in': '放大',

@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for kk. */
 export const kk: Partial<BillingTranslations> = {
   'billing.status.loading': 'Жүктелуде…',
-  'billing.status.currentPlan': 'Ағымдағы жоспар:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Ағымдағы жоспар: {{tierName}}',
   'billing.status.cancelCta': 'Жазылымды тоқтату',
   'billing.status.cancelError': 'Бас тарту мүмкін болмады. Қайталап көріңіз.',
   'billing.pricing.loading': 'Жоспарлар жүктелуде…',
@@ -14,5 +14,5 @@ export const kk: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Ең танымал',
   'billing.pricing.tierEyebrow': 'Деңгей',
   'billing.pricing.perSeat': 'орынға',
-  'billing.pricing.upgradeCta': 'Жаңарту<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Жаңарту {{tierName}}',
 }

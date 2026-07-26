@@ -22,7 +22,7 @@ export const ml: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'അവസാനത്തെ',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{മൂല്യം}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'റേഡിയോ ഗ്രൂപ്പ്',
   'ui.select.placeholder': 'തിരഞ്ഞെടുക്കുക...',
   'ui.select.title': 'തിരഞ്ഞെടുക്കുക',

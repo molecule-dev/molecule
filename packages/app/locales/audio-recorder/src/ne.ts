@@ -9,7 +9,7 @@ export const ne: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'पज गर्नुहोस्',
   'audioRecorder.resume': 'पुनःसुरु गर्नुहोस्',
   'audioRecorder.stop': 'रोक्नुहोस्',
-  'audioRecorder.elapsed': 'बितेको<x> {{समय}}</x>',
+  'audioRecorder.elapsed': 'बितेको {{time}}',
   'audioRecorder.statusPaused': 'पज गरियो',
   'audioRecorder.statusProcessed': 'रेकर्ड गरियो',
   'audioRecorder.statusError': 'त्रुटि',

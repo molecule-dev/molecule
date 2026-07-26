@@ -28,7 +28,7 @@ export const fr: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': 'Sélectionner un élément',
   'moderationQueue.loading': "Chargement de la file d'attente de modération…",
   'moderationQueue.empty': 'Aucun élément en attente de modération.',
-  'moderationQueue.selectedCount': '{{compter}} choisi',
+  'moderationQueue.selectedCount': '{{count}} choisi',
   'moderationQueue.reportedBy': 'Signalé par',
   'moderationQueue.kind.image': 'Image',
   'moderationQueue.kind.message': 'Message',

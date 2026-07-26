@@ -17,7 +17,7 @@ export const cs: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Stránkování',
   'ui.pagination.first': 'Přejít na první stránku',
   'ui.pagination.previous': 'Přejít na předchozí stránku',
-  'ui.pagination.goToPage': 'Přejít na stránku<x> {{strana}}</x>',
+  'ui.pagination.goToPage': 'Přejít na stránku {{page}}',
   'ui.pagination.last': 'Přejít na poslední stránku',
   'ui.radioGroup.label': 'Rádiová skupina',
   'sidebar.memberStatus': 'Prémiový člen',

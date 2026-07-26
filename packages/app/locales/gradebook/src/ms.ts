@@ -12,7 +12,7 @@ export const ms: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Sumbangan GPA',
   'gradebook.col.posted': 'Diposkan',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'daripada<x> {{maks}}</x>',
+  'gradebook.gpa.outOf': 'daripada {{max}}',
   'gradebook.gpa.trend.up': 'Trend menaik',
   'gradebook.gpa.trend.down': 'Trend menurun',
   'gradebook.gpa.trend.flat': 'Mantap',

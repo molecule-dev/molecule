@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const mt: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Kronoloġija tal-vidjo',
   'videoTimeline.aria.ruler': 'Ħakkiem tal-ħin',
-  'videoTimeline.aria.playhead': 'Ras tal-plejbek fuq<x> {{ħin}}</x> s',
+  'videoTimeline.aria.playhead': 'Ras tal-plejbek fuq {{time}} s',
   'videoTimeline.aria.zoom': 'Zoom tal-kronoloġija',
   'videoTimeline.aria.mode': 'Modalità tal-editjar',
   'videoTimeline.zoom.in': "Żum 'il ġewwa",

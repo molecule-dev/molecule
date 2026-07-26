@@ -9,7 +9,7 @@ export const lo: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'ຢຸດຊົ່ວຄາວ',
   'audioRecorder.resume': 'ປະຫວັດຫຍໍ້',
   'audioRecorder.stop': 'ຢຸດ',
-  'audioRecorder.elapsed': 'ຜ່ານໄປ<x> {{ເວລາ}}</x>',
+  'audioRecorder.elapsed': 'ຜ່ານໄປ {{time}}',
   'audioRecorder.statusPaused': 'ຢຸດຊົ່ວຄາວແລ້ວ',
   'audioRecorder.statusProcessed': 'ບັນທຶກໄວ້ແລ້ວ',
   'audioRecorder.statusError': 'ຜິດພາດ',

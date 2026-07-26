@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for mr. */
 export const mr: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'काहीही वाजत नाही',
-  'nowPlaying.aria.region': 'आता प्रदर्शित होत आहे:<x> {{title}}</x>',
-  'nowPlaying.aria.artwork': 'कलाकृतीसाठी<x> {{title}}</x>',
+  'nowPlaying.aria.region': 'आता प्रदर्शित होत आहे: {{title}}',
+  'nowPlaying.aria.artwork': 'कलाकृतीसाठी {{title}}',
   'nowPlaying.aria.play': 'खेळा',
   'nowPlaying.aria.pause': 'थांबा',
   'nowPlaying.aria.next': 'पुढील ट्रॅक',

@@ -16,5 +16,5 @@ export const id: Partial<NotificationsPageTranslations> = {
   'notificationsPage.prev': 'Sebelumnya',
   'notificationsPage.next': 'Berikutnya',
   'notificationsPage.paginationAriaLabel': 'Penomoran halaman',
-  'notificationsPage.pageOf': 'Halaman<x> {{saat ini}}</x> dari<x> {{total}}</x>',
+  'notificationsPage.pageOf': 'Halaman {{current}} dari {{total}}',
 }

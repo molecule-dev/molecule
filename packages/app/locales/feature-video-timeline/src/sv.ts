@@ -7,7 +7,7 @@ export const sv: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Infoga',
   'videoTimeline.aria.root': 'Videons tidslinje',
   'videoTimeline.aria.ruler': 'Tidslinjal',
-  'videoTimeline.aria.playhead': 'Uppspelningshuvud vid<x> {{tid}}</x> s',
+  'videoTimeline.aria.playhead': 'Uppspelningshuvud vid {{time}} s',
   'videoTimeline.aria.zoom': 'Tidslinjezoomning',
   'videoTimeline.aria.mode': 'Redigeringsläge',
   'videoTimeline.zoom.in.icon': '+',

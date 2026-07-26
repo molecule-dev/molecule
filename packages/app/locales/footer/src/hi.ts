@@ -5,7 +5,7 @@ export const hi: Partial<FooterTranslations> = {
   'footer.privacyPolicy': 'गोपनीयता नीति',
   'footer.termsOfService': 'सेवा की शर्तें',
   'footer.language': 'भाषा',
-  'footer.version': 'वी<x> {{संस्करण}}</x>',
+  'footer.version': 'वी {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
 }

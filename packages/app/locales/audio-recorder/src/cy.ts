@@ -9,7 +9,7 @@ export const cy: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Oedi',
   'audioRecorder.resume': 'Ail-ddechrau',
   'audioRecorder.stop': 'Stopiwch',
-  'audioRecorder.elapsed': 'Wedi mynd heibio<x> {{amser}}</x>',
+  'audioRecorder.elapsed': 'Wedi mynd heibio {{time}}',
   'audioRecorder.statusPaused': "Wedi'i oedi",
   'audioRecorder.statusProcessed': "Wedi'i recordio",
   'audioRecorder.statusError': 'Gwall',

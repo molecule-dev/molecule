@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for cy. */
 export const cy: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'Dim byd yn chwarae',
-  'nowPlaying.aria.region': 'Nawr yn chwarae:<x> {{teitl}}</x>',
-  'nowPlaying.aria.artwork': 'Gwaith celf ar gyfer<x> {{teitl}}</x>',
+  'nowPlaying.aria.region': 'Nawr yn chwarae: {{title}}',
+  'nowPlaying.aria.artwork': 'Gwaith celf ar gyfer {{title}}',
   'nowPlaying.aria.play': 'Chwarae',
   'nowPlaying.aria.pause': 'Oedi',
   'nowPlaying.aria.next': 'Trac nesaf',

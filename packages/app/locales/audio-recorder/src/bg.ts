@@ -9,7 +9,7 @@ export const bg: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Пауза',
   'audioRecorder.resume': 'Автобиография',
   'audioRecorder.stop': 'Спри',
-  'audioRecorder.elapsed': 'Изминало<x> {{време}}</x>',
+  'audioRecorder.elapsed': 'Изминало {{time}}',
   'audioRecorder.statusPaused': 'Пауза',
   'audioRecorder.statusProcessed': 'Записано',
   'audioRecorder.statusError': 'Грешка',

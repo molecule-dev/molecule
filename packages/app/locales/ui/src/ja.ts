@@ -14,7 +14,7 @@ export const ja: Partial<UiTranslations> = {
   'ui.pagination.previous': '前のページへ',
   'ui.pagination.next': '次のページへ',
   'ui.pagination.last': '最後のページへ',
-  'ui.pagination.goToPage': 'ページへ移動{{ページ}}',
+  'ui.pagination.goToPage': 'ページへ移動{{page}}',
   'ui.table.empty': 'データがありません',
   'ui.radioGroup.label': 'ラジオグループ',
 }

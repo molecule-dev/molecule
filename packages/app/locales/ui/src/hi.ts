@@ -14,7 +14,7 @@ export const hi: Partial<UiTranslations> = {
   'ui.pagination.previous': 'पिछले पृष्ठ पर जाएं',
   'ui.pagination.next': 'अगले पृष्ठ पर जाएं',
   'ui.pagination.last': 'अंतिम पृष्ठ पर जाएं',
-  'ui.pagination.goToPage': 'पृष्ठ पर जाओ<x> {{पृष्ठ}}</x>',
+  'ui.pagination.goToPage': 'पृष्ठ पर जाओ {{page}}',
   'ui.table.empty': 'कोई डेटा मौजूद नहीं',
   'ui.radioGroup.label': 'रेडियो समूह',
 }

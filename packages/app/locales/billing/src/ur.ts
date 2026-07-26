@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for ur. */
 export const ur: Partial<BillingTranslations> = {
   'billing.status.loading': 'لوڈ ہو رہا ہے…',
-  'billing.status.currentPlan': 'موجودہ منصوبہ:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'موجودہ منصوبہ: {{tierName}}',
   'billing.status.cancelCta': 'رکنیت منسوخ کریں۔',
   'billing.status.cancelError': 'منسوخ نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔',
   'billing.pricing.loading': 'پلانز لوڈ ہو رہے ہیں…',
@@ -14,5 +14,5 @@ export const ur: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'سب سے زیادہ مقبول',
   'billing.pricing.tierEyebrow': 'ٹائر',
   'billing.pricing.perSeat': 'فی سیٹ',
-  'billing.pricing.upgradeCta': 'میں اپ گریڈ کریں۔<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'میں اپ گریڈ کریں۔ {{tierName}}',
 }

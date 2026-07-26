@@ -12,7 +12,7 @@ export const bn: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'পৃষ্ঠা সংখ্যা',
   'ui.pagination.first': 'প্রথম পৃষ্ঠায় যান',
   'ui.pagination.previous': 'পূর্ববর্তী পৃষ্ঠায় যান',
-  'ui.pagination.goToPage': 'পৃষ্ঠায় যান<x> {{পৃষ্ঠা}}</x>',
+  'ui.pagination.goToPage': 'পৃষ্ঠায় যান {{page}}',
   'ui.pagination.last': 'শেষ পৃষ্ঠায় যান',
   'ui.progress.label': 'অগ্রগতি',
   'ui.radioGroup.label': 'রেডিও গ্রুপ',

@@ -11,7 +11,7 @@ export const ka: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'გვერდების დახარისხება',
   'ui.pagination.first': 'გადადით პირველ გვერდზე',
   'ui.pagination.previous': 'წინა გვერდზე გადასვლა',
-  'ui.pagination.goToPage': 'გვერდზე გადასვლა<x> {{გვერდი}}</x>',
+  'ui.pagination.goToPage': 'გვერდზე გადასვლა {{page}}',
   'ui.pagination.last': 'ბოლო გვერდზე გადასვლა',
   'ui.progress.label': 'პროგრესი',
   'ui.radioGroup.label': 'რადიო ჯგუფი',

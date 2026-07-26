@@ -5,7 +5,7 @@ export const he: Partial<BillingTranslations> = {
   'billing.status.loading': 'טְעִינָה…',
   'billing.status.cancelCta': 'ביטול המנוי',
   'billing.pricing.mostPopular': 'הכי פופולרי',
-  'billing.status.currentPlan': 'תוכנית נוכחית:<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'תוכנית נוכחית: {{tierName}}',
   'billing.status.cancelError': 'לא ניתן היה לבטל. אנא נסה שוב.',
   'billing.pricing.loading': 'טוען תוכניות...',
   'billing.pricing.error': 'לא ניתן היה לטעון את התמחור. נסה שוב מאוחר יותר.',
@@ -13,5 +13,5 @@ export const he: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'ביטול בכל עת · אין צורך בכרטיס אשראי כדי להתחיל',
   'billing.pricing.tierEyebrow': 'נִדבָּך',
   'billing.pricing.perSeat': 'לכל מושב',
-  'billing.pricing.upgradeCta': 'שדרג ל<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'שדרג ל {{tierName}}',
 }

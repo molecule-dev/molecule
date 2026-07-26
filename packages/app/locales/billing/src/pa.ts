@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for pa. */
 export const pa: Partial<BillingTranslations> = {
   'billing.status.loading': 'ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...',
-  'billing.status.currentPlan': 'ਮੌਜੂਦਾ ਯੋਜਨਾ:<x> {{ਟੀਅਰਨੇਮ}}</x>',
+  'billing.status.currentPlan': 'ਮੌਜੂਦਾ ਯੋਜਨਾ: {{tierName}}',
   'billing.status.cancelCta': 'ਗਾਹਕੀ ਰੱਦ ਕਰੋ',
   'billing.status.cancelError': 'ਰੱਦ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
   'billing.pricing.loading': 'ਪਲਾਨ ਲੋਡ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ…',
@@ -15,5 +15,5 @@ export const pa: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'ਬਹੁਤ ਮਸ਼ਹੂਰ',
   'billing.pricing.tierEyebrow': 'ਟੀਅਰ',
   'billing.pricing.perSeat': 'ਪ੍ਰਤੀ ਸੀਟ',
-  'billing.pricing.upgradeCta': 'ਇਸ ਵਿੱਚ ਅੱਪਗ੍ਰੇਡ ਕਰੋ<x> {{ਟੀਅਰਨੇਮ}}</x>',
+  'billing.pricing.upgradeCta': 'ਇਸ ਵਿੱਚ ਅੱਪਗ੍ਰੇਡ ਕਰੋ {{tierName}}',
 }

@@ -22,7 +22,7 @@ export const sq: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'E fundit',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{vlera}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Grupi i radios',
   'ui.select.placeholder': 'Zgjidh…',
   'ui.select.title': 'Zgjidh',

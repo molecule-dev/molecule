@@ -24,7 +24,7 @@ export const ro: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Dura',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{valoare}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Grup radio',
   'ui.select.title': 'Selecta',
   'ui.spinner.loading': 'Încărcare',

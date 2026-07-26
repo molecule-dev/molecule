@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const be: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Храналогія відэа',
   'videoTimeline.aria.ruler': 'Уладар часу',
-  'videoTimeline.aria.playhead': 'Пункт прайгравання ў<x> {{час}}</x> с',
+  'videoTimeline.aria.playhead': 'Пункт прайгравання ў {{time}} с',
   'videoTimeline.aria.zoom': 'Маштаб храналогіі',
   'videoTimeline.aria.mode': 'Рэжым рэдагавання',
   'videoTimeline.zoom.in': 'Павялічыць',

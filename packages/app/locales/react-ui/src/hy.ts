@@ -12,7 +12,7 @@ export const hy: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Էջերի դասակարգում',
   'ui.pagination.first': 'Անցնել առաջին էջին',
   'ui.pagination.previous': 'Անցնել նախորդ էջին',
-  'ui.pagination.goToPage': 'Անցնել էջին<x> {{էջ}}</x>',
+  'ui.pagination.goToPage': 'Անցնել էջին {{page}}',
   'ui.pagination.last': 'Անցնել վերջին էջին',
   'ui.progress.label': 'Առաջընթաց',
   'ui.radioGroup.label': 'Ռադիո խումբ',

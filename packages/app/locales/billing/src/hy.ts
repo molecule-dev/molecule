@@ -3,7 +3,7 @@ import type { BillingTranslations } from './types.js'
 /** Billing translations for hy. */
 export const hy: Partial<BillingTranslations> = {
   'billing.status.loading': 'Բեռնվում է…',
-  'billing.status.currentPlan': 'Ընթացիկ պլանը՝<x> {{tierName}}</x>',
+  'billing.status.currentPlan': 'Ընթացիկ պլանը՝ {{tierName}}',
   'billing.status.cancelCta': 'Բաժանորդագրության չեղարկում',
   'billing.status.cancelError': 'Չհաջողվեց չեղարկել։ Խնդրում ենք կրկին փորձել։',
   'billing.pricing.loading': 'Բեռնվում են պլանները…',
@@ -14,5 +14,5 @@ export const hy: Partial<BillingTranslations> = {
   'billing.pricing.mostPopular': 'Ամենատարածվածը',
   'billing.pricing.tierEyebrow': 'Շերտ',
   'billing.pricing.perSeat': 'մեկ տեղի համար',
-  'billing.pricing.upgradeCta': 'Թարմացնել մինչև<x> {{tierName}}</x>',
+  'billing.pricing.upgradeCta': 'Թարմացնել մինչև {{tierName}}',
 }

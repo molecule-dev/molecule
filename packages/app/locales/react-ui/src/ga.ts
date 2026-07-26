@@ -11,7 +11,7 @@ export const ga: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Leathanachú',
   'ui.pagination.first': 'Téigh go dtí an chéad leathanach',
   'ui.pagination.previous': 'Téigh go dtí an leathanach roimhe seo',
-  'ui.pagination.goToPage': 'Téigh go dtí an leathanach<x> {{leathanach}}</x>',
+  'ui.pagination.goToPage': 'Téigh go dtí an leathanach {{page}}',
   'ui.pagination.last': 'Téigh go dtí an leathanach deireanach',
   'ui.progress.label': 'Dul Chun Cinn',
   'ui.radioGroup.label': 'Grúpa raidió',

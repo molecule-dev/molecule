@@ -11,7 +11,7 @@ export const zu: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Ukubhala amakhasi',
   'ui.pagination.first': 'Iya ekhasini lokuqala',
   'ui.pagination.previous': 'Iya ekhasini elidlule',
-  'ui.pagination.goToPage': 'Iya ekhasini<x> {{ikhasi}}</x>',
+  'ui.pagination.goToPage': 'Iya ekhasini {{page}}',
   'ui.pagination.last': 'Iya ekhasini lokugcina',
   'ui.progress.label': 'Intuthuko',
   'ui.radioGroup.label': 'Iqembu lomsakazo',

@@ -24,7 +24,7 @@ export const fil: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Huli',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{halaga}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Grupo sa radyo',
   'ui.select.title': 'Piliin',
   'ui.spinner.loading': 'Naglo-load',

@@ -29,7 +29,7 @@ export const ar: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.selectRow': 'حدد العناصر',
   'moderationQueue.loading': 'جارٍ تحميل قائمة المراجعة...',
   'moderationQueue.empty': 'لا توجد عناصر بانتظار الموافقة.',
-  'moderationQueue.selectedCount': '{{عدد}} تم الاختيار',
+  'moderationQueue.selectedCount': '{{count}} تم الاختيار',
   'moderationQueue.reportedBy': 'تقرير من',
   'moderationQueue.kind.image': 'صورة',
 }

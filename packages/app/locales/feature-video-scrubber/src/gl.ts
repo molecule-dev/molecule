@@ -4,10 +4,10 @@ import type { VideoScrubberTranslations } from './types.js'
 export const gl: Partial<VideoScrubberTranslations> = {
   'videoScrubber.aria.root': 'Depurador de vídeo',
   'videoScrubber.aria.strip':
-    'Tira de película: cabezal de reprodución en<x> {{hora}}</x> s (marco<x> {{frame}}</x> )',
-  'videoScrubber.aria.playhead': 'Cabeza de reprodución en<x> {{hora}}</x> s',
-  'videoScrubber.aria.frameReadout': 'Marco<x> {{frame}}</x> de<x> {{total}}</x>',
+    'Tira de película: cabezal de reprodución en {{time}} s (marco {{frame}} )',
+  'videoScrubber.aria.playhead': 'Cabeza de reprodución en {{time}} s',
+  'videoScrubber.aria.frameReadout': 'Marco {{frame}} de {{total}}',
   'videoScrubber.aria.thumbnail': 'Vista previa do fotograma',
   'videoScrubber.thumbnails.empty': 'Sen vista previa',
-  'videoScrubber.frameReadout.total': '/<x> {{total}}</x> cadros',
+  'videoScrubber.frameReadout.total': '/ {{total}} cadros',
 }

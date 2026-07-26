@@ -12,7 +12,7 @@ export const kk: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA үлесі',
   'gradebook.col.posted': 'Жарияланған',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'тыс<x> {{макс}}</x>',
+  'gradebook.gpa.outOf': 'тыс {{max}}',
   'gradebook.gpa.trend.up': 'Тренд бойынша өсуде',
   'gradebook.gpa.trend.down': 'Төмендеу үрдісі',
   'gradebook.gpa.trend.flat': 'Тұрақты',

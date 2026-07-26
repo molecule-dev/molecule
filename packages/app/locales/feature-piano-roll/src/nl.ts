@@ -7,5 +7,5 @@ export const nl: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Opmerkingenraster',
   'pianoRoll.aria.resize': 'Formaat wijzigen',
   'pianoRoll.aria.note':
-    'Opmerking<x> {{toonhoogte}}</x> beginnend bij beat<x> {{startBeat}}</x> voor<x> {{durationBeats}}</x> beats',
+    'Opmerking {{pitch}} beginnend bij beat {{startBeat}} voor {{durationBeats}} beats',
 }

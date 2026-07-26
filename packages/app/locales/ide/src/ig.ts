@@ -265,9 +265,9 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.tip.plan':
     'Ndụmọdụ: iji/atụmatụ inwe{{agentName}} mee nnyocha ma tụọ aro atụmatụ tupu ọ dezie faịlụ ọ bụla.',
   'ide.chat.tip.undo':
-    'Ndụmọdụ: jiri /megharịa iji weghachite mgbanwe faịlụ AI ikpeazụ ozugbo ma ọ bụrụ na ọ gara n&#39;ụzọ na-ezighi ezi.',
+    "Ndụmọdụ: jiri /megharịa iji weghachite mgbanwe faịlụ AI ikpeazụ ozugbo ma ọ bụrụ na ọ gara n'ụzọ na-ezighi ezi.",
   'ide.chat.tip.compact':
-    'Ndụmọdụ: mkparịta ụka dị ogologo? /kọmpat na-eme ka ihe dị n&#39;ime ya sie ike ka i wee nwee ohere ịrụ ọrụ.',
+    "Ndụmọdụ: mkparịta ụka dị ogologo? /kọmpat na-eme ka ihe dị n'ime ya sie ike ka i wee nwee ohere ịrụ ọrụ.",
   'ide.chat.tip.commit':
     'Ndụmọdụ: jiri /commit chekwaa mgbanwe gị dị ka git commit ị nwere ike ịlaghachi na ya mgbe niile.',
   'ide.chat.tip.report':

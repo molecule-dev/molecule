@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for km. */
 export const km: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'ការជូនដំណឹង',
-  'notificationsPage.markAllRead': 'ម៉ាក<x> {{រាប់}}</x> ដូចបានអាន',
+  'notificationsPage.markAllRead': 'ម៉ាក {{count}} ដូចបានអាន',
   'notificationsPage.filterUnread': 'មិនទាន់អាន',
   'notificationsPage.filterMentions': 'ការលើកឡើង',
   'notificationsPage.filterAriaLabel': 'តម្រងការជូនដំណឹង',
@@ -14,7 +14,7 @@ export const km: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'អ្នក​បាន​បញ្ចប់​ការងារ​ទាំងអស់​ហើយ',
   'notificationsPage.emptyBody': 'ការជូនដំណឹងថ្មីៗនឹងបង្ហាញនៅទីនេះ។',
   'notificationsPage.paginationAriaLabel': 'ការបែងចែកទំព័រ',
-  'notificationsPage.pageOf': 'ទំព័រ<x> {{បច្ចុប្បន្ន}}</x> នៃ<x> {{សរុប}}</x>',
+  'notificationsPage.pageOf': 'ទំព័រ {{current}} នៃ {{total}}',
   'notificationsPage.prev': 'មុន',
   'notificationsPage.next': 'បន្ទាប់',
 }

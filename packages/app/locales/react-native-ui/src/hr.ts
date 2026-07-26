@@ -22,7 +22,7 @@ export const hr: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Trajati',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{vrijednost}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Radio grupa',
   'ui.select.placeholder': 'Odaberite…',
   'ui.select.title': 'Odaberite',

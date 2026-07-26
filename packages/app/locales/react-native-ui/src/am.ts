@@ -22,7 +22,7 @@ export const am: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'የመጨረሻ',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{ዋጋ}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'የሬዲዮ ቡድን',
   'ui.select.placeholder': 'ምረጥ…',
   'ui.select.title': 'ምረጥ',

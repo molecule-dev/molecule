@@ -8,7 +8,7 @@ export const gu: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'થોભો',
   'audioRecorder.resume': 'ફરી શરૂ કરો',
   'audioRecorder.stop': 'બંધ',
-  'audioRecorder.elapsed': 'વીતી ગયેલું<x> {{સમય}}</x>',
+  'audioRecorder.elapsed': 'વીતી ગયેલું {{time}}',
   'audioRecorder.statusPaused': 'થોભાવ્યું',
   'audioRecorder.statusProcessed': 'રેકોર્ડ કરેલ',
   'audioRecorder.statusError': 'ભૂલ',

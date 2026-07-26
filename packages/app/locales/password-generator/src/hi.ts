@@ -6,7 +6,7 @@ export const hi: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copy': 'कॉपी करें',
   'password-generator.copied': 'कॉपी किया गया!',
   'password-generator.regenerate': 'पुनः उत्पन्न करें',
-  'password-generator.length': 'लंबाई:<x> {{लंबाई}}</x>',
+  'password-generator.length': 'लंबाई: {{length}}',
   'password-generator.lengthLabel': 'पासवर्ड की लंबाई',
   'password-generator.toggle.uppercase': 'अपरकेस (AZ)',
   'password-generator.toggle.lowercase': 'लोअरकेस (az)',

@@ -26,7 +26,7 @@ export const zh: Partial<ReactNativeUiTranslations> = {
   'ui.icon.ellipsis': '…',
   'ui.icon.chevronRight': '›',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{价值}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': '广播集团',
   'ui.icon.sortAsc': '↑',
   'ui.icon.sortDesc': '↓',

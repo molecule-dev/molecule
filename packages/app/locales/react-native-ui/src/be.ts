@@ -22,7 +22,7 @@ export const be: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Апошні',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{значэнне}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Радыёгрупа',
   'ui.select.placeholder': 'Выберыце…',
   'ui.select.title': 'Выберыце',

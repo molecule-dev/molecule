@@ -7,5 +7,5 @@ export const th: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'ตารางบันทึก',
   'pianoRoll.aria.resize': 'หมายเหตุการปรับขนาด',
   'pianoRoll.aria.note':
-    'บันทึก<x> {{ขว้าง}}</x> เริ่มต้นที่จังหวะ<x> {{startBeat}}</x> สำหรับ<x> {{durationBeats}}</x> บีทส์',
+    'บันทึก {{pitch}} เริ่มต้นที่จังหวะ {{startBeat}} สำหรับ {{durationBeats}} บีทส์',
 }

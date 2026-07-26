@@ -10,7 +10,7 @@ export const fil: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'Tinanggihan ang pahintulot sa mikropono. Payagan ang pag-access at subukang muli.',
   'audioRecorder.stop': 'Huminto',
-  'audioRecorder.elapsed': 'Lumipas na<x> {{oras}}</x>',
+  'audioRecorder.elapsed': 'Lumipas na {{time}}',
   'audioRecorder.statusProcessed': 'Naitala',
   'audioRecorder.statusError': 'Mali',
   'audioRecorder.statusIdle': 'Handa nang i-record',

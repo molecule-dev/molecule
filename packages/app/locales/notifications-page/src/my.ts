@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for my. */
 export const my: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'အကြောင်းကြားချက်များ',
-  'notificationsPage.markAllRead': 'မတ်ခ်<x> {{ရေတွက်}}</x> ဖတ်ရသလောက်',
+  'notificationsPage.markAllRead': 'မတ်ခ် {{count}} ဖတ်ရသလောက်',
   'notificationsPage.filterUnread': 'မဖတ်ရသေးသော',
   'notificationsPage.filterMentions': 'ဖော်ပြချက်များ',
   'notificationsPage.filterAriaLabel': 'စစ်ထုတ်အကြောင်းကြားချက်များ',
@@ -14,7 +14,7 @@ export const my: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'အားလုံးပြီးသွားပါပြီ',
   'notificationsPage.emptyBody': 'ဤနေရာတွင် အသိပေးချက်အသစ်များ ပေါ်လာပါမည်။',
   'notificationsPage.paginationAriaLabel': 'စာမျက်နှာခွဲခြင်း',
-  'notificationsPage.pageOf': 'စာမျက်နှာ<x> {{လက်ရှိ}}</x> ၏<x> {{စုစုပေါင်း}}</x>',
+  'notificationsPage.pageOf': 'စာမျက်နှာ {{current}} ၏ {{total}}',
   'notificationsPage.prev': 'ယခင်',
   'notificationsPage.next': 'နောက်တစ်ခု',
 }

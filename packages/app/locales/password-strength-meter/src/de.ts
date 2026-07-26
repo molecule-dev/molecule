@@ -8,8 +8,7 @@ export const de: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Gerecht',
   'passwordStrengthMeter.label.3': 'Gut',
   'passwordStrengthMeter.label.4': 'Stark',
-  'passwordStrengthMeter.ariaValueText':
-    'Passwortstärke:<x> {{Etikett}}</x> (<x> {{Punktzahl}}</x> von 4)',
+  'passwordStrengthMeter.ariaValueText': 'Passwortstärke: {{label}} ( {{score}} von 4)',
   'passwordStrengthMeter.rule.upper': 'Enthält einen Großbuchstaben',
   'passwordStrengthMeter.rule.lower': 'Enthält einen Kleinbuchstaben',
   'passwordStrengthMeter.rule.digit': 'Enthält eine Ziffer',

@@ -9,7 +9,7 @@ export const ml: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'താൽക്കാലികമായി നിർത്തുക',
   'audioRecorder.resume': 'പുനരാരംഭിക്കുക',
   'audioRecorder.stop': 'നിർത്തുക',
-  'audioRecorder.elapsed': 'കഴിഞ്ഞു<x> {{സമയം}}</x>',
+  'audioRecorder.elapsed': 'കഴിഞ്ഞു {{time}}',
   'audioRecorder.statusPaused': 'താൽക്കാലികമായി നിർത്തി',
   'audioRecorder.statusProcessed': 'റെക്കോർഡുചെയ്‌തു',
   'audioRecorder.statusError': 'പിശക്',

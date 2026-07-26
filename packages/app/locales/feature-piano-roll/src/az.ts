@@ -7,5 +7,5 @@ export const az: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Qeyd cədvəli',
   'pianoRoll.aria.resize': 'Qeydin ölçüsünü dəyişin',
   'pianoRoll.aria.note':
-    'Qeyd<x> {{təyyarə}}</x> ritmdən başlayaraq<x> {{startBeat}}</x> üçün<x> {{durationBeats}}</x> döyüntülər',
+    'Qeyd {{pitch}} ritmdən başlayaraq {{startBeat}} üçün {{durationBeats}} döyüntülər',
 }

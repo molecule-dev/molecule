@@ -12,7 +12,7 @@ export const ur: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'صفحہ بندی',
   'ui.pagination.first': 'پہلے صفحہ پر جائیں۔',
   'ui.pagination.previous': 'پچھلے صفحے پر جائیں۔',
-  'ui.pagination.goToPage': 'صفحہ پر جائیں۔<x> {{صفحہ}}</x>',
+  'ui.pagination.goToPage': 'صفحہ پر جائیں۔ {{page}}',
   'ui.pagination.last': 'آخری صفحہ پر جائیں۔',
   'ui.progress.label': 'پیش رفت',
   'ui.radioGroup.label': 'ریڈیو گروپ',

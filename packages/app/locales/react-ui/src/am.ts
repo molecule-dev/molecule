@@ -11,7 +11,7 @@ export const am: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'ገጽ አሰጣጥ',
   'ui.pagination.first': 'ወደ መጀመሪያው ገጽ ይሂዱ',
   'ui.pagination.previous': 'ወደ ቀዳሚው ገጽ ይሂዱ',
-  'ui.pagination.goToPage': 'ወደ ገጹ ይሂዱ<x> {{ገጽ}}</x>',
+  'ui.pagination.goToPage': 'ወደ ገጹ ይሂዱ {{page}}',
   'ui.pagination.last': 'ወደ መጨረሻው ገጽ ይሂዱ',
   'ui.progress.label': 'እድገት',
   'ui.radioGroup.label': 'የሬዲዮ ቡድን',

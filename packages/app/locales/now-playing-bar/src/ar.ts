@@ -9,6 +9,6 @@ export const ar: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.aria.prev': 'المقطع السابق',
   'nowPlaying.aria.seek': 'بحث',
   'nowPlaying.aria.volume': 'الحجم',
-  'nowPlaying.aria.region': 'يعرض الآن:<x> {{عنوان}}</x>',
-  'nowPlaying.aria.artwork': 'عمل فني لـ<x> {{عنوان}}</x>',
+  'nowPlaying.aria.region': 'يعرض الآن: {{title}}',
+  'nowPlaying.aria.artwork': 'عمل فني لـ {{title}}',
 }

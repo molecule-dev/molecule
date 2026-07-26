@@ -7,5 +7,5 @@ export const cy: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Grid nodiadau',
   'pianoRoll.aria.resize': 'Newid maint y nodyn',
   'pianoRoll.aria.note':
-    'Nodyn<x> {{traw}}</x> gan ddechrau ar guriad<x> {{dechrauBeat}}</x> ar gyfer<x> {{hydCuriadau}}</x> curiadau',
+    'Nodyn {{pitch}} gan ddechrau ar guriad {{startBeat}} ar gyfer {{durationBeats}} curiadau',
 }

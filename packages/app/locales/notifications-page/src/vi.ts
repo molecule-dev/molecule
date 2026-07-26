@@ -16,5 +16,5 @@ export const vi: Partial<NotificationsPageTranslations> = {
   'notificationsPage.prev': 'Trước',
   'notificationsPage.next': 'Tiếp theo',
   'notificationsPage.paginationAriaLabel': 'Đánh số trang',
-  'notificationsPage.pageOf': 'Trang<x> {{hiện hành}}</x> của<x> {{tổng cộng}}</x>',
+  'notificationsPage.pageOf': 'Trang {{current}} của {{total}}',
 }

@@ -11,7 +11,7 @@ export const az: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Səhifələmə',
   'ui.pagination.first': 'Birinci səhifəyə keçin',
   'ui.pagination.previous': 'Əvvəlki səhifəyə keçin',
-  'ui.pagination.goToPage': 'Səhifəyə keçin<x> {{səhifə}}</x>',
+  'ui.pagination.goToPage': 'Səhifəyə keçin {{page}}',
   'ui.pagination.last': 'Son səhifəyə keçin',
   'ui.progress.label': 'Tərəqqi',
   'ui.radioGroup.label': 'Radio qrupu',

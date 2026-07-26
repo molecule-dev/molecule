@@ -10,7 +10,7 @@ export const ar: Partial<AudioRecorderTranslations> = {
   'audioRecorder.permissionDenied':
     'تم رفض منح إذن الوصول إلى الميكروفون. امنح الإذن وحاول مرة أخرى.',
   'audioRecorder.stop': 'قف',
-  'audioRecorder.elapsed': 'الوقت المنقضي<x> {{وقت}}</x>',
+  'audioRecorder.elapsed': 'الوقت المنقضي {{time}}',
   'audioRecorder.statusProcessed': 'تم التسجيل',
   'audioRecorder.statusError': 'خطأ',
   'audioRecorder.statusIdle': 'جاهز للتسجيل',

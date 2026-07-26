@@ -11,7 +11,7 @@ export const gl: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Paxinación',
   'ui.pagination.first': 'Ir á primeira páxina',
   'ui.pagination.previous': 'Ir á páxina anterior',
-  'ui.pagination.goToPage': 'Ir á páxina<x> {{páxina}}</x>',
+  'ui.pagination.goToPage': 'Ir á páxina {{page}}',
   'ui.pagination.last': 'Ir á última páxina',
   'ui.progress.label': 'Progreso',
   'ui.radioGroup.label': 'Grupo de radio',

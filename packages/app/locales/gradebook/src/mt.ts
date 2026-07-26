@@ -12,7 +12,7 @@ export const mt: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'Kontribuzzjoni tal-GPA',
   'gradebook.col.posted': 'Ippubblikat',
   'gradebook.gpa.title': 'GPA',
-  'gradebook.gpa.outOf': 'barra minn<x> {{massimu}}</x>',
+  'gradebook.gpa.outOf': 'barra minn {{max}}',
   'gradebook.gpa.trend.up': "Xejra 'l fuq",
   'gradebook.gpa.trend.down': "Xejra 'l isfel",
   'gradebook.gpa.trend.flat': 'Kostanti',

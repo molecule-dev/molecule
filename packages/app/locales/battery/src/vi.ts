@@ -9,5 +9,5 @@ export const vi: Partial<BatteryTranslations> = {
   'battery.discharging': 'Khi đang dùng pin',
   'battery.full': 'Đã sạc đầy',
   'battery.not-charging': 'Không sạc',
-  'battery.remainingTime': '{{giờ}} h<x> {{phút}}</x> m',
+  'battery.remainingTime': '{{hours}} h {{minutes}} m',
 }

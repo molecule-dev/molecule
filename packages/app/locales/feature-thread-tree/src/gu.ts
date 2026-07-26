@@ -2,12 +2,12 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for gu. */
 export const gu: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'વિસ્તૃત કરો<x> {{ગણતરી}}</x> જવાબો',
+  'threadTree.expand': 'વિસ્તૃત કરો {{count}} જવાબો',
   'threadTree.collapse': 'થ્રેડ સંકુચિત કરો',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',
-  'threadTree.score': '{{ગણતરી}} પોઈન્ટ',
-  'threadTree.hiddenReplies': '{{ગણતરી}} છુપાયેલું',
+  'threadTree.score': '{{count}} પોઈન્ટ',
+  'threadTree.hiddenReplies': '{{count}} છુપાયેલું',
   'threadTree.upvote': 'સમર્થનમાં મત આપો',
   'threadTree.reply': 'જવાબ આપો',
 }

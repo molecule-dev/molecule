@@ -9,7 +9,7 @@ export const my: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'ခေတ္တရပ်ပါ',
   'audioRecorder.resume': 'ကိုယ်ရေးအကျဥ်း',
   'audioRecorder.stop': 'ရပ်',
-  'audioRecorder.elapsed': 'ကုန်ဆုံးသွားသော<x> {{အချိန်}}</x>',
+  'audioRecorder.elapsed': 'ကုန်ဆုံးသွားသော {{time}}',
   'audioRecorder.statusPaused': 'ခေတ္တရပ်ထားသည်',
   'audioRecorder.statusProcessed': 'မှတ်တမ်းတင်ထားသည်',
   'audioRecorder.statusError': 'အမှား',

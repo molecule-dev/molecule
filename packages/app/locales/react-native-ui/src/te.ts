@@ -22,7 +22,7 @@ export const te: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'చివరిది',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{విలువ}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'రేడియో సమూహం',
   'ui.select.placeholder': 'ఎంచుకోండి…',
   'ui.select.title': 'ఎంచుకోండి',

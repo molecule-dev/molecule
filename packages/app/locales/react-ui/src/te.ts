@@ -11,7 +11,7 @@ export const te: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'పేజీల సంఖ్య',
   'ui.pagination.first': 'మొదటి పేజీకి వెళ్లండి',
   'ui.pagination.previous': 'మునుపటి పేజీకి వెళ్లండి',
-  'ui.pagination.goToPage': 'పేజీకి వెళ్లండి<x> {{పేజీ}}</x>',
+  'ui.pagination.goToPage': 'పేజీకి వెళ్లండి {{page}}',
   'ui.pagination.last': 'చివరి పేజీకి వెళ్లండి',
   'ui.progress.label': 'పురోగతి',
   'ui.radioGroup.label': 'రేడియో సమూహం',

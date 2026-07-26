@@ -12,7 +12,7 @@ export const he: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'תרומה לממוצע ממוצע',
   'gradebook.col.posted': 'פורסם',
   'gradebook.gpa.title': 'ממוצע ממוצע',
-  'gradebook.gpa.outOf': 'מִתוֹך<x> מקסימום</x>',
+  'gradebook.gpa.outOf': 'out of {{max}}',
   'gradebook.gpa.trend.up': 'במגמה עולה',
   'gradebook.gpa.trend.down': 'במגמת ירידה',
   'gradebook.gpa.trend.flat': 'יַצִיב',

@@ -9,7 +9,7 @@ export const ta: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'இடைநிறுத்தம்',
   'audioRecorder.resume': 'சுயவிவரம்',
   'audioRecorder.stop': 'நிறுத்து',
-  'audioRecorder.elapsed': 'கடந்த காலம்<x> {{நேரம்}}</x>',
+  'audioRecorder.elapsed': 'கடந்த காலம் {{time}}',
   'audioRecorder.statusPaused': 'இடைநிறுத்தப்பட்டது',
   'audioRecorder.statusProcessed': 'பதிவுசெய்யப்பட்டது',
   'audioRecorder.statusError': 'பிழை',

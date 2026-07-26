@@ -5,9 +5,9 @@ export const nl: Partial<AudioMixerTranslations> = {
   'audioMixer.button.mute': 'Dempen',
   'audioMixer.sends': 'Verzendingen',
   'audioMixer.aria.console': 'Audiomixerconsole',
-  'audioMixer.aria.fader': '{{naam}} vervaag',
-  'audioMixer.aria.pan': '{{naam}} pan',
-  'audioMixer.aria.send': '{{kanaal}} verzenden naar<x> {{versturen}}</x>',
+  'audioMixer.aria.fader': '{{name}} vervaag',
+  'audioMixer.aria.pan': '{{name}} pan',
+  'audioMixer.aria.send': '{{channel}} verzenden naar {{send}}',
   'audioMixer.button.solo': 'Solo',
   'audioMixer.master': 'Meester',
 }

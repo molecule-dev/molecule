@@ -16,5 +16,5 @@ export const nl: Partial<NotificationsPageTranslations> = {
   'notificationsPage.prev': 'Vorige',
   'notificationsPage.next': 'Volgende',
   'notificationsPage.paginationAriaLabel': 'Paginering',
-  'notificationsPage.pageOf': 'Pagina<x> {{huidig}}</x> van<x> {{totaal}}</x>',
+  'notificationsPage.pageOf': 'Pagina {{current}} van {{total}}',
 }

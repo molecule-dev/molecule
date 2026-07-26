@@ -24,7 +24,7 @@ export const cs: Partial<ModerationQueueTranslations> = {
   'moderationQueue.aria.mute': 'Ztlumit',
   'moderationQueue.loading': 'Načítání moderační fronty…',
   'moderationQueue.empty': 'Žádné položky nečekají na moderování.',
-  'moderationQueue.selectedCount': '{{počítat}} vybraný',
+  'moderationQueue.selectedCount': '{{count}} vybraný',
   'moderationQueue.reportedBy': 'Nahlášeno uživatelem',
   'moderationQueue.action.mute': 'Ztlumit',
   'moderationQueue.bulk.mute': 'Ztlumit',

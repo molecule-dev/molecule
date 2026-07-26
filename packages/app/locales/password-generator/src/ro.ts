@@ -6,7 +6,7 @@ export const ro: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copied': 'Copiat!',
   'password-generator.regenerate': 'Regenerați',
   'password-generator.readoutLabel': 'Parolă generată',
-  'password-generator.length': 'Lungime:<x> {{lungime}}</x>',
+  'password-generator.length': 'Lungime: {{length}}',
   'password-generator.lengthLabel': 'Lungimea parolei',
   'password-generator.toggle.uppercase': 'Majuscule (AZ)',
   'password-generator.toggle.lowercase': 'Minusculă (az)',

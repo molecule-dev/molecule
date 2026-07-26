@@ -2,7 +2,7 @@ import type { FooterTranslations } from './types.js'
 
 /** Footer translations for sw. */
 export const sw: Partial<FooterTranslations> = {
-  'footer.version': 'v<x> {{toleo}}</x>',
+  'footer.version': 'v {{version}}',
   'footer.privacyPolicy': 'Sera ya Faragha',
   'footer.termsOfService': 'Sheria na Masharti',
   'footer.language': 'Lugha',

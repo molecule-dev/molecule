@@ -12,7 +12,7 @@ export const ms: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Penomboran halaman',
   'ui.pagination.first': 'Pergi ke halaman pertama',
   'ui.pagination.previous': 'Pergi ke halaman sebelumnya',
-  'ui.pagination.goToPage': 'Pergi ke halaman<x> {{halaman}}</x>',
+  'ui.pagination.goToPage': 'Pergi ke halaman {{page}}',
   'ui.pagination.last': 'Pergi ke halaman terakhir',
   'ui.radioGroup.label': 'Kumpulan radio',
   'ui.spinner.loading': 'Memuatkan',

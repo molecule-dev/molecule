@@ -9,7 +9,7 @@ export const zh: Partial<AudioRecorderTranslations> = {
   'audioRecorder.error': '录制失败，请重试。',
   'audioRecorder.permissionDenied': '麦克风权限被拒绝。请允许访问并重试。',
   'audioRecorder.stop': '停止',
-  'audioRecorder.elapsed': '过去{{时间}}',
+  'audioRecorder.elapsed': '过去{{time}}',
   'audioRecorder.statusProcessed': '已录制',
   'audioRecorder.statusError': '错误',
   'audioRecorder.statusIdle': '准备录制',

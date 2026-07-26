@@ -4,7 +4,7 @@ import type { VideoTimelineTranslations } from './types.js'
 export const ha: Partial<VideoTimelineTranslations> = {
   'videoTimeline.aria.root': 'Jadawalin bidiyo',
   'videoTimeline.aria.ruler': 'Mai sarrafa lokaci',
-  'videoTimeline.aria.playhead': 'Shugaban wasa a<x> {{lokaci}}</x> s',
+  'videoTimeline.aria.playhead': 'Shugaban wasa a {{time}} s',
   'videoTimeline.aria.zoom': 'Zuƙowa a kan lokaci',
   'videoTimeline.aria.mode': 'Gyara yanayin',
   'videoTimeline.zoom.in': 'Zuƙowa ciki',

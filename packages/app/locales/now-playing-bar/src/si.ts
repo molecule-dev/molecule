@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for si. */
 export const si: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'කිසිවක් වාදනය නොවේ',
-  'nowPlaying.aria.region': 'දැන් වාදනය වන්නේ:<x> {{මාතෘකාව}}</x>',
-  'nowPlaying.aria.artwork': 'කලා කෘතිය<x> {{මාතෘකාව}}</x>',
+  'nowPlaying.aria.region': 'දැන් වාදනය වන්නේ: {{title}}',
+  'nowPlaying.aria.artwork': 'කලා කෘතිය {{title}}',
   'nowPlaying.aria.play': 'සෙල්ලම් කරන්න',
   'nowPlaying.aria.pause': 'විරාමය',
   'nowPlaying.aria.next': 'ඊළඟ ධාවන පථය',

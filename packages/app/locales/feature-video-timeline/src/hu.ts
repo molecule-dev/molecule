@@ -7,7 +7,7 @@ export const hu: Partial<VideoTimelineTranslations> = {
   'videoTimeline.mode.insert': 'Beillesztés',
   'videoTimeline.aria.root': 'Videó idővonala',
   'videoTimeline.aria.ruler': 'Idő vonalzó',
-  'videoTimeline.aria.playhead': 'Lejátszási fej itt:<x> {{idő}}</x> sz',
+  'videoTimeline.aria.playhead': 'Lejátszási fej itt: {{time}} sz',
   'videoTimeline.aria.zoom': 'Idővonal nagyítása',
   'videoTimeline.aria.mode': 'Szerkesztési mód',
   'videoTimeline.zoom.in.icon': '+',

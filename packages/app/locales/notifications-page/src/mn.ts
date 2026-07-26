@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for mn. */
 export const mn: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Мэдэгдэл',
-  'notificationsPage.markAllRead': 'Марк<x> {{count}}</x> уншсан байдлаар',
+  'notificationsPage.markAllRead': 'Марк {{count}} уншсан байдлаар',
   'notificationsPage.filterUnread': 'Уншаагүй',
   'notificationsPage.filterMentions': 'Дурдалтууд',
   'notificationsPage.filterAriaLabel': 'Мэдэгдлийг шүүх',
@@ -14,7 +14,7 @@ export const mn: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Та бүгдийг нь дуусгалаа',
   'notificationsPage.emptyBody': 'Шинэ мэдэгдэл энд гарч ирнэ.',
   'notificationsPage.paginationAriaLabel': 'Хуудаслалт',
-  'notificationsPage.pageOf': 'Хуудас<x> {{одоогийн}}</x> -ын<x> {{нийт}}</x>',
+  'notificationsPage.pageOf': 'Хуудас {{current}} -ын {{total}}',
   'notificationsPage.prev': 'Өмнөх',
   'notificationsPage.next': 'Дараагийнх',
 }

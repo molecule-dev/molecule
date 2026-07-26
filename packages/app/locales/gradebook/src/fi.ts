@@ -12,7 +12,7 @@ export const fi: Partial<GradebookTranslations> = {
   'gradebook.col.contribution': 'GPA-osuus',
   'gradebook.col.posted': 'Lähetetty',
   'gradebook.gpa.title': 'Keskiarvo',
-  'gradebook.gpa.outOf': 'ulos<x> {{max}}</x>',
+  'gradebook.gpa.outOf': 'ulos {{max}}',
   'gradebook.gpa.trend.up': 'Nouseva trendi',
   'gradebook.gpa.trend.down': 'Laskeva trendi',
   'gradebook.gpa.trend.flat': 'Vakaa',

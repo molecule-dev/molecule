@@ -22,7 +22,7 @@ export const gl: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Último',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{valor}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Grupo de radio',
   'ui.select.placeholder': 'Seleccionar…',
   'ui.select.title': 'Seleccionar',

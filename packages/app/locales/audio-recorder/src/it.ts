@@ -9,7 +9,7 @@ export const it: Partial<AudioRecorderTranslations> = {
   'audioRecorder.error': 'Registrazione non riuscita. Riprova.',
   'audioRecorder.permissionDenied': "Accesso al microfono negato. Consenti l'accesso e riprova.",
   'audioRecorder.stop': 'Fermare',
-  'audioRecorder.elapsed': 'Tempo trascorso<x> {{tempo}}</x>',
+  'audioRecorder.elapsed': 'Tempo trascorso {{time}}',
   'audioRecorder.statusProcessed': 'Registrato',
   'audioRecorder.statusError': 'Errore',
   'audioRecorder.statusIdle': 'Pronto per la registrazione',

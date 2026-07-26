@@ -2,7 +2,7 @@ import type { ThreadTreeTranslations } from './types.js'
 
 /** FeatureThreadTree translations for az. */
 export const az: Partial<ThreadTreeTranslations> = {
-  'threadTree.expand': 'Genişləndirin<x> {{count}}</x> cavablar',
+  'threadTree.expand': 'Genişləndirin {{count}} cavablar',
   'threadTree.collapse': 'Mövzunu yığcamlaşdırın',
   'threadTree.expandSymbol': '[+]',
   'threadTree.collapseSymbol': '[−]',

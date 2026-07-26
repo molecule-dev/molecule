@@ -3,8 +3,8 @@ import type { NowPlayingBarTranslations } from './types.js'
 /** NowPlayingBar translations for ne. */
 export const ne: Partial<NowPlayingBarTranslations> = {
   'nowPlaying.empty': 'केही बजिरहेको छैन',
-  'nowPlaying.aria.region': 'अहिले प्ले हुँदै:<x> {{शीर्षक}}</x>',
-  'nowPlaying.aria.artwork': 'कलाकृति<x> {{शीर्षक}}</x>',
+  'nowPlaying.aria.region': 'अहिले प्ले हुँदै: {{title}}',
+  'nowPlaying.aria.artwork': 'कलाकृति {{title}}',
   'nowPlaying.aria.play': 'खेल्नुहोस्',
   'nowPlaying.aria.pause': 'पज गर्नुहोस्',
   'nowPlaying.aria.next': 'अर्को ट्र्याक',

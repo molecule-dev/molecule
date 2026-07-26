@@ -9,7 +9,7 @@ export const mt: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Pawża',
   'audioRecorder.resume': 'Sommarju',
   'audioRecorder.stop': 'Waqqaf',
-  'audioRecorder.elapsed': 'Għadda<x> {{ħin}}</x>',
+  'audioRecorder.elapsed': 'Għadda {{time}}',
   'audioRecorder.statusPaused': 'Pawża',
   'audioRecorder.statusProcessed': 'Reġistrat',
   'audioRecorder.statusError': 'Żball',

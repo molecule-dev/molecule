@@ -6,6 +6,5 @@ export const am: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.keys': 'የፒያኖ ቁልፎች',
   'pianoRoll.aria.grid': 'የማስታወሻ ፍርግርግ',
   'pianoRoll.aria.resize': 'የማስታወሻ መጠን ቀይር',
-  'pianoRoll.aria.note':
-    'ማስታወሻ<x> {{ፒች}}</x> ከቢት ጀምሮ<x> {{startBeat}}</x> ለ<x> {{durationBeats}}</x> ምቶች',
+  'pianoRoll.aria.note': 'ማስታወሻ {{pitch}} ከቢት ጀምሮ {{startBeat}} ለ {{durationBeats}} ምቶች',
 }

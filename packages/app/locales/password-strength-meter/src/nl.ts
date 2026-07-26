@@ -8,8 +8,7 @@ export const nl: Partial<PasswordStrengthMeterTranslations> = {
   'passwordStrengthMeter.label.2': 'Eerlijk',
   'passwordStrengthMeter.label.3': 'Goed',
   'passwordStrengthMeter.label.4': 'Sterk',
-  'passwordStrengthMeter.ariaValueText':
-    'Wachtwoordsterkte:<x> {{label}}</x> (<x> {{score}}</x> van 4)',
+  'passwordStrengthMeter.ariaValueText': 'Wachtwoordsterkte: {{label}} ( {{score}} van 4)',
   'passwordStrengthMeter.rule.upper': 'Bevat een hoofdletter',
   'passwordStrengthMeter.rule.lower': 'Bevat een kleine letter',
   'passwordStrengthMeter.rule.digit': 'Bevat een cijfer',

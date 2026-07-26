@@ -13,7 +13,7 @@ export const sv: Partial<SolidUiTranslations> = {
   'ui.pagination.nav': 'Paginering',
   'ui.pagination.first': 'Gå till första sidan',
   'ui.pagination.previous': 'Gå till föregående sida',
-  'ui.pagination.goToPage': 'Gå till sidan<x> {{sida}}</x>',
+  'ui.pagination.goToPage': 'Gå till sidan {{page}}',
   'ui.pagination.last': 'Gå till sista sidan',
   'ui.radioGroup.label': 'Radiogrupp',
   'ui.table.empty': 'Inga data tillgängliga',

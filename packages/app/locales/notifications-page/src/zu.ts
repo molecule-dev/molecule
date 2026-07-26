@@ -2,9 +2,9 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for zu. */
 export const zu: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Izaziso',
-  'notificationsPage.markAllRead': 'Mark<x> {{inani}}</x> njengoba kufundiwe',
+  'notificationsPage.markAllRead': 'Mark {{count}} njengoba kufundiwe',
   'notificationsPage.filterUnread': 'Akufundiwe',
   'notificationsPage.filterMentions': 'Ukukhulunywa ngakho',
   'notificationsPage.filterAriaLabel': 'Izaziso zokuhlunga',
@@ -14,7 +14,7 @@ export const zu: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Usuvele ubambekile',
   'notificationsPage.emptyBody': 'Izaziso ezintsha zizovela lapha.',
   'notificationsPage.paginationAriaLabel': 'Ukubhala amakhasi',
-  'notificationsPage.pageOf': 'Ikhasi<x> {{yamanje}}</x> kwe<x> {{isamba}}</x>',
+  'notificationsPage.pageOf': 'Ikhasi {{current}} kwe {{total}}',
   'notificationsPage.prev': 'Okwangaphambilini',
   'notificationsPage.next': 'Olandelayo',
 }

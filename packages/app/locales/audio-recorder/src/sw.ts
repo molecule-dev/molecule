@@ -9,7 +9,7 @@ export const sw: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Sitisha',
   'audioRecorder.resume': 'Wasifu',
   'audioRecorder.stop': 'Simamisha',
-  'audioRecorder.elapsed': 'Imepita<x> {{wakati}}</x>',
+  'audioRecorder.elapsed': 'Imepita {{time}}',
   'audioRecorder.statusPaused': 'Imesitishwa',
   'audioRecorder.statusProcessed': 'Imerekodiwa',
   'audioRecorder.statusError': 'Hitilafu',

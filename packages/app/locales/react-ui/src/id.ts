@@ -17,7 +17,7 @@ export const id: Partial<ReactUiTranslations> = {
   'ui.pagination.nav': 'Penomoran halaman',
   'ui.pagination.first': 'Kembali ke halaman pertama',
   'ui.pagination.previous': 'Kembali ke halaman sebelumnya',
-  'ui.pagination.goToPage': 'Buka halaman<x> {{halaman}}</x>',
+  'ui.pagination.goToPage': 'Buka halaman {{page}}',
   'ui.pagination.last': 'Kembali ke halaman sebelumnya',
   'ui.radioGroup.label': 'Grup radio',
   'sidebar.memberStatus': 'Anggota Premium',

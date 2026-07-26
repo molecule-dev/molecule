@@ -22,7 +22,7 @@ export const ig: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Ikpeazụ',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{uru}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Otu redio',
   'ui.select.placeholder': 'Họrọ…',
   'ui.select.title': 'Họrọ',

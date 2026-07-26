@@ -3,7 +3,7 @@ import type { NotificationsPageTranslations } from './types.js'
 /** NotificationsPage translations for ky. */
 export const ky: Partial<NotificationsPageTranslations> = {
   'notificationsPage.title': 'Эскертмелер',
-  'notificationsPage.markAllRead': 'Марк<x> {{count}}</x> окулгандай',
+  'notificationsPage.markAllRead': 'Марк {{count}} окулгандай',
   'notificationsPage.filterAll': 'Баары',
   'notificationsPage.filterUnread': 'Окула элек',
   'notificationsPage.filterMentions': 'Айтылып өткөндөр',
@@ -14,7 +14,7 @@ export const ky: Partial<NotificationsPageTranslations> = {
   'notificationsPage.emptyTitle': 'Баарын билдиңиз',
   'notificationsPage.emptyBody': 'Жаңы эскертмелер бул жерде пайда болот.',
   'notificationsPage.paginationAriaLabel': 'Барактоо',
-  'notificationsPage.pageOf': 'Барак<x> {{учурдагы}}</x> ...нын<x> {{жалпы}}</x>',
+  'notificationsPage.pageOf': 'Барак {{current}} ...нын {{total}}',
   'notificationsPage.prev': 'Мурунку',
   'notificationsPage.next': 'Кийинки',
 }

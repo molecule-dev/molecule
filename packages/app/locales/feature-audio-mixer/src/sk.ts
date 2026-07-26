@@ -5,7 +5,7 @@ export const sk: Partial<AudioMixerTranslations> = {
   'audioMixer.aria.console': 'Konzola pre mixáž zvuku',
   'audioMixer.aria.fader': '{{name}} fader',
   'audioMixer.aria.pan': '{{name}} panvica',
-  'audioMixer.aria.send': '{{kanál}} poslať komu<x> {{odoslať}}</x>',
+  'audioMixer.aria.send': '{{channel}} poslať komu {{send}}',
   'audioMixer.button.mute': 'Stlmiť',
   'audioMixer.button.solo': 'Sólo',
   'audioMixer.master': 'Majster',

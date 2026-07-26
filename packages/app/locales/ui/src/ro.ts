@@ -12,7 +12,7 @@ export const ro: Partial<UiTranslations> = {
   'ui.pagination.previous': 'Mergi la pagina anterioară',
   'ui.pagination.next': 'Mergi la pagina următoare',
   'ui.pagination.last': 'Mergi la ultima pagină',
-  'ui.pagination.goToPage': 'Mergi la pagina<x> {{pagină}}</x>',
+  'ui.pagination.goToPage': 'Mergi la pagina {{page}}',
   'ui.table.empty': 'Nu sunt disponibile date',
   'ui.avatar.alt': 'Avatar',
   'ui.spinner.loading': 'Încărcare',

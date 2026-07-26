@@ -8,7 +8,7 @@ export const zh: Partial<VideoTimelineTranslations> = {
   'videoTimeline.trackKind.video': '视频',
   'videoTimeline.aria.root': '视频时间线',
   'videoTimeline.aria.ruler': '时间统治者',
-  'videoTimeline.aria.playhead': '播放头{{时间}} s',
+  'videoTimeline.aria.playhead': '播放头{{time}} s',
   'videoTimeline.aria.zoom': '时间线缩放',
   'videoTimeline.aria.mode': '编辑模式',
   'videoTimeline.zoom.in.icon': '+',

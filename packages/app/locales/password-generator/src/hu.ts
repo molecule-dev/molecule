@@ -6,7 +6,7 @@ export const hu: Partial<PasswordGeneratorTranslations> = {
   'password-generator.copied': 'Másolva!',
   'password-generator.regenerate': 'Újragenerálás',
   'password-generator.readoutLabel': 'Generált jelszó',
-  'password-generator.length': 'Hossz:<x> {{hossz}}</x>',
+  'password-generator.length': 'Hossz: {{length}}',
   'password-generator.lengthLabel': 'Jelszó hossza',
   'password-generator.toggle.uppercase': 'Nagybetűs (AZ)',
   'password-generator.toggle.lowercase': 'Kisbetűs (az)',

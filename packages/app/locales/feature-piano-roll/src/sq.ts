@@ -7,5 +7,5 @@ export const sq: Partial<PianoRollTranslations> = {
   'pianoRoll.aria.grid': 'Rrjeta e shënimeve',
   'pianoRoll.aria.resize': 'Ndrysho madhësinë e shënimit',
   'pianoRoll.aria.note':
-    'Shënim<x> {{tokë}}</x> duke filluar me ritëm<x> {{startBeat}}</x> për<x> {{durationBeats}}</x> ritme',
+    'Shënim {{pitch}} duke filluar me ritëm {{startBeat}} për {{durationBeats}} ritme',
 }

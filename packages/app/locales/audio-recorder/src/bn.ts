@@ -9,7 +9,7 @@ export const bn: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'বিরতি',
   'audioRecorder.resume': 'জীবনবৃত্তান্ত',
   'audioRecorder.stop': 'থামুন',
-  'audioRecorder.elapsed': 'অতিক্রান্ত<x> {{সময়}}</x>',
+  'audioRecorder.elapsed': 'অতিক্রান্ত {{time}}',
   'audioRecorder.statusPaused': 'বিরতি দেওয়া হয়েছে',
   'audioRecorder.statusProcessed': 'রেকর্ড করা হয়েছে',
   'audioRecorder.statusError': 'ত্রুটি',

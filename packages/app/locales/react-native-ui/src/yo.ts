@@ -22,7 +22,7 @@ export const yo: Partial<ReactNativeUiTranslations> = {
   'ui.icon.chevronRight': '›',
   'ui.pagination.last': 'Ìkẹ́yìn',
   'ui.icon.chevronsRight': '»',
-  'ui.progress.value': '{{iye}} %',
+  'ui.progress.value': '{{value}} %',
   'ui.radioGroup.label': 'Ẹgbẹ́ rédíò',
   'ui.select.placeholder': 'Yan…',
   'ui.select.title': 'Yan',
