@@ -197,6 +197,17 @@ interface PlanCacheEntry {
 
   /** Absolute timestamp (ms since epoch) at which this entry expires. */
   expiresAt: number
+
+  /**
+   * The user's stored plan expiry as read on the cache miss, or `null` when
+   * unset. Cached alongside the key because the row was already fetched:
+   * consumers that need the subscription's period boundary (e.g. an allowance
+   * that refreshes with the billing period) would otherwise re-read the user on
+   * every request, which is the exact load this cache exists to avoid. NOT the
+   * same as {@link PlanCacheEntry.expiresAt}, which is when the CACHE entry
+   * goes stale.
+   */
+  planExpiresAt: string | null
 }
 ```
 
@@ -463,6 +474,29 @@ function getCachedPlanKey(userId: string): Promise<string | null>
 - `userId` — The user ID to look up.
 
 **Returns:** The effective plan key, or `null` for default-tier users.
+
+#### `getCachedPlanState(userId)`
+
+Resolve a user's effective plan key AND the plan expiry it was derived from,
+hitting the same cache {@link getCachedPlanKey} uses.
+
+Exists because the expiry is already read on every cache miss: a consumer
+that needs the subscription's period boundary — an allowance that refreshes
+with the billing period, a renewal countdown — can have it for free instead
+of issuing its own per-request user lookup, which is precisely the database
+load this cache was introduced to remove.
+
+`planExpiresAt` is the STORED value, not an effective one: it is `null` for
+anonymous/free users and may be in the past for a plan that has just lapsed
+(in which case `planKey` is already demoted to `null`).
+
+```typescript
+function getCachedPlanState(userId: string): Promise<{ planKey: string | null; planExpiresAt: string | null; }>
+```
+
+- `userId` — The user ID to look up.
+
+**Returns:** The effective plan key and the stored plan expiry.
 
 #### `getEffectiveTier(res)`
 
