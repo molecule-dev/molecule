@@ -104,6 +104,12 @@ const PAGINATION_KEYS = new Set([
   'links',
 ])
 
+/**
+ * Recognise a list envelope: a `data` array plus only pagination metadata.
+ *
+ * @param v - The inner JSON body of an `HttpResponse`.
+ * @returns True when `v` is a paginated list rather than an application object.
+ */
 function isPaginationEnvelope(v: unknown): v is { data: unknown[] } {
   if (!v || typeof v !== 'object') return false
   if (!Array.isArray((v as { data?: unknown }).data)) return false
