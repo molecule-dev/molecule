@@ -145,8 +145,13 @@ describe('SidebarLayout', () => {
 
     it('styles the active vs inactive nav item with real theme tokens', () => {
       const markup = html(createElement(SidebarLayout, { appName: 'Acme', navItems }))
-      // Active item (dashboard, current path): subtle primary bg + primary text.
-      expect(markup).toContain('bgPrimarySubtle textPrimary')
+      // Active item: the primary CONTAINER pair, whose two halves the theme
+      // defines against each other. It must not go back to
+      // `bgPrimarySubtle textPrimary` — the brand colour as text on a 10% tint
+      // of itself measured 1.98:1 on an amber flagship and 4.48:1 on a blue
+      // one, both under the 4.5 AA floor, and no shade of a warm hue satisfies
+      // both that and the button fill the same token has to serve.
+      expect(markup).toContain('bgPrimaryContainer textOnPrimaryContainer')
       // Inactive items: muted text + link hover affordance.
       expect(markup).toContain('textMuted link')
       // Pill radius token applied to nav items.

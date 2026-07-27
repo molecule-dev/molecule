@@ -1138,6 +1138,10 @@ export const surfaceSecondary = 'bg-surface-secondary'
 
 /** Primary text color utility class. */
 export const textPrimary = 'text-primary'
+/** Primary-tinted container surface; pair with {@link textOnPrimaryContainer}. */
+export const bgPrimaryContainer = 'bg-primary-container'
+/** Readable text on {@link bgPrimaryContainer}. */
+export const textOnPrimaryContainer = 'text-on-primary-container'
 /**
  * The text success.
  */

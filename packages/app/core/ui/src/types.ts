@@ -2374,6 +2374,16 @@ export interface UIClassMap {
   textSubtle: string
   /** Primary brand color text (e.g. links, active labels). */
   textPrimary: string
+  /**
+   * Readable text colour for content sitting on {@link bgPrimaryContainer}.
+   *
+   * The counterpart the theme guarantees contrast against — see the note on
+   * `bgPrimaryContainer`. Note it is NOT interchangeable with `textPrimary`:
+   * some themes build a dark primary container and give this a light value, so
+   * pairing it with a light tint inverts the problem (measured at 1.07:1 in one
+   * flagship). Always use the two together.
+   */
+  textOnPrimaryContainer: string
   /** Success state text color. */
   textSuccess: string
   /** Warning state text color. */
@@ -2404,6 +2414,18 @@ export interface UIClassMap {
   bgBorder: string
   /** Subtle primary-tinted background (e.g. icon halo, callout banner). */
   bgPrimarySubtle: string
+  /**
+   * Primary-tinted container background, paired with {@link textOnPrimaryContainer}.
+   *
+   * Use this pair — never `bgPrimarySubtle` + `textPrimary` — whenever TEXT sits
+   * on a primary tint. The brand colour as text on a 10% tint of itself is only
+   * legible when the brand is already dark: measured across the flagship themes,
+   * an amber brand scores 1.98:1 there and no shade of the hue fixes it, because
+   * darkening enough for the tint breaks the button fill it also has to serve.
+   * The container pair is defined per theme precisely so both sides move
+   * together, and it clears 4.5:1 in 130 of 133 flagship themes.
+   */
+  bgPrimaryContainer: string
   /** Solid primary background (e.g. CTA fill). */
   bgPrimary: string
   /** Pure white background (uses `--color-surface-container-lowest` if defined). */

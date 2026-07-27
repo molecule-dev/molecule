@@ -182,7 +182,14 @@ export function SidebarLayout({
                   cm.fontWeight('medium'),
                   cm.roundedFull,
                   isActive
-                    ? cm.cn(cm.bgPrimarySubtle, cm.textPrimary)
+                    ? // The container pair, NOT bgPrimarySubtle + textPrimary.
+                      // The active item is the one place in this component where
+                      // text sits on a primary tint, and the brand colour on a
+                      // 10% tint of itself is only legible for already-dark
+                      // brands: it measured 1.98:1 in an amber flagship and
+                      // 4.48:1 in a blue one, both under the 4.5 AA floor. The
+                      // theme defines this pair so both sides move together.
+                      cm.cn(cm.bgPrimaryContainer, cm.textOnPrimaryContainer)
                     : cm.cn(cm.textMuted, cm.link),
                 )}
               >

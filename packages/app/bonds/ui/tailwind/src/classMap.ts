@@ -89,6 +89,7 @@ import {
   badgeSquare,
   bgBorder,
   bgErrorSubtle,
+  bgPrimaryContainer,
   borderAll,
   borderB,
   borderBPrimary,
@@ -248,6 +249,7 @@ import {
   tabTriggerFitted,
   tabTriggerIcon,
   textarea,
+  textOnPrimaryContainer,
   textPrimary,
   textRight,
   textSuccess,
@@ -953,6 +955,7 @@ export const classMap: UIClassMap = {
   textMuted: 'text-foreground-secondary',
   textSubtle: 'text-foreground-tertiary',
   textPrimary,
+  textOnPrimaryContainer,
   textSuccess,
   textWarning,
   textError: 'text-error',
@@ -974,6 +977,7 @@ export const classMap: UIClassMap = {
   bgErrorSubtle,
   bgBorder,
   bgPrimarySubtle: 'bg-primary/10',
+  bgPrimaryContainer,
   bgPrimary: 'bg-primary',
   // Pure white background — picks up the surface-container-lowest
   // token if defined, else the literal #fff. Used for elevated cards
