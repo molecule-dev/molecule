@@ -105,8 +105,23 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
         for (const dep of pkg.molecule?.viteOptimizeInclude ?? []) {
           declaredOptimizeIncludes.add(dep)
         }
-      } catch (_error) {
-        /* missing/invalid package.json — skip; not all @molecule dirs have a parseable package.json */
+      } catch (error) {
+        // A skipped package.json silently drops whatever CJS deps it declared,
+        // and the consequence is a WHITE SCREEN: the library gets served raw, the
+        // bond's `import { X } from 'lib'` throws "does not provide an export
+        // named X", setupProviders() never returns, and React never renders. Every
+        // test then fails with no network traffic and nothing anywhere pointing at
+        // the cause — that is exactly how meditation-app and music-daw lost their
+        // entire suites (0/68 and 160/176) to a missing `howler` entry.
+        //
+        // Not every @molecule dir has a parseable package.json (.bin, partial
+        // installs), so this stays non-fatal — but it must not be silent. A
+        // concurrent install relinking node_modules/@molecule is enough to hit it.
+        console.warn(
+          `[vite-config-default] could not read @molecule/${entry}/package.json — any ` +
+            `molecule.viteOptimizeInclude it declares will be MISSING from optimizeDeps.`,
+          error,
+        )
       }
     }
   }

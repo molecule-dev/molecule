@@ -33,6 +33,11 @@
   "peerDependencies": {
     "@molecule/app-audio": "^1.0.0"
   },
+  "molecule": {
+    "viteOptimizeInclude": [
+      "howler"
+    ]
+  },
   "devDependencies": {
     "@molecule/app-audio": "1.0.0",
     "@types/howler": "2.2.13",
