@@ -75,6 +75,7 @@ import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-
 import type { CommandId } from './chat-commands.js'
 import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
 import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
+import { cachedPromptTokens, formatTokenTotal } from './chat-cost-utilities.js'
 import type { EffortLevel, EffortMode } from './chat-effort-utilities.js'
 import {
   effortOptionsForModel,
@@ -120,7 +121,6 @@ import {
   pickRelevantSkill,
   recentUserText,
 } from './chat-skills-utilities.js'
-import { cachedPromptTokens, formatTokenTotal } from './chat-cost-utilities.js'
 import { estimateTurnTokens } from './chat-stream-utilities.js'
 import {
   ENTRY_TIP,
