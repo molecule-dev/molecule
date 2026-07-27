@@ -129,11 +129,19 @@
      and #ffffff) — raising one reintroduces an axe color-contrast failure.
      Mixing with --color-foreground (not black) keeps dark mode correct: the
      dark foreground lightens the text for dark tinted backgrounds. */
-  --color-primary-text: color-mix(in srgb, var(--color-primary) 61%, var(--color-foreground));
-  --color-secondary-text: color-mix(in srgb, var(--color-secondary) 55%, var(--color-foreground));
-  --color-success-text: color-mix(in srgb, var(--color-success) 57%, var(--color-foreground));
+  /* Brand-tinted TEXT. The soft button variants pair each of these with a 25%
+     fill of the same color (`bg-success/25 text-success-text`), so the tint is
+     the background they have to clear — not the page. At 55-70% they did not:
+     presentation-builder's cyan login button measured 3.98:1, and a sweep over
+     the fleet's brand colors put the worst case at 4.20:1, i.e. the pairing was
+     failing AA by construction for the lighter hues (yellow, lime, amber).
+     Capped at 45%, worst case is 5.33:1 and the text is still plainly branded.
+     warning stays at 34% — already darker, and raising it would lighten it. */
+  --color-primary-text: color-mix(in srgb, var(--color-primary) 45%, var(--color-foreground));
+  --color-secondary-text: color-mix(in srgb, var(--color-secondary) 45%, var(--color-foreground));
+  --color-success-text: color-mix(in srgb, var(--color-success) 45%, var(--color-foreground));
   --color-warning-text: color-mix(in srgb, var(--color-warning) 34%, var(--color-foreground));
-  --color-error-text: color-mix(in srgb, var(--color-error) 70%, var(--color-foreground));
+  --color-error-text: color-mix(in srgb, var(--color-error) 45%, var(--color-foreground));
 
   /* Material 3 derivative tokens — filled by scripts/fill-material3-tokens.mjs */
   --color-primary-container: color-mix(in srgb, var(--color-primary) 30%, var(--color-surface));
