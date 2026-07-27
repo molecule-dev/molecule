@@ -12,12 +12,27 @@
 
 import { getProvider as getI18nProvider, registerContent } from '@molecule/app-i18n'
 
-// Self-import via barrel so the bundle resolves to the same module
-// instance whether the app imports `loadContent` or `* as legal`.
-import * as legalDefault from './index.js'
-
-const LEGAL = legalDefault as unknown as Record<string, Record<string, string>>
-const legalFor = (code: string): Record<string, string> => LEGAL[code.replace('-', '')] ?? LEGAL.en
+/**
+ * Resolve the locale map at CALL time, not module-evaluation time.
+ *
+ * `index.ts` re-exports this file, so a top-level `import * as legalDefault
+ * from './index.js'` is a cycle: while the barrel is still evaluating, the
+ * namespace binding here is `undefined`, and the first click on a legal link
+ * threw `Cannot read properties of undefined (reading 'en')` — the modal never
+ * opened, in every app using LegalModalLinks. A dynamic import inside the
+ * function runs after the graph is fully initialised, and still resolves to the
+ * one module instance the barrel exposes.
+ *
+ * @param code - BCP-47 locale code; `zh-TW` and `zhTW` both resolve.
+ * @returns That locale's legal content, falling back to English.
+ */
+async function legalFor(code: string): Promise<Record<string, string>> {
+  const legalDefault = (await import('./index.js')) as unknown as Record<
+    string,
+    Record<string, string>
+  >
+  return legalDefault[code.replace('-', '')] ?? legalDefault.en
+}
 
 /**
  * Register a legal-content module (privacyPolicy or termsOfService)
@@ -29,7 +44,7 @@ export async function loadContent(module: string): Promise<void> {
   const provider = getI18nProvider()
   const locale = provider.getLocale()
   const loader = async (loc: string): Promise<void> => {
-    provider.addTranslations(loc, legalFor(loc))
+    provider.addTranslations(loc, await legalFor(loc))
   }
   registerContent(module, loader)
   await loader(locale)
