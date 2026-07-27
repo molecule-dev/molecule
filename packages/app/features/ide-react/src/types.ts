@@ -379,6 +379,13 @@ export interface PreviewUiCommand {
   text?: string
   /** Value to set for `fill` / `select`. */
   value?: string
+  /**
+   * `snapshot` only — the path the host just navigated the preview to. The bridge holds its
+   * reply until `location.pathname` matches (bounded), so a navigation snapshot can never be
+   * answered by the OUTGOING document still sitting in the iframe, and can never be answered
+   * by the incoming one before its framework has booted. Omit for a plain read.
+   */
+  expectPath?: string
 }
 
 /** The preview interaction bridge's reply to a {@link PreviewUiCommand}. */
@@ -393,6 +400,13 @@ export interface PreviewUiResult {
    * captured in-page — so a click that 4xx'd explains itself in the same result.
    */
   recentNetworkErrors?: string[]
+  /**
+   * Present when the bridge gave up on a settle budget instead of observing the page settle —
+   * it names what was still pending (document parsing, an empty root, an unreached route,
+   * in-flight requests). The snapshot may be incomplete, so a race stays distinguishable from
+   * a genuinely broken page.
+   */
+  stillSettling?: string
 }
 
 /** Props for the {@link PreviewPanel} — the live app preview (iframe + device frame + URL bar). */
