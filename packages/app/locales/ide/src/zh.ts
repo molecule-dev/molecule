@@ -302,6 +302,9 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': '选择平面模式模型',
   'ide.chat.executeModelSet': '执行模式模型设置为{{name}}',
   'ide.chat.planModelSet': '计划模式模型已设置为{{name}}',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint 错误',

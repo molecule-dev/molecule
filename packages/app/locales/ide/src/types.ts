@@ -316,6 +316,10 @@ export type IdeTranslationKey =
   | 'ide.chat.planModelSet'
   | 'ide.chat.modelSortLabel'
   | 'ide.chat.modelSortDirection'
+  // Visible label stays the plain unit ("~40.5k tokens") because the metrics row
+  // is width-critical; the Hint is the tooltip that says it counts OUTPUT only.
+  | 'ide.chat.streamingOutputTokens'
+  | 'ide.chat.streamingOutputTokensHint'
   | 'ide.chat.costSummary'
   | 'ide.chat.costCachedLine'
   | 'ide.chat.costStreamingNote'

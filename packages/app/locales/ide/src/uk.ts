@@ -311,6 +311,9 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Вибрати модель у режимі планування',
   'ide.chat.executeModelSet': 'Модель режиму виконання встановлено на «{{name}}»',
   'ide.chat.planModelSet': 'Модель у режимі планування налаштована на «{{name}}»',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} помилки, пов’язані з пухом',

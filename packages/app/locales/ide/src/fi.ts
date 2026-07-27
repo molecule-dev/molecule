@@ -308,6 +308,9 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Valitse suunnittelutilan malli',
   'ide.chat.executeModelSet': 'Suoritustilan malli asetettu tilaan ”{{name}}”',
   'ide.chat.planModelSet': 'Suunnittelutilan malli asetettu tilaan ”{{name}}”',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint-virheet',

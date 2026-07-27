@@ -373,6 +373,9 @@ export const en: IdeTranslations = {
   'ide.chat.modelSortDirection': 'Toggle sort direction',
   // Verification counts / summaries (the {{files}}/{{model}}/{{count}} data
   // is supplied by the call site; the bond translates only the surrounding copy).
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   // `Input` above is the UNCACHED prompt only. Without this line the card reads far
   // below the provider's dashboard, which counts total tokens processed (cache hits

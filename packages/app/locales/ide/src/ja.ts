@@ -309,6 +309,9 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'プランモードのモデルを選択',
   'ide.chat.executeModelSet': '実行モードのモデルが「{{name}}」に設定されています',
   'ide.chat.planModelSet': 'プランモードのモデル設定を「{{name}}」に設定',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} リンターエラー',

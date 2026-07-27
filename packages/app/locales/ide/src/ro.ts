@@ -310,6 +310,9 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Selectați modelul în modul plan',
   'ide.chat.executeModelSet': 'Modelul în modul de execuție este setat pe „{{name}}”',
   'ide.chat.planModelSet': 'Modelul în modul Plan setat la „{{name}}”',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} erori de tip „lint”',

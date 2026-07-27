@@ -309,6 +309,9 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Selecionar modelo em modo de planta',
   'ide.chat.executeModelSet': 'Modelo do modo de execução definido como "{{name}}"',
   'ide.chat.planModelSet': 'Modelo em modo de planejamento definido como "{{name}}"',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} erros do Lint',

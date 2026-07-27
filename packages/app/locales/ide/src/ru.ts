@@ -310,6 +310,9 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Выбрать модель в режиме планирования',
   'ide.chat.executeModelSet': 'Модель режима выполнения установлена на «{{name}}»',
   'ide.chat.planModelSet': 'Модель в режиме планирования с параметром «{{name}}»',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} ошибки, связанные с линтом',

@@ -9,6 +9,7 @@ import type { JSX } from 'react'
 import { useEffect, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 // ---------------------------------------------------------------------------
 // Molecule spinner — inline SVG (3-phase atom-swapping animation)
@@ -233,6 +234,7 @@ const MIN_TOKENS_SHOWN = 20
 // StreamingIndicator
 // ---------------------------------------------------------------------------
 
+/** Props for {@link StreamingIndicator} — the spinner, activity label, and the live turn metrics. */
 export interface StreamingIndicatorProps {
   /** When true, renders only the spinner inline (no message text). */
   inline?: boolean
@@ -249,8 +251,16 @@ export interface StreamingIndicatorProps {
    */
   startedAt?: number
   /**
-   * Estimated tokens generated so far this turn. When > 0, shown beside the
-   * timer so the user can see how much work is actually being done.
+   * Estimated OUTPUT tokens generated so far this turn — assistant text,
+   * thinking, and tool-call arguments, at ~4 chars/token. When > 0, shown beside
+   * the timer so the user can see how much work is actually being done.
+   *
+   * Deliberately not a total: it excludes every input token, and an agentic turn
+   * re-sends the whole conversation on each iteration, so the provider's own
+   * dashboard will read far higher. That is not a discrepancy — it is a different
+   * measure, which the tooltip states (the visible label stays the plain unit to
+   * keep the row narrow). `/cost` reports the input, cached and billed figures
+   * (mid-stream too; the server folds the in-flight turn into the totals).
    */
   tokens?: number
 }
@@ -334,7 +344,16 @@ export function StreamingIndicator({
       {/* Status metrics pushed to the right edge; the spinner + label stay left.
           Token estimate + elapsed timer show how much work is happening and that
           it's still alive. Same size/color as the label; tabular-nums keeps the
-          digits from jittering as they tick. A separator divides the two. */}
+          digits from jittering as they tick. A separator divides the two.
+
+          This group is flexShrink:0, so every pixel it takes is one the activity
+          label loses to an ellipsis — and labels are often long file paths, the
+          most useful thing on the row. That rules out spelling the qualifier out
+          inline: at 13px Arimo "~40.5k tokens" is 81px but "~40.5k output
+          tokens" is 121px, a permanent 40px off the label's budget. So the
+          visible unit stays plain and the TOOLTIP carries what the number
+          actually is — output only, which is why it reads far below a provider
+          dashboard. Keep any relabelling at or under the 81px baseline. */}
       {(elapsed || (tokens != null && tokens >= MIN_TOKENS_SHOWN)) && (
         <span
           style={{
@@ -351,7 +370,20 @@ export function StreamingIndicator({
           aria-hidden="true"
         >
           {tokens != null && tokens >= MIN_TOKENS_SHOWN && (
-            <span>~{formatTokens(tokens)} tokens</span>
+            <Tooltip
+              content={t('ide.chat.streamingOutputTokensHint', undefined, {
+                defaultValue: 'Estimated output tokens this turn — /cost shows input and cached.',
+              })}
+              placement="top"
+            >
+              <span>
+                {t(
+                  'ide.chat.streamingOutputTokens',
+                  { count: formatTokens(tokens) },
+                  { defaultValue: '~{{count}} tokens' },
+                )}
+              </span>
+            </Tooltip>
           )}
           {tokens != null && tokens >= MIN_TOKENS_SHOWN && elapsed && <span>·</span>}
           {elapsed && <span>{elapsed}</span>}

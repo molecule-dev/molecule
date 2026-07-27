@@ -307,6 +307,9 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Velg modell i planmodus',
   'ide.chat.executeModelSet': 'Modell i kjøringsmodus satt til «{{name}}»',
   'ide.chat.planModelSet': 'Modell i planmodus er satt til «{{name}}»',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} feil i lint',

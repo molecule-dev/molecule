@@ -307,6 +307,9 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Vyberte model v režimu plánu',
   'ide.chat.executeModelSet': 'Model v režimu provádění nastaven na „{{name}}“',
   'ide.chat.planModelSet': 'Model v režimu plánu nastaven na „{{name}}“',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} chyby v kódu',

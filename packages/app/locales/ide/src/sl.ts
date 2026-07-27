@@ -310,6 +310,9 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Izberite model v načinu načrtovanja',
   'ide.chat.executeModelSet': 'Model v izvedbenem načinu je nastavljen na »{{name}}«',
   'ide.chat.planModelSet': 'Model v načinu načrtovanja je nastavljen na »{{name}}«',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} napake zaradi prahu',

@@ -309,6 +309,9 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Izvēlieties plāna režīma modeli',
   'ide.chat.executeModelSet': 'Izpildes režīma modelis iestatīts uz „{{name}}“',
   'ide.chat.planModelSet': 'Plāna režīma modelis iestatīts uz „{{name}}“',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} kļūdas saistībā ar lint',

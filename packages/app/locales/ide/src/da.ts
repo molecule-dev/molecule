@@ -307,6 +307,9 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Vælg model i plan-tilstand',
   'ide.chat.executeModelSet': 'Model i udførelsestilstand indstillet til »{{name}}«',
   'ide.chat.planModelSet': 'Modellen i plan-tilstand er indstillet til »{{name}}«',
+  'ide.chat.streamingOutputTokens': '~{{count}} tokens',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} fejl i lint',
