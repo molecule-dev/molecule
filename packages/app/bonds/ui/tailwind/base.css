@@ -187,18 +187,29 @@
   --color-surface-dim: color-mix(in srgb, var(--color-surface) 85%, var(--color-foreground));
   --color-surface-tint: var(--color-primary);
   --color-surface-variant: color-mix(in srgb, var(--color-surface) 90%, var(--color-foreground));
-  --color-primary-fixed: color-mix(in srgb, var(--color-primary) 60%, white);
-  --color-primary-fixed-dim: color-mix(in srgb, var(--color-primary) 50%, white);
-  --color-on-primary-fixed: color-mix(in srgb, var(--color-primary) 80%, black);
-  --color-on-primary-fixed-variant: color-mix(in srgb, var(--color-primary) 70%, black);
-  --color-secondary-fixed: color-mix(in srgb, var(--color-secondary) 60%, white);
-  --color-secondary-fixed-dim: color-mix(in srgb, var(--color-secondary) 50%, white);
-  --color-on-secondary-fixed: color-mix(in srgb, var(--color-secondary) 80%, black);
-  --color-on-secondary-fixed-variant: color-mix(in srgb, var(--color-secondary) 70%, black);
-  --color-tertiary-fixed: color-mix(in srgb, var(--color-tertiary) 60%, white);
-  --color-tertiary-fixed-dim: color-mix(in srgb, var(--color-tertiary) 50%, white);
-  --color-on-tertiary-fixed: color-mix(in srgb, var(--color-tertiary) 80%, black);
-  --color-on-tertiary-fixed-variant: color-mix(in srgb, var(--color-tertiary) 70%, black);
+  /* Material-3 "fixed" pairs. `*-fixed` is a LIGHT tone (~90) and `on-*-fixed`
+     is a NEAR-BLACK one (~10) — the pair has to be legible on its own, since a
+     fixed chip carries its colors into both light and dark themes.
+
+     These mixed 60%/80% of the source color, which lands both members in the
+     mid-tones: every primary in the fleet measured 2.2–2.9:1 for
+     `bg-primary-fixed` + `text-on-primary-fixed`, i.e. the pair failed WCAG AA
+     for all of them, not just for an unlucky brand color. (mind-mapping's
+     landing chip: #334dbd on #8ca0f4 = 2.87:1, an axe serious violation.)
+     Re-mixed toward the M3 tones: worst case across the fleet's primaries is
+     now 4.81:1, and the on/fixed pairing itself is ~11:1. */
+  --color-primary-fixed: color-mix(in srgb, var(--color-primary) 30%, white);
+  --color-primary-fixed-dim: color-mix(in srgb, var(--color-primary) 45%, white);
+  --color-on-primary-fixed: color-mix(in srgb, var(--color-primary) 25%, black);
+  --color-on-primary-fixed-variant: color-mix(in srgb, var(--color-primary) 45%, black);
+  --color-secondary-fixed: color-mix(in srgb, var(--color-secondary) 30%, white);
+  --color-secondary-fixed-dim: color-mix(in srgb, var(--color-secondary) 45%, white);
+  --color-on-secondary-fixed: color-mix(in srgb, var(--color-secondary) 25%, black);
+  --color-on-secondary-fixed-variant: color-mix(in srgb, var(--color-secondary) 45%, black);
+  --color-tertiary-fixed: color-mix(in srgb, var(--color-tertiary) 30%, white);
+  --color-tertiary-fixed-dim: color-mix(in srgb, var(--color-tertiary) 45%, white);
+  --color-on-tertiary-fixed: color-mix(in srgb, var(--color-tertiary) 25%, black);
+  --color-on-tertiary-fixed-variant: color-mix(in srgb, var(--color-tertiary) 45%, black);
   --color-inverse-surface: color-mix(in srgb, var(--color-foreground) 90%, var(--color-surface));
   --color-inverse-on-surface: color-mix(in srgb, var(--color-surface) 95%, var(--color-foreground));
   --color-inverse-primary: color-mix(in srgb, var(--color-primary) 50%, white);
