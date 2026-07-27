@@ -309,6 +309,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'تم تعيين نموذج وضع التنفيذ على "{{name}}"',
   'ide.chat.planModelSet': 'تم تعيين نموذج وضع الخطة على "{{name}}"',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} أخطاء لينت',
   'ide.chat.lintWarningsCount': '{{count}} تحذيرات',
   'ide.chat.typeErrorsCount': '{{count}} أخطاء في الكتابة',

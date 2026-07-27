@@ -311,6 +311,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Model mode eksekusi diatur ke "{{name}}"',
   'ide.chat.planModelSet': 'Model mode rencana diatur ke "{{name}}"',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} kesalahan lint',
   'ide.chat.lintWarningsCount': '{{count}} peringatan',
   'ide.chat.typeErrorsCount': '{{count}} kesalahan tipe',

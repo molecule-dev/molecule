@@ -120,6 +120,7 @@ import {
   pickRelevantSkill,
   recentUserText,
 } from './chat-skills-utilities.js'
+import { cachedPromptTokens, formatTokenTotal } from './chat-cost-utilities.js'
 import { estimateTurnTokens } from './chat-stream-utilities.js'
 import {
   ENTRY_TIP,
@@ -4659,18 +4660,15 @@ function ChatInner({
           const res = await http.get<{
             inputTokens: number
             outputTokens: number
+            cacheReadInputTokens?: number
+            cacheCreationInputTokens?: number
             allowancePercent?: number | null
             allowanceResetAt?: number | null
             model: string
             streaming?: boolean
           }>(usageUrl)
           const d = res.data
-          const fmt = (n: number): string =>
-            n >= 1_000_000
-              ? (n / 1_000_000).toFixed(1) + 'M'
-              : n >= 1_000
-                ? (n / 1_000).toFixed(1) + 'K'
-                : String(n)
+          const fmt = formatTokenTotal
           // AI usage is shown as a UNITLESS share of today's allowance —
           // currency never appears on AI-usage surfaces. The percent is the
           // owner's rolling-24h window spend (the number the chat gate actually
@@ -4694,6 +4692,24 @@ function ChatInner({
                         defaultValue: "You've used ~{{percent}}% of today's AI allowance.",
                       },
                     ))
+              : ''
+          // `inputTokens` counts only the UNCACHED prompt: every bond normalizes
+          // cache hits into their own bucket (on OpenAI-compatible APIs like
+          // DeepSeek that means `prompt_tokens - prompt_tokens_details.cached_tokens`).
+          // In a long agentic turn the cached share is most of the volume, so
+          // omitting it made this card look wildly smaller than the provider
+          // dashboard, which reports total tokens processed. Show it.
+          const cachedTokens = cachedPromptTokens(d)
+          const cachedLine =
+            cachedTokens > 0
+              ? '\n' +
+                t(
+                  'ide.chat.costCachedLine',
+                  { cached: fmt(cachedTokens) },
+                  {
+                    defaultValue: 'Cached input: {{cached}} tokens (billed at a fraction of input)',
+                  },
+                )
               : ''
           // Mid-stream the totals include the in-progress response's running
           // usage (the server folds it in) — say so, since the figure is still
@@ -4719,6 +4735,7 @@ function ChatInner({
                   'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
               },
             ) +
+              cachedLine +
               allowanceLine +
               streamingLine,
           )

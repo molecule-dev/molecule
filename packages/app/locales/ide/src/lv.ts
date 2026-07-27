@@ -310,6 +310,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Izpildes režīma modelis iestatīts uz „{{name}}“',
   'ide.chat.planModelSet': 'Plāna režīma modelis iestatīts uz „{{name}}“',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} kļūdas saistībā ar lint',
   'ide.chat.lintWarningsCount': '{{count}} brīdinājumi',
   'ide.chat.typeErrorsCount': '{{count}} rakstīšanas kļūdas',

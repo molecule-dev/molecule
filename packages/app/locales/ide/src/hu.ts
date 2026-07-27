@@ -309,6 +309,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'A végrehajtási mód beállítása: „{{name}}”',
   'ide.chat.planModelSet': 'A terv-mód beállítása: „{{name}}”',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} szöveghibák',
   'ide.chat.lintWarningsCount': '{{count}} figyelmeztetések',
   'ide.chat.typeErrorsCount': '{{count}} típushibák',

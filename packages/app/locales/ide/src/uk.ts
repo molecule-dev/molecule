@@ -312,6 +312,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Модель режиму виконання встановлено на «{{name}}»',
   'ide.chat.planModelSet': 'Модель у режимі планування налаштована на «{{name}}»',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} помилки, пов’язані з пухом',
   'ide.chat.lintWarningsCount': '{{count}} попередження',
   'ide.chat.typeErrorsCount': '{{count}} типові помилки',

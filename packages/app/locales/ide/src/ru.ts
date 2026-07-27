@@ -311,6 +311,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Модель режима выполнения установлена на «{{name}}»',
   'ide.chat.planModelSet': 'Модель в режиме планирования с параметром «{{name}}»',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} ошибки, связанные с линтом',
   'ide.chat.lintWarningsCount': '{{count}} предупреждения',
   'ide.chat.typeErrorsCount': '{{count}} ошибки в типе',

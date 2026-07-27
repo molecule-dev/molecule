@@ -311,6 +311,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Model v režime vykonávania je nastavený na „{{name}}“',
   'ide.chat.planModelSet': 'Model v režime plánu nastavený na „{{name}}“',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} chyby v kóde',
   'ide.chat.lintWarningsCount': '{{count}} upozornenia',
   'ide.chat.typeErrorsCount': '{{count}} chyby v type',

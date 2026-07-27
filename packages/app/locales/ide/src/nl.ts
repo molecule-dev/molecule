@@ -312,6 +312,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': "Model in uitvoermodus ingesteld op '{{name}}'",
   'ide.chat.planModelSet': "Model in planmodus ingesteld op '{{name}}'",
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} fouten in de code',
   'ide.chat.lintWarningsCount': '{{count}} waarschuwingen',
   'ide.chat.typeErrorsCount': '{{count}} typefouten',

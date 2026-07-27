@@ -309,6 +309,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Modell i körläge inställd på ”{{name}}”',
   'ide.chat.planModelSet': 'Modell i planeringsläge inställd på ”{{name}}”',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint-fel',
   'ide.chat.lintWarningsCount': '{{count}} varningar',
   'ide.chat.typeErrorsCount': '{{count}} typfel',

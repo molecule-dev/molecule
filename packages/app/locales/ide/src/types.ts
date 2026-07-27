@@ -317,6 +317,7 @@ export type IdeTranslationKey =
   | 'ide.chat.modelSortLabel'
   | 'ide.chat.modelSortDirection'
   | 'ide.chat.costSummary'
+  | 'ide.chat.costCachedLine'
   | 'ide.chat.costStreamingNote'
   | 'ide.chat.usageAllowanceTodayLine'
   | 'ide.chat.usageAllowanceUsedUpLine'

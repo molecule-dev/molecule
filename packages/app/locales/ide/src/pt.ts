@@ -310,6 +310,7 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Modelo do modo de execução definido como "{{name}}"',
   'ide.chat.planModelSet': 'Modelo em modo de planejamento definido como "{{name}}"',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} erros do Lint',
   'ide.chat.lintWarningsCount': '{{count}} avisos',
   'ide.chat.typeErrorsCount': '{{count}} erros de digitação',

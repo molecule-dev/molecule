@@ -374,6 +374,10 @@ export const en: IdeTranslations = {
   // Verification counts / summaries (the {{files}}/{{model}}/{{count}} data
   // is supplied by the call site; the bond translates only the surrounding copy).
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  // `Input` above is the UNCACHED prompt only. Without this line the card reads far
+  // below the provider's dashboard, which counts total tokens processed (cache hits
+  // included) — see the comment at the /cost call site.
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',

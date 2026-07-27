@@ -312,6 +312,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Vykdymo režimo modelis nustatytas kaip „{{name}}“',
   'ide.chat.planModelSet': 'Planavimo režimo modelis nustatytas į „{{name}}“',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} „Lint“ klaidos',
   'ide.chat.lintWarningsCount': '{{count}} įspėjimai',
   'ide.chat.typeErrorsCount': '{{count}} tipų klaidos',

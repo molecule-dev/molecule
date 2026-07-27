@@ -307,6 +307,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': '실행 모드 모델이 ‘{{name}}’로 설정됨',
   'ide.chat.planModelSet': '{{name}}로 설정된 플랜 모드 모델',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} 린트 오류',
   'ide.chat.lintWarningsCount': '{{count}} 경고',
   'ide.chat.typeErrorsCount': '{{count}} 유형 오류',

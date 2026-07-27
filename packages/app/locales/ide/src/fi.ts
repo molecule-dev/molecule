@@ -309,6 +309,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Suoritustilan malli asetettu tilaan ”{{name}}”',
   'ide.chat.planModelSet': 'Suunnittelutilan malli asetettu tilaan ”{{name}}”',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint-virheet',
   'ide.chat.lintWarningsCount': '{{count}} varoitukset',
   'ide.chat.typeErrorsCount': '{{count}} kirjoitusvirheet',

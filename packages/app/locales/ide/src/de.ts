@@ -316,6 +316,7 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Das Modell im Ausführungsmodus ist auf „{{name}}“ eingestellt',
   'ide.chat.planModelSet': 'Das Modell im Plan-Modus ist auf „{{name}}“ eingestellt',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} Lint-Fehler',
   'ide.chat.lintWarningsCount': '{{count}} Warnhinweise',
   'ide.chat.typeErrorsCount': '{{count}} Typfehler',

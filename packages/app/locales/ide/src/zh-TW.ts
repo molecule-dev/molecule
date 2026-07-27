@@ -301,6 +301,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': '執行模式模型設定為{{name}}',
   'ide.chat.planModelSet': '「平面模式」模型設定為{{name}}',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint 錯誤',
   'ide.chat.lintWarningsCount': '{{count}} 警告',
   'ide.chat.typeErrorsCount': '{{count}} 類型錯誤',

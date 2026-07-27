@@ -303,6 +303,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': '执行模式模型设置为{{name}}',
   'ide.chat.planModelSet': '计划模式模型已设置为{{name}}',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint 错误',
   'ide.chat.lintWarningsCount': '{{count}} 警告',
   'ide.chat.typeErrorsCount': '{{count}} 类型错误',

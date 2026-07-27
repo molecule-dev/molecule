@@ -312,6 +312,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Το μοντέλο λειτουργίας εκτέλεσης έχει οριστεί σε «{{name}}»',
   'ide.chat.planModelSet': 'Το μοντέλο λειτουργίας «Plan» έχει ρυθμιστεί στο «{{name}}»',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} σφάλματα lint',
   'ide.chat.lintWarningsCount': '{{count}} προειδοποιήσεις',
   'ide.chat.typeErrorsCount': '{{count}} σφάλματα τύπου',

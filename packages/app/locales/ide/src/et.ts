@@ -310,6 +310,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Täitmisrežiimi mudel on seatud väärtusele „{{name}}“',
   'ide.chat.planModelSet': 'Planeerimisrežiimi mudel on seatud väärtusele „{{name}}“',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint-vead',
   'ide.chat.lintWarningsCount': '{{count}} hoiatused',
   'ide.chat.typeErrorsCount': '{{count}} tüübi vead',

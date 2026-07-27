@@ -308,6 +308,7 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.executeModelSet': 'Model i udførelsestilstand indstillet til »{{name}}«',
   'ide.chat.planModelSet': 'Modellen i plan-tilstand er indstillet til »{{name}}«',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
+  'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} fejl i lint',
   'ide.chat.lintWarningsCount': '{{count}} advarsler',
   'ide.chat.typeErrorsCount': '{{count}} typefejl',
