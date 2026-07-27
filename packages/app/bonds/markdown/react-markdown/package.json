@@ -47,5 +47,14 @@
   "dependencies": {
     "react-markdown": "10.1.0",
     "remark-gfm": "4.0.1"
+  },
+  "molecule": {
+    "viteOptimizeInclude": [
+      "debug",
+      "extend",
+      "ms",
+      "react-dom/server",
+      "style-to-js"
+    ]
   }
 }
