@@ -33,11 +33,15 @@ const logger = getLogger()
 
 /** Mutable state shared across SSE line-processing calls for the Gemini streaming parser. */
 interface GoogleStreamState {
-  /** Prompt token count reported by `usageMetadata.promptTokenCount`. */
+  /**
+   * Prompt token count reported by `usageMetadata.promptTokenCount` — the TOTAL
+   * effective prompt, cached content included. {@link snapshotUsage} subtracts
+   * {@link GoogleStreamState.cachedInputTokens} before reporting it.
+   */
   inputTokens: number
   /** Candidate (output) token count reported by `usageMetadata.candidatesTokenCount`. */
   outputTokens: number
-  /** Cached-content token count reported by `usageMetadata.cachedContentTokenCount`. */
+  /** Cached-content token count reported by `usageMetadata.cachedContentTokenCount` — a SUBSET of `inputTokens`. */
   cachedInputTokens: number
   /** Monotonic counter used to synthesize stable ids for streamed function calls. */
   toolCounter: number
@@ -48,12 +52,23 @@ interface GoogleStreamState {
  * shared by the mid-stream `usage` snapshots and the terminal `done` event so
  * the two can never diverge.
  *
+ * `promptTokenCount` INCLUDES the cached portion — Gemini documents it as "the
+ * total effective prompt size meaning this includes the number of tokens in the
+ * cached content" — so `cachedContentTokenCount` is a SUBSET, not an addition.
+ * `TokenUsage` buckets are disjoint (every consumer prices each at its own rate),
+ * so the cached share is subtracted here, exactly as the OpenAI-compatible bonds
+ * subtract `prompt_tokens_details.cached_tokens` from `prompt_tokens`. Passing
+ * `promptTokenCount` through raw billed the cached tokens TWICE: once at the full
+ * input rate and again at the cache-read rate, which cancelled out the entire
+ * point of context caching in the meter. (Anthropic needs no subtraction — it
+ * reports `input_tokens` and `cache_read_input_tokens` already disjoint.)
+ *
  * @param state - The streaming parser state.
- * @returns The usage counters accumulated so far.
+ * @returns The usage counters accumulated so far, as disjoint buckets.
  */
 function snapshotUsage(state: GoogleStreamState): TokenUsage {
   return {
-    inputTokens: state.inputTokens,
+    inputTokens: Math.max(0, state.inputTokens - state.cachedInputTokens),
     outputTokens: state.outputTokens,
     ...(state.cachedInputTokens ? { cacheReadInputTokens: state.cachedInputTokens } : {}),
   }

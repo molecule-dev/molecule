@@ -165,10 +165,13 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
       events.findIndex((e) => e.type === 'tool_use'),
     )
 
-    // Usage snapshot + final done carry identical, provider-reported counts.
+    // Usage snapshot + final done carry identical counts, as DISJOINT buckets:
+    // Gemini's promptTokenCount (12) INCLUDES cachedContentTokenCount (3), so the
+    // reported inputTokens is the uncached remainder (9). Passing 12 through raw
+    // billed those 3 twice — full input rate plus cache-read rate.
     const usageEvt = events.find((e) => e.type === 'usage')!
     const doneEvt = events.find((e) => e.type === 'done')!
-    const expectedUsage = { inputTokens: 12, outputTokens: 7, cacheReadInputTokens: 3 }
+    const expectedUsage = { inputTokens: 9, outputTokens: 7, cacheReadInputTokens: 3 }
     expect(usageEvt.usage).toEqual(expectedUsage)
     expect(doneEvt.usage).toEqual(expectedUsage)
 
