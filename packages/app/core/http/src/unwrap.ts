@@ -80,23 +80,44 @@ export function unwrapList<T>(res: unknown): T[] {
 }
 
 /**
- * Recognise a RICH pagination envelope `{ data: T[], total, limit, offset }` — the
- * shape the pre-built `@molecule/api-resource-*` list endpoints (`PaginatedResult`)
- * return. All three metadata fields must be numbers alongside the `data` array, which
- * makes the shape unambiguous versus an application object that merely owns a `data`
- * array (that has no `total`/`limit`/`offset` numbers), so peeling here is safe.
+ * Metadata keys a list endpoint may carry alongside its `data` array.
+ *
+ * Covers both conventions in this fleet: `PaginatedResult` from the pre-built
+ * `@molecule/api-resource-*` endpoints (`total`/`limit`/`offset`) and the
+ * `page`/`limit` form hand-written handlers use.
  */
-function isPaginationEnvelope(
-  v: unknown,
-): v is { data: unknown[]; total: number; limit: number; offset: number } {
-  return (
-    !!v &&
-    typeof v === 'object' &&
-    Array.isArray((v as { data?: unknown }).data) &&
-    typeof (v as { total?: unknown }).total === 'number' &&
-    typeof (v as { limit?: unknown }).limit === 'number' &&
-    typeof (v as { offset?: unknown }).offset === 'number'
-  )
+const PAGINATION_KEYS = new Set([
+  'total',
+  'limit',
+  'offset',
+  'page',
+  'pageSize',
+  'per_page',
+  'perPage',
+  'count',
+  'hasMore',
+  'has_more',
+  'cursor',
+  'nextCursor',
+  'next_cursor',
+  'meta',
+  'links',
+])
+
+function isPaginationEnvelope(v: unknown): v is { data: unknown[] } {
+  if (!v || typeof v !== 'object') return false
+  if (!Array.isArray((v as { data?: unknown }).data)) return false
+  // Every OTHER key must be recognised pagination metadata. Requiring the exact
+  // trio total+limit+offset — as this did — missed `{ data, page, limit }`, the
+  // shape hand-written list handlers return, and unwrapList then answered `[]`
+  // for a response carrying 20 rows. That is the worst possible failure mode
+  // here: silent, and indistinguishable from an empty collection, so a
+  // storefront rendered zero products with no error anywhere.
+  //
+  // Membership is still what keeps this unambiguous. An application object that
+  // merely owns a `data` array carries domain keys (`id`, `name`, …), none of
+  // which are in this set, so it is never mistaken for an envelope.
+  return Object.keys(v as object).every((k) => k === 'data' || PAGINATION_KEYS.has(k))
 }
 
 /**

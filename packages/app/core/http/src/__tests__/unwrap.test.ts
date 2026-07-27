@@ -94,9 +94,10 @@ describe('unwrapList', () => {
     ])
   })
 
-  it('does NOT treat a partial pagination shape (missing offset) as an envelope', () => {
-    // The pagination branch requires ALL of total+limit+offset to be numbers, so a
-    // resource that coincidentally has `data` + some numeric fields is not peeled.
+  it('does NOT peel an application object that merely owns a `data` array', () => {
+    // `id` is a domain field, not pagination metadata, so this is a resource
+    // that happens to carry a `data` array — peeling it would return the inner
+    // array and silently drop the surrounding record.
     const httpResponse = {
       data: { id: 7, data: [1, 2, 3], total: 5, limit: 10 },
       status: 200,
@@ -105,6 +106,32 @@ describe('unwrapList', () => {
       config: { method: 'GET', url: '/x' },
     }
     expect(unwrapList(httpResponse)).toEqual([])
+  })
+
+  it('unwraps a { data, page, limit } envelope from a hand-written list handler', () => {
+    // The regression this guards: requiring the exact total+limit+offset trio
+    // made unwrapList answer [] for a paginated response carrying real rows.
+    // A storefront rendered zero products from a 20-row payload, with no error
+    // anywhere — 25 e2e tests failed on the empty page, not on the cause.
+    const httpResponse = {
+      data: { data: [{ id: 'a' }, { id: 'b' }], page: 1, limit: 20 },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/api/products' },
+    }
+    expect(unwrapList(httpResponse)).toEqual([{ id: 'a' }, { id: 'b' }])
+  })
+
+  it('unwraps cursor-style and snake_case pagination envelopes too', () => {
+    const cursor = {
+      data: { data: [1, 2], nextCursor: 'abc', has_more: true },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/x' },
+    }
+    expect(unwrapList(cursor)).toEqual([1, 2])
   })
 })
 
