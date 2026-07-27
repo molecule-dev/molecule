@@ -164,7 +164,19 @@ function isHttpResponseLike(res: unknown): boolean {
  */
 export function unwrapSingle<T>(res: unknown): T | null {
   if (res && typeof res === 'object' && !Array.isArray(res)) {
-    if ('data' in res) {
+    // A resource may legitimately OWN a `data` field. grocery-delivery's
+    // GET /api/cart answers `{ data: [...], items: [...], subtotal, delivery_fee,
+    // … }` — a cart object that happens to carry its rows under `data` as well.
+    // Peeling that returned the inner array, which the "caller wants a single
+    // resource" branch below then turned into `null`, so the cart page rendered
+    // empty while the API held the item and 20 tests failed on the empty page
+    // instead of the cause. Only peel when the object is a PURE envelope: `data`
+    // plus recognised pagination metadata and nothing else. (isPaginationEnvelope
+    // covers the array case; the object case is guarded the same way here.)
+    const looksLikeResource =
+      !isHttpResponseLike(res) &&
+      Object.keys(res as object).some((k) => k !== 'data' && !PAGINATION_KEYS.has(k))
+    if ('data' in res && !looksLikeResource) {
       const inner = (res as { data: unknown }).data
       if (inner === null || inner === undefined) return null
       // Caller expects a single resource. If the envelope contains an array
