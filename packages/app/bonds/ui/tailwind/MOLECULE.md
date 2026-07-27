@@ -393,6 +393,14 @@ Subtle error background utility class.
 const bgErrorSubtle: "bg-error-light"
 ```
 
+#### `bgPrimaryContainer`
+
+Primary-tinted container surface; pair with {@link textOnPrimaryContainer}.
+
+```typescript
+const bgPrimaryContainer: "bg-primary-container"
+```
+
 #### `borderAll`
 
 The border all.
@@ -1823,6 +1831,14 @@ Textarea component classes.
 
 ```typescript
 const textarea: (props?: ({ variant?: "default" | "error" | undefined; } & { class?: string; }) | undefined) => string
+```
+
+#### `textOnPrimaryContainer`
+
+Readable text on {@link bgPrimaryContainer}.
+
+```typescript
+const textOnPrimaryContainer: "text-on-primary-container"
 ```
 
 #### `textPrimary`
