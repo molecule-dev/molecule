@@ -380,12 +380,13 @@ export interface PreviewUiCommand {
   /** Value to set for `fill` / `select`. */
   value?: string
   /**
-   * `snapshot` only — the path the host just navigated the preview to. The bridge holds its
-   * reply until `location.pathname` matches (bounded), so a navigation snapshot can never be
-   * answered by the OUTGOING document still sitting in the iframe, and can never be answered
-   * by the incoming one before its framework has booted. Omit for a plain read.
+   * `snapshot` only — the moment the host pointed the preview at a new URL (`Date.now()`).
+   * Only a document that loaded at or after it may answer, so a navigation snapshot can never
+   * come from the OUTGOING page still sitting in the iframe. Set it ONLY when a new document
+   * is genuinely loading (the URL actually changed) — otherwise nothing can satisfy it and the
+   * command goes unanswered. Omit for a plain read.
    */
-  expectPath?: string
+  minLoadedAt?: number
 }
 
 /** The preview interaction bridge's reply to a {@link PreviewUiCommand}. */

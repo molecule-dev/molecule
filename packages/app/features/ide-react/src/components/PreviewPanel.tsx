@@ -329,9 +329,9 @@ export function PreviewPanel({
       selector: uiCommand.selector,
       text: uiCommand.text,
       value: uiCommand.value,
-      // Navigation only: the bridge won't answer until the iframe is actually on this path,
-      // so the OUTGOING document can't reply with a pre-navigation snapshot.
-      expectPath: uiCommand.expectPath,
+      // Navigation only: only a document that loaded at or after this may answer, so the
+      // OUTGOING page can't reply with a pre-navigation snapshot.
+      minLoadedAt: uiCommand.minLoadedAt,
     }
     // Post repeatedly until the bridge replies (or ~40s, under the navigate tool's 45s wait). A
     // single post races iframe/bridge readiness: the preview may be mid-mount (the view just
