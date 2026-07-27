@@ -95,6 +95,14 @@ const PAGINATION_KEYS = new Set([
   'per_page',
   'perPage',
   'count',
+  // An aggregate OVER the collection, in the same family as `total`/`count` —
+  // seven flagships' notification lists answer `{ data, unreadCount, total }`.
+  // The criterion for membership here is that the key describes the list rather
+  // than belonging to a resource: no notification row carries `unreadCount`, so
+  // this stays unambiguous. App-specific aggregates that don't meet that bar
+  // belong under `meta`.
+  'unreadCount',
+  'unread_count',
   'hasMore',
   'has_more',
   'cursor',
