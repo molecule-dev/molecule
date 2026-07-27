@@ -101,6 +101,39 @@ describe('createMigrator (postgresql)', () => {
     expect(migrateEnd).toHaveBeenCalled()
   })
 
+  it('REGRESSION: re-adding a PRIMARY KEY is idempotent, so an app can boot twice against a persistent database', async () => {
+    // `CREATE TABLE IF NOT EXISTS` + a separate `ALTER TABLE ... ADD CONSTRAINT
+    // ... PRIMARY KEY` is the shape pg_dump emits and what every fleet template
+    // (and every user pasting a dump) ships. On the SECOND boot the CREATE is
+    // skipped and the ADD CONSTRAINT re-runs — pg answers 42P16 "multiple
+    // primary keys", NOT 42710/"already exists", because it checks for an
+    // existing PK before it checks the constraint name. That is an idempotency
+    // signal (the table already has its PK), but it used to be classified as a
+    // broken migration, so the API refused to boot and inventory-management lost
+    // 92 of 113 e2e tests to a dead server.
+    writeFileSync(join(migrationsDir, '0001_ok.sql'), 'CREATE TABLE ok (id TEXT);')
+    writeFileSync(
+      join(migrationsDir, '0002_pk.sql'),
+      'CREATE TABLE IF NOT EXISTS orders (id uuid NOT NULL);\n' +
+        'ALTER TABLE ONLY orders ADD CONSTRAINT orders_pkey PRIMARY KEY (id);',
+    )
+    writeFileSync(join(migrationsDir, '0003_ok.sql'), 'CREATE TABLE ok2 (id TEXT);')
+    migrateQuery.mockImplementation((sql: string) => {
+      if (sql.includes('orders_pkey')) {
+        const err = Object.assign(
+          new Error('multiple primary keys for table "orders" are not allowed'),
+          { code: '42P16' },
+        )
+        return Promise.reject(err)
+      }
+      return Promise.resolve({ rows: [] })
+    })
+
+    await expect(createMigrator(migrationsDir)()).resolves.toBeUndefined()
+    expect(migrateQuery).toHaveBeenCalledTimes(3)
+    expect(migrateEnd).toHaveBeenCalled()
+  })
+
   it('REGRESSION: a genuinely broken migration (syntax error) fails the run with an actionable summary instead of silently continuing', async () => {
     writeFileSync(join(migrationsDir, '0001_ok.sql'), 'CREATE TABLE ok (id TEXT);')
     writeFileSync(join(migrationsDir, '0002_broken.sql'), 'CREAT TABLE typo (id TEXT);')

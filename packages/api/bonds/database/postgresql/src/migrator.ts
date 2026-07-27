@@ -51,6 +51,21 @@ const IDEMPOTENT_PG_CODES = new Set([
   '42P06', // duplicate_schema
   '42P04', // duplicate_database
   '42723', // duplicate_function
+  // invalid_table_definition — raised as "multiple primary keys for table X are
+  // not allowed" when `ALTER TABLE ... ADD CONSTRAINT ... PRIMARY KEY` re-runs
+  // against a table that already has its primary key. Postgres checks "does this
+  // table already have a PK" BEFORE it checks the constraint name, so a re-run
+  // raises this and NOT 42710/"already exists" — verified against pg directly.
+  // That makes it an idempotency signal in every case that reaches here: the
+  // statement's desired end state (this table has a primary key) already holds.
+  //
+  // It matters because `CREATE TABLE IF NOT EXISTS` + a separate unguarded
+  // `ADD CONSTRAINT ... PRIMARY KEY` is precisely the shape `pg_dump` emits, so
+  // it is what users paste into their own migrations — and every fleet template
+  // is built that way. Without this the app boots once, then REFUSES to boot
+  // ever again against a persistent database (fail-closed on a partial schema),
+  // which is exactly how inventory-management lost 92 of 113 tests to a dead API.
+  '42P16',
 ])
 
 /**
@@ -68,7 +83,11 @@ function isIdempotencyError(err: unknown): boolean {
   const code = (err as { code?: string } | undefined)?.code
   if (code && IDEMPOTENT_PG_CODES.has(code)) return true
   const msg = err instanceof Error ? err.message : String(err)
-  return /already exists/i.test(msg) || /duplicate (column|key|object) name/i.test(msg)
+  return (
+    /already exists/i.test(msg) ||
+    /duplicate (column|key|object) name/i.test(msg) ||
+    /multiple primary keys for table/i.test(msg)
+  )
 }
 
 /**
