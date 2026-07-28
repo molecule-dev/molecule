@@ -100,12 +100,27 @@ class MoonshotAIProvider implements AIProvider {
       body.tools = allTools
     }
 
-    if (params.thinking) {
+    // Model-family thinking rules (platform.kimi.ai docs, verified 2026-07-28):
+    // - kimi-k3: thinking is ALWAYS ON and the K2.x `thinking` param is
+    //   unsupported (sending {type:"disabled"} is explicitly rejected). Depth
+    //   rides the top-level reasoning_effort: low | high | max (default max).
+    // - kimi-k2.7-code: thinking always on, no reasoning_effort — send neither.
+    // - other kimi-k2.x: thinking on/off via `thinking: {type:"disabled"}`;
+    //   reasoning_effort (minimal..high) is accepted though undocumented.
+    if (model.startsWith('kimi-k3')) {
+      const effort = params.thinking?.effort
+      if (effort === 'low' || effort === 'high' || effort === 'max') {
+        body.reasoning_effort = effort
+      }
+      // No effort resolved → omit and let the upstream default (max) apply.
+    } else if (model.startsWith('kimi-k2.7-code')) {
+      // Forced thinking, no depth knob — nothing to send.
+    } else if (params.thinking) {
       // Prefer a caller-resolved native value from the model catalog; fall back
       // to the budget threshold. NOTE: Moonshot's official docs expose only
-      // thinking on/off (no documented reasoning_effort) — current kimi catalog
-      // entries are fixed-effort (['M']) and never set params.thinking, so this
-      // branch only fires for explicit callers.
+      // thinking on/off for K2.x — current k2.x catalog entries are
+      // fixed-effort and never set params.thinking, so this branch only fires
+      // for explicit callers.
       body.reasoning_effort = params.thinking.effort ?? budgetToEffort(params.thinking.budgetTokens)
     } else {
       // Default: read from env so callers can tune kimi's reasoning level
@@ -241,7 +256,11 @@ class MoonshotAIProvider implements AIProvider {
       if (m.role === 'system') continue // handled above
 
       if (typeof m.content === 'string') {
-        formatted.push({ role: m.role, content: m.content })
+        formatted.push({
+          role: m.role,
+          content: m.content,
+          ...(m.role === 'assistant' && m.reasoning ? { reasoning_content: m.reasoning } : {}),
+        })
         continue
       }
 
@@ -289,13 +308,24 @@ class MoonshotAIProvider implements AIProvider {
           formatted.push(tr)
         }
       } else if (toolCalls.length > 0) {
-        // Assistant message with tool calls — include reasoning_content for Kimi compatibility
+        // Assistant message with tool calls — replay reasoning_content so
+        // preserved-thinking models (kimi-k3, kimi-k2.7-code) keep reasoning
+        // continuity through the tool loop. The typed ChatMessage.reasoning
+        // field is preferred; the legacy untyped `_reasoning` stays as a
+        // fallback for older callers.
         const rawMsg = m as unknown as Record<string, unknown>
         formatted.push({
           role: 'assistant',
           content: parts.length > 0 ? parts : null,
-          reasoning_content: (rawMsg._reasoning as string) || '',
+          reasoning_content: m.reasoning ?? ((rawMsg._reasoning as string) || ''),
           tool_calls: toolCalls,
+        })
+      } else if (m.role === 'assistant' && m.reasoning) {
+        // Plain assistant turn that carried reasoning — replay it too.
+        formatted.push({
+          role: 'assistant',
+          content: parts.length === 1 && parts[0].type === 'text' ? parts[0].text : parts,
+          reasoning_content: m.reasoning,
         })
       } else {
         formatted.push({

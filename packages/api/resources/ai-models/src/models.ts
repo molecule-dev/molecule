@@ -783,17 +783,68 @@ export const MODELS: readonly ModelDefinition[] = [
 
   // ---------------------------------------------------------------------------
   // Moonshot (Kimi)
-  // Verified: https://platform.kimi.ai/docs/models (2026-07-28).
-  // kimi-k3 (2026-07-16, 2.8T MoE, 1M ctx, $3/$15, open weights 2026-07-26) is
-  // the new flagship but is NOT added yet: thinking is forced-on (sending the
-  // K2.x thinking:{type:"disabled"} param is explicitly unsupported) and it
-  // emits reasoning_content that must be carried through multi-step tool
-  // calls — the same constraint that keeps kimi-k2.7-code out. Add both once
-  // the moonshot bond supports preserved thinking (K3's knob is a top-level
-  // reasoning_effort: low|high|max, default max). Until then kimi-k2.6 is the
-  // newest model the bond runs correctly (thinking on/off only; the bond
-  // disables it for the executor loop).
+  // Verified: https://platform.kimi.ai/docs/models +
+  //           /docs/guide/use-kimi-k2-thinking-model (2026-07-28).
+  // The moonshot bond now supports PRESERVED THINKING (ChatMessage.reasoning →
+  // reasoning_content replay through tool loops), which unblocked the two
+  // previously-excluded models: kimi-k3 (2026-07-16 flagship — 2.8T MoE, 1M
+  // ctx, forced thinking, reasoning_effort low|high|max default max upstream)
+  // and kimi-k2.7-code (coding flagship — forced thinking, no depth knob).
+  // kimi-k2.x thinking stays on/off only; the bond disables it for those by
+  // default (KIMI_REASONING_EFFORT env tunes it).
   // ---------------------------------------------------------------------------
+  {
+    id: 'kimi-k3',
+    provider: 'moonshot',
+    label: 'Kimi K3',
+    description: 'Moonshot flagship — 2.8T open weights, 1M context, multimodal',
+    contextWindow: 1_000_000,
+    // Max output not documented — conservative cap (matches the K2.x family).
+    maxOutputTokens: 65_535,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    // Thinking is FORCED ON; depth rides reasoning_effort (low|high|max). The
+    // upstream default is max — we default to high so agentic loops aren't
+    // pinned to the slowest/most expensive tier unless the user asks for it.
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'high', 'max'],
+    defaultEffortLevel: 'high',
+    // Text + image + video input.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    inputPricePerMTok: 3,
+    outputPricePerMTok: 15,
+    // Automatic context cache: absolute cache-hit price ($0.30/M = 0.1× input).
+    cacheReadPricePerMTok: 0.3,
+    cacheWritePricePerMTok: 3,
+    // Not published — best-effort estimate.
+    knowledgeCutoff: '2026-01-01',
+  },
+  {
+    id: 'kimi-k2.7-code',
+    provider: 'moonshot',
+    label: 'Kimi K2.7 Code',
+    description: 'Moonshot coding specialist — token-efficient agentic coding',
+    contextWindow: 262_144,
+    maxOutputTokens: 65_535,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    // Thinking forced on, NO depth knob (reasoning_effort unsupported here) —
+    // the bond sends neither param and replays reasoning_content.
+    thinkingConfigurable: false,
+    // Coding model — vision not documented; conservative.
+    supportsVision: false,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    inputPricePerMTok: 0.95,
+    outputPricePerMTok: 4,
+    // Automatic context cache: absolute cache-hit price ($0.19/M = 0.2× input).
+    cacheReadPricePerMTok: 0.19,
+    cacheWritePricePerMTok: 0.95,
+    // Not published — best-effort estimate.
+    knowledgeCutoff: '2025-10-01',
+  },
   {
     id: 'kimi-k2.6',
     provider: 'moonshot',

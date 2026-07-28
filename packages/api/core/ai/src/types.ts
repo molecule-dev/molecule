@@ -13,6 +13,16 @@
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   content: string | ContentBlock[]
+  /**
+   * Model-native reasoning text produced alongside this (assistant) message —
+   * e.g. an OpenAI-compatible provider's `reasoning_content`. Some providers
+   * (Moonshot's Kimi K3 / k2.7-code and other preserved-thinking models)
+   * require it to be replayed verbatim on subsequent requests within a
+   * tool-call loop to keep reasoning continuity; callers that captured
+   * `thinking` stream events should set it when rebuilding history. Bonds
+   * whose provider has no such requirement ignore it.
+   */
+  reasoning?: string
 }
 
 /**

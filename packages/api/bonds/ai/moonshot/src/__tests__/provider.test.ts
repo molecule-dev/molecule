@@ -193,6 +193,96 @@ describe('chat() — request shape', () => {
     expect(body.max_tokens).toBeUndefined()
   })
 
+  it('kimi-k3: sends reasoning_effort, never the K2.x thinking param', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      model: 'kimi-k3',
+      stream: false,
+      thinking: { type: 'enabled', budgetTokens: 8000, effort: 'high' },
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    expect(body.reasoning_effort).toBe('high')
+    expect(body.thinking).toBeUndefined()
+  })
+
+  it('kimi-k3 without a resolved effort: omits both knobs (upstream default max applies)', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      model: 'kimi-k3',
+      stream: false,
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    expect(body.reasoning_effort).toBeUndefined()
+    expect(body.thinking).toBeUndefined()
+  })
+
+  it('kimi-k2.7-code: sends neither thinking nor reasoning_effort (forced thinking, no knob)', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      model: 'kimi-k2.7-code',
+      stream: false,
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    expect(body.reasoning_effort).toBeUndefined()
+    expect(body.thinking).toBeUndefined()
+  })
+
+  it('replays ChatMessage.reasoning as reasoning_content on assistant tool-call turns', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [
+        { role: 'user', content: 'add 1+2' },
+        {
+          role: 'assistant',
+          reasoning: 'I should call the add tool.',
+          content: [{ type: 'tool_use', id: 'c1', name: 'add', input: { a: 1, b: 2 } }],
+        },
+        {
+          role: 'user',
+          content: [{ type: 'tool_result', tool_use_id: 'c1', content: '3' }],
+        },
+      ],
+      model: 'kimi-k3',
+      stream: false,
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    const assistant = (body.messages as Array<Record<string, unknown>>).find(
+      (m) => m.role === 'assistant',
+    )
+    expect(assistant?.reasoning_content).toBe('I should call the add tool.')
+    // And plain assistant messages with reasoning carry it too.
+    expect(
+      (body.messages as Array<Record<string, unknown>>).filter((m) => m.role === 'tool').length,
+    ).toBe(1)
+  })
+
   it('places system prompt as leading {role:system}', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
