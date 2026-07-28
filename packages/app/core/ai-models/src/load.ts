@@ -16,13 +16,19 @@ import type { AppModelDefinition, ListAIModelsResponse } from './types.js'
  *
  * @param http - HTTP client bonded by the host app.
  * @param path - Endpoint path, defaults to `'/ai/models'` (the http client supplies the base URL).
+ * @param projectId - Optional project scope. When set, servers that support
+ *   per-project custom ("bring your own AI") models append them to the
+ *   catalog, flagged `provider: 'custom'`; servers that ignore the query param
+ *   return the unscoped catalog unchanged.
  * @returns The list of models available to the current session.
  */
 export async function loadAIModels(
   http: HttpClient,
   path = '/ai/models',
+  projectId?: string,
 ): Promise<AppModelDefinition[]> {
-  const response = await http.get<ListAIModelsResponse>(path)
+  const url = projectId ? `${path}?projectId=${encodeURIComponent(projectId)}` : path
+  const response = await http.get<ListAIModelsResponse>(url)
   return response.data.models
 }
 

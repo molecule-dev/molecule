@@ -5,6 +5,10 @@
  * module-level singleton so subsequent mounts return synchronously. The picker
  * shows a brief loading state on first open and never refetches afterwards.
  *
+ * When a `projectId` is passed, the fetch is project-scoped
+ * (`?projectId=<id>`) so servers that support per-project custom
+ * ("bring your own AI") models include them; each scope caches independently.
+ *
  * @module
  */
 
@@ -22,47 +26,80 @@ interface CacheState {
   inFlight: Promise<AppModelDefinition[]> | null
 }
 
-const cache: CacheState = {
-  models: null,
-  error: null,
-  inFlight: null,
+/** One cache entry per scope — `''` for the unscoped catalog, else the projectId. */
+const caches = new Map<string, CacheState>()
+
+/**
+ * The cache entry for a scope, created on first use.
+ *
+ * @param scope - `''` for the unscoped catalog, else the projectId.
+ * @returns The scope's cache entry.
+ */
+function cacheFor(scope: string): CacheState {
+  let cache = caches.get(scope)
+  if (!cache) {
+    cache = { models: null, error: null, inFlight: null }
+    caches.set(scope, cache)
+  }
+  return cache
 }
 
 type Listener = (state: { models: AppModelDefinition[] | null; error: Error | null }) => void
-const listeners = new Set<Listener>()
+/** Listeners keyed by the same scope as the cache they observe. */
+const listenersByScope = new Map<string, Set<Listener>>()
 
 /**
- * Broadcasts the current cache state to every subscribed listener.
+ * The listener set for a scope, created on first use.
+ *
+ * @param scope - The cache scope.
+ * @returns The scope's listener set.
  */
-function notify(): void {
-  for (const listener of listeners) {
+function listenersFor(scope: string): Set<Listener> {
+  let set = listenersByScope.get(scope)
+  if (!set) {
+    set = new Set()
+    listenersByScope.set(scope, set)
+  }
+  return set
+}
+
+/**
+ * Broadcasts a scope's current cache state to its subscribed listeners.
+ *
+ * @param scope - The cache scope to notify.
+ */
+function notify(scope: string): void {
+  const cache = cacheFor(scope)
+  for (const listener of listenersFor(scope)) {
     listener({ models: cache.models, error: cache.error })
   }
 }
 
 /**
- * Triggers (or rejoins) the single in-flight fetch of `/ai/models` and stores
- * the result in the module-level cache.
+ * Triggers (or rejoins) the single in-flight fetch of `/ai/models` for a scope
+ * and stores the result in that scope's module-level cache.
  *
  * @param http - HTTP client used for the single fetch.
+ * @param scope - `''` for the unscoped catalog, else the projectId.
  * @returns The fetched model list.
  */
-async function fetchOnce(http: HttpClient): Promise<AppModelDefinition[]> {
+async function fetchOnce(http: HttpClient, scope: string): Promise<AppModelDefinition[]> {
+  const cache = cacheFor(scope)
   if (cache.models) return cache.models
   if (cache.inFlight) return cache.inFlight
 
-  cache.inFlight = loadAIModels(http)
+  cache.inFlight = loadAIModels(http, undefined, scope || undefined)
     .then((models) => {
       cache.models = models
       cache.error = null
       cache.inFlight = null
-      notify()
+      notify(scope)
       return models
     })
     .catch((err) => {
       cache.error = err instanceof Error ? err : new Error(String(err))
       cache.inFlight = null
-      notify()
+      notify(scope)
       throw cache.error
     })
 
@@ -70,14 +107,17 @@ async function fetchOnce(http: HttpClient): Promise<AppModelDefinition[]> {
 }
 
 /**
- * Test-only: drops the cached model list so the next `useAIModels` call
+ * Test-only: drops every cached model list so the next `useAIModels` call
  * refetches. Exposed for unit tests; do not call from production code.
  */
 export function resetAIModelsCache(): void {
-  cache.models = null
-  cache.error = null
-  cache.inFlight = null
-  notify()
+  for (const [scope, cache] of caches) {
+    cache.models = null
+    cache.error = null
+    cache.inFlight = null
+    notify(scope)
+  }
+  caches.clear()
 }
 
 /**
@@ -95,32 +135,42 @@ export interface UseAIModelsResult {
 }
 
 /**
- * Subscribes to the cached AI model catalog. The first mount triggers a single
- * `GET /ai/models` fetch; subsequent mounts return the cached result.
+ * Subscribes to the cached AI model catalog. The first mount of a scope
+ * triggers a single `GET /ai/models` fetch; subsequent mounts return the
+ * cached result.
  *
+ * @param projectId - Optional project scope: includes that project's custom
+ *   ("bring your own AI") models on servers that support them.
  * @returns Models, free-tier model, loading flag, and error.
  */
-export function useAIModels(): UseAIModelsResult {
+export function useAIModels(projectId?: string): UseAIModelsResult {
   const http = useHttpClient()
+  const scope = projectId ?? ''
   const [snapshot, setSnapshot] = useState<{
     models: AppModelDefinition[] | null
     error: Error | null
-  }>(() => ({ models: cache.models, error: cache.error }))
+  }>(() => {
+    const cache = cacheFor(scope)
+    return { models: cache.models, error: cache.error }
+  })
 
   useEffect(() => {
+    const cache = cacheFor(scope)
     const listener: Listener = (next) => setSnapshot(next)
-    listeners.add(listener)
+    listenersFor(scope).add(listener)
+    // The scope may have changed since the lazy useState init — resync.
+    setSnapshot({ models: cache.models, error: cache.error })
 
     if (!cache.models && !cache.error) {
-      void fetchOnce(http).catch(() => {
+      void fetchOnce(http, scope).catch(() => {
         // Error is mirrored into cache.error and propagated via the listener.
       })
     }
 
     return () => {
-      listeners.delete(listener)
+      listenersFor(scope).delete(listener)
     }
-  }, [http])
+  }, [http, scope])
 
   const models = snapshot.models ?? []
   return {

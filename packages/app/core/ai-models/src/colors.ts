@@ -23,4 +23,6 @@ export const PROVIDER_BRAND_COLORS: Readonly<Record<AIProviderID, string>> = {
   minimax: '#ec4899',
   alibaba: '#f97316',
   zhipu: '#14b8a6',
+  // Bring-your-own providers have no vendor brand — a neutral slate accent.
+  custom: '#64748b',
 }

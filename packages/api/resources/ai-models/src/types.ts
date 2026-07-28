@@ -27,6 +27,13 @@ export type AIProviderID =
   | 'minimax'
   | 'alibaba'
   | 'zhipu'
+  /**
+   * A model served by a USER-configured endpoint + key (bring-your-own AI)
+   * rather than a platform bond. Never appears in the static catalog — hosts
+   * synthesize these definitions at runtime from per-project provider config,
+   * with all prices 0 (the user pays their own provider directly).
+   */
+  | 'custom'
 
 /**
  * A reasoning-effort value — a model's OWN native effort level.

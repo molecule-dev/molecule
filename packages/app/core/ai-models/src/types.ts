@@ -25,6 +25,12 @@ export type AIProviderID =
   | 'minimax'
   | 'alibaba'
   | 'zhipu'
+  /**
+   * A model served by a USER-configured endpoint + key (bring-your-own AI).
+   * Appears only in project-scoped listings (`GET /ai/models?projectId=…`);
+   * pricing fields are 0 (the user pays their own provider directly).
+   */
+  | 'custom'
 
 /**
  * A reasoning-effort value — a model's OWN native effort level (e.g. `'high'`,
