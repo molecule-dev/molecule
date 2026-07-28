@@ -8,9 +8,12 @@
  * commit-message generator) and `compactModel` (conversation compaction), which
  * fall back to the server's own fast default (never `chatModel`) when unset.
  * These helpers parse the mode flag, map a mode to its settings field, resolve
- * the effective model for a mode, and compute the free-tier clamp (plan → a
- * Sonnet-class model, execute → `deepseek-v4-flash`, commit/compact → any
- * free-tier-flagged model) against the live catalog.
+ * the effective model for a mode, and compute the free-tier clamp (plan →
+ * `deepseek-v4-pro`, execute → `deepseek-v4-flash`, commit/compact → any
+ * free-tier-flagged model) against the live catalog. The clamp ids mirror the
+ * server's FREE_TIER_MODELS in molecule-dev's `model-selection.ts` — keep the
+ * two in sync (a stale Sonnet-plan assumption here once highlighted the wrong
+ * "current" model in the picker).
  *
  * Everything here is deterministic and side-effect free so it can be unit tested
  * without rendering or a backend. The component owns persistence (`PATCH
@@ -104,11 +107,12 @@ export function resolveModeModel(
 
 /**
  * Computes the free-tier-allowed model id for a mode from the live catalog. The
- * free/anon tier is clamped — with no mixing — to a Sonnet-class model in plan
+ * free/anon tier is clamped — with no mixing — to `deepseek-v4-pro` in plan
  * mode and `deepseek-v4-flash` in execute mode (the auxiliary commit/compact
- * jobs share the execute clamp). Matching is catalog-driven (by id/provider) so
- * it survives id churn; when no specific match exists it falls back to the
- * supplied `fallback` (the catalog's free-tier model id).
+ * jobs share the execute clamp), mirroring the server's FREE_TIER_MODELS.
+ * Matching is catalog-driven (by id/provider) so it survives id churn; when no
+ * specific match exists it falls back to the supplied `fallback` (the
+ * catalog's free-tier model id).
  *
  * @param models - The available models from the catalog.
  * @param mode - The conversation mode or auxiliary job.
@@ -121,10 +125,12 @@ export function freeTierModeModelId(
   fallback: string,
 ): string {
   if (mode === 'plan') {
-    const sonnetFree = models.find((m) => /sonnet/i.test(m.id) && m.freeTier)
-    if (sonnetFree) return sonnetFree.id
-    const sonnet = models.find((m) => /sonnet/i.test(m.id))
-    return sonnet?.id ?? fallback
+    const exact = models.find((m) => m.id === 'deepseek-v4-pro')
+    if (exact) return exact.id
+    const deepseekPro = models.find((m) => m.provider === 'deepseek' && /pro/i.test(m.id))
+    if (deepseekPro) return deepseekPro.id
+    const anyDeepseek = models.find((m) => m.provider === 'deepseek')
+    return anyDeepseek?.id ?? fallback
   }
   // execute (and the commit/compact auxiliary jobs, which share its clamp)
   const exact = models.find((m) => m.id === 'deepseek-v4-flash')

@@ -126,13 +126,23 @@ describe('resolveModeModel — back-compat', () => {
 })
 
 describe('freeTierModeModelId — clamp', () => {
-  it('clamps plan mode to a Sonnet-class model', () => {
-    expect(freeTierModeModelId(catalog, 'plan', 'fallback')).toBe('claude-sonnet-4-6')
+  // The clamp ids mirror the server's FREE_TIER_MODELS (model-selection.ts):
+  // plan → deepseek-v4-pro, execute → deepseek-v4-flash. A stale Sonnet-plan
+  // assumption here once highlighted the wrong "current" model in the picker.
+  it('clamps plan mode to deepseek-v4-pro by exact id', () => {
+    const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
+    expect(freeTierModeModelId([...catalog, deepseekPro], 'plan', 'fallback')).toBe(
+      'deepseek-v4-pro',
+    )
   })
 
-  it('prefers a free-tier Sonnet when one exists', () => {
-    const freeSonnet = model({ id: 'claude-sonnet-free', label: 'Sonnet Free', freeTier: true })
-    expect(freeTierModeModelId([sonnet, freeSonnet], 'plan', 'fallback')).toBe('claude-sonnet-free')
+  it('falls back to a deepseek pro model by provider when the exact id is absent', () => {
+    const otherPro = model({ id: 'deepseek-x-pro', provider: 'deepseek', label: 'X Pro' })
+    expect(freeTierModeModelId([opus, sonnet, otherPro], 'plan', 'fallback')).toBe('deepseek-x-pro')
+  })
+
+  it('falls back to any deepseek model for plan mode before the supplied fallback', () => {
+    expect(freeTierModeModelId(catalog, 'plan', 'fallback')).toBe('deepseek-v4-flash')
   })
 
   it('clamps execute mode to deepseek-v4-flash by exact id', () => {
@@ -155,9 +165,12 @@ describe('isModeModelLocked', () => {
     expect(isModeModelLocked('claude-opus-4-6', 'plan', false, catalog, 'fallback')).toBe(false)
   })
 
-  it('locks free users to the mode clamp (plan → sonnet)', () => {
-    expect(isModeModelLocked('claude-opus-4-6', 'plan', true, catalog, 'fallback')).toBe(true)
-    expect(isModeModelLocked('claude-sonnet-4-6', 'plan', true, catalog, 'fallback')).toBe(false)
+  it('locks free users to the mode clamp (plan → deepseek-v4-pro)', () => {
+    const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
+    const withPro = [...catalog, deepseekPro]
+    expect(isModeModelLocked('claude-opus-4-6', 'plan', true, withPro, 'fallback')).toBe(true)
+    expect(isModeModelLocked('claude-sonnet-4-6', 'plan', true, withPro, 'fallback')).toBe(true)
+    expect(isModeModelLocked('deepseek-v4-pro', 'plan', true, withPro, 'fallback')).toBe(false)
   })
 
   it('locks free users to the mode clamp (execute → deepseek-v4-flash)', () => {
