@@ -30,42 +30,43 @@ import type { ModelDefinition } from './types.js'
  *   control) carries `thinkingConfigurable: false` and OMITS both fields —
  *   there is nothing to tune.
  *
- * Sources (verified 2026-07-07):
+ * Sources (verified 2026-07-28):
  * - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
- *   + /docs/en/build-with-claude/effort (fable-5 / opus-4-8 / sonnet-5 current;
- *   sonnet-4-6 + opus-4-6 legacy; effort = output_config.effort, adaptive
- *   thinking; budget_tokens 400s on fable-5/opus-4-8/sonnet-5)
- * - OpenAI: https://developers.openai.com/api/docs/models/gpt-5.5 + /pricing +
- *   /guides/reasoning (gpt-5.5 flagship; gpt-5.4 NOT deprecated; gpt-5.4-mini
- *   cheap tier; reasoning_effort none|low|medium|high|xhigh. GPT-5.6 “Sol” is
- *   limited-preview only — no public id/pricing yet; do not add until GA.)
- * - Google: https://ai.google.dev/gemini-api/docs/models + /docs/thinking
- *   (gemini-3.5-flash GA 2026-05-19 is the agentic/coding flagship;
- *   gemini-3.1-pro-preview is the pro tier — there is NO bare "gemini-3.1-pro"
- *   id and never was; thinking_level replaces thinking_budget)
- * - xAI: https://docs.x.ai/developers/models + /model-capabilities/text/reasoning
- *   (grok-4.3 flagship, reasoning_effort none|low|medium|high default low;
- *   grok-build-0.1 succeeds grok-code-fast-1, which retires 2026-08-15)
- * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing +
- *   /guides/thinking_mode (V4 permanent 75% price cut since 2026-05-23; 384K
- *   output; thinking default ENABLED w/ reasoning_effort high|max — we still
- *   run non-thinking, see entries. Peak-hour 2× pricing announced for
- *   mid-Jul 2026; re-verify pricing when the "V4 official" release lands.)
- * - Moonshot: https://platform.kimi.ai/docs/models (kimi-k2.6 = current
- *   general flagship; kimi-k2.7-code exists but REQUIRES replaying
- *   reasoning_content through tool loops — not added until the bond supports
- *   preserved thinking; kimi-k2.5 legacy but still served)
- * - MiniMax: https://platform.minimax.io/docs/guides/models-intro +
- *   /docs/guides/pricing-paygo.md (minimax-m3 flagship 2026-06-01, 1M ctx,
- *   multimodal; m2.7 repriced $0.30/$1.20, thinking not disableable)
- * - Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking +
- *   /model-studio/qwen-coder (qwen3.7-max is the agentic flagship — Alibaba now
- *   recommends general-purpose models over Qwen-Coder; qwen3-coder-plus is
- *   NON-thinking, catalog previously wrong)
- * - Zhipu: https://docs.z.ai/guides/overview/pricing +
- *   /api-reference/llm/chat-completion (glm-5.2 standalone API live since
- *   2026-06-16 w/ reasoning_effort — effective levels high|max, default max;
- *   glm-5 repriced $1.00/$3.20)
+ *   + /docs/en/build-with-claude/effort (fable-5 / opus-5 / sonnet-5 current;
+ *   opus-4-8 superseded by opus-5 at identical pricing but still served — it is
+ *   the recommended refusal-fallback model; effort ladder on all three current
+ *   models is low|medium|high|xhigh|max; budget_tokens 400s on 4.7+)
+ * - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
+ *   2026-07-09: gpt-5.6-sol $5/$30, -terra $2.50/$15, -luna $1/$6, cache read
+ *   0.1× input; gpt-5.5/gpt-5.4 still listed as current; long-context 2×
+ *   variants exist upstream — not modeled, same as the Gemini/Grok tiers)
+ * - Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
+ *   2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
+ *   gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as
+ *   of 2026-07-28 despite the coming-soon badge; do not add until it has an id)
+ * - xAI: https://docs.x.ai/developers/models + /developers/grok-4-5
+ *   (grok-4.5 flagship 2026-07-08: $2/$6, 500K ctx, ≥200K prompts bill 2× —
+ *   not modeled; reasoning_effort low|medium|high default high, image input;
+ *   grok-4.3 still served at $1.25/$2.50 with the bigger 1M window;
+ *   grok-code-fast-1 no longer listed — retires 2026-08-15)
+ * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing (unchanged V4
+ *   Pro/Flash pricing; legacy deepseek-chat/-reasoner ids fully retired
+ *   2026-07-24 — never in this catalog; the announced peak-hour 2× surcharge is
+ *   still NOT active as of 2026-07-28, see the entries)
+ * - Moonshot: https://platform.kimi.ai/docs/models (kimi-k3 flagship 2026-07-16
+ *   — 2.8T MoE, 1M ctx, $3/$15 — NOT added: thinking is forced-on with
+ *   reasoning_content that must be replayed through tool loops, the same
+ *   constraint that keeps kimi-k2.7-code out; add BOTH once the moonshot bond
+ *   supports preserved thinking + reasoning_effort low|high|max. kimi-k2.6
+ *   remains the newest model the bond can run correctly.)
+ * - MiniMax: https://platform.minimax.io/docs/guides/pricing-paygo (unchanged;
+ *   minimax-m3 $0.30/$1.20 is a "permanent 50% off" list rate)
+ * - Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
+ *   (unchanged; qwen3.8-max-preview, 2026-07-19, is Token-Plan-subscriber-only
+ *   — not on the pay-as-you-go API, so it cannot be added yet; qwen3.7-max
+ *   currently runs a 50%-off promo — still billed here at list, $2.50/$7.50)
+ * - Zhipu: https://docs.z.ai/guides/overview/pricing (unchanged; glm-5.2 is
+ *   the newest — "GLM-5.3/5.5" rumors have no released ids as of 2026-07-28)
  *
  * Knowledge-cutoff dates on non-Anthropic entries are best-effort estimates
  * where the provider doesn't publish one; the provider sources above verify
@@ -90,10 +91,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['low', 'high', 'xhigh', 'max'],
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
     defaultEffortLevel: 'high',
     // Thinking is ALWAYS ON (adaptive); effort is the only depth control.
-    // Anthropic: default/recommended is high (M); xhigh for the most
+    // Full five-level ladder (medium was missing here — Fable supports low
+    // through max). Default/recommended is high; xhigh for the most
     // capability-sensitive work; low still performs well on routine tasks.
     supportsVision: true,
     supportsPromptCaching: true,
@@ -109,19 +111,50 @@ export const MODELS: readonly ModelDefinition[] = [
     knowledgeCutoff: '2026-01-01',
   },
   {
-    id: 'claude-opus-4-8',
+    id: 'claude-opus-5',
     provider: 'anthropic',
-    label: 'Claude Opus 4.8',
-    description: 'Highly capable Opus — deep reasoning & complex agentic work',
+    label: 'Claude Opus 5',
+    description: 'Anthropic Opus flagship — step-change agentic coding at 4.8 pricing',
     contextWindow: 1_000_000,
     maxOutputTokens: 128_000,
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['low', 'high', 'xhigh', 'max'],
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
     defaultEffortLevel: 'high',
-    // Anthropic's rec for coding/agentic on Opus 4.8 is xhigh (= L here); the
-    // API default high (= M) is the balanced quality/cost sweet spot.
+    // Thinking on by default (adaptive); disabling is only valid at effort
+    // high or below (xhigh/max + disabled → 400). Full five-level ladder;
+    // Anthropic's rec: xhigh for coding/agentic, but low/medium punch far
+    // above their weight on this model. 512-token prompt-cache minimum.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search_20260209',
+    codeExecutionToolType: 'code_execution_20250825',
+    webFetchToolType: 'web_fetch_20260209',
+    // Drop-in successor to Opus 4.8 at identical pricing.
+    inputPricePerMTok: 5,
+    outputPricePerMTok: 25,
+    // Anthropic 5-minute prompt cache: read 0.1× input, write 1.25× input.
+    cacheReadPricePerMTok: 0.5,
+    cacheWritePricePerMTok: 6.25,
+    // Not published at verification time — best-effort estimate (≥ Opus 4.8's).
+    knowledgeCutoff: '2026-01-01',
+  },
+  {
+    id: 'claude-opus-4-8',
+    provider: 'anthropic',
+    label: 'Claude Opus 4.8',
+    description: 'Previous Opus — deep reasoning; the opus-5 refusal fallback',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'high',
+    // Full five-level ladder (medium was missing here). Anthropic's rec for
+    // coding/agentic on Opus 4.8 is xhigh; the API default is high.
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -134,6 +167,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.5,
     cacheWritePricePerMTok: 6.25,
     knowledgeCutoff: '2026-01-01',
+    // Superseded by claude-opus-5 (same price); still served upstream and the
+    // recommended refusal-fallback target. Selectable under "Older models".
+    deprecatedAt: '2026-07-28',
   },
   {
     id: 'claude-sonnet-5',
@@ -145,10 +181,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsThinking: true,
     thinkingBudgetTokens: 16_000,
     thinkingConfigurable: true,
-    supportedEffortLevels: ['low', 'high', 'xhigh', 'max'],
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
     defaultEffortLevel: 'high',
-    // Adaptive thinking on by default; effort default/rec is high (M), xhigh
-    // (L) for the hardest coding/agentic tasks, medium ≈ Sonnet 4.6 at high.
+    // Adaptive thinking on by default; full five-level ladder (medium was
+    // missing here). Default/rec is high, xhigh for the hardest coding/agentic
+    // tasks, medium ≈ Sonnet 4.6 at high.
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -254,14 +291,94 @@ export const MODELS: readonly ModelDefinition[] = [
 
   // ---------------------------------------------------------------------------
   // OpenAI
-  // Verified: https://developers.openai.com/api/docs/models/gpt-5.5
-  //           https://developers.openai.com/api/docs/pricing
-  //           https://developers.openai.com/api/docs/guides/reasoning
-  // reasoning_effort values: none | low | medium | high | xhigh (default medium
-  // on gpt-5.5, none on gpt-5.4/gpt-5.4-mini). OpenAI recommends medium as the
-  // agentic-coding starting point. GPT-5.6 (Sol/Terra/Luna) is limited-preview
-  // only — no public ids — do not add until GA.
+  // Verified: https://developers.openai.com/api/docs/pricing (2026-07-28)
+  // GPT-5.6 family GA 2026-07-09: gpt-5.6 is an alias for gpt-5.6-sol; Sol is
+  // the frontier tier, Terra the balanced tier, Luna the cheap/fast tier.
+  // Cached input is billed at 0.1× input. The official pricing page shows no
+  // cache-WRITE premium, but third-party trackers report 1.25× with a 30-min
+  // cache life for the 5.6 family — billed here at 1.25× (conservative;
+  // re-verify against the official docs). reasoning_effort values for 5.6 are
+  // not yet on the docs page — carried over from gpt-5.5 (low|medium|high|
+  // xhigh, default medium); re-verify. Long-context 2× price variants exist
+  // upstream — not modeled (same as the Gemini/Grok >200K tiers).
   // ---------------------------------------------------------------------------
+  {
+    id: 'gpt-5.6-sol',
+    provider: 'openai',
+    label: 'GPT-5.6 Sol',
+    description: 'OpenAI frontier — the hardest coding & reasoning work',
+    // Reported as 1.05M; floored to 1M until the docs state it (understating
+    // only makes compaction slightly earlier — overstating risks overflow).
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'medium',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search',
+    codeExecutionToolType: 'code_interpreter',
+    inputPricePerMTok: 5,
+    outputPricePerMTok: 30,
+    // Cached input 0.1× input; write premium reported 1.25× (see section note).
+    cacheReadPricePerMTok: 0.5,
+    cacheWritePricePerMTok: 6.25,
+    // Not published — best-effort estimate.
+    knowledgeCutoff: '2026-03-01',
+  },
+  {
+    id: 'gpt-5.6-terra',
+    provider: 'openai',
+    label: 'GPT-5.6 Terra',
+    description: 'Balanced OpenAI — everyday coding & tool use',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'medium',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search',
+    codeExecutionToolType: 'code_interpreter',
+    inputPricePerMTok: 2.5,
+    outputPricePerMTok: 15,
+    // Cached input 0.1× input; write premium reported 1.25× (see section note).
+    cacheReadPricePerMTok: 0.25,
+    cacheWritePricePerMTok: 3.125,
+    // Not published — best-effort estimate.
+    knowledgeCutoff: '2026-03-01',
+  },
+  {
+    id: 'gpt-5.6-luna',
+    provider: 'openai',
+    label: 'GPT-5.6 Luna',
+    description: 'Fast & cheap OpenAI — light tasks & subagents',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'medium',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search',
+    codeExecutionToolType: 'code_interpreter',
+    inputPricePerMTok: 1,
+    outputPricePerMTok: 6,
+    // Cached input 0.1× input; write premium reported 1.25× (see section note).
+    cacheReadPricePerMTok: 0.1,
+    cacheWritePricePerMTok: 1.25,
+    // Not published — best-effort estimate.
+    knowledgeCutoff: '2026-03-01',
+  },
   {
     id: 'gpt-5.5',
     provider: 'openai',
@@ -287,6 +404,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.5,
     cacheWritePricePerMTok: 5,
     knowledgeCutoff: '2025-12-01',
+    // Superseded by gpt-5.6-sol (same price); still listed as current by
+    // OpenAI. Selectable under "Older models".
+    deprecatedAt: '2026-07-09',
   },
   {
     id: 'gpt-5.4',
@@ -352,10 +472,42 @@ export const MODELS: readonly ModelDefinition[] = [
   // historical usage can reference the old ids.
   // ---------------------------------------------------------------------------
   {
+    id: 'gemini-3.6-flash',
+    provider: 'google',
+    label: 'Gemini 3.6 Flash',
+    description: 'Google agentic flagship — frontier intelligence + grounding',
+    // Window/output not on the pricing page — carried over from 3.5-flash;
+    // re-verify against /docs/models.
+    contextWindow: 1_048_576,
+    maxOutputTokens: 65_536,
+    supportsThinking: true,
+    thinkingBudgetTokens: 10_000,
+    thinkingConfigurable: true,
+    // thinking_level assumed unchanged from 3.5-flash (low|medium|high);
+    // re-verify against /docs/thinking.
+    supportedEffortLevels: ['low', 'medium', 'high'],
+    defaultEffortLevel: 'medium',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'google_search',
+    codeExecutionToolType: 'code_execution',
+    webFetchToolType: 'url_context',
+    // GA 2026-07-21 — same input price as 3.5-flash, CHEAPER output ($7.50 vs $9).
+    inputPricePerMTok: 1.5,
+    outputPricePerMTok: 7.5,
+    // Gemini context cache: read $0.15/M (0.1× input), no write premium
+    // (storage billed separately per hour — not modeled).
+    cacheReadPricePerMTok: 0.15,
+    cacheWritePricePerMTok: 1.5,
+    // Not published — best-effort estimate.
+    knowledgeCutoff: '2026-01-01',
+  },
+  {
     id: 'gemini-3.5-flash',
     provider: 'google',
     label: 'Gemini 3.5 Flash',
-    description: 'Google agentic/coding flagship — fast, 1M context',
+    description: 'Previous Google agentic flagship — fast, 1M context',
     contextWindow: 1_048_576,
     maxOutputTokens: 65_536,
     supportsThinking: true,
@@ -379,6 +531,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.15,
     cacheWritePricePerMTok: 1.5,
     knowledgeCutoff: '2025-01-01',
+    // Superseded by gemini-3.6-flash (2026-07-21); still served upstream.
+    // Selectable under "Older models".
+    deprecatedAt: '2026-07-21',
   },
   {
     id: 'gemini-3.1-pro-preview',
@@ -412,17 +567,47 @@ export const MODELS: readonly ModelDefinition[] = [
 
   // ---------------------------------------------------------------------------
   // xAI (Grok)
-  // Verified: https://docs.x.ai/developers/models
-  //           https://docs.x.ai/developers/model-capabilities/text/reasoning
-  // grok-4.3 accepts reasoning_effort: none | low | medium | high (default
-  // low — a reversal from grok-4, which had no knob). Max output tokens are
-  // still not documented by xAI for any model.
+  // Verified: https://docs.x.ai/developers/models + /developers/grok-4-5
+  //           (2026-07-28)
+  // grok-4.5 (2026-07-08) is the flagship: 500K ctx, reasoning_effort
+  // low|medium|high default high, image input. grok-4.3 stays served as the
+  // value tier with the BIGGER 1M window (reasoning_effort none|low|medium|
+  // high, default low). Max output tokens still not documented for any model.
   // ---------------------------------------------------------------------------
+  {
+    id: 'grok-4.5',
+    provider: 'xai',
+    label: 'Grok 4.5',
+    description: 'xAI frontier — coding, agentic tasks & knowledge work',
+    contextWindow: 500_000,
+    // Max output not documented by xAI — conservative cap.
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    // reasoning_effort low|medium|high, default high (docs.x.ai/developers/
+    // grok-4-5) — no 'none' tier on 4.5, unlike 4.3.
+    supportedEffortLevels: ['low', 'medium', 'high'],
+    defaultEffortLevel: 'high',
+    // Multimodal input (text + images), text out.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // ≤200K-token prompts; ≥200K bills 2× ($4/$0.60/$12 — tiering not
+    // modeled, same as the Gemini 3.1 Pro >200K tier).
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 6,
+    // xAI cached input billed at a flat $0.30/M, no write premium.
+    cacheReadPricePerMTok: 0.3,
+    cacheWritePricePerMTok: 2,
+    // Official (docs.x.ai): 2026-02-01.
+    knowledgeCutoff: '2026-02-01',
+  },
   {
     id: 'grok-4.3',
     provider: 'xai',
     label: 'Grok 4.3',
-    description: 'xAI flagship — fast reasoning, 1M context',
+    description: 'xAI value tier — fast reasoning, bigger 1M context',
     contextWindow: 1_000_000,
     maxOutputTokens: 128_000,
     supportsThinking: true,
@@ -557,18 +742,13 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepSeek automatic context cache: absolute cache-hit price ($/M).
     cacheReadPricePerMTok: 0.003625,
     cacheWritePricePerMTok: 0.435,
-    // Announced for the mid-Jul 2026 "V4 official" release: 2× pricing during
-    // Beijing business hours (09:00–12:00 + 14:00–18:00 CST = 01:00–04:00 +
-    // 06:00–10:00 UTC). Pre-wired CONSERVATIVELY (we'd rather over-meter for a
-    // few days than under-meter peak traffic) — re-verify windows/multiplier
-    // against api-docs.deepseek.com when the release lands.
-    peakPricing: {
-      windows: [
-        { startMinuteUtc: 60, endMinuteUtc: 240 },
-        { startMinuteUtc: 360, endMinuteUtc: 600 },
-      ],
-      multiplier: 2,
-    },
+    // The announced peak-hour 2× surcharge (Beijing business hours) is STILL
+    // NOT ACTIVE as of 2026-07-28 — the official rate card lists a single flat
+    // rate, and no switch-over date is published. The pre-wired windows were
+    // REMOVED: they had been over-billing every peak-window turn 2× for weeks
+    // (this is the free-tier default model, so that directly shrank free
+    // users' allowances). Re-add via `peakPricing` the day DeepSeek's rate
+    // card actually shows the surcharge.
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
   },
@@ -596,28 +776,23 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepSeek automatic context cache: absolute cache-hit price ($/M).
     cacheReadPricePerMTok: 0.0028,
     cacheWritePricePerMTok: 0.14,
-    // Same announced peak-hour pricing as deepseek-v4-pro (see that entry).
-    peakPricing: {
-      windows: [
-        { startMinuteUtc: 60, endMinuteUtc: 240 },
-        { startMinuteUtc: 360, endMinuteUtc: 600 },
-      ],
-      multiplier: 2,
-    },
+    // Peak-hour surcharge NOT active (see deepseek-v4-pro) — windows removed.
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
   },
 
   // ---------------------------------------------------------------------------
   // Moonshot (Kimi)
-  // Verified: https://platform.kimi.ai/docs/models (platform.moonshot.ai now
-  //           redirects here) + per-model pricing pages.
-  // Native reasoning control is thinking:{type:"enabled"|"disabled"} only — no
-  // documented reasoning_effort / budget, so kimi entries are fixed-effort
-  // ['M']. kimi-k2.7-code (the new coding flagship, 2026-06-12) is NOT added
-  // yet: it forces always-on thinking AND requires replaying reasoning_content
-  // through multi-step tool calls (hard 400 on omission) — add it once the
-  // moonshot bond supports preserved thinking.
+  // Verified: https://platform.kimi.ai/docs/models (2026-07-28).
+  // kimi-k3 (2026-07-16, 2.8T MoE, 1M ctx, $3/$15, open weights 2026-07-26) is
+  // the new flagship but is NOT added yet: thinking is forced-on (sending the
+  // K2.x thinking:{type:"disabled"} param is explicitly unsupported) and it
+  // emits reasoning_content that must be carried through multi-step tool
+  // calls — the same constraint that keeps kimi-k2.7-code out. Add both once
+  // the moonshot bond supports preserved thinking (K3's knob is a top-level
+  // reasoning_effort: low|high|max, default max). Until then kimi-k2.6 is the
+  // newest model the bond runs correctly (thinking on/off only; the bond
+  // disables it for the executor loop).
   // ---------------------------------------------------------------------------
   {
     id: 'kimi-k2.6',

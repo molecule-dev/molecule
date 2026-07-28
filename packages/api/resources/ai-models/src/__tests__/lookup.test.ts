@@ -425,11 +425,16 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
     expect(priceMultiplierAt(undefined, new Date('2026-07-20T02:00:00Z'))).toBe(1)
   })
 
-  it('the DeepSeek catalog entries carry the announced peak windows (conservative pre-wire)', () => {
+  it('the DeepSeek catalog entries carry NO peak windows while the surcharge is inactive', () => {
+    // The announced peak-hour 2× surcharge was still not live on the official
+    // rate card as of 2026-07-28 — the conservative pre-wire was over-billing
+    // every peak-window turn on the free-tier default model and was removed.
+    // When DeepSeek's rate card actually shows the surcharge, re-add
+    // `peakPricing` on both entries and flip this test back to asserting the
+    // real windows/multiplier.
     for (const id of ['deepseek-v4-pro', 'deepseek-v4-flash']) {
       const model = MODELS.find((m) => m.id === id)!
-      expect(model.peakPricing?.multiplier, id).toBe(2)
-      expect(model.peakPricing?.windows.length, id).toBe(2)
+      expect(model.peakPricing, id).toBeUndefined()
     }
   })
 })
