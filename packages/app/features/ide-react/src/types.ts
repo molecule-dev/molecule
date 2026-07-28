@@ -177,6 +177,13 @@ export interface ChatPanelProps {
   openReportSignal?: number
   /** Changing this opens the in-chat `/settings` view (host-driven). Overrides the built-in header's settings button signal. */
   openSettingsSignal?: number
+  /**
+   * When provided, the `/model` picker shows an "Add or manage your own
+   * models…" row at the bottom of the list; choosing it closes the picker and
+   * invokes this callback (the host opens its own custom-provider management
+   * surface). Omit to hide the row — the shared package stays host-agnostic.
+   */
+  onManageCustomModels?: () => void
   /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
   spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */

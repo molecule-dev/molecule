@@ -171,7 +171,7 @@ export const COMMANDS: readonly CommandDef[] = [
   {
     id: 'model',
     label: '/model',
-    description: 'Switch model (use --plan / --execute / --commit / --compact for per-mode models)',
+    description: 'Switch the model for any mode (plan, execute, commit messages, compaction)',
     category: 'model',
     usage: '/model [name | --plan | --execute | --commit | --compact]',
   },

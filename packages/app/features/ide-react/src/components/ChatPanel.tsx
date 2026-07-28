@@ -405,10 +405,12 @@ interface ActivityCardEntry {
 interface ModelPicker {
   selectedIdx: number
   /**
-   * When set, the picker is scoped to a conversation mode (`/model --plan` /
-   * `--execute`): selections persist to `settings.planModel` / `executeModel`
-   * and the free-tier clamp is the mode's clamped model. Unset = the legacy
-   * single `chatModel`.
+   * When set, the picker is scoped to a mode: selections persist to that
+   * mode's settings field (`planModel` / `executeModel` / `commitModel` /
+   * `compactModel`) and the free-tier lock follows the mode's rules. Unset =
+   * the legacy single `chatModel` ("Default"). Driven live by the mode
+   * dropdown at the top of the picker; the `/model --plan` etc. flags merely
+   * preselect it.
    */
   mode?: ModelMode
 }
@@ -2369,6 +2371,8 @@ export interface ChatInnerProps {
   autoSubmitSignal?: number
   /** Changing this value opens the `/settings` view (used by the header gear button). */
   openSettingsSignal?: number
+  /** Shows a "manage your own models" row in the `/model` picker — see {@link ChatPanelProps.onManageCustomModels}. */
+  onManageCustomModels?: () => void
   /** Changing this value opens the `/report` bug-report modal (used by the header bug button). */
   openReportSignal?: number
   /** Changing this value opens the `/share` link modal (used by the header share button). */
@@ -2433,6 +2437,7 @@ function ChatInner({
   onRegisterPushHandler,
   autoSubmitSignal,
   openSettingsSignal,
+  onManageCustomModels,
   openReportSignal,
   openShareSignal,
   initialInputValue,
@@ -5571,6 +5576,70 @@ function ChatInner({
     return [...sortedCurrent, ...sortedDeprecated]
   }, [showDeprecated, currentModels, deprecatedModels, modelSort])
 
+  // ── Model-picker mode dropdown ──────────────────────────────────────────────
+  // Options for the picker's mode selector; each shows the model currently
+  // active for that mode (persisted value, else its fallback labeling) so
+  // re-scoping the open picker is informed. Cheap to recompute per render.
+  const pickerModeOptions = ((): { value: string; label: string }[] => {
+    const label = (id: string): string => AVAILABLE_MODELS.find((m) => m.id === id)?.label || id
+    const followsDefault = t('ide.chat.settings.modelFollowsDefault', undefined, {
+      defaultValue: 'Follows default model',
+    })
+    const fastDefault = t('ide.chat.settings.modelDefaultFast', undefined, {
+      defaultValue: 'Fast default',
+    })
+    const defaultId = currentModel || DEFAULT_MODEL
+    const rows: { value: string; mode: string; model: string }[] = [
+      {
+        value: '',
+        mode: t('ide.chat.modelMode.default', undefined, { defaultValue: 'Default' }),
+        model: defaultId
+          ? label(defaultId)
+          : t('ide.chat.settings.modelUnset', undefined, { defaultValue: 'Not set' }),
+      },
+      {
+        value: 'plan',
+        mode: t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' }),
+        model: planModel ? label(planModel) : followsDefault,
+      },
+      {
+        value: 'execute',
+        mode: t('ide.chat.settings.modeExecute', undefined, { defaultValue: 'Execute' }),
+        model: executeModel ? label(executeModel) : followsDefault,
+      },
+      {
+        value: 'commit',
+        mode: t('ide.chat.modelMode.commit', undefined, { defaultValue: 'Commit messages' }),
+        model: commitModel ? label(commitModel) : fastDefault,
+      },
+      {
+        value: 'compact',
+        mode: t('ide.chat.modelMode.compact', undefined, { defaultValue: 'Compaction' }),
+        model: compactModel ? label(compactModel) : fastDefault,
+      },
+    ]
+    return rows.map((r) => ({
+      value: r.value,
+      label: t(
+        'ide.chat.modelModeOption',
+        { mode: r.mode, model: r.model },
+        { defaultValue: '{{mode}} · {{model}}' },
+      ),
+    }))
+  })()
+
+  // The row that gets the "current" pill — the model the selected picker mode
+  // actually uses (its per-mode value with the mode's fallback chain), not
+  // unconditionally the legacy chatModel.
+  const pickerCurrentModelId = modelPicker
+    ? modelPicker.mode
+      ? resolveModeModel(
+          { planModel, executeModel, commitModel, compactModel, chatModel: currentModel },
+          modelPicker.mode,
+        )
+      : currentModel
+    : undefined
+
   const filteredEntries = useMemo(() => {
     if (!filePicker) return []
     const q = filePicker.query.toLowerCase()
@@ -5680,24 +5749,34 @@ function ChatInner({
       }
     }
 
-    if (modelPicker && visibleModels.length > 0) {
+    // The optional "manage your own models" row sits after the model rows and
+    // participates in arrow/Enter navigation as the last index.
+    const modelRowCount = visibleModels.length + (onManageCustomModels ? 1 : 0)
+    if (modelPicker && modelRowCount > 0) {
       if (e.key === 'ArrowDown') {
         e.preventDefault()
         setModelPicker((m) =>
-          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, 1, visibleModels.length) } : null,
+          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, 1, modelRowCount) } : null,
         )
         return
       }
       if (e.key === 'ArrowUp') {
         e.preventDefault()
         setModelPicker((m) =>
-          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, -1, visibleModels.length) } : null,
+          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, -1, modelRowCount) } : null,
         )
         return
       }
       if (e.key === 'Enter' || e.key === 'Tab') {
         e.preventDefault()
-        const model = visibleModels[modelPicker.selectedIdx >= 0 ? modelPicker.selectedIdx : 0]
+        const idx = modelPicker.selectedIdx >= 0 ? modelPicker.selectedIdx : 0
+        if (onManageCustomModels && idx === visibleModels.length) {
+          setModelPicker(null)
+          setInputValue('')
+          onManageCustomModels()
+          return
+        }
+        const model = visibleModels[idx]
         if (model) {
           // Honor the free-tier clamp for the active mode; ignore Enter on a
           // locked model (the click path shows the upgrade card). Custom
@@ -6802,25 +6881,45 @@ function ChatInner({
                   flexShrink: 0,
                 }}
               >
-                <span>
-                  {modelPicker.mode === 'plan'
-                    ? t('ide.chat.selectPlanModel', undefined, {
-                        defaultValue: 'Select plan-mode model',
-                      })
-                    : modelPicker.mode === 'execute'
-                      ? t('ide.chat.selectExecuteModel', undefined, {
-                          defaultValue: 'Select execute-mode model',
-                        })
-                      : modelPicker.mode === 'commit'
-                        ? t('ide.chat.selectCommitModel', undefined, {
-                            defaultValue: 'Select commit-message model',
-                          })
-                        : modelPicker.mode === 'compact'
-                          ? t('ide.chat.selectCompactModel', undefined, {
-                              defaultValue: 'Select compaction model',
-                            })
-                          : t('ide.chat.selectModel', undefined, { defaultValue: 'Select model' })}
-                </span>
+                {/* Mode dropdown — re-scopes the OPEN picker in place. Each
+                    option shows the mode's currently active model. The /model
+                    --plan etc. flags merely preselect it. */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                  <span>{t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}</span>
+                  <select
+                    data-mol-id="chat-model-mode-select"
+                    aria-label={t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}
+                    value={modelPicker.mode ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      // Reset the highlighted row — the lock rules (and thus
+                      // which rows are selectable) change with the mode.
+                      setModelPicker((m) =>
+                        m
+                          ? {
+                              ...m,
+                              mode: v === '' ? undefined : (v as ModelMode),
+                              selectedIdx: -1,
+                            }
+                          : m,
+                      )
+                    }}
+                    className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
+                    style={{
+                      borderRadius: 4,
+                      padding: '1px 4px',
+                      color: 'inherit',
+                      cursor: 'pointer',
+                      maxWidth: 220,
+                    }}
+                  >
+                    {pickerModeOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 {/*
                   Sort control (replaces the old "Current: X" text — the active
                   model is now shown by the right-aligned per-row "current" pill
@@ -7065,7 +7164,7 @@ function ChatInner({
                             <span style={{ fontSize: '10px', color: accent, opacity: 0.85 }}>
                               {model.provider}
                             </span>
-                            {model.id === currentModel && (
+                            {model.id === pickerCurrentModelId && (
                               <span
                                 data-mol-id={`model-current-${model.id}`}
                                 className={cm.fontWeight('medium')}
@@ -7186,6 +7285,51 @@ function ChatInner({
                         { count: deprecatedModels.length },
                         { defaultValue: 'Older models ⌄ ({{count}})' },
                       )}
+                    </button>
+                  )}
+                  {/* Host-provided seam to the BYO ("bring your own AI")
+                      management surface — hidden when the host passes no
+                      callback. Last row, reachable via arrow keys/Enter as
+                      index visibleModels.length. Primary-tinted so it reads as
+                      an action, not another model. */}
+                  {onManageCustomModels && (
+                    <button
+                      type="button"
+                      data-mol-id="chat-model-manage-custom"
+                      onClick={() => {
+                        setModelPicker(null)
+                        setInputValue('')
+                        onManageCustomModels()
+                      }}
+                      onMouseEnter={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.background =
+                          'rgba(128,128,128,0.15)'
+                      }}
+                      onMouseLeave={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.background =
+                          modelPicker.selectedIdx === visibleModels.length
+                            ? 'rgba(128,128,128,0.1)'
+                            : 'rgba(128,128,128,0.04)'
+                      }}
+                      className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'), cm.w('full'))}
+                      style={{
+                        padding: '8px 12px',
+                        border: 'none',
+                        borderTop: '1px solid rgba(128,128,128,0.12)',
+                        // The hex is only the var() fallback (theme token wins) —
+                        // same idiom as the per-row "current" pill above.
+                        color: 'var(--mol-color-primary, #6366f1)',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        background:
+                          modelPicker.selectedIdx === visibleModels.length
+                            ? 'rgba(128,128,128,0.1)'
+                            : 'rgba(128,128,128,0.04)',
+                      }}
+                    >
+                      {t('ide.chat.manageCustomModels', undefined, {
+                        defaultValue: 'Add or manage your own models…',
+                      })}
                     </button>
                   )}
                 </div>
@@ -8480,6 +8624,7 @@ export function ChatPanel({
   openShareSignal: controlledShareSignal,
   openReportSignal: controlledReportSignal,
   openSettingsSignal: controlledSettingsSignal,
+  onManageCustomModels,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,
@@ -8904,6 +9049,7 @@ export function ChatPanel({
         onRegisterPushHandler={onRegisterPushHandler}
         autoSubmitSignal={autoSubmitSignal}
         openSettingsSignal={effectiveSettingsSignal}
+        onManageCustomModels={onManageCustomModels}
         openReportSignal={effectiveReportSignal}
         openShareSignal={effectiveShareSignal}
         initialInputValue={initialInputValue}

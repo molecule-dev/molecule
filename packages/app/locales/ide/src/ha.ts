@@ -319,6 +319,12 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.selectCompactModel': 'Select compaction model',
   'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
   'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
+  'ide.chat.modelModeLabel': 'Mode',
+  'ide.chat.modelMode.default': 'Default',
+  'ide.chat.modelMode.commit': 'Commit messages',
+  'ide.chat.modelMode.compact': 'Compaction',
+  'ide.chat.modelModeOption': '{{mode}} · {{model}}',
+  'ide.chat.manageCustomModels': 'Add or manage your own models…',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',

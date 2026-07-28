@@ -320,6 +320,12 @@ export type IdeTranslationKey =
   | 'ide.chat.planModelSet'
   | 'ide.chat.commitModelSet'
   | 'ide.chat.compactModelSet'
+  | 'ide.chat.modelModeLabel'
+  | 'ide.chat.modelMode.default'
+  | 'ide.chat.modelMode.commit'
+  | 'ide.chat.modelMode.compact'
+  | 'ide.chat.modelModeOption'
+  | 'ide.chat.manageCustomModels'
   | 'ide.chat.modelSortLabel'
   | 'ide.chat.modelSortDirection'
   // Visible label stays the plain unit ("~40.5k tokens") because the metrics row

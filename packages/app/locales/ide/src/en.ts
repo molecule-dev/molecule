@@ -373,6 +373,12 @@ export const en: IdeTranslations = {
   'ide.chat.selectCompactModel': 'Select compaction model',
   'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
   'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
+  'ide.chat.modelModeLabel': 'Mode',
+  'ide.chat.modelMode.default': 'Default',
+  'ide.chat.modelMode.commit': 'Commit messages',
+  'ide.chat.modelMode.compact': 'Compaction',
+  'ide.chat.modelModeOption': '{{mode}} · {{model}}',
+  'ide.chat.manageCustomModels': 'Add or manage your own models…',
   // Sortable /model list controls (P2-11) — a sort dropdown + direction toggle
   // above the picker; the per-model detail rendering itself is unchanged.
   'ide.chat.modelSortLabel': 'Sort',
