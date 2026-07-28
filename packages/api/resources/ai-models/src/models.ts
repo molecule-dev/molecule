@@ -431,8 +431,10 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.25,
     cacheWritePricePerMTok: 2.5,
     knowledgeCutoff: '2025-08-31',
-    // NOT deprecated (previous "deprecatedAt: 2026-06-16" was wrong — OpenAI's
-    // deprecations page lists gpt-5.4 as current; only ChatGPT dropped GPT-5.2).
+    // OpenAI still lists gpt-5.4 as current, but gpt-5.6-terra covers this
+    // tier at the same price — moved to "Older models" (deprecatedAt is OUR
+    // picker taxonomy, not OpenAI's deprecations page).
+    deprecatedAt: '2026-07-28',
   },
   {
     id: 'gpt-5.4-mini',
@@ -627,6 +629,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 1.25,
     knowledgeCutoff: '2025-12-01',
+    // Superseded by grok-4.5 as the xAI pick (4.3 keeps the bigger 1M window
+    // — the reason it stays selectable under "Older models").
+    deprecatedAt: '2026-07-28',
   },
   {
     id: 'grok-build-0.1',
@@ -652,6 +657,8 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 1,
     // Not published by xAI — best-effort estimate (grok-4-generation base).
     knowledgeCutoff: '2025-06-01',
+    // Niche coding beta; grok-4.5 is the xAI pick — kept out of the main list.
+    deprecatedAt: '2026-07-28',
   },
   {
     id: 'grok-4.20-multi-agent-beta-0309',
@@ -844,6 +851,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 0.95,
     // Not published — best-effort estimate.
     knowledgeCutoff: '2025-10-01',
+    // kimi-k3 is the Moonshot pick; the coding specialist stays selectable
+    // under "Older models" for anyone who wants the cheaper tier.
+    deprecatedAt: '2026-07-28',
   },
   {
     id: 'kimi-k2.6',
@@ -869,6 +879,8 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.16,
     cacheWritePricePerMTok: 0.95,
     knowledgeCutoff: '2025-04-01',
+    // Superseded by kimi-k3; moved to "Older models".
+    deprecatedAt: '2026-07-28',
   },
   {
     id: 'kimi-k2.5',
@@ -950,6 +962,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.06,
     cacheWritePricePerMTok: 0.375,
     knowledgeCutoff: '2025-09-01',
+    // Superseded by minimax-m3 (same price, 1M ctx, multimodal); moved to
+    // "Older models".
+    deprecatedAt: '2026-07-28',
   },
   {
     id: 'minimax-m2.5',
@@ -1037,6 +1052,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 1,
     knowledgeCutoff: '2025-06-01',
+    // Alibaba itself recommends the general-purpose models over Qwen-Coder;
+    // qwen3.7-max is the pick — moved to "Older models".
+    deprecatedAt: '2026-07-28',
   },
 
   // ---------------------------------------------------------------------------
@@ -1098,5 +1116,7 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 1,
     knowledgeCutoff: '2025-01-01',
+    // Superseded by glm-5.2; moved to "Older models".
+    deprecatedAt: '2026-07-28',
   },
 ] as const
