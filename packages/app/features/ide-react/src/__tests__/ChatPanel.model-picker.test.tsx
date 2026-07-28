@@ -83,6 +83,49 @@ const MODELS = [
     knowledgeCutoff: '2025-06-01',
     freeTier: false,
   },
+  // The real free-tier clamps (mirroring the server's FREE_TIER_MODELS):
+  // deepseek-v4-pro is the plan clamp (not freeTier-flagged), deepseek-v4-flash
+  // the execute clamp (freeTier-flagged, so also the aux commit/compact pick).
+  {
+    id: 'deepseek-v4-pro',
+    provider: 'deepseek',
+    label: 'DeepSeek Pro',
+    description: 'the plan clamp',
+    contextWindow: 128_000,
+    maxOutputTokens: 8_000,
+    supportsThinking: false,
+    thinkingBudgetTokens: 0,
+    thinkingConfigurable: false,
+    supportsVision: false,
+    supportsPromptCaching: false,
+    supportsTools: true,
+    inputPricePerMTok: 0.6,
+    outputPricePerMTok: 2.2,
+    cacheReadPricePerMTok: 0,
+    cacheWritePricePerMTok: 0,
+    knowledgeCutoff: '2025-03-01',
+    freeTier: false,
+  },
+  {
+    id: 'deepseek-v4-flash',
+    provider: 'deepseek',
+    label: 'DeepSeek Flash',
+    description: 'the execute clamp',
+    contextWindow: 128_000,
+    maxOutputTokens: 8_000,
+    supportsThinking: false,
+    thinkingBudgetTokens: 0,
+    thinkingConfigurable: false,
+    supportsVision: false,
+    supportsPromptCaching: false,
+    supportsTools: true,
+    inputPricePerMTok: 0.3,
+    outputPricePerMTok: 1.1,
+    cacheReadPricePerMTok: 0,
+    cacheWritePricePerMTok: 0,
+    knowledgeCutoff: '2025-03-01',
+    freeTier: true,
+  },
 ]
 
 type PatchCall = { path: string; body: unknown }
@@ -220,12 +263,14 @@ function buildThemeProvider(): ThemeProviderType {
  * @param patchCalls - Sink for recorded PATCH calls.
  * @param projectId - Project id (vary per test so each gets a fresh models scope).
  * @param onManageCustomModels - Optional host seam under test.
+ * @param isPro - Paid-plan flag (default true; false exercises the free-tier locks).
  * @returns The rendered container.
  */
 function renderChatPanel(
   patchCalls: PatchCall[],
   projectId: string,
   onManageCustomModels?: () => void,
+  isPro = true,
 ): HTMLElement {
   const wrap = (children: ReactNode): ReactElement => (
     <I18nProvider provider={createSimpleI18nProvider('en')}>
@@ -237,7 +282,9 @@ function renderChatPanel(
     </I18nProvider>
   )
   const { container } = render(
-    wrap(<ChatPanel projectId={projectId} isPro onManageCustomModels={onManageCustomModels} />),
+    wrap(
+      <ChatPanel projectId={projectId} isPro={isPro} onManageCustomModels={onManageCustomModels} />,
+    ),
   )
   return container
 }
@@ -388,6 +435,39 @@ describe('ChatPanel /model picker — mode dropdown + manage seam', () => {
         ),
       ).toBe(true),
     )
+  })
+
+  it("splits the locked pill by reason: another mode's free model is never labeled Pro", async () => {
+    const patchCalls: PatchCall[] = []
+    const container = renderChatPanel(patchCalls, 'proj-picker-6', undefined, false)
+    const modeSelect = await openModelPicker(container)
+    fireEvent.change(modeSelect, { target: { value: 'plan' } })
+
+    const pillsOf = (label: string): string[] => {
+      const row = modelRow(container, label)
+      if (!row) throw new Error(`row ${label} not rendered`)
+      return Array.from(row.querySelectorAll('span')).map((s) => s.textContent ?? '')
+    }
+    // The user's exact bug: DeepSeek Flash (the execute clamp) in the plan
+    // scope is a mode mismatch — muted "free in execute", never "Pro".
+    await waitFor(() => expect(pillsOf('DeepSeek Flash')).toContain('free in execute'))
+    expect(pillsOf('DeepSeek Flash')).not.toContain('Pro')
+    // A genuinely paid model keeps the Pro pill.
+    expect(pillsOf('Pro Model')).toContain('Pro')
+    // The plan clamp itself is selectable — no pill of either kind.
+    expect(pillsOf('DeepSeek Pro')).not.toContain('Pro')
+    expect(pillsOf('DeepSeek Pro')).not.toContain('free in execute')
+
+    // Clicking the mode-locked row shows the plain one-liner, NOT the paid
+    // upgrade pitch, and never persists a selection.
+    fireEvent.click(modelRow(container, 'DeepSeek Flash') as HTMLButtonElement)
+    await waitFor(() => {
+      if (!container.textContent?.includes('used in execute mode')) {
+        throw new Error('mode card not shown')
+      }
+    })
+    expect(container.textContent).not.toContain('available on a paid plan')
+    expect(patchCalls).toHaveLength(0)
   })
 
   it('hides the manage row without the host prop, shows + fires it with the prop', async () => {

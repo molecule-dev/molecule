@@ -84,8 +84,10 @@ import {
   resolveEffortArg,
 } from './chat-effort-utilities.js'
 import { buildHelpText } from './chat-help-utilities.js'
-import type { ModelMode } from './chat-model-mode-utilities.js'
+import type { FreeTierLockReason, ModelMode } from './chat-model-mode-utilities.js'
 import {
+  freeTierLockReason,
+  freeTierUsableMode,
   isModeModelLocked,
   modeSettingKey,
   parseModelModeCommand,
@@ -7043,12 +7045,16 @@ function ChatInner({
                         fg: isLight ? 'rgb(180,83,9)' : 'rgb(251,191,36)',
                       })
                     const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
-                    // Free tier is clamped per mode (plan → Sonnet, execute →
-                    // deepseek-v4-flash); the unscoped picker keeps the single
-                    // free-tier model. Custom (bring-your-own AI) models are
-                    // never locked — the user pays their own provider directly.
-                    const locked = modelPicker.mode
-                      ? isModeModelLocked(
+                    // Free tier is clamped per mode (plan → deepseek-v4-pro,
+                    // execute → deepseek-v4-flash); the unscoped picker keeps
+                    // the single free-tier model. Custom (bring-your-own AI)
+                    // models are never locked — the user pays their own
+                    // provider directly. The lock REASON matters: 'paid' gets
+                    // the Pro pill + upgrade card, while 'mode' (a model the
+                    // free tier uses in a DIFFERENT mode, e.g. the execute
+                    // clamp shown in the plan scope) must never claim "Pro".
+                    const lockReason: FreeTierLockReason | null = modelPicker.mode
+                      ? freeTierLockReason(
                           model.id,
                           modelPicker.mode,
                           isFreeTier,
@@ -7056,6 +7062,25 @@ function ChatInner({
                           FREE_TIER_MODEL,
                         )
                       : isFreeTier && model.id !== FREE_TIER_MODEL && model.provider !== 'custom'
+                        ? 'paid'
+                        : null
+                    const locked = lockReason !== null
+                    // For 'mode' locks: which mode the free tier actually uses
+                    // this model in ('commit' stands for both aux jobs).
+                    const usableMode =
+                      lockReason === 'mode'
+                        ? freeTierUsableMode(model.id, AVAILABLE_MODELS, FREE_TIER_MODEL)
+                        : null
+                    const freeInLabel =
+                      usableMode === 'plan'
+                        ? t('ide.chat.freeInPlan', undefined, { defaultValue: 'free in plan' })
+                        : usableMode === 'execute'
+                          ? t('ide.chat.freeInExecute', undefined, {
+                              defaultValue: 'free in execute',
+                            })
+                          : t('ide.chat.freeInCommit', undefined, {
+                              defaultValue: 'free in commit',
+                            })
                     // Relative usage rate vs the cheapest available model — the
                     // unitless "how fast does this eat my allowance" figure
                     // shown INSTEAD of currency. Green ≤×5, yellow ≤×25, red
@@ -7102,7 +7127,7 @@ function ChatInner({
                         <button
                           type="button"
                           onClick={() => {
-                            if (locked) {
+                            if (lockReason === 'paid') {
                               setModelPicker(null)
                               setInputValue('')
                               addSystemCard(
@@ -7115,6 +7140,27 @@ function ChatInner({
                                 ),
                                 // Host owns the upgrade/sign-in button(s) (its routes/copy).
                                 { action: buildUpgradeCta?.({}) ?? undefined },
+                              )
+                            } else if (lockReason === 'mode') {
+                              // Free-usable in a DIFFERENT mode — a plain
+                              // one-liner, never the paid-upgrade pitch.
+                              setModelPicker(null)
+                              setInputValue('')
+                              addSystemCard(
+                                usableMode === 'plan'
+                                  ? t('ide.chat.modeOnlyPlan', undefined, {
+                                      defaultValue:
+                                        'On the free plan, this model is used in plan mode.',
+                                    })
+                                  : usableMode === 'execute'
+                                    ? t('ide.chat.modeOnlyExecute', undefined, {
+                                        defaultValue:
+                                          'On the free plan, this model is used in execute mode.',
+                                      })
+                                    : t('ide.chat.modeOnlyCommit', undefined, {
+                                        defaultValue:
+                                          'On the free plan, this model is used for commit messages and compaction.',
+                                      }),
                               )
                             } else {
                               void selectModel(model.id, model.label, modelPicker.mode)
@@ -7187,7 +7233,7 @@ function ChatInner({
                                 {t('ide.chat.currentBadge', undefined, { defaultValue: 'current' })}
                               </span>
                             )}
-                            {locked && (
+                            {lockReason === 'paid' && (
                               <span
                                 style={{
                                   fontSize: '10px',
@@ -7200,6 +7246,23 @@ function ChatInner({
                                 {t('ide.chat.proRequired', undefined, {
                                   defaultValue: 'Pro',
                                 })}
+                              </span>
+                            )}
+                            {/* Free-tier model locked here only because it
+                                belongs to a DIFFERENT mode — a muted "free in
+                                <mode>" pill, never the paid "Pro" claim. */}
+                            {lockReason === 'mode' && (
+                              <span
+                                className={cm.textMuted}
+                                style={{
+                                  fontSize: '10px',
+                                  marginLeft: 'auto',
+                                  background: 'rgba(128,128,128,0.2)',
+                                  padding: '1px 5px',
+                                  borderRadius: '3px',
+                                }}
+                              >
+                                {freeInLabel}
                               </span>
                             )}
                           </div>

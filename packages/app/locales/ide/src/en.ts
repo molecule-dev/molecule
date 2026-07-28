@@ -379,6 +379,13 @@ export const en: IdeTranslations = {
   'ide.chat.modelMode.compact': 'Compaction',
   'ide.chat.modelModeOption': '{{mode}} · {{model}}',
   'ide.chat.manageCustomModels': 'Add or manage your own models…',
+  'ide.chat.freeInPlan': 'free in plan',
+  'ide.chat.freeInExecute': 'free in execute',
+  'ide.chat.freeInCommit': 'free in commit',
+  'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
+  'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   // Sortable /model list controls (P2-11) — a sort dropdown + direction toggle
   // above the picker; the per-model detail rendering itself is unchanged.
   'ide.chat.modelSortLabel': 'Sort',

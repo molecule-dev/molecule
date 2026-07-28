@@ -142,13 +142,87 @@ export function freeTierModeModelId(
 }
 
 /**
+ * Why a model is locked for a free-tier user in a given mode — `'paid'` for a
+ * genuinely paid model, `'mode'` for a model the free tier CAN use, just in a
+ * different mode (e.g. the execute clamp shown in the plan-scoped picker).
+ */
+export type FreeTierLockReason = 'paid' | 'mode'
+
+/** Every mode a per-mode clamp exists for — used to test "free elsewhere". */
+const MODEL_MODES: readonly ModelMode[] = ['plan', 'execute', 'commit', 'compact']
+
+/**
+ * The lock reason for a model in a mode under the free-tier clamp, or `null`
+ * when it is selectable. Pro users and `provider: 'custom'` (bring-your-own
+ * AI) models are never locked; a free/anon user may pick only the mode's
+ * clamped model (plan/execute) or any free-tier-flagged model (the auxiliary
+ * commit/compact jobs, mirroring the server's aux-model selection, which
+ * ignores a non-free platform pick anyway).
+ *
+ * A locked model splits into two very different cases the UI must not
+ * conflate: `'paid'` (upgrade actually unlocks it) versus `'mode'` (the model
+ * is free-tier-usable in ANOTHER mode — it is a different mode's clamp, or
+ * free-tier-flagged and thus selectable for commit/compact — so a "Pro" badge
+ * would be flatly wrong).
+ *
+ * @param modelId - The candidate model id.
+ * @param mode - The conversation mode the picker is scoped to.
+ * @param isFreeTier - Whether the current user is on the free/anon tier.
+ * @param models - The available models from the catalog.
+ * @param fallback - The free-tier model id to use when no clamp match is found.
+ * @returns `'paid'` / `'mode'` when locked, `null` when selectable.
+ */
+export function freeTierLockReason(
+  modelId: string,
+  mode: ModelMode,
+  isFreeTier: boolean,
+  models: readonly AppModelDefinition[],
+  fallback: string,
+): FreeTierLockReason | null {
+  if (!isFreeTier) return null
+  const candidate = models.find((m) => m.id === modelId)
+  if (candidate?.provider === 'custom') return null
+  const allowedHere =
+    mode === 'commit' || mode === 'compact'
+      ? candidate?.freeTier === true
+      : modelId === freeTierModeModelId(models, mode, fallback)
+  if (allowedHere) return null
+  const freeElsewhere =
+    candidate?.freeTier === true ||
+    MODEL_MODES.some(
+      (other) => other !== mode && modelId === freeTierModeModelId(models, other, fallback),
+    )
+  return freeElsewhere ? 'mode' : 'paid'
+}
+
+/**
+ * The mode a free-tier user can actually use this model in — `'plan'` /
+ * `'execute'` when it is that mode's clamp, `'commit'` (standing for both
+ * auxiliary jobs) when it is merely free-tier-flagged, `null` when the free
+ * tier can't use it anywhere. Drives the "free in <mode>" labeling next to a
+ * `'mode'`-locked row.
+ *
+ * @param modelId - The candidate model id.
+ * @param models - The available models from the catalog.
+ * @param fallback - The free-tier model id to use when no clamp match is found.
+ * @returns The mode the model is free-tier-usable in, or `null`.
+ */
+export function freeTierUsableMode(
+  modelId: string,
+  models: readonly AppModelDefinition[],
+  fallback: string,
+): ModelMode | null {
+  if (modelId === freeTierModeModelId(models, 'plan', fallback)) return 'plan'
+  if (modelId === freeTierModeModelId(models, 'execute', fallback)) return 'execute'
+  if (models.find((m) => m.id === modelId)?.freeTier === true) return 'commit'
+  return null
+}
+
+/**
  * Whether a model is locked (not selectable) for the given mode under the
- * free-tier clamp. Pro users are never locked; free/anon users may pick only the
- * mode's clamped model — plus any `provider: 'custom'` (bring-your-own AI)
- * model, which is exempt on every tier because the user pays their own
- * provider directly. The auxiliary commit/compact jobs are looser: any
- * free-tier-flagged (or custom) model is selectable, mirroring the server's
- * aux-model selection, which ignores a non-free platform pick anyway.
+ * free-tier clamp — the boolean view of {@link freeTierLockReason} (which see
+ * for the rules: pro users and custom models never lock; plan/execute clamp to
+ * one model; commit/compact accept any free-tier-flagged model).
  *
  * @param modelId - The candidate model id.
  * @param mode - The conversation mode the picker is scoped to.
@@ -164,9 +238,5 @@ export function isModeModelLocked(
   models: readonly AppModelDefinition[],
   fallback: string,
 ): boolean {
-  if (!isFreeTier) return false
-  const candidate = models.find((m) => m.id === modelId)
-  if (candidate?.provider === 'custom') return false
-  if (mode === 'commit' || mode === 'compact') return candidate?.freeTier !== true
-  return modelId !== freeTierModeModelId(models, mode, fallback)
+  return freeTierLockReason(modelId, mode, isFreeTier, models, fallback) !== null
 }

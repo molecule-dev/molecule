@@ -12,7 +12,9 @@ import type { AppModelDefinition } from '@molecule/app-ai-models'
 
 import { COMMANDS } from '../components/chat-commands.js'
 import {
+  freeTierLockReason,
   freeTierModeModelId,
+  freeTierUsableMode,
   isModeModelLocked,
   modeSettingKey,
   parseModelModeCommand,
@@ -220,6 +222,86 @@ describe('isModeModelLocked', () => {
     expect(
       isModeModelLocked('custom/mine/some-model', 'compact', true, withCustom, 'fallback'),
     ).toBe(false)
+  })
+})
+
+describe('freeTierLockReason', () => {
+  // A realistic clamp catalog: paid opus/sonnet, the plan clamp
+  // (deepseek-v4-pro, not freeTier-flagged), and the execute clamp
+  // (deepseek-v4-flash, freeTier-flagged — also the aux commit/compact pick).
+  const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
+  const flaggedFlash = model({
+    id: 'deepseek-v4-flash',
+    provider: 'deepseek',
+    label: 'DeepSeek Flash',
+    freeTier: true,
+  })
+  const clampCatalog = [opus, sonnet, deepseekPro, flaggedFlash]
+
+  it('returns null for pro users and for the scoped mode’s own clamp', () => {
+    expect(freeTierLockReason('claude-opus-4-6', 'plan', false, clampCatalog, 'fb')).toBeNull()
+    expect(freeTierLockReason('deepseek-v4-pro', 'plan', true, clampCatalog, 'fb')).toBeNull()
+    expect(freeTierLockReason('deepseek-v4-flash', 'execute', true, clampCatalog, 'fb')).toBeNull()
+    // Aux modes accept any free-tier-flagged model.
+    expect(freeTierLockReason('deepseek-v4-flash', 'commit', true, clampCatalog, 'fb')).toBeNull()
+    expect(freeTierLockReason('deepseek-v4-flash', 'compact', true, clampCatalog, 'fb')).toBeNull()
+  })
+
+  it("returns 'mode' for a free-tier model locked only because it belongs to a different mode", () => {
+    // The user's exact bug: the execute clamp shown in the plan scope must
+    // never read as a paid model.
+    expect(freeTierLockReason('deepseek-v4-flash', 'plan', true, clampCatalog, 'fb')).toBe('mode')
+    // The plan clamp shown in execute / aux scopes is a mode mismatch too.
+    expect(freeTierLockReason('deepseek-v4-pro', 'execute', true, clampCatalog, 'fb')).toBe('mode')
+    expect(freeTierLockReason('deepseek-v4-pro', 'commit', true, clampCatalog, 'fb')).toBe('mode')
+  })
+
+  it("returns 'paid' for genuinely paid models in every scope", () => {
+    expect(freeTierLockReason('claude-opus-4-6', 'plan', true, clampCatalog, 'fb')).toBe('paid')
+    expect(freeTierLockReason('claude-sonnet-4-6', 'execute', true, clampCatalog, 'fb')).toBe(
+      'paid',
+    )
+    expect(freeTierLockReason('claude-opus-4-6', 'commit', true, clampCatalog, 'fb')).toBe('paid')
+  })
+
+  it('exempts custom (bring-your-own AI) models entirely', () => {
+    const custom = model({ id: 'custom/mine/m', provider: 'custom', label: 'Mine' })
+    const withCustom = [...clampCatalog, custom]
+    for (const mode of ['plan', 'execute', 'commit', 'compact'] as const) {
+      expect(freeTierLockReason('custom/mine/m', mode, true, withCustom, 'fb')).toBeNull()
+    }
+  })
+
+  it('stays the single source of truth for isModeModelLocked', () => {
+    for (const mode of ['plan', 'execute', 'commit', 'compact'] as const) {
+      for (const id of ['claude-opus-4-6', 'deepseek-v4-pro', 'deepseek-v4-flash']) {
+        expect(isModeModelLocked(id, mode, true, clampCatalog, 'fb')).toBe(
+          freeTierLockReason(id, mode, true, clampCatalog, 'fb') !== null,
+        )
+      }
+    }
+  })
+})
+
+describe('freeTierUsableMode', () => {
+  const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
+  const flaggedFlash = model({
+    id: 'deepseek-v4-flash',
+    provider: 'deepseek',
+    label: 'DeepSeek Flash',
+    freeTier: true,
+  })
+  const clampCatalog = [opus, sonnet, deepseekPro, flaggedFlash]
+
+  it('names the clamp mode a model belongs to (never hardcoding ids at the call site)', () => {
+    expect(freeTierUsableMode('deepseek-v4-pro', clampCatalog, 'fb')).toBe('plan')
+    expect(freeTierUsableMode('deepseek-v4-flash', clampCatalog, 'fb')).toBe('execute')
+  })
+
+  it("returns 'commit' for a free-tier-flagged model that is no mode's clamp, null for paid", () => {
+    const flaggedOther = model({ id: 'other-free', provider: 'meta', label: 'F', freeTier: true })
+    expect(freeTierUsableMode('other-free', [...clampCatalog, flaggedOther], 'fb')).toBe('commit')
+    expect(freeTierUsableMode('claude-opus-4-6', clampCatalog, 'fb')).toBeNull()
   })
 })
 
