@@ -84,6 +84,8 @@ const SAMPLE_SETTINGS: SettingsDisplayValues = {
   model: 'Claude Opus 4.6',
   planModel: 'Claude Sonnet 4.6',
   executeModel: 'DeepSeek V4 Flash',
+  commitModel: 'Fast default',
+  compactModel: 'Fast default',
   mode: 'Execute',
   effort: 'Balanced (M)',
   maxLoops: '100',

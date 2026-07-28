@@ -313,6 +313,10 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Επιλογή μοντέλου σε λειτουργία σχεδίου',
   'ide.chat.executeModelSet': 'Το μοντέλο λειτουργίας εκτέλεσης έχει οριστεί σε «{{name}}»',
   'ide.chat.planModelSet': 'Το μοντέλο λειτουργίας «Plan» έχει ρυθμιστεί στο «{{name}}»',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -459,6 +463,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Ευχαριστούμε! Η αναφορά σας υποβλήθηκε — μπορείτε να παρακολουθήσετε την εξέλιξή της στο σχετικό θέμα.',
   'ide.chat.settings.modelFollowsDefault': 'Ακολουθεί το προεπιλεγμένο μοντέλο',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Αλλαγή μεγέθους πλαισίων',
   'ide.chat.settings.autoCommitEvery': 'Κάθε {{seconds}} s',

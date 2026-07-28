@@ -311,6 +311,10 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'プランモードのモデルを選択',
   'ide.chat.executeModelSet': '実行モードのモデルが「{{name}}」に設定されています',
   'ide.chat.planModelSet': 'プランモードのモデル設定を「{{name}}」に設定',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -456,6 +460,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'ありがとうございます！ご報告は送信されました。リンク先の課題ページで進捗をご確認ください。',
   'ide.chat.settings.modelFollowsDefault': 'デフォルトのモデルに従います',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'パネルのサイズ変更',
   'ide.chat.settings.autoCommitEvery': 'すべての{{seconds}}',

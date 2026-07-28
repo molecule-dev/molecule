@@ -308,6 +308,10 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': '플랜 모드 모델 선택',
   'ide.chat.executeModelSet': '실행 모드 모델이 ‘{{name}}’로 설정됨',
   'ide.chat.planModelSet': '{{name}}로 설정된 플랜 모드 모델',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -450,6 +454,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     '감사합니다! 신고가 접수되었습니다. 링크된 이슈에서 진행 상황을 확인하실 수 있습니다.',
   'ide.chat.settings.modelFollowsDefault': '기본 모델을 따릅니다',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': '패널 크기 조정',
   'ide.chat.settings.autoCommitEvery': '모든 {{seconds}} s',

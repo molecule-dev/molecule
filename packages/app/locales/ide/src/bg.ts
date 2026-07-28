@@ -315,6 +315,10 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Изберете модел в режим на планиране',
   'ide.chat.executeModelSet': 'Моделът в режим на изпълнение е настроен на „{{name}}“',
   'ide.chat.planModelSet': 'Моделът в режим „Plan“ е настроен на „{{name}}“',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -458,6 +462,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Благодаря! Вашият доклад беше изпратен — проследете го в свързания проблем.',
   'ide.chat.settings.modelFollowsDefault': 'Следва стандартния модел',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Промяна на размера на панелите',
   'ide.chat.settings.autoCommitEvery': 'Всички {{seconds}}',

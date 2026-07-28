@@ -72,10 +72,19 @@ describe('parseModelModeCommand', () => {
     })
   })
 
+  it('parses the auxiliary --commit and --compact flags with an optional query', () => {
+    expect(parseModelModeCommand('/model --commit')).toEqual({ mode: 'commit', query: '' })
+    expect(parseModelModeCommand('/model --compact haiku')).toEqual({
+      mode: 'compact',
+      query: 'haiku',
+    })
+  })
+
   it('returns null for a plain /model or a model name (not a mode flag)', () => {
     expect(parseModelModeCommand('/model')).toBeNull()
     expect(parseModelModeCommand('/model claude-opus-4-6')).toBeNull()
     expect(parseModelModeCommand('/model --planner')).toBeNull()
+    expect(parseModelModeCommand('/model --committer')).toBeNull()
   })
 })
 
@@ -83,6 +92,8 @@ describe('modeSettingKey', () => {
   it('maps mode to the settings field', () => {
     expect(modeSettingKey('plan')).toBe('planModel')
     expect(modeSettingKey('execute')).toBe('executeModel')
+    expect(modeSettingKey('commit')).toBe('commitModel')
+    expect(modeSettingKey('compact')).toBe('compactModel')
   })
 })
 
@@ -104,6 +115,13 @@ describe('resolveModeModel — back-compat', () => {
 
   it('returns undefined when nothing is configured', () => {
     expect(resolveModeModel({}, 'plan')).toBeUndefined()
+  })
+
+  it('aux modes (commit/compact) never fall back to chatModel — the server owns their default', () => {
+    expect(resolveModeModel({ commitModel: 'cm', chatModel: 'legacy' }, 'commit')).toBe('cm')
+    expect(resolveModeModel({ compactModel: 'xm', chatModel: 'legacy' }, 'compact')).toBe('xm')
+    expect(resolveModeModel({ chatModel: 'legacy' }, 'commit')).toBeUndefined()
+    expect(resolveModeModel({ chatModel: 'legacy' }, 'compact')).toBeUndefined()
   })
 })
 
@@ -147,6 +165,23 @@ describe('isModeModelLocked', () => {
     expect(isModeModelLocked('deepseek-v4-flash', 'execute', true, catalog, 'fallback')).toBe(false)
   })
 
+  it('aux modes (commit/compact): free users may pick any free-tier-flagged model', () => {
+    const freeFlash = model({
+      id: 'free-flash',
+      provider: 'deepseek',
+      label: 'Free Flash',
+      freeTier: true,
+    })
+    const withFree = [...catalog, freeFlash]
+    // Pro users are never locked.
+    expect(isModeModelLocked('claude-opus-4-6', 'commit', false, withFree, 'fallback')).toBe(false)
+    // Free users: free-tier-flagged models are selectable, paid ones are not.
+    expect(isModeModelLocked('free-flash', 'commit', true, withFree, 'fallback')).toBe(false)
+    expect(isModeModelLocked('free-flash', 'compact', true, withFree, 'fallback')).toBe(false)
+    expect(isModeModelLocked('claude-opus-4-6', 'commit', true, withFree, 'fallback')).toBe(true)
+    expect(isModeModelLocked('claude-sonnet-4-6', 'compact', true, withFree, 'fallback')).toBe(true)
+  })
+
   it('never locks custom (bring-your-own AI) models, even for free users', () => {
     const custom = model({
       id: 'custom/mine/some-model',
@@ -164,6 +199,13 @@ describe('isModeModelLocked', () => {
     )
     expect(
       isModeModelLocked('custom/mine/some-model', 'execute', true, withCustom, 'fallback'),
+    ).toBe(false)
+    // The aux modes honor the same exemption (checked before their free-tier rule).
+    expect(
+      isModeModelLocked('custom/mine/some-model', 'commit', true, withCustom, 'fallback'),
+    ).toBe(false)
+    expect(
+      isModeModelLocked('custom/mine/some-model', 'compact', true, withCustom, 'fallback'),
     ).toBe(false)
   })
 })

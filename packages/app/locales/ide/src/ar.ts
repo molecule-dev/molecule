@@ -310,6 +310,10 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'اختر نموذج وضع التخطيط',
   'ide.chat.executeModelSet': 'تم تعيين نموذج وضع التنفيذ على "{{name}}"',
   'ide.chat.planModelSet': 'تم تعيين نموذج وضع الخطة على "{{name}}"',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -450,6 +454,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'شكرًا! تم إرسال تقريرك — يمكنك متابعة حالته من خلال الرابط المرفق.',
   'ide.chat.settings.modelFollowsDefault': 'يتبع النموذج الافتراضي',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'تغيير حجم الألواح',
   'ide.chat.settings.autoCommitEvery': 'كل {{seconds}} s',

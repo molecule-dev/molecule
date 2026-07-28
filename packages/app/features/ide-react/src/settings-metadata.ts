@@ -43,6 +43,8 @@ export type SettingKey =
   | 'model'
   | 'planModel'
   | 'executeModel'
+  | 'commitModel'
+  | 'compactModel'
   | 'mode'
   | 'effort'
   | 'maxLoops'
@@ -110,6 +112,21 @@ export const SETTINGS: readonly SettingMeta[] = [
     description: 'The model used in execute mode. Falls back to the default model when unset.',
     editCommand: 'model',
     editInput: '/model --execute',
+  },
+  {
+    id: 'commitModel',
+    label: 'Commit-message model',
+    description: 'The model that writes commit messages. Falls back to a fast default when unset.',
+    editCommand: 'model',
+    editInput: '/model --commit',
+  },
+  {
+    id: 'compactModel',
+    label: 'Compaction model',
+    description:
+      'The model that summarizes older messages when the conversation nears its context limit. Falls back to a fast default when unset.',
+    editCommand: 'model',
+    editInput: '/model --compact',
   },
   {
     id: 'mode',

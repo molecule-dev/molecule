@@ -311,6 +311,10 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Izvēlieties plāna režīma modeli',
   'ide.chat.executeModelSet': 'Izpildes režīma modelis iestatīts uz „{{name}}“',
   'ide.chat.planModelSet': 'Plāna režīma modelis iestatīts uz „{{name}}“',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -454,6 +458,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Paldies! Jūsu ziņojums ir nosūtīts — tā statusu varat sekot saites norādītajā problēmā.',
   'ide.chat.settings.modelFollowsDefault': 'Atbilst standarta modelim',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Mainīt paneļu izmēru',
   'ide.chat.settings.autoCommitEvery': 'Katrs {{seconds}} s',

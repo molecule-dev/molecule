@@ -312,6 +312,10 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Pilih model mode rencana',
   'ide.chat.executeModelSet': 'Model mode eksekusi diatur ke "{{name}}"',
   'ide.chat.planModelSet': 'Model mode rencana diatur ke "{{name}}"',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -454,6 +458,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Terima kasih! Laporan Anda telah dikirim — Anda dapat melacaknya di tautan masalah tersebut.',
   'ide.chat.settings.modelFollowsDefault': 'Mengikuti model default',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Ubah ukuran panel',
   'ide.chat.settings.autoCommitEvery': 'Setiap {{seconds}} s',

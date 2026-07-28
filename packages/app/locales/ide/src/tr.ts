@@ -310,6 +310,10 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Plan modundaki modeli seçin',
   'ide.chat.executeModelSet': 'Çalıştırma modu modeli "{{name}}" olarak ayarlandı',
   'ide.chat.planModelSet': 'Plan modu, "{{name}}" olarak ayarlandı',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -454,6 +458,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Teşekkürler! Bildiriminiz gönderildi — bağlantılı sorun sayfasında takip edebilirsiniz.',
   'ide.chat.settings.modelFollowsDefault': 'Varsayılan modeli takip eder',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Panellerin boyutunu değiştir',
   'ide.chat.settings.autoCommitEvery': 'Her {{seconds}}',

@@ -24,6 +24,8 @@ const sampleValues: SettingsDisplayValues = {
   model: 'Claude Opus 4.6',
   planModel: 'Claude Sonnet 4.6',
   executeModel: 'DeepSeek V4 Flash',
+  commitModel: 'Fast default',
+  compactModel: 'Fast default',
   mode: 'Execute',
   effort: 'Balanced (M)',
   maxLoops: '100',
@@ -47,6 +49,8 @@ describe('buildSettingsList', () => {
       'model',
       'planModel',
       'executeModel',
+      'commitModel',
+      'compactModel',
       'mode',
       'effort',
       'maxLoops',
@@ -64,6 +68,8 @@ describe('buildSettingsList', () => {
       model: 'model',
       planModel: 'model',
       executeModel: 'model',
+      commitModel: 'model',
+      compactModel: 'model',
       mode: 'plan',
       effort: 'effort',
       maxLoops: 'maxloops',
@@ -82,6 +88,8 @@ describe('buildSettingsList', () => {
     // so editing "Plan-mode model" opens the plan picker (not the generic one).
     expect(settings.find((s) => s.id === 'planModel')?.editInput).toBe('/model --plan')
     expect(settings.find((s) => s.id === 'executeModel')?.editInput).toBe('/model --execute')
+    expect(settings.find((s) => s.id === 'commitModel')?.editInput).toBe('/model --commit')
+    expect(settings.find((s) => s.id === 'compactModel')?.editInput).toBe('/model --compact')
     // Non-per-mode rows need no scoped input — the bare command suffices.
     expect(settings.find((s) => s.id === 'effort')?.editInput).toBeUndefined()
     expect(settings.find((s) => s.id === 'model')?.editInput).toBeUndefined()

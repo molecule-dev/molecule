@@ -310,6 +310,10 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Valitse suunnittelutilan malli',
   'ide.chat.executeModelSet': 'Suoritustilan malli asetettu tilaan ”{{name}}”',
   'ide.chat.planModelSet': 'Suunnittelutilan malli asetettu tilaan ”{{name}}”',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -454,6 +458,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Kiitos! Ilmoituksesi on lähetetty — voit seurata sen käsittelyä linkitetyn ongelman kautta.',
   'ide.chat.settings.modelFollowsDefault': 'Noudattaa oletusmallia',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Muuta paneelien kokoa',
   'ide.chat.settings.autoCommitEvery': 'Kaikki {{seconds}}-sivustot',

@@ -312,6 +312,10 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Vyberte model v režime plánu',
   'ide.chat.executeModelSet': 'Model v režime vykonávania je nastavený na „{{name}}“',
   'ide.chat.planModelSet': 'Model v režime plánu nastavený na „{{name}}“',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -456,6 +460,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Ďakujeme! Vaše hlásenie bolo odoslané – jeho stav môžete sledovať v príslušnej úlohe.',
   'ide.chat.settings.modelFollowsDefault': 'Vychádza z predvoleného modelu',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Zmena veľkosti panelov',
   'ide.chat.settings.autoCommitEvery': 'Všetky stránky {{seconds}}',

@@ -311,6 +311,10 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Selecionar modelo em modo de planta',
   'ide.chat.executeModelSet': 'Modelo do modo de execução definido como "{{name}}"',
   'ide.chat.planModelSet': 'Modelo em modo de planejamento definido como "{{name}}"',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -454,6 +458,7 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Obrigado! Seu relatório foi enviado — acompanhe-o na questão indicada no link.',
   'ide.chat.settings.modelFollowsDefault': 'Segue o modelo padrão',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Redimensionar painéis',
   'ide.chat.settings.autoCommitEvery': 'Todos os {{seconds}} s',

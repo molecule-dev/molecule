@@ -313,6 +313,10 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Pasirinkite planavimo režimo modelį',
   'ide.chat.executeModelSet': 'Vykdymo režimo modelis nustatytas kaip „{{name}}“',
   'ide.chat.planModelSet': 'Planavimo režimo modelis nustatytas į „{{name}}“',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -457,6 +461,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Ačiū! Jūsų pranešimas buvo išsiųstas — jo eigą galite stebėti paspaudę nuorodą į šią problemą.',
   'ide.chat.settings.modelFollowsDefault': 'Atitinka numatytąjį modelį',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Pakeisti langų dydį',
   'ide.chat.settings.autoCommitEvery': 'Kiekvienas „{{seconds}}“',

@@ -369,6 +369,10 @@ export const en: IdeTranslations = {
   'ide.chat.selectPlanModel': 'Select plan-mode model',
   'ide.chat.executeModelSet': 'Execute-mode model set to {{name}}',
   'ide.chat.planModelSet': 'Plan-mode model set to {{name}}',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   // Sortable /model list controls (P2-11) — a sort dropdown + direction toggle
   // above the picker; the per-model detail rendering itself is unchanged.
   'ide.chat.modelSortLabel': 'Sort',
@@ -482,6 +486,7 @@ export const en: IdeTranslations = {
   'ide.chat.settings.on': 'On',
   'ide.chat.settings.soundsSummary': '{{enabled}} of {{total}} events enabled',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.settings.autoCommitEvery': 'Every {{seconds}}s',

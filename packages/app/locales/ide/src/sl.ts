@@ -312,6 +312,10 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Izberite model v načinu načrtovanja',
   'ide.chat.executeModelSet': 'Model v izvedbenem načinu je nastavljen na »{{name}}«',
   'ide.chat.planModelSet': 'Model v načinu načrtovanja je nastavljen na »{{name}}«',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -455,6 +459,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Hvala! Tvoje poročilo je bilo posredovano – spremljaj ga v povezani zadevi.',
   'ide.chat.settings.modelFollowsDefault': 'Sledi privzetemu modelu',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Sprememba velikosti plošč',
   'ide.chat.settings.autoCommitEvery': 'Vsak {{seconds}} s',

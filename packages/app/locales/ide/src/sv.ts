@@ -310,6 +310,10 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Välj modell i planläge',
   'ide.chat.executeModelSet': 'Modell i körläge inställd på ”{{name}}”',
   'ide.chat.planModelSet': 'Modell i planeringsläge inställd på ”{{name}}”',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -454,6 +458,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Tack! Din rapport har skickats in – följ den via länken till ärendet.',
   'ide.chat.settings.modelFollowsDefault': 'Följer standardmodellen',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Ändra storlek på paneler',
   'ide.chat.settings.autoCommitEvery': 'Alla {{seconds}} s',

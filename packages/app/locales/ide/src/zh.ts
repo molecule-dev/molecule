@@ -304,6 +304,10 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': '选择平面模式模型',
   'ide.chat.executeModelSet': '执行模式模型设置为{{name}}',
   'ide.chat.planModelSet': '计划模式模型已设置为{{name}}',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -441,6 +445,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.report.submitted': '谢谢！您的报告已提交给{{productName}}团队。',
   'ide.chat.report.submittedWithLink': '谢谢！您的报告已提交——请通过链接查看该问题的进展。',
   'ide.chat.settings.modelFollowsDefault': '遵循默认模型',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': '调整面板大小',
   'ide.chat.settings.autoCommitEvery': '每个 {{seconds}} s',

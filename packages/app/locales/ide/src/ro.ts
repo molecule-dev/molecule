@@ -312,6 +312,10 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Selectați modelul în modul plan',
   'ide.chat.executeModelSet': 'Modelul în modul de execuție este setat pe „{{name}}”',
   'ide.chat.planModelSet': 'Modelul în modul Plan setat la „{{name}}”',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -456,6 +460,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Mulțumesc! Raportul tău a fost trimis — poți urmări evoluția acestuia în problema la care face referire linkul.',
   'ide.chat.settings.modelFollowsDefault': 'Urmează modelul implicit',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Redimensionare panouri',
   'ide.chat.settings.autoCommitEvery': 'Toate articolele de pe {{seconds}}',

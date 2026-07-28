@@ -3497,6 +3497,10 @@ function ChatInner({
   // falls back to currentModel (the legacy single chatModel) for back-compat.
   const [planModel, setPlanModel] = useState<string>('')
   const [executeModel, setExecuteModel] = useState<string>('')
+  // Auxiliary-job model overrides. Empty string = unset — the SERVER falls back
+  // to its own fast default (never chatModel) for these.
+  const [commitModel, setCommitModel] = useState<string>('')
+  const [compactModel, setCompactModel] = useState<string>('')
   // Reasoning effort (SYN6) — applied by the backend at chat-call time. Effort
   // is PER-MODE (settings.effortByMode): plan and execute run different models
   // with different native effort scales. The single `effortLevel` is the legacy
@@ -3525,6 +3529,8 @@ function ChatInner({
         if (typeof s?.chatModel === 'string') setCurrentModel(s.chatModel)
         if (typeof s?.planModel === 'string') setPlanModel(s.planModel)
         if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
+        if (typeof s?.commitModel === 'string') setCommitModel(s.commitModel)
+        if (typeof s?.compactModel === 'string') setCompactModel(s.compactModel)
         // The persisted value is the model's own native level — accept any
         // non-empty string; it's resolved against the active model at use time.
         if (typeof s?.effortLevel === 'string' && s.effortLevel) {
@@ -4512,8 +4518,9 @@ function ChatInner({
 
   /**
    * Select and apply a model by ID. When `mode` is given the choice persists to
-   * that mode's per-mode field (`planModel` / `executeModel`); otherwise it sets
-   * the legacy single `chatModel`.
+   * that mode's per-mode field (`planModel` / `executeModel` /
+   * `commitModel` / `compactModel`); otherwise it sets the legacy single
+   * `chatModel`.
    */
   const selectModel = useCallback(
     async (modelId: string, displayName?: string, mode?: ModelMode) => {
@@ -4526,7 +4533,9 @@ function ChatInner({
             settings: { [modeSettingKey(mode)]: modelId },
           })
           if (mode === 'plan') setPlanModel(modelId)
-          else setExecuteModel(modelId)
+          else if (mode === 'execute') setExecuteModel(modelId)
+          else if (mode === 'commit') setCommitModel(modelId)
+          else setCompactModel(modelId)
           addSystemCard(
             mode === 'plan'
               ? t(
@@ -4534,11 +4543,23 @@ function ChatInner({
                   { name },
                   { defaultValue: 'Plan-mode model set to {{name}}' },
                 )
-              : t(
-                  'ide.chat.executeModelSet',
-                  { name },
-                  { defaultValue: 'Execute-mode model set to {{name}}' },
-                ),
+              : mode === 'execute'
+                ? t(
+                    'ide.chat.executeModelSet',
+                    { name },
+                    { defaultValue: 'Execute-mode model set to {{name}}' },
+                  )
+                : mode === 'commit'
+                  ? t(
+                      'ide.chat.commitModelSet',
+                      { name },
+                      { defaultValue: 'Commit-message model set to {{name}}' },
+                    )
+                  : t(
+                      'ide.chat.compactModelSet',
+                      { name },
+                      { defaultValue: 'Compaction model set to {{name}}' },
+                    ),
           )
         } else {
           await http.patch(`/projects/${projectId}`, { settings: { chatModel: modelId } })
@@ -5126,9 +5147,10 @@ function ChatInner({
       return
     }
 
-    // Handle /model --plan / --execute locally — opens the picker scoped to that
-    // mode so a selection persists to planModel / executeModel. Must run BEFORE
-    // the generic /model handler so the flag isn't treated as a model name.
+    // Handle /model --plan / --execute / --commit / --compact locally — opens
+    // the picker scoped to that mode so a selection persists to planModel /
+    // executeModel / commitModel / compactModel. Must run BEFORE the generic
+    // /model handler so the flag isn't treated as a model name.
     const modelModeMatch = parseModelModeCommand(trimmed)
     if (modelModeMatch) {
       setInputValue('')
@@ -5873,10 +5895,17 @@ function ChatInner({
     const followsDefault = t('ide.chat.settings.modelFollowsDefault', undefined, {
       defaultValue: 'Follows default model',
     })
+    // The auxiliary commit/compact jobs fall back to the server's own fast
+    // default when unset — NOT the default model — so their unset label differs.
+    const fastDefault = t('ide.chat.settings.modelDefaultFast', undefined, {
+      defaultValue: 'Fast default',
+    })
     return buildSettingsList({
       model: currentModel ? modelLabel(currentModel) : notSet,
       planModel: planModel ? modelLabel(planModel) : followsDefault,
       executeModel: executeModel ? modelLabel(executeModel) : followsDefault,
+      commitModel: commitModel ? modelLabel(commitModel) : fastDefault,
+      compactModel: compactModel ? modelLabel(compactModel) : fastDefault,
       mode:
         mode === 'plan'
           ? t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' })
@@ -6782,7 +6811,15 @@ function ChatInner({
                       ? t('ide.chat.selectExecuteModel', undefined, {
                           defaultValue: 'Select execute-mode model',
                         })
-                      : t('ide.chat.selectModel', undefined, { defaultValue: 'Select model' })}
+                      : modelPicker.mode === 'commit'
+                        ? t('ide.chat.selectCommitModel', undefined, {
+                            defaultValue: 'Select commit-message model',
+                          })
+                        : modelPicker.mode === 'compact'
+                          ? t('ide.chat.selectCompactModel', undefined, {
+                              defaultValue: 'Select compaction model',
+                            })
+                          : t('ide.chat.selectModel', undefined, { defaultValue: 'Select model' })}
                 </span>
                 {/*
                   Sort control (replaces the old "Current: X" text — the active

@@ -311,6 +311,10 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Vali plaanirežiimi mudel',
   'ide.chat.executeModelSet': 'Täitmisrežiimi mudel on seatud väärtusele „{{name}}“',
   'ide.chat.planModelSet': 'Planeerimisrežiimi mudel on seatud väärtusele „{{name}}“',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -454,6 +458,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Tänan! Teie teade on edastatud – jälgige selle käiku lingitud teemas.',
   'ide.chat.settings.modelFollowsDefault': 'Järgib vaikimisi mudelit',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Paneelide suuruse muutmine',
   'ide.chat.settings.autoCommitEvery': 'Kõik {{seconds}} s',

@@ -310,6 +310,10 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.selectPlanModel': 'Válasszon tervrajzi modellt',
   'ide.chat.executeModelSet': 'A végrehajtási mód beállítása: „{{name}}”',
   'ide.chat.planModelSet': 'A terv-mód beállítása: „{{name}}”',
+  'ide.chat.selectCommitModel': 'Select commit-message model',
+  'ide.chat.selectCompactModel': 'Select compaction model',
+  'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
+  'ide.chat.compactModelSet': 'Compaction model set to {{name}}',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
   'ide.chat.streamingOutputTokensHint':
     'Estimated output tokens this turn — /cost shows input and cached.',
@@ -454,6 +458,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink':
     'Köszönjük! A bejelentésedet elküldtük – a kapcsolódó hibajelentésen követheted nyomon.',
   'ide.chat.settings.modelFollowsDefault': 'Az alapértelmezett modellt követi',
+  'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'A panelek méretének módosítása',
   'ide.chat.settings.autoCommitEvery': 'Minden {{seconds}} s',
