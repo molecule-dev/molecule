@@ -107,7 +107,9 @@ export function freeTierModeModelId(
 /**
  * Whether a model is locked (not selectable) for the given mode under the
  * free-tier clamp. Pro users are never locked; free/anon users may pick only the
- * mode's clamped model.
+ * mode's clamped model — plus any `provider: 'custom'` (bring-your-own AI)
+ * model, which is exempt on every tier because the user pays their own
+ * provider directly.
  *
  * @param modelId - The candidate model id.
  * @param mode - The conversation mode the picker is scoped to.
@@ -124,5 +126,6 @@ export function isModeModelLocked(
   fallback: string,
 ): boolean {
   if (!isFreeTier) return false
+  if (models.find((m) => m.id === modelId)?.provider === 'custom') return false
   return modelId !== freeTierModeModelId(models, mode, fallback)
 }

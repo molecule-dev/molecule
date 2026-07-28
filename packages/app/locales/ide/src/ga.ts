@@ -54,6 +54,8 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
+  'ide.chat.models.usageRateYourKey': 'your key',
+  'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.undoNoChanges': 'Gan aon athruithe ar chomhad le cealú.',
   'ide.chat.undoComplete': 'Theip ar na hathruithe a aisiompú.',
   'ide.chat.commitNoChanges': 'Gan aon athruithe le gealladh.',

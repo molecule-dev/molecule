@@ -83,6 +83,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
+  'ide.chat.models.usageRateYourKey': 'your key',
+  'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.undoNoChanges': 'Немає змін у файлі для скасування.',
   'ide.chat.undoComplete': 'Не вдалося скасувати зміни.',
   'ide.chat.commitNoChanges': 'Немає змін для фіксації.',

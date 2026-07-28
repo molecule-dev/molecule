@@ -92,6 +92,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
+  'ide.chat.models.usageRateYourKey': 'your key',
+  'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.undoNoChanges': '되돌릴 파일 변경 사항이 없습니다.',
   'ide.chat.undoComplete': '변경 사항을 되돌리는 데 실패했습니다.',
   'ide.chat.commitNoChanges': '커밋할 변경 사항이 없습니다.',

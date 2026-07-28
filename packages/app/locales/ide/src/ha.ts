@@ -204,6 +204,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
+  'ide.chat.models.usageRateYourKey': 'your key',
+  'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.undoNoChanges': 'Babu wani canje-canje da za a yi wa fayil ɗin.',
   'ide.chat.undoComplete': 'An kasa dawo da canje-canje.',
   'ide.chat.commitNoChanges': 'Babu canje-canje da za a yi don aiwatarwa.',

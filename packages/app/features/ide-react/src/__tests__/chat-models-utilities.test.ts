@@ -8,7 +8,12 @@ import { describe, expect, it } from 'vitest'
 
 import type { AppModelDefinition } from '@molecule/app-ai-models'
 
-import { compareModels, modelTotalCost, sortModels } from '../components/chat-models-utilities.js'
+import {
+  compareModels,
+  modelTotalCost,
+  modelUsageRate,
+  sortModels,
+} from '../components/chat-models-utilities.js'
 
 /**
  * Builds a minimal model definition for testing, overriding only the fields
@@ -73,6 +78,29 @@ describe('modelTotalCost', () => {
   it('sums input and output price per million tokens', () => {
     expect(modelTotalCost(cheapFree)).toBe(2.5)
     expect(modelTotalCost(expensive)).toBe(90)
+  })
+})
+
+describe('modelUsageRate', () => {
+  it('rates against the cheapest model with a non-zero price', () => {
+    expect(modelUsageRate(cheapFree, all)).toBe(1)
+    expect(modelUsageRate(expensive, all)).toBe(36)
+  })
+
+  it('stays finite for all-zero-price custom (bring-your-own AI) models', () => {
+    const custom = model({
+      id: 'custom/mine/some-model',
+      provider: 'custom',
+      label: 'Mine',
+      inputPricePerMTok: 0,
+      outputPricePerMTok: 0,
+    })
+    // The zero-price model never becomes the base rate (which would divide by
+    // zero) and its own rate clamps to ×1, never NaN/Infinity.
+    expect(modelUsageRate(custom, [...all, custom])).toBe(1)
+    expect(modelUsageRate(expensive, [...all, custom])).toBe(36)
+    // A catalog of only zero-price models also degrades safely.
+    expect(modelUsageRate(custom, [custom])).toBe(1)
   })
 })
 

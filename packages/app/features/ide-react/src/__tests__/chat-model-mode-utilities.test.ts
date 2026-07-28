@@ -146,6 +146,26 @@ describe('isModeModelLocked', () => {
     expect(isModeModelLocked('claude-sonnet-4-6', 'execute', true, catalog, 'fallback')).toBe(true)
     expect(isModeModelLocked('deepseek-v4-flash', 'execute', true, catalog, 'fallback')).toBe(false)
   })
+
+  it('never locks custom (bring-your-own AI) models, even for free users', () => {
+    const custom = model({
+      id: 'custom/mine/some-model',
+      provider: 'custom',
+      label: 'Mine',
+      inputPricePerMTok: 0,
+      outputPricePerMTok: 0,
+      cacheReadPricePerMTok: 0,
+      cacheWritePricePerMTok: 0,
+      knowledgeCutoff: '',
+    })
+    const withCustom = [...catalog, custom]
+    expect(isModeModelLocked('custom/mine/some-model', 'plan', true, withCustom, 'fallback')).toBe(
+      false,
+    )
+    expect(
+      isModeModelLocked('custom/mine/some-model', 'execute', true, withCustom, 'fallback'),
+    ).toBe(false)
+  })
 })
 
 describe('command registry wiring', () => {

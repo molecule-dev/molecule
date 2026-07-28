@@ -3486,7 +3486,9 @@ function ChatInner({
   )
 
   // ── Current project settings (model + maxloops + sounds) ──────────────────
-  const { models: AVAILABLE_MODELS, freeTierModel, loading: modelsLoading } = useAIModels()
+  // Project-scoped so any custom (bring-your-own AI) models the project has
+  // configured are included alongside the platform catalog.
+  const { models: AVAILABLE_MODELS, freeTierModel, loading: modelsLoading } = useAIModels(projectId)
   const FREE_TIER_MODEL = freeTierModel?.id ?? AVAILABLE_MODELS[0]?.id ?? ''
   const DEFAULT_MODEL = FREE_TIER_MODEL
   const isFreeTier = !isPro
@@ -5155,8 +5157,10 @@ function ChatInner({
           AVAILABLE_MODELS.find((m) => m.id.toLowerCase().includes(q)) ??
           AVAILABLE_MODELS.find((m) => m.label.toLowerCase().includes(q))
         const name = resolved?.id ?? query
-        // Block free-tier users from selecting paid models
-        if (isFreeTier && name !== FREE_TIER_MODEL) {
+        // Block free-tier users from selecting paid models. Custom
+        // (bring-your-own AI) models are exempt on every tier — the user pays
+        // their own provider directly.
+        if (isFreeTier && name !== FREE_TIER_MODEL && resolved?.provider !== 'custom') {
           addSystemCard(
             t(
               'ide.chat.modelUpgradeRequired',
@@ -5674,11 +5678,13 @@ function ChatInner({
         const model = visibleModels[modelPicker.selectedIdx >= 0 ? modelPicker.selectedIdx : 0]
         if (model) {
           // Honor the free-tier clamp for the active mode; ignore Enter on a
-          // locked model (the click path shows the upgrade card).
+          // locked model (the click path shows the upgrade card). Custom
+          // (bring-your-own AI) models are never locked — the user pays their
+          // own provider directly.
           const pickerMode = modelPicker.mode
           const isLocked = pickerMode
             ? isModeModelLocked(model.id, pickerMode, isFreeTier, AVAILABLE_MODELS, FREE_TIER_MODEL)
-            : isFreeTier && model.id !== FREE_TIER_MODEL
+            : isFreeTier && model.id !== FREE_TIER_MODEL && model.provider !== 'custom'
           if (!isLocked) void selectModel(model.id, model.label, pickerMode)
         }
         return
@@ -6903,7 +6909,8 @@ function ChatInner({
                     const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
                     // Free tier is clamped per mode (plan → Sonnet, execute →
                     // deepseek-v4-flash); the unscoped picker keeps the single
-                    // free-tier model.
+                    // free-tier model. Custom (bring-your-own AI) models are
+                    // never locked — the user pays their own provider directly.
                     const locked = modelPicker.mode
                       ? isModeModelLocked(
                           model.id,
@@ -6912,11 +6919,14 @@ function ChatInner({
                           AVAILABLE_MODELS,
                           FREE_TIER_MODEL,
                         )
-                      : isFreeTier && model.id !== FREE_TIER_MODEL
+                      : isFreeTier && model.id !== FREE_TIER_MODEL && model.provider !== 'custom'
                     // Relative usage rate vs the cheapest available model — the
                     // unitless "how fast does this eat my allowance" figure
                     // shown INSTEAD of currency. Green ≤×5, yellow ≤×25, red
-                    // above.
+                    // above. Custom (bring-your-own AI) models have all-zero
+                    // list prices and consume no allowance, so they show a
+                    // neutral "your key" instead of a misleading ×1.
+                    const isCustom = model.provider === 'custom'
                     const usageRate = modelUsageRate(model, AVAILABLE_MODELS)
                     const priceColor =
                       usageRate <= 5
@@ -7063,20 +7073,33 @@ function ChatInner({
                           <span style={{ fontSize: '11px', opacity: 0.65 }}>
                             {formatTokenCount(model.contextWindow)} ctx ·{' '}
                             {formatTokenCount(model.maxOutputTokens)} out ·{' '}
-                            <span
-                              style={{ color: priceColor }}
-                              title={t('ide.chat.models.usageRateHint', undefined, {
-                                defaultValue:
-                                  'How fast this model uses your AI allowance, relative to the most economical model',
-                              })}
-                            >
-                              {t(
-                                'ide.chat.models.usageRateValue',
-                                { rate: usageRate },
-                                { defaultValue: '×{{rate}} usage' },
-                              )}
-                            </span>{' '}
-                            · {model.knowledgeCutoff}
+                            {isCustom ? (
+                              <span
+                                title={t('ide.chat.models.usageRateYourKeyHint', undefined, {
+                                  defaultValue: 'Billed to your own provider key, not your plan.',
+                                })}
+                              >
+                                {t('ide.chat.models.usageRateYourKey', undefined, {
+                                  defaultValue: 'your key',
+                                })}
+                              </span>
+                            ) : (
+                              <span
+                                style={{ color: priceColor }}
+                                title={t('ide.chat.models.usageRateHint', undefined, {
+                                  defaultValue:
+                                    'How fast this model uses your AI allowance, relative to the most economical model',
+                                })}
+                              >
+                                {t(
+                                  'ide.chat.models.usageRateValue',
+                                  { rate: usageRate },
+                                  { defaultValue: '×{{rate}} usage' },
+                                )}
+                              </span>
+                            )}
+                            {/* Custom models synthesize an empty cutoff — skip the segment. */}
+                            {model.knowledgeCutoff ? <> · {model.knowledgeCutoff}</> : null}
                           </span>
                           {badges.length > 0 && (
                             <span

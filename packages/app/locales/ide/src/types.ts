@@ -299,6 +299,8 @@ export type IdeTranslationKey =
   | 'ide.chat.models.colName'
   | 'ide.chat.models.usageRateHint'
   | 'ide.chat.models.usageRateValue'
+  | 'ide.chat.models.usageRateYourKey'
+  | 'ide.chat.models.usageRateYourKeyHint'
   | 'ide.chat.models.freeNo'
   | 'ide.chat.models.freeYes'
   | 'ide.chat.models.sortBy'

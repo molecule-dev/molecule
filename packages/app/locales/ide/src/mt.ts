@@ -54,6 +54,8 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
+  'ide.chat.models.usageRateYourKey': 'your key',
+  'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.undoNoChanges': "M'hemm l-ebda tibdil fil-fajl x'jiġi rrevokat.",
   'ide.chat.undoComplete': 'Ma rnexxiex tirrevoka l-bidliet.',
   'ide.chat.commitNoChanges': "L-ebda tibdil x'tiġi impenjata.",

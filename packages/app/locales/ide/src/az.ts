@@ -54,6 +54,8 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
+  'ide.chat.models.usageRateYourKey': 'your key',
+  'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.undoNoChanges': 'Geri qaytarılacaq fayl dəyişikliyi yoxdur.',
   'ide.chat.undoComplete': 'Dəyişiklikləri geri qaytarmaq mümkün olmadı.',
   'ide.chat.commitNoChanges': 'Öhdəlik üçün heç bir dəyişiklik yoxdur.',

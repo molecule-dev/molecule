@@ -53,6 +53,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
+  'ide.chat.models.usageRateYourKey': 'your key',
+  'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.undoNoChanges': '沒有可撤銷的文件變更。',
   'ide.chat.undoComplete': '撤銷更改失敗。',
   'ide.chat.commitNoChanges': '無需提交任何更改。',

@@ -54,6 +54,8 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
+  'ide.chat.models.usageRateYourKey': 'your key',
+  'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.undoNoChanges': 'পূর্বাবস্থায় ফেরানোর মতো কোনো ফাইল পরিবর্তন নেই।',
   'ide.chat.undoComplete': 'পরিবর্তনগুলি পূর্বাবস্থায় ফেরানো সম্ভব হয়নি।',
   'ide.chat.commitNoChanges': 'কমিট করার জন্য কোনো পরিবর্তন নেই।',

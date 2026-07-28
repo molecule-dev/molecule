@@ -54,6 +54,8 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
+  'ide.chat.models.usageRateYourKey': 'your key',
+  'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.undoNoChanges': 'ပြန်ပြင်ရန် ဖိုင်ပြောင်းလဲမှုများ မရှိပါ။',
   'ide.chat.undoComplete': 'ပြောင်းလဲမှုများကို ပြန်ပြင်၍မရပါ။',
   'ide.chat.commitNoChanges': 'ကတိပြုရန် ပြောင်းလဲမှုများ မရှိပါ။',
