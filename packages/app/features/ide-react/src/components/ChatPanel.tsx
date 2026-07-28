@@ -7287,52 +7287,57 @@ function ChatInner({
                       )}
                     </button>
                   )}
-                  {/* Host-provided seam to the BYO ("bring your own AI")
-                      management surface — hidden when the host passes no
-                      callback. Last row, reachable via arrow keys/Enter as
-                      index visibleModels.length. Primary-tinted so it reads as
-                      an action, not another model. */}
-                  {onManageCustomModels && (
-                    <button
-                      type="button"
-                      data-mol-id="chat-model-manage-custom"
-                      onClick={() => {
-                        setModelPicker(null)
-                        setInputValue('')
-                        onManageCustomModels()
-                      }}
-                      onMouseEnter={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.background =
-                          'rgba(128,128,128,0.15)'
-                      }}
-                      onMouseLeave={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.background =
-                          modelPicker.selectedIdx === visibleModels.length
-                            ? 'rgba(128,128,128,0.1)'
-                            : 'rgba(128,128,128,0.04)'
-                      }}
-                      className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'), cm.w('full'))}
-                      style={{
-                        padding: '8px 12px',
-                        border: 'none',
-                        borderTop: '1px solid rgba(128,128,128,0.12)',
-                        // The hex is only the var() fallback (theme token wins) —
-                        // same idiom as the per-row "current" pill above.
-                        color: 'var(--mol-color-primary, #6366f1)',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        background:
-                          modelPicker.selectedIdx === visibleModels.length
-                            ? 'rgba(128,128,128,0.1)'
-                            : 'rgba(128,128,128,0.04)',
-                      }}
-                    >
-                      {t('ide.chat.manageCustomModels', undefined, {
-                        defaultValue: 'Add or manage your own models…',
-                      })}
-                    </button>
-                  )}
                 </div>
+              )}
+              {/* Host-provided seam to the BYO ("bring your own AI")
+                  management surface — hidden when the host passes no callback.
+                  Rendered as an ANCHORED footer action bar OUTSIDE the
+                  scrolling list (flexShrink: 0 in the picker's column layout)
+                  so it stays visible at any scroll position. Still the last
+                  arrow-key index (visibleModels.length) — when selected, the
+                  footer highlights — and Enter/click close the picker and
+                  invoke the callback. Primary color-mix tint = the same idiom
+                  as the per-row "current" pill (the hex is only the var()
+                  fallback; the theme token wins). */}
+              {onManageCustomModels && (
+                <button
+                  type="button"
+                  data-mol-id="chat-model-manage-custom"
+                  onClick={() => {
+                    setModelPicker(null)
+                    setInputValue('')
+                    onManageCustomModels()
+                  }}
+                  onMouseEnter={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background =
+                      'color-mix(in srgb, var(--mol-color-primary, #6366f1) 24%, transparent)'
+                  }}
+                  onMouseLeave={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background =
+                      modelPicker.selectedIdx === visibleModels.length
+                        ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 24%, transparent)'
+                        : 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 12%, transparent)'
+                  }}
+                  className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'), cm.w('full'))}
+                  style={{
+                    flexShrink: 0,
+                    padding: '9px 12px',
+                    border: 'none',
+                    borderTop:
+                      '1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 42%, transparent)',
+                    color: 'var(--mol-color-primary, #6366f1)',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    background:
+                      modelPicker.selectedIdx === visibleModels.length
+                        ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 24%, transparent)'
+                        : 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 12%, transparent)',
+                  }}
+                >
+                  {t('ide.chat.manageCustomModels', undefined, {
+                    defaultValue: 'Add or manage your own models…',
+                  })}
+                </button>
               )}
             </div>
           )}

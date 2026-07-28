@@ -398,8 +398,10 @@ describe('ChatPanel /model picker — mode dropdown + manage seam', () => {
     document.body.innerHTML = ''
     resetChatStoresForTests()
 
-    // With the prop: the row renders at the bottom, and clicking it closes the
-    // picker and invokes the callback.
+    // With the prop: the action renders as an ANCHORED footer — a sibling
+    // AFTER the scrolling list, never a row inside it, so it stays visible at
+    // any scroll position — and clicking it closes the picker and invokes the
+    // callback.
     const onManage = vi.fn()
     container = renderChatPanel([], 'proj-picker-5', onManage)
     await openModelPicker(container)
@@ -407,6 +409,14 @@ describe('ChatPanel /model picker — mode dropdown + manage seam', () => {
       '[data-mol-id="chat-model-manage-custom"]',
     ) as HTMLButtonElement
     expect(row).not.toBeNull()
+    expect(
+      (row.parentElement as HTMLElement).style.overflowY,
+      'the footer must sit OUTSIDE the scrollable list',
+    ).not.toBe('auto')
+    expect(
+      (row.previousElementSibling as HTMLElement).style.overflowY,
+      'the scrollable model list is the footer’s preceding sibling',
+    ).toBe('auto')
     fireEvent.click(row)
     expect(onManage).toHaveBeenCalledTimes(1)
     await waitFor(() =>
