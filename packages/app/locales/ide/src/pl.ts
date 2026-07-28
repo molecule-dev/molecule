@@ -475,6 +475,7 @@ export const pl: Partial<IdeTranslations> = {
     'Dzięki! Twoje zgłoszenie zostało przesłane — możesz śledzić jego status w podanym zgłoszeniu.',
   'ide.chat.settings.modelFollowsDefault': 'Zgodny z modelem domyślnym',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Zmiana rozmiaru paneli',
   'ide.chat.settings.autoCommitEvery': 'Wszystkie strony z serii „{{seconds}}”',

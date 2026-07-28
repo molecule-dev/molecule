@@ -472,6 +472,7 @@ export const tr: Partial<IdeTranslations> = {
     'Teşekkürler! Bildiriminiz gönderildi — bağlantılı sorun sayfasında takip edebilirsiniz.',
   'ide.chat.settings.modelFollowsDefault': 'Varsayılan modeli takip eder',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Panellerin boyutunu değiştir',
   'ide.chat.settings.autoCommitEvery': 'Her {{seconds}}',

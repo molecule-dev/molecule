@@ -466,6 +466,7 @@ export const af: Partial<IdeTranslations> = {
     'Thanks! Your report was submitted — track it on the linked issue.',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Resize panels',
   'ide.chat.settings.autoCommitEvery': 'Every {{seconds}}s',

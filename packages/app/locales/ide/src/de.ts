@@ -483,6 +483,7 @@ export const de: Partial<IdeTranslations> = {
     'Danke! Dein Bericht wurde übermittelt – verfolge den Stand über den verlinkten Ticket.',
   'ide.chat.settings.modelFollowsDefault': 'Entspricht dem Standardmodell',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Größe der Fenster anpassen',
   'ide.chat.settings.autoCommitEvery': 'Jedes Jahr {{seconds}} s',

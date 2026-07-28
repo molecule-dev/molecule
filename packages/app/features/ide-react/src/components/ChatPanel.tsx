@@ -3495,7 +3495,12 @@ function ChatInner({
   // ── Current project settings (model + maxloops + sounds) ──────────────────
   // Project-scoped so any custom (bring-your-own AI) models the project has
   // configured are included alongside the platform catalog.
-  const { models: AVAILABLE_MODELS, freeTierModel, loading: modelsLoading } = useAIModels(projectId)
+  const {
+    models: AVAILABLE_MODELS,
+    defaults: serverModelDefaults,
+    freeTierModel,
+    loading: modelsLoading,
+  } = useAIModels(projectId)
   const FREE_TIER_MODEL = freeTierModel?.id ?? AVAILABLE_MODELS[0]?.id ?? ''
   const DEFAULT_MODEL = FREE_TIER_MODEL
   const isFreeTier = !isPro
@@ -5587,9 +5592,16 @@ function ChatInner({
     const followsDefault = t('ide.chat.settings.modelFollowsDefault', undefined, {
       defaultValue: 'Follows default model',
     })
-    const fastDefault = t('ide.chat.settings.modelDefaultFast', undefined, {
-      defaultValue: 'Fast default',
-    })
+    // Name the model "default" resolves to when the server told us
+    // ("Default (DeepSeek V4 Flash)") — a bare "Fast default" is not decodable.
+    const auxDefault = (id: string | undefined): string =>
+      id
+        ? t(
+            'ide.chat.settings.modelDefaultNamed',
+            { model: label(id) },
+            { defaultValue: 'Default ({{model}})' },
+          )
+        : t('ide.chat.settings.modelDefaultFast', undefined, { defaultValue: 'Fast default' })
     const defaultId = currentModel || DEFAULT_MODEL
     const rows: { value: string; mode: string; model: string }[] = [
       {
@@ -5612,12 +5624,12 @@ function ChatInner({
       {
         value: 'commit',
         mode: t('ide.chat.modelMode.commit', undefined, { defaultValue: 'Commit messages' }),
-        model: commitModel ? label(commitModel) : fastDefault,
+        model: commitModel ? label(commitModel) : auxDefault(serverModelDefaults?.commit),
       },
       {
         value: 'compact',
         mode: t('ide.chat.modelMode.compact', undefined, { defaultValue: 'Compaction' }),
-        model: compactModel ? label(compactModel) : fastDefault,
+        model: compactModel ? label(compactModel) : auxDefault(serverModelDefaults?.compact),
       },
     ]
     return rows.map((r) => ({
@@ -5978,15 +5990,23 @@ function ChatInner({
     })
     // The auxiliary commit/compact jobs fall back to the server's own fast
     // default when unset — NOT the default model — so their unset label differs.
-    const fastDefault = t('ide.chat.settings.modelDefaultFast', undefined, {
-      defaultValue: 'Fast default',
-    })
+    // Name the resolved model when the server sent its defaults.
+    const auxDefault = (id: string | undefined): string =>
+      id
+        ? t(
+            'ide.chat.settings.modelDefaultNamed',
+            { model: modelLabel(id) },
+            { defaultValue: 'Default ({{model}})' },
+          )
+        : t('ide.chat.settings.modelDefaultFast', undefined, { defaultValue: 'Fast default' })
     return buildSettingsList({
       model: currentModel ? modelLabel(currentModel) : notSet,
       planModel: planModel ? modelLabel(planModel) : followsDefault,
       executeModel: executeModel ? modelLabel(executeModel) : followsDefault,
-      commitModel: commitModel ? modelLabel(commitModel) : fastDefault,
-      compactModel: compactModel ? modelLabel(compactModel) : fastDefault,
+      commitModel: commitModel ? modelLabel(commitModel) : auxDefault(serverModelDefaults?.commit),
+      compactModel: compactModel
+        ? modelLabel(compactModel)
+        : auxDefault(serverModelDefaults?.compact),
       mode:
         mode === 'plan'
           ? t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' })

@@ -471,6 +471,7 @@ export const cs: Partial<IdeTranslations> = {
     'Děkujeme! Vaše hlášení bylo odesláno – jeho stav můžete sledovat v souvisejícím ticketu.',
   'ide.chat.settings.modelFollowsDefault': 'Vychází z výchozího modelu',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Změnit velikost panelů',
   'ide.chat.settings.autoCommitEvery': 'Všechny stránky {{seconds}}',

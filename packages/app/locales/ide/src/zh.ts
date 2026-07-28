@@ -459,6 +459,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink': '谢谢！您的报告已提交——请通过链接查看该问题的进展。',
   'ide.chat.settings.modelFollowsDefault': '遵循默认模型',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': '调整面板大小',
   'ide.chat.settings.autoCommitEvery': '每个 {{seconds}} s',

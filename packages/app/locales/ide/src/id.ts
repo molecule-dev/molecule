@@ -472,6 +472,7 @@ export const id: Partial<IdeTranslations> = {
     'Terima kasih! Laporan Anda telah dikirim — Anda dapat melacaknya di tautan masalah tersebut.',
   'ide.chat.settings.modelFollowsDefault': 'Mengikuti model default',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Ubah ukuran panel',
   'ide.chat.settings.autoCommitEvery': 'Setiap {{seconds}} s',

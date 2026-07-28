@@ -476,6 +476,7 @@ export const bg: Partial<IdeTranslations> = {
     'Благодаря! Вашият доклад беше изпратен — проследете го в свързания проблем.',
   'ide.chat.settings.modelFollowsDefault': 'Следва стандартния модел',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Промяна на размера на панелите',
   'ide.chat.settings.autoCommitEvery': 'Всички {{seconds}}',

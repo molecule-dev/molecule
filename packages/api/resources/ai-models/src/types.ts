@@ -217,8 +217,32 @@ export interface ModelDefinition {
 }
 
 /**
+ * The model ids the SERVER falls back to per mode/job when the user hasn't
+ * picked one — already resolved for the requester's tier (a free-tier caller
+ * sees the free-tier clamp ids, a paid caller the paid defaults). Lets the
+ * client label an unset per-mode picker "Default (<model>)" instead of a
+ * vague "default" the user can't decode.
+ */
+export interface ModeModelDefaults {
+  /** Model id used in plan mode when nothing is configured. */
+  plan: string
+  /** Model id used in execute mode when nothing is configured. */
+  execute: string
+  /** Model id used for commit-message generation when nothing is configured. */
+  commit: string
+  /** Model id used for conversation compaction when nothing is configured. */
+  compact: string
+}
+
+/**
  * Response shape returned by `GET /ai/models`.
  */
 export interface ListModelsResponse {
   models: ModelDefinition[]
+  /**
+   * Per-mode server default model ids for the requester's tier. Optional —
+   * servers that don't compute tier-aware defaults omit it, and clients fall
+   * back to generic "default" labeling.
+   */
+  defaults?: ModeModelDefaults
 }

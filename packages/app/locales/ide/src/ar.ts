@@ -468,6 +468,7 @@ export const ar: Partial<IdeTranslations> = {
     'شكرًا! تم إرسال تقريرك — يمكنك متابعة حالته من خلال الرابط المرفق.',
   'ide.chat.settings.modelFollowsDefault': 'يتبع النموذج الافتراضي',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'تغيير حجم الألواح',
   'ide.chat.settings.autoCommitEvery': 'كل {{seconds}} s',

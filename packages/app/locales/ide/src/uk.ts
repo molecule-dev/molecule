@@ -475,6 +475,7 @@ export const uk: Partial<IdeTranslations> = {
     'Дякуємо! Ваше повідомлення надіслано — ви можете відстежувати його за посиланням на відповідну проблему.',
   'ide.chat.settings.modelFollowsDefault': 'Відповідає стандартній моделі',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Змінити розмір панелей',
   'ide.chat.settings.autoCommitEvery': 'Кожен {{seconds}} s',

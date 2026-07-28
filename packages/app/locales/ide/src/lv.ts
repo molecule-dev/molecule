@@ -472,6 +472,7 @@ export const lv: Partial<IdeTranslations> = {
     'Paldies! Jūsu ziņojums ir nosūtīts — tā statusu varat sekot saites norādītajā problēmā.',
   'ide.chat.settings.modelFollowsDefault': 'Atbilst standarta modelim',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Mainīt paneļu izmēru',
   'ide.chat.settings.autoCommitEvery': 'Katrs {{seconds}} s',

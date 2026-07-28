@@ -472,6 +472,7 @@ export const sv: Partial<IdeTranslations> = {
     'Tack! Din rapport har skickats in – följ den via länken till ärendet.',
   'ide.chat.settings.modelFollowsDefault': 'Följer standardmodellen',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Ändra storlek på paneler',
   'ide.chat.settings.autoCommitEvery': 'Alla {{seconds}} s',

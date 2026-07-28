@@ -472,6 +472,7 @@ export const fi: Partial<IdeTranslations> = {
     'Kiitos! Ilmoituksesi on lähetetty — voit seurata sen käsittelyä linkitetyn ongelman kautta.',
   'ide.chat.settings.modelFollowsDefault': 'Noudattaa oletusmallia',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Muuta paneelien kokoa',
   'ide.chat.settings.autoCommitEvery': 'Kaikki {{seconds}}-sivustot',

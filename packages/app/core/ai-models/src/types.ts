@@ -125,8 +125,31 @@ export interface AppModelDefinition {
 }
 
 /**
+ * The model ids the SERVER falls back to per mode/job when the user hasn't
+ * picked one — already resolved for the requester's tier. Mirrors the server's
+ * `ModeModelDefaults`. Lets the picker label an unset per-mode selection
+ * "Default (<model>)" instead of a vague "default".
+ */
+export interface AppModeModelDefaults {
+  /** Model id used in plan mode when nothing is configured. */
+  plan: string
+  /** Model id used in execute mode when nothing is configured. */
+  execute: string
+  /** Model id used for commit-message generation when nothing is configured. */
+  commit: string
+  /** Model id used for conversation compaction when nothing is configured. */
+  compact: string
+}
+
+/**
  * Wire-shape response returned by `GET /ai/models`.
  */
 export interface ListAIModelsResponse {
   models: AppModelDefinition[]
+  /**
+   * Per-mode server default model ids for the requester's tier. Optional —
+   * servers that don't compute them omit it, and clients fall back to generic
+   * "default" labeling.
+   */
+  defaults?: AppModeModelDefaults
 }

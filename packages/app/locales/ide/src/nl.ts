@@ -476,6 +476,7 @@ export const nl: Partial<IdeTranslations> = {
     'Bedankt! Je melding is verzonden — je kunt de voortgang volgen via de bijgevoegde link.',
   'ide.chat.settings.modelFollowsDefault': 'Volgt het standaardmodel',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Het formaat van panelen aanpassen',
   'ide.chat.settings.autoCommitEvery': 'Elke {{seconds}} s',

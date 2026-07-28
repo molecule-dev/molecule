@@ -472,6 +472,7 @@ export const pt: Partial<IdeTranslations> = {
     'Obrigado! Seu relatório foi enviado — acompanhe-o na questão indicada no link.',
   'ide.chat.settings.modelFollowsDefault': 'Segue o modelo padrão',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Redimensionar painéis',
   'ide.chat.settings.autoCommitEvery': 'Todos os {{seconds}} s',

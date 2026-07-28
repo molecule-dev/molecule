@@ -477,6 +477,7 @@ export const el: Partial<IdeTranslations> = {
     'Ευχαριστούμε! Η αναφορά σας υποβλήθηκε — μπορείτε να παρακολουθήσετε την εξέλιξή της στο σχετικό θέμα.',
   'ide.chat.settings.modelFollowsDefault': 'Ακολουθεί το προεπιλεγμένο μοντέλο',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Αλλαγή μεγέθους πλαισίων',
   'ide.chat.settings.autoCommitEvery': 'Κάθε {{seconds}} s',

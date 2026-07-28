@@ -429,6 +429,7 @@ export type IdeTranslationKey =
   | 'ide.chat.settings.soundsSummary'
   | 'ide.chat.settings.modelFollowsDefault'
   | 'ide.chat.settings.modelDefaultFast'
+  | 'ide.chat.settings.modelDefaultNamed'
   | 'ide.chat.settings.effortValue'
   | 'ide.chat.settings.effortFixed'
   | 'ide.chat.settings.autoCommitEvery'

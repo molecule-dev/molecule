@@ -472,6 +472,7 @@ export const hu: Partial<IdeTranslations> = {
     'Köszönjük! A bejelentésedet elküldtük – a kapcsolódó hibajelentésen követheted nyomon.',
   'ide.chat.settings.modelFollowsDefault': 'Az alapértelmezett modellt követi',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'A panelek méretének módosítása',
   'ide.chat.settings.autoCommitEvery': 'Minden {{seconds}} s',

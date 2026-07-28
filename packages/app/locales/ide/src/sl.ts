@@ -473,6 +473,7 @@ export const sl: Partial<IdeTranslations> = {
     'Hvala! Tvoje poročilo je bilo posredovano – spremljaj ga v povezani zadevi.',
   'ide.chat.settings.modelFollowsDefault': 'Sledi privzetemu modelu',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Sprememba velikosti plošč',
   'ide.chat.settings.autoCommitEvery': 'Vsak {{seconds}} s',

@@ -468,6 +468,7 @@ export const ko: Partial<IdeTranslations> = {
     '감사합니다! 신고가 접수되었습니다. 링크된 이슈에서 진행 상황을 확인하실 수 있습니다.',
   'ide.chat.settings.modelFollowsDefault': '기본 모델을 따릅니다',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': '패널 크기 조정',
   'ide.chat.settings.autoCommitEvery': '모든 {{seconds}} s',

@@ -475,6 +475,7 @@ export const lt: Partial<IdeTranslations> = {
     'Ačiū! Jūsų pranešimas buvo išsiųstas — jo eigą galite stebėti paspaudę nuorodą į šią problemą.',
   'ide.chat.settings.modelFollowsDefault': 'Atitinka numatytąjį modelį',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Pakeisti langų dydį',
   'ide.chat.settings.autoCommitEvery': 'Kiekvienas „{{seconds}}“',

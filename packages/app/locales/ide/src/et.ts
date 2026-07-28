@@ -472,6 +472,7 @@ export const et: Partial<IdeTranslations> = {
     'Tänan! Teie teade on edastatud – jälgige selle käiku lingitud teemas.',
   'ide.chat.settings.modelFollowsDefault': 'Järgib vaikimisi mudelit',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Paneelide suuruse muutmine',
   'ide.chat.settings.autoCommitEvery': 'Kõik {{seconds}} s',

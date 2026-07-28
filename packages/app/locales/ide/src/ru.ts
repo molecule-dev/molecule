@@ -473,6 +473,7 @@ export const ru: Partial<IdeTranslations> = {
     'Спасибо! Ваше сообщение отправлено — следите за его обработкой по ссылке на соответствующую задачу.',
   'ide.chat.settings.modelFollowsDefault': 'Использует модель по умолчанию',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Изменить размер панелей',
   'ide.chat.settings.autoCommitEvery': 'Каждый сайт {{seconds}}',

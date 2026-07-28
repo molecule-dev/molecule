@@ -474,6 +474,7 @@ export const ro: Partial<IdeTranslations> = {
     'Mulțumesc! Raportul tău a fost trimis — poți urmări evoluția acestuia în problema la care face referire linkul.',
   'ide.chat.settings.modelFollowsDefault': 'Urmează modelul implicit',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'Redimensionare panouri',
   'ide.chat.settings.autoCommitEvery': 'Toate articolele de pe {{seconds}}',

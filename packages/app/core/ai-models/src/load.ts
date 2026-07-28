@@ -9,10 +9,22 @@
 
 import type { HttpClient } from '@molecule/app-http'
 
-import type { AppModelDefinition, ListAIModelsResponse } from './types.js'
+import type { AppModelDefinition, AppModeModelDefaults, ListAIModelsResponse } from './types.js'
 
 /**
- * Fetches the AI model catalog from the API and returns the models array.
+ * The full `GET /ai/models` payload: the model list plus (on servers that
+ * compute them) the per-mode default model ids for the requester's tier.
+ */
+export interface AIModelCatalog {
+  /** The list of models available to the current session. */
+  models: AppModelDefinition[]
+  /** Per-mode server default model ids, when the server provides them. */
+  defaults?: AppModeModelDefaults
+}
+
+/**
+ * Fetches the AI model catalog from the API — the model list plus the server's
+ * per-mode default model ids (when provided).
  *
  * @param http - HTTP client bonded by the host app.
  * @param path - Endpoint path, defaults to `'/ai/models'` (the http client supplies the base URL).
@@ -20,6 +32,26 @@ import type { AppModelDefinition, ListAIModelsResponse } from './types.js'
  *   per-project custom ("bring your own AI") models append them to the
  *   catalog, flagged `provider: 'custom'`; servers that ignore the query param
  *   return the unscoped catalog unchanged.
+ * @returns The catalog: models plus optional per-mode defaults.
+ */
+export async function loadAIModelCatalog(
+  http: HttpClient,
+  path = '/ai/models',
+  projectId?: string,
+): Promise<AIModelCatalog> {
+  const url = projectId ? `${path}?projectId=${encodeURIComponent(projectId)}` : path
+  const response = await http.get<ListAIModelsResponse>(url)
+  return { models: response.data.models, defaults: response.data.defaults }
+}
+
+/**
+ * Fetches the AI model catalog from the API and returns the models array.
+ * Thin back-compat wrapper over {@link loadAIModelCatalog} for callers that
+ * don't need the per-mode defaults.
+ *
+ * @param http - HTTP client bonded by the host app.
+ * @param path - Endpoint path, defaults to `'/ai/models'` (the http client supplies the base URL).
+ * @param projectId - Optional project scope (see {@link loadAIModelCatalog}).
  * @returns The list of models available to the current session.
  */
 export async function loadAIModels(
@@ -27,9 +59,7 @@ export async function loadAIModels(
   path = '/ai/models',
   projectId?: string,
 ): Promise<AppModelDefinition[]> {
-  const url = projectId ? `${path}?projectId=${encodeURIComponent(projectId)}` : path
-  const response = await http.get<ListAIModelsResponse>(url)
-  return response.data.models
+  return (await loadAIModelCatalog(http, path, projectId)).models
 }
 
 /**

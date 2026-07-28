@@ -456,6 +456,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.report.submittedWithLink': '謝謝！您的回報已提交 — 請透過連結的議題追蹤進度。',
   'ide.chat.settings.modelFollowsDefault': '遵循預設模型',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': '調整面板大小',
   'ide.chat.settings.autoCommitEvery': '每個 {{seconds}} s',

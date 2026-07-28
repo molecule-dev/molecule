@@ -14,14 +14,15 @@
 
 import { useEffect, useState } from 'react'
 
-import type { AppModelDefinition } from '@molecule/app-ai-models'
-import { loadAIModels, pickFreeTierModel } from '@molecule/app-ai-models'
+import type { AppModelDefinition, AppModeModelDefaults } from '@molecule/app-ai-models'
+import { loadAIModelCatalog, pickFreeTierModel } from '@molecule/app-ai-models'
 import type { HttpClient } from '@molecule/app-http'
 
 import { useHttpClient } from './useHttp.js'
 
 interface CacheState {
   models: AppModelDefinition[] | null
+  defaults: AppModeModelDefaults | undefined
   error: Error | null
   inFlight: Promise<AppModelDefinition[]> | null
 }
@@ -38,13 +39,17 @@ const caches = new Map<string, CacheState>()
 function cacheFor(scope: string): CacheState {
   let cache = caches.get(scope)
   if (!cache) {
-    cache = { models: null, error: null, inFlight: null }
+    cache = { models: null, defaults: undefined, error: null, inFlight: null }
     caches.set(scope, cache)
   }
   return cache
 }
 
-type Listener = (state: { models: AppModelDefinition[] | null; error: Error | null }) => void
+type Listener = (state: {
+  models: AppModelDefinition[] | null
+  defaults: AppModeModelDefaults | undefined
+  error: Error | null
+}) => void
 /** Listeners keyed by the same scope as the cache they observe. */
 const listenersByScope = new Map<string, Set<Listener>>()
 
@@ -71,7 +76,7 @@ function listenersFor(scope: string): Set<Listener> {
 function notify(scope: string): void {
   const cache = cacheFor(scope)
   for (const listener of listenersFor(scope)) {
-    listener({ models: cache.models, error: cache.error })
+    listener({ models: cache.models, defaults: cache.defaults, error: cache.error })
   }
 }
 
@@ -88,13 +93,14 @@ async function fetchOnce(http: HttpClient, scope: string): Promise<AppModelDefin
   if (cache.models) return cache.models
   if (cache.inFlight) return cache.inFlight
 
-  cache.inFlight = loadAIModels(http, undefined, scope || undefined)
-    .then((models) => {
-      cache.models = models
+  cache.inFlight = loadAIModelCatalog(http, undefined, scope || undefined)
+    .then((catalog) => {
+      cache.models = catalog.models
+      cache.defaults = catalog.defaults
       cache.error = null
       cache.inFlight = null
       notify(scope)
-      return models
+      return catalog.models
     })
     .catch((err) => {
       cache.error = err instanceof Error ? err : new Error(String(err))
@@ -113,6 +119,7 @@ async function fetchOnce(http: HttpClient, scope: string): Promise<AppModelDefin
 export function resetAIModelsCache(): void {
   for (const [scope, cache] of caches) {
     cache.models = null
+    cache.defaults = undefined
     cache.error = null
     cache.inFlight = null
     notify(scope)
@@ -126,6 +133,11 @@ export function resetAIModelsCache(): void {
 export interface UseAIModelsResult {
   /** Available models, or an empty array while loading. */
   models: AppModelDefinition[]
+  /**
+   * Per-mode server default model ids for the requester's tier, or `undefined`
+   * while loading or on servers that don't provide them.
+   */
+  defaults: AppModeModelDefaults | undefined
   /** The single model marked `freeTier: true`, or `undefined`. */
   freeTierModel: AppModelDefinition | undefined
   /** `true` while the initial fetch is in flight. */
@@ -148,10 +160,11 @@ export function useAIModels(projectId?: string): UseAIModelsResult {
   const scope = projectId ?? ''
   const [snapshot, setSnapshot] = useState<{
     models: AppModelDefinition[] | null
+    defaults: AppModeModelDefaults | undefined
     error: Error | null
   }>(() => {
     const cache = cacheFor(scope)
-    return { models: cache.models, error: cache.error }
+    return { models: cache.models, defaults: cache.defaults, error: cache.error }
   })
 
   useEffect(() => {
@@ -159,7 +172,7 @@ export function useAIModels(projectId?: string): UseAIModelsResult {
     const listener: Listener = (next) => setSnapshot(next)
     listenersFor(scope).add(listener)
     // The scope may have changed since the lazy useState init — resync.
-    setSnapshot({ models: cache.models, error: cache.error })
+    setSnapshot({ models: cache.models, defaults: cache.defaults, error: cache.error })
 
     if (!cache.models && !cache.error) {
       void fetchOnce(http, scope).catch(() => {
@@ -175,6 +188,7 @@ export function useAIModels(projectId?: string): UseAIModelsResult {
   const models = snapshot.models ?? []
   return {
     models,
+    defaults: snapshot.defaults,
     freeTierModel: pickFreeTierModel(models),
     loading: !snapshot.models && !snapshot.error,
     error: snapshot.error,

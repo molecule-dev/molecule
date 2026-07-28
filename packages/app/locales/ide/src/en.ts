@@ -500,6 +500,7 @@ export const en: IdeTranslations = {
   'ide.chat.settings.soundsSummary': '{{enabled}} of {{total}} events enabled',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.settings.autoCommitEvery': 'Every {{seconds}}s',

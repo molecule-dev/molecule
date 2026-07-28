@@ -474,6 +474,7 @@ export const ja: Partial<IdeTranslations> = {
     'ありがとうございます！ご報告は送信されました。リンク先の課題ページで進捗をご確認ください。',
   'ide.chat.settings.modelFollowsDefault': 'デフォルトのモデルに従います',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
+  'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.resizeHandle.label': 'パネルのサイズ変更',
   'ide.chat.settings.autoCommitEvery': 'すべての{{seconds}}',
