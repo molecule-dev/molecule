@@ -164,6 +164,7 @@ describe('@molecule/app-ai-chat-http', () => {
 
       expect(onEvent).toHaveBeenCalledWith({
         type: 'error',
+        transport: true,
         message: 'No response body',
       })
     })

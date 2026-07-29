@@ -323,6 +323,16 @@ export type ChatStreamEvent =
        * should not. Additive + optional, so emitting it is backward-compatible.
        */
       status?: number
+      /**
+       * True when the error came from the TRANSPORT layer — the fetch failed or
+       * the connection dropped mid-stream (server crash/restart, network blip,
+       * proxy reset) — rather than from an error event the server itself sent.
+       * Consumers use it to auto-resume an interrupted turn: a transport drop is
+       * always retryable (the server never said "stop"), while a server-emitted
+       * error without a `status` is terminal. Additive + optional, so emitting
+       * it is backward-compatible.
+       */
+      transport?: boolean
       limitType?: string
       requiresSignup?: boolean
     }

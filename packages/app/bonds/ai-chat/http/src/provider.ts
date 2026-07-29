@@ -172,6 +172,9 @@ export class HttpChatProvider implements ChatProvider {
       if (!response!.body) {
         onEvent({
           type: 'error',
+          // Transport-layer failure (the HTTP response carried no stream) — the
+          // server never reported an error, so the turn is safely resumable.
+          transport: true,
           message: t('chat.error.noResponseBody', undefined, { defaultValue: 'No response body' }),
         })
         return
@@ -229,7 +232,11 @@ export class HttpChatProvider implements ChatProvider {
         err instanceof Error
           ? err.message
           : t('chat.error.streamError', undefined, { defaultValue: 'Stream error' })
-      onEvent({ type: 'error', message })
+      // Transport-layer failure: the fetch threw or the connection dropped
+      // mid-stream (server restart/crash, network blip, proxy reset). The server
+      // never sent an error event, so flag it `transport` — consumers auto-resume
+      // the interrupted turn instead of surfacing a terminal error.
+      onEvent({ type: 'error', transport: true, message })
     } finally {
       // Only clear if this call's controller is still the active one — a newer
       // sendMessage call may have already replaced it.

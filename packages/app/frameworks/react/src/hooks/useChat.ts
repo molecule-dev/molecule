@@ -47,6 +47,28 @@ type QueueEntry = {
 const AUTOFIX_PREFIX = 'Fix these issues:'
 
 /**
+ * What a scheduled auto-retry should do when its countdown elapses.
+ *
+ * - `resume` — the server ACCEPTED the turn (at least one stream event arrived,
+ *   so the user message is persisted server-side): re-enter the interrupted turn
+ *   via the resume path (`sendMessage('', { resume: true })`).
+ * - `resend` — the turn NEVER started server-side (the POST was rejected or the
+ *   connection failed before any stream event): the user message was never
+ *   persisted, so a resume would silently DROP it — re-send the original message
+ *   instead. `userMsgId` is the optimistic local bubble to remove first so the
+ *   re-send doesn't render a duplicate.
+ */
+type RetryTarget =
+  | { kind: 'resume'; id: string; content: string }
+  | {
+      kind: 'resend'
+      message: string
+      attachments?: ChatAttachment[]
+      options?: SendMessageOptions
+      userMsgId?: string
+    }
+
+/**
  * Base backoff (in seconds) before the first auto-retry of a turn interrupted by
  * a 5XX backend error. The wait doubles each attempt → 5s, 10s, 20s.
  */
@@ -681,12 +703,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
     () => Promise.resolve(),
   )
 
-  // ── 5XX backoff auto-retry machinery ──────────────────────────────────────
-  // When a stream `error` event reports an HTTP 5XX status, we don't surface a
-  // terminal error — we show a cancelable, once-per-second countdown and then
-  // resume the turn "where the user left off" via the existing resume path
-  // (provider.sendMessage('', { resume: true })). 4XX, limit/quota, and
-  // signup-required errors never auto-retry. Bounded to MAX_RETRY_ATTEMPTS.
+  // ── Backoff auto-retry machinery ──────────────────────────────────────────
+  // When a stream `error` event reports an HTTP 5XX status OR a transport-layer
+  // drop (the connection died — server restart/crash, network blip — flagged
+  // `transport` by the provider), we don't surface a terminal error — we show a
+  // cancelable, once-per-second countdown and then either resume the turn
+  // "where the user left off" (provider.sendMessage('', { resume: true })) or,
+  // when the turn never started server-side, re-send the original message (see
+  // RetryTarget). 4XX, limit/quota, and signup-required errors never auto-retry.
+  // Bounded to MAX_RETRY_ATTEMPTS.
 
   // Retries already performed for the CURRENT incident. Reset to 0 on a clean
   // `done`, a new send, an abort, a clearHistory, or a cancel.
@@ -697,9 +722,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // Mirror of the countdown value driven by the interval, so the tick can decide
   // when to fire WITHOUT scheduling a side effect inside a state updater.
   const retrySecondsRef = useRef(0)
-  // The turn to resume when the countdown elapses (the in-flight assistant
-  // message id + the text streamed so far).
-  const retryTargetRef = useRef<{ id: string; content: string } | null>(null)
+  // What to do when the countdown elapses — resume the in-flight turn, or
+  // re-send a message the server never received (see RetryTarget).
+  const retryTargetRef = useRef<RetryTarget | null>(null)
   // The original error message to surface if the user cancels the countdown or
   // the retry budget is exhausted — so they always see WHY the turn failed.
   const pendingRetryErrorRef = useRef<string | null>(null)
@@ -726,19 +751,30 @@ export function useChat(options: UseChatOptions): UseChatResult {
   }, [clearRetryTimers])
 
   /**
-   * Fire the scheduled retry: stop the countdown and resume the interrupted turn
-   * "where the user left off" via the existing resume path (resume:true). The
-   * retry budget (retryAttemptRef) is intentionally NOT reset here — a resume
-   * that fails again with a 5XX re-arms the backoff up to the attempt cap.
+   * Fire the scheduled retry: stop the countdown and either resume the
+   * interrupted turn "where the user left off" (resume:true) or re-send the
+   * original message when the turn never started server-side (see RetryTarget —
+   * resuming then would drop the never-persisted user message). The retry budget
+   * (retryAttemptRef) is intentionally NOT reset here — a retry that fails again
+   * re-arms the backoff up to the attempt cap.
    */
   const fireRetry = useCallback((): void => {
     clearRetryTimers()
     setRetryCountdown(null)
     const target = retryTargetRef.current
     retryTargetRef.current = null
-    if (target && mountedRef.current) {
+    if (!target || !mountedRef.current) return
+    if (target.kind === 'resume') {
       resumeStreamRef.current(target.id, target.content)
+      return
     }
+    // Re-send: drop the original optimistic bubble first so the re-send's own
+    // bubble doesn't duplicate it (same content, new id, re-stamped timestamp).
+    if (target.userMsgId) {
+      const uid = target.userMsgId
+      setMessages((prev) => prev.filter((m) => m.id !== uid))
+    }
+    void sendMessageRef.current(target.message, target.attachments, target.options)
   }, [clearRetryTimers])
 
   /**
@@ -746,12 +782,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
    * when it elapses. Backoff curve: 5s, 10s, 20s (exponential, base 5s) for
    * attempts 1, 2, 3. Returns false (without scheduling) once the attempt cap is
    * reached, so the caller surfaces the terminal error instead.
-   * @param target - The assistant message id + streamed-so-far content to resume into.
+   * @param target - What the retry should do — resume the interrupted turn, or
+   *   re-send a message the server never received.
    * @param message - The error to surface if the user cancels or the budget runs out.
    * @returns True if a retry was scheduled; false if the budget is exhausted.
    */
   const scheduleRetry = useCallback(
-    (target: { id: string; content: string }, message: string): boolean => {
+    (target: RetryTarget, message: string): boolean => {
       if (retryAttemptRef.current >= MAX_RETRY_ATTEMPTS) return false
       const attempt = retryAttemptRef.current + 1 // 1-based
       retryAttemptRef.current = attempt
@@ -776,21 +813,41 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
   /**
    * Decide how to handle a stream `error` event: auto-retry on a 5XX backend
-   * error (start the cancelable countdown + resume the turn), or surface a
-   * terminal error for everything else — a 4XX, a limit/quota gate, a
-   * signup-required error, a transport error (no status), or an exhausted budget.
-   * @param event - The error stream event (carries an optional HTTP `status`).
-   * @param target - The turn to resume if this is a retryable 5XX.
+   * error OR a transport-layer drop (start the cancelable countdown + resume or
+   * re-send the turn), or surface a terminal error for everything else — a 4XX,
+   * a limit/quota gate, a signup-required error, a server-emitted error with no
+   * status, or an exhausted budget.
+   *
+   * A 5XX covers the server saying "try again" (overload shed, and the
+   * shutdown-drain handoff a deploying instance sends before closing its
+   * streams). `transport` covers the server never getting to say anything — the
+   * connection died (crash, kill, network blip); the provider flags those
+   * explicitly so a server-emitted terminal error (also status-less) is never
+   * mistaken for one. A user Stop never produces an error event (the provider
+   * swallows its own AbortError), but guard on userAbortedRef anyway.
+   *
+   * @param event - The error stream event (carries an optional HTTP `status`
+   *   and the provider's `transport` flag).
+   * @param target - What a scheduled retry should do (resume vs re-send).
    */
   const handleStreamError = useCallback(
     (
-      event: { message: string; status?: number; limitType?: string; requiresSignup?: boolean },
-      target: { id: string; content: string },
+      event: {
+        message: string
+        status?: number
+        transport?: boolean
+        limitType?: string
+        requiresSignup?: boolean
+      },
+      target: RetryTarget,
     ): void => {
       const isServerError =
         typeof event.status === 'number' && event.status >= 500 && event.status < 600
-      // Only a 5XX, and never a limit/quota gate or a signup-required error.
-      const retryable = isServerError && !event.limitType && !event.requiresSignup
+      const isTransportDrop = event.transport === true && !userAbortedRef.current
+      // Only a 5XX or a transport drop, and never a limit/quota gate or a
+      // signup-required error.
+      const retryable =
+        (isServerError || isTransportDrop) && !event.limitType && !event.requiresSignup
       if (retryable && scheduleRetry(target, event.message)) return
       // Not retryable (or the budget is spent) — surface the terminal error and
       // reset the budget so a future, independent failure starts fresh.
@@ -940,8 +997,25 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const createMessageStream = (deps: {
     resetStall: () => void
     markTerminal: () => void
+    /**
+     * The original send, so an error BEFORE any server event arrived retries by
+     * RE-SENDING it (the server never persisted the user message — a resume
+     * would drop it). Only the sendMessage path provides this; the resume path
+     * omits it, so its errors always retry as another resume.
+     */
+    retrySend?: {
+      message: string
+      attachments?: ChatAttachment[]
+      options?: SendMessageOptions
+      userMsgId?: string
+    }
   }): { onEvent: (event: ChatStreamEvent) => void; finalizeCurrent: () => void } => {
     let currentCtx: MsgStreamCtx | null = null
+    // Whether ANY server event arrived on this stream (the server's first event
+    // is `conversation`, sent right after it persists the user message). Decides
+    // resume-vs-resend on error: seen → the turn started server-side → resume;
+    // not seen → nothing was persisted → re-send.
+    let sawServerEvent = false
 
     const finalizeCurrent = (): void => {
       const ctx = currentCtx
@@ -977,6 +1051,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
     const onEvent = (event: ChatStreamEvent): void => {
       deps.resetStall()
+      // Any non-error event proves the server accepted the turn (see
+      // sawServerEvent) — an error can then safely retry as a resume.
+      if (event.type !== 'error') sawServerEvent = true
       // Forward EVERY event to the parent (Workspace/ChatPanel) — it derives cards
       // (model/mode), fires client_action, etc. Not gated on mountedRef: events write to
       // the conversation store, which must keep filling across a boot→IDE remount.
@@ -1012,12 +1089,20 @@ export function useChat(options: UseChatOptions): UseChatResult {
           return
         case 'error':
           deps.markTerminal()
-          // A 5XX auto-retries (resume) behind a countdown; anything else surfaces.
-          // Either way, finalize the partial current message.
-          handleStreamError(event, {
-            id: currentCtx?.id ?? '',
-            content: currentCtx?.assistantText ?? '',
-          })
+          // A 5XX or transport drop auto-retries behind a countdown; anything
+          // else surfaces. Either way, finalize the partial current message.
+          // Retry shape: the turn started server-side (any event arrived) →
+          // resume it; it never started → re-send the original message.
+          handleStreamError(
+            event,
+            !sawServerEvent && deps.retrySend
+              ? { kind: 'resend', ...deps.retrySend }
+              : {
+                  kind: 'resume',
+                  id: currentCtx?.id ?? '',
+                  content: currentCtx?.assistantText ?? '',
+                },
+          )
           finalizeCurrent()
           return
       }
@@ -1285,7 +1370,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
       let current: QueueEntry | undefined = {
         message,
         attachments,
-        ...(suppressUserMessage ? { suppressUserMessage: true } : {}),
+        // Carry the optimistic bubble's id (queued entries already do) so a
+        // never-started-turn auto-retry can replace it on re-send.
+        ...(suppressUserMessage ? { suppressUserMessage: true } : { userMsgId: userMsg.id }),
         ...(automatic ? { automatic: true } : {}),
         ...(options?.userInitiated ? { userInitiated: true } : {}),
       }
@@ -1334,6 +1421,18 @@ export function useChat(options: UseChatOptions): UseChatResult {
           resetStall,
           markTerminal: () => {
             receivedTerminal = true
+          },
+          // If the turn dies before ANY server event, the auto-retry re-sends
+          // this exact message (resume would drop it — see RetryTarget).
+          retrySend: {
+            message: current.message,
+            attachments: current.attachments,
+            options: {
+              ...(current.suppressUserMessage ? { suppressUserMessage: true } : {}),
+              ...(current.automatic ? { automatic: true } : {}),
+              ...(current.userInitiated ? { userInitiated: true } : {}),
+            },
+            userMsgId: current.userMsgId,
           },
         })
 

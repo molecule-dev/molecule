@@ -1760,7 +1760,7 @@ describe('useChat', () => {
     })
 
     it('auto-resumes the turn via resume:true after the countdown elapses', async () => {
-      const { provider, deferreds, completeWithError } = createMockProvider()
+      const { provider, deferreds, emit, completeWithError } = createMockProvider()
       const streamingProvider = provider as unknown as { isServerStreaming: boolean }
       streamingProvider.isServerStreaming = false
       ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
@@ -1777,6 +1777,11 @@ describe('useChat', () => {
         result.current.sendMessage('go')
       })
       await act(async () => {
+        // The turn STARTED server-side (the server's first event arrived, so the
+        // user message is persisted) before failing — the retry must RESUME. A
+        // failure before any event re-sends the message instead (see the
+        // resend-vs-resume tests in src/__tests__/useChat.retry.test.tsx).
+        emit(0, { type: 'conversation', id: 'conv-1' })
         completeWithError(0, 'Service Unavailable', 503)
       })
       expect(result.current.retryCountdown).toEqual({ secondsRemaining: 5, attempt: 1 })
@@ -1799,7 +1804,7 @@ describe('useChat', () => {
     })
 
     it('bounds auto-retry to 3 attempts, then surfaces the original error', async () => {
-      const { provider, deferreds, completeWithError } = createMockProvider()
+      const { provider, deferreds, emit, completeWithError } = createMockProvider()
       const streamingProvider = provider as unknown as { isServerStreaming: boolean }
       streamingProvider.isServerStreaming = false
       ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
@@ -1816,8 +1821,10 @@ describe('useChat', () => {
         result.current.sendMessage('go')
       })
 
-      // Original failure → attempt 1, 5s backoff.
+      // Original failure MID-STREAM (turn started server-side → resume path) →
+      // attempt 1, 5s backoff.
       await act(async () => {
+        emit(0, { type: 'conversation', id: 'conv-1' })
         completeWithError(0, 'err-1', 503)
       })
       expect(result.current.retryCountdown).toEqual({ secondsRemaining: 5, attempt: 1 })
