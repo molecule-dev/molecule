@@ -3233,15 +3233,19 @@ describe('checkpointRepo — NO content filter can veto an archival checkpoint',
   )
 
   it(
-    'does NOT disable a filter that WORKS — the archived content is the filtered content',
+    'NEUTRALISES a filter that WORKS — a clean filter is host code and must not run',
     async () => {
       const repo = join(root, 'repo')
 
       await initRepo(repo)
       await writeFile(join(repo, '.gitattributes'), '*.txt filter=upper -text\n')
-      // A filter that really runs: pre-emptively disabling every filter would
-      // silently archive raw bytes where the project's own history holds
-      // filtered ones.
+      // A clean filter is an ARBITRARY COMMAND the repository configures, and
+      // checkpointRepo runs on the control-plane host against a copy of a repo the
+      // tenant controls. Even a benign-looking one (`tr a-z A-Z`) must be
+      // neutralised: the archiver cannot tell it from `sh -c '<payload>; cat'`, and
+      // a malicious filter succeeds (exits 0), so "only disable it if it breaks"
+      // is no defence. The cost is raw bytes in the archive instead of filtered
+      // content, which filters.ts measures as strictly better for an archive.
       await git(['config', 'filter.upper.clean', 'tr a-z A-Z'], repo)
       await git(['config', 'filter.upper.required', 'true'], repo)
       await git(['add', '-A'], repo)
@@ -3249,36 +3253,64 @@ describe('checkpointRepo — NO content filter can veto an archival checkpoint',
       await writeFile(join(repo, 'note.txt'), 'quiet words\n')
 
       expect(await checkpointRepo(exec, repo, 'chore: archive checkpoint')).not.toBeNull()
-      expect(await git(['cat-file', '-p', 'HEAD:note.txt'], repo)).toBe('QUIET WORDS\n')
+      // RAW bytes, not 'QUIET WORDS\n' — proof the clean filter never executed.
+      expect(await git(['cat-file', '-p', 'HEAD:note.txt'], repo)).toBe('quiet words\n')
     },
     TIMEOUT,
   )
 
   it(
-    'THROWS NAMING THE FILTER rather than committing partially-filtered content',
+    'does NOT execute a MALICIOUS clean filter, and archives the raw bytes instead',
+    async () => {
+      const repo = join(root, 'repo')
+      const marker = join(root, 'CLEAN_FILTER_RAN')
+
+      await initRepo(repo)
+      await writeFile(join(repo, '.gitattributes'), '*.txt filter=evil -text\n')
+      // The exact exploit shape: a clean filter that runs a side effect and then
+      // echoes content through, so it SUCCEEDS (exit 0). The old reactive design
+      // ("neutralise only after a command fails") never fired here — the payload
+      // had already run during `git add`.
+      await git(
+        ['config', 'filter.evil.clean', `sh -c 'touch ${JSON.stringify(marker)}; cat'`],
+        repo,
+      )
+      await writeFile(join(repo, 'note.txt'), 'hello\n')
+
+      const sha = await checkpointRepo(exec, repo, 'chore: archive checkpoint')
+
+      expect(sha).not.toBeNull()
+      // The side effect never happened: the filter did not run on the host.
+      await expect(stat(marker)).rejects.toMatchObject({ code: 'ENOENT' })
+      // ...and the raw bytes were archived, so no work was lost to the neutralisation.
+      expect(await git(['cat-file', '-p', 'HEAD:note.txt'], repo)).toBe('hello\n')
+    },
+    TIMEOUT,
+  )
+
+  it(
+    'THROWS when staging genuinely fails, and commits nothing',
     async () => {
       const repo = join(root, 'repo')
 
       await buildFilteredRepo(repo)
       await writeFile(join(repo, 'art.psd'), 'RAW-PSD-BYTES')
 
-      // Staging fails even with the filters neutralised (a full disk, a corrupt
-      // index, a filter git refuses to override) — the one case where archival
-      // must stop loudly instead of committing what it managed to filter.
+      // Staging fails for a real reason (a full disk, a corrupt index) EVEN THOUGH
+      // filters are already neutralised — archival must stop loudly, not commit a
+      // half-staged tree.
       const stubbornExec: GitExec = (args, options) =>
         args.includes('add')
-          ? Promise.resolve({
-              stdout: '',
-              stderr: "error: external filter 'molecule-absent-lfs' failed",
-              exitCode: 128,
-            })
+          ? Promise.resolve({ stdout: '', stderr: 'error: unable to write index', exitCode: 128 })
           : exec(args, options)
 
       await expect(checkpointRepo(stubbornExec, repo, 'chore: archive checkpoint')).rejects.toThrow(
-        /content filter\(s\) lfs/,
+        /add -A failed .* unable to write index/,
       )
+      // The filters were already neutralised in the failing argv — so the failure
+      // is reported as a plain git error, not blamed on a filter.
       await expect(checkpointRepo(stubbornExec, repo, 'chore: archive checkpoint')).rejects.toThrow(
-        /NOT archived/,
+        /filter\.lfs\.clean=/,
       )
 
       // Nothing was committed: HEAD is still the attributes commit.

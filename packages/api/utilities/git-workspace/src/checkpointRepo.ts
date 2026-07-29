@@ -342,35 +342,36 @@ export async function checkpointRepo(
     )
   }
 
-  // Overrides that disable the repo's content filters. Computed ONLY after a
-  // command has actually failed, and then reused for every later step: a WORKING
-  // filter must keep working (disabling git-lfs up front would rewrite every
-  // changed pointer as raw bytes in a repo whose own tooling is fine), while a
-  // BROKEN one must not be allowed to abort archival.
-  let overrides = reading.status.overrides
-
   if (reading.status.entries.length === 0) {
     return null
   }
 
+  // SECURITY (host RCE): a repository's content filters (`filter.<name>.clean`,
+  // which `git add`/`commit` execute) are ARBITRARY COMMANDS THE REPOSITORY
+  // CONFIGURES, and this runs on the control-plane host as the archiver's own
+  // user against a copied working tree the repo's owner controls. Neutralising
+  // them only AFTER a command fails — the previous behaviour — is no defence
+  // against a MALICIOUS filter: it runs its payload and exits 0, so no failure
+  // ever triggers the fallback (reproduced: a `clean = sh -c '<payload>; cat'`
+  // executed during `git add -A`). They are therefore disabled UNCONDITIONALLY,
+  // before the first working-tree command — exactly as the restore/checkout
+  // (smudge) path already does in restoreRepo.ts.
+  //
+  // The cost is that a WORKING git-lfs repo archives raw bytes instead of a
+  // pointer. filters.ts measures that as STRICTLY BETTER for an archive (the real
+  // content, not a pointer to a server the archive may not reach), and it is the
+  // correct trade: archive size is never worth executing the repo's code on the
+  // host. The round-trip stays consistent — restore disables smudge too, so raw
+  // bytes go in and raw bytes come out.
+  const drivers = await configuredFilterDrivers(exec, repoPath)
+  const overrides = filterOverrides(drivers)
+
   const addArgs = [...layout.workTree, 'add', '-A']
   const added = await runGitAllowFail(exec, [...overrides, ...addArgs], repoPath)
 
-  if (added.exitCode !== 0 && overrides.length === 0) {
-    const drivers = await configuredFilterDrivers(exec, repoPath)
-
-    overrides = filterOverrides(drivers)
-
-    if (overrides.length === 0) {
-      throw gitError(addArgs, added, repoPath)
-    }
-
-    const retried = await runGitAllowFail(exec, [...overrides, ...addArgs], repoPath)
-
-    if (retried.exitCode !== 0) {
-      throw filterError(repoPath, 'staging the working tree', drivers, added, retried)
-    }
-  } else if (added.exitCode !== 0) {
+  if (added.exitCode !== 0) {
+    // Filters are already neutralised in this argv, so a failure here is a real
+    // git error, not a filter veto.
     throw gitError([...overrides, ...addArgs], added, repoPath)
   }
 
@@ -413,7 +414,9 @@ export async function checkpointRepo(
   //
   // The filter overrides are carried here too: measured, `git commit` refreshes
   // the index against the working tree and re-runs the clean filter, so a
-  // successfully staged tree still failed at commit time without them.
+  // successfully staged tree still failed at commit time without them. They are
+  // the same UNCONDITIONAL overrides computed above, so a `commit` can no more
+  // execute a repo-configured filter than the `add` could.
   const commitArgs = [
     ...overrides,
     ...identity,
@@ -429,24 +432,9 @@ export async function checkpointRepo(
   const committed = await runGitAllowFail(exec, commitArgs, repoPath)
 
   if (committed.exitCode !== 0) {
-    if (overrides.length > 0) {
-      // The filters were already neutralised for this argv (visible in the
-      // rendered command), so this failure is something else entirely.
-      throw gitError(commitArgs, committed, repoPath)
-    }
-
-    const configured = await configuredFilterDrivers(exec, repoPath)
-    const retryOverrides = filterOverrides(configured)
-
-    if (retryOverrides.length === 0) {
-      throw gitError(commitArgs, committed, repoPath)
-    }
-
-    const retried = await runGitAllowFail(exec, [...retryOverrides, ...commitArgs], repoPath)
-
-    if (retried.exitCode !== 0) {
-      throw filterError(repoPath, 'committing the staged tree', configured, committed, retried)
-    }
+    // Filters already neutralised in this argv, so this failure is a real git
+    // error, not a filter veto.
+    throw gitError(commitArgs, committed, repoPath)
   }
 
   const head = await runGit(exec, ['rev-parse', '--verify', 'HEAD'], repoPath)

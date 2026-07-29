@@ -105,27 +105,28 @@ export const readStatus = async (
   repoDir: string,
   workTree: readonly string[],
 ): Promise<{ status: StatusReading } | { failure: StatusFailure }> => {
-  const args = [...workTree, 'status', '--porcelain', '-z', '--untracked-files=all']
-  const first = await runGitAllowFail(exec, args, repoDir)
-
-  if (first.exitCode === 0) {
-    return { status: { entries: parsePorcelainZ(first.stdout), overrides: [], drivers: [] } }
-  }
-
+  // SECURITY (host RCE): to detect a same-size edit to a TRACKED file, `git
+  // status` re-reads its content, which EXECUTES the repository's `clean` filter
+  // — an arbitrary command the repository configures (`filter.<name>.clean`).
+  // This runs on the control-plane host against a copied working tree the repo's
+  // owner controls, so the filters are neutralised UNCONDITIONALLY, before the
+  // first status. Doing it only AFTER a failure (the previous behaviour) is no
+  // defence against a MALICIOUS filter: it runs its payload and exits 0, so the
+  // status "succeeds" and the reactive retry never fires — reproduced, the
+  // payload had already run. The restore (smudge) and checkpoint (clean) paths
+  // neutralise proactively for the same reason; see filters.ts.
   const drivers = await configuredFilterDrivers(exec, repoDir)
   const overrides = filterOverrides(drivers)
+  const args = [...workTree, 'status', '--porcelain', '-z', '--untracked-files=all']
+  const result = await runGitAllowFail(exec, [...overrides, ...args], repoDir)
 
-  if (overrides.length === 0) {
-    return { failure: { args, original: first, retried: null, drivers } }
+  if (result.exitCode !== 0) {
+    // Filters are already disabled in this argv, so the failure is a real git
+    // error, not a filter veto. `retried: null` keeps the one-attempt shape.
+    return { failure: { args, original: result, retried: null, drivers } }
   }
 
-  const retried = await runGitAllowFail(exec, [...overrides, ...args], repoDir)
-
-  if (retried.exitCode !== 0) {
-    return { failure: { args, original: first, retried, drivers } }
-  }
-
-  return { status: { entries: parsePorcelainZ(retried.stdout), overrides, drivers } }
+  return { status: { entries: parsePorcelainZ(result.stdout), overrides, drivers } }
 }
 
 /**
