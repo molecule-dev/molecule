@@ -31,6 +31,14 @@ import type { GoogleConfig } from './types.js'
 
 const logger = getLogger()
 
+/**
+ * `ChatParams.endUserId` is deliberately NOT forwarded: the Gemini
+ * `generateContent` API has no end-user attribution field (no `metadata.user_id`,
+ * no `user`), so there is nothing to put it in. Attribution for this provider has
+ * to come from separating keys/projects per tenant instead. Revisit if Google
+ * adds one — every other bond in this category sends it.
+ */
+
 /** Mutable state shared across SSE line-processing calls for the Gemini streaming parser. */
 interface GoogleStreamState {
   /**

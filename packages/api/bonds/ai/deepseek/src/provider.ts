@@ -92,6 +92,11 @@ class DeepseekAIProviderImpl implements AIProvider {
     const messages = this.formatMessages(params.messages, params.system)
 
     const body: Record<string, unknown> = {
+      // Abuse attribution (see ChatParams.endUserId): OpenAI-compatible APIs
+      // scope enforcement by `user`, so an abusive tenant can be actioned
+      // individually instead of the org key that serves everyone. The value is
+      // the caller's opaque hash — never derived or logged here.
+      ...(params.endUserId ? { user: params.endUserId } : {}),
       model,
       // DeepSeek uses `max_tokens` (not OpenAI's newer `max_completion_tokens`,
       // which it silently ignores).

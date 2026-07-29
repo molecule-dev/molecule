@@ -168,6 +168,30 @@ describe('chat() — request shape', () => {
     expect(body.reasoning_effort).toBe('high')
   })
 
+  // Abuse attribution. This bond serves the FREE tier, so it is the key most
+  // exposed to anonymous abuse — without `user`, DeepSeek sees one org doing all
+  // of it and the only lever they have is the key everyone shares.
+  const endUserBody = async (endUserId?: string) => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+        endUserId,
+      }),
+    )
+    return JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+  }
+
+  it('forwards endUserId as the OpenAI-compatible `user` field', async () => {
+    expect((await endUserBody('mol_9f2c1ab4')).user).toBe('mol_9f2c1ab4')
+  })
+
+  it('omits `user` when no id is supplied', async () => {
+    expect('user' in (await endUserBody())).toBe(false)
+  })
+
   const toolChoiceBody = async (
     toolChoice?: 'auto' | 'required' | { type: 'tool'; name: string },
   ) => {

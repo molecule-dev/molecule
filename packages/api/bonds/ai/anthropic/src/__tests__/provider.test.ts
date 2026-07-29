@@ -454,6 +454,43 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
   })
 
   // =========================================================================
+  // Abuse attribution — metadata.user_id
+  // =========================================================================
+
+  describe('endUserId → metadata.user_id', () => {
+    const emptyStreamResponse = () => ({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+          releaseLock: vi.fn(),
+        }),
+      },
+    })
+
+    /** The parsed body of the single upstream request this helper provokes. */
+    async function sentBody(extra: Record<string, unknown>): Promise<Record<string, unknown>> {
+      mockFetch.mockResolvedValue(emptyStreamResponse())
+      await collectEvents(provider.chat({ ...minimalParams, ...extra }))
+      return JSON.parse((mockFetch.mock.calls[0] as [string, RequestInit])[1].body as string)
+    }
+
+    it('forwards the opaque id so Anthropic can action ONE tenant, not the org key', async () => {
+      // Without this the provider sees every tenant as the platform, and the only
+      // enforcement available to them is suspending the key that serves everyone.
+      const body = await sentBody({ endUserId: 'mol_9f2c1ab4' })
+      expect(body.metadata).toEqual({ user_id: 'mol_9f2c1ab4' })
+    })
+
+    it('omits metadata entirely when no id is supplied (no empty object upstream)', async () => {
+      const body = await sentBody({})
+      expect(body.metadata).toBeUndefined()
+    })
+  })
+
+  // =========================================================================
   // tool_choice mapping
   // =========================================================================
 

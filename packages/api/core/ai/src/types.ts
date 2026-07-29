@@ -185,6 +185,26 @@ export interface ChatParams {
    * conversation history is biased toward it.
    */
   toolChoice?: 'auto' | 'required' | { type: 'tool'; name: string }
+  /**
+   * Opaque, stable identifier for the END USER on whose behalf this request is
+   * made — forwarded to providers that accept one (Anthropic `metadata.user_id`,
+   * OpenAI-compatible `user`).
+   *
+   * This is an ABUSE-ATTRIBUTION control, and it is the difference between a
+   * provider suspending one account and suspending your organization's key. With
+   * nothing sent, every request from every tenant is indistinguishable from the
+   * platform itself, so the only enforcement action available to the provider is
+   * against the key that serves all of them.
+   *
+   * It MUST be opaque — a hash/uuid, never an email, name, phone or anything else
+   * that identifies a person to the provider — and it MUST be stable per user, so
+   * a repeat offender is recognizable across sessions. Callers are expected to
+   * derive it (e.g. an HMAC of their internal user id) and to keep the mapping on
+   * their side so an abuse report naming this value can be traced back.
+   *
+   * Bonds whose provider has no equivalent field ignore it.
+   */
+  endUserId?: string
 }
 
 /**

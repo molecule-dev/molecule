@@ -142,6 +142,12 @@ class AnthropicAIProvider implements AIProvider {
     }
     if (params.stream !== false) body.stream = true
 
+    // Abuse attribution (see ChatParams.endUserId). Anthropic scopes enforcement
+    // by `metadata.user_id`, so sending it means an abusive tenant can be actioned
+    // individually instead of the organization's key — which serves every tenant.
+    // The value is the caller's opaque hash; this bond never derives or logs it.
+    if (params.endUserId) body.metadata = { user_id: params.endUserId }
+
     // Thinking requires temperature=1 (default); skip any explicit temperature override.
     //
     // Two thinking paths, keyed off the caller-resolved native effort value:
