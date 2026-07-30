@@ -2017,6 +2017,18 @@ function TabBar({
 
 **Returns:** The rendered tab bar element, or null if no tabs are open.
 
+#### `useCoarsePointer()`
+
+Whether the primary pointer is coarse (touch). Use for interaction
+decisions: ≥44px touch targets, always-visible controls that desktop
+reveals on hover (hover does not exist on touch).
+
+```typescript
+function useCoarsePointer(): boolean
+```
+
+**Returns:** True on touch-first devices.
+
 #### `useKeyboardShortcuts(shortcuts)`
 
 Registers global keyboard shortcuts on the document.
@@ -2026,6 +2038,30 @@ function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]): void
 ```
 
 - `shortcuts` — Array of shortcut definitions. Callers should wrap the array in `useMemo` to avoid unnecessary re-subscriptions.
+
+#### `useMediaQueryMatch(query)`
+
+Subscribes to a CSS media query. SSR-safe: reports `false` until mounted in
+a browser.
+
+```typescript
+function useMediaQueryMatch(query: string): boolean
+```
+
+- `query` — A media query string, e.g. `'(max-width: 767px)'`.
+
+**Returns:** Whether the query currently matches.
+
+#### `useNarrowViewport()`
+
+Whether the viewport is phone-width (below 768px). Use for layout-density
+decisions: bigger type, taller rows, `dvh`-capped popovers.
+
+```typescript
+function useNarrowViewport(): boolean
+```
+
+**Returns:** True on phone-width viewports.
 
 #### `UserAvatar(props)`
 
@@ -2084,6 +2120,15 @@ The disabled (off) countdown state — the reducer's initial value.
 
 ```typescript
 const AUTO_COMMIT_DISABLED: AutoCommitState
+```
+
+#### `COARSE_POINTER_QUERY`
+
+The touch-first media query — matches when the PRIMARY pointer is coarse
+(finger), i.e. phones/tablets, regardless of viewport width.
+
+```typescript
+const COARSE_POINTER_QUERY: "(pointer: coarse)"
 ```
 
 #### `COMMAND_CATEGORIES`
@@ -2191,6 +2236,15 @@ Smallest a panel may shrink to, as a percentage of the container.
 
 ```typescript
 const MIN_PANEL_PERCENT: 10
+```
+
+#### `NARROW_VIEWPORT_QUERY`
+
+The phone-width media query — matches viewports below 768px, mirroring the
+host workspace's single-pane mobile breakpoint.
+
+```typescript
+const NARROW_VIEWPORT_QUERY: "(max-width: 767px)"
 ```
 
 #### `SETTINGS`

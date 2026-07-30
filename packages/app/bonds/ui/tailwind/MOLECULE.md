@@ -1127,10 +1127,10 @@ const labelBlock: "mb-1.5 block"
 
 #### `languageActive`
 
-Language option (active/selected) classes.
+Language option (active/selected) classes. Same coarse-pointer touch floor as {@link languageOption}.
 
 ```typescript
-const languageActive: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-primary/15 text-primary font-medium"
+const languageActive: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-primary/15 text-primary font-medium pointer-coarse:min-h-[44px] pointer-coarse:flex pointer-coarse:items-center pointer-coarse:justify-center"
 ```
 
 #### `languageGrid`
@@ -1143,10 +1143,13 @@ const languageGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-
 
 #### `languageOption`
 
-Language option (inactive) classes.
+Language option (inactive) classes. On coarse pointers (touch) the row grows
+to the 44px touch floor and centers its label with flex (`text-center` alone
+cannot center flex items, hence `justify-center`); fine-pointer rendering is
+unchanged.
 
 ```typescript
-const languageOption: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-surface-secondary"
+const languageOption: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-surface-secondary pointer-coarse:min-h-[44px] pointer-coarse:flex pointer-coarse:items-center pointer-coarse:justify-center"
 ```
 
 #### `languagePickerTrigger`

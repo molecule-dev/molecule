@@ -43,6 +43,10 @@ interface MonacoConfig {
   wordWrap?: boolean
   /** Show minimap by default. */
   minimap?: boolean
+  /** Allow scrolling past the last line by default (Monaco default: true). */
+  scrollBeyondLastLine?: boolean
+  /** Show code-folding controls in the gutter by default (Monaco default: true). */
+  folding?: boolean
   /** TypeScript compiler options for the language service. */
   tsCompilerOptions?: Record<string, unknown>
 }
