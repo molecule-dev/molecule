@@ -8279,9 +8279,10 @@ function ChatInner({
             }}
           >
             {/* Icon buttons — all use identical box model for vertical alignment:
-                fixed flex-centered boxes (24×24 fine pointer, 40×40 coarse — the
-                touch hit-area floor for this dense row) so text glyphs and SVGs
-                align identically. Glyph sizes never change with the box. */}
+                fixed flex-centered boxes (24×24 fine pointer, 40×32 coarse — wide
+                for touch hit spacing but deliberately flat so the composer row
+                doesn't balloon vertically) so text glyphs and SVGs align
+                identically. Glyph sizes never change with the box. */}
             {/* Plan/Execute mode toggle */}
             <button
               type="button"
@@ -8315,7 +8316,7 @@ function ChatInner({
                 // Touch-first: grow the hit area to 40×40 (glyph size unchanged);
                 // fine pointers keep the compact 24px box.
                 width: isCoarse ? 40 : 24,
-                height: isCoarse ? 40 : 24,
+                height: isCoarse ? 32 : 24,
                 background:
                   mode === 'plan'
                     ? isLight
@@ -8358,7 +8359,7 @@ function ChatInner({
                   alignItems: 'center',
                   justifyContent: 'center',
                   width: isCoarse ? 40 : 24,
-                  height: isCoarse ? 40 : 24,
+                  height: isCoarse ? 32 : 24,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
@@ -8430,7 +8431,7 @@ function ChatInner({
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: isCoarse ? 40 : 24,
-                height: isCoarse ? 40 : 24,
+                height: isCoarse ? 32 : 24,
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -8510,7 +8511,7 @@ function ChatInner({
                   alignItems: 'center',
                   justifyContent: 'center',
                   width: isCoarse ? 40 : 24,
-                  height: isCoarse ? 40 : 24,
+                  height: isCoarse ? 32 : 24,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
@@ -8706,7 +8707,7 @@ function ChatInner({
                     alignItems: 'center',
                     justifyContent: 'center',
                     // Touch hit-area floor for the composer's action buttons.
-                    ...(isCoarse ? { minWidth: 40, minHeight: 40 } : {}),
+                    ...(isCoarse ? { minWidth: 40, minHeight: 32 } : {}),
                   }}
                 >
                   <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: 'block' }}>
@@ -8742,7 +8743,7 @@ function ChatInner({
                   alignItems: 'center',
                   justifyContent: 'center',
                   // Touch hit-area floor for the composer's action buttons.
-                  ...(isCoarse ? { minWidth: 40, minHeight: 40 } : {}),
+                  ...(isCoarse ? { minWidth: 40, minHeight: 32 } : {}),
                 }}
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: 'block' }}>

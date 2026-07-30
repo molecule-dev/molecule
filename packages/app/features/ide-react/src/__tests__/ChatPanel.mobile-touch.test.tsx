@@ -263,17 +263,20 @@ describe('composer (ChatPanel) — phone/touch', () => {
     expect(textarea.style.fontSize).toBe('')
   })
 
-  it('grows the composer icon buttons to the 40px touch floor on coarse', async () => {
+  it('grows the composer icon buttons to wide-but-flat 40×32 touch boxes on coarse', async () => {
+    // 40px wide preserves horizontal hit spacing; 32px tall (the dense-row
+    // touch floor) keeps the composer row from ballooning vertically —
+    // user feedback: the 40px-tall boxes made the composer too bulky.
     stubPhone()
     const container = await renderChatPanel()
     for (const title of ['Attach file', 'Reference a file', 'Slash commands']) {
       const btn = container.querySelector(`button[title="${title}"]`) as HTMLElement
       expect(btn, `${title} button renders`).not.toBeNull()
       expect(btn.style.width, `${title} width`).toBe('40px')
-      expect(btn.style.height, `${title} height`).toBe('40px')
+      expect(btn.style.height, `${title} height`).toBe('32px')
     }
     const send = container.querySelector('button[title="Send"]') as HTMLElement
-    expect(send.style.minHeight).toBe('40px')
+    expect(send.style.minHeight).toBe('32px')
     expect(send.style.minWidth).toBe('40px')
   })
 

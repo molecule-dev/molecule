@@ -1128,7 +1128,10 @@ export const ToolCallCard = memo(function ToolCallCard({
         onMouseLeave={() => setIsHovered(false)}
         style={{
           display: 'flex',
-          alignItems: 'flex-start',
+          // Coarse: the undo icon's 32px touch box inflates the label row, so
+          // top-alignment would leave the diff stats/chevron riding high —
+          // center everything instead. Desktop keeps flex-start + px nudges.
+          alignItems: isCoarse ? 'center' : 'flex-start',
           gap: '6px',
           background: 'none',
           border: 'none',
@@ -1238,7 +1241,7 @@ export const ToolCallCard = memo(function ToolCallCard({
               display: 'flex',
               gap: '4px',
               flexShrink: 0,
-              marginTop: '2px',
+              marginTop: isCoarse ? 0 : '2px',
               fontSize: '11px',
               fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
               opacity: isHovered ? 1 : 0.6,
@@ -1290,7 +1293,7 @@ export const ToolCallCard = memo(function ToolCallCard({
             style={{
               display: 'block',
               flexShrink: 0,
-              marginTop: '3px',
+              marginTop: isCoarse ? 0 : '3px',
               transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
               transition: 'transform 150ms, opacity 100ms',
               opacity: isHovered ? 0.85 : 0.35,
