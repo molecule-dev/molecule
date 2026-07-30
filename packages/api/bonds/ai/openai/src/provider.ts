@@ -77,11 +77,20 @@ export class OpenaiAIProvider implements AIProvider {
     const messages = this.formatMessages(params.messages, params.system)
 
     const body: Record<string, unknown> = {
-      // Abuse attribution (see ChatParams.endUserId): OpenAI-compatible APIs
-      // scope enforcement by `user`, so an abusive tenant can be actioned
-      // individually instead of the org key that serves everyone. The value is
-      // the caller's opaque hash — never derived or logged here.
-      ...(params.endUserId ? { user: params.endUserId } : {}),
+      // Abuse attribution (see ChatParams.endUserId). OpenAI DEPRECATED `user`
+      // and replaced it with `safety_identifier` for exactly this purpose —
+      // their guidance is a hashed, stable per-user string, which is what
+      // endUserId already is. Sibling OpenAI-compatible bonds keep `user`: it is
+      // the field they actually implement, verified accepted by deepseek, xai,
+      // moonshot, alibaba and zhipu against their live APIs.
+      //
+      // This bond is also pointed at arbitrary BYO OpenAI-compatible endpoints
+      // (molecule-dev's custom providers), so the unknown-field question matters
+      // here: those same five providers all returned 200 when sent an unknown
+      // `safety_identifier`, i.e. tolerating unknown body params is the norm.
+      // A BYO endpoint therefore ignores this rather than rejecting it — and BYO
+      // runs on the user's OWN key, where attribution protects nothing of ours.
+      ...(params.endUserId ? { safety_identifier: params.endUserId } : {}),
       model,
       messages,
       max_tokens: maxTokens,
@@ -426,8 +435,7 @@ export class OpenaiAIProvider implements AIProvider {
         // as a successful completion. Surface it as a real error event (also
         // satisfies the no-silent-swallow rule).
         const streamError = event.error as
-          | { message?: string; type?: string; code?: string }
-          | undefined
+          { message?: string; type?: string; code?: string } | undefined
         if (streamError) {
           const detail = `${streamError.code ?? streamError.type ?? ''} ${streamError.message ?? ''}`
           logger.error('OpenAI streaming error event', {

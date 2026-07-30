@@ -173,6 +173,52 @@ describe('chat() — request shape', () => {
     expect(body.messages[1]).toMatchObject({ role: 'user', content: 'hi' })
   })
 
+  it('sends endUserId as safety_identifier, NOT the deprecated `user`', async () => {
+    // OpenAI replaced `user` with `safety_identifier` for abuse attribution.
+    // This bond is the only OpenAI-compatible one that must differ — its siblings
+    // (deepseek, xai, moonshot, alibaba, zhipu) implement `user`, verified
+    // accepted against their live APIs.
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
+    )
+
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'x' }],
+      stream: false,
+      endUserId: 'mol_9f2c1ab4',
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as { body: string }).body) as Record<
+      string,
+      unknown
+    >
+    expect(body.safety_identifier).toBe('mol_9f2c1ab4')
+    expect(body.user).toBeUndefined()
+  })
+
+  it('omits safety_identifier when no endUserId is supplied', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
+    )
+
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'x' }],
+      stream: false,
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as { body: string }).body) as Record<
+      string,
+      unknown
+    >
+    expect('safety_identifier' in body).toBe(false)
+  })
+
   it('passes temperature through when provided', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
