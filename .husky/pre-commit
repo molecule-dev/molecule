@@ -12,6 +12,19 @@ set -e
 # format/lint pass. Bypass a reviewed false positive with: git commit --no-verify
 node scripts/precommit-secret-scan.mjs
 
+# Secret-scanner drift (cross-repo). scripts/precommit-secret-scan.mjs here is a
+# VENDORED copy of the workspace canonical (../scripts/precommit-secret-scan.mjs).
+# This repo's copy was the NEWEST when they diverged — the false-positive
+# exemptions were added here and nowhere else, so the other three kept blocking
+# `postgres://postgres:postgres@localhost` in docs. Fix the canonical, then sync.
+# Only checked when this copy is staged; skipped in a standalone clone.
+if git diff --cached --name-only --diff-filter=ACM |
+  grep -q '^scripts/precommit-secret-scan\.mjs$'; then
+  if [ -f ../scripts/sync-secret-scanner.mjs ]; then
+    (cd .. && node scripts/sync-secret-scanner.mjs --check)
+  fi
+fi
+
 STAGED=$(git diff --cached --name-only --diff-filter=AM)
 if [ -z "$STAGED" ]; then
   exit 0
