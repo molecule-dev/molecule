@@ -23,6 +23,7 @@ import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { ShareLinkResult, ShareRole } from './chat-share-utilities.js'
 import {
   buildSharePayload,
@@ -71,6 +72,8 @@ export function ShareModal({
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
+  const isNarrow = useNarrowViewport()
+  const isCoarse = useCoarsePointer()
   const border = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.12)'
   const fieldStyle = {
     width: '100%',
@@ -80,6 +83,10 @@ export function ShareModal({
     background: 'transparent',
     color: 'inherit',
     outline: 'none',
+    // ≥16px on phones/touch so iOS Safari doesn't zoom the page on focus
+    // (the role <select> and the focus-selecting link input both zoom below
+    // 16px; the inline size deliberately overrides cm.textSize('sm') there).
+    ...(isNarrow || isCoarse ? { fontSize: 16 } : {}),
   } as const
 
   const shareUrl = created
