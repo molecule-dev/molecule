@@ -79,7 +79,7 @@ describe('createProvider', () => {
 })
 
 describe('chat()', () => {
-  it('POSTs to default baseUrl https://api.minimax.chat/v1/chat/completions with Bearer auth', async () => {
+  it('POSTs to default baseUrl https://api.minimax.io/v1/chat/completions with Bearer auth', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
       jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} }),
@@ -93,7 +93,7 @@ describe('chat()', () => {
       // drain
     }
     const [url, init] = fetch.mock.calls[0]
-    expect(url).toBe('https://api.minimax.chat/v1/chat/completions')
+    expect(url).toBe('https://api.minimax.io/v1/chat/completions')
     expect(((init as RequestInit).headers as Record<string, string>).Authorization).toBe(
       'Bearer mini-key',
     )

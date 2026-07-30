@@ -61,7 +61,13 @@ class MiniMaxAIProvider implements AIProvider {
     this.apiKey = config.apiKey ?? process.env.MINIMAX_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'minimax-m2.5'
     this.maxTokens = config.maxTokens ?? 4096
-    this.baseUrl = config.baseUrl ?? process.env.MINIMAX_BASE_URL ?? 'https://api.minimax.chat'
+    // `api.minimax.io` is MiniMax's INTERNATIONAL host. The previous default,
+    // `api.minimax.chat`, rejected a valid international key with
+    // `invalid api key (2049)` (401) — MiniMax scopes keys per host, so a key
+    // minted on one region never authenticates against the other. That read as
+    // a bad key for as long as it was wrong; it was the URL. Mainland-China
+    // deployments point MINIMAX_BASE_URL at `https://api.minimaxi.com`.
+    this.baseUrl = config.baseUrl ?? process.env.MINIMAX_BASE_URL ?? 'https://api.minimax.io'
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -507,8 +513,7 @@ class MiniMaxAIProvider implements AIProvider {
         // as a successful completion. Surface it as a real error event (also
         // satisfies the no-silent-swallow rule).
         const streamError = event.error as
-          | { message?: string; type?: string; code?: string }
-          | undefined
+          { message?: string; type?: string; code?: string } | undefined
         if (streamError) {
           const detail = `${streamError.code ?? streamError.type ?? ''} ${streamError.message ?? ''}`
           logger.error('MiniMax streaming error event', {
