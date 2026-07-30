@@ -97,6 +97,7 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
 // Tab — individual tab with hover-gated close button
 // ---------------------------------------------------------------------------
 
+/** Props for a single editor tab. */
 export interface TabItemProps {
   path: string
   isDirty?: boolean

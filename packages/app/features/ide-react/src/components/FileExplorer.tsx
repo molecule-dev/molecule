@@ -319,6 +319,7 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
  */
 const MAX_RENDERED_NODES = 10_000
 
+/** Props for a single rendered file-tree row. */
 export interface FileTreeItemProps {
   node: FileNode
   depth: number
