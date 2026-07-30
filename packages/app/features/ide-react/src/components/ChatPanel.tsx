@@ -6149,6 +6149,40 @@ function ChatInner({
         // timeline overflows.
         style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin' }}
       >
+        {/* Empty-conversation hint — rendered ONLY when there is literally nothing
+            else to show: no timeline items, no local/remote streaming, no sandbox-boot
+            wait (the activity slot's own conditions), and no error banner — so it can
+            never coexist with content. Height reserves the 28px always-in-layout
+            activity slot below, so an empty conversation never grows a scrollbar. */}
+        {timeline.length === 0 &&
+          !isLoading &&
+          !isRemoteStreaming &&
+          !awaitingSandboxBoot &&
+          !error && (
+            <div
+              data-mol-id="chat-empty-hint"
+              className={cm.cn(cm.textSize('sm'), cm.textMuted)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                height: 'calc(100% - 28px)',
+                minHeight: 120,
+                textAlign: 'center',
+              }}
+            >
+              <Icon name="logo-mark" size={28} aria-hidden="true" style={{ opacity: 0.5 }} />
+              <span style={{ maxWidth: 320 }}>
+                {/* Reuses the bond's existing key (translated in all locales)
+                    rather than minting a new one. */}
+                {t('ide.chat.emptyState', undefined, {
+                  defaultValue: 'Describe what you want to build...',
+                })}
+              </span>
+            </div>
+          )}
         {timeline.length > maxVisibleItems && (
           <div style={{ textAlign: 'center', padding: '8px 0' }}>
             <button

@@ -139,7 +139,9 @@ export function ShareModal({
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 1000,
+        // Dialog layer (1300) — must paint above ambient status chrome like the
+        // host's HealthBanner (z 1100), which otherwise overlaps this on phones.
+        zIndex: 1300,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

@@ -29,6 +29,7 @@ export type ContextMenuAction =
   | 'paste'
   | 'collapseAll'
 
+/** Props for {@link FileExplorerContextMenu}. */
 export interface ContextMenuProps {
   /** Screen coordinates where the menu should appear. */
   position: { x: number; y: number }
@@ -267,16 +268,22 @@ export function FileExplorerContextMenu({
         onClose()
       }
     }
-    const handleMouseDown = (e: MouseEvent): void => {
+    // Outside-close listens on 'pointerdown', NOT 'mousedown': on desktop every
+    // mousedown is preceded by a pointerdown at the same target (identical
+    // behavior), but after a touch long-press opens this menu, lifting the
+    // finger synthesizes a compatibility mousedown OUTSIDE the menu — which
+    // would instantly close it. No pointerdown is synthesized at finger-lift,
+    // so the menu survives the opening gesture and closes on the next real press.
+    const handlePointerDown = (e: PointerEvent): void => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         onClose()
       }
     }
     document.addEventListener('keydown', handleKeyDown, true)
-    document.addEventListener('mousedown', handleMouseDown)
+    document.addEventListener('pointerdown', handlePointerDown)
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true)
-      document.removeEventListener('mousedown', handleMouseDown)
+      document.removeEventListener('pointerdown', handlePointerDown)
     }
   }, [onClose])
 

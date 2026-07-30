@@ -740,12 +740,17 @@ export const footerButton =
 /** Language selector grid container classes. */
 export const languageGrid =
   'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-96 overflow-y-auto p-2'
-/** Language option (inactive) classes. */
+/**
+ * Language option (inactive) classes. On coarse pointers (touch) the row grows
+ * to the 44px touch floor and centers its label with flex (`text-center` alone
+ * cannot center flex items, hence `justify-center`); fine-pointer rendering is
+ * unchanged.
+ */
 export const languageOption =
-  'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-surface-secondary'
-/** Language option (active/selected) classes. */
+  'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-surface-secondary pointer-coarse:min-h-[44px] pointer-coarse:flex pointer-coarse:items-center pointer-coarse:justify-center'
+/** Language option (active/selected) classes. Same coarse-pointer touch floor as {@link languageOption}. */
 export const languageActive =
-  'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-primary/15 text-primary font-medium'
+  'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-primary/15 text-primary font-medium pointer-coarse:min-h-[44px] pointer-coarse:flex pointer-coarse:items-center pointer-coarse:justify-center'
 /**
  * Language picker trigger button classes (globe icon + native locale name).
  * Inherits surface/foreground tokens so it sits cleanly inside Settings

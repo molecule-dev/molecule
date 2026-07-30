@@ -309,6 +309,123 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
 }
 
 // ---------------------------------------------------------------------------
+// Long-press → context menu (touch)
+// ---------------------------------------------------------------------------
+
+/** How long a touch must hold still before it counts as a long-press. */
+const LONG_PRESS_MS = 500
+
+/** Finger drift beyond this many pixels cancels a pending long-press. */
+const LONG_PRESS_MOVE_TOLERANCE_PX = 10
+
+/** Pointer/touch handlers returned by {@link useLongPress}, spread onto the target element. */
+interface LongPressHandlers {
+  /** Arms the long-press timer (touch/pen pointers only). */
+  onPointerDown: (e: React.PointerEvent) => void
+  /** Cancels the pending long-press once the finger drifts past the tolerance. */
+  onPointerMove: (e: React.PointerEvent) => void
+  /** Cancels the pending long-press on release. */
+  onPointerUp: (e: React.PointerEvent) => void
+  /** Cancels the pending long-press when the browser takes over (e.g. scroll). */
+  onPointerCancel: (e: React.PointerEvent) => void
+  /**
+   * Suppresses the compatibility mouse events (mousedown/mouseup/click) the
+   * browser synthesizes at finger-lift AFTER a fired long-press — those would
+   * otherwise instantly close the just-opened menu or activate whatever sits
+   * under the finger.
+   */
+  onTouchEnd: (e: React.TouchEvent) => void
+  /**
+   * Returns whether a long-press just fired, and resets the flag. Call from the
+   * target's `onClick` so a fired long-press never ALSO selects/opens the item
+   * (belt-and-braces for browsers where the `onTouchEnd` suppression fails).
+   */
+  consumeFired: () => boolean
+}
+
+/**
+ * Recognizes a touch long-press (~500ms hold within a ~10px radius) and invokes
+ * `onLongPress` with the press position — the same `{ x, y }` shape the
+ * `contextmenu` handlers take. iOS Safari never fires the `contextmenu` DOM
+ * event, so this is the only path to the file-explorer context menu on touch
+ * devices. Mouse pointers are ignored entirely (they right-click), so desktop
+ * behavior is untouched; pass `enabled: false` (fine pointer) to disable it.
+ * @param enabled - Whether the recognizer is active (coarse pointers only).
+ * @param onLongPress - Invoked with the press position when the hold fires.
+ * @returns Handlers to spread on the target element (see {@link LongPressHandlers}).
+ */
+function useLongPress(
+  enabled: boolean,
+  onLongPress: (position: { x: number; y: number }) => void,
+): LongPressHandlers {
+  const timerRef = useRef<number | null>(null)
+  const startRef = useRef<{ x: number; y: number } | null>(null)
+  const firedRef = useRef(false)
+  // Latest-callback ref so the timer never fires a stale closure (node/props change).
+  const onLongPressRef = useRef(onLongPress)
+  onLongPressRef.current = onLongPress
+
+  const clear = useCallback(() => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+    startRef.current = null
+  }, [])
+
+  // Never let a pending timer fire after unmount.
+  useEffect(() => clear, [clear])
+
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      // A new press always invalidates any stale "just fired" flag.
+      firedRef.current = false
+      if (!enabled || e.pointerType === 'mouse') return
+      const { clientX, clientY } = e
+      clear()
+      startRef.current = { x: clientX, y: clientY }
+      timerRef.current = window.setTimeout(() => {
+        timerRef.current = null
+        firedRef.current = true
+        onLongPressRef.current({ x: clientX, y: clientY })
+      }, LONG_PRESS_MS)
+    },
+    [enabled, clear],
+  )
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (timerRef.current === null || !startRef.current) return
+      const dx = e.clientX - startRef.current.x
+      const dy = e.clientY - startRef.current.y
+      if (dx * dx + dy * dy > LONG_PRESS_MOVE_TOLERANCE_PX * LONG_PRESS_MOVE_TOLERANCE_PX) {
+        clear()
+      }
+    },
+    [clear],
+  )
+
+  const onTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (firedRef.current) e.preventDefault()
+  }, [])
+
+  const consumeFired = useCallback(() => {
+    const fired = firedRef.current
+    firedRef.current = false
+    return fired
+  }, [])
+
+  return {
+    onPointerDown,
+    onPointerMove,
+    onPointerUp: clear,
+    onPointerCancel: clear,
+    onTouchEnd,
+    consumeFired,
+  }
+}
+
+// ---------------------------------------------------------------------------
 // FileTreeItem
 // ---------------------------------------------------------------------------
 
@@ -404,8 +521,25 @@ const FileTreeItem = memo(function FileTreeItem({
     }
   }, [isExpanded, isDir, node.children, node.path, onDirExpand])
 
+  // iOS Safari never fires 'contextmenu', so on coarse pointers a ~500ms
+  // long-press opens the SAME menu the right-click path does. (The handlers
+  // returned by the hook are referentially stable across renders.)
+  const {
+    onPointerDown: onLongPressPointerDown,
+    onPointerMove: onLongPressPointerMove,
+    onPointerUp: onLongPressPointerUp,
+    onPointerCancel: onLongPressPointerCancel,
+    onTouchEnd: onLongPressTouchEnd,
+    consumeFired: consumeLongPressFired,
+  } = useLongPress(isCoarse && !!onContextMenu, (position) => {
+    onContextMenu?.(position, node)
+  })
+
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
+      // A fired long-press must not ALSO select/open the item — the click the
+      // browser synthesizes at finger-lift is consumed here.
+      if (consumeLongPressFired()) return
       const hasModifier = e.ctrlKey || e.metaKey || e.shiftKey
       if (hasModifier) {
         // Modifier clicks: pure selection, no open/toggle
@@ -431,6 +565,7 @@ const FileTreeItem = memo(function FileTreeItem({
       onFileSelect,
       onTogglePath,
       onSymlinkClick,
+      consumeLongPressFired,
     ],
   )
 
@@ -470,7 +605,15 @@ const FileTreeItem = memo(function FileTreeItem({
             onContextMenu({ x: e.clientX, y: e.clientY }, node)
           }
         }}
-        draggable
+        onPointerDown={onLongPressPointerDown}
+        onPointerMove={onLongPressPointerMove}
+        onPointerUp={onLongPressPointerUp}
+        onPointerCancel={onLongPressPointerCancel}
+        onTouchEnd={onLongPressTouchEnd}
+        // On touch devices a draggable element hijacks the long-press to start a
+        // native drag (firing pointercancel, which kills the context-menu timer),
+        // so rows are only draggable on fine pointers. Desktop drag-move is untouched.
+        draggable={!isCoarse}
         onDragStart={(e) => onDragStart(node.path, e)}
         onDragOver={(e) => onDragOver(node.path, e)}
         onDragLeave={onDragLeave}
@@ -489,6 +632,11 @@ const FileTreeItem = memo(function FileTreeItem({
           // trees — chevron + row are then comfortably tappable); the compact
           // ~24px pointer row is unchanged.
           minHeight: isCoarse ? '36px' : undefined,
+          // Keep the native text-selection/callout from fighting the long-press
+          // gesture on touch devices; fine-pointer rows are untouched.
+          WebkitUserSelect: isCoarse ? 'none' : undefined,
+          userSelect: isCoarse ? 'none' : undefined,
+          WebkitTouchCallout: isCoarse ? 'none' : undefined,
           border: 'none',
           background,
           outline: isDropTarget
@@ -833,11 +981,26 @@ export function FileExplorer({
     [selectedPaths],
   )
 
-  const handleBackgroundContextMenu = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
+  // Shared by right-click AND touch long-press — the long-press path has no
+  // MouseEvent to hand over, only a position, so the opener takes the position.
+  const openBackgroundContextMenu = useCallback((position: { x: number; y: number }) => {
     setSelectedPaths(new Set())
-    setContextMenu({ position: { x: e.clientX, y: e.clientY }, node: null })
+    setContextMenu({ position, node: null })
   }, [])
+
+  const handleBackgroundContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      openBackgroundContextMenu({ x: e.clientX, y: e.clientY })
+    },
+    [openBackgroundContextMenu],
+  )
+
+  // Touch path to the background menu (New File / New Folder / Collapse All) —
+  // iOS Safari never fires 'contextmenu', so a long-press on the empty tree
+  // area opens it instead. Presses that start on a row are excluded at the
+  // container's onPointerDown (the row recognizer owns those).
+  const backgroundLongPress = useLongPress(isCoarse, openBackgroundContextMenu)
 
   const handleCloseContextMenu = useCallback(() => {
     setContextMenu(null)
@@ -1300,6 +1463,17 @@ export function FileExplorer({
       tabIndex={0}
       onKeyDown={handleTreeKeyDown}
       onContextMenu={handleBackgroundContextMenu}
+      onPointerDown={(e) => {
+        // Row presses bubble here too — those belong to the row's own
+        // long-press recognizer, so only arm the background one for presses
+        // that start on the empty tree area.
+        if ((e.target as HTMLElement).closest('[data-explorer-path]')) return
+        backgroundLongPress.onPointerDown(e)
+      }}
+      onPointerMove={backgroundLongPress.onPointerMove}
+      onPointerUp={backgroundLongPress.onPointerUp}
+      onPointerCancel={backgroundLongPress.onPointerCancel}
+      onTouchEnd={backgroundLongPress.onTouchEnd}
       onDragOver={handleBackgroundDragOver}
       onDrop={handleBackgroundDrop}
       onDragEnd={handleDragEnd}

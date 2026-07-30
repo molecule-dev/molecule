@@ -17,7 +17,7 @@
  * @module
  */
 
-import { type JSX, useState } from 'react'
+import { type JSX, useEffect, useState } from 'react'
 
 import { useAuthFormState } from '@molecule/app-auth-shell-react'
 import { t } from '@molecule/app-i18n'
@@ -28,6 +28,38 @@ import { getClassMap } from '@molecule/app-ui'
 import { Button, Modal } from '@molecule/app-ui-react'
 
 import type { AuthModalMode } from './cta-intercept.js'
+
+/**
+ * Matches phones (narrow viewport) OR touch-first devices (coarse primary
+ * pointer) — the contexts where a sub-16px input font makes iOS Safari zoom
+ * the whole page on focus.
+ */
+const TOUCH_FIRST_QUERY = '(max-width: 767px), (pointer: coarse)'
+
+/**
+ * Whether {@link TOUCH_FIRST_QUERY} currently matches. SSR-safe (reports
+ * `false` until mounted in a browser) and subscribes to media-query changes
+ * (rotation, window resize across the breakpoint). Local to this package — it
+ * must not import IDE feature packages for a two-line media-query hook.
+ * @returns True on phone-width or touch-first devices.
+ */
+function useTouchFirstViewport(): boolean {
+  const [matches, setMatches] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia(TOUCH_FIRST_QUERY).matches,
+  )
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+    const mql = window.matchMedia(TOUCH_FIRST_QUERY)
+    const onChange = (e: MediaQueryListEvent): void => setMatches(e.matches)
+    setMatches(mql.matches)
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+  return matches
+}
 
 /** Props for {@link AuthModal}. */
 export interface AuthModalProps {
@@ -69,6 +101,7 @@ export function AuthModal({
   onAuthenticated,
 }: AuthModalProps): JSX.Element {
   const cm = getClassMap()
+  const isTouchFirst = useTouchFirstViewport()
   const [mode, setMode] = useState<AuthModalMode>(initialMode)
   const { refresh } = useAuth()
   const { status: loginStatus, error: loginError, login } = useLogin()
@@ -121,7 +154,10 @@ export function AuthModal({
     background: 'var(--mol-color-surface-secondary, rgba(127,127,127,0.06))',
     color: 'inherit',
     outline: 'none',
-    fontSize: 14,
+    // ≥16px on phones/touch — below 16px iOS Safari zooms the page when an
+    // input gains focus, which wrecks the modal on the primary conversion flow.
+    // Desktop keeps the compact 14px.
+    fontSize: isTouchFirst ? 16 : 14,
   }
 
   return (
