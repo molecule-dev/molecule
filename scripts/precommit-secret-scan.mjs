@@ -97,8 +97,12 @@ function pemHeadersAreQuoteTerminated(line) {
   return matches.every(([, next]) => next === "'" || next === '"' || next === '`')
 }
 
-/** This scanner necessarily CONTAINS the shapes it hunts (its rules + their test cases). */
-const SELF = /(?:^|\/)(?:precommit-secret-scan\.mjs|precommit-secret-scan\.test\.mjs)$/
+/**
+ * This scanner necessarily CONTAINS the shapes it hunts (its rules + their test cases).
+ * `.mjs.tpl` is the same file again — mlcl's scaffold template, copied verbatim into every
+ * generated project — and without it the scanner blocks the commit that updates itself.
+ */
+const SELF = /(?:^|\/)precommit-secret-scan(?:\.test)?\.mjs(?:\.tpl)?$/
 
 let currentFile = null
 const hits = []
