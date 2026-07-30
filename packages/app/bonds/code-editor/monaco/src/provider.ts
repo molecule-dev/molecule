@@ -324,6 +324,8 @@ export class MonacoEditorProvider implements EditorProvider {
       tabSize: mergedConfig.tabSize ?? 2,
       wordWrap: mergedConfig.wordWrap ? 'on' : 'off',
       minimap: { enabled: mergedConfig.minimap ?? true },
+      scrollBeyondLastLine: mergedConfig.scrollBeyondLastLine ?? true,
+      folding: mergedConfig.folding ?? true,
       readOnly: mergedConfig.readOnly ?? false,
       automaticLayout: true,
       fixedOverflowWidgets: true,
@@ -885,9 +887,22 @@ export class MonacoEditorProvider implements EditorProvider {
       if (config.tabSize !== undefined) options.tabSize = config.tabSize
       if (config.wordWrap !== undefined) options.wordWrap = config.wordWrap ? 'on' : 'off'
       if (config.minimap !== undefined) options.minimap = { enabled: config.minimap }
+      if (config.scrollBeyondLastLine !== undefined)
+        options.scrollBeyondLastLine = config.scrollBeyondLastLine
+      if (config.folding !== undefined) options.folding = config.folding
       if (config.readOnly !== undefined) options.readOnly = config.readOnly
       this.editor.updateOptions(options)
     }
+  }
+
+  /**
+   * Returns a snapshot of the current effective editor configuration (constructor
+   * defaults merged with every `updateConfig` applied since). Lets consumers capture
+   * a baseline before applying temporary overrides (e.g. mobile viewport tuning).
+   * @returns A copy of the current configuration.
+   */
+  getConfig(): EditorConfig {
+    return { ...this.config }
   }
 
   /**

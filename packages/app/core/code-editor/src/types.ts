@@ -57,6 +57,10 @@ export interface EditorConfig {
   wordWrap?: boolean
   minimap?: boolean
   readOnly?: boolean
+  /** Allow scrolling past the last line (editor default: true). Disable on small screens to reclaim vertical space. */
+  scrollBeyondLastLine?: boolean
+  /** Show code-folding controls in the gutter (editor default: true). Disable on small screens for a narrower gutter. */
+  folding?: boolean
 }
 
 /**
@@ -139,6 +143,8 @@ export interface EditorProvider {
   getTabs(): EditorTab[]
   setActiveTab(path: string): void
   updateConfig(config: Partial<EditorConfig>): void
+  /** Read the current effective editor configuration. Optional — lets consumers capture a baseline before applying temporary overrides (e.g. mobile viewport tuning). */
+  getConfig?(): EditorConfig
   /** Open a side-by-side diff view for a file. Optional — providers may not support this. */
   openDiff?(file: DiffFile): void
   /** Close the diff view and restore the normal editor. */

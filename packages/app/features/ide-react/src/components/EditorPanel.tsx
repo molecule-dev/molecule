@@ -8,11 +8,44 @@ import type { JSX } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { useCallback } from 'react'
 
+import type { EditorConfig } from '@molecule/app-code-editor'
 import { useEditor, useEditorProvider, useThemeMode, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useNarrowViewport } from '../hooks/useViewport.js'
 import type { EditorPanelProps } from '../types.js'
 import { TabBar } from './TabBar.js'
+
+/**
+ * Editor option overrides applied while the viewport is phone-width: no minimap
+ * (it eats a third of a 390px pane), readable 14px type, wrap instead of
+ * horizontal scrolling (touch pans the page, not the editor), no scroll past the
+ * last line (vertical space is scarce), and no folding controls (a narrower
+ * gutter — folding is a pointer-precision affordance anyway).
+ */
+const MOBILE_EDITOR_CONFIG: Partial<EditorConfig> = {
+  fontSize: 14,
+  wordWrap: true,
+  minimap: false,
+  scrollBeyondLastLine: false,
+  folding: false,
+}
+
+/**
+ * Restore values for the {@link MOBILE_EDITOR_CONFIG} keys when the viewport
+ * widens and the provider cannot report its own config (`getConfig` is
+ * optional). Matches the stock provider defaults, so a host that didn't
+ * customize the editor gets its exact desktop behavior back.
+ */
+const DESKTOP_EDITOR_CONFIG_FALLBACK: Required<
+  Pick<EditorConfig, 'fontSize' | 'wordWrap' | 'minimap' | 'scrollBeyondLastLine' | 'folding'>
+> = {
+  fontSize: 12,
+  wordWrap: false,
+  minimap: true,
+  scrollBeyondLastLine: true,
+  folding: true,
+}
 
 /** Inject the countdown keyframes once. */
 let styleInjected = false
@@ -73,6 +106,34 @@ export function EditorPanel({
   useEffect(() => {
     editorProvider.updateConfig({ theme: themeMode === 'light' ? 'vs' : 'vs-dark' })
   }, [themeMode, editorProvider])
+
+  // Mobile-tuned editor options on phone-width viewports. Like the theme sync
+  // above, updateConfig persists into the provider's stored config, so this
+  // works whether it fires before or after mount (no remount, no layout in a
+  // zero-size container). A pure desktop session never enters either branch, so
+  // desktop behavior is untouched; on narrow→wide the captured baseline (the
+  // provider's own config when it can report it) is restored.
+  const isNarrow = useNarrowViewport()
+  const mobileBaselineRef = useRef<Partial<EditorConfig> | null>(null)
+  useEffect(() => {
+    if (isNarrow) {
+      if (!mobileBaselineRef.current) {
+        const current = editorProvider.getConfig?.()
+        mobileBaselineRef.current = {
+          fontSize: current?.fontSize ?? DESKTOP_EDITOR_CONFIG_FALLBACK.fontSize,
+          wordWrap: current?.wordWrap ?? DESKTOP_EDITOR_CONFIG_FALLBACK.wordWrap,
+          minimap: current?.minimap ?? DESKTOP_EDITOR_CONFIG_FALLBACK.minimap,
+          scrollBeyondLastLine:
+            current?.scrollBeyondLastLine ?? DESKTOP_EDITOR_CONFIG_FALLBACK.scrollBeyondLastLine,
+          folding: current?.folding ?? DESKTOP_EDITOR_CONFIG_FALLBACK.folding,
+        }
+      }
+      editorProvider.updateConfig(MOBILE_EDITOR_CONFIG)
+    } else if (mobileBaselineRef.current) {
+      editorProvider.updateConfig(mobileBaselineRef.current)
+      mobileBaselineRef.current = null
+    }
+  }, [isNarrow, editorProvider])
 
   // Formatting toast: visible tracks whether the toast is in the DOM,
   // animatingIn controls the CSS transition state (false = slide down / fade out).
