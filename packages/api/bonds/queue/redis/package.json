@@ -28,7 +28,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "bullmq": "5.81.2"
+    "bullmq": "5.81.3"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
