@@ -8,7 +8,7 @@
  * @module
  */
 
-import sharp from 'sharp'
+import sharp, { type Sharp } from 'sharp'
 
 import type {
   CropOptions,
@@ -45,18 +45,14 @@ export const createProvider = (config?: SharpConfig): ImageProvider => {
   const stripMetadata = config?.stripMetadata ?? true
   const progressive = config?.progressive ?? false
 
-  const createPipeline = (input: Buffer): sharp.Sharp => {
+  const createPipeline = (input: Buffer): Sharp => {
     const pipeline = sharp(input, {
       limitInputPixels: config?.limitInputPixels,
     })
     return pipeline
   }
 
-  const applyFormat = (
-    pipeline: sharp.Sharp,
-    format: ImageFormat,
-    quality?: number,
-  ): sharp.Sharp => {
+  const applyFormat = (pipeline: Sharp, format: ImageFormat, quality?: number): Sharp => {
     const fmt = toSharpFormat(format)
     switch (fmt) {
       case 'jpeg':

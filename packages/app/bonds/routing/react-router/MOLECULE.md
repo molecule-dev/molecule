@@ -1,6 +1,6 @@
 # @molecule/app-routing-react-router
 
-React Router v7 provider for `@molecule/app-routing`.
+React Router (v7/v8) provider for `@molecule/app-routing`.
 
 This package provides a React Router implementation of the molecule Router interface,
 allowing you to use molecule's routing abstractions with React Router.
@@ -8,7 +8,7 @@ allowing you to use molecule's routing abstractions with React Router.
 ## Quick Start
 
 ```tsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router'
 import { MoleculeRouterProvider } from '@molecule/app-routing-react-router'
 
 function App() {
@@ -33,7 +33,7 @@ function App() {
 
 ## Installation
 ```bash
-npm install @molecule/app-routing-react-router @molecule/app-i18n @molecule/app-routing react react-router-dom
+npm install @molecule/app-routing-react-router @molecule/app-i18n @molecule/app-routing react react-router
 npm install -D @types/react
 ```
 
@@ -603,14 +603,14 @@ Peer dependencies:
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-routing` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
-- `react-router-dom` ^6.0.0 || ^7.0.0
+- `react-router` ^7.0.0 || ^8.0.0
 
 ### Runtime Dependencies
 
 - `@molecule/app-i18n`
 - `@molecule/app-routing`
 - `react`
-- `react-router-dom`
+- `react-router`
 
 - **`MoleculeRouterProvider` bonds the router for you.** On mount it calls
   `@molecule/app-routing`'s `setRouter` with the live adapter, so other molecule
@@ -621,3 +621,6 @@ Peer dependencies:
   no-hooks fallback (empty params, `window.location.href` navigation). Use
   `MoleculeRouterProvider` (or `createReactRouter` with hook values) instead.
 - The provider must live INSIDE `<BrowserRouter>` (it calls React Router hooks).
+- **Import from `'react-router'`, never `'react-router-dom'`.** The `-dom`
+  package was discontinued after v7 (it was only a re-export shim); every API
+  (`BrowserRouter`, `Routes`, `Route`, `Link`, hooks) lives in `react-router`.

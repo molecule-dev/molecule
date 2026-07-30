@@ -5,7 +5,7 @@
  */
 
 import React, { createContext, type ReactNode, useContext, useEffect, useMemo } from 'react'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { t } from '@molecule/app-i18n'
 import { setRouter } from '@molecule/app-routing'
@@ -55,7 +55,7 @@ export interface MoleculeRouterProviderProps {
  * @returns The rendered provider wrapping children with the router context.
  * @example
  * ```tsx
- * import { BrowserRouter, Routes, Route } from 'react-router-dom'
+ * import { BrowserRouter, Routes, Route } from 'react-router'
  * import { MoleculeRouterProvider } from '@molecule/app-routing-react-router'
  *
  * function App() {

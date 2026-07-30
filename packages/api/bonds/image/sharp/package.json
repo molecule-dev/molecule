@@ -28,14 +28,14 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "sharp": "0.34.5"
+    "sharp": "0.35.3"
   },
   "peerDependencies": {
     "@molecule/api-image": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-image": "1.0.0",
-    "@types/node": "25.9.2",
+    "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },

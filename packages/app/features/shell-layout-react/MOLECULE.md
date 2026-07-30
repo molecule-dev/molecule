@@ -10,7 +10,7 @@ Header, Footer, and route content (typically `<Outlet />`).
 
 ```tsx
 import { AppShellLayout } from '@molecule/app-shell-layout-react'
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 
 import { AppFooter } from './AppFooter.js'
 import { AppHeader } from './AppHeader.js'

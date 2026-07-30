@@ -1,5 +1,5 @@
 import type { JSX, ReactNode } from 'react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet } from 'react-router'
 
 import { getClassMap } from '@molecule/app-ui'
 

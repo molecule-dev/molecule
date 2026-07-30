@@ -37,7 +37,7 @@ import { MessagePreview } from '@molecule/app-message-preview-react'
 
 ## Installation
 ```bash
-npm install @molecule/app-message-preview-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router-dom
+npm install @molecule/app-message-preview-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router
 npm install -D @types/react
 ```
 
@@ -114,7 +114,7 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
-- `react-router-dom` ^6.0.0 || ^7.0.0
+- `react-router` ^7.0.0 || ^8.0.0
 
 ### Runtime Dependencies
 
@@ -122,7 +122,7 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
-- `react-router-dom`
+- `react-router`
 
 - `channelIcon` renders a `material-symbols-outlined` glyph: the Material
   Symbols font must be loaded by the app (molecule scaffolds include it) or

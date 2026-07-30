@@ -28,7 +28,7 @@
   "devDependencies": {
     "@molecule/app-i18n": "1.0.0",
     "@molecule/app-icons": "1.0.0",
-    "@types/node": "25.9.2",
+    "@types/node": "26.1.2",
     "svelte": "5.56.8",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

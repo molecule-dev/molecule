@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router'
 
 import { getClassMap } from '@molecule/app-ui'
 

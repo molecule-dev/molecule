@@ -14,7 +14,7 @@ vi.mock('@molecule/app-routing', () => ({
 
 // The real React Router navigate spy the adapter must ultimately call.
 const navigateFn = vi.fn()
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   useNavigate: () => navigateFn,
   useLocation: () => ({ pathname: '/', search: '', hash: '', state: undefined, key: 'k' }),
   useParams: () => ({}),

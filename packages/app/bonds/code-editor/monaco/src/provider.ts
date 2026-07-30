@@ -128,8 +128,15 @@ interface MonacoModule {
   Uri: {
     parse(uri: string): unknown
   }
+  // monaco-editor <=0.55 exposed the TS/JS defaults under languages.typescript;
+  // 0.56 moved them to the module top level (monaco.typescript). Both are
+  // declared optional and resolved via tsDefaults() so either layout works.
+  typescript?: {
+    typescriptDefaults: MonacoLanguageDefaults
+    javascriptDefaults: MonacoLanguageDefaults
+  }
   languages: {
-    typescript: {
+    typescript?: {
       typescriptDefaults: MonacoLanguageDefaults
       javascriptDefaults: MonacoLanguageDefaults
     }
@@ -206,8 +213,7 @@ export class MonacoEditorProvider implements EditorProvider {
   private documentVersions: Map<string, number> = new Map()
   /** Callback to fetch file content by path — used for Go to Definition cross-file navigation. */
   private fileResolver:
-    | ((path: string) => Promise<{ content: string; language?: string } | null>)
-    | null = null
+    ((path: string) => Promise<{ content: string; language?: string } | null>) | null = null
   /** Disposable for the editor opener registration. */
   private editorOpenerDisposable: { dispose(): void } | null = null
   /** Callbacks for "Fix with AI" requests from the editor. */
@@ -270,21 +276,24 @@ export class MonacoEditorProvider implements EditorProvider {
       // Hardcoded /node_modules/ paths fail in monorepo setups where node_modules
       // is at the workspace root, not the app root.
       getWorker(_moduleId: string, label: string): Worker {
+        // monaco 0.56 exports map rewrites './*.js' to './esm/vs/*.js', so the
+        // specifier must NOT repeat the esm/vs prefix (the old deep paths now
+        // resolve to a doubled ./esm/vs/esm/vs/… and fail). These short forms
+        // land on the same files the pre-0.56 deep paths pointed at.
         if (label === 'json') {
           return new Worker(
-            new URL('monaco-editor/esm/vs/language/json/json.worker.js', import.meta.url),
+            new URL('monaco-editor/language/json/json.worker.js', import.meta.url),
             { type: 'module' },
           )
         }
         if (label === 'css' || label === 'scss' || label === 'less') {
-          return new Worker(
-            new URL('monaco-editor/esm/vs/language/css/css.worker.js', import.meta.url),
-            { type: 'module' },
-          )
+          return new Worker(new URL('monaco-editor/language/css/css.worker.js', import.meta.url), {
+            type: 'module',
+          })
         }
         if (label === 'html' || label === 'handlebars' || label === 'razor') {
           return new Worker(
-            new URL('monaco-editor/esm/vs/language/html/html.worker.js', import.meta.url),
+            new URL('monaco-editor/language/html/html.worker.js', import.meta.url),
             { type: 'module' },
           )
         }
@@ -293,10 +302,9 @@ export class MonacoEditorProvider implements EditorProvider {
         // packages that don't exist in the browser) and freezes the tab.
         // LSP provides all language features we need — the basic editor worker
         // handles tokenization and syntax highlighting via Monarch grammars.
-        return new Worker(
-          new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url),
-          { type: 'module' },
-        )
+        return new Worker(new URL('monaco-editor/editor/editor.worker.js', import.meta.url), {
+          type: 'module',
+        })
       },
     }
 
@@ -1028,7 +1036,29 @@ export class MonacoEditorProvider implements EditorProvider {
    * Configures TypeScript/JavaScript language defaults (compiler options, diagnostics).
    * @param monaco - The Monaco module instance.
    */
+  /**
+   * Resolves the TypeScript/JavaScript language defaults across Monaco layouts:
+   * top-level `monaco.typescript` (0.56+) or `monaco.languages.typescript` (<=0.55).
+   * @param monaco - The Monaco module instance.
+   * @returns The defaults pair, or `null` when neither layout is present.
+   */
+  private tsDefaults(monaco: MonacoModule): {
+    typescriptDefaults: MonacoLanguageDefaults
+    javascriptDefaults: MonacoLanguageDefaults
+  } | null {
+    return monaco.typescript ?? monaco.languages.typescript ?? null
+  }
+
   private configureTypeScript(monaco: MonacoModule): void {
+    const ts = this.tsDefaults(monaco)
+    if (!ts) {
+      // Bail instead of throwing mid-mount: the editor still works (Monarch
+      // highlighting + LSP); only the built-in TS worker config is skipped.
+      console.warn(
+        '[monaco] typescript defaults not found on module — skipping TS worker configuration',
+      )
+      return
+    }
     const compilerOptions: Record<string, unknown> = {
       target: 99, // ESNext
       module: 99, // ESNext
@@ -1052,8 +1082,8 @@ export class MonacoEditorProvider implements EditorProvider {
       ...this.config.tsCompilerOptions,
     }
 
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions)
-    monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions)
+    ts.typescriptDefaults.setCompilerOptions(compilerOptions)
+    ts.javascriptDefaults.setCompilerOptions(compilerOptions)
 
     // Disable built-in semantic validation — the LSP server provides diagnostics.
     // Keeping it enabled causes the Monaco TS worker to attempt module resolution
@@ -1064,8 +1094,8 @@ export class MonacoEditorProvider implements EditorProvider {
       noSyntaxValidation: false,
       noSuggestionDiagnostics: true,
     }
-    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions(diagOptions)
-    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(diagOptions)
+    ts.typescriptDefaults.setDiagnosticsOptions(diagOptions)
+    ts.javascriptDefaults.setDiagnosticsOptions(diagOptions)
 
     // Disable ALL built-in TS language features — LSP provides what we need.
     // Any enabled feature triggers the TS web worker, which attempts to resolve
@@ -1085,16 +1115,16 @@ export class MonacoEditorProvider implements EditorProvider {
       codeActions: false,
       inlayHints: false,
     }
-    monaco.languages.typescript.typescriptDefaults.setModeConfiguration?.(modeOff)
-    monaco.languages.typescript.javascriptDefaults.setModeConfiguration?.(modeOff)
+    ts.typescriptDefaults.setModeConfiguration?.(modeOff)
+    ts.javascriptDefaults.setModeConfiguration?.(modeOff)
 
     // Fallback: if setModeConfiguration doesn't exist (older Monaco versions),
     // disable eager model sync to prevent the TS worker from processing models
     // on every keystroke. Without this, the worker still resolves @molecule/*
     // imports and freezes the tab.
-    if (typeof monaco.languages.typescript.typescriptDefaults.setModeConfiguration !== 'function') {
-      monaco.languages.typescript.typescriptDefaults.setEagerModelSync?.(false)
-      monaco.languages.typescript.javascriptDefaults.setEagerModelSync?.(false)
+    if (typeof ts.typescriptDefaults.setModeConfiguration !== 'function') {
+      ts.typescriptDefaults.setEagerModelSync?.(false)
+      ts.javascriptDefaults.setEagerModelSync?.(false)
     }
   }
 
@@ -1169,19 +1199,15 @@ export class MonacoEditorProvider implements EditorProvider {
    */
   addExtraLib(content: string, filePath: string): void {
     if (!this.monaco) return
+    const ts = this.tsDefaults(this.monaco)
+    if (!ts) return
 
     // Dispose previous registration for this path (prevents duplicate entries)
     const existing = this.extraLibDisposables.get(filePath)
     if (existing) existing.dispose()
 
-    const tsDisposable = this.monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      content,
-      filePath,
-    )
-    const jsDisposable = this.monaco.languages.typescript.javascriptDefaults.addExtraLib(
-      content,
-      filePath,
-    )
+    const tsDisposable = ts.typescriptDefaults.addExtraLib(content, filePath)
+    const jsDisposable = ts.javascriptDefaults.addExtraLib(content, filePath)
 
     this.extraLibDisposables.set(filePath, {
       dispose() {

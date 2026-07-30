@@ -30,11 +30,11 @@
   "dependencies": {
     "@aws-sdk/client-sesv2": "3.1098.0",
     "@aws-sdk/credential-provider-node": "3.972.75",
-    "nodemailer": "9.0.1"
+    "nodemailer": "9.0.3"
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
-    "@types/node": "25.9.2",
+    "@types/node": "26.1.2",
     "@types/nodemailer": "8.0.1",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

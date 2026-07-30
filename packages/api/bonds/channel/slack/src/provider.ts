@@ -115,8 +115,8 @@ function buildPostMessageArgs(
 /**
  * Maps a normalised {@link ChannelAttachment} into the legacy Slack
  * attachment shape. Inline `data` payloads are dropped (Slack expects a
- * URL); callers that need to upload bytes should use the `files.upload`
- * API directly.
+ * URL); callers that need to upload bytes should use the client's
+ * `filesUploadV2` API directly (`files.upload` was removed in v8).
  *
  * @param attachment - The normalised attachment.
  * @returns The Slack-flavoured attachment.

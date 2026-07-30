@@ -14,7 +14,7 @@ pathname / search change to the wired analytics bond's `page()`.
 
 ```tsx
 import { AnalyticsRouteListener } from '@molecule/app-analytics-react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router'
 
 export function App() {
   return (
@@ -33,7 +33,7 @@ export function App() {
 
 ## Installation
 ```bash
-npm install @molecule/app-analytics-react @molecule/app-analytics react react-router-dom
+npm install @molecule/app-analytics-react @molecule/app-analytics react react-router
 npm install -D @types/react
 ```
 
@@ -62,10 +62,10 @@ function AnalyticsRouteListener(): null
 Peer dependencies:
 - `@molecule/app-analytics` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
-- `react-router-dom` ^6.0.0 || ^7.0.0
+- `react-router` ^7.0.0 || ^8.0.0
 
 ### Runtime Dependencies
 
 - `@molecule/app-analytics`
 - `react`
-- `react-router-dom`
+- `react-router`

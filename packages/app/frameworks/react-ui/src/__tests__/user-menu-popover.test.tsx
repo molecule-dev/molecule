@@ -21,7 +21,7 @@ const mockAuth: { user: { name?: string; email?: string } | null } = {
   user: { name: 'Ada Lovelace', email: 'ada@example.com' },
 }
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   useLocation: () => ({ ...mockLocation }),
 }))
 

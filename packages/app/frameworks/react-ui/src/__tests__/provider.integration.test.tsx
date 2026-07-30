@@ -22,7 +22,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import React, { useState } from 'react'
 import { act } from 'react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { IconData, IconSet } from '@molecule/app-icons'

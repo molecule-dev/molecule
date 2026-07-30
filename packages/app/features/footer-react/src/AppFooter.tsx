@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { useTranslation, useVersion } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'

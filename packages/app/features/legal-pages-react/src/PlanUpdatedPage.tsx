@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'

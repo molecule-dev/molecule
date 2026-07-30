@@ -26,10 +26,10 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "undici": "7.28.0"
+    "undici": "7.29.0"
   },
   "devDependencies": {
-    "@types/node": "25.9.2",
+    "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   }

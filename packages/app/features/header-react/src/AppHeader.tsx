@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react'
 import { useContext } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { I18nContext, ThemeContext } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'

@@ -232,7 +232,7 @@ describe('PineconeProvider', () => {
         ],
       })
 
-      expect(mockClient.index).toHaveBeenCalledWith('mol-documents')
+      expect(mockClient.index).toHaveBeenCalledWith({ name: 'mol-documents' })
       expect(mockIndex.upsert).toHaveBeenCalledWith({
         records: [
           {
@@ -516,7 +516,7 @@ describe('PineconeProvider', () => {
         ids: ['doc-1', 'doc-missing'],
       })
 
-      expect(mockClient.index).toHaveBeenCalledWith('mol-documents')
+      expect(mockClient.index).toHaveBeenCalledWith({ name: 'mol-documents' })
       expect(mockIndex.fetch).toHaveBeenCalledWith({ ids: ['doc-1', 'doc-missing'] })
       expect(records).toHaveLength(1)
       expect(records[0].id).toBe('doc-1')
@@ -578,7 +578,7 @@ describe('PineconeProvider', () => {
 
       await provider.delete({ collection: 'documents', ids: ['doc-1', 'doc-2'] })
 
-      expect(mockClient.index).toHaveBeenCalledWith('mol-documents')
+      expect(mockClient.index).toHaveBeenCalledWith({ name: 'mol-documents' })
       expect(mockIndex.deleteMany).toHaveBeenCalledWith({ ids: ['doc-1', 'doc-2'] })
     })
 

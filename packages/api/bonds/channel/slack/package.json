@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@slack/web-api": "7.16.0"
+    "@slack/web-api": "8.0.0"
   },
   "peerDependencies": {
     "@molecule/api-channel": "^1.0.0",
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@molecule/api-channel": "1.0.0",
-    "@types/node": "25.9.2",
+    "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },

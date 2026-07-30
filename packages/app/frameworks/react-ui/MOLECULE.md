@@ -37,7 +37,7 @@ function ConfirmDelete({ onConfirm }: { onConfirm: () => void }) {
 
 ## Installation
 ```bash
-npm install @molecule/app-ui-react @molecule/app-i18n @molecule/app-icons @molecule/app-react @molecule/app-ui react react-dom react-router-dom
+npm install @molecule/app-ui-react @molecule/app-i18n @molecule/app-icons @molecule/app-react @molecule/app-ui react react-dom react-router
 npm install -D @types/react @types/react-dom
 ```
 
@@ -2576,7 +2576,7 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-dom` ^18.0.0 || ^19.0.0
-- `react-router-dom` ^6.0.0 || ^7.0.0
+- `react-router` ^7.0.0 || ^8.0.0
 
 ### Runtime Dependencies
 
@@ -2586,7 +2586,7 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `react`
 - `react-dom`
-- `react-router-dom`
+- `react-router`
 
 Wiring prerequisites — get these right before debugging anything else:
 
@@ -2602,7 +2602,7 @@ Wiring prerequisites — get these right before debugging anything else:
 - **Router-linked components** (`UserMenu`, `UserMenuPopover`, `SidebarUserCard`, `Dropdown`
   item `href`s, `AuthGuard` redirects) render react-router `<Link>`/navigation — they need a
   react-router context (`<BrowserRouter>`) and, in workspace dev setups, the Vite
-  `resolve.dedupe: ['react', 'react-dom', 'react-router-dom', 'react-router']` entry; a
+  `resolve.dedupe: ['react', 'react-dom', 'react-router', 'react-router']` entry; a
   duplicate copy surfaces as "useHref may be used only in the context of a <Router>".
 - **`UserMenu` panel content is `children`** (rendered inside the popover, with
   `PanelClose`/`usePanelClose` available) — there is no `renderPanel` prop.

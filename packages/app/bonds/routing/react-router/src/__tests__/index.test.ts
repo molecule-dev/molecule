@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Mock react-router-dom since it's a peer dependency
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   useNavigate: vi.fn(),
   useLocation: vi.fn(),
   useParams: vi.fn(),

@@ -8,7 +8,7 @@
  * @example
  * ```tsx
  * import { Breadcrumb } from '@molecule/app-breadcrumb-react'
- * import { useNavigate } from 'react-router-dom'
+ * import { useNavigate } from 'react-router'
  *
  * const navigate = useNavigate()
  *

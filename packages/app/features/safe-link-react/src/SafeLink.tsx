@@ -1,5 +1,5 @@
 import type { ComponentProps, JSX, ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router'
 
 /**
  * `<SafeLink>` renders a react-router `Link`, but if its destination

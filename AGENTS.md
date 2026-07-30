@@ -329,12 +329,12 @@ Every package with user-facing text has a companion locale bond (`@molecule/{sta
 
 ## Tech Stack
 
-- TypeScript 5.9, ES2022, NodeNext module resolution
+- TypeScript 6.0, ES2022, NodeNext module resolution
 - Vitest for testing
 - ESLint + Prettier for code quality
 - Changesets for versioning and releases
 - npm workspaces monorepo
-- Node >= 20
+- Node >= 22
 
 ---
 

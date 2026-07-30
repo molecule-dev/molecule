@@ -22,7 +22,7 @@
     "packages/app/locales/*"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "node scripts/build.js",
@@ -50,28 +50,28 @@
     "@eslint/js": "10.0.1",
     "@tanstack/table-core": "8.21.3",
     "@tanstack/virtual-core": "3.17.7",
-    "@types/node": "25.9.2",
+    "@types/node": "26.1.2",
     "eslint": "10.8.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsdoc": "63.3.2",
-    "eslint-plugin-simple-import-sort": "13.0.0",
+    "eslint-plugin-simple-import-sort": "14.0.0",
     "handlebars": "4.7.9",
     "husky": "9.1.7",
     "jimp": "1.6.1",
-    "jsdom": "29.1.1",
+    "jsdom": "30.0.1",
     "zod": "4.4.3",
     "mjml": "5.4.0",
     "node-cron": "4.6.0",
     "pdf-lib": "1.17.1",
-    "pdfkit": "0.18.0",
+    "pdfkit": "0.19.1",
     "prettier": "3.9.6",
-    "sharp": "0.34.5",
+    "sharp": "0.35.3",
     "typescript": "6.0.3",
     "typescript-eslint": "8.65.0",
     "vitest": "4.1.10"
   },
   "overrides": {
-    "ws": "8.21.0"
+    "ws": "8.21.1"
   },
   "license": "Apache-2.0"
 }

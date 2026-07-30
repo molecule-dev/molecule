@@ -1,12 +1,12 @@
 /**
- * React Router v7 provider for `@molecule/app-routing`.
+ * React Router (v7/v8) provider for `@molecule/app-routing`.
  *
  * This package provides a React Router implementation of the molecule Router interface,
  * allowing you to use molecule's routing abstractions with React Router.
  *
  * @example
  * ```tsx
- * import { BrowserRouter, Routes, Route } from 'react-router-dom'
+ * import { BrowserRouter, Routes, Route } from 'react-router'
  * import { MoleculeRouterProvider } from '@molecule/app-routing-react-router'
  *
  * function App() {
@@ -36,6 +36,9 @@
  *   no-hooks fallback (empty params, `window.location.href` navigation). Use
  *   `MoleculeRouterProvider` (or `createReactRouter` with hook values) instead.
  * - The provider must live INSIDE `<BrowserRouter>` (it calls React Router hooks).
+ * - **Import from `'react-router'`, never `'react-router-dom'`.** The `-dom`
+ *   package was discontinued after v7 (it was only a re-export shim); every API
+ *   (`BrowserRouter`, `Routes`, `Route`, `Link`, hooks) lives in `react-router`.
  *
  * @module @molecule/app-routing-react-router
  */

@@ -12,7 +12,7 @@
  * @example
  * ```tsx
  * import { AnalyticsRouteListener } from '@molecule/app-analytics-react'
- * import { BrowserRouter, Routes, Route } from 'react-router-dom'
+ * import { BrowserRouter, Routes, Route } from 'react-router'
  *
  * export function App() {
  *   return (

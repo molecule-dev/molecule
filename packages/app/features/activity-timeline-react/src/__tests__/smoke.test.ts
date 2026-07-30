@@ -17,7 +17,7 @@ vi.mock('@molecule/app-react', () => ({
     t: (_k: string, _v: unknown, opts: { defaultValue?: string }) => opts?.defaultValue ?? '',
   }),
 }))
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   Link: ({ children }: { children: unknown }) => children,
   useNavigate: () => () => {},
 }))

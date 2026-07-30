@@ -31,7 +31,7 @@ vi.mock('@molecule/app-ui', () => ({
   },
 }))
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   Link: ({
     to,
     children,

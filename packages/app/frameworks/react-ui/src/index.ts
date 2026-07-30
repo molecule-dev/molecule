@@ -45,7 +45,7 @@
  * - **Router-linked components** (`UserMenu`, `UserMenuPopover`, `SidebarUserCard`, `Dropdown`
  *   item `href`s, `AuthGuard` redirects) render react-router `<Link>`/navigation — they need a
  *   react-router context (`<BrowserRouter>`) and, in workspace dev setups, the Vite
- *   `resolve.dedupe: ['react', 'react-dom', 'react-router-dom', 'react-router']` entry; a
+ *   `resolve.dedupe: ['react', 'react-dom', 'react-router', 'react-router']` entry; a
  *   duplicate copy surfaces as "useHref may be used only in the context of a <Router>".
  * - **`UserMenu` panel content is `children`** (rendered inside the popover, with
  *   `PanelClose`/`usePanelClose` available) — there is no `renderPanel` prop.

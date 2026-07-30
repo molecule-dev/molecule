@@ -15,7 +15,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // to simulate SPA navigation, then re-render.
 const mockLocation = { pathname: '/', search: '' }
 
-vi.mock('react-router-dom', () => ({
+vi.mock('react-router', () => ({
   useLocation: () => ({ ...mockLocation }),
 }))
 

@@ -34,7 +34,7 @@ function Shell() {
 
 ## Installation
 ```bash
-npm install @molecule/app-header-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router-dom
+npm install @molecule/app-header-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router
 npm install -D @types/react
 ```
 
@@ -115,7 +115,7 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
-- `react-router-dom` ^6.0.0 || ^7.0.0
+- `react-router` ^7.0.0 || ^8.0.0
 
 ### Runtime Dependencies
 
@@ -123,7 +123,7 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
-- `react-router-dom`
+- `react-router`
 
 - Must render inside a `react-router-dom` router — the brand link is a
   `<Link>` and throws outside a Router context.

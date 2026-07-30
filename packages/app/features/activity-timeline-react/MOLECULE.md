@@ -14,7 +14,7 @@ Extracted from the crm and employee-onboarding flagships.
 
 ```tsx
 import { ActivityTimeline } from '@molecule/app-activity-timeline-react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 <ActivityTimeline
   events={activities.map((a) => ({

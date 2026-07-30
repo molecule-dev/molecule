@@ -16,7 +16,7 @@ remarks).
 ## Quick Start
 
 ```tsx
-import { Route } from 'react-router-dom'
+import { Route } from 'react-router'
 import { PlanUpdated } from '@molecule/app-plan-updated-page-react'
 
 <Route path="/plan-updated" element={<PlanUpdated />} />
@@ -27,7 +27,7 @@ import { PlanUpdated } from '@molecule/app-plan-updated-page-react'
 
 ## Installation
 ```bash
-npm install @molecule/app-plan-updated-page-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router-dom
+npm install @molecule/app-plan-updated-page-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router
 npm install -D @types/react
 ```
 
@@ -104,7 +104,7 @@ Peer dependencies:
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
-- `react-router-dom` ^6.0.0 || ^7.0.0
+- `react-router` ^7.0.0 || ^8.0.0
 
 ### Runtime Dependencies
 
@@ -112,7 +112,7 @@ Peer dependencies:
 - `@molecule/app-ui`
 - `@molecule/app-ui-react`
 - `react`
-- `react-router-dom`
+- `react-router`
 
 Requires react-router-dom (renders `<Link>`, so it must sit inside your
 Router) and the `@molecule/app-react` auth provider (`useAuth` drives the

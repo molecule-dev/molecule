@@ -14,7 +14,7 @@
  *
  * @example
  * ```tsx
- * import { Route } from 'react-router-dom'
+ * import { Route } from 'react-router'
  * import { PlanUpdated } from '@molecule/app-plan-updated-page-react'
  *
  * <Route path="/plan-updated" element={<PlanUpdated />} />

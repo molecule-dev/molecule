@@ -26,11 +26,10 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "mixpanel": "0.22.0"
+    "mixpanel": "0.23.0"
   },
   "devDependencies": {
-    "@types/mixpanel": "2.14.9",
-    "@types/node": "25.9.2",
+    "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },

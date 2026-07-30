@@ -31,7 +31,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "three": "0.184.0"
+    "three": "0.185.1"
   },
   "peerDependencies": {
     "@molecule/app-react": "^1.0.0",
@@ -45,10 +45,10 @@
     "@molecule/app-ui": "1.0.0",
     "@molecule/app-ui-react": "1.0.0",
     "@testing-library/react": "16.3.2",
-    "@types/node": "25.9.2",
+    "@types/node": "26.1.2",
     "@types/react": "19.2.17",
-    "@types/three": "0.184.1",
-    "jsdom": "29.1.1",
+    "@types/three": "0.185.1",
+    "jsdom": "30.0.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "typescript": "6.0.3",

@@ -29,8 +29,8 @@
   "devDependencies": {
     "@molecule/app-code-editor": "1.0.0",
     "@molecule/app-i18n": "1.0.0",
-    "@types/node": "25.9.2",
-    "monaco-editor": "0.55.1",
+    "@types/node": "26.1.2",
+    "monaco-editor": "0.56.0",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
@@ -48,9 +48,6 @@
       "optional": true
     },
     "@molecule/app-logger": {
-      "optional": true
-    },
-    "monaco-editor": {
       "optional": true
     }
   },

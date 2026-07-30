@@ -228,7 +228,7 @@ class PineconeProvider implements AIVectorStoreProvider {
   async upsert(params: VectorUpsertParams): Promise<void> {
     if (params.records.length === 0) return
 
-    const index = this.client.index(this.indexName(params.collection))
+    const index = this.client.index({ name: this.indexName(params.collection) })
     const records = params.records.map((record) => ({
       id: record.id,
       values: record.embedding,
@@ -250,7 +250,7 @@ class PineconeProvider implements AIVectorStoreProvider {
    * @returns Results sorted by similarity (highest first).
    */
   async query(params: VectorQueryParams): Promise<VectorSearchResult[]> {
-    const index = this.client.index(this.indexName(params.collection))
+    const index = this.client.index({ name: this.indexName(params.collection) })
     const topK = params.topK ?? 10
     const metric = await this.getMetric(params.collection)
 
@@ -306,7 +306,7 @@ class PineconeProvider implements AIVectorStoreProvider {
   async fetch(params: VectorFetchParams): Promise<VectorRecord[]> {
     if (params.ids.length === 0) return []
 
-    const index = this.client.index(this.indexName(params.collection))
+    const index = this.client.index({ name: this.indexName(params.collection) })
     const response = await index.fetch({ ids: params.ids })
     const records = response.records ?? {}
 
@@ -332,7 +332,7 @@ class PineconeProvider implements AIVectorStoreProvider {
   async delete(params: VectorDeleteParams): Promise<void> {
     if (params.ids.length === 0) return
 
-    const index = this.client.index(this.indexName(params.collection))
+    const index = this.client.index({ name: this.indexName(params.collection) })
     await index.deleteMany({ ids: params.ids })
   }
 }

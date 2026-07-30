@@ -1,5 +1,5 @@
 /**
- * React Router v7 provider implementation.
+ * React Router (v7/v8) provider implementation.
  *
  * @module
  */
@@ -25,7 +25,7 @@ import { generatePath, matchPath, parseSearchParams, stringifyQuery } from './ut
  *
  * @example
  * ```tsx
- * import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom'
+ * import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router'
  * import { createReactRouter, setRouter } from '@molecule/app-routing-react-router'
  * import { useEffect, useMemo } from 'react'
  *

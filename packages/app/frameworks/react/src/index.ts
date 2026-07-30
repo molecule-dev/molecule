@@ -63,7 +63,7 @@
  * - **Exactly one React copy.** In workspace/symlinked dev setups a second React instance makes
  *   every hook fail ("Invalid hook call", or the provider errors above with the provider
  *   mounted). Scaffolded Vite configs ship
- *   `resolve.dedupe: ['react', 'react-dom', 'react-router-dom', 'react-router']` — keep it, and
+ *   `resolve.dedupe: ['react', 'react-dom', 'react-router', 'react-router']` — keep it, and
  *   add any new hook-bearing peer library there too.
  * - `RouterProvider` carries a molecule `Router` (e.g. `createReactRouter()` from
  *   `@molecule/app-routing-react-router`). react-router's own `<BrowserRouter>` context is

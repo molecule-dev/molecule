@@ -178,7 +178,7 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
     ...(process.env.VITE_CACHE_DIR ? { cacheDir: process.env.VITE_CACHE_DIR } : {}),
     resolve: {
       preserveSymlinks: true,
-      dedupe: ['react', 'react-dom', 'react-router-dom', 'react-router'],
+      dedupe: ['react', 'react-dom', 'react-router', 'react-router'],
     },
     optimizeDeps: {
       // Locale bond packages are pre-bundled (see above) — exclude wins over

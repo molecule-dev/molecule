@@ -6,7 +6,7 @@
 
 import React, { forwardRef, useCallback, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import type { DropdownItem, DropdownProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'

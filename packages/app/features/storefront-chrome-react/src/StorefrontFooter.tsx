@@ -5,7 +5,7 @@
  */
 
 import type { ReactElement, ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { getClassMap } from '@molecule/app-ui'
 

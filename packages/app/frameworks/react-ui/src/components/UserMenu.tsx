@@ -1,6 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import type { IconName } from '@molecule/app-icons'
 import { useTranslation } from '@molecule/app-react'

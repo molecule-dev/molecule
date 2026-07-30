@@ -24,7 +24,7 @@ function NavItem() {
 
 ## Installation
 ```bash
-npm install @molecule/app-safe-link-react react react-router-dom
+npm install @molecule/app-safe-link-react react react-router
 npm install -D @types/react
 ```
 
@@ -56,12 +56,12 @@ function SafeLink({
 
 Peer dependencies:
 - `react` ^18.0.0 || ^19.0.0
-- `react-router-dom` ^6.0.0 || ^7.0.0
+- `react-router` ^7.0.0 || ^8.0.0
 
 ### Runtime Dependencies
 
 - `react`
-- `react-router-dom`
+- `react-router`
 
 - Must render inside a react-router `<Router>` / `RouterProvider` —
   `useLocation()` throws otherwise. Peer-depends on `react-router-dom`
