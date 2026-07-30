@@ -93,7 +93,13 @@ export class OpenaiAIProvider implements AIProvider {
       ...(params.endUserId ? { safety_identifier: params.endUserId } : {}),
       model,
       messages,
-      max_tokens: maxTokens,
+      // `max_completion_tokens`, NOT `max_tokens`. Every GPT-5-family model
+      // hard-rejects the latter — "Unsupported parameter: 'max_tokens' is not
+      // supported with this model" (400) — and the catalog's OpenAI entries are
+      // all gpt-5.6-*, so this bond could not call any of its own models. The
+      // newer name is accepted by the older generations too (verified 200 on
+      // gpt-4o-mini and gpt-3.5-turbo), so there is no need to branch per model.
+      max_completion_tokens: maxTokens,
     }
     if (params.temperature !== undefined) body.temperature = params.temperature
 

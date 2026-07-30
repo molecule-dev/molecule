@@ -256,10 +256,14 @@ describe('chat() — request shape', () => {
     }
     const body = JSON.parse((fetch.mock.calls[0][1] as { body: string }).body) as {
       model: string
-      max_tokens: number
+      max_completion_tokens: number
+      max_tokens?: number
     }
     expect(body.model).toBe('gpt-4-turbo')
-    expect(body.max_tokens).toBe(2048)
+    // `max_completion_tokens`, not `max_tokens`: GPT-5-family models 400 on the
+    // latter, and it is the only param name accepted by BOTH generations.
+    expect(body.max_completion_tokens).toBe(2048)
+    expect(body.max_tokens).toBeUndefined()
   })
 
   it('formats tools into the OpenAI {type: function} shape', async () => {
