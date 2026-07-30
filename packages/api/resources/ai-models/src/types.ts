@@ -124,6 +124,27 @@ export interface ModelDefinition {
   /** Whether the model supports tool use / function calling. */
   supportsTools: boolean
   /**
+   * The model cannot combine function tools with ANY reasoning on the provider's
+   * chat-completions endpoint, so a request carrying tools must pin reasoning
+   * OFF or it is rejected outright.
+   *
+   * Set for the gpt-5.6 family, which answers a tools request with:
+   * `Function tools with reasoning_effort are not supported for <model> in
+   * /v1/chat/completions. To use function tools, use /v1/responses or set
+   * reasoning_effort to 'none'.` (400 — verified live, 2026-07-30). Omitting the
+   * effort field entirely does NOT help: the model applies its own default and
+   * still 400s. Only an explicit `'none'` works.
+   *
+   * This is a per-model API fact, so it lives in the catalogue rather than as a
+   * model-name branch inside a bond.
+   *
+   * **This is a workaround, not the fix.** Pinning reasoning off means an agentic
+   * caller — which always carries tools — never gets reasoning from these models.
+   * The real fix is migrating the OpenAI bond to `/v1/responses`, which supports
+   * both together; until then, working-without-reasoning beats 400.
+   */
+  toolsRequireReasoningOff?: boolean
+  /**
    * Provider-specific server tool type for web search (e.g. `'web_search_20250305'`).
    * When set, the chat handler sends this as a ServerTool alongside custom tools.
    * Omit if the model / provider does not support native web search.

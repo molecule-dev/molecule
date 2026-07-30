@@ -319,6 +319,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 5,
@@ -344,6 +346,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 2.5,
@@ -369,6 +373,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 1,
@@ -396,6 +402,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 5,
@@ -423,6 +431,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 2.5,
@@ -451,6 +461,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 0.75,
@@ -685,8 +697,16 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 1.25,
     knowledgeCutoff: '2024-11-01',
-    // Superseded by grok-4.3; kept selectable (Older models) + priceable.
     deprecatedAt: '2026-04-30',
+    // DISABLED, not deleted: xAI rejects this model on the chat-completions
+    // endpoint outright — "Multi Agent requests are not allowed on chat
+    // completions" (400 on every call, verified live 2026-07-30) — so offering
+    // it in the picker only hands users a model that cannot answer. Their API
+    // also lists the canonical slug as `grok-4.20-multi-agent-0309` (no
+    // `beta-`), with `grok-4.20-0309-reasoning` / `-non-reasoning` as the
+    // chat-completions-capable variants if this family is wanted back.
+    // Stays in the catalogue so saved selections and past usage remain priceable.
+    disabled: true,
   },
   {
     id: 'grok-code-fast-1',
