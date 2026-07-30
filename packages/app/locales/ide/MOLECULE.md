@@ -4,7 +4,7 @@ Translations for molecule IDE components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-ide` package which has 449 translation keys.
+Provides translations for the `@molecule/app-ide` package which has 472 translation keys.
 
 ## Languages
 
@@ -96,6 +96,8 @@ registerLocaleModule(locales)
 | `ide.chat.models.colUsageRate` | Usage rate |
 | `ide.chat.models.usageRateHint` | How fast this model uses your AI allowance, relative to the most economical model |
 | `ide.chat.models.usageRateValue` | ×{{rate}} usage |
+| `ide.chat.models.usageRateYourKey` | your key |
+| `ide.chat.models.usageRateYourKeyHint` | Billed to your own provider key, not your plan. |
 | `ide.chat.undoNoChanges` | No file changes to undo. |
 | `ide.chat.undoComplete` | Failed to revert changes. |
 | `ide.chat.commitNoChanges` | No changes to commit. |
@@ -354,9 +356,28 @@ registerLocaleModule(locales)
 | `ide.chat.selectPlanModel` | Select plan-mode model |
 | `ide.chat.executeModelSet` | Execute-mode model set to {{name}} |
 | `ide.chat.planModelSet` | Plan-mode model set to {{name}} |
+| `ide.chat.selectCommitModel` | Select commit-message model |
+| `ide.chat.selectCompactModel` | Select compaction model |
+| `ide.chat.commitModelSet` | Commit-message model set to {{name}} |
+| `ide.chat.compactModelSet` | Compaction model set to {{name}} |
+| `ide.chat.modelModeLabel` | Mode |
+| `ide.chat.modelMode.default` | Default |
+| `ide.chat.modelMode.commit` | Commit messages |
+| `ide.chat.modelMode.compact` | Compaction |
+| `ide.chat.modelModeOption` | {{mode}} · {{model}} |
+| `ide.chat.manageCustomModels` | Add or manage your own models… |
+| `ide.chat.freeInPlan` | free in plan |
+| `ide.chat.freeInExecute` | free in execute |
+| `ide.chat.freeInCommit` | free in commit |
+| `ide.chat.modeOnlyPlan` | On the free plan, this model is used in plan mode. |
+| `ide.chat.modeOnlyExecute` | On the free plan, this model is used in execute mode. |
+| `ide.chat.modeOnlyCommit` | On the free plan, this model is used for commit messages and compaction. |
 | `ide.chat.modelSortLabel` | Sort |
 | `ide.chat.modelSortDirection` | Toggle sort direction |
+| `ide.chat.streamingOutputTokens` | ~{{count}} tokens |
+| `ide.chat.streamingOutputTokensHint` | Estimated output tokens this turn — /cost shows input and cached. |
 | `ide.chat.costSummary` | Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens |
+| `ide.chat.costCachedLine` | Cached input: {{cached}} tokens (billed at a fraction of input) |
 | `ide.chat.costStreamingNote` | Running total — includes the response currently streaming. |
 | `ide.chat.lintErrorsCount` | {{count}} lint errors |
 | `ide.chat.lintWarningsCount` | {{count}} warnings |
@@ -437,6 +458,8 @@ registerLocaleModule(locales)
 | `ide.chat.settings.on` | On |
 | `ide.chat.settings.soundsSummary` | {{enabled}} of {{total}} events enabled |
 | `ide.chat.settings.modelFollowsDefault` | Follows default model |
+| `ide.chat.settings.modelDefaultFast` | Fast default |
+| `ide.chat.settings.modelDefaultNamed` | Default ({{model}}) |
 | `ide.chat.settings.effortValue` | plan: {{plan}} · execute: {{execute}} |
 | `ide.chat.settings.effortFixed` | fixed |
 | `ide.chat.settings.autoCommitEvery` | Every {{seconds}}s |

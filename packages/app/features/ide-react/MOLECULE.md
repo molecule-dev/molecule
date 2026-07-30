@@ -307,6 +307,13 @@ interface ChatPanelProps {
   openReportSignal?: number
   /** Changing this opens the in-chat `/settings` view (host-driven). Overrides the built-in header's settings button signal. */
   openSettingsSignal?: number
+  /**
+   * When provided, the `/model` picker shows an "Add or manage your own
+   * models…" row at the bottom of the list; choosing it closes the picker and
+   * invokes this callback (the host opens its own custom-provider management
+   * surface). Omit to hide the row — the shared package stays host-agnostic.
+   */
+  onManageCustomModels?: () => void
   /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
   spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */
@@ -821,12 +828,13 @@ interface PreviewUiCommand {
   /** Value to set for `fill` / `select`. */
   value?: string
   /**
-   * `snapshot` only — the path the host just navigated the preview to. The bridge holds its
-   * reply until `location.pathname` matches (bounded), so a navigation snapshot can never be
-   * answered by the OUTGOING document still sitting in the iframe, and can never be answered
-   * by the incoming one before its framework has booted. Omit for a plain read.
+   * `snapshot` only — the moment the host pointed the preview at a new URL (`Date.now()`).
+   * Only a document that loaded at or after it may answer, so a navigation snapshot can never
+   * come from the OUTGOING page still sitting in the iframe. Set it ONLY when a new document
+   * is genuinely loading (the URL actually changed) — otherwise nothing can satisfy it and the
+   * command goes unanswered. Omit for a plain read.
    */
-  expectPath?: string
+  minLoadedAt?: number
 }
 ```
 
@@ -1267,6 +1275,8 @@ type SettingKey =
   | 'model'
   | 'planModel'
   | 'executeModel'
+  | 'commitModel'
+  | 'compactModel'
   | 'mode'
   | 'effort'
   | 'maxLoops'
@@ -1432,6 +1442,7 @@ function ChatPanel({
   openShareSignal: controlledShareSignal,
   openReportSignal: controlledReportSignal,
   openSettingsSignal: controlledSettingsSignal,
+  onManageCustomModels,
   gitStatusTick,
   pendingMessage,
   pendingMessageKey,

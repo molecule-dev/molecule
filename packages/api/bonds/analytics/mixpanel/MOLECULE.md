@@ -18,7 +18,6 @@ await track({ name: 'purchase.completed', userId: 'u_123' })
 ## Installation
 ```bash
 npm install @molecule/api-analytics-mixpanel @molecule/api-analytics @molecule/api-secrets mixpanel
-npm install -D @types/mixpanel
 ```
 
 ## API

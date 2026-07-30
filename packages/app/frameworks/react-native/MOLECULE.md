@@ -773,6 +773,11 @@ Result returned by `useAIModels`.
 interface UseAIModelsResult {
     /** Available models, or an empty array while loading. */
     models: AppModelDefinition[];
+    /**
+     * Per-mode server default model ids for the requester's tier, or `undefined`
+     * while loading or on servers that don't provide them.
+     */
+    defaults: AppModeModelDefaults | undefined;
     /** The single model marked `freeTier: true`, or `undefined`. */
     freeTierModel: AppModelDefinition | undefined;
     /** `true` while the initial fetch is in flight. */
@@ -1512,7 +1517,7 @@ function PreviewProvider({ provider, children }: PreviewProviderProps): React.Re
 
 #### `resetAIModelsCache()`
 
-Test-only: drops the cached model list so the next `useAIModels` call
+Test-only: drops every cached model list so the next `useAIModels` call
 refetches. Exposed for unit tests; do not call from production code.
 
 ```typescript
@@ -1577,14 +1582,17 @@ function ThemeProvider({ provider, children }: ThemeProviderProps): React.ReactE
 
 **Returns:** The rendered theme provider element.
 
-#### `useAIModels()`
+#### `useAIModels(projectId)`
 
-Subscribes to the cached AI model catalog. The first mount triggers a single
-`GET /ai/models` fetch; subsequent mounts return the cached result.
+Subscribes to the cached AI model catalog. The first mount of a scope
+triggers a single `GET /ai/models` fetch; subsequent mounts return the
+cached result.
 
 ```typescript
-function useAIModels(): UseAIModelsResult
+function useAIModels(projectId?: string): UseAIModelsResult
 ```
+
+- `projectId` — Optional project scope: includes that project's custom ("bring your own AI") models on servers that support them.
 
 **Returns:** Models, free-tier model, loading flag, and error.
 

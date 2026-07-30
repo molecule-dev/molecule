@@ -41,6 +41,12 @@ Response shape returned by `GET /ai/models`.
 ```typescript
 interface ListModelsResponse {
   models: ModelDefinition[]
+  /**
+   * Per-mode server default model ids for the requester's tier. Optional —
+   * servers that don't compute tier-aware defaults omit it, and clients fall
+   * back to generic "default" labeling.
+   */
+  defaults?: ModeModelDefaults
 }
 ```
 
@@ -118,6 +124,27 @@ interface ModelDefinition {
   supportsPromptCaching: boolean
   /** Whether the model supports tool use / function calling. */
   supportsTools: boolean
+  /**
+   * The model cannot combine function tools with ANY reasoning on the provider's
+   * chat-completions endpoint, so a request carrying tools must pin reasoning
+   * OFF or it is rejected outright.
+   *
+   * Set for the gpt-5.6 family, which answers a tools request with:
+   * `Function tools with reasoning_effort are not supported for <model> in
+   * /v1/chat/completions. To use function tools, use /v1/responses or set
+   * reasoning_effort to 'none'.` (400 — verified live, 2026-07-30). Omitting the
+   * effort field entirely does NOT help: the model applies its own default and
+   * still 400s. Only an explicit `'none'` works.
+   *
+   * This is a per-model API fact, so it lives in the catalogue rather than as a
+   * model-name branch inside a bond.
+   *
+   * **This is a workaround, not the fix.** Pinning reasoning off means an agentic
+   * caller — which always carries tools — never gets reasoning from these models.
+   * The real fix is migrating the OpenAI bond to `/v1/responses`, which supports
+   * both together; until then, working-without-reasoning beats 400.
+   */
+  toolsRequireReasoningOff?: boolean
   /**
    * Provider-specific server tool type for web search (e.g. `'web_search_20250305'`).
    * When set, the chat handler sends this as a ServerTool alongside custom tools.
@@ -212,6 +239,27 @@ interface ModelDefinition {
 }
 ```
 
+#### `ModeModelDefaults`
+
+The model ids the SERVER falls back to per mode/job when the user hasn't
+picked one — already resolved for the requester's tier (a free-tier caller
+sees the free-tier clamp ids, a paid caller the paid defaults). Lets the
+client label an unset per-mode picker "Default (<model>)" instead of a
+vague "default" the user can't decode.
+
+```typescript
+interface ModeModelDefaults {
+  /** Model id used in plan mode when nothing is configured. */
+  plan: string
+  /** Model id used in execute mode when nothing is configured. */
+  execute: string
+  /** Model id used for commit-message generation when nothing is configured. */
+  commit: string
+  /** Model id used for conversation compaction when nothing is configured. */
+  compact: string
+}
+```
+
 ### Types
 
 #### `AIProviderID`
@@ -233,6 +281,13 @@ type AIProviderID =
   | 'minimax'
   | 'alibaba'
   | 'zhipu'
+  /**
+   * A model served by a USER-configured endpoint + key (bring-your-own AI)
+   * rather than a platform bond. Never appears in the static catalog — hosts
+   * synthesize these definitions at runtime from per-project provider config,
+   * with all prices 0 (the user pays their own provider directly).
+   */
+  | 'custom'
 ```
 
 #### `EffortLevel`
@@ -370,42 +425,43 @@ Effort is each model's OWN native value — there is no abstract scale (see
   control) carries `thinkingConfigurable: false` and OMITS both fields —
   there is nothing to tune.
 
-Sources (verified 2026-07-07):
+Sources (verified 2026-07-28):
 - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
-  + /docs/en/build-with-claude/effort (fable-5 / opus-4-8 / sonnet-5 current;
-  sonnet-4-6 + opus-4-6 legacy; effort = output_config.effort, adaptive
-  thinking; budget_tokens 400s on fable-5/opus-4-8/sonnet-5)
-- OpenAI: https://developers.openai.com/api/docs/models/gpt-5.5 + /pricing +
-  /guides/reasoning (gpt-5.5 flagship; gpt-5.4 NOT deprecated; gpt-5.4-mini
-  cheap tier; reasoning_effort none|low|medium|high|xhigh. GPT-5.6 “Sol” is
-  limited-preview only — no public id/pricing yet; do not add until GA.)
-- Google: https://ai.google.dev/gemini-api/docs/models + /docs/thinking
-  (gemini-3.5-flash GA 2026-05-19 is the agentic/coding flagship;
-  gemini-3.1-pro-preview is the pro tier — there is NO bare "gemini-3.1-pro"
-  id and never was; thinking_level replaces thinking_budget)
-- xAI: https://docs.x.ai/developers/models + /model-capabilities/text/reasoning
-  (grok-4.3 flagship, reasoning_effort none|low|medium|high default low;
-  grok-build-0.1 succeeds grok-code-fast-1, which retires 2026-08-15)
-- DeepSeek: https://api-docs.deepseek.com/quick_start/pricing +
-  /guides/thinking_mode (V4 permanent 75% price cut since 2026-05-23; 384K
-  output; thinking default ENABLED w/ reasoning_effort high|max — we still
-  run non-thinking, see entries. Peak-hour 2× pricing announced for
-  mid-Jul 2026; re-verify pricing when the "V4 official" release lands.)
-- Moonshot: https://platform.kimi.ai/docs/models (kimi-k2.6 = current
-  general flagship; kimi-k2.7-code exists but REQUIRES replaying
-  reasoning_content through tool loops — not added until the bond supports
-  preserved thinking; kimi-k2.5 legacy but still served)
-- MiniMax: https://platform.minimax.io/docs/guides/models-intro +
-  /docs/guides/pricing-paygo.md (minimax-m3 flagship 2026-06-01, 1M ctx,
-  multimodal; m2.7 repriced $0.30/$1.20, thinking not disableable)
-- Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking +
-  /model-studio/qwen-coder (qwen3.7-max is the agentic flagship — Alibaba now
-  recommends general-purpose models over Qwen-Coder; qwen3-coder-plus is
-  NON-thinking, catalog previously wrong)
-- Zhipu: https://docs.z.ai/guides/overview/pricing +
-  /api-reference/llm/chat-completion (glm-5.2 standalone API live since
-  2026-06-16 w/ reasoning_effort — effective levels high|max, default max;
-  glm-5 repriced $1.00/$3.20)
+  + /docs/en/build-with-claude/effort (fable-5 / opus-5 / sonnet-5 current;
+  opus-4-8 superseded by opus-5 at identical pricing but still served — it is
+  the recommended refusal-fallback model; effort ladder on all three current
+  models is low|medium|high|xhigh|max; budget_tokens 400s on 4.7+)
+- OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
+  2026-07-09: gpt-5.6-sol $5/$30, -terra $2.50/$15, -luna $1/$6, cache read
+  0.1× input; gpt-5.5/gpt-5.4 still listed as current; long-context 2×
+  variants exist upstream — not modeled, same as the Gemini/Grok tiers)
+- Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
+  2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
+  gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as
+  of 2026-07-28 despite the coming-soon badge; do not add until it has an id)
+- xAI: https://docs.x.ai/developers/models + /developers/grok-4-5
+  (grok-4.5 flagship 2026-07-08: $2/$6, 500K ctx, ≥200K prompts bill 2× —
+  not modeled; reasoning_effort low|medium|high default high, image input;
+  grok-4.3 still served at $1.25/$2.50 with the bigger 1M window;
+  grok-code-fast-1 no longer listed — retires 2026-08-15)
+- DeepSeek: https://api-docs.deepseek.com/quick_start/pricing (unchanged V4
+  Pro/Flash pricing; legacy deepseek-chat/-reasoner ids fully retired
+  2026-07-24 — never in this catalog; the announced peak-hour 2× surcharge is
+  still NOT active as of 2026-07-28, see the entries)
+- Moonshot: https://platform.kimi.ai/docs/models (kimi-k3 flagship 2026-07-16
+  — 2.8T MoE, 1M ctx, $3/$15 — NOT added: thinking is forced-on with
+  reasoning_content that must be replayed through tool loops, the same
+  constraint that keeps kimi-k2.7-code out; add BOTH once the moonshot bond
+  supports preserved thinking + reasoning_effort low|high|max. kimi-k2.6
+  remains the newest model the bond can run correctly.)
+- MiniMax: https://platform.minimax.io/docs/guides/pricing-paygo (unchanged;
+  minimax-m3 $0.30/$1.20 is a "permanent 50% off" list rate)
+- Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
+  (unchanged; qwen3.8-max-preview, 2026-07-19, is Token-Plan-subscriber-only
+  — not on the pay-as-you-go API, so it cannot be added yet; qwen3.7-max
+  currently runs a 50%-off promo — still billed here at list, $2.50/$7.50)
+- Zhipu: https://docs.z.ai/guides/overview/pricing (unchanged; glm-5.2 is
+  the newest — "GLM-5.3/5.5" rumors have no released ids as of 2026-07-28)
 
 Knowledge-cutoff dates on non-Anthropic entries are best-effort estimates
 where the provider doesn't publish one; the provider sources above verify

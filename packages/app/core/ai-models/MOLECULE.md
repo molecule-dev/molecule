@@ -28,6 +28,20 @@ npm install @molecule/app-ai-models @molecule/app-http
 
 ### Interfaces
 
+#### `AIModelCatalog`
+
+The full `GET /ai/models` payload: the model list plus (on servers that
+compute them) the per-mode default model ids for the requester's tier.
+
+```typescript
+interface AIModelCatalog {
+  /** The list of models available to the current session. */
+  models: AppModelDefinition[]
+  /** Per-mode server default model ids, when the server provides them. */
+  defaults?: AppModeModelDefaults
+}
+```
+
 #### `AppModelDefinition`
 
 Client-visible model metadata. Mirrors every field of the server-side
@@ -115,6 +129,26 @@ interface AppModelDefinition {
 }
 ```
 
+#### `AppModeModelDefaults`
+
+The model ids the SERVER falls back to per mode/job when the user hasn't
+picked one — already resolved for the requester's tier. Mirrors the server's
+`ModeModelDefaults`. Lets the picker label an unset per-mode selection
+"Default (<model>)" instead of a vague "default".
+
+```typescript
+interface AppModeModelDefaults {
+  /** Model id used in plan mode when nothing is configured. */
+  plan: string
+  /** Model id used in execute mode when nothing is configured. */
+  execute: string
+  /** Model id used for commit-message generation when nothing is configured. */
+  commit: string
+  /** Model id used for conversation compaction when nothing is configured. */
+  compact: string
+}
+```
+
 #### `EffortOption`
 
 One selectable effort option for a model — its own native value.
@@ -133,6 +167,12 @@ Wire-shape response returned by `GET /ai/models`.
 ```typescript
 interface ListAIModelsResponse {
   models: AppModelDefinition[]
+  /**
+   * Per-mode server default model ids for the requester's tier. Optional —
+   * servers that don't compute them omit it, and clients fall back to generic
+   * "default" labeling.
+   */
+  defaults?: AppModeModelDefaults
 }
 ```
 
@@ -156,6 +196,12 @@ type AIProviderID =
   | 'minimax'
   | 'alibaba'
   | 'zhipu'
+  /**
+   * A model served by a USER-configured endpoint + key (bring-your-own AI).
+   * Appears only in project-scoped listings (`GET /ai/models?projectId=…`);
+   * pricing fields are 0 (the user pays their own provider directly).
+   */
+  | 'custom'
 ```
 
 #### `EffortLevel`
@@ -226,16 +272,34 @@ function isDeprecated(model: Pick<AppModelDefinition, "deprecatedAt">, now?: str
 
 **Returns:** `true` if the model is deprecated as of `now`.
 
-#### `loadAIModels(http, path)`
+#### `loadAIModelCatalog(http, path, projectId)`
 
-Fetches the AI model catalog from the API and returns the models array.
+Fetches the AI model catalog from the API — the model list plus the server's
+per-mode default model ids (when provided).
 
 ```typescript
-function loadAIModels(http: HttpClient, path?: string): Promise<AppModelDefinition[]>
+function loadAIModelCatalog(http: HttpClient, path?: string, projectId?: string): Promise<AIModelCatalog>
 ```
 
 - `http` — HTTP client bonded by the host app.
 - `path` — Endpoint path, defaults to `'/ai/models'` (the http client supplies the base URL).
+- `projectId` — Optional project scope. When set, servers that support per-project custom ("bring your own AI") models append them to the catalog, flagged `provider: 'custom'`; servers that ignore the query param return the unscoped catalog unchanged.
+
+**Returns:** The catalog: models plus optional per-mode defaults.
+
+#### `loadAIModels(http, path, projectId)`
+
+Fetches the AI model catalog from the API and returns the models array.
+Thin back-compat wrapper over {@link loadAIModelCatalog} for callers that
+don't need the per-mode defaults.
+
+```typescript
+function loadAIModels(http: HttpClient, path?: string, projectId?: string): Promise<AppModelDefinition[]>
+```
+
+- `http` — HTTP client bonded by the host app.
+- `path` — Endpoint path, defaults to `'/ai/models'` (the http client supplies the base URL).
+- `projectId` — Optional project scope (see {@link loadAIModelCatalog}).
 
 **Returns:** The list of models available to the current session.
 

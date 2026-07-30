@@ -26,7 +26,7 @@ interface MiniMaxConfig {
   defaultModel?: string
   /** Maximum tokens for completions. */
   maxTokens?: number
-  /** Base URL override (for proxies). Defaults to 'https://api.minimax.chat'. */
+  /** Base URL override (for proxies). Defaults to 'https://api.minimax.io' (MiniMax's INTERNATIONAL host; use 'https://api.minimaxi.com' for mainland China — keys are scoped per host). */
   baseUrl?: string
 }
 ```

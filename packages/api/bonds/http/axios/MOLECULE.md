@@ -297,7 +297,7 @@ function toHttpError(error: AxiosError, requestOptions: HttpRequestOptions & { u
 Converts axios response to HttpResponse.
 
 ```typescript
-function toHttpResponse(response: AxiosResponse<T, any, {}>, requestOptions: HttpRequestOptions & { url: string; }): HttpResponse<T>
+function toHttpResponse(response: AxiosResponse<T, any, {}, any>, requestOptions: HttpRequestOptions & { url: string; }): HttpResponse<T>
 ```
 
 - `response` — The response object.
