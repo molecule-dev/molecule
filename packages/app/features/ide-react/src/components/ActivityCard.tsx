@@ -14,6 +14,7 @@ import type { JSX } from 'react'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useCoarsePointer } from '../hooks/useViewport.js'
 import type { Activity } from './activity-utilities.js'
 import {
   activityIconName,
@@ -41,6 +42,7 @@ export interface ActivityCardProps {
  */
 export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): JSX.Element {
   const cm = getClassMap()
+  const isCoarse = useCoarsePointer()
   const pill = activityStatusColors(activity.status)
   const clickable = Boolean(onActivityClick)
 
@@ -63,6 +65,8 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
         // Shared card chrome: subtle primary tint + a uniform 1px border on all
         // sides. One source of truth with the other chat info cards (chat-card-style).
         ...chatCardStyle(),
+        // Touch: the whole card is the tap target — 44px standalone-control floor.
+        ...(isCoarse && clickable ? { minHeight: 44 } : {}),
         textAlign: 'left',
         cursor: clickable ? 'pointer' : 'default',
         color: 'inherit',

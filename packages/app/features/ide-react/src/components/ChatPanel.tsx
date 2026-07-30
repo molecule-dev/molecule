@@ -57,6 +57,7 @@ import type {
   ChatEventCardSegment,
 } from '../customEventCards.js'
 import { getCustomEventCardFactory } from '../customEventCards.js'
+import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { ChatPanelProps, ChatUserIdentity, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
@@ -1233,6 +1234,7 @@ function NoticeCard({
   icon?: IconName
 }): JSX.Element {
   const cm = getClassMap()
+  const isCoarse = useCoarsePointer()
   const { accent, icon: defaultIcon } = NOTICE_TONE[tone]
   const icon = iconOverride ?? defaultIcon
   const actions = action ? (Array.isArray(action) ? action : [action]) : []
@@ -1283,6 +1285,9 @@ function NoticeCard({
                 fontSize: 12,
                 fontWeight: 600,
                 padding: '4px 10px',
+                // Secondary inline actions: 36px is the touch floor agreed for
+                // these (44 would overwhelm the compact card).
+                ...(isCoarse ? { minHeight: 36 } : {}),
                 borderRadius: 6,
                 cursor: 'pointer',
                 textDecoration: 'none',
@@ -1364,6 +1369,7 @@ export function CommitCardItem({
   onRevert?: (hash: string) => Promise<string | undefined>
 }): JSX.Element {
   const cm = getClassMap()
+  const isCoarse = useCoarsePointer()
   const [expanded, setExpanded] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [isReverting, setIsReverting] = useState(false)
@@ -1506,12 +1512,14 @@ export function CommitCardItem({
                     alignItems: 'center',
                     justifyContent: 'center',
                     alignSelf: 'flex-start',
-                    width: 20,
-                    height: 20,
+                    // Touch: hover can't reveal it, so it rests visible at 0.6 and
+                    // gets a 32px hit box (the floor for these dense inline rows).
+                    width: isCoarse ? 32 : 20,
+                    height: isCoarse ? 32 : 20,
                     borderRadius: 4,
                     flexShrink: 0,
                     cursor: isReverting ? 'wait' : 'pointer',
-                    opacity: isReverting ? 0.3 : isHovered ? 0.6 : 0,
+                    opacity: isReverting ? 0.3 : isHovered || isCoarse ? 0.6 : 0,
                     transition: 'opacity 100ms, background 100ms',
                   }}
                 >
@@ -1609,6 +1617,7 @@ export function CommitCardItem({
 // MessageItem — memo'd to avoid re-rendering all messages when one changes
 // ---------------------------------------------------------------------------
 
+/** Props for the memoized per-message timeline row (see {@link MessageItem}). */
 export interface MessageItemProps {
   msg: ChatMessage
   editingQueuedId: string | null
@@ -2331,6 +2340,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
 // ChatInner — owns useChat, messages, input, commit
 // ---------------------------------------------------------------------------
 
+/** Props for the inner chat surface (timeline + composer), remounted per conversation. */
 export interface ChatInnerProps {
   projectId: string
   endpoint: string
@@ -2461,6 +2471,17 @@ function ChatInner({
   const cm = getClassMap()
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
+  // Phone-width / touch-first branches: popovers cap with dvh, hover-revealed
+  // controls become visible-by-default, and compact hit areas grow — all scoped
+  // so fine-pointer desktop rendering is byte-identical.
+  const isNarrow = useNarrowViewport()
+  const isCoarse = useCoarsePointer()
+  // One cap for every popup anchored above the composer (command menu, model /
+  // sounds pickers, panel overlay, file picker). Phones use dvh — NOT vh, which
+  // ignores the collapsing browser chrome and the on-screen keyboard, letting a
+  // 70vh popup extend under both. 50dvh leaves the composer + a context sliver
+  // visible; 420px bounds it on small tablets.
+  const popupMaxHeight = isNarrow ? 'min(50dvh, 420px)' : '70vh'
   const http = useHttpClient()
   // Bind the host's profile-click callback to the clicked user's identity once
   // (the chat is solo, so every user avatar is the signed-in user — the only
@@ -6683,6 +6704,17 @@ function ChatInner({
                       lineHeight: 1,
                       padding: 0,
                       fontSize: '13px',
+                      // Touch: a bare 13px '×' is untappable — give it a 32px box
+                      // (the dense-row floor) without changing the fine-pointer chip.
+                      ...(isCoarse
+                        ? {
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: 32,
+                            minHeight: 32,
+                          }
+                        : {}),
                     }}
                   >
                     ×
@@ -6730,7 +6762,7 @@ function ChatInner({
                   boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
                   display: 'flex',
                   flexDirection: 'column',
-                  maxHeight: '70vh',
+                  maxHeight: popupMaxHeight,
                 }}
               >
                 <div style={{ overflowY: 'auto', flex: 1 }}>
@@ -6888,7 +6920,7 @@ function ChatInner({
                 boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
                 display: 'flex',
                 flexDirection: 'column',
-                maxHeight: '70vh',
+                maxHeight: popupMaxHeight,
               }}
             >
               <div
@@ -6901,6 +6933,9 @@ function ChatInner({
                   alignItems: 'center',
                   gap: 8,
                   flexShrink: 0,
+                  // Engages only when Mode + Sort can't share one row (a ~390px
+                  // pane); on desktop widths the single row is unchanged.
+                  flexWrap: 'wrap',
                 }}
               >
                 {/* Mode dropdown — re-scopes the OPEN picker in place. Each
@@ -6933,6 +6968,10 @@ function ChatInner({
                       color: 'inherit',
                       cursor: 'pointer',
                       maxWidth: 220,
+                      // Let the select shrink below its option text inside the
+                      // min-width:0 flex group so a long mode label can't push
+                      // the header past a 390px pane (the browser clips natively).
+                      minWidth: 0,
                     }}
                   >
                     {pickerModeOptions.map((o) => (
@@ -7226,8 +7265,28 @@ function ChatInner({
                               width: '100%',
                             }}
                           >
-                            <span className={cm.fontWeight('medium')}>{model.label}</span>
-                            <span style={{ fontSize: '10px', color: accent, opacity: 0.85 }}>
+                            {/* minWidth:0 + ellipsis so a long label yields to the
+                                right-aligned current/lock pill instead of pushing
+                                it past a narrow (390px) pane's edge. */}
+                            <span
+                              className={cm.fontWeight('medium')}
+                              style={{
+                                minWidth: 0,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {model.label}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: '10px',
+                                color: accent,
+                                opacity: 0.85,
+                                flexShrink: 0,
+                              }}
+                            >
                               {model.provider}
                             </span>
                             {model.id === pickerCurrentModelId && (
@@ -7440,7 +7499,7 @@ function ChatInner({
               boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
               display: 'flex',
               flexDirection: 'column',
-              maxHeight: '70vh',
+              maxHeight: popupMaxHeight,
             }}
           >
             <div
@@ -7471,6 +7530,17 @@ function ChatInner({
                   fontSize: '14px',
                   lineHeight: 1,
                   opacity: 0.6,
+                  // Touch floor for this secondary header \u2715 (36px, like the
+                  // notice-card actions); fine pointers keep the slim header.
+                  ...(isCoarse
+                    ? {
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 36,
+                        minHeight: 36,
+                      }
+                    : {}),
                 }}
               >
                 {'\u2715'}
@@ -7648,7 +7718,7 @@ function ChatInner({
               boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
               display: 'flex',
               flexDirection: 'column',
-              maxHeight: '70vh',
+              maxHeight: popupMaxHeight,
             }}
             // Esc closes it even when focus is inside the card's own search input
             // (the textarea's native keydown listener only fires while it is focused).
@@ -7694,6 +7764,17 @@ function ChatInner({
                   fontSize: '14px',
                   lineHeight: 1,
                   opacity: 0.6,
+                  // Touch floor for this secondary header ✕ (36px, like the
+                  // notice-card actions); fine pointers keep the slim header.
+                  ...(isCoarse
+                    ? {
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 36,
+                        minHeight: 36,
+                      }
+                    : {}),
                 }}
               >
                 {'✕'}
@@ -7763,7 +7844,7 @@ function ChatInner({
                   overflow: 'hidden',
                   zIndex: 100,
                   boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
-                  maxHeight: '70vh',
+                  maxHeight: popupMaxHeight,
                   overflowY: 'auto',
                 }}
               >
@@ -7955,6 +8036,9 @@ function ChatInner({
                         style={{
                           fontSize: 12,
                           padding: '4px 10px',
+                          // Touch floor for this inline bar action (36px, matching
+                          // the notice-card buttons).
+                          ...(isCoarse ? { minHeight: 36 } : {}),
                           borderRadius: 6,
                           border: '1px solid rgba(64,112,224,0.4)',
                           background: 'rgba(64,112,224,0.2)',
@@ -7992,6 +8076,9 @@ function ChatInner({
                         background: 'none',
                         border: 'none',
                         padding: '1px 0',
+                        // Touch: ~15px rows are untappable — 32px is the floor for
+                        // these dense file rows.
+                        ...(isCoarse ? { minHeight: 32 } : {}),
                         cursor: onFileDiff ? 'pointer' : 'default',
                         fontFamily: "'SF Mono', 'Fira Code', monospace",
                         fontSize: 11,
@@ -8067,8 +8154,9 @@ function ChatInner({
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            width: 18,
-                            height: 18,
+                            // Touch: 32px hit box (dense-row floor); glyph unchanged.
+                            width: isCoarse ? 32 : 18,
+                            height: isCoarse ? 32 : 18,
                             borderRadius: 3,
                             flexShrink: 0,
                             cursor: 'pointer',
@@ -8140,6 +8228,11 @@ function ChatInner({
               overflowY: 'auto',
               scrollbarWidth: 'thin',
               boxSizing: 'border-box',
+              // Deliberate iOS-zoom guard, overriding cm.textSize('sm') (~14px): iOS
+              // Safari zooms the whole page when a focused input's font is below
+              // 16px, so phone-width / touch-first viewports must render at 16px.
+              // Fine-pointer desktop keeps the compact 14px class untouched.
+              ...(isNarrow || isCoarse ? { fontSize: 16 } : {}),
             }}
           />
           {/* Hint row: shortcuts · context ring · send */}
@@ -8152,7 +8245,9 @@ function ChatInner({
             }}
           >
             {/* Icon buttons — all use identical box model for vertical alignment:
-                fixed 24×24 flex-centered boxes so text glyphs and SVGs align identically. */}
+                fixed flex-centered boxes (24×24 fine pointer, 40×40 coarse — the
+                touch hit-area floor for this dense row) so text glyphs and SVGs
+                align identically. Glyph sizes never change with the box. */}
             {/* Plan/Execute mode toggle */}
             <button
               type="button"
@@ -8183,8 +8278,10 @@ function ChatInner({
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: 24,
-                height: 24,
+                // Touch-first: grow the hit area to 40×40 (glyph size unchanged);
+                // fine pointers keep the compact 24px box.
+                width: isCoarse ? 40 : 24,
+                height: isCoarse ? 40 : 24,
                 background:
                   mode === 'plan'
                     ? isLight
@@ -8226,8 +8323,8 @@ function ChatInner({
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: 24,
-                  height: 24,
+                  width: isCoarse ? 40 : 24,
+                  height: isCoarse ? 40 : 24,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
@@ -8298,8 +8395,8 @@ function ChatInner({
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: 24,
-                height: 24,
+                width: isCoarse ? 40 : 24,
+                height: isCoarse ? 40 : 24,
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -8378,8 +8475,8 @@ function ChatInner({
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: 24,
-                  height: 24,
+                  width: isCoarse ? 40 : 24,
+                  height: isCoarse ? 40 : 24,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
@@ -8466,20 +8563,32 @@ function ChatInner({
                       opacity: 0.7,
                       cursor: 'default',
                     }}
-                    onMouseEnter={(e) => {
-                      const pctEl = e.currentTarget.querySelector<HTMLElement>('[data-ctx-pct]')
-                      if (pctEl) {
-                        pctEl.style.opacity = '1'
-                        pctEl.style.width = 'auto'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      const pctEl = e.currentTarget.querySelector<HTMLElement>('[data-ctx-pct]')
-                      if (pctEl) {
-                        pctEl.style.opacity = '0'
-                        pctEl.style.width = '0'
-                      }
-                    }}
+                    // Hover-reveal is meaningless without hover: on coarse pointers
+                    // the % stays visible (rendered below), so no handlers to fight.
+                    onMouseEnter={
+                      isCoarse
+                        ? undefined
+                        : (e) => {
+                            const pctEl =
+                              e.currentTarget.querySelector<HTMLElement>('[data-ctx-pct]')
+                            if (pctEl) {
+                              pctEl.style.opacity = '1'
+                              pctEl.style.width = 'auto'
+                            }
+                          }
+                    }
+                    onMouseLeave={
+                      isCoarse
+                        ? undefined
+                        : (e) => {
+                            const pctEl =
+                              e.currentTarget.querySelector<HTMLElement>('[data-ctx-pct]')
+                            if (pctEl) {
+                              pctEl.style.opacity = '0'
+                              pctEl.style.width = '0'
+                            }
+                          }
+                    }
                   >
                     <span
                       data-ctx-pct=""
@@ -8487,8 +8596,8 @@ function ChatInner({
                         color,
                         fontSize: '10px',
                         lineHeight: 1,
-                        opacity: 0,
-                        width: 0,
+                        opacity: isCoarse ? 1 : 0,
+                        width: isCoarse ? 'auto' : 0,
                         overflow: 'hidden',
                         whiteSpace: 'nowrap',
                         transition: 'opacity 150ms',
@@ -8561,6 +8670,9 @@ function ChatInner({
                     transition: 'background 100ms, border-color 100ms',
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
+                    // Touch hit-area floor for the composer's action buttons.
+                    ...(isCoarse ? { minWidth: 40, minHeight: 40 } : {}),
                   }}
                 >
                   <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: 'block' }}>
@@ -8594,6 +8706,9 @@ function ChatInner({
                   transition: 'background 100ms, border-color 100ms, color 100ms',
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
+                  // Touch hit-area floor for the composer's action buttons.
+                  ...(isCoarse ? { minWidth: 40, minHeight: 40 } : {}),
                 }}
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" style={{ display: 'block' }}>
@@ -8731,6 +8846,8 @@ export function ChatPanel({
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
+  const isNarrow = useNarrowViewport()
+  const isCoarse = useCoarsePointer()
   const http = useHttpClient()
   const baseEndpoint = endpoint ?? `/projects/${projectId}/chat`
 
@@ -8883,7 +9000,14 @@ export function ChatPanel({
             cm.shrink0,
             cm.borderB,
           )}
-          style={{ position: 'relative', height: '33px', zIndex: 10 }}
+          style={{
+            position: 'relative',
+            // Fixed 33px on fine pointers; on touch the header grows to fit the
+            // cm.touchTarget (44px) header buttons instead of clipping them.
+            height: isCoarse ? undefined : '33px',
+            minHeight: '33px',
+            zIndex: 10,
+          }}
         >
           {/* Conversation picker button */}
           <button
@@ -8952,7 +9076,7 @@ export function ChatPanel({
             type="button"
             data-mol-id="chat-share-button"
             onClick={() => setOpenShareSignal((n) => n + 1)}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
             title={t('ide.chat.share.openShare', undefined, { defaultValue: 'Share project' })}
             aria-label={t('ide.chat.share.openShare', undefined, {
               defaultValue: 'Share project',
@@ -8967,7 +9091,7 @@ export function ChatPanel({
             type="button"
             data-mol-id="chat-report-button"
             onClick={() => setOpenReportSignal((n) => n + 1)}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
             title={t('ide.chat.report.openReport', undefined, { defaultValue: 'Report a bug' })}
             aria-label={t('ide.chat.report.openReport', undefined, {
               defaultValue: 'Report a bug',
@@ -8982,7 +9106,7 @@ export function ChatPanel({
             type="button"
             data-mol-id="chat-settings-button"
             onClick={() => setOpenSettingsSignal((n) => n + 1)}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
             title={t('ide.chat.openSettings', undefined, { defaultValue: 'Settings' })}
             aria-label={t('ide.chat.openSettings', undefined, { defaultValue: 'Settings' })}
             style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}
@@ -8994,7 +9118,7 @@ export function ChatPanel({
           <button
             type="button"
             onClick={handleNewChat}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
             title={t('ide.chat.newChat', undefined, { defaultValue: 'New chat' })}
             style={{ flexShrink: 0 }}
           >
@@ -9011,7 +9135,10 @@ export function ChatPanel({
                 left: 0,
                 right: 0,
                 zIndex: 100,
-                maxHeight: '280px',
+                // dvh on phones (vh ignores collapsing browser chrome); the fixed
+                // 280px cap is desktop-only. (molecule-dev hides this header, but
+                // other consumers render it.)
+                maxHeight: isNarrow ? 'min(50dvh, 420px)' : '280px',
                 overflowY: 'auto',
                 scrollbarWidth: 'thin',
                 borderRadius: '0 0 6px 6px',
@@ -9042,6 +9169,9 @@ export function ChatPanel({
                     border: 'none',
                     outline: 'none',
                     color: 'inherit',
+                    // Deliberate iOS-zoom guard overriding cm.textSize('xs'): a
+                    // focused input below 16px makes iOS Safari zoom the page.
+                    ...(isNarrow ? { fontSize: 16 } : {}),
                   }}
                 />
               </div>

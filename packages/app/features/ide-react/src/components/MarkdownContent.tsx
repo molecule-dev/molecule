@@ -14,6 +14,7 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useCoarsePointer } from '../hooks/useViewport.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 
 /**
@@ -305,6 +306,7 @@ function Prose({
  */
 function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.Element {
   const cm = getClassMap()
+  const isCoarse = useCoarsePointer()
   const [copied, setCopied] = useState(false)
 
   /** Copies the code block content to clipboard and shows a brief confirmation. */
@@ -349,6 +351,8 @@ function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.El
             color: 'inherit',
             fontSize: '11px',
             padding: '2px 6px',
+            // Touch: ~17px is untappable — 32px dense-row floor, text unchanged.
+            ...(isCoarse ? { minHeight: 32 } : {}),
             opacity: 0.75,
           }}
         >
@@ -376,6 +380,7 @@ function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.El
 // Public component
 // ---------------------------------------------------------------------------
 
+/** Props for {@link MarkdownContent}. */
 export interface MarkdownContentProps {
   /** The raw markdown text to render. */
   text: string
@@ -514,7 +519,10 @@ export const MarkdownContent = memo(function MarkdownContent({
   }
 
   return (
-    <div style={{ fontSize: '13px', lineHeight: 1.6, marginTop: '6px' }}>
+    // wordBreak matches the streaming wrapper above: without it a long unbroken
+    // token (a URL, a hash, an import path) clips at narrow (390px) widths once
+    // the message finalizes. Harmless at desktop widths.
+    <div style={{ fontSize: '13px', lineHeight: 1.6, marginTop: '6px', wordBreak: 'break-word' }}>
       {segments.map((seg, i) =>
         seg.type === 'code' ? (
           <CodeBlock key={i} lang={seg.lang} content={seg.content} />

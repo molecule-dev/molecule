@@ -11,6 +11,8 @@ import { useEffect, useState } from 'react'
 import { t } from '@molecule/app-i18n'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
+import { useNarrowViewport } from '../hooks/useViewport.js'
+
 // ---------------------------------------------------------------------------
 // Molecule spinner — inline SVG (3-phase atom-swapping animation)
 // ---------------------------------------------------------------------------
@@ -281,6 +283,7 @@ export function StreamingIndicator({
 }: StreamingIndicatorProps): JSX.Element {
   const [msgIdx, setMsgIdx] = useState(0)
   const [now, setNow] = useState(() => Date.now())
+  const isNarrow = useNarrowViewport()
 
   // A real, non-empty label (current activity / verification step) takes over;
   // otherwise rotate generic phrases. Guard on a TRIMMED non-empty string so the
@@ -353,8 +356,13 @@ export function StreamingIndicator({
           tokens" is 121px, a permanent 40px off the label's budget. So the
           visible unit stays plain and the TOOLTIP carries what the number
           actually is — output only, which is why it reads far below a provider
-          dashboard. Keep any relabelling at or under the 81px baseline. */}
-      {(elapsed || (tokens != null && tokens >= MIN_TOKENS_SHOWN)) && (
+          dashboard. Keep any relabelling at or under the 81px baseline.
+
+          On PHONE-width viewports (390px pane) even the 81px baseline starves
+          the label, so the token estimate is dropped there entirely and only the
+          slim elapsed timer stays — label legibility wins; /cost still carries
+          the numbers. */}
+      {(elapsed || (!isNarrow && tokens != null && tokens >= MIN_TOKENS_SHOWN)) && (
         <span
           style={{
             marginLeft: 'auto',
@@ -369,7 +377,7 @@ export function StreamingIndicator({
           }}
           aria-hidden="true"
         >
-          {tokens != null && tokens >= MIN_TOKENS_SHOWN && (
+          {!isNarrow && tokens != null && tokens >= MIN_TOKENS_SHOWN && (
             <Tooltip
               content={t('ide.chat.streamingOutputTokensHint', undefined, {
                 defaultValue: 'Estimated output tokens this turn — /cost shows input and cached.',
@@ -385,7 +393,7 @@ export function StreamingIndicator({
               </span>
             </Tooltip>
           )}
-          {tokens != null && tokens >= MIN_TOKENS_SHOWN && elapsed && <span>·</span>}
+          {!isNarrow && tokens != null && tokens >= MIN_TOKENS_SHOWN && elapsed && <span>·</span>}
           {elapsed && <span>{elapsed}</span>}
         </span>
       )}

@@ -15,6 +15,7 @@ import { t } from '@molecule/app-i18n'
 import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { ToolCallCardProps } from '../types.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import type { ToolOutput } from './tool-call-utilities.js'
@@ -182,6 +183,7 @@ function PackageResultRows({
   results: PackageResult[]
   onFileOpen?: (path: string) => void
 }): JSX.Element {
+  const isCoarse = useCoarsePointer()
   if (results.length === 0) {
     return (
       <span style={{ opacity: 0.5 }}>
@@ -236,6 +238,8 @@ function PackageResultRows({
               display: 'flex',
               gap: '8px',
               alignItems: 'baseline',
+              // Touch: ~19px result rows are untappable — 32px dense-row floor.
+              ...(isCoarse && clickable ? { minHeight: 32, alignItems: 'center' } : {}),
               cursor: clickable ? 'pointer' : 'default',
               opacity: clickable ? 0.8 : 1,
               transition: 'opacity 100ms',
@@ -408,8 +412,7 @@ function renderOut(name: string, output: unknown): ReactNode {
 
     case 'write_file': {
       const diff = out.diff as
-        | { type: string; linesAdded: number; linesRemoved: number }
-        | undefined
+        { type: string; linesAdded: number; linesRemoved: number } | undefined
       if (!diff)
         return (
           <span style={{ opacity: 0.6 }}>
@@ -538,8 +541,7 @@ function renderOut(name: string, output: unknown): ReactNode {
 
     case 'search_files': {
       const matches = out.matches as
-        | Array<{ file: string; line: number; content: string }>
-        | undefined
+        Array<{ file: string; line: number; content: string }> | undefined
       if (!matches?.length)
         return (
           <span style={{ opacity: 0.5 }}>
@@ -631,6 +633,12 @@ export const ToolCallCard = memo(function ToolCallCard({
 }: ToolCallCardProps): JSX.Element | null {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
+  // Touch/phone branches (called unconditionally, before the per-tool early
+  // returns, so the hook order stays stable): hover-revealed controls become
+  // visible-by-default and compact hit areas grow; fine-pointer desktop
+  // rendering is unchanged.
+  const isCoarse = useCoarsePointer()
+  const isNarrow = useNarrowViewport()
   const [expanded, setExpanded] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [isUndoneLocal, setIsUndoneLocal] = useState(false)
@@ -777,6 +785,8 @@ export const ToolCallCard = memo(function ToolCallCard({
             color: 'inherit',
             textAlign: 'left',
             padding: '2px 0',
+            // Touch: ~20px rows are untappable — 32px is the dense-row floor.
+            ...(isCoarse ? { minHeight: 32 } : {}),
             width: '100%',
           }}
         >
@@ -906,6 +916,9 @@ export const ToolCallCard = memo(function ToolCallCard({
                 gap: '10px',
                 width: '100%',
                 padding: '8px 12px',
+                // Touch: full 44px rows — these are the PRIMARY discovery answers,
+                // so they get the standalone-control floor, not the dense-row 32.
+                ...(isCoarse ? { minHeight: 44 } : {}),
                 border: 'none',
                 borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
                 background: isSelected
@@ -1006,12 +1019,15 @@ export const ToolCallCard = memo(function ToolCallCard({
               }
               style={{
                 flex: 1,
+                minWidth: 0,
                 padding: '5px 8px',
                 borderRadius: '5px',
                 border: `1px solid ${borderClr}`,
                 background: 'transparent',
                 color: 'inherit',
-                fontSize: '12px',
+                // Deliberate iOS-zoom guard: a focused input below 16px makes iOS
+                // Safari zoom the whole page on phone-width / touch-first viewports.
+                fontSize: isNarrow || isCoarse ? '16px' : '12px',
                 outline: 'none',
               }}
             />
@@ -1042,7 +1058,9 @@ export const ToolCallCard = memo(function ToolCallCard({
                 e.currentTarget.style.color = freeText.trim() ? '#4070e0' : 'inherit'
               }}
               style={{
-                height: 30,
+                // Touch floor for the free-text Send action (40px in this dense
+                // composer row); fine pointers keep the compact 30px.
+                height: isCoarse ? 40 : 30,
                 padding: '0 10px',
                 borderRadius: 6,
                 border: freeText.trim()
@@ -1118,6 +1136,8 @@ export const ToolCallCard = memo(function ToolCallCard({
           color: 'inherit',
           textAlign: 'left',
           padding: '2px 0',
+          // Touch: ~20px rows are untappable — 32px is the dense-row floor.
+          ...(isCoarse ? { minHeight: 32 } : {}),
           width: '100%',
         }}
       >
@@ -1178,15 +1198,18 @@ export const ToolCallCard = memo(function ToolCallCard({
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: 20,
-                  height: 20,
+                  // Touch: hover can't reveal it, so it rests visible at 0.6 and
+                  // gets a 32px hit box (the floor for these dense inline rows).
+                  width: isCoarse ? 32 : 20,
+                  height: isCoarse ? 32 : 20,
                   borderRadius: 4,
                   flexShrink: 0,
-                  // Nudge up 1px: the 13px glyph sat slightly below the text's optical center.
+                  // Nudge up 1px: the 13px glyph sat slightly below the text's
+                  // optical center of the compact 20px box (moot at 32px).
                   position: 'relative',
-                  top: '-1px',
+                  top: isCoarse ? 0 : '-1px',
                   cursor: isReverting ? 'wait' : 'pointer',
-                  opacity: isReverting ? 0.3 : isHovered ? 0.6 : 0,
+                  opacity: isReverting ? 0.3 : isHovered || isCoarse ? 0.6 : 0,
                   transition: 'opacity 100ms, background 100ms',
                 }}
               >
