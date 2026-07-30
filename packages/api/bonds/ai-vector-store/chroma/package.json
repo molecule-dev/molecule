@@ -30,7 +30,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "chromadb": "3.4.3"
+    "chromadb": "3.5.0"
   },
   "peerDependencies": {
     "@molecule/api-ai-vector-store": ">=1.0.0"
@@ -39,6 +39,6 @@
     "@molecule/api-ai-vector-store": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   }
 }

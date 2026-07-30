@@ -34,7 +34,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "uuid": "14.0.0",
+    "uuid": "14.0.1",
     "zod": "4.4.3"
   },
   "devDependencies": {
@@ -44,7 +44,7 @@
     "@molecule/api-utilities-validation": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",

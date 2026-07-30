@@ -26,12 +26,12 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "posthog-node": "5.36.3"
+    "posthog-node": "5.46.1"
   },
   "devDependencies": {
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "peerDependencies": {
     "@molecule/api-analytics": "^1.0.0",

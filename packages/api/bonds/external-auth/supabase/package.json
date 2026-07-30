@@ -28,7 +28,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@supabase/supabase-js": "2.110.5"
+    "@supabase/supabase-js": "2.111.0"
   },
   "peerDependencies": {
     "@molecule/api-external-auth": "^1.0.0"
@@ -37,7 +37,7 @@
     "@molecule/api-external-auth": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "repository": {
     "type": "git",

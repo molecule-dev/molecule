@@ -59,11 +59,11 @@
     "@types/node": "25.9.2",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
-    "happy-dom": "20.10.1",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
+    "happy-dom": "20.11.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "peerDependencies": {
     "@molecule/app-auth": "^1.0.0",

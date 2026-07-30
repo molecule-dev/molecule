@@ -28,10 +28,10 @@
   "license": "MIT",
   "devDependencies": {
     "@molecule/app-ai-voice": "1.0.0",
-    "@types/dom-speech-recognition": "0.0.11",
+    "@types/dom-speech-recognition": "0.0.12",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "peerDependencies": {
     "@molecule/app-ai-voice": "^1.0.0"

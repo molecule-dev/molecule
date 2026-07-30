@@ -29,14 +29,14 @@
   "devDependencies": {
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8",
+    "vitest": "4.1.10",
     "@molecule/app-auth": "1.0.0",
     "@molecule/app-react": "1.0.0",
     "@molecule/app-ui": "1.0.0",
     "@molecule/app-ui-react": "1.0.0",
     "@types/react": "19.2.17",
-    "react": "19.2.7",
-    "react-router-dom": "7.17.0"
+    "react": "19.2.8",
+    "react-router-dom": "7.18.2"
   },
   "peerDependencies": {
     "@molecule/app-auth": "^1.0.0",

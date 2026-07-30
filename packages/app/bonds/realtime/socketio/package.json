@@ -39,7 +39,7 @@
     "@types/node": "25.9.2",
     "socket.io": "4.8.3",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "dependencies": {
     "socket.io-client": "4.8.3"

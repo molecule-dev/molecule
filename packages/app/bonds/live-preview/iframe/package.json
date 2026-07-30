@@ -30,7 +30,7 @@
     "@molecule/app-live-preview": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "peerDependencies": {
     "@molecule/app-live-preview": "^1.0.0"

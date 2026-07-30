@@ -40,9 +40,9 @@
   "devDependencies": {
     "@molecule/app-utilities": "1.0.0",
     "@types/node": "25.9.2",
-    "solid-js": "1.9.13",
+    "solid-js": "1.9.14",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "repository": {
     "type": "git",

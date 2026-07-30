@@ -29,7 +29,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "pg": "8.21.0",
+    "pg": "8.22.0",
     "pgvector": "0.3.0"
   },
   "peerDependencies": {
@@ -40,6 +40,6 @@
     "@types/node": "25.9.2",
     "@types/pg": "8.20.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   }
 }

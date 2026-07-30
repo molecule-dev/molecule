@@ -28,9 +28,9 @@
   "devDependencies": {
     "@molecule/app-react": "1.0.0",
     "@types/node": "25.9.2",
-    "react": "19.2.7",
+    "react": "19.2.8",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "peerDependencies": {
     "@molecule/app-keyboard": "^1.0.0",

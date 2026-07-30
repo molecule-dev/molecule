@@ -42,8 +42,8 @@
     "@types/node": "25.9.2",
     "@vue/test-utils": "2.4.11",
     "typescript": "6.0.3",
-    "vitest": "4.1.8",
-    "vue": "3.5.35"
+    "vitest": "4.1.10",
+    "vue": "3.5.40"
   },
   "repository": {
     "type": "git",

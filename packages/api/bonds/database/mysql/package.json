@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "mysql2": "3.22.5"
+    "mysql2": "3.23.2"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "repository": {
     "type": "git",

@@ -28,12 +28,12 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "jotai": "2.20.0"
+    "jotai": "2.20.2"
   },
   "devDependencies": {
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "peerDependencies": {
     "@molecule/app-state": "^1.0.0"

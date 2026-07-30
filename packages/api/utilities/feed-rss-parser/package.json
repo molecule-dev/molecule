@@ -30,11 +30,11 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "fast-xml-parser": "5.8.0"
+    "fast-xml-parser": "5.10.1"
   },
   "devDependencies": {
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   }
 }

@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@tanstack/virtual-core": "3.17.0"
+    "@tanstack/virtual-core": "3.17.7"
   },
   "peerDependencies": {
     "@molecule/app-virtual-scroll": ">=1.0.0"
@@ -36,7 +36,7 @@
     "@molecule/app-virtual-scroll": "1.0.0",
     "@types/node": "25.9.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.8"
+    "vitest": "4.1.10"
   },
   "publishConfig": {
     "access": "public"
