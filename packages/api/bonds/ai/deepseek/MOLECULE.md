@@ -28,6 +28,8 @@ interface DeepseekConfig {
   maxTokens?: number
   /** Base URL override (for proxies). Defaults to 'https://api.deepseek.com'. */
   baseUrl?: string
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
 }
 ```
 

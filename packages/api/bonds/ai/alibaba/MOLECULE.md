@@ -20,6 +20,8 @@ Configuration for Alibaba Qwen.
 
 ```typescript
 interface AlibabaConfig {
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
   /** API key. Defaults to the `DASHSCOPE_API_KEY` (or `ALIBABA_API_KEY`) env var. */
   apiKey?: string
   /** Default model. Defaults to 'qwen3.6-plus'. */

@@ -24,6 +24,8 @@ Local (OpenAI-compatible) provider configuration.
 
 ```typescript
 interface LocalConfig {
+  /** Called on each rate-limited/busy upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
   /**
    * Base URL of the OpenAI-compatible endpoint, INCLUDING the version segment
    * (e.g. `http://localhost:11434/v1`). Overrides `LOCAL_AI_BASE_URL` /

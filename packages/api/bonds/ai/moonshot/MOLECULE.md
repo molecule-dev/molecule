@@ -28,6 +28,8 @@ interface MoonshotConfig {
   maxTokens?: number
   /** Base URL override (for proxies). Defaults to 'https://api.moonshot.cn'. */
   baseUrl?: string
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
 }
 ```
 

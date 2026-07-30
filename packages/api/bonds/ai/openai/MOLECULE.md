@@ -28,6 +28,8 @@ interface OpenaiConfig {
   maxTokens?: number
   /** Override the API base URL (for proxies / Azure). */
   baseUrl?: string
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
 }
 ```
 

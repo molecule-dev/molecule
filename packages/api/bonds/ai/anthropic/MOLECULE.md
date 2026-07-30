@@ -28,6 +28,8 @@ interface AnthropicConfig {
   maxTokens?: number
   /** Base URL override (for proxies). */
   baseUrl?: string
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
 }
 ```
 

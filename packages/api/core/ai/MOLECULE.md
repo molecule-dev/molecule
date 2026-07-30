@@ -72,6 +72,34 @@ interface AIProvider {
 }
 ```
 
+#### `AiRateLimitEvent`
+
+Details of one rate-limited or overloaded upstream response, reported via a
+provider config's `onRateLimit` callback each time the provider receives an
+HTTP 429/503 (or a provider-specific overload status such as Anthropic's
+529), before any retry sleep. This surfaces the hits the provider's internal
+retry loop goes on to recover — the early-warning signal that capacity is
+running out, which a terminal error event alone would miss entirely.
+
+```typescript
+interface AiRateLimitEvent {
+  /** Provider name (e.g. 'anthropic'). */
+  provider: string
+  /** Model the rejected request targeted. */
+  model: string
+  /** HTTP status the upstream returned (429, 503, or 529). */
+  status: number
+  /** 1-based attempt number that was rejected. */
+  attempt: number
+  /** Whether the provider will retry this request again after a delay. */
+  willRetry: boolean
+  /** Delay before the next retry in milliseconds; 0 when `willRetry` is false. */
+  retryInMs: number
+  /** The response's parsed `Retry-After` header in seconds, when present and valid. */
+  retryAfterSeconds?: number
+}
+```
+
 #### `AITool`
 
 Tool definition that the AI model can invoke.
@@ -227,6 +255,15 @@ interface TokenUsage {
 ```
 
 ### Types
+
+#### `AiRateLimitCallback`
+
+Callback invoked on each rate-limited/overloaded upstream response. Must not
+throw (providers guard it anyway); keep it fast — it runs on the request path.
+
+```typescript
+type AiRateLimitCallback = (event: AiRateLimitEvent) => void
+```
 
 #### `ChatEvent`
 

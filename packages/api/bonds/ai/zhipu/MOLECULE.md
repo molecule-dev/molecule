@@ -32,6 +32,8 @@ Configuration for Zhipu.
 
 ```typescript
 interface ZhipuConfig {
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
   /** API key. Defaults to ZHIPU_API_KEY env var. */
   apiKey?: string
   /** Default model. Defaults to 'glm-5'. */

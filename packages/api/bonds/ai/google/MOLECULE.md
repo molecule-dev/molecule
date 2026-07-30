@@ -20,6 +20,8 @@ Configuration for the Google Gemini AI provider.
 
 ```typescript
 interface GoogleConfig {
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
   /** API key. Defaults to the `GOOGLE_AI_API_KEY` env var. */
   apiKey?: string
   /**
