@@ -1033,10 +1033,6 @@ export class MonacoEditorProvider implements EditorProvider {
   }
 
   /**
-   * Configures TypeScript/JavaScript language defaults (compiler options, diagnostics).
-   * @param monaco - The Monaco module instance.
-   */
-  /**
    * Resolves the TypeScript/JavaScript language defaults across Monaco layouts:
    * top-level `monaco.typescript` (0.56+) or `monaco.languages.typescript` (<=0.55).
    * @param monaco - The Monaco module instance.
@@ -1049,6 +1045,10 @@ export class MonacoEditorProvider implements EditorProvider {
     return monaco.typescript ?? monaco.languages.typescript ?? null
   }
 
+  /**
+   * Configures TypeScript/JavaScript language defaults (compiler options, diagnostics).
+   * @param monaco - The Monaco module instance.
+   */
   private configureTypeScript(monaco: MonacoModule): void {
     const ts = this.tsDefaults(monaco)
     if (!ts) {
