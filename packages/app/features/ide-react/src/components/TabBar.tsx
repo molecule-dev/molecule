@@ -12,6 +12,7 @@ import { t } from '@molecule/app-i18n'
 import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useCoarsePointer } from '../hooks/useViewport.js'
 import type { TabBarProps } from '../types.js'
 
 // ---------------------------------------------------------------------------
@@ -109,6 +110,8 @@ export interface TabItemProps {
   onDoubleClick?: (path: string) => void
   statusColors: Record<string, string>
   diagnosticColors: Record<string, string>
+  /** Touch-first device — taller tab (40px) + larger, always-visible close target. */
+  isCoarse: boolean
 }
 
 /**
@@ -129,6 +132,7 @@ function TabItem({
   onDoubleClick,
   statusColors,
   diagnosticColors,
+  isCoarse,
 }: TabItemProps): JSX.Element {
   const cm = getClassMap()
   const [isHovered, setIsHovered] = useState(false)
@@ -170,7 +174,9 @@ function TabItem({
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      style={{ userSelect: 'none', height: '32px' }}
+      // 40px tall on touch-first devices — the WCAG-acceptable floor for a dense
+      // toolbar row; 32px compact height on pointer devices (unchanged).
+      style={{ userSelect: 'none', height: isCoarse ? '40px' : '32px' }}
       className={cm.cn(
         cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
         cm.sp('px', 3),
@@ -211,20 +217,22 @@ function TabItem({
         style={{
           // Square button (equal width/height) with the glyph centered on both
           // axes — no asymmetric padding, so the ✕ sits dead-center in the tab.
+          // Touch-first devices get a 32px hit area (hover-reveal doesn't exist
+          // there, so the close is also always visible, dimmed).
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          width: '16px',
-          height: '16px',
+          width: isCoarse ? '32px' : '16px',
+          height: isCoarse ? '32px' : '16px',
           border: 'none',
           padding: 0,
           background: 'transparent',
           lineHeight: 1,
           borderRadius: '3px',
           marginLeft: '4px',
-          marginRight: '-4px',
-          opacity: isHovered ? 1 : 0,
+          marginRight: isCoarse ? '-8px' : '-4px',
+          opacity: isHovered ? 1 : isCoarse ? 0.6 : 0,
           transition: 'opacity 100ms, background 80ms, color 80ms',
         }}
         aria-label={t('ide.tabs.close', { fileName })}
@@ -264,6 +272,7 @@ export function TabBar({
 }: TabBarProps): JSX.Element | null {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
+  const isCoarse = useCoarsePointer()
   const statusColors = isLight ? LIGHT_STATUS_COLORS : DARK_STATUS_COLORS
   const diagnosticColors = isLight ? LIGHT_DIAGNOSTIC : DARK_DIAGNOSTIC
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -282,7 +291,15 @@ export function TabBar({
       <div
         ref={scrollRef}
         className={cm.flex({ direction: 'row', align: 'center' })}
-        style={{ overflowX: 'auto', scrollbarWidth: 'none', height: '32px' }}
+        style={{
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          height: isCoarse ? '40px' : '32px',
+          // Momentum scrolling on legacy iOS; keep a horizontal fling on the tab
+          // strip from turning into browser back/forward navigation.
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehaviorX: 'contain',
+        }}
         role="tablist"
       >
         {tabs.map((tab) => (
@@ -302,6 +319,7 @@ export function TabBar({
             onDoubleClick={onDoubleClick}
             statusColors={statusColors}
             diagnosticColors={diagnosticColors}
+            isCoarse={isCoarse}
           />
         ))}
       </div>

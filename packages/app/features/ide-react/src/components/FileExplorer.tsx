@@ -12,6 +12,7 @@ import { t } from '@molecule/app-i18n'
 import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useCoarsePointer } from '../hooks/useViewport.js'
 import type { FileExplorerProps, FileNode } from '../types.js'
 import type { ContextMenuAction } from './FileExplorerContextMenu.js'
 import { FileExplorerContextMenu } from './FileExplorerContextMenu.js'
@@ -350,6 +351,8 @@ export interface FileTreeItemProps {
   /** Shared mutable counter — tracks total rendered items to prevent runaway recursion. */
   renderCount: { current: number }
   dropTargetPath: string | null
+  /** Touch-first device — rows get a ≥36px min-height so they're comfortably tappable. */
+  isCoarse: boolean
 }
 
 /**
@@ -385,6 +388,7 @@ const FileTreeItem = memo(function FileTreeItem({
   clipboardOperation,
   renderCount,
   dropTargetPath,
+  isCoarse,
 }: FileTreeItemProps): JSX.Element {
   renderCount.current++
   const cm = getClassMap()
@@ -480,6 +484,10 @@ const FileTreeItem = memo(function FileTreeItem({
           paddingTop: '1px',
           paddingBottom: '1px',
           paddingRight: '6px',
+          // ≥36px rows on touch-first devices (the agreed floor for dense file
+          // trees — chevron + row are then comfortably tappable); the compact
+          // ~24px pointer row is unchanged.
+          minHeight: isCoarse ? '36px' : undefined,
           border: 'none',
           background,
           outline: isDropTarget
@@ -570,6 +578,7 @@ const FileTreeItem = memo(function FileTreeItem({
               clipboardOperation={clipboardOperation}
               renderCount={renderCount}
               dropTargetPath={dropTargetPath}
+              isCoarse={isCoarse}
             />
           ))}
         </div>
@@ -606,6 +615,7 @@ export function FileExplorer({
 }: FileExplorerProps): JSX.Element {
   const cm = getClassMap()
   const gitColors = useThemeMode() === 'light' ? LIGHT_GIT_COLORS : DARK_GIT_COLORS
+  const isCoarse = useCoarsePointer()
   const containerRef = useRef<HTMLDivElement>(null)
   // When set, the next render after DOM update will scroll this path into view
   const scrollTargetRef = useRef<string | null>(null)
@@ -1328,6 +1338,7 @@ export function FileExplorer({
           clipboardOperation={clipboard?.operation ?? null}
           renderCount={renderCountRef.current}
           dropTargetPath={dropTargetPath}
+          isCoarse={isCoarse}
         />
       ))}
       {contextMenu && (

@@ -14,6 +14,7 @@ import { t } from '@molecule/app-i18n'
 import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { QuickPickerProps } from '../types.js'
 
 /**
@@ -59,6 +60,8 @@ export function QuickPicker({
 }: QuickPickerProps): JSX.Element {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
+  const isNarrow = useNarrowViewport()
+  const isCoarse = useCoarsePointer()
   const [query, setQuery] = useState(initialQuery ?? '')
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -131,16 +134,23 @@ export function QuickPicker({
           background: 'rgba(0,0,0,0.4)',
         }}
       />
-      {/* Picker */}
+      {/* Picker — centered on desktop; anchored near the TOP on phone-width
+          viewports (the picker autofocuses its input, so the on-screen keyboard
+          appears immediately — a vertically-centered box would sit under it).
+          The dvh cap keeps the results visible above the keyboard when the
+          browser resizes the viewport (interactive-widget=resizes-content). */}
       <div
         className={cm.cn(className)}
         style={{
           position: 'fixed',
-          top: '50%',
+          top: isNarrow ? '10%' : '50%',
           left: '50%',
-          transform: 'translate(-50%, -50%)',
+          transform: isNarrow ? 'translate(-50%, 0)' : 'translate(-50%, -50%)',
           width: 500,
           maxWidth: '90vw',
+          maxHeight: isNarrow ? 'min(60dvh, 480px)' : undefined,
+          display: isNarrow ? 'flex' : undefined,
+          flexDirection: isNarrow ? 'column' : undefined,
           zIndex: 1001,
           borderRadius: 8,
           overflow: 'hidden',
@@ -161,20 +171,27 @@ export function QuickPicker({
           }
           style={{
             width: '100%',
+            // 16px on phones/touch devices — below that iOS Safari zooms the
+            // page when this (autofocused) input receives focus.
+            fontSize: isNarrow || isCoarse ? 16 : 13,
             padding: '10px 12px',
-            fontSize: 13,
             border: 'none',
             borderBottom: '1px solid var(--color-border, #333)',
             background: 'transparent',
             color: 'var(--mol-color-text, currentColor)',
             outline: 'none',
             boxSizing: 'border-box',
+            flexShrink: 0,
           }}
         />
         <div
           ref={listRef}
           style={{
-            maxHeight: 300,
+            // On narrow viewports the flex-column container's dvh cap governs
+            // instead of a fixed pixel height — the list shrinks to whatever
+            // fits above the on-screen keyboard.
+            maxHeight: isNarrow ? undefined : 300,
+            minHeight: 0,
             overflow: 'auto',
           }}
         >
@@ -221,6 +238,8 @@ export function QuickPicker({
                   cursor: 'pointer',
                   fontSize: 13,
                   textAlign: 'left',
+                  // ≥36px rows on touch-first devices; compact on pointer devices.
+                  minHeight: isCoarse ? 36 : undefined,
                 }}
               >
                 {item.icon}

@@ -63,6 +63,7 @@ import { get as storageGet, set as storageSet } from '@molecule/app-storage'
 import { getClassMap } from '@molecule/app-ui'
 import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
+import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { PreviewPanelProps, PreviewRenderState, PreviewUiResult } from '../types.js'
 import { type DeviceOrientation, isDeviceRotatable, resolveDeviceSize } from './device-cycle.js'
 import { DeviceFrameSelector } from './DeviceFrameSelector.js'
@@ -308,6 +309,14 @@ export function PreviewPanel({
   const { state, setUrl, refresh, setDevice, openExternal, recordNavigation, back, forward } =
     usePreview()
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  // Phone-width viewport: the device-frame selector is hidden (the phone IS the
+  // device frame — the host resets the device to 'none' on mobile entry) and the
+  // URL field keeps a sane minimum width so the nav buttons can never crush it.
+  const isNarrow = useNarrowViewport()
+  const isCoarse = useCoarsePointer()
+  // 16px input type on phones/touch devices — below that iOS Safari zooms the
+  // page when the URL field receives focus.
+  const bigUrlType = isNarrow || isCoarse
 
   // AI-driven live preview control: when the host sets a NEW `uiCommand` (keyed on `id`), relay
   // it to the iframe's interaction bridge (`molecule:ui-command`); the bridge replies
@@ -1500,7 +1509,10 @@ export function PreviewPanel({
             )}
             style={{
               flex: 1,
-              minWidth: 0,
+              // On phone-width viewports the field keeps an 80px floor (the
+              // address ellipsizes) so the nav cluster can never squeeze it to
+              // zero; elsewhere it may shrink freely.
+              minWidth: isNarrow ? 80 : 0,
               // Full height (P4-12): the address field stretches to fill the
               // toolbar row instead of sitting as a short centered box.
               alignSelf: 'stretch',
@@ -1552,7 +1564,7 @@ export function PreviewPanel({
                 }
               }}
               aria-label={t('ide.preview.urlBar', {}, { defaultValue: 'Preview URL' })}
-              className={cm.cn(cm.textSize('sm'))}
+              className={cm.cn(!bigUrlType && cm.textSize('sm'))}
               style={{
                 flex: 1,
                 minWidth: 0,
@@ -1561,6 +1573,12 @@ export function PreviewPanel({
                 color: 'inherit',
                 // Normal (non-monospace) UI font at 14px (cm.textSize('sm')),
                 // vertically centered by the field's align-center row (P4-12).
+                // On phones/touch devices the class is dropped and 16px set
+                // inline instead (never both — inline would silently override
+                // the ClassMap class): sub-16px focused inputs make iOS Safari
+                // zoom the page. Ellipsize the (unfocused) address overflow.
+                fontSize: bigUrlType ? 16 : undefined,
+                textOverflow: 'ellipsis',
                 fontFamily: 'inherit',
                 // The wrapping address field carries the visible focus indicator
                 // (a primary-token ring while focused), so the input's own outline
@@ -1607,14 +1625,19 @@ export function PreviewPanel({
           />
           {/* The device-frame dropdown also hosts Rotate (only when the current */}
           {/* frame is rotatable — "where relevant") and Open in new tab (P4-04). */}
-          <DeviceFrameSelector
-            current={state.device}
-            onChange={handleDeviceChange}
-            canRotate={canRotate}
-            rotated={orientation === 'landscape'}
-            onRotate={handleRotate}
-            onOpenExternal={openExternal}
-          />
+          {/* Hidden on phone-width viewports: the phone IS the device frame */}
+          {/* (the host resets the device to 'none' on mobile entry), and the */}
+          {/* 390px toolbar needs the width for the URL field. */}
+          {!isNarrow && (
+            <DeviceFrameSelector
+              current={state.device}
+              onChange={handleDeviceChange}
+              canRotate={canRotate}
+              rotated={orientation === 'landscape'}
+              onRotate={handleRotate}
+              onOpenExternal={openExternal}
+            />
+          )}
         </div>
       </div>
 
@@ -1784,7 +1807,10 @@ export function PreviewPanel({
                 type="button"
                 data-mol-id="preview-load-failed-reload"
                 onClick={handleManualRetry}
-                className={cm.button({ variant: 'solid', color: 'primary', size: 'sm' })}
+                className={cm.cn(
+                  cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+                  cm.touchTarget,
+                )}
               >
                 {t('ide.preview.reloadPreview', {}, { defaultValue: 'Reload preview' })}
               </button>
@@ -1792,7 +1818,7 @@ export function PreviewPanel({
                 type="button"
                 data-mol-id="preview-load-failed-open"
                 onClick={openExternal}
-                className={cm.button({ variant: 'ghost', size: 'sm' })}
+                className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTarget)}
               >
                 {t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' })}
               </button>
@@ -1850,6 +1876,9 @@ export function PreviewPanel({
             <button
               type="button"
               onClick={handleReloadFrozen}
+              // touchTarget grows the hit-area to ≥44px on coarse-pointer
+              // devices only; desktop keeps the compact banner button.
+              className={cm.touchTarget}
               style={{
                 flexShrink: 0,
                 padding: '4px 12px',
@@ -1999,7 +2028,10 @@ function PreviewBlankNotice({
           type="button"
           data-mol-id="preview-blank-reload"
           onClick={onReload}
-          className={cm.button({ variant: 'solid', color: 'primary', size: 'sm' })}
+          className={cm.cn(
+            cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+            cm.touchTarget,
+          )}
         >
           {t('ide.preview.reloadPreview', {}, { defaultValue: 'Reload preview' })}
         </button>
@@ -2007,7 +2039,7 @@ function PreviewBlankNotice({
           type="button"
           data-mol-id="preview-blank-open"
           onClick={onOpenExternal}
-          className={cm.button({ variant: 'ghost', size: 'sm' })}
+          className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTarget)}
         >
           {t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' })}
         </button>
@@ -2052,6 +2084,7 @@ function DefaultLoadingIndicator({
   retryCount: number
   onManualRetry?: () => void
 }): JSX.Element {
+  const cm = getClassMap()
   // Rotate the themed phrases (~2.4s each) so the overlay never reads as a frozen
   // "Loading preview…" while the build thrashes the preview with reloads. (When a
   // specific edit `hint` is present we show that instead — the changing filenames
@@ -2131,6 +2164,8 @@ function DefaultLoadingIndicator({
         <button
           type="button"
           onClick={onManualRetry}
+          // ≥44px hit-area on coarse-pointer devices only (compact on desktop).
+          className={cm.touchTarget}
           style={{
             marginTop: '8px',
             padding: '6px 16px',

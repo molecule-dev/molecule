@@ -13,6 +13,7 @@ import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { SearchPanelProps, SearchResponse, SearchResult } from '../types.js'
 import { DEFAULT_SEARCH_EXCLUDED_DIRS } from '../types.js'
 
@@ -51,11 +52,14 @@ const ToggleButton = memo(function ToggleButton({
   onClick,
   title,
   children,
+  isCoarse,
 }: {
   active: boolean
   onClick: () => void
   title: string
   children: string
+  /** Touch-first device — grow the compact toggle to a ≥36px tap target. */
+  isCoarse: boolean
 }): JSX.Element {
   return (
     <button
@@ -75,6 +79,8 @@ const ToggleButton = memo(function ToggleButton({
           : 'var(--mol-color-text-secondary, #888)',
         cursor: 'pointer',
         lineHeight: 1,
+        minWidth: isCoarse ? 36 : undefined,
+        minHeight: isCoarse ? 36 : undefined,
       }}
     >
       {children}
@@ -91,11 +97,14 @@ const ActionButton = memo(function ActionButton({
   title,
   children,
   disabled,
+  isCoarse,
 }: {
   onClick: () => void
   title: string
   children: string
   disabled?: boolean
+  /** Touch-first device — grow the compact action to a ≥36px tap target. */
+  isCoarse: boolean
 }): JSX.Element {
   return (
     <button
@@ -115,6 +124,8 @@ const ActionButton = memo(function ActionButton({
         cursor: disabled ? 'default' : 'pointer',
         lineHeight: 1,
         opacity: disabled ? 0.5 : 1,
+        minWidth: isCoarse ? 36 : undefined,
+        minHeight: isCoarse ? 36 : undefined,
       }}
     >
       {children}
@@ -132,12 +143,15 @@ const FileResultGroup = memo(function FileResultGroup({
   onReplaceInFile,
   isLight,
   showReplace,
+  isCoarse,
 }: {
   result: SearchResult
   onResultClick?: (path: string, line: number) => void
   onReplaceInFile?: (path: string) => void
   isLight: boolean
   showReplace: boolean
+  /** Touch-first device — result rows get a ≥36px min-height. */
+  isCoarse: boolean
 }): JSX.Element {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -166,6 +180,7 @@ const FileResultGroup = memo(function FileResultGroup({
             fontSize: 12,
             textAlign: 'left',
             minWidth: 0,
+            minHeight: isCoarse ? 36 : undefined,
           }}
         >
           <span style={{ fontSize: 10, width: 12, textAlign: 'center', flexShrink: 0 }}>
@@ -210,6 +225,8 @@ const FileResultGroup = memo(function FileResultGroup({
               cursor: 'pointer',
               fontSize: 11,
               flexShrink: 0,
+              minWidth: isCoarse ? 36 : undefined,
+              minHeight: isCoarse ? 36 : undefined,
             }}
           >
             ↻
@@ -224,6 +241,7 @@ const FileResultGroup = memo(function FileResultGroup({
             onClick={() => onResultClick?.(result.file, match.line)}
             style={{
               display: 'flex',
+              alignItems: 'center',
               gap: 6,
               width: '100%',
               padding: '2px 8px 2px 32px',
@@ -234,6 +252,7 @@ const FileResultGroup = memo(function FileResultGroup({
               fontSize: 12,
               textAlign: 'left',
               fontFamily: 'monospace',
+              minHeight: isCoarse ? 36 : undefined,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = isLight
@@ -285,6 +304,16 @@ export function SearchPanel({
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
   const http = useHttpClient()
+  const isNarrow = useNarrowViewport()
+  const isCoarse = useCoarsePointer()
+  // iOS Safari zooms the whole page when a focused input's font-size is under
+  // 16px — so every text input here bumps to 16px on phones/touch devices.
+  // Desktop keeps the compact sizes unchanged.
+  const inputFontSize = isNarrow || isCoarse ? 16 : 12
+  const filterFontSize = isNarrow || isCoarse ? 16 : 11
+  // The replace expand toggle (and the spacer that aligns the replace input
+  // under the search input) widen together on touch-first devices.
+  const replaceToggleWidth = isCoarse ? 36 : 14
 
   const [query, setQuery] = useState('')
   const [caseSensitive, setCaseSensitive] = useState(false)
@@ -463,7 +492,8 @@ export function SearchPanel({
               fontSize: 10,
               lineHeight: 1,
               flexShrink: 0,
-              width: 14,
+              width: replaceToggleWidth,
+              minHeight: isCoarse ? 36 : undefined,
               textAlign: 'center',
             }}
           >
@@ -478,7 +508,7 @@ export function SearchPanel({
             style={{
               flex: 1,
               padding: '4px 6px',
-              fontSize: 12,
+              fontSize: inputFontSize,
               border: '1px solid var(--color-border, #333)',
               borderRadius: 3,
               background: isLight ? '#fff' : 'rgba(255,255,255,0.06)',
@@ -500,6 +530,8 @@ export function SearchPanel({
                 cursor: 'pointer',
                 fontSize: 14,
                 lineHeight: 1,
+                minWidth: isCoarse ? 36 : undefined,
+                minHeight: isCoarse ? 36 : undefined,
               }}
             >
               ×
@@ -511,7 +543,7 @@ export function SearchPanel({
         {showReplace && (
           <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 4 }}>
             {/* Spacer to align with search input (same width as toggle arrow) */}
-            <div style={{ width: 14, flexShrink: 0 }} />
+            <div style={{ width: replaceToggleWidth, flexShrink: 0 }} />
             <input
               type="text"
               value={replacement}
@@ -525,7 +557,7 @@ export function SearchPanel({
               style={{
                 flex: 1,
                 padding: '4px 6px',
-                fontSize: 12,
+                fontSize: inputFontSize,
                 border: '1px solid var(--color-border, #333)',
                 borderRadius: 3,
                 background: isLight ? '#fff' : 'rgba(255,255,255,0.06)',
@@ -544,6 +576,7 @@ export function SearchPanel({
                   : t('ide.search.replaceAll', undefined, { defaultValue: 'Replace All' })
               }
               disabled={!query.trim() || replacing}
+              isCoarse={isCoarse}
             >
               {replacing
                 ? '…'
@@ -559,7 +592,8 @@ export function SearchPanel({
           <div
             style={{
               marginTop: 4,
-              marginLeft: 18,
+              // Aligns under the inputs: toggle-arrow width + the 4px row gap.
+              marginLeft: replaceToggleWidth + 4,
               padding: '3px 6px',
               fontSize: 11,
               borderRadius: 3,
@@ -583,6 +617,7 @@ export function SearchPanel({
             active={caseSensitive}
             onClick={() => setCaseSensitive(!caseSensitive)}
             title={t('ide.search.caseSensitive', undefined, { defaultValue: 'Match Case' })}
+            isCoarse={isCoarse}
           >
             Aa
           </ToggleButton>
@@ -590,6 +625,7 @@ export function SearchPanel({
             active={wholeWord}
             onClick={() => setWholeWord(!wholeWord)}
             title={t('ide.search.wholeWord', undefined, { defaultValue: 'Match Whole Word' })}
+            isCoarse={isCoarse}
           >
             ab
           </ToggleButton>
@@ -597,6 +633,7 @@ export function SearchPanel({
             active={useRegex}
             onClick={() => setUseRegex(!useRegex)}
             title={t('ide.search.regex', undefined, { defaultValue: 'Use Regular Expression' })}
+            isCoarse={isCoarse}
           >
             .*
           </ToggleButton>
@@ -614,6 +651,8 @@ export function SearchPanel({
               color: 'var(--mol-color-text-secondary, #888)',
               cursor: 'pointer',
               lineHeight: 1,
+              minWidth: isCoarse ? 36 : undefined,
+              minHeight: isCoarse ? 36 : undefined,
             }}
           >
             ⋯
@@ -632,7 +671,7 @@ export function SearchPanel({
               })}
               style={{
                 padding: '3px 6px',
-                fontSize: 11,
+                fontSize: filterFontSize,
                 border: '1px solid var(--color-border, #333)',
                 borderRadius: 3,
                 background: isLight ? '#fff' : 'rgba(255,255,255,0.06)',
@@ -649,7 +688,7 @@ export function SearchPanel({
               })}
               style={{
                 padding: '3px 6px',
-                fontSize: 11,
+                fontSize: filterFontSize,
                 border: '1px solid var(--color-border, #333)',
                 borderRadius: 3,
                 background: isLight ? '#fff' : 'rgba(255,255,255,0.06)',
@@ -683,7 +722,7 @@ export function SearchPanel({
                 placeholder="node_modules, .git, dist"
                 style={{
                   padding: '3px 6px',
-                  fontSize: 11,
+                  fontSize: filterFontSize,
                   border: '1px solid var(--color-border, #333)',
                   borderRadius: 3,
                   background: isLight ? '#fff' : 'rgba(255,255,255,0.06)',
@@ -747,6 +786,7 @@ export function SearchPanel({
             onReplaceInFile={handleReplaceInFile}
             isLight={isLight}
             showReplace={showReplace}
+            isCoarse={isCoarse}
           />
         ))}
       </div>

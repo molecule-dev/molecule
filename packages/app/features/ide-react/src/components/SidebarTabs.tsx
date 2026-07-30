@@ -9,6 +9,7 @@ import type { JSX } from 'react'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
+import { useCoarsePointer } from '../hooks/useViewport.js'
 import type { SidebarTabsProps } from '../types.js'
 import { Icon } from './Icon.js'
 
@@ -25,6 +26,9 @@ export function SidebarTabs({
   className,
 }: SidebarTabsProps): JSX.Element {
   const cm = getClassMap()
+  // ≥44px tab buttons on touch-first devices (WCAG tap-target floor for
+  // standalone controls); compact 32px on pointer devices (unchanged).
+  const tabHeight = useCoarsePointer() ? '44px' : '32px'
 
   return (
     <div
@@ -44,7 +48,7 @@ export function SidebarTabs({
           onClick={() => onTabChange('files')}
           title={t('ide.sidebar.files', undefined, { defaultValue: 'Explorer' })}
           aria-label={t('ide.sidebar.files', undefined, { defaultValue: 'Explorer' })}
-          style={{ userSelect: 'none', height: '32px', flex: 1, justifyContent: 'center' }}
+          style={{ userSelect: 'none', height: tabHeight, flex: 1, justifyContent: 'center' }}
           className={cm.cn(
             cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
             cm.sp('px', 3),
@@ -68,7 +72,7 @@ export function SidebarTabs({
           onClick={() => onTabChange('search')}
           title={t('ide.sidebar.search', undefined, { defaultValue: 'Search' })}
           aria-label={t('ide.sidebar.search', undefined, { defaultValue: 'Search' })}
-          style={{ userSelect: 'none', height: '32px', flex: 1, justifyContent: 'center' }}
+          style={{ userSelect: 'none', height: tabHeight, flex: 1, justifyContent: 'center' }}
           className={cm.cn(
             cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
             cm.sp('px', 3),
