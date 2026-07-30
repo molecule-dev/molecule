@@ -8,6 +8,7 @@
 
 import type {
   AIProvider,
+  AiRateLimitCallback,
   AITool,
   ChatEvent,
   ChatMessage,
@@ -54,12 +55,14 @@ class MoonshotAIProvider implements AIProvider {
   private defaultModel: string
   private maxTokens: number
   private baseUrl: string
+  private onRateLimit?: AiRateLimitCallback
 
   constructor(config: MoonshotConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.MOONSHOT_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'kimi-k2.5'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.ai'
+    this.onRateLimit = config.onRateLimit
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -172,16 +175,36 @@ class MoonshotAIProvider implements AIProvider {
       })
 
       if (response.status === 429 || response.status === 503) {
-        if (attempt < MAX_RETRIES) {
-          // Retry-After is equally-valid as delta-seconds or an HTTP-date;
-          // parseInt on the date form yields NaN, degrading the backoff to a
-          // ~0ms retry against an already rate-limiting API. Guard it.
-          const retryAfter = response.headers.get('retry-after')
-          const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
-          const delayMs =
-            Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+        const willRetry = attempt < MAX_RETRIES
+        // Retry-After is equally-valid as delta-seconds or an HTTP-date;
+        // parseInt on the date form yields NaN, degrading the backoff to a
+        // ~0ms retry against an already rate-limiting API. Guard it.
+        const retryAfter = response.headers.get('retry-after')
+        const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
+        const hasRetryAfter =
+          Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+        // Additive jitter (<500ms): concurrent callers rejected together must
+        // not sleep identical delays and re-arrive as the same burst.
+        const delayMs = willRetry
+          ? (hasRetryAfter
               ? Math.min(parsedRetryAfterSeconds * 1000, 60_000)
-              : Math.min(1000 * 2 ** attempt, 30_000)
+              : Math.min(1000 * 2 ** attempt, 30_000)) + Math.floor(Math.random() * 500)
+          : 0
+        try {
+          this.onRateLimit?.({
+            provider: this.name,
+            model,
+            status: response.status,
+            attempt: attempt + 1,
+            willRetry,
+            retryInMs: delayMs,
+            ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+          })
+        } catch (error) {
+          // Host-app telemetry; its failure must never break the request.
+          logger.warn('onRateLimit callback threw', { error })
+        }
+        if (willRetry) {
           logger.warn('Moonshot API rate limited, retrying', {
             status: response.status,
             attempt: attempt + 1,
@@ -537,8 +560,7 @@ class MoonshotAIProvider implements AIProvider {
         // as a successful completion. Surface it as a real error event (also
         // satisfies the no-silent-swallow rule).
         const streamError = event.error as
-          | { message?: string; type?: string; code?: string }
-          | undefined
+          { message?: string; type?: string; code?: string } | undefined
         if (streamError) {
           const detail = `${streamError.code ?? streamError.type ?? ''} ${streamError.message ?? ''}`
           logger.error('Moonshot streaming error event', {

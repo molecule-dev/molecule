@@ -10,6 +10,7 @@
 
 import type {
   AIProvider,
+  AiRateLimitCallback,
   AITool,
   ChatEvent,
   ChatMessage,
@@ -69,12 +70,14 @@ class AnthropicAIProvider implements AIProvider {
   private defaultModel: string
   private maxTokens: number
   private baseUrl: string
+  private onRateLimit?: AiRateLimitCallback
 
   constructor(config: AnthropicConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.ANTHROPIC_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'claude-opus-4-6'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com'
+    this.onRateLimit = config.onRateLimit
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -200,20 +203,40 @@ class AnthropicAIProvider implements AIProvider {
       })
 
       if (response.status === 429 || response.status === 529 || response.status === 503) {
-        if (attempt < MAX_RETRIES) {
-          // Use Retry-After header if provided, otherwise exponential backoff.
-          // Retry-After is equally-valid as delta-seconds ('30') or an
-          // HTTP-date ('Wed, 21 Oct ... GMT'); parseInt on the date form
-          // yields NaN, which previously produced setTimeout(resolve, NaN) —
-          // fires ~immediately, degrading the backoff to rapid-fire retries
-          // against an already rate-limiting API. Guard the parse and fall
-          // back to exponential backoff for any non-finite/negative value.
-          const retryAfter = response.headers.get('retry-after')
-          const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
-          const delayMs =
-            Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+        const willRetry = attempt < MAX_RETRIES
+        // Use Retry-After header if provided, otherwise exponential backoff.
+        // Retry-After is equally-valid as delta-seconds ('30') or an
+        // HTTP-date ('Wed, 21 Oct ... GMT'); parseInt on the date form
+        // yields NaN, which previously produced setTimeout(resolve, NaN) —
+        // fires ~immediately, degrading the backoff to rapid-fire retries
+        // against an already rate-limiting API. Guard the parse and fall
+        // back to exponential backoff for any non-finite/negative value.
+        const retryAfter = response.headers.get('retry-after')
+        const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
+        const hasRetryAfter =
+          Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+        // Additive jitter (<500ms): concurrent callers rejected together must
+        // not sleep identical delays and re-arrive as the same burst.
+        const delayMs = willRetry
+          ? (hasRetryAfter
               ? Math.min(parsedRetryAfterSeconds * 1000, 60_000)
-              : Math.min(1000 * 2 ** attempt, 30_000)
+              : Math.min(1000 * 2 ** attempt, 30_000)) + Math.floor(Math.random() * 500)
+          : 0
+        try {
+          this.onRateLimit?.({
+            provider: this.name,
+            model,
+            status: response.status,
+            attempt: attempt + 1,
+            willRetry,
+            retryInMs: delayMs,
+            ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+          })
+        } catch (error) {
+          // Host-app telemetry; its failure must never break the request.
+          logger.warn('onRateLimit callback threw', { error })
+        }
+        if (willRetry) {
           logger.warn('Anthropic API rate limited, retrying', {
             status: response.status,
             attempt: attempt + 1,

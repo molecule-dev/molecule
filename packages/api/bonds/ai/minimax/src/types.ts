@@ -4,10 +4,14 @@
  * @module
  */
 
+import type { AiRateLimitCallback } from '@molecule/api-ai'
+
 /**
  * Configuration for MiniMax.
  */
 export interface MiniMaxConfig {
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
   /** API key. Defaults to MINIMAX_API_KEY env var. */
   apiKey?: string
   /** Default model. Defaults to 'minimax-m2.5'. */

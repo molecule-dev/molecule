@@ -18,6 +18,7 @@ import './secrets.js'
 
 import type {
   AIProvider,
+  AiRateLimitCallback,
   AITool,
   ChatEvent,
   ChatMessage,
@@ -58,6 +59,7 @@ export class LocalAIProvider implements AIProvider {
   private defaultModel: string
   private maxTokens: number
   private baseUrl: string
+  private onRateLimit?: AiRateLimitCallback
 
   constructor(config: LocalConfig = {}) {
     // Keyless by default — many local servers ignore auth. Empty string means
@@ -66,6 +68,7 @@ export class LocalAIProvider implements AIProvider {
     this.apiKey = config.apiKey ?? process.env.LOCAL_AI_API_KEY ?? ''
     this.defaultModel = config.model ?? process.env.LOCAL_AI_MODEL ?? DEFAULT_MODEL
     this.maxTokens = DEFAULT_MAX_TOKENS
+    this.onRateLimit = config.onRateLimit
     this.baseUrl =
       config.baseUrl ??
       process.env.LOCAL_AI_BASE_URL ??
@@ -143,16 +146,36 @@ export class LocalAIProvider implements AIProvider {
         })
 
         if (response.status === 429 || response.status === 503) {
-          if (attempt < MAX_RETRIES) {
-            // Retry-After is equally-valid as delta-seconds or an HTTP-date;
-            // parseInt on the date form yields NaN, degrading the backoff to
-            // a ~0ms retry against an already-busy local endpoint. Guard it.
-            const retryAfter = response.headers.get('retry-after')
-            const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
-            const delayMs =
-              Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+          const willRetry = attempt < MAX_RETRIES
+          // Retry-After is equally-valid as delta-seconds or an HTTP-date;
+          // parseInt on the date form yields NaN, degrading the backoff to
+          // a ~0ms retry against an already-busy local endpoint. Guard it.
+          const retryAfter = response.headers.get('retry-after')
+          const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
+          const hasRetryAfter =
+            Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+          // Additive jitter (<500ms): concurrent callers rejected together must
+          // not sleep identical delays and re-arrive as the same burst.
+          const delayMs = willRetry
+            ? (hasRetryAfter
                 ? Math.min(parsedRetryAfterSeconds * 1000, 60_000)
-                : Math.min(1000 * 2 ** attempt, 30_000)
+                : Math.min(1000 * 2 ** attempt, 30_000)) + Math.floor(Math.random() * 500)
+            : 0
+          try {
+            this.onRateLimit?.({
+              provider: this.name,
+              model,
+              status: response.status,
+              attempt: attempt + 1,
+              willRetry,
+              retryInMs: delayMs,
+              ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+            })
+          } catch (error) {
+            // Host-app telemetry; its failure must never break the request.
+            logger.warn('onRateLimit callback threw', { error })
+          }
+          if (willRetry) {
             logger.warn('Local AI endpoint busy, retrying', {
               status: response.status,
               attempt: attempt + 1,
@@ -463,8 +486,7 @@ export class LocalAIProvider implements AIProvider {
         // and the truncated turn reads as a successful completion. Surface it as
         // a real error event (also satisfies the no-silent-swallow rule).
         const streamError = event.error as
-          | { message?: string; type?: string; code?: string }
-          | undefined
+          { message?: string; type?: string; code?: string } | undefined
         if (streamError) {
           const detail = `${streamError.code ?? streamError.type ?? ''} ${streamError.message ?? ''}`
           logger.error('Local AI streaming error event', {

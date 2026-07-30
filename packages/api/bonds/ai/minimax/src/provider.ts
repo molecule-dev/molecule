@@ -8,6 +8,7 @@
 
 import type {
   AIProvider,
+  AiRateLimitCallback,
   AITool,
   ChatEvent,
   ChatMessage,
@@ -56,11 +57,13 @@ class MiniMaxAIProvider implements AIProvider {
   private defaultModel: string
   private maxTokens: number
   private baseUrl: string
+  private onRateLimit?: AiRateLimitCallback
 
   constructor(config: MiniMaxConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.MINIMAX_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'minimax-m2.5'
     this.maxTokens = config.maxTokens ?? 4096
+    this.onRateLimit = config.onRateLimit
     // `api.minimax.io` is MiniMax's INTERNATIONAL host. The previous default,
     // `api.minimax.chat`, rejected a valid international key with
     // `invalid api key (2049)` (401) — MiniMax scopes keys per host, so a key
@@ -149,16 +152,36 @@ class MiniMaxAIProvider implements AIProvider {
       })
 
       if (response.status === 429 || response.status === 503) {
-        if (attempt < MAX_RETRIES) {
-          // Retry-After is equally-valid as delta-seconds or an HTTP-date;
-          // parseInt on the date form yields NaN, degrading the backoff to a
-          // ~0ms retry against an already rate-limiting API. Guard it.
-          const retryAfter = response.headers.get('retry-after')
-          const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
-          const delayMs =
-            Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+        const willRetry = attempt < MAX_RETRIES
+        // Retry-After is equally-valid as delta-seconds or an HTTP-date;
+        // parseInt on the date form yields NaN, degrading the backoff to a
+        // ~0ms retry against an already rate-limiting API. Guard it.
+        const retryAfter = response.headers.get('retry-after')
+        const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
+        const hasRetryAfter =
+          Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+        // Additive jitter (<500ms): concurrent callers rejected together must
+        // not sleep identical delays and re-arrive as the same burst.
+        const delayMs = willRetry
+          ? (hasRetryAfter
               ? Math.min(parsedRetryAfterSeconds * 1000, 60_000)
-              : Math.min(1000 * 2 ** attempt, 30_000)
+              : Math.min(1000 * 2 ** attempt, 30_000)) + Math.floor(Math.random() * 500)
+          : 0
+        try {
+          this.onRateLimit?.({
+            provider: this.name,
+            model,
+            status: response.status,
+            attempt: attempt + 1,
+            willRetry,
+            retryInMs: delayMs,
+            ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+          })
+        } catch (error) {
+          // Host-app telemetry; its failure must never break the request.
+          logger.warn('onRateLimit callback threw', { error })
+        }
+        if (willRetry) {
           logger.warn('MiniMax API rate limited, retrying', {
             status: response.status,
             attempt: attempt + 1,

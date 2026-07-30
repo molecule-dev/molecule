@@ -17,6 +17,7 @@ import './secrets.js'
 
 import type {
   AIProvider,
+  AiRateLimitCallback,
   AITool,
   ChatEvent,
   ChatMessage,
@@ -105,10 +106,12 @@ class GoogleAIProvider implements AIProvider {
   private apiKey: string
   private defaultModel: string
   private baseUrl: string
+  private onRateLimit?: AiRateLimitCallback
 
   constructor(config: GoogleConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.GOOGLE_AI_API_KEY ?? ''
     this.defaultModel = config.model ?? process.env.GOOGLE_AI_MODEL ?? 'gemini-2.0-flash'
+    this.onRateLimit = config.onRateLimit
     this.baseUrl = (
       config.baseUrl ??
       process.env.GOOGLE_AI_BASE_URL ??
@@ -165,16 +168,40 @@ class GoogleAIProvider implements AIProvider {
       })
 
       if (response.status === 429 || response.status === 500 || response.status === 503) {
-        if (attempt < MAX_RETRIES) {
-          // Retry-After is equally-valid as delta-seconds or an HTTP-date;
-          // parseInt on the date form yields NaN, degrading the backoff to a
-          // ~0ms retry against an already rate-limiting API. Guard it.
-          const retryAfter = response.headers.get('retry-after')
-          const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
-          const delayMs =
-            Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+        const willRetry = attempt < MAX_RETRIES
+        // Retry-After is equally-valid as delta-seconds or an HTTP-date;
+        // parseInt on the date form yields NaN, degrading the backoff to a
+        // ~0ms retry against an already rate-limiting API. Guard it.
+        const retryAfter = response.headers.get('retry-after')
+        const parsedRetryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : NaN
+        const hasRetryAfter =
+          Number.isFinite(parsedRetryAfterSeconds) && parsedRetryAfterSeconds >= 0
+        // Additive jitter (<500ms): concurrent callers rejected together must
+        // not sleep identical delays and re-arrive as the same burst.
+        const delayMs = willRetry
+          ? (hasRetryAfter
               ? Math.min(parsedRetryAfterSeconds * 1000, 60_000)
-              : Math.min(1000 * 2 ** attempt, 30_000)
+              : Math.min(1000 * 2 ** attempt, 30_000)) + Math.floor(Math.random() * 500)
+          : 0
+        // 500 INTERNAL is a transient server fault, not a capacity signal —
+        // only genuine rate-limit/overload statuses reach the callback.
+        if (response.status !== 500) {
+          try {
+            this.onRateLimit?.({
+              provider: this.name,
+              model,
+              status: response.status,
+              attempt: attempt + 1,
+              willRetry,
+              retryInMs: delayMs,
+              ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+            })
+          } catch (error) {
+            // Host-app telemetry; its failure must never break the request.
+            logger.warn('onRateLimit callback threw', { error })
+          }
+        }
+        if (willRetry) {
           logger.warn('Google AI API rate limited, retrying', {
             status: response.status,
             attempt: attempt + 1,
@@ -556,8 +583,7 @@ class GoogleAIProvider implements AIProvider {
         // completion. Surface it as a real error event (also satisfies the
         // no-silent-swallow rule).
         const streamError = chunk.error as
-          | { code?: number; message?: string; status?: string }
-          | undefined
+          { code?: number; message?: string; status?: string } | undefined
         if (streamError) {
           const detail = `${streamError.status ?? ''} ${streamError.code ?? ''} ${streamError.message ?? ''}`
           logger.error('Google AI streaming error event', {
@@ -576,8 +602,7 @@ class GoogleAIProvider implements AIProvider {
         const candidates = chunk.candidates as Array<Record<string, unknown>> | undefined
         for (const candidate of candidates ?? []) {
           const content = candidate.content as
-            | { parts?: Array<Record<string, unknown>> }
-            | undefined
+            { parts?: Array<Record<string, unknown>> } | undefined
           for (const part of content?.parts ?? []) {
             yield* this.emitPart(part, state)
           }

@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { AiRateLimitCallback } from '@molecule/api-ai'
+
 /**
  * Configuration for xAI.
  */
@@ -16,6 +18,8 @@ export interface XaiConfig {
   maxTokens?: number
   /** Base URL override (for proxies). Defaults to 'https://api.x.ai'. */
   baseUrl?: string
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
 }
 
 /**

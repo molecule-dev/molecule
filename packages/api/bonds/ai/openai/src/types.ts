@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { AiRateLimitCallback } from '@molecule/api-ai'
+
 /** OpenAI provider configuration. */
 export interface OpenaiConfig {
   /** Override the API key (defaults to `process.env.OPENAI_API_KEY`). */
@@ -14,6 +16,8 @@ export interface OpenaiConfig {
   maxTokens?: number
   /** Override the API base URL (for proxies / Azure). */
   baseUrl?: string
+  /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
+  onRateLimit?: AiRateLimitCallback
 }
 
 /** Environment variables read by this provider. */

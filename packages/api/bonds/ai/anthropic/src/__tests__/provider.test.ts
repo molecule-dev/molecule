@@ -18,6 +18,8 @@ vi.mock('@molecule/api-i18n', () => ({
   t: (key: string) => key,
 }))
 
+import type { AiRateLimitEvent } from '@molecule/api-ai'
+
 import { createProvider } from '../provider.js'
 
 // ---------------------------------------------------------------------------
@@ -288,6 +290,65 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       await vi.advanceTimersByTimeAsync(1_500)
       await eventsPromise
       expect(mockFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('invokes onRateLimit on every rate-limited response, including the exhausted one', async () => {
+      mockFetch.mockResolvedValue(mockErrorResponse(429, '{}'))
+      const hits: AiRateLimitEvent[] = []
+      const observed = createProvider({
+        apiKey: 'test-key',
+        baseUrl: 'https://test.api',
+        onRateLimit: (event) => hits.push(event),
+      })
+
+      const events = await collectEventsWithRetries(observed.chat(minimalParams))
+      expect(events[0].type).toBe('error')
+
+      // MAX_RETRIES = 3 → four rejected attempts, each reported.
+      expect(hits).toHaveLength(4)
+      expect(hits[0]).toMatchObject({
+        provider: 'anthropic',
+        status: 429,
+        attempt: 1,
+        willRetry: true,
+      })
+      expect(hits[0].model.length).toBeGreaterThan(0)
+      // Exponential base for attempt 0 is 1000ms plus additive jitter < 500ms.
+      expect(hits[0].retryInMs).toBeGreaterThanOrEqual(1_000)
+      expect(hits[0].retryInMs).toBeLessThan(1_500)
+      // The final attempt is exhausted: no retry, no delay.
+      expect(hits[3]).toMatchObject({ attempt: 4, willRetry: false, retryInMs: 0 })
+    })
+
+    it('a throwing onRateLimit callback does not break the request or the retry loop', async () => {
+      let call = 0
+      mockFetch.mockImplementation(() => {
+        call += 1
+        if (call === 1) return Promise.resolve(mockErrorResponse(429, '{}'))
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers(),
+          body: {
+            getReader: () => ({
+              read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+              releaseLock: vi.fn(),
+            }),
+          },
+        })
+      })
+      const observed = createProvider({
+        apiKey: 'test-key',
+        baseUrl: 'https://test.api',
+        onRateLimit: () => {
+          throw new Error('telemetry sink down')
+        },
+      })
+
+      const events = await collectEventsWithRetries(observed.chat(minimalParams))
+      // The retry still happened and the request completed without an error event.
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+      expect(events.some((e) => e.type === 'error')).toBe(false)
     })
   })
 
