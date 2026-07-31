@@ -63,13 +63,20 @@ function snapshotUsage(state: AnthropicStreamState): TokenUsage {
 }
 
 /**
- * Narrows a provider-reported `usage.speed` value to the TokenUsage union.
+ * Narrows the provider-reported speed tier to the TokenUsage union.
  *
- * @param value - The raw `speed` field from an Anthropic usage object.
+ * The wire field varies: fast-mode docs name `usage.speed`, while the live API
+ * reports `usage.service_tier` ("standard" observed on streaming
+ * `message_start`, verified 2026-07-31) — read both, `speed` first.
+ *
+ * @param usage - The raw Anthropic usage object.
  * @returns The narrowed speed, or null when absent/unrecognized.
  */
-function parseSpeed(value: unknown): 'standard' | 'fast' | null {
-  return value === 'fast' || value === 'standard' ? value : null
+function parseSpeed(
+  usage: { speed?: unknown; service_tier?: unknown } | undefined,
+): 'standard' | 'fast' | null {
+  const raw = usage?.speed ?? usage?.service_tier
+  return raw === 'fast' || raw === 'standard' ? raw : null
 }
 
 /**
@@ -436,9 +443,10 @@ class AnthropicAIProvider implements AIProvider {
           cache_creation_input_tokens?: number | null
           cache_read_input_tokens?: number | null
           speed?: string
+          service_tier?: string
         }
       | undefined
-    const servedSpeed = parseSpeed(usage?.speed)
+    const servedSpeed = parseSpeed(usage)
     yield {
       type: 'done',
       usage: {
@@ -642,9 +650,10 @@ class AnthropicAIProvider implements AIProvider {
                 cache_creation_input_tokens?: number | null
                 cache_read_input_tokens?: number | null
                 speed?: string
+                service_tier?: string
               }
             | undefined
-          const servedSpeed = parseSpeed(usage?.speed)
+          const servedSpeed = parseSpeed(usage)
           if (servedSpeed) state.speed = servedSpeed
           if (usage?.input_tokens) state.inputTokens = usage.input_tokens
           if (usage?.cache_creation_input_tokens)

@@ -1105,4 +1105,26 @@ describe('AnthropicAIProvider — non-streaming response (stream: false)', () =>
     const done = events.find((e) => e.type === 'done') as { usage?: { speed?: string } }
     expect(done.usage?.speed).toBeUndefined()
   })
+
+  it('reads the tier from usage.service_tier when usage.speed is absent (live wire format)', async () => {
+    // The live API reports the tier as `service_tier` (observed 2026-07-31 on
+    // a streaming message_start: service_tier: "standard"); the fast-mode docs
+    // name `speed`. The bond reads both so either wire spelling meters.
+    mockFetch.mockResolvedValue(
+      jsonResponse({
+        content: [{ type: 'text', text: 'ok' }],
+        usage: { input_tokens: 10, output_tokens: 5, service_tier: 'fast' },
+      }),
+    )
+    const events = await collectEvents(
+      provider.chat({
+        messages: [{ role: 'user' as const, content: 'hi' }],
+        stream: false,
+        speed: 'fast',
+      }),
+    )
+    expect(events.find((e) => e.type === 'done')).toMatchObject({
+      usage: { inputTokens: 10, outputTokens: 5, speed: 'fast' },
+    })
+  })
 })
