@@ -9,6 +9,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { getInventorySession } from '../authorizers/index.js'
 import type { StockRow } from '../types.js'
 import { toLowStockAlert } from '../utilities.js'
 
@@ -19,6 +20,16 @@ import { toLowStockAlert } from '../utilities.js'
  * @param res - The response object.
  */
 export async function getAlerts(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // Low-stock alerts expose the full product/stock ledger — require auth in the
+  // handler, not just route middleware (the scanner can drop a declared
+  // authorizer whose name has no handler-map entry). Fail closed.
+  if (!getInventorySession(res)?.userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
   try {
     const customThreshold = req.query.threshold ? Number(req.query.threshold) : undefined
 

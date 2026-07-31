@@ -9,6 +9,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { getInventorySession } from '../authorizers/index.js'
 import type { StockRow } from '../types.js'
 import { toStockInfo } from '../utilities.js'
 
@@ -18,6 +19,14 @@ import { toStockInfo } from '../utilities.js'
  * @param res - The response object.
  */
 export async function getStock(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // Stock levels are business data — require auth in the handler. Fail closed.
+  if (!getInventorySession(res)?.userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
   const { productId } = req.params
   const variantId = req.query.variantId as string | undefined
 

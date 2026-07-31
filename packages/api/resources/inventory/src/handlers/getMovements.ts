@@ -9,6 +9,7 @@ import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { getInventorySession } from '../authorizers/index.js'
 import type { StockMovementRow } from '../types.js'
 import { toStockMovement } from '../utilities.js'
 
@@ -23,6 +24,14 @@ const MAX_LIMIT = 100
  * @param res - The response object.
  */
 export async function getMovements(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
+  // The full stock ledger for a product — require auth in the handler. Fail closed.
+  if (!getInventorySession(res)?.userId) {
+    res.status(401).json({
+      error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'resource.error.unauthorized',
+    })
+    return
+  }
   const { productId } = req.params
 
   try {
