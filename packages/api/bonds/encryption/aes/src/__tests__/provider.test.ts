@@ -17,6 +17,28 @@ describe('AES-256-GCM encryption provider', () => {
     provider = createProvider({ key: testKey })
   })
 
+  describe('key validation', () => {
+    it('rejects a key that is not exactly 64 hex chars (no silent truncation)', () => {
+      expect(() => createProvider({ key: '' })).toThrow(/64 hex/)
+      expect(() => createProvider({ key: 'abcd' })).toThrow(/64 hex/)
+      // 63 hex chars — Buffer.from would silently drop the odd nibble
+      expect(() => createProvider({ key: 'a'.repeat(63) })).toThrow(/64 hex/)
+      // 64 chars but contains a non-hex char — Buffer.from would truncate at it
+      expect(() => createProvider({ key: 'g'.repeat(64) })).toThrow(/64 hex/)
+    })
+
+    it('rejects a malformed priorKeys entry', () => {
+      expect(() =>
+        createProvider({ key: generateKey(), priorKeys: [{ version: 1, key: 'short' }] }),
+      ).toThrow(/64 hex/)
+    })
+
+    it('rejects a malformed newKey on rotate before it becomes current', async () => {
+      const p = createProvider({ key: testKey })
+      await expect(p.rotateKey(testKey, 'not-hex')).rejects.toThrow(/64 hex/)
+    })
+  })
+
   describe('encrypt / decrypt', () => {
     it('should encrypt and decrypt a plaintext string', async () => {
       const plaintext = 'hello world'

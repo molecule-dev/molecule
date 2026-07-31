@@ -45,6 +45,31 @@ const parseKeyVersion = (tag: string): number | null => {
   return match ? Number(match[1]) : null
 }
 
+/** A 256-bit key is exactly 64 hex characters. */
+const HEX_256_BIT = /^[0-9a-fA-F]{64}$/
+
+/**
+ * Decode a hex-encoded 256-bit key, refusing anything that isn't exactly 64 hex
+ * chars. `Buffer.from(x, 'hex')` SILENTLY truncates at the first non-hex byte
+ * and silently drops an odd trailing nibble, so a typo'd or short key would
+ * otherwise yield a wrong-length buffer that either 500s on every encrypt or —
+ * worse — encrypts under a key nobody can reproduce. Fail loud at construction.
+ *
+ * @param key - The hex-encoded key to validate and decode.
+ * @param label - Human context for the error (e.g. `'ENCRYPTION_KEY'`).
+ * @returns The 32-byte key buffer.
+ * @throws {Error} When the key is not exactly 64 hex characters.
+ */
+const decodeKey = (key: string, label: string): Buffer => {
+  if (!HEX_256_BIT.test(key)) {
+    throw new Error(
+      `Invalid AES ${label}: expected exactly 64 hex characters (a 256-bit key); ` +
+        `got ${key.length} character(s). Generate one with \`openssl rand -hex 32\`.`,
+    )
+  }
+  return Buffer.from(key, 'hex')
+}
+
 /**
  * Creates an AES-256-GCM encryption provider.
  *
@@ -60,14 +85,14 @@ const parseKeyVersion = (tag: string): number | null => {
  */
 export const createProvider = (config: AesConfig): AesEncryptionProvider => {
   let currentVersion = config.keyVersion ?? 1
-  let currentKey = Buffer.from(config.key, 'hex')
+  let currentKey = decodeKey(config.key, 'key')
 
   // Version -> key buffer. Rotation adds a new version and retains prior keys,
   // so ciphertext tagged with an older `v{n}` still decrypts. Seed historical
   // keys first, then set the current one so it wins on any version collision.
   const keyring = new Map<number, Buffer>()
   for (const prior of config.priorKeys ?? []) {
-    keyring.set(prior.version, Buffer.from(prior.key, 'hex'))
+    keyring.set(prior.version, decodeKey(prior.key, `priorKeys[v${prior.version}]`))
   }
   keyring.set(currentVersion, currentKey)
 
@@ -139,6 +164,10 @@ export const createProvider = (config: AesConfig): AesEncryptionProvider => {
     },
 
     async rotateKey(oldKey: string, newKey: string): Promise<void> {
+      // Validate the NEW key before anything else: a malformed newKey must not
+      // become currentKey (it would encrypt future data under a wrong-length /
+      // truncated key). oldKey is only compared, so a bad one just fails to match.
+      const newBuffer = decodeKey(newKey, 'newKey')
       const oldBuffer = Buffer.from(oldKey, 'hex')
 
       if (oldBuffer.length !== currentKey.length || !timingSafeEqual(oldBuffer, currentKey)) {
@@ -150,7 +179,7 @@ export const createProvider = (config: AesConfig): AesEncryptionProvider => {
       // decrypts — rotation NEVER orphans existing data. Retire old keys
       // explicitly with pruneKeyVersions() once their data is re-encrypted.
       currentVersion += 1
-      currentKey = Buffer.from(newKey, 'hex')
+      currentKey = newBuffer
       keyring.set(currentVersion, currentKey)
     },
 
