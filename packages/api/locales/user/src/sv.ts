@@ -38,6 +38,8 @@ export const sv: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Kunde inte uppdatera abonnemang.',
   'user.error.failedToUpdatePlan': 'Kunde inte uppdatera plan.',
   'user.error.twoFactorNotAvailable': 'Tvåfaktorsautentisering är inte tillgänglig.',
+  'user.error.twoFactorRequiresPassword':
+    'Tvåfaktorsautentisering är aktiverad på detta konto. Logga in med din e-post och ditt lösenord för att fortsätta.',
   'user.error.tokenRequired': 'Token krävs.',
   'user.error.noPendingTwoFactorSetup':
     'Ingen pågående tvåfaktorsinställning. Anropa med åtgärden "setup" först.',

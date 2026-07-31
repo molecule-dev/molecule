@@ -38,6 +38,8 @@ export const mk: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Неуспешно ажурирање на претплатата.',
   'user.error.failedToUpdatePlan': 'Неуспешно ажурирање на планот.',
   'user.error.twoFactorNotAvailable': 'Двофакторската автентикација не е достапна.',
+  'user.error.twoFactorRequiresPassword':
+    'Двофакторската автентикација е овозможена на оваа сметка. Најавете се со е-пошта и лозинка за да продолжите.',
   'user.error.tokenRequired': 'Токенот е задолжителен.',
   'user.error.noPendingTwoFactorSetup':
     'Нема двофакторско поставување на чекање. Повикајте со акција "setup" прво.',

@@ -38,6 +38,8 @@ export const ig: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Enweghị ike imelite ndenye aha.',
   'user.error.failedToUpdatePlan': 'Enweghị ike imelite atụmatụ.',
   'user.error.twoFactorNotAvailable': 'Nzere abụọ adịghị.',
+  'user.error.twoFactorRequiresPassword':
+    "Agbanyela nzere abụọ na akaụntụ a. Jiri email na paswọọdụ gị banye ka ị gaa n'ihu.",
   'user.error.tokenRequired': 'A chọrọ token.',
   'user.error.noPendingTwoFactorSetup':
     'Enweghị nhazi nzere abụọ na-eche. Buru ụzọ kpọọ na ọrụ "setup".',

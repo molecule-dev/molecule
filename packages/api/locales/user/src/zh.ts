@@ -37,6 +37,8 @@ export const zh: UserTranslations = {
   'user.error.failedToUpdateSubscription': '更新订阅失败。',
   'user.error.failedToUpdatePlan': '更新方案失败。',
   'user.error.twoFactorNotAvailable': '双重验证不可用。',
+  'user.error.twoFactorRequiresPassword':
+    '此账户已启用双重验证。请使用您的电子邮箱和密码登录以继续。',
   'user.error.tokenRequired': '令牌为必填项。',
   'user.error.noPendingTwoFactorSetup': '没有待处理的双重验证设置。请先调用 "setup" 操作。',
   'user.error.invalidToken': '无效的令牌。',

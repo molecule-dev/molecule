@@ -38,6 +38,8 @@ export const sw: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Imeshindwa kusasisha usajili.',
   'user.error.failedToUpdatePlan': 'Imeshindwa kusasisha mpango.',
   'user.error.twoFactorNotAvailable': 'Uthibitishaji wa hatua mbili haupatikani.',
+  'user.error.twoFactorRequiresPassword':
+    'Uthibitishaji wa hatua mbili umewashwa kwenye akaunti hii. Ingia kwa barua pepe na nenosiri lako ili kuendelea.',
   'user.error.tokenRequired': 'Tokeni inahitajika.',
   'user.error.noPendingTwoFactorSetup':
     'Hakuna usanidi wa hatua mbili unaongojea. Piga simu kwa kitendo cha "setup" kwanza.',

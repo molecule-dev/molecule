@@ -39,6 +39,8 @@ export const ms: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Gagal mengemas kini langganan.',
   'user.error.failedToUpdatePlan': 'Gagal mengemas kini pelan.',
   'user.error.twoFactorNotAvailable': 'Pengesahan two-factor tidak tersedia.',
+  'user.error.twoFactorRequiresPassword':
+    'Pengesahan two-factor diaktifkan pada akaun ini. Log masuk dengan e-mel dan kata laluan anda untuk meneruskan.',
   'user.error.tokenRequired': 'Token diperlukan.',
   'user.error.noPendingTwoFactorSetup':
     'Tiada persediaan two-factor yang menunggu. Panggil dengan action "setup" dahulu.',

@@ -38,6 +38,8 @@ export const th: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'อัปเดตการสมัครสมาชิกไม่สำเร็จ',
   'user.error.failedToUpdatePlan': 'อัปเดตแผนไม่สำเร็จ',
   'user.error.twoFactorNotAvailable': 'การยืนยันตัวตน two-factor ไม่พร้อมใช้งาน',
+  'user.error.twoFactorRequiresPassword':
+    'การยืนยันตัวตน two-factor เปิดใช้งานในบัญชีนี้ เข้าสู่ระบบด้วยอีเมลและรหัสผ่านของคุณเพื่อดำเนินการต่อ',
   'user.error.tokenRequired': 'ต้องระบุโทเค็น',
   'user.error.noPendingTwoFactorSetup':
     'ไม่มีการตั้งค่า two-factor ที่รออยู่ เรียกด้วย action "setup" ก่อน',

@@ -37,6 +37,8 @@ export const gu: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'સબ્સ્ક્રિપ્શન અપડેટ કરવામાં નિષ્ફળ.',
   'user.error.failedToUpdatePlan': 'પ્લાન અપડેટ કરવામાં નિષ્ફળ.',
   'user.error.twoFactorNotAvailable': 'દ્વિ-પરિબળ ઓથેન્ટિકેશન ઉપલબ્ધ નથી.',
+  'user.error.twoFactorRequiresPassword':
+    'આ એકાઉન્ટ પર દ્વિ-પરિબળ ઓથેન્ટિકેશન સક્રિય છે. ચાલુ રાખવા માટે તમારા ઇમેઇલ અને પાસવર્ડથી સાઇન ઇન કરો.',
   'user.error.tokenRequired': 'ટોકન જરૂરી છે.',
   'user.error.noPendingTwoFactorSetup':
     'કોઈ બાકી દ્વિ-પરિબળ સેટઅપ નથી. પહેલા "setup" ક્રિયા સાથે કૉલ કરો.',

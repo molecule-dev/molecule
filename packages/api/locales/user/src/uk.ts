@@ -37,6 +37,8 @@ export const uk: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Не вдалося оновити підписку.',
   'user.error.failedToUpdatePlan': 'Не вдалося оновити план.',
   'user.error.twoFactorNotAvailable': 'Двофакторна автентифікація недоступна.',
+  'user.error.twoFactorRequiresPassword':
+    'Двофакторна автентифікація увімкнена для цього облікового запису. Щоб продовжити, увійдіть за допомогою електронної пошти та пароля.',
   'user.error.tokenRequired': "Токен є обов'язковим.",
   'user.error.noPendingTwoFactorSetup':
     'Немає очікуваного двофакторного налаштування. Спершу викличте з дією "setup".',

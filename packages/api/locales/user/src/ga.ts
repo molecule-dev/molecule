@@ -38,6 +38,8 @@ export const ga: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Theip ar nuashonrú síntiúis.',
   'user.error.failedToUpdatePlan': 'Theip ar nuashonrú pleain.',
   'user.error.twoFactorNotAvailable': 'Fíordheimhniú dhá-fhachtóir nach bhfuil ar fáil.',
+  'user.error.twoFactorRequiresPassword':
+    'Tá fíordheimhniú dhá-fhachtóir cumasaithe ar an gcuntas seo. Sínigh isteach le do ríomhphost agus do phasfhocal chun leanúint ar aghaidh.',
   'user.error.tokenRequired': 'Tá comhartha ag teastáil.',
   'user.error.noPendingTwoFactorSetup':
     'Gan socrú dhá-fhachtóir ar feitheamh. Glaoigh le gníomh "setup" ar dtús.',

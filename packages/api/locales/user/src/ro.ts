@@ -38,6 +38,8 @@ export const ro: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Nu s-a putut actualiza abonamentul.',
   'user.error.failedToUpdatePlan': 'Nu s-a putut actualiza planul.',
   'user.error.twoFactorNotAvailable': 'Autentificarea cu doi factori nu este disponibilă.',
+  'user.error.twoFactorRequiresPassword':
+    'Autentificarea cu doi factori este activată pe acest cont. Conectați-vă cu e-mailul și parola pentru a continua.',
   'user.error.tokenRequired': 'Token-ul este obligatoriu.',
   'user.error.noPendingTwoFactorSetup':
     'Nicio configurare cu doi factori în așteptare. Apelați mai întâi cu acțiunea "setup".',

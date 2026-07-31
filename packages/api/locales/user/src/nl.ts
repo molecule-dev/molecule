@@ -39,6 +39,8 @@ export const nl: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Kon abonnement niet bijwerken.',
   'user.error.failedToUpdatePlan': 'Kon plan niet bijwerken.',
   'user.error.twoFactorNotAvailable': 'Tweefactor-authenticatie is niet beschikbaar.',
+  'user.error.twoFactorRequiresPassword':
+    'Tweefactor-authenticatie is ingeschakeld voor dit account. Log in met je e-mailadres en wachtwoord om door te gaan.',
   'user.error.tokenRequired': 'Token is vereist.',
   'user.error.noPendingTwoFactorSetup':
     'Geen openstaande tweefactor-instelling. Roep eerst aan met de actie "setup".',

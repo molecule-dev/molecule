@@ -40,6 +40,8 @@ export const my: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'စာရင်းသွင်းမှု အပ်ဒိတ်လုပ်ရန် မအောင်မြင်ပါ။',
   'user.error.failedToUpdatePlan': 'အစီအစဉ် အပ်ဒိတ်လုပ်ရန် မအောင်မြင်ပါ။',
   'user.error.twoFactorNotAvailable': 'Two-factor authentication မရရှိနိုင်ပါ။',
+  'user.error.twoFactorRequiresPassword':
+    'ဤအကောင့်တွင် two-factor authentication ဖွင့်ထားသည်။ ဆက်လက်လုပ်ဆောင်ရန် သင့်အီးမေးလ်နှင့် စကားဝှက်ဖြင့် ဝင်ရောက်ပါ။',
   'user.error.tokenRequired': 'Token လိုအပ်ပါသည်။',
   'user.error.noPendingTwoFactorSetup':
     'စောင့်ဆိုင်းနေသော two-factor setup မရှိပါ။ action "setup" ဖြင့် ဦးစွာ ခေါ်ပါ။',

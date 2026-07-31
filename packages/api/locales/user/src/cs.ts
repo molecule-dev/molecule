@@ -38,6 +38,8 @@ export const cs: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Nepodařilo se aktualizovat předplatné.',
   'user.error.failedToUpdatePlan': 'Nepodařilo se aktualizovat plán.',
   'user.error.twoFactorNotAvailable': 'Dvoufaktorové ověření není dostupné.',
+  'user.error.twoFactorRequiresPassword':
+    'Na tomto účtu je zapnuto dvoufaktorové ověření. Pokračujte přihlášením pomocí e-mailu a hesla.',
   'user.error.tokenRequired': 'Token je povinný.',
   'user.error.noPendingTwoFactorSetup':
     'Žádné čekající dvoufaktorové nastavení. Nejprve zavolejte s akcí "setup".',

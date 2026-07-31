@@ -37,6 +37,8 @@ export const bn: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'সাবস্ক্রিপশন আপডেট করতে ব্যর্থ।',
   'user.error.failedToUpdatePlan': 'প্ল্যান আপডেট করতে ব্যর্থ।',
   'user.error.twoFactorNotAvailable': 'দ্বি-ফ্যাক্টর প্রমাণীকরণ উপলব্ধ নয়।',
+  'user.error.twoFactorRequiresPassword':
+    'এই অ্যাকাউন্টে দ্বি-ফ্যাক্টর প্রমাণীকরণ সক্রিয় রয়েছে। চালিয়ে যেতে আপনার ইমেইল ও পাসওয়ার্ড দিয়ে সাইন ইন করুন।',
   'user.error.tokenRequired': 'টোকেন প্রয়োজন।',
   'user.error.noPendingTwoFactorSetup':
     'কোনো মুলতুবি দ্বি-ফ্যাক্টর সেটআপ নেই। প্রথমে "setup" অ্যাকশন দিয়ে কল করুন।',

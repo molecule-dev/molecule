@@ -38,6 +38,8 @@ export const hy: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Bajanarordutyuny tarmacnely dzakhogvec.',
   'user.error.failedToUpdatePlan': 'Plany tarmacnely dzakhogvec.',
   'user.error.twoFactorNotAvailable': 'Erkgorcony identifikatsiay hasa che.',
+  'user.error.twoFactorRequiresPassword':
+    'Erkgorcony identifikatsian miatsvats e ays hashvi hamar. Sharunakelu hamar mtek dzer el. postov ev gaghtnabarov.',
   'user.error.tokenRequired': 'Token pahanjvum e.',
   'user.error.noPendingTwoFactorSetup':
     'Spasvog erkgorcony karumy chka. Kanchirecq skzbum "setup" gortsunov.',

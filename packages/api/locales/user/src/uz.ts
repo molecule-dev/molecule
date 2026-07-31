@@ -37,6 +37,8 @@ export const uz: UserTranslations = {
   'user.error.failedToUpdateSubscription': "Obunani yangilab bo'lmadi.",
   'user.error.failedToUpdatePlan': "Rejani yangilab bo'lmadi.",
   'user.error.twoFactorNotAvailable': 'Ikki bosqichli autentifikatsiya mavjud emas.',
+  'user.error.twoFactorRequiresPassword':
+    'Ushbu hisobda ikki bosqichli autentifikatsiya yoqilgan. Davom etish uchun email va parolingiz bilan kiring.',
   'user.error.tokenRequired': 'Token talab qilinadi.',
   'user.error.noPendingTwoFactorSetup':
     'Kutilayotgan ikki bosqichli sozlash yo\'q. Avval "setup" bilan chaqiring.',

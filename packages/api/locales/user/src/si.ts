@@ -38,6 +38,8 @@ export const si: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'දායකත්වය යාවත්කාලීන කිරීමට අසමත් විය.',
   'user.error.failedToUpdatePlan': 'සැලැස්ම යාවත්කාලීන කිරීමට අසමත් විය.',
   'user.error.twoFactorNotAvailable': 'ද්වි-සාධක සත්‍යාපනය නොමැත.',
+  'user.error.twoFactorRequiresPassword':
+    'මෙම ගිණුමේ ද්වි-සාධක සත්‍යාපනය සක්‍රීයයි. ඉදිරියට යාමට ඔබගේ විද්‍යුත් තැපෑල සහ මුරපදය භාවිතයෙන් පුරනය වන්න.',
   'user.error.tokenRequired': 'ටෝකනය අවශ්‍යයි.',
   'user.error.noPendingTwoFactorSetup':
     'බලාපොරොත්තු වන ද්වි-සාධක සැකසුමක් නැත. පළමුව "setup" ක්‍රියාව සමග ඇමතන්න.',

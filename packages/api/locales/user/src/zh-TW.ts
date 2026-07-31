@@ -37,6 +37,8 @@ export const zhTW: UserTranslations = {
   'user.error.failedToUpdateSubscription': '更新訂閱失敗。',
   'user.error.failedToUpdatePlan': '更新方案失敗。',
   'user.error.twoFactorNotAvailable': '雙重驗證不可用。',
+  'user.error.twoFactorRequiresPassword':
+    '此帳戶已啟用雙重驗證。請使用您的電子郵件和密碼登入以繼續。',
   'user.error.tokenRequired': '權杖為必填。',
   'user.error.noPendingTwoFactorSetup': '沒有待處理的雙重驗證設定。請先呼叫 "setup" 操作。',
   'user.error.invalidToken': '無效的權杖。',

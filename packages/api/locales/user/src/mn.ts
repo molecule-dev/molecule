@@ -37,6 +37,8 @@ export const mn: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Захиалга шинэчлэхэд алдаа гарлаа.',
   'user.error.failedToUpdatePlan': 'Төлөвлөгөө шинэчлэхэд алдаа гарлаа.',
   'user.error.twoFactorNotAvailable': 'Хоёр хүчин зүйлийн баталгаажуулалт боломжгүй.',
+  'user.error.twoFactorRequiresPassword':
+    'Энэ бүртгэлд хоёр хүчин зүйлийн баталгаажуулалт идэвхжсэн байна. Үргэлжлүүлэхийн тулд имэйл болон нууц үгээрээ нэвтэрнэ үү.',
   'user.error.tokenRequired': 'Токен шаардлагатай.',
   'user.error.noPendingTwoFactorSetup':
     'Хүлээгдэж буй хоёр хүчин зүйлийн тохиргоо байхгүй. Эхлээд "setup" үйлдлийг дуудна уу.',

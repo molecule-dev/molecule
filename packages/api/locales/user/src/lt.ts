@@ -38,6 +38,8 @@ export const lt: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Nepavyko atnaujinti prenumeratos.',
   'user.error.failedToUpdatePlan': 'Nepavyko atnaujinti plano.',
   'user.error.twoFactorNotAvailable': 'Dviejų veiksnių autentifikacija nepasiekiama.',
+  'user.error.twoFactorRequiresPassword':
+    'Šioje paskyroje įjungta dviejų veiksnių autentifikacija. Norėdami tęsti, prisijunkite el. paštu ir slaptažodžiu.',
   'user.error.tokenRequired': 'Būtinas žetonas.',
   'user.error.noPendingTwoFactorSetup':
     'Nėra laukiančio dviejų veiksnių nustatymo. Iškvieskite su veiksmu "setup".',

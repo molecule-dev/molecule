@@ -38,6 +38,8 @@ export const sl: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Posodobitev naročnine ni uspela.',
   'user.error.failedToUpdatePlan': 'Posodobitev paketa ni uspela.',
   'user.error.twoFactorNotAvailable': 'Dvofaktorsko preverjanje ni na voljo.',
+  'user.error.twoFactorRequiresPassword':
+    'Dvofaktorsko preverjanje je omogočeno za ta račun. Za nadaljevanje se prijavite z e-pošto in geslom.',
   'user.error.tokenRequired': 'Žeton je obvezen.',
   'user.error.noPendingTwoFactorSetup':
     'Ni čakajočega dvofaktorskega nastavitve. Najprej pokličite z dejanjem "setup".',

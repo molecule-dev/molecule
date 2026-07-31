@@ -40,6 +40,8 @@ export const fr: UserTranslations = {
   'user.error.failedToUpdateSubscription': "Impossible de mettre à jour l'abonnement.",
   'user.error.failedToUpdatePlan': 'Impossible de mettre à jour le plan.',
   'user.error.twoFactorNotAvailable': "L'authentification à deux facteurs n'est pas disponible.",
+  'user.error.twoFactorRequiresPassword':
+    "L'authentification à deux facteurs est activée sur ce compte. Connectez-vous avec votre e-mail et votre mot de passe pour continuer.",
   'user.error.tokenRequired': 'Un jeton est requis.',
   'user.error.noPendingTwoFactorSetup':
     'Aucune configuration à deux facteurs en attente. Appelez d\'abord avec l\'action "setup".',

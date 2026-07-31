@@ -38,6 +38,8 @@ export const vi: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Cập nhật đăng ký thất bại.',
   'user.error.failedToUpdatePlan': 'Cập nhật gói thất bại.',
   'user.error.twoFactorNotAvailable': 'Xác thực two-factor không khả dụng.',
+  'user.error.twoFactorRequiresPassword':
+    'Xác thực two-factor đã được bật trên tài khoản này. Đăng nhập bằng email và mật khẩu của bạn để tiếp tục.',
   'user.error.tokenRequired': 'Yêu cầu token.',
   'user.error.noPendingTwoFactorSetup':
     'Không có thiết lập two-factor đang chờ. Gọi với action "setup" trước.',

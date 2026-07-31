@@ -38,6 +38,8 @@ export const et: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Tellimuse uuendamine ebaõnnestus.',
   'user.error.failedToUpdatePlan': 'Plaani uuendamine ebaõnnestus.',
   'user.error.twoFactorNotAvailable': 'Kaheastmeline autentimine pole saadaval.',
+  'user.error.twoFactorRequiresPassword':
+    'Sellel kontol on kaheastmeline autentimine sisse lülitatud. Jätkamiseks logige sisse e-posti ja parooliga.',
   'user.error.tokenRequired': 'Token on nõutav.',
   'user.error.noPendingTwoFactorSetup':
     'Ootel kaheastmelise seadistuse puudub. Kutsuge esmalt tegevusega "setup".',

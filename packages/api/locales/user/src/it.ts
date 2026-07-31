@@ -39,6 +39,8 @@ export const it: UserTranslations = {
   'user.error.failedToUpdateSubscription': "Impossibile aggiornare l'abbonamento.",
   'user.error.failedToUpdatePlan': 'Impossibile aggiornare il piano.',
   'user.error.twoFactorNotAvailable': "L'autenticazione a due fattori non è disponibile.",
+  'user.error.twoFactorRequiresPassword':
+    "L'autenticazione a due fattori è attiva su questo account. Accedi con la tua email e la password per continuare.",
   'user.error.tokenRequired': 'Il token è obbligatorio.',
   'user.error.noPendingTwoFactorSetup':
     'Nessuna configurazione a due fattori in sospeso. Chiamare prima con l\'azione "setup".',

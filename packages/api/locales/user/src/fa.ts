@@ -37,6 +37,8 @@ export const fa: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'به‌روزرسانی اشتراک ناموفق بود.',
   'user.error.failedToUpdatePlan': 'به‌روزرسانی طرح ناموفق بود.',
   'user.error.twoFactorNotAvailable': 'احراز هویت دو مرحله‌ای در دسترس نیست.',
+  'user.error.twoFactorRequiresPassword':
+    'احراز هویت دو مرحله‌ای در این حساب فعال است. برای ادامه با ایمیل و رمز عبور خود وارد شوید.',
   'user.error.tokenRequired': 'توکن الزامی است.',
   'user.error.noPendingTwoFactorSetup':
     'تنظیم دو مرحله‌ای در انتظاری وجود ندارد. ابتدا با "setup" فراخوانی کنید.',

@@ -38,6 +38,8 @@ export const eu: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Ezin izan da harpidetza eguneratu.',
   'user.error.failedToUpdatePlan': 'Ezin izan da plana eguneratu.',
   'user.error.twoFactorNotAvailable': 'Bi faktoreko autentifikazioa ez dago erabilgarri.',
+  'user.error.twoFactorRequiresPassword':
+    'Bi faktoreko autentifikazioa gaituta dago kontu honetan. Jarraitzeko, hasi saioa zure posta elektronikoarekin eta pasahitzarekin.',
   'user.error.tokenRequired': 'Tokena beharrezkoa da.',
   'user.error.noPendingTwoFactorSetup':
     'Ez dago bi faktoreko konfigurazio zain. Deitu lehenik "setup" ekintzarekin.',

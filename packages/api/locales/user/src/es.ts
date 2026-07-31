@@ -39,6 +39,8 @@ export const es: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'No se pudo actualizar la suscripción.',
   'user.error.failedToUpdatePlan': 'No se pudo actualizar el plan.',
   'user.error.twoFactorNotAvailable': 'La autenticación de doble factor no está disponible.',
+  'user.error.twoFactorRequiresPassword':
+    'La autenticación de doble factor está activada en esta cuenta. Inicia sesión con tu correo electrónico y contraseña para continuar.',
   'user.error.tokenRequired': 'Se requiere un token.',
   'user.error.noPendingTwoFactorSetup':
     'No hay configuración de doble factor pendiente. Llame primero con la acción "setup".',

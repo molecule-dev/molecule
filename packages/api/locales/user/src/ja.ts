@@ -37,6 +37,8 @@ export const ja: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'サブスクリプションの更新に失敗しました。',
   'user.error.failedToUpdatePlan': 'プランの更新に失敗しました。',
   'user.error.twoFactorNotAvailable': '二要素認証は利用できません。',
+  'user.error.twoFactorRequiresPassword':
+    'このアカウントでは二要素認証が有効になっています。続行するにはメールアドレスとパスワードでサインインしてください。',
   'user.error.tokenRequired': 'トークンは必須です。',
   'user.error.noPendingTwoFactorSetup':
     '保留中の二要素認証設定がありません。まず「setup」アクションを呼び出してください。',

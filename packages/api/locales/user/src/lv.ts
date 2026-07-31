@@ -38,6 +38,8 @@ export const lv: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Neizdevās atjaunināt abonēšanu.',
   'user.error.failedToUpdatePlan': 'Neizdevās atjaunināt plānu.',
   'user.error.twoFactorNotAvailable': 'Divfaktoru autentifikācija nav pieejama.',
+  'user.error.twoFactorRequiresPassword':
+    'Šajā kontā ir iespējota divfaktoru autentifikācija. Lai turpinātu, pierakstieties ar e-pastu un paroli.',
   'user.error.tokenRequired': 'Nepieciešams žetons.',
   'user.error.noPendingTwoFactorSetup':
     'Nav gaidošu divfaktoru iestatīšanu. Izsauciet ar darbību "setup".',

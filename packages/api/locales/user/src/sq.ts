@@ -38,6 +38,8 @@ export const sq: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Deshtoi perditesimi i abonimit.',
   'user.error.failedToUpdatePlan': 'Deshtoi perditesimi i planit.',
   'user.error.twoFactorNotAvailable': 'Autentifikimi dyfaktor nuk eshte i disponueshem.',
+  'user.error.twoFactorRequiresPassword':
+    'Autentifikimi dyfaktor eshte i aktivizuar ne kete llogari. Identifikohuni me email dhe fjalekalimin tuaj per te vazhduar.',
   'user.error.tokenRequired': 'Kerkohet tokeni.',
   'user.error.noPendingTwoFactorSetup':
     'Nuk ka vendosje dyfaktor ne pritje. Thirrni me veprimin "setup" fillimisht.',

@@ -38,6 +38,8 @@ export const kk: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Жазылымды жаңарту сәтсіз аяқталды.',
   'user.error.failedToUpdatePlan': 'Жоспарды жаңарту сәтсіз аяқталды.',
   'user.error.twoFactorNotAvailable': 'Екі факторлы аутентификация қолжетімсіз.',
+  'user.error.twoFactorRequiresPassword':
+    'Бұл аккаунтта екі факторлы аутентификация қосулы. Жалғастыру үшін электрондық пошта мен құпия сөзіңізбен кіріңіз.',
   'user.error.tokenRequired': 'Токен қажет.',
   'user.error.noPendingTwoFactorSetup':
     'Күтудегі екі факторлы орнату жоқ. Алдымен "setup" арқылы шақырыңыз.',

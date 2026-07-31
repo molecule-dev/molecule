@@ -37,6 +37,8 @@ export const tr: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Abonelik güncellenemedi.',
   'user.error.failedToUpdatePlan': 'Plan güncellenemedi.',
   'user.error.twoFactorNotAvailable': 'İki faktörlü kimlik doğrulama kullanılamıyor.',
+  'user.error.twoFactorRequiresPassword':
+    'Bu hesapta iki faktörlü kimlik doğrulama etkin. Devam etmek için e-posta ve şifrenizle giriş yapın.',
   'user.error.tokenRequired': 'Jeton gereklidir.',
   'user.error.noPendingTwoFactorSetup':
     'Bekleyen iki faktörlü kurulum yok. Önce "setup" ile çağırın.',

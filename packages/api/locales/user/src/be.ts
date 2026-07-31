@@ -37,6 +37,8 @@ export const be: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Не ўдалося абнавіць падпіску.',
   'user.error.failedToUpdatePlan': 'Не ўдалося абнавіць план.',
   'user.error.twoFactorNotAvailable': 'Двухфактарная аўтэнтыфікацыя недаступная.',
+  'user.error.twoFactorRequiresPassword':
+    'Двухфактарная аўтэнтыфікацыя ўключана для гэтага ўліковага запісу. Каб працягнуць, увайдзіце з дапамогай электроннай пошты і пароля.',
   'user.error.tokenRequired': 'Токен абавязковы.',
   'user.error.noPendingTwoFactorSetup':
     'Няма чакаючай наладкі двухфактарнай аўтэнтыфікацыі. Спачатку выклічце з дзеяннем "setup".',

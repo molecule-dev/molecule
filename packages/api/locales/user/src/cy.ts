@@ -38,6 +38,8 @@ export const cy: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Methwyd diweddaru tanysgrifiad.',
   'user.error.failedToUpdatePlan': 'Methwyd diweddaru cynllun.',
   'user.error.twoFactorNotAvailable': 'Nid yw dilysu dau-ffactor ar gael.',
+  'user.error.twoFactorRequiresPassword':
+    "Mae dilysu dau-ffactor wedi'i alluogi ar y cyfrif hwn. Mewngofnodwch gyda'ch e-bost a'ch cyfrinair i barhau.",
   'user.error.tokenRequired': 'Mae angen tocyn.',
   'user.error.noPendingTwoFactorSetup':
     'Dim gosodiad dau-ffactor yn aros. Galwch gyda gweithred "setup" yn gyntaf.',

@@ -37,6 +37,8 @@ export const he: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'עדכון המנוי נכשל.',
   'user.error.failedToUpdatePlan': 'עדכון התוכנית נכשל.',
   'user.error.twoFactorNotAvailable': 'אימות דו-שלבי אינו זמין.',
+  'user.error.twoFactorRequiresPassword':
+    'אימות דו-שלבי מופעל בחשבון זה. היכנס עם האימייל והסיסמה שלך כדי להמשיך.',
   'user.error.tokenRequired': 'אסימון נדרש.',
   'user.error.noPendingTwoFactorSetup': 'אין הגדרה דו-שלבית ממתינה. התקשר עם פעולת "setup" תחילה.',
   'user.error.invalidToken': 'אסימון לא תקין.',

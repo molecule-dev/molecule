@@ -39,6 +39,8 @@ export const ka: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Gamotseris ganakhlieba ver mokherkhda.',
   'user.error.failedToUpdatePlan': 'Gegmis ganakhlieba ver mokherkhda.',
   'user.error.twoFactorNotAvailable': 'Orpaqtoriani autentipikacia ar aris khelmisamisvdomia.',
+  'user.error.twoFactorRequiresPassword':
+    'Orpaqtoriani autentipikacia chartulia am angarishze. Gasagrdzeleblad shedit tqveni email-it da parolit.',
   'user.error.tokenRequired': 'Tokeni sachiroa.',
   'user.error.noPendingTwoFactorSetup':
     'Molodinis orpaqtoriani daqeneba ar arsebobs. Gamoizeniet "setup" moqmedobit.',

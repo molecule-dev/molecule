@@ -38,6 +38,8 @@ export const fil: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Nabigo ang pag-update ng subscription.',
   'user.error.failedToUpdatePlan': 'Nabigo ang pag-update ng plan.',
   'user.error.twoFactorNotAvailable': 'Hindi available ang two-factor authentication.',
+  'user.error.twoFactorRequiresPassword':
+    'Naka-enable ang two-factor authentication sa account na ito. Mag-sign in gamit ang iyong email at password upang magpatuloy.',
   'user.error.tokenRequired': 'Kailangan ang token.',
   'user.error.noPendingTwoFactorSetup':
     'Walang pending na two-factor setup. Tumawag muna gamit ang action na "setup".',

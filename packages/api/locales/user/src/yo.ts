@@ -38,6 +38,8 @@ export const yo: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Imudojuiwọn ọwọ-ẹri kuna.',
   'user.error.failedToUpdatePlan': 'Imudojuiwọn ero kuna.',
   'user.error.twoFactorNotAvailable': 'Ijẹrisi igbesẹ-meji ko si.',
+  'user.error.twoFactorRequiresPassword':
+    'Ijẹrisi igbesẹ-meji ti wa ni titan lori akaunti yii. Wọle pẹlu imeeli ati ọrọ igbaniwọle rẹ lati tẹsiwaju.',
   'user.error.tokenRequired': 'A nilo tokini.',
   'user.error.noPendingTwoFactorSetup':
     'Ko si eto igbesẹ-meji ti nduro. Pe pẹlu iṣe "setup" ni akọkọ.',

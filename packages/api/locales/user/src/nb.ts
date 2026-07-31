@@ -38,6 +38,8 @@ export const nb: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Kunne ikke oppdatere abonnement.',
   'user.error.failedToUpdatePlan': 'Kunne ikke oppdatere plan.',
   'user.error.twoFactorNotAvailable': 'Tofaktor-autentisering er ikke tilgjengelig.',
+  'user.error.twoFactorRequiresPassword':
+    'Tofaktor-autentisering er aktivert på denne kontoen. Logg inn med e-post og passord for å fortsette.',
   'user.error.tokenRequired': 'Token er påkrevd.',
   'user.error.noPendingTwoFactorSetup':
     'Ingen ventende tofaktor-oppsett. Kall med handlingen "setup" først.',

@@ -37,6 +37,8 @@ export const pa: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'user.error.failedToUpdatePlan': 'ਯੋਜਨਾ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'user.error.twoFactorNotAvailable': 'ਦੋ-ਕਾਰਕ ਪ੍ਰਮਾਣੀਕਰਨ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।',
+  'user.error.twoFactorRequiresPassword':
+    'ਇਸ ਖਾਤੇ ਉੱਤੇ ਦੋ-ਕਾਰਕ ਪ੍ਰਮਾਣੀਕਰਨ ਸਮਰੱਥ ਹੈ। ਜਾਰੀ ਰੱਖਣ ਲਈ ਆਪਣੀ ਈਮੇਲ ਅਤੇ ਪਾਸਵਰਡ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ।',
   'user.error.tokenRequired': 'ਟੋਕਨ ਲੋੜੀਂਦਾ ਹੈ।',
   'user.error.noPendingTwoFactorSetup':
     'ਕੋਈ ਬਕਾਇਆ ਦੋ-ਕਾਰਕ ਸੈੱਟਅੱਪ ਨਹੀਂ। ਪਹਿਲਾਂ "setup" ਐਕਸ਼ਨ ਨਾਲ ਕਾਲ ਕਰੋ।',

@@ -37,6 +37,8 @@ export const ru: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Не удалось обновить подписку.',
   'user.error.failedToUpdatePlan': 'Не удалось обновить план.',
   'user.error.twoFactorNotAvailable': 'Двухфакторная аутентификация недоступна.',
+  'user.error.twoFactorRequiresPassword':
+    'Двухфакторная аутентификация включена для этой учётной записи. Войдите с помощью электронной почты и пароля, чтобы продолжить.',
   'user.error.tokenRequired': 'Токен обязателен.',
   'user.error.noPendingTwoFactorSetup':
     'Нет ожидающей двухфакторной настройки. Сначала вызовите с действием "setup".',

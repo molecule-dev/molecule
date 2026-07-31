@@ -40,6 +40,8 @@ export const ca: UserTranslations = {
   'user.error.failedToUpdateSubscription': "No s'ha pogut actualitzar la subscripció.",
   'user.error.failedToUpdatePlan': "No s'ha pogut actualitzar el pla.",
   'user.error.twoFactorNotAvailable': "L'autenticació de doble factor no està disponible.",
+  'user.error.twoFactorRequiresPassword':
+    "L'autenticació de doble factor està activada en aquest compte. Inicieu la sessió amb el vostre correu electrònic i contrasenya per continuar.",
   'user.error.tokenRequired': 'Es requereix un token.',
   'user.error.noPendingTwoFactorSetup':
     'No hi ha cap configuració de doble factor pendent. Crideu primer amb l\'acció "setup".',

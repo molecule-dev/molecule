@@ -37,6 +37,8 @@ export const ko: UserTranslations = {
   'user.error.failedToUpdateSubscription': '구독 업데이트에 실패했습니다.',
   'user.error.failedToUpdatePlan': '요금제 업데이트에 실패했습니다.',
   'user.error.twoFactorNotAvailable': '2단계 인증을 사용할 수 없습니다.',
+  'user.error.twoFactorRequiresPassword':
+    '이 계정에는 2단계 인증이 활성화되어 있습니다. 계속하려면 이메일과 비밀번호로 로그인하세요.',
   'user.error.tokenRequired': '토큰은 필수입니다.',
   'user.error.noPendingTwoFactorSetup':
     '대기 중인 2단계 인증 설정이 없습니다. 먼저 "setup" 액션을 호출하세요.',

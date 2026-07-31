@@ -38,6 +38,8 @@ export const km: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពការជាវ។',
   'user.error.failedToUpdatePlan': 'បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពគម្រោង។',
   'user.error.twoFactorNotAvailable': 'ការផ្ទៀងផ្ទាត់ two-factor មិនអាចប្រើបាន។',
+  'user.error.twoFactorRequiresPassword':
+    'ការផ្ទៀងផ្ទាត់ two-factor ត្រូវបានបើកនៅលើគណនីនេះ។ ចូលដោយប្រើអ៊ីមែល និងពាក្យសម្ងាត់របស់អ្នកដើម្បីបន្ត។',
   'user.error.tokenRequired': 'ត្រូវការ token។',
   'user.error.noPendingTwoFactorSetup':
     'គ្មានការដំឡើង two-factor កំពុងរង់ចាំ។ សូមហៅជាមួយ action "setup" ជាមុនសិន។',

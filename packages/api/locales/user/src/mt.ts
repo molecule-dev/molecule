@@ -38,6 +38,8 @@ export const mt: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Ma rnexxiex taggorna l-abbonament.',
   'user.error.failedToUpdatePlan': 'Ma rnexxiex taggorna l-pjan.',
   'user.error.twoFactorNotAvailable': "Awtentikazzjoni ta' zewg fatturi mhijiex disponibbli.",
+  'user.error.twoFactorRequiresPassword':
+    "L-awtentikazzjoni ta' zewg fatturi hija attivata fuq dan il-kont. Idhol bl-email u l-password tieghek biex tkompli.",
   'user.error.tokenRequired': 'Token mehtieg.',
   'user.error.noPendingTwoFactorSetup':
     'Ebda setup ta\' zewg fatturi pendenti. Sejjah bl-azzjoni "setup" l-ewwel.',

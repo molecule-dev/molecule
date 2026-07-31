@@ -40,6 +40,8 @@ export const ml: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'സബ്‌സ്‌ക്രിപ്ഷൻ അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
   'user.error.failedToUpdatePlan': 'പ്ലാൻ അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
   'user.error.twoFactorNotAvailable': 'ടു-ഫാക്ടർ ഓതന്റിക്കേഷൻ ലഭ്യമല്ല.',
+  'user.error.twoFactorRequiresPassword':
+    'ഈ അക്കൗണ്ടിൽ ടു-ഫാക്ടർ ഓതന്റിക്കേഷൻ പ്രവർത്തനക്ഷമമാണ്. തുടരാൻ നിങ്ങളുടെ ഇമെയിലും പാസ്‌വേഡും ഉപയോഗിച്ച് സൈൻ ഇൻ ചെയ്യുക.',
   'user.error.tokenRequired': 'ടോക്കൺ ആവശ്യമാണ്.',
   'user.error.noPendingTwoFactorSetup':
     'തീർപ്പാകാത്ത ടു-ഫാക്ടർ സെറ്റപ്പ് ഇല്ല. ആദ്യം "setup" ആക്ഷൻ ഉപയോഗിച്ച് വിളിക്കുക.',

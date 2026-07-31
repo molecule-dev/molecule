@@ -38,6 +38,8 @@ export const hu: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Az előfizetés frissítése sikertelen.',
   'user.error.failedToUpdatePlan': 'A csomag frissítése sikertelen.',
   'user.error.twoFactorNotAvailable': 'A kétfaktoros hitelesítés nem elérhető.',
+  'user.error.twoFactorRequiresPassword':
+    'Ezen a fiókon be van kapcsolva a kétfaktoros hitelesítés. A folytatáshoz jelentkezzen be e-mail-címével és jelszavával.',
   'user.error.tokenRequired': 'Token megadása kötelező.',
   'user.error.noPendingTwoFactorSetup':
     'Nincs függőben lévő kétfaktoros beállítás. Hívja meg először a "setup" művelettel.',

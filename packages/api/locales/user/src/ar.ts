@@ -38,6 +38,8 @@ export const ar: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'فشل تحديث الاشتراك.',
   'user.error.failedToUpdatePlan': 'فشل تحديث الخطة.',
   'user.error.twoFactorNotAvailable': 'المصادقة الثنائية غير متاحة.',
+  'user.error.twoFactorRequiresPassword':
+    'المصادقة الثنائية مفعّلة على هذا الحساب. سجّل الدخول باستخدام بريدك الإلكتروني وكلمة المرور للمتابعة.',
   'user.error.tokenRequired': 'الرمز مطلوب.',
   'user.error.noPendingTwoFactorSetup': 'لا يوجد إعداد ثنائي معلق. اتصل بإجراء "setup" أولاً.',
   'user.error.invalidToken': 'رمز غير صالح.',

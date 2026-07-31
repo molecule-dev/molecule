@@ -37,6 +37,8 @@ export const mr: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'सबस्क्रिप्शन अपडेट करण्यात अयशस्वी.',
   'user.error.failedToUpdatePlan': 'प्लॅन अपडेट करण्यात अयशस्वी.',
   'user.error.twoFactorNotAvailable': 'द्वि-घटक प्रमाणीकरण उपलब्ध नाही.',
+  'user.error.twoFactorRequiresPassword':
+    'या खात्यावर द्वि-घटक प्रमाणीकरण सक्षम आहे. सुरू ठेवण्यासाठी तुमच्या ईमेल आणि पासवर्डने साइन इन करा.',
   'user.error.tokenRequired': 'टोकन आवश्यक आहे.',
   'user.error.noPendingTwoFactorSetup':
     'प्रलंबित द्वि-घटक सेटअप नाही. प्रथम "setup" क्रियेसह कॉल करा.',

@@ -37,6 +37,8 @@ export const am: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'ምዝገባን ማዘመን አልተሳካም።',
   'user.error.failedToUpdatePlan': 'ዕቅድን ማዘመን አልተሳካም።',
   'user.error.twoFactorNotAvailable': 'ባለሁለት ደረጃ ማረጋገጫ አይገኝም።',
+  'user.error.twoFactorRequiresPassword':
+    'ባለሁለት ደረጃ ማረጋገጫ በዚህ መለያ ላይ ነቅቷል። ለመቀጠል በኢሜይልዎ እና በይለፍ ቃልዎ ይግቡ።',
   'user.error.tokenRequired': 'ቶከን ያስፈልጋል።',
   'user.error.noPendingTwoFactorSetup':
     'ምንም በመጠባበቅ ላይ ያለ ባለሁለት ደረጃ ማዋቀር የለም። በ"setup" ድርጊት መጀመሪያ ይደውሉ።',

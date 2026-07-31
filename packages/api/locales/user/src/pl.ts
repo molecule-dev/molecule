@@ -38,6 +38,8 @@ export const pl: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Nie udało się zaktualizować subskrypcji.',
   'user.error.failedToUpdatePlan': 'Nie udało się zaktualizować planu.',
   'user.error.twoFactorNotAvailable': 'Uwierzytelnianie dwuskładnikowe nie jest dostępne.',
+  'user.error.twoFactorRequiresPassword':
+    'Uwierzytelnianie dwuskładnikowe jest włączone na tym koncie. Zaloguj się za pomocą adresu e-mail i hasła, aby kontynuować.',
   'user.error.tokenRequired': 'Token jest wymagany.',
   'user.error.noPendingTwoFactorSetup':
     'Brak oczekującej konfiguracji dwuskładnikowej. Najpierw wywołaj z akcją "setup".',

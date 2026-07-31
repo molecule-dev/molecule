@@ -39,6 +39,8 @@ export const ta: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'சந்தாவைப் புதுப்பிக்க இயலவில்லை.',
   'user.error.failedToUpdatePlan': 'திட்டத்தைப் புதுப்பிக்க இயலவில்லை.',
   'user.error.twoFactorNotAvailable': 'இரு-காரணி அங்கீகாரம் கிடைக்கவில்லை.',
+  'user.error.twoFactorRequiresPassword':
+    'இந்தக் கணக்கில் இரு-காரணி அங்கீகாரம் இயக்கப்பட்டுள்ளது. தொடர உங்கள் மின்னஞ்சல் மற்றும் கடவுச்சொல்லுடன் உள்நுழையவும்.',
   'user.error.tokenRequired': 'டோக்கன் தேவை.',
   'user.error.noPendingTwoFactorSetup':
     'நிலுவையில் இரு-காரணி அமைப்பு இல்லை. முதலில் "setup" செயலுடன் அழைக்கவும்.',

@@ -38,6 +38,8 @@ export const lo: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'ບໍ່ສາມາດອັບເດດການສະໝັກສະມາຊິກໄດ້.',
   'user.error.failedToUpdatePlan': 'ບໍ່ສາມາດອັບເດດແຜນໄດ້.',
   'user.error.twoFactorNotAvailable': 'ການພິສູດຕົວຕົນ two-factor ບໍ່ພ້ອມໃຊ້ງານ.',
+  'user.error.twoFactorRequiresPassword':
+    'ການພິສູດຕົວຕົນ two-factor ຖືກເປີດໃຊ້ໃນບັນຊີນີ້. ເຂົ້າສູ່ລະບົບດ້ວຍອີເມວ ແລະ ລະຫັດຜ່ານຂອງທ່ານເພື່ອສືບຕໍ່.',
   'user.error.tokenRequired': 'ຕ້ອງການ token.',
   'user.error.noPendingTwoFactorSetup':
     'ບໍ່ມີການຕັ້ງຄ່າ two-factor ທີ່ລໍຖ້າ. ກະລຸນາເອີ້ນດ້ວຍ action "setup" ກ່ອນ.',

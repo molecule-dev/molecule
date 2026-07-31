@@ -38,6 +38,8 @@ export const bg: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Неуспешно актуализиране на абонамента.',
   'user.error.failedToUpdatePlan': 'Неуспешно актуализиране на плана.',
   'user.error.twoFactorNotAvailable': 'Двуфакторната автентикация не е налична.',
+  'user.error.twoFactorRequiresPassword':
+    'Двуфакторната автентикация е активирана за този акаунт. Влезте с имейл и парола, за да продължите.',
   'user.error.tokenRequired': 'Токенът е задължителен.',
   'user.error.noPendingTwoFactorSetup':
     'Няма чакаща двуфакторна настройка. Извикайте с действие "setup" първо.',

@@ -38,6 +38,8 @@ export const is: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Mistókst að uppfæra áskrift.',
   'user.error.failedToUpdatePlan': 'Mistókst að uppfæra áætlun.',
   'user.error.twoFactorNotAvailable': 'Tveggja-þátta auðkenning er ekki tiltæk.',
+  'user.error.twoFactorRequiresPassword':
+    'Tveggja-þátta auðkenning er virk á þessum aðgangi. Skráðu þig inn með netfangi og lykilorði til að halda áfram.',
   'user.error.tokenRequired': 'Merki er nauðsynlegt.',
   'user.error.noPendingTwoFactorSetup':
     'Engin tveggja-þátta uppsetning í bið. Kallaðu fyrst með aðgerðinni "setup".',

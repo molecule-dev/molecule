@@ -39,6 +39,8 @@ export const gl: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Non se puido actualizar a subscrición.',
   'user.error.failedToUpdatePlan': 'Non se puido actualizar o plan.',
   'user.error.twoFactorNotAvailable': 'A autenticación de dobre factor non está dispoñible.',
+  'user.error.twoFactorRequiresPassword':
+    'A autenticación de dobre factor está activada nesta conta. Inicia sesión co teu correo electrónico e contrasinal para continuar.',
   'user.error.tokenRequired': 'Requírese un token.',
   'user.error.noPendingTwoFactorSetup':
     'Non hai configuración de dobre factor pendente. Chame primeiro coa acción "setup".',

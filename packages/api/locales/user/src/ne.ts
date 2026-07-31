@@ -38,6 +38,8 @@ export const ne: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'सदस्यता अपडेट गर्न असफल।',
   'user.error.failedToUpdatePlan': 'योजना अपडेट गर्न असफल।',
   'user.error.twoFactorNotAvailable': 'दुई-कारक प्रमाणीकरण उपलब्ध छैन।',
+  'user.error.twoFactorRequiresPassword':
+    'यो खातामा दुई-कारक प्रमाणीकरण सक्षम छ। जारी राख्न आफ्नो इमेल र पासवर्डले साइन इन गर्नुहोस्।',
   'user.error.tokenRequired': 'टोकन आवश्यक छ।',
   'user.error.noPendingTwoFactorSetup':
     'कुनै बाँकी दुई-कारक सेटअप छैन। पहिले "setup" कार्यसँग कल गर्नुहोस्।',

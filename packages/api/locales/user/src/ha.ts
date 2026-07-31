@@ -38,6 +38,8 @@ export const ha: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'An kasa sabunta biyan kuɗi.',
   'user.error.failedToUpdatePlan': 'An kasa sabunta shiri.',
   'user.error.twoFactorNotAvailable': 'Tantancewa mai mataki biyu ba ta samuwa.',
+  'user.error.twoFactorRequiresPassword':
+    'An kunna tantancewa mai mataki biyu a wannan asusun. Shiga da imel da kalmar sirrinka don ci gaba.',
   'user.error.tokenRequired': 'Ana buƙatar token.',
   'user.error.noPendingTwoFactorSetup':
     'Babu saitin mataki biyu da ke jira. Fara kira da aikin "setup".',

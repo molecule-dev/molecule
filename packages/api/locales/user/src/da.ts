@@ -38,6 +38,8 @@ export const da: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Kunne ikke opdatere abonnement.',
   'user.error.failedToUpdatePlan': 'Kunne ikke opdatere plan.',
   'user.error.twoFactorNotAvailable': 'To-faktor-godkendelse er ikke tilgængelig.',
+  'user.error.twoFactorRequiresPassword':
+    'To-faktor-godkendelse er aktiveret på denne konto. Log ind med din e-mail og adgangskode for at fortsætte.',
   'user.error.tokenRequired': 'Token er påkrævet.',
   'user.error.noPendingTwoFactorSetup':
     'Ingen ventende to-faktor-opsætning. Kald med handlingen "setup" først.',

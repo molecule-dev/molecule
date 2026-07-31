@@ -37,6 +37,8 @@ export const az: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Abunəlik yenilənə bilmədi.',
   'user.error.failedToUpdatePlan': 'Plan yenilənə bilmədi.',
   'user.error.twoFactorNotAvailable': 'İki faktorlu autentifikasiya mövcud deyil.',
+  'user.error.twoFactorRequiresPassword':
+    'Bu hesabda iki faktorlu autentifikasiya aktivdir. Davam etmək üçün e-poçt və şifrənizlə daxil olun.',
   'user.error.tokenRequired': 'Token tələb olunur.',
   'user.error.noPendingTwoFactorSetup':
     'Gözləyən iki faktorlu quraşdırma yoxdur. Əvvəlcə "setup" ilə çağırın.',

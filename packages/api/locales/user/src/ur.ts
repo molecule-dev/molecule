@@ -37,6 +37,8 @@ export const ur: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'سبسکرپشن اپ ڈیٹ کرنے میں ناکامی۔',
   'user.error.failedToUpdatePlan': 'پلان اپ ڈیٹ کرنے میں ناکامی۔',
   'user.error.twoFactorNotAvailable': 'دو عنصری تصدیق دستیاب نہیں ہے۔',
+  'user.error.twoFactorRequiresPassword':
+    'اس اکاؤنٹ پر دو عنصری تصدیق فعال ہے۔ جاری رکھنے کے لیے اپنے ای میل اور پاس ورڈ سے سائن ان کریں۔',
   'user.error.tokenRequired': 'ٹوکن درکار ہے۔',
   'user.error.noPendingTwoFactorSetup':
     'کوئی زیر التوا دو عنصری سیٹ اپ نہیں۔ پہلے "setup" عمل کے ساتھ کال کریں۔',

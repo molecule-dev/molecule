@@ -38,6 +38,8 @@ export const fi: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Tilauksen päivitys epäonnistui.',
   'user.error.failedToUpdatePlan': 'Paketin päivitys epäonnistui.',
   'user.error.twoFactorNotAvailable': 'Kaksivaiheinen todennus ei ole käytettävissä.',
+  'user.error.twoFactorRequiresPassword':
+    'Kaksivaiheinen todennus on käytössä tällä tilillä. Jatka kirjautumalla sisään sähköpostillasi ja salasanallasi.',
   'user.error.tokenRequired': 'Tunniste vaaditaan.',
   'user.error.noPendingTwoFactorSetup':
     'Ei odottavaa kaksivaiheista asetusta. Kutsu ensin toiminnolla "setup".',

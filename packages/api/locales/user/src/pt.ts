@@ -39,6 +39,8 @@ export const pt: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Não foi possível atualizar a subscrição.',
   'user.error.failedToUpdatePlan': 'Não foi possível atualizar o plano.',
   'user.error.twoFactorNotAvailable': 'A autenticação de dois fatores não está disponível.',
+  'user.error.twoFactorRequiresPassword':
+    'A autenticação de dois fatores está ativada nesta conta. Inicie sessão com o seu e-mail e palavra-passe para continuar.',
   'user.error.tokenRequired': 'O token é obrigatório.',
   'user.error.noPendingTwoFactorSetup':
     'Nenhuma configuração de dois fatores pendente. Chame primeiro com a ação "setup".',

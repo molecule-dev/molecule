@@ -37,6 +37,8 @@ export const te: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'సబ్‌స్క్రిప్షన్ అప్‌డేట్ చేయడంలో విఫలమైంది.',
   'user.error.failedToUpdatePlan': 'ప్లాన్ అప్‌డేట్ చేయడంలో విఫలమైంది.',
   'user.error.twoFactorNotAvailable': 'రెండు-కారకాల ప్రమాణీకరణ అందుబాటులో లేదు.',
+  'user.error.twoFactorRequiresPassword':
+    'ఈ ఖాతాలో రెండు-కారకాల ప్రమాణీకరణ ప్రారంభించబడింది. కొనసాగించడానికి మీ ఇమెయిల్ మరియు పాస్‌వర్డ్‌తో సైన్ ఇన్ చేయండి.',
   'user.error.tokenRequired': 'టోకన్ అవసరం.',
   'user.error.noPendingTwoFactorSetup':
     'పెండింగ్ రెండు-కారకాల సెటప్ లేదు. మొదట "setup" చర్యతో కాల్ చేయండి.',

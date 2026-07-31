@@ -38,6 +38,8 @@ export const id: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Gagal memperbarui langganan.',
   'user.error.failedToUpdatePlan': 'Gagal memperbarui paket.',
   'user.error.twoFactorNotAvailable': 'Autentikasi two-factor tidak tersedia.',
+  'user.error.twoFactorRequiresPassword':
+    'Autentikasi two-factor diaktifkan pada akun ini. Masuk dengan email dan kata sandi Anda untuk melanjutkan.',
   'user.error.tokenRequired': 'Token diperlukan.',
   'user.error.noPendingTwoFactorSetup':
     'Tidak ada pengaturan two-factor yang tertunda. Panggil dengan action "setup" terlebih dahulu.',

@@ -37,6 +37,8 @@ export const af: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Kon nie intekening opdateer nie.',
   'user.error.failedToUpdatePlan': 'Kon nie plan opdateer nie.',
   'user.error.twoFactorNotAvailable': 'Tweefaktor-verifikasie is nie beskikbaar nie.',
+  'user.error.twoFactorRequiresPassword':
+    'Tweefaktor-verifikasie is op hierdie rekening geaktiveer. Meld aan met jou e-pos en wagwoord om voort te gaan.',
   'user.error.tokenRequired': 'Teken word vereis.',
   'user.error.noPendingTwoFactorSetup':
     'Geen hangende tweefaktor-opstelling nie. Roep eers met aksie "setup" aan.',

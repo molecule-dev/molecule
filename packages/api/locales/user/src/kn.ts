@@ -38,6 +38,8 @@ export const kn: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'ಚಂದಾ ನವೀಕರಿಸಲು ವಿಫಲ.',
   'user.error.failedToUpdatePlan': 'ಯೋಜನೆ ನವೀಕರಿಸಲು ವಿಫಲ.',
   'user.error.twoFactorNotAvailable': 'ಎರಡು-ಅಂಶ ದೃಢೀಕರಣ ಲಭ್ಯವಿಲ್ಲ.',
+  'user.error.twoFactorRequiresPassword':
+    'ಈ ಖಾತೆಯಲ್ಲಿ ಎರಡು-ಅಂಶ ದೃಢೀಕರಣ ಸಕ್ರಿಯವಾಗಿದೆ. ಮುಂದುವರಿಯಲು ನಿಮ್ಮ ಇಮೇಲ್ ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್‌ನೊಂದಿಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿ.',
   'user.error.tokenRequired': 'ಟೋಕನ್ ಅಗತ್ಯ.',
   'user.error.noPendingTwoFactorSetup':
     'ಬಾಕಿ ಎರಡು-ಅಂಶ ಸೆಟಪ್ ಇಲ್ಲ. ಮೊದಲು "setup" ಕ್ರಿಯೆಯೊಂದಿಗೆ ಕರೆ ಮಾಡಿ.',

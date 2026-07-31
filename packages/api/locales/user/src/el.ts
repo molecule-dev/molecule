@@ -38,6 +38,8 @@ export const el: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Αποτυχία ενημέρωσης συνδρομής.',
   'user.error.failedToUpdatePlan': 'Αποτυχία ενημέρωσης πλάνου.',
   'user.error.twoFactorNotAvailable': 'Η πιστοποίηση δύο παραγόντων δεν είναι διαθέσιμη.',
+  'user.error.twoFactorRequiresPassword':
+    'Η πιστοποίηση δύο παραγόντων είναι ενεργοποιημένη σε αυτόν τον λογαριασμό. Συνδεθείτε με το email και τον κωδικό πρόσβασής σας για να συνεχίσετε.',
   'user.error.tokenRequired': 'Απαιτείται token.',
   'user.error.noPendingTwoFactorSetup':
     'Δεν υπάρχει εκκρεμής ρύθμιση δύο παραγόντων. Καλέστε πρώτα με ενέργεια "setup".',

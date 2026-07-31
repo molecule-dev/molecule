@@ -40,6 +40,8 @@ export const zu: UserTranslations = {
   'user.error.failedToUpdateSubscription': 'Yehlulekile ukubuyekeza isithangami.',
   'user.error.failedToUpdatePlan': 'Yehlulekile ukubuyekeza uhlelo.',
   'user.error.twoFactorNotAvailable': 'Ukuqinisekiswa kwezinyathelo ezimbili akutholakali.',
+  'user.error.twoFactorRequiresPassword':
+    'Ukuqinisekiswa kwezinyathelo ezimbili kuvuliwe kule akhawunti. Ngena ngemeyili nephasiwedi yakho ukuze uqhubeke.',
   'user.error.tokenRequired': 'Ithokheni iyadingeka.',
   'user.error.noPendingTwoFactorSetup':
     'Akukho ukumiswa kwezinyathelo ezimbili okulindile. Shayela ngesenzo se-"setup" kuqala.',
