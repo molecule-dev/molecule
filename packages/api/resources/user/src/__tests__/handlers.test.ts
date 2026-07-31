@@ -112,6 +112,7 @@ import { update } from '../handlers/update.js'
 import { updatePassword } from '../handlers/updatePassword.js'
 import { updatePlan } from '../handlers/updatePlan.js'
 import { MAX_AVATAR_LENGTH, MAX_BIO_LENGTH, propsSchema } from '../schema.js'
+import { hashResetToken } from '../utilities/hashResetToken.js'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -492,6 +493,9 @@ describe('logIn handler — password reset token', () => {
   const handler = logIn(testResource)
   const userId = 'user-123'
   const resetToken = 'secure-reset-token-value-abc123'
+  // The client sends the RAW token; the DB stores sha256(token). Tests set up
+  // the stored (hashed) value and pass the raw token in the request body.
+  const storedResetToken = hashResetToken(resetToken)
 
   beforeEach(() => {
     // Spy on crypto.timingSafeEqual to verify it is called.
@@ -503,7 +507,7 @@ describe('logIn handler — password reset token', () => {
     mockFindOne.mockResolvedValue({ id: userId, username: 'testuser' })
     mockFindById.mockResolvedValue({
       id: userId,
-      passwordResetToken: resetToken,
+      passwordResetToken: storedResetToken,
       passwordResetTokenAt: new Date(now - 1000 * 60 * 5).toISOString(), // 5 min ago
     })
     mockUpdateById.mockResolvedValue({ affected: 1 })
@@ -528,7 +532,7 @@ describe('logIn handler — password reset token', () => {
     mockFindOne.mockResolvedValue({ id: userId, username: 'testuser' })
     mockFindById.mockResolvedValue({
       id: userId,
-      passwordResetToken: resetToken,
+      passwordResetToken: storedResetToken,
       passwordResetTokenAt: new Date(now - 1000 * 60 * 5).toISOString(),
     })
     mockUpdateById.mockImplementation(async () => {
@@ -577,7 +581,7 @@ describe('logIn handler — password reset token', () => {
     mockFindOne.mockResolvedValue({ id: userId, username: 'testuser' })
     mockFindById.mockResolvedValue({
       id: userId,
-      passwordResetToken: resetToken,
+      passwordResetToken: storedResetToken,
       passwordResetTokenAt: new Date(now - 1000 * 60 * 61).toISOString(), // 61 min ago
     })
 
@@ -597,7 +601,7 @@ describe('logIn handler — password reset token', () => {
     mockFindOne.mockResolvedValue({ id: userId, username: 'testuser' })
     mockFindById.mockResolvedValue({
       id: userId,
-      passwordResetToken: resetToken,
+      passwordResetToken: storedResetToken,
       passwordResetTokenAt: new Date(now - 1000 * 60 * 5).toISOString(),
     })
 

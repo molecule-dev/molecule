@@ -8,6 +8,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import * as authorization from '../authorization.js'
 import type * as types from '../types.js'
+import { hashResetToken } from '../utilities/hashResetToken.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 import { notify } from '../utilities/notify.js'
 
@@ -126,9 +127,10 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
         authenticated = await compare(body.password, secrets.passwordHash)
       }
 
-      // Try password reset token (constant-time comparison to prevent timing attacks).
+      // Try password reset token (constant-time comparison to prevent timing
+      // attacks). The stored value is sha256(token) — hash the incoming one.
       if (!authenticated && body.passwordResetToken && secrets.passwordResetToken) {
-        const a = Buffer.from(body.passwordResetToken, 'utf-8')
+        const a = Buffer.from(hashResetToken(body.passwordResetToken), 'utf-8')
         const b = Buffer.from(secrets.passwordResetToken, 'utf-8')
         if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
           // Check if the token is still valid (within 1 hour).

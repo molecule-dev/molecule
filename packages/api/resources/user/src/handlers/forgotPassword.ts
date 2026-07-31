@@ -7,6 +7,7 @@ import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
 
 import type * as types from '../types.js'
+import { hashResetToken } from '../utilities/hashResetToken.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 
 const analytics = getAnalytics()
@@ -56,11 +57,15 @@ export const forgotPassword = ({ name: _name, tableName, schema: _schema }: type
         return { statusCode: 200, body: { success: true } }
       }
 
-      // Generate a reset token.
+      // Generate a reset token. The RAW token is emailed to the user; only its
+      // sha256 hash is persisted, so a DB read never yields a usable token.
       const passwordResetToken = crypto.randomBytes(32).toString('hex')
       const passwordResetTokenAt = new Date().toISOString()
 
-      await updateById(`${tableName}Secrets`, user.id, { passwordResetToken, passwordResetTokenAt })
+      await updateById(`${tableName}Secrets`, user.id, {
+        passwordResetToken: hashResetToken(passwordResetToken),
+        passwordResetTokenAt,
+      })
 
       // Try to send email if email service is bonded.
       try {

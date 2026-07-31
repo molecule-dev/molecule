@@ -8,6 +8,7 @@ import type { MoleculeRequest } from '@molecule/api-resource'
 
 import { invalidateAllDeviceExistsCache } from '../authorization.js'
 import type * as types from '../types.js'
+import { hashResetToken } from '../utilities/hashResetToken.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -86,8 +87,10 @@ export const resetPassword = ({ name: _name, tableName, schema: _schema }: types
         }
       }
 
+      // The stored value is sha256(token); look up + compare by that digest.
+      const tokenHash = hashResetToken(token)
       const secrets = await findOne<types.SecretProps>(`${tableName}Secrets`, [
-        { field: 'passwordResetToken', operator: '=', value: token },
+        { field: 'passwordResetToken', operator: '=', value: tokenHash },
       ])
 
       if (!secrets || !secrets.passwordResetToken || !secrets.passwordResetTokenAt) {
@@ -102,7 +105,7 @@ export const resetPassword = ({ name: _name, tableName, schema: _schema }: types
 
       // Constant-time comparison to defeat timing attacks even though the lookup
       // already matched — defense in depth.
-      const a = Buffer.from(token, 'utf-8')
+      const a = Buffer.from(tokenHash, 'utf-8')
       const b = Buffer.from(secrets.passwordResetToken, 'utf-8')
       if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
         return {
