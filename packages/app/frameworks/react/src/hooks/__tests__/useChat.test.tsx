@@ -933,6 +933,105 @@ describe('useChat', () => {
     expect(sessionStorage.getItem('mol-chat-streaming-default')).toBe('1')
   })
 
+  // ── Conversation switching ────────────────────────────────────────────
+
+  it('a switched-away conversation’s still-running stream stops writing into the store', async () => {
+    // Regression: the store is project-keyed and outlives remounts (so a stream
+    // survives the boot→IDE remount) — but clicking "new chat" while a stream
+    // was running let the OLD conversation keep streaming into the NEW one.
+    // A genuine switch bumps the store generation; the old stream's late
+    // events + trailing streaming-flag writes must all be dropped.
+    const { provider, emitText, startMessage, complete } = createMockProvider()
+    const wrapper = createWrapper(provider)
+
+    // Conversation A: mount, send, stream begins.
+    const hookA = renderHook(
+      () =>
+        useChat({
+          endpoint: `${ENDPOINT}?conversationId=conv-a`,
+          projectId: PROJECT_ID,
+          loadOnMount: false,
+        }),
+      { wrapper },
+    )
+    await act(async () => {
+      hookA.result.current.sendMessage('build it')
+    })
+    await act(async () => {
+      startMessage(0)
+      emitText(0, 'old turn text')
+    })
+    await waitFor(() => expect(hookA.result.current.messages).toHaveLength(2))
+
+    // User clicks "new chat" → ChatInner remounts pointing at conversation B.
+    hookA.unmount()
+    const hookB = renderHook(
+      () =>
+        useChat({
+          endpoint: `${ENDPOINT}?conversationId=conv-b`,
+          projectId: PROJECT_ID,
+          loadOnMount: false,
+        }),
+      { wrapper },
+    )
+
+    // The switch cleared the old transcript + streaming state…
+    expect(hookB.result.current.messages).toHaveLength(0)
+    expect(hookB.result.current.isLoading).toBe(false)
+
+    // …and the OLD stream's late events no longer bleed into the new view.
+    await act(async () => {
+      emitText(0, ' more old text')
+      startMessage(0, 'asst-late')
+      emitText(0, 'a whole late message')
+      complete(0)
+    })
+    expect(hookB.result.current.messages).toHaveLength(0)
+    expect(hookB.result.current.isLoading).toBe(false)
+  })
+
+  it('a brand-new conversation adopting its server id mid-stream is NOT a switch', async () => {
+    // The endpoint gaining a conversationId for the FIRST time (undefined →
+    // defined) must keep the live stream + messages — this is the id-assignment
+    // path during a first build, not a user switching conversations.
+    const { provider, emitText, startMessage } = createMockProvider()
+    const wrapper = createWrapper(provider)
+
+    const first = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper },
+    )
+    await act(async () => {
+      first.result.current.sendMessage('start')
+    })
+    await act(async () => {
+      startMessage(0)
+      emitText(0, 'streaming…')
+    })
+    await waitFor(() => expect(first.result.current.messages).toHaveLength(2))
+
+    // Server assigns the conversation id → panel remounts with it in the URL.
+    first.unmount()
+    const second = renderHook(
+      () =>
+        useChat({
+          endpoint: `${ENDPOINT}?conversationId=conv-new`,
+          projectId: PROJECT_ID,
+          loadOnMount: false,
+        }),
+      { wrapper },
+    )
+
+    // Live messages kept, and the original stream keeps filling the store.
+    expect(second.result.current.messages).toHaveLength(2)
+    await act(async () => {
+      emitText(0, ' still going')
+    })
+    await waitFor(() =>
+      expect(second.result.current.messages[1].content).toBe('streaming… still going'),
+    )
+  })
+
   // ── Stream events ─────────────────────────────────────────────────────
 
   it('handles tool_use and tool_result events', async () => {

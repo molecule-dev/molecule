@@ -192,6 +192,19 @@ type MessageStore = {
   remotePollTimer: ReturnType<typeof setTimeout> | null
   listeners: Set<() => void>
   conversationId?: string
+  /**
+   * Bumped on every GENUINE conversation switch (the mount effect sees the
+   * endpoint naming a DIFFERENT conversation than the store holds). The store
+   * is project-keyed and deliberately outlives remounts so a live stream keeps
+   * filling it across the boot→IDE remount — but that same property let a
+   * still-running previous conversation's stream keep writing after the user
+   * opened a new chat, streaming the old turn into the new conversation's
+   * view. Streams snapshot the generation they started under; any write or
+   * stream event carrying a stale generation is dropped. The old turn still
+   * runs to completion server-side — switching back to that conversation
+   * reloads it from history (and resumes if still streaming).
+   */
+  generation: number
 }
 
 /** Stable empty array for the SSR/initial snapshot (useSyncExternalStore needs referential stability). */
@@ -214,6 +227,7 @@ function getMessageStore(key: string): MessageStore {
       stoppedByUser: false,
       remotePollTimer: null,
       listeners: new Set(),
+      generation: 0,
     }
     messageStores.set(key, store)
   }
@@ -462,10 +476,26 @@ export function useChat(options: UseChatOptions): UseChatResult {
     () => getMessageStore(storageKey).remoteStreaming,
     () => false,
   )
-  const setMessages = useCallback(
-    (updater: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) =>
-      setStoreMessages(storageKey, updater),
+  // The store generation this instance last aligned with (stamped by the mount
+  // effect and on each send/resume start). Null until first stamped — treated
+  // as current. An UNMOUNTED instance's stream callbacks keep this ref frozen
+  // at the generation their conversation was on, so once the user switches
+  // conversations (store.generation bumps) every late write from the old
+  // stream — text flushes, finalize, the trailing setIsLoading(false) — is
+  // dropped instead of bleeding into the new conversation's view.
+  const generationRef = useRef<number | null>(null)
+  const isStaleGeneration = useCallback(
+    () =>
+      generationRef.current !== null &&
+      getMessageStore(storageKey).generation !== generationRef.current,
     [storageKey],
+  )
+  const setMessages = useCallback(
+    (updater: ChatMessage[] | ((prev: ChatMessage[]) => ChatMessage[])) => {
+      if (isStaleGeneration()) return
+      setStoreMessages(storageKey, updater)
+    },
+    [storageKey, isStaleGeneration],
   )
   // Append an inline transcript CARD (model / mode / skills / custom notice) as a complete
   // `role:'system'` card-message in the ONE message store — the same store as every other
@@ -485,8 +515,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
     [setMessages],
   )
   const setIsLoading = useCallback(
-    (streaming: boolean) => setStoreStreaming(storageKey, streaming),
-    [storageKey],
+    (streaming: boolean) => {
+      if (isStaleGeneration()) return
+      setStoreStreaming(storageKey, streaming)
+    },
+    [storageKey, isStaleGeneration],
   )
   // Pushed (broadcast) chat event arrived for this conversation while no local
   // send is in flight — confirm against the server's streaming flag and track
@@ -884,6 +917,35 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
   // Load history on mount and restore any persisted queue / interrupted stream
   useEffect(() => {
+    // ── Conversation-switch detection — SYNCHRONOUS, before any async load ──
+    // A switch = the endpoint names a DIFFERENT conversation than the store
+    // currently holds. A brand-new conversation that just received its id
+    // (store id undefined → defined) is NOT a switch — adopt the id and keep
+    // the live messages, so the in-flight discovery/plan stream isn't wiped
+    // the moment the conversation is created server-side.
+    //
+    // On a genuine switch the PREVIOUS conversation's still-running stream must
+    // stop writing into this project-keyed store immediately — bumping the
+    // generation orphans its writes (see MessageStore.generation) — and the
+    // store's leftover transcript + streaming state belong to the old
+    // conversation, so clear them before the new history hydrates. Done
+    // synchronously (not inside the history .then()) so a slow or failed
+    // history fetch can't leave the old stream bleeding into the new view.
+    const syncStore = getMessageStore(storageKey)
+    const endpointConvId = endpoint.match(/conversationId=([^&]+)/)?.[1]
+    const isSwitch =
+      !!endpointConvId && !!syncStore.conversationId && endpointConvId !== syncStore.conversationId
+    if (endpointConvId) syncStore.conversationId = endpointConvId
+    if (isSwitch) {
+      syncStore.generation++
+      // The old conversation's stop decision doesn't apply to the new one.
+      syncStore.stoppedByUser = false
+      stopRemoteStreamPoll(storageKey)
+      setStoreStreaming(storageKey, false)
+      setStoreMessages(storageKey, [])
+    }
+    generationRef.current = syncStore.generation
+
     if (!loadOnMountRef.current) return
 
     // Read persisted state synchronously before the async history fetch
@@ -900,40 +962,29 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // surfaces app-specific GET fields generically via `lastMeta` (it no
         // longer names the plan/execute vocabulary — molecule anti-pattern 14).
         const serverMode = (provider as { lastMeta?: Record<string, unknown> }).lastMeta?.mode as
-          | 'plan'
-          | 'execute'
-          | undefined
+          'plan' | 'execute' | undefined
         if (serverMode && serverMode !== 'execute') {
           setMode(serverMode)
           onModeChange?.(serverMode)
         }
 
-        // Multi-conversation handling. The store is project-keyed, so we track
-        // which conversation it holds and only blow it away on a GENUINE switch.
-        const store = getMessageStore(storageKey)
-        const endpointConvId = endpoint.match(/conversationId=([^&]+)/)?.[1]
-        // A switch = the endpoint names a DIFFERENT conversation than the store
-        // currently holds. A brand-new conversation that just received its id
-        // (store id undefined → defined) is NOT a switch — adopt the id and keep
-        // the live messages, so the in-flight discovery/plan stream isn't wiped
-        // the moment the conversation is created server-side.
-        const isSwitch =
-          !!endpointConvId && !!store.conversationId && endpointConvId !== store.conversationId
-        if (endpointConvId) store.conversationId = endpointConvId
-
+        // Multi-conversation handling: the switch itself was detected + applied
+        // SYNCHRONOUSLY at effect start (see above) — here we only hydrate.
+        //
         // Same conversation with a live/populated store (e.g. the IDE ChatPanel
         // mounting after the boot panel, or a re-render): the store is the source
         // of truth — do NOT overwrite with server history (that would wipe
         // in-flight streaming messages) and do NOT resume (the original stream is
         // still writing to the store). Hydrate + resume only when the store is
-        // empty (first mount / after refresh) or on a real switch.
-        if (!isSwitch && store.messages.length > 0) return
+        // empty (first mount / after refresh) or on a real switch (whose store
+        // was already cleared synchronously).
+        // (On a switch the store was cleared synchronously — a populated store
+        // here means a NEW local send already started in the switched-to
+        // conversation while history was loading; don't clobber it either.)
+        if (syncStore.messages.length > 0 && (!isSwitch || syncStore.streaming)) return
 
         if (history.length > 0) {
           setMessages(history)
-        } else if (isSwitch) {
-          // Switched to an empty conversation — clear the previous one's messages.
-          setMessages([])
         }
 
         // Also check the provider's streaming flag — the server tells us
@@ -1049,7 +1100,16 @@ export function useChat(options: UseChatOptions): UseChatResult {
       ])
     }
 
+    // The store generation this stream belongs to. If the user switches
+    // conversations mid-stream (new chat / picker), the mount effect bumps the
+    // store's generation and every remaining event of THIS stream is dropped
+    // wholesale — text, cards, mode flips, the conversation-id report, and the
+    // parent forward all belong to the old conversation's view. The turn still
+    // completes server-side; switching back reloads it from history.
+    const streamGeneration = getMessageStore(storageKey).generation
+
     const onEvent = (event: ChatStreamEvent): void => {
+      if (getMessageStore(storageKey).generation !== streamGeneration) return
       deps.resetStall()
       // Any non-error event proves the server accepted the turn (see
       // sawServerEvent) — an error can then safely retry as a resume.
@@ -1122,8 +1182,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         }
         case 'thinking': {
           const lastBlock = ctx.blocks[ctx.blocks.length - 1] as
-            | (MessageBlock & { _startedAt?: number; durationMs?: number })
-            | undefined
+            (MessageBlock & { _startedAt?: number; durationMs?: number }) | undefined
           if (lastBlock?.type === 'thinking') {
             lastBlock.content += event.content
             lastBlock.durationMs = Date.now() - (lastBlock._startedAt ?? Date.now())
@@ -1284,6 +1343,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // preview-health auto-fix restarted the executor seconds after a Stop (the
       // server's userStoppedAt gate is the durable backstop for other tabs).
       const store = getMessageStore(storageKey)
+      // A send can only come from the LIVE instance — align with the store's
+      // current generation so this turn's writes pass the stale-stream gate.
+      generationRef.current = store.generation
       if (store.stoppedByUser) {
         if (automatic && options?.userInitiated !== true) return
         store.stoppedByUser = false
@@ -1526,6 +1588,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
     // the signature for the callers + ref type.
     async (resumeId: string, _existingContent: string) => {
       if (!mountedRef.current || sendingRef.current) return
+
+      // A resume can only come from the LIVE instance — align with the store's
+      // current generation so this turn's writes pass the stale-stream gate.
+      generationRef.current = getMessageStore(storageKey).generation
 
       // Show the spinner on the last assistant message immediately
       setMessages((prev) => prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: true } : m)))
