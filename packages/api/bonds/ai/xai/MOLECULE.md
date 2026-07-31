@@ -34,7 +34,7 @@ Configuration for xAI.
 interface XaiConfig {
   /** API key. Defaults to XAI_API_KEY env var. */
   apiKey?: string
-  /** Default model. Defaults to 'grok-code-fast-1'. */
+  /** Default model. Defaults to 'grok-4.5'. */
   defaultModel?: string
   /** Maximum tokens for completions. */
   maxTokens?: number

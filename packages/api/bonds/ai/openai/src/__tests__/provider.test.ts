@@ -78,7 +78,7 @@ describe('createProvider / constructor', () => {
     }
   })
 
-  it('defaults model to gpt-4o-mini and maxTokens to 4096', () => {
+  it('defaults model to gpt-5.4-mini and maxTokens to 4096', () => {
     // Indirectly verified through the request body in the test below.
     const provider = createProvider({ apiKey: 'k' })
     expect(provider).toBeInstanceOf(OpenaiAIProvider)

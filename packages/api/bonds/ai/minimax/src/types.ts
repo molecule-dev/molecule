@@ -14,7 +14,7 @@ export interface MiniMaxConfig {
   onRateLimit?: AiRateLimitCallback
   /** API key. Defaults to MINIMAX_API_KEY env var. */
   apiKey?: string
-  /** Default model. Defaults to 'minimax-m2.5'. */
+  /** Default model. Defaults to 'minimax-m3'. */
   defaultModel?: string
   /** Maximum tokens for completions. */
   maxTokens?: number

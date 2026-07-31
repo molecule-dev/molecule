@@ -61,7 +61,7 @@ class MiniMaxAIProvider implements AIProvider {
 
   constructor(config: MiniMaxConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.MINIMAX_API_KEY ?? ''
-    this.defaultModel = config.defaultModel ?? 'minimax-m2.5'
+    this.defaultModel = config.defaultModel ?? 'minimax-m3'
     this.maxTokens = config.maxTokens ?? 4096
     this.onRateLimit = config.onRateLimit
     // `api.minimax.io` is MiniMax's INTERNATIONAL host. The previous default,

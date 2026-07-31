@@ -14,7 +14,7 @@ export interface ZhipuConfig {
   onRateLimit?: AiRateLimitCallback
   /** API key. Defaults to ZHIPU_API_KEY env var. */
   apiKey?: string
-  /** Default model. Defaults to 'glm-5'. */
+  /** Default model. Defaults to 'glm-5.2'. */
   defaultModel?: string
   /** Maximum tokens for completions. */
   maxTokens?: number

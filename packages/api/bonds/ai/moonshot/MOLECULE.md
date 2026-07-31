@@ -22,7 +22,7 @@ Configuration for Moonshot.
 interface MoonshotConfig {
   /** API key. Defaults to MOONSHOT_API_KEY env var. */
   apiKey?: string
-  /** Default model. Defaults to 'kimi-k2.5'. */
+  /** Default model. Defaults to 'kimi-k3'. */
   defaultModel?: string
   /** Maximum tokens for completions. */
   maxTokens?: number

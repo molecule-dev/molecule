@@ -14,7 +14,7 @@ export interface AlibabaConfig {
   onRateLimit?: AiRateLimitCallback
   /** API key. Defaults to the `DASHSCOPE_API_KEY` (or `ALIBABA_API_KEY`) env var. */
   apiKey?: string
-  /** Default model. Defaults to 'qwen3.6-plus'. */
+  /** Default model. Defaults to 'qwen3.7-max'. */
   defaultModel?: string
   /** Maximum tokens for completions. */
   maxTokens?: number

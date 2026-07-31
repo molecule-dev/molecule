@@ -110,7 +110,7 @@ class GoogleAIProvider implements AIProvider {
 
   constructor(config: GoogleConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.GOOGLE_AI_API_KEY ?? ''
-    this.defaultModel = config.model ?? process.env.GOOGLE_AI_MODEL ?? 'gemini-2.0-flash'
+    this.defaultModel = config.model ?? process.env.GOOGLE_AI_MODEL ?? 'gemini-3.6-flash'
     this.onRateLimit = config.onRateLimit
     this.baseUrl = (
       config.baseUrl ??
@@ -314,7 +314,7 @@ class GoogleAIProvider implements AIProvider {
     if (params.maxTokens !== undefined) generationConfig.maxOutputTokens = params.maxTokens
     // Thinking is best-effort: only Gemini 2.5+ ("thinking") models accept
     // `thinkingConfig`; 2.0 / 1.5 reject it with a 400. Gate on the model so an
-    // unsupported default (gemini-2.0-flash) never breaks the request.
+    // explicitly-passed older id never breaks the request.
     if (params.thinking && this.supportsThinking(model)) {
       const thinkingConfig: Record<string, unknown> = { includeThoughts: true }
       if (typeof params.thinking.budgetTokens === 'number') {

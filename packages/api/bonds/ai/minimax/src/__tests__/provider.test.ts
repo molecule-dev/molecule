@@ -143,7 +143,7 @@ describe('chat()', () => {
     }
   })
 
-  it('defaults model to minimax-m2.5', async () => {
+  it('defaults model to minimax-m3', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
       jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
@@ -156,7 +156,7 @@ describe('chat()', () => {
       // drain
     }
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
-    expect(body.model).toBe('minimax-m2.5')
+    expect(body.model).toBe('minimax-m3')
   })
 
   it('uses max_completion_tokens (not max_tokens)', async () => {

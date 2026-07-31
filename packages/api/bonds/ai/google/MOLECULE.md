@@ -32,7 +32,7 @@ interface GoogleConfig {
   baseUrl?: string
   /**
    * Default model id when not overridden per-request. Defaults to the
-   * `GOOGLE_AI_MODEL` env var, then `gemini-2.0-flash`.
+   * `GOOGLE_AI_MODEL` env var, then `gemini-3.6-flash`.
    */
   model?: string
 }
