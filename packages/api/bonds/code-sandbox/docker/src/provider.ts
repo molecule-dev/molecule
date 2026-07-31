@@ -434,7 +434,10 @@ class DockerSandboxProvider implements SandboxProvider {
     // guard adopts a container a timed-out create may have already made — keyed on
     // the unique volumeName label — so a retry never leaks a duplicate.
     const createRes = (await withTransientRetry(
-      () => this.dockerApi('/containers/create', 'POST', body),
+      // 120 s: creating a container with a fresh named volume copies the image's
+      // /workspace (molecule dist + node_modules, multi-GB) into the volume —
+      // measured at 33 s+ against the current base image, past the default 30 s.
+      () => this.dockerApi('/containers/create', 'POST', body, 120_000),
       {
         label: 'containers/create',
         log: logger,
@@ -580,7 +583,10 @@ class DockerSandboxProvider implements SandboxProvider {
       previewUrl: provider.previewUrlTemplate.replace(/\{port\}/g, '5173'),
 
       async start() {
-        await provider.dockerApi(`/containers/${containerId}/start`, 'POST')
+        // 120 s: on graphdriver storage the image→empty-volume copy happens at
+        // START (not create), so the first start pays the same multi-GB copy the
+        // create path does under the containerd snapshotter.
+        await provider.dockerApi(`/containers/${containerId}/start`, 'POST', undefined, 120_000)
         this.status = 'running'
       },
 
@@ -595,7 +601,8 @@ class DockerSandboxProvider implements SandboxProvider {
       },
 
       async wake() {
-        await provider.dockerApi(`/containers/${containerId}/start`, 'POST')
+        // Same 120 s rationale as start() — a first-ever start pays the volume copy.
+        await provider.dockerApi(`/containers/${containerId}/start`, 'POST', undefined, 120_000)
         this.status = 'running'
       },
 
@@ -689,7 +696,13 @@ class DockerSandboxProvider implements SandboxProvider {
           const message = error instanceof Error ? error.message : String(error)
           if (/is not running|\b409\b/.test(message)) {
             try {
-              await provider.dockerApi(`/containers/${containerId}/start`, 'POST')
+              // Same 120 s rationale as start() — a first-ever start pays the volume copy.
+              await provider.dockerApi(
+                `/containers/${containerId}/start`,
+                'POST',
+                undefined,
+                120_000,
+              )
             } catch (_error) {
               // 304 (already started) or a genuine start failure — let the retry
               // below surface the real error if the container is truly gone.
@@ -940,9 +953,19 @@ class DockerSandboxProvider implements SandboxProvider {
    * @param path - The API endpoint path (e.g. `/containers/create`).
    * @param method - The HTTP method (defaults to `'GET'`).
    * @param body - Optional JSON request body.
+   * @param timeoutMs - Request timeout (default 30 s). Container create/start
+   *   pass a longer one: the daemon populates a fresh named volume from the
+   *   image's contents during those calls, which scales with image size — a
+   *   multi-GB `/workspace` reliably exceeds 30 s, and a client-side timeout on
+   *   a create that succeeds server-side leaks a duplicate container.
    * @returns The parsed JSON response, or raw text for non-JSON responses.
    */
-  private async dockerApi(path: string, method = 'GET', body?: unknown): Promise<unknown> {
+  private async dockerApi(
+    path: string,
+    method = 'GET',
+    body?: unknown,
+    timeoutMs = 30_000,
+  ): Promise<unknown> {
     return new Promise((resolve, reject) => {
       const opts: http.RequestOptions = {
         ...this.endpoint,
@@ -978,7 +1001,7 @@ class DockerSandboxProvider implements SandboxProvider {
         res.on('error', reject)
       })
       // Timeout to prevent hanging on unresponsive Docker daemon
-      req.setTimeout(30_000, () => {
+      req.setTimeout(timeoutMs, () => {
         req.destroy(new Error(`Docker API timeout: ${method} ${path}`))
       })
       req.on('error', reject)

@@ -911,7 +911,7 @@ describe('DockerSandboxProvider', () => {
   // ─── Docker API timeouts ──────────────────────────────────────────────
 
   describe('Docker API timeouts', () => {
-    it('should set 30s timeout on regular API calls (dockerApi)', async () => {
+    it('should set 30s timeout on regular API calls and 120s on container create', async () => {
       const { createProvider } = await import('../provider.js')
       const provider = createProvider({ socketPath: '/test.sock' })
 
@@ -919,9 +919,17 @@ describe('DockerSandboxProvider', () => {
       enqueueJson(201, { Id: 'container-timeout' })
       await provider.create({ projectId: 'test-timeout' })
 
-      // The container-create call uses dockerApi (regular API)
+      // Regular API calls (e.g. the leading /networks/create) keep the 30s default
+      expect(findCall('/networks/create').req.setTimeout).toHaveBeenCalledWith(
+        30_000,
+        expect.any(Function),
+      )
+      // Container create gets 120s — the daemon populates a fresh named volume
+      // from the image's multi-GB /workspace during this call, which reliably
+      // exceeds 30s and would otherwise time out client-side and leak a
+      // duplicate container on retry.
       const createReq = containerCreateCall().req
-      expect(createReq.setTimeout).toHaveBeenCalledWith(30_000, expect.any(Function))
+      expect(createReq.setTimeout).toHaveBeenCalledWith(120_000, expect.any(Function))
     })
 
     it('should set 600s timeout on exec API calls (dockerApiRaw)', async () => {
@@ -969,7 +977,7 @@ describe('DockerSandboxProvider', () => {
       await new Promise((r) => setTimeout(r, 10))
       const req = containerCreateCall().req
       const timeoutCall = req.setTimeout.mock.calls[0]
-      expect(timeoutCall[0]).toBe(30_000)
+      expect(timeoutCall[0]).toBe(120_000)
 
       // Call the timeout handler
       const timeoutHandler = timeoutCall[1] as () => void
