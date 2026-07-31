@@ -62,6 +62,7 @@ class DeepseekAIProviderImpl implements AIProvider {
   private defaultModel: string
   private maxTokens: number
   private baseUrl: string
+  private completionsPath: string
   private onRateLimit?: AiRateLimitCallback
 
   constructor(config: DeepseekConfig = {}) {
@@ -69,6 +70,8 @@ class DeepseekAIProviderImpl implements AIProvider {
     this.defaultModel = config.defaultModel ?? 'deepseek-v4-flash'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.DEEPSEEK_BASE_URL ?? 'https://api.deepseek.com'
+    this.completionsPath =
+      config.completionsPath ?? process.env.DEEPSEEK_COMPLETIONS_PATH ?? '/v1/chat/completions'
     this.onRateLimit = config.onRateLimit
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
@@ -151,7 +154,7 @@ class DeepseekAIProviderImpl implements AIProvider {
     const MAX_RETRIES = 3
     let response: Response | null = null
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
+      response = await fetch(`${this.baseUrl}${this.completionsPath}`, {
         method: 'POST',
         headers,
         body: JSON.stringify(body),
