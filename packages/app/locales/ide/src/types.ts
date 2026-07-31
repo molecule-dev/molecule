@@ -1,5 +1,7 @@
 /** Translation keys for the ide locale package. */
 export type IdeTranslationKey =
+  | 'ide.chat.model.region.us'
+  | 'ide.chat.model.region.cn'
   | 'ide.chat.title'
   | 'ide.chat.placeholder'
   | 'ide.chat.emptyState'

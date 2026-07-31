@@ -148,6 +148,22 @@ import { UserAvatar } from './UserAvatar.js'
 
 const logger = getLogger('chat-panel')
 
+// Processing region for Chinese-origin models. Default 'us' (routed through a
+// US endpoint); 'cn' routes to the model's native-China endpoint. The server
+// reads `project.settings.modelRegions` (a Record<modelId, 'us'|'cn'>).
+type ModelRegion = 'us' | 'cn'
+// Providers whose models get a US/China region toggle.
+const CHINESE_MODEL_PROVIDERS: ReadonlySet<string> = new Set([
+  'deepseek',
+  'moonshot',
+  'minimax',
+  'alibaba',
+  'zhipu',
+])
+// CN-only models: the server forces China regardless of the setting, so the
+// toggle is shown fixed/disabled to match.
+const CN_ONLY_MODEL_IDS: ReadonlySet<string> = new Set(['kimi-k3', 'minimax-m2.5'])
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -3543,6 +3559,9 @@ function ChatInner({
   // Empty = unset; the active model's own default applies (resolved per-model).
   const [effortLevel, setEffortLevel] = useState<EffortLevel>('')
   const [effortByMode, setEffortByMode] = useState<Partial<Record<EffortMode, EffortLevel>>>({})
+  // Per-model processing region (US default / native-China). Persisted as the
+  // WHOLE map in settings.modelRegions, mirroring effortByMode's shape.
+  const [modelRegions, setModelRegions] = useState<Record<string, ModelRegion>>({})
   const [currentMaxLoops, setCurrentMaxLoops] = useState<number>(100)
   const [autoFixEnabled, setAutoFixEnabled] = useState<boolean>(true)
   // Auto-approve destructive commands (skip the pre-tool "Proceed?" confirm). Off by
@@ -3583,6 +3602,19 @@ function ChatInner({
             if (typeof raw === 'string' && raw) next[m] = raw
           }
           setEffortByMode(next)
+        }
+        // Per-model processing region map — accept each 'us'|'cn' entry
+        // (untrusted JSON bag), mirroring effortByMode above.
+        if (
+          s?.modelRegions &&
+          typeof s.modelRegions === 'object' &&
+          !Array.isArray(s.modelRegions)
+        ) {
+          const nextRegions: Record<string, ModelRegion> = {}
+          for (const [id, raw] of Object.entries(s.modelRegions as Record<string, unknown>)) {
+            if (raw === 'us' || raw === 'cn') nextRegions[id] = raw
+          }
+          setModelRegions(nextRegions)
         }
         // Persisted per-project default-loaded skills (P2-06/P2-08).
         const savedDefaultSkills = s?.defaultSkills
@@ -4619,6 +4651,25 @@ function ChatInner({
       }
     },
     [http, projectId],
+  )
+
+  // Set a model's processing region (US / native-China). Mirrors the
+  // effortByMode PATCH: shallow-merge on the server means we send the WHOLE
+  // modelRegions map, not just the changed entry.
+  const setModelRegion = useCallback(
+    async (modelId: string, region: ModelRegion) => {
+      if (modelRegions[modelId] === region) return
+      const nextRegions = { ...modelRegions, [modelId]: region }
+      setModelRegions(nextRegions)
+      try {
+        await http.patch(`/projects/${projectId}`, {
+          settings: { modelRegions: nextRegions },
+        })
+      } catch (error) {
+        logger.warn('Failed to update model processing region', { error })
+      }
+    },
+    [http, projectId, modelRegions],
   )
 
   const executeCommand = useCallback(
@@ -7456,6 +7507,90 @@ function ChatInner({
                               ))}
                             </span>
                           )}
+                          {/* Processing-region toggle for Chinese-origin models.
+                              CN-only models (kimi-k3, minimax-m2.5) are forced to
+                              China server-side, so the chip is fixed + disabled to
+                              match. stopPropagation keeps a region click from
+                              selecting the model row (the button's onClick). */}
+                          {CHINESE_MODEL_PROVIDERS.has(model.provider) &&
+                            (() => {
+                              const cnOnly = CN_ONLY_MODEL_IDS.has(model.id)
+                              const region: ModelRegion = cnOnly
+                                ? 'cn'
+                                : (modelRegions[model.id] ?? 'us')
+                              const options: Array<{ value: ModelRegion; label: string }> = [
+                                {
+                                  value: 'us',
+                                  label: t('ide.chat.model.region.us', undefined, {
+                                    defaultValue: 'US',
+                                  }),
+                                },
+                                {
+                                  value: 'cn',
+                                  label: t('ide.chat.model.region.cn', undefined, {
+                                    defaultValue: '中国',
+                                  }),
+                                },
+                              ]
+                              return (
+                                <span
+                                  data-mol-id={`model-region-${model.id}`}
+                                  style={{
+                                    display: 'inline-flex',
+                                    marginTop: '2px',
+                                    borderRadius: '4px',
+                                    overflow: 'hidden',
+                                    border: '1px solid rgba(128,128,128,0.28)',
+                                  }}
+                                >
+                                  {/* Rendered as role=button spans, not <button>,
+                                      because the whole model row is itself a
+                                      <button> and nesting buttons is invalid. */}
+                                  {options.map((opt) => {
+                                    const active = region === opt.value
+                                    const disabled = cnOnly
+                                    return (
+                                      <span
+                                        key={opt.value}
+                                        role="button"
+                                        tabIndex={disabled ? -1 : 0}
+                                        aria-disabled={disabled}
+                                        aria-pressed={active}
+                                        data-mol-id={`model-region-${model.id}-${opt.value}`}
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          if (disabled) return
+                                          void setModelRegion(model.id, opt.value)
+                                        }}
+                                        onKeyDown={(e) => {
+                                          if (disabled) return
+                                          if (e.key === 'Enter' || e.key === ' ') {
+                                            e.stopPropagation()
+                                            e.preventDefault()
+                                            void setModelRegion(model.id, opt.value)
+                                          }
+                                        }}
+                                        className={cm.fontWeight('medium')}
+                                        style={{
+                                          fontSize: '10px',
+                                          padding: '1px 6px',
+                                          background: active
+                                            ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 20%, transparent)'
+                                            : 'transparent',
+                                          color: active
+                                            ? 'var(--mol-color-primary, #6366f1)'
+                                            : 'inherit',
+                                          opacity: active ? 1 : 0.6,
+                                          cursor: disabled || active ? 'default' : 'pointer',
+                                        }}
+                                      >
+                                        {opt.label}
+                                      </span>
+                                    )
+                                  })}
+                                </span>
+                              )
+                            })()}
                         </button>
                       </Fragment>
                     )
