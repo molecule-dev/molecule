@@ -755,6 +755,14 @@ export const MODELS: readonly ModelDefinition[] = [
   // DeepSeek
   // Verified: https://api-docs.deepseek.com/quick_start/pricing
   //           https://api-docs.deepseek.com/guides/thinking_mode
+  //           https://api-docs.deepseek.com/updates/ (2026-07-31)
+  // 2026-07-31: DeepSeek-V4-Flash OFFICIAL API launched in public beta — the
+  // SAME `deepseek-v4-flash` id now serves the re-post-trained 0731 build
+  // (same architecture/size; much stronger agent benchmarks — beats
+  // V4-Pro-Preview on Terminal Bench 2.1 / DeepSWE). No pricing/limit/
+  // capability changes. V4-Pro official release "coming soon" — re-verify
+  // pricing THEN (the announced peak-hour 2× was tied to the V4 official
+  // rollout and is still not on the rate card).
   // OpenAI/Anthropic-compatible API; text/code only (no vision); 1M context,
   // 384K max output, automatic context (prompt) caching with ABSOLUTE cache-hit
   // prices (~1/50–1/120 of miss — not the old 0.1× rule). Launch discount made
