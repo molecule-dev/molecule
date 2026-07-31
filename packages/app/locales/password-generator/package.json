@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-password-generator",
   "version": "1.0.0",
+  "license": "Apache-2.0",
   "description": "Translations for @molecule/app-password-generator-react in 79 languages",
   "type": "module",
   "main": "dist/index.js",

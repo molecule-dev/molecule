@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-product",
   "version": "1.0.0",
+  "license": "Apache-2.0",
   "description": "Product resource translations for 79 languages",
   "type": "module",
   "main": "dist/index.js",

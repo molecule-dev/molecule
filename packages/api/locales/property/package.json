@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-property",
   "version": "1.0.0",
+  "license": "Apache-2.0",
   "description": "Property resource translations for 79 languages",
   "type": "module",
   "main": "dist/index.js",
