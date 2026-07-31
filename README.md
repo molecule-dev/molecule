@@ -195,4 +195,4 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## License
 
-[Apache-2.0](LICENSE), Copyright 2026 molecule.dev
+[Apache-2.0](LICENSE), Copyright 2026 Molecule Dev, Inc.
