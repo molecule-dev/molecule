@@ -485,6 +485,28 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
           .catch(() => {})
       }
 
+      // SECURITY (M4): if the account has two-factor enabled, an OAuth login must
+      // NOT issue a session on its own — otherwise anyone who compromises the
+      // linked provider account bypasses the 2FA the user deliberately turned on.
+      // OAuth's single-use authorization code cannot carry the "resubmit with the
+      // TOTP" round-trip the password flow uses, so we fail CLOSED and direct the
+      // user to complete 2FA via password sign-in. (A native OAuth-2FA completion
+      // — a short-lived pending token + a verify endpoint + the picker UI — is a
+      // tracked follow-on; this closes the bypass safely without that flow.)
+      if (user.twoFactorEnabled) {
+        return {
+          statusCode: 403,
+          body: {
+            error: t('user.error.twoFactorRequiresPassword', undefined, {
+              defaultValue:
+                'Two-factor authentication is enabled on this account. Sign in with your email and password to continue.',
+            }),
+            errorKey: 'user.error.twoFactorRequiresPassword',
+            twoFactorRequired: true,
+          },
+        }
+      }
+
       // Create or update device.
       const deviceId = await get<{
         createOrUpdate(userId: string, deviceName: string): Promise<string | null>

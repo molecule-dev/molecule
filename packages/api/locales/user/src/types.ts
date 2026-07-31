@@ -35,6 +35,7 @@ export type UserTranslationKey =
   | 'user.error.failedToUpdateSubscription'
   | 'user.error.failedToUpdatePlan'
   | 'user.error.twoFactorNotAvailable'
+  | 'user.error.twoFactorRequiresPassword'
   | 'user.error.tokenRequired'
   | 'user.error.noPendingTwoFactorSetup'
   | 'user.error.invalidToken'

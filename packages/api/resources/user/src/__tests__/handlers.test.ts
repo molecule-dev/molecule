@@ -917,6 +917,30 @@ describe('logInOAuth handler — email-collision account-takeover guard', () => 
     expect(result?.statusCode).toBe(200)
     expect(mockResourceCreate).toHaveBeenCalled()
   })
+
+  it('refuses to issue a session via OAuth when the account has 2FA enabled (M4)', async () => {
+    wireGet(oauthProviderFor('has2fa@example.com'))
+    // OAuth (server+id) match → an existing account that turned on 2FA.
+    mockFindOne.mockResolvedValueOnce({
+      id: 'u-2fa',
+      email: 'has2fa@example.com',
+      twoFactorEnabled: true,
+      oauthServer: 'google',
+      oauthId: 'new-google-id',
+    })
+    const setSpy = vi.spyOn(authorization, 'set').mockImplementation(() => {})
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    // Fail CLOSED: no session, directed to complete 2FA via password sign-in.
+    expect(result?.statusCode).toBe(403)
+    expect(result?.body?.errorKey).toBe('user.error.twoFactorRequiresPassword')
+    expect(result?.body?.twoFactorRequired).toBe(true)
+    expect(setSpy).not.toHaveBeenCalled()
+  })
 })
 
 // ===== 5c. OAuth email verification + verified-trust linking (logInOAuth.ts) =
