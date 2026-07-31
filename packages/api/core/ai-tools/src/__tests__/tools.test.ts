@@ -53,6 +53,17 @@ describe('redactSecrets', () => {
     expect(redactSecrets('API_KEY=sk-12345')).toBe('API_KEY=[REDACTED]')
   })
 
+  it('redacts vault-classified names the keyword list used to miss (H4)', () => {
+    // These are encrypted by the vault but previously egressed unmasked into
+    // stored AI transcripts because the redactor keyword set lacked them.
+    expect(redactSecrets('DB_PWD=hunter2real')).toBe('DB_PWD=[REDACTED]')
+    expect(redactSecrets('MYSQL_PWD=abc123xyz')).toBe('MYSQL_PWD=[REDACTED]')
+    expect(redactSecrets('MAILGUN_APIKEY=key-abcdef')).toBe('MAILGUN_APIKEY=[REDACTED]')
+    expect(redactSecrets('GOOGLE_SERVICE_ACCOUNT=some-json-blob')).toBe(
+      'GOOGLE_SERVICE_ACCOUNT=[REDACTED]',
+    )
+  })
+
   it('leaves non-secret values alone', () => {
     expect(redactSecrets('NODE_ENV=production')).toBe('NODE_ENV=production')
   })

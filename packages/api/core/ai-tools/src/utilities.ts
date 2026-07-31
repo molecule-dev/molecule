@@ -39,8 +39,14 @@ export const stripControlChars = (s: string): string =>
 // ── Secret redaction ──────────────────────────────────────────────────────────
 
 /** Keywords that indicate a secret/credential when part of an env var name. */
+// Keep aligned with the vault's secret classifier (isSecretKey): a key the vault
+// encrypts must also be masked here, or a decrypted secret read from a project's
+// .env egresses UNMASKED into stored AI transcripts (a store with different
+// access controls than the vault). PWD (DB_PWD/MYSQL_PWD), APIKEY (no underscore,
+// e.g. MAILGUN_APIKEY), and SERVICE_ACCOUNT were the gaps; `_KEY` already covers
+// OPENAI_KEY / *_ROLE_KEY.
 const SECRET_KEYWORDS =
-  'SECRET|PASSWORD|PASSWD|TOKEN|API_KEY|PRIVATE_KEY|DATABASE_URL|REDIS_URL|AUTH|CREDENTIAL|ACCESS_KEY|SIGNING_KEY|ENCRYPTION_KEY|CONNECTION_STRING|DSN|SMTP_PASS|_KEY'
+  'SECRET|PASSWORD|PASSWD|PWD|TOKEN|API_KEY|APIKEY|PRIVATE_KEY|DATABASE_URL|REDIS_URL|AUTH|CREDENTIAL|ACCESS_KEY|SIGNING_KEY|ENCRYPTION_KEY|CONNECTION_STRING|SERVICE_ACCOUNT|DSN|SMTP_PASS|_KEY'
 const SECRET_KEY_PATTERN = new RegExp(`^(.*(?:${SECRET_KEYWORDS})[A-Z0-9_]*)=(.+)$`, 'gim')
 /** Catch JSON-formatted env dumps like { KEY: 'value' } from node/python. */
 const SECRET_JSON_DQ = new RegExp(
