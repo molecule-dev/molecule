@@ -26,6 +26,14 @@ export interface DeepseekConfig {
    * `baseUrl='https://api.deepinfra.com/v1/openai'` + `completionsPath='/chat/completions'`.
    */
   completionsPath?: string
+  /**
+   * Optional catalog-id → upstream-model-id map, applied to the outbound request
+   * ONLY. Lets a US OpenAI-compatible host (DeepInfra) receive its namespaced id
+   * (`deepseek-ai/DeepSeek-V4-Flash`) while the rest of the platform — pricing,
+   * cost ceilings, display — keeps using the canonical catalog id
+   * (`deepseek-v4-flash`). An id not in the map passes through unchanged.
+   */
+  modelMap?: Record<string, string>
   /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
   onRateLimit?: AiRateLimitCallback
 }

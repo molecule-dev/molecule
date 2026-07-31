@@ -63,6 +63,7 @@ class DeepseekAIProviderImpl implements AIProvider {
   private maxTokens: number
   private baseUrl: string
   private completionsPath: string
+  private modelMap: Record<string, string>
   private onRateLimit?: AiRateLimitCallback
 
   constructor(config: DeepseekConfig = {}) {
@@ -72,6 +73,7 @@ class DeepseekAIProviderImpl implements AIProvider {
     this.baseUrl = config.baseUrl ?? process.env.DEEPSEEK_BASE_URL ?? 'https://api.deepseek.com'
     this.completionsPath =
       config.completionsPath ?? process.env.DEEPSEEK_COMPLETIONS_PATH ?? '/v1/chat/completions'
+    this.modelMap = config.modelMap ?? {}
     this.onRateLimit = config.onRateLimit
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
@@ -92,7 +94,10 @@ class DeepseekAIProviderImpl implements AIProvider {
    * @yields {ChatEvent} Chat events including text chunks, tool use requests, done signals, and errors.
    */
   async *chat(params: ChatParams): AsyncIterable<ChatEvent> {
-    const model = params.model ?? this.defaultModel
+    // Canonical catalog id (used everywhere else); translate to the upstream's
+    // id only for the outbound request body via `modelMap`.
+    const canonicalModel = params.model ?? this.defaultModel
+    const model = this.modelMap[canonicalModel] ?? canonicalModel
     const maxTokens = params.maxTokens ?? this.maxTokens
 
     const messages = this.formatMessages(params.messages, params.system)
