@@ -30,16 +30,20 @@ import type { ModelDefinition } from './types.js'
  *   control) carries `thinkingConfigurable: false` and OMITS both fields —
  *   there is nothing to tune.
  *
- * Sources (verified 2026-07-28):
+ * Sources (verified 2026-07-28; OpenAI re-verified 2026-07-31 after the
+ * 2026-07-30 GPT-5.6 repricing — cross-check prices against models.dev with
+ * `npm run check:model-freshness` from the workspace root):
  * - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
  *   + /docs/en/build-with-claude/effort (fable-5 / opus-5 / sonnet-5 current;
  *   opus-4-8 superseded by opus-5 at identical pricing but still served — it is
  *   the recommended refusal-fallback model; effort ladder on all three current
  *   models is low|medium|high|xhigh|max; budget_tokens 400s on 4.7+)
  * - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
- *   2026-07-09: gpt-5.6-sol $5/$30, -terra $2.50/$15, -luna $1/$6, cache read
- *   0.1× input; gpt-5.5/gpt-5.4 still listed as current; long-context 2×
- *   variants exist upstream — not modeled, same as the Gemini/Grok tiers)
+ *   2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
+ *   20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
+ *   gpt-5.4 still listed as current; long-context 2× variants exist upstream —
+ *   not modeled, same as the Gemini/Grok tiers; Sol "Fast mode" 2.5× speed at
+ *   2× price announced 2026-07-30 — not yet modeled)
  * - Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
  *   2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
  *   gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as
@@ -350,11 +354,12 @@ export const MODELS: readonly ModelDefinition[] = [
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     codeExecutionToolType: 'code_interpreter',
-    inputPricePerMTok: 2.5,
-    outputPricePerMTok: 15,
+    // Repriced 2026-07-30 (20% cut from $2.50/$15).
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 12,
     // Cached input 0.1× input; write premium reported 1.25× (see section note).
-    cacheReadPricePerMTok: 0.25,
-    cacheWritePricePerMTok: 3.125,
+    cacheReadPricePerMTok: 0.2,
+    cacheWritePricePerMTok: 2.5,
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
   },
@@ -377,11 +382,12 @@ export const MODELS: readonly ModelDefinition[] = [
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     codeExecutionToolType: 'code_interpreter',
-    inputPricePerMTok: 1,
-    outputPricePerMTok: 6,
+    // Repriced 2026-07-30 (80% cut from $1/$6).
+    inputPricePerMTok: 0.2,
+    outputPricePerMTok: 1.2,
     // Cached input 0.1× input; write premium reported 1.25× (see section note).
-    cacheReadPricePerMTok: 0.1,
-    cacheWritePricePerMTok: 1.25,
+    cacheReadPricePerMTok: 0.02,
+    cacheWritePricePerMTok: 0.25,
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
   },
