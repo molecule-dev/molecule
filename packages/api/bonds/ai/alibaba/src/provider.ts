@@ -49,6 +49,8 @@ class AlibabaAIProvider implements AIProvider {
   private defaultModel: string
   private maxTokens: number
   private baseUrl: string
+  private completionsPath: string
+  private modelMap: Record<string, string>
   private onRateLimit?: AiRateLimitCallback
 
   constructor(config: AlibabaConfig = {}) {
@@ -61,6 +63,9 @@ class AlibabaAIProvider implements AIProvider {
       config.baseUrl ??
       process.env.DASHSCOPE_BASE_URL ??
       'https://dashscope-us.aliyuncs.com/compatible-mode'
+    this.completionsPath =
+      config.completionsPath ?? process.env.DASHSCOPE_COMPLETIONS_PATH ?? '/v1/chat/completions'
+    this.modelMap = config.modelMap ?? {}
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -80,7 +85,8 @@ class AlibabaAIProvider implements AIProvider {
    * @yields {ChatEvent} Chat events including text chunks, tool use requests, done signals, and errors.
    */
   async *chat(params: ChatParams): AsyncIterable<ChatEvent> {
-    const model = params.model ?? this.defaultModel
+    const canonicalModel = params.model ?? this.defaultModel
+    const model = this.modelMap[canonicalModel] ?? canonicalModel
     const maxTokens = params.maxTokens ?? this.maxTokens
 
     const messages = this.formatMessages(params.messages, params.system, params.cacheControl)
@@ -129,7 +135,7 @@ class AlibabaAIProvider implements AIProvider {
     const MAX_RETRIES = 3
     let response: Response | null = null
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
+      response = await fetch(`${this.baseUrl}${this.completionsPath}`, {
         method: 'POST',
         headers,
         body: JSON.stringify(body),

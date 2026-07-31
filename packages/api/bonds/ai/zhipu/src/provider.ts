@@ -60,6 +60,8 @@ class ZhipuAIProvider implements AIProvider {
   private defaultModel: string
   private maxTokens: number
   private baseUrl: string
+  private completionsPath: string
+  private modelMap: Record<string, string>
   private onRateLimit?: AiRateLimitCallback
 
   constructor(config: ZhipuConfig = {}) {
@@ -67,6 +69,9 @@ class ZhipuAIProvider implements AIProvider {
     this.defaultModel = config.defaultModel ?? 'glm-5.2'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.ZHIPU_BASE_URL ?? 'https://api.z.ai/api/paas'
+    this.completionsPath =
+      config.completionsPath ?? process.env.ZHIPU_COMPLETIONS_PATH ?? '/v4/chat/completions'
+    this.modelMap = config.modelMap ?? {}
     this.onRateLimit = config.onRateLimit
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
@@ -87,7 +92,8 @@ class ZhipuAIProvider implements AIProvider {
    * @yields {ChatEvent} Chat events including text chunks, tool use requests, done signals, and errors.
    */
   async *chat(params: ChatParams): AsyncIterable<ChatEvent> {
-    const model = params.model ?? this.defaultModel
+    const canonicalModel = params.model ?? this.defaultModel
+    const model = this.modelMap[canonicalModel] ?? canonicalModel
     const maxTokens = params.maxTokens ?? this.maxTokens
 
     const messages = this.formatMessages(params.messages, params.system)
@@ -133,7 +139,7 @@ class ZhipuAIProvider implements AIProvider {
     const MAX_RETRIES = 3
     let response: Response | null = null
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      response = await fetch(`${this.baseUrl}/v4/chat/completions`, {
+      response = await fetch(`${this.baseUrl}${this.completionsPath}`, {
         method: 'POST',
         headers,
         body: JSON.stringify(body),
