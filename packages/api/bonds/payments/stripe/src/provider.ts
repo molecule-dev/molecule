@@ -48,7 +48,11 @@ export const getClient = (): Stripe => {
       // they're trying to upgrade to a paid plan.
       throw configNotConfiguredError('STRIPE_SECRET_KEY', 'payments')
     }
-    _client = new Stripe(key)
+    // Bound each request: Stripe's SDK default is an 80s timeout with automatic
+    // retries, so a Stripe slowdown during a signup/upgrade surge would pin
+    // request workers for over a minute each and cascade into a pool/worker
+    // exhaustion outage. Cap at 15s with two retries.
+    _client = new Stripe(key, { timeout: 15_000, maxNetworkRetries: 2 })
   }
   return _client
 }
