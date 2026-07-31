@@ -57,12 +57,17 @@ class MiniMaxAIProvider implements AIProvider {
   private defaultModel: string
   private maxTokens: number
   private baseUrl: string
+  private completionsPath: string
+  private modelMap: Record<string, string>
   private onRateLimit?: AiRateLimitCallback
 
   constructor(config: MiniMaxConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.MINIMAX_API_KEY ?? ''
     this.defaultModel = config.defaultModel ?? 'minimax-m3'
     this.maxTokens = config.maxTokens ?? 4096
+    this.completionsPath =
+      config.completionsPath ?? process.env.MINIMAX_COMPLETIONS_PATH ?? '/v1/chat/completions'
+    this.modelMap = config.modelMap ?? {}
     this.onRateLimit = config.onRateLimit
     // `api.minimax.io` is MiniMax's INTERNATIONAL host. The previous default,
     // `api.minimax.chat`, rejected a valid international key with
@@ -90,7 +95,10 @@ class MiniMaxAIProvider implements AIProvider {
    * @yields {ChatEvent} Chat events including text chunks, tool use requests, done signals, and errors.
    */
   async *chat(params: ChatParams): AsyncIterable<ChatEvent> {
-    const model = params.model ?? this.defaultModel
+    // Canonical catalog id (used everywhere else); translate to the upstream's
+    // id only for the outbound request body via `modelMap`.
+    const canonicalModel = params.model ?? this.defaultModel
+    const model = this.modelMap[canonicalModel] ?? canonicalModel
     const maxTokens = params.maxTokens ?? this.maxTokens
 
     const messages = this.formatMessages(params.messages, params.system, params.cacheControl)
@@ -144,7 +152,7 @@ class MiniMaxAIProvider implements AIProvider {
     const MAX_RETRIES = 3
     let response: Response | null = null
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
+      response = await fetch(`${this.baseUrl}${this.completionsPath}`, {
         method: 'POST',
         headers,
         body: JSON.stringify(body),
