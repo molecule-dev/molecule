@@ -26,7 +26,7 @@
     "atoms",
     "store"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "jotai": "2.20.2"
   },

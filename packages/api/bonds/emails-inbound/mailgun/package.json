@@ -27,7 +27,7 @@
     "routes",
     "webhook"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-emails": "1.0.0",
     "@molecule/api-emails-inbound": "1.0.0",

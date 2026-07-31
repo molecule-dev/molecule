@@ -24,7 +24,7 @@
     "sms",
     "twilio"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "twilio": "6.0.2"
   },

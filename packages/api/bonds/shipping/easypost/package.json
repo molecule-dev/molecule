@@ -27,7 +27,7 @@
     "labels",
     "tracking"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
     "@molecule/api-shipping": "1.0.0",

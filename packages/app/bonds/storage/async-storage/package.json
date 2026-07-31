@@ -20,7 +20,7 @@
     "async-storage",
     "react-native"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "build": "tsc",
     "test": "vitest run",

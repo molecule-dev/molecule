@@ -25,8 +25,8 @@
     "logger",
     "console"
   ],
-  "author": "Molecule",
-  "license": "MIT",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-logger": "^1.0.0"
   },

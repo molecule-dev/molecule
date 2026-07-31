@@ -24,7 +24,7 @@
     "error-tracking",
     "sentry"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@sentry/node": "10.69.0"
   },

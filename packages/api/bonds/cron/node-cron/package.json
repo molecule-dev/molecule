@@ -25,7 +25,7 @@
     "node-cron",
     "scheduler"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "node-cron": "4.6.0"
   },

@@ -25,7 +25,7 @@
     "default",
     "express"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-ai-anthropic": "1.0.0",
     "@molecule/api-ai-embeddings": "1.0.0",

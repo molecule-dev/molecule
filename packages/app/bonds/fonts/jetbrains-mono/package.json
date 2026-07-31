@@ -27,7 +27,7 @@
     "monospace",
     "local-fonts"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-fonts": "^1.0.0"
   },

@@ -26,7 +26,7 @@
     "sqs",
     "messaging"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@aws-sdk/client-sqs": "3.1098.0"
   },

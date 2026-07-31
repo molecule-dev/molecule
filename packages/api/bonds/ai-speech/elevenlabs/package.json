@@ -27,7 +27,7 @@
     "tts",
     "text-to-speech"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-ai-speech": ">=1.0.0",
     "@molecule/api-secrets": "^1.0.0"

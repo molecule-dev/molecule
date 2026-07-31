@@ -28,7 +28,7 @@
     "podcast",
     "parser"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "fast-xml-parser": "5.10.1"
   },

@@ -24,7 +24,7 @@
     "analytics",
     "posthog"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "posthog-js": "1.408.1"
   },

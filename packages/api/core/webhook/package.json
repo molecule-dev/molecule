@@ -24,7 +24,7 @@
     "webhook",
     "dispatch"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0",
     "@molecule/api-i18n": "^1.0.0"

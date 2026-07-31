@@ -25,7 +25,7 @@
     "translation",
     "deepl"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-ai-translation": ">=1.0.0",
     "@molecule/api-secrets": "^1.0.0"

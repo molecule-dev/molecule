@@ -25,7 +25,7 @@
     "jsonwebtoken",
     "provider"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "jsonwebtoken": "9.0.3"
   },

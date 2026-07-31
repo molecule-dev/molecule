@@ -24,7 +24,7 @@
     "sms",
     "vonage"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@vonage/server-sdk": "3.29.0"
   },

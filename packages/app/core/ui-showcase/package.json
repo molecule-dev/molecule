@@ -25,7 +25,7 @@
     "showcase",
     "visual-testing"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-ui": "^1.0.0"
   },

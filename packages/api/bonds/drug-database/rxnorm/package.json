@@ -28,7 +28,7 @@
     "medication",
     "interactions"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-drug-database": "^1.0.0"
   },

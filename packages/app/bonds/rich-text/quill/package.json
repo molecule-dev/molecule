@@ -26,7 +26,7 @@
     "editor",
     "wysiwyg"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "dompurify": "3.4.12",
     "quill": "2.0.3"

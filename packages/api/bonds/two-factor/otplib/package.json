@@ -26,7 +26,7 @@
     "totp",
     "provider"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "otplib": "13.4.1",
     "qrcode": "1.5.4"

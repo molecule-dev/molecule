@@ -23,7 +23,7 @@
     "molecule",
     "stepper"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-bond": "^1.0.0"
   },

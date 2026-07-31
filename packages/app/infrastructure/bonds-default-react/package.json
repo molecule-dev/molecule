@@ -25,7 +25,7 @@
     "default",
     "react"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/app-auth": "1.0.0",
     "@molecule/app-charts-chartjs": "1.0.0",

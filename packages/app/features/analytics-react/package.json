@@ -24,7 +24,7 @@
     "analytics",
     "react"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-analytics": "^1.0.0",
     "react": "^18.0.0 || ^19.0.0",

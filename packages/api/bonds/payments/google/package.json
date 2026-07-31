@@ -27,7 +27,7 @@
     "iap",
     "in-app-purchase"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@googleapis/androidpublisher": "36.0.0"
   },

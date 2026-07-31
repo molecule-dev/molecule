@@ -25,7 +25,7 @@
     "resource",
     "catalog"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-locales-product": "1.0.0",
     "@molecule/api-permissions": "1.0.0",

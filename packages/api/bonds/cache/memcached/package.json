@@ -24,7 +24,7 @@
     "cache",
     "memcached"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "memcached": "2.2.2"
   },

@@ -30,7 +30,7 @@
     "verification",
     "parts"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-logger": ">=1.0.0",
     "@molecule/api-project-archive": ">=1.0.0",

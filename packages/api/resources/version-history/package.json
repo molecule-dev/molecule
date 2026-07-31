@@ -27,7 +27,7 @@
     "snapshot",
     "resource"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-locales-resource-version-history": "1.0.0",
     "@types/node": "26.1.2",

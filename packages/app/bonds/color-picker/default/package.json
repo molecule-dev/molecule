@@ -29,7 +29,7 @@
     "picker",
     "default"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-color-picker": "^1.0.0"
   },

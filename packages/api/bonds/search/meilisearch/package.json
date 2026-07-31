@@ -24,7 +24,7 @@
     "search",
     "meilisearch"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "meilisearch": "0.60.0"
   },

@@ -24,7 +24,7 @@
     "ai",
     "translation"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0"
   },

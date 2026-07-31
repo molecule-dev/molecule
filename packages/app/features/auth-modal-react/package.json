@@ -28,7 +28,7 @@
     "oauth",
     "react"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-auth-shell-react": "^1.0.0",
     "@molecule/app-i18n": "^1.0.0",

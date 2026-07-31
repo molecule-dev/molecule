@@ -25,7 +25,7 @@
     "shopping",
     "resource"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-bond": "1.0.0",
     "@molecule/api-database": "1.0.0",

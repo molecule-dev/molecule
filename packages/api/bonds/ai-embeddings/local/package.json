@@ -28,7 +28,7 @@
     "transformers",
     "onnx"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@huggingface/transformers": "4.2.0"
   },

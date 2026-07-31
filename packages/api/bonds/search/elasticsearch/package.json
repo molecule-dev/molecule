@@ -25,7 +25,7 @@
     "elasticsearch",
     "opensearch"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@elastic/elasticsearch": "9.4.2"
   },

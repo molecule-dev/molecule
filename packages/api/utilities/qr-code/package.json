@@ -26,7 +26,7 @@
     "svg",
     "png"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "qrcode-generator": "2.0.4"
   },

@@ -24,7 +24,7 @@
     "ai",
     "deepseek"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-ai": "1.0.0",
     "@molecule/api-bond": "1.0.0",

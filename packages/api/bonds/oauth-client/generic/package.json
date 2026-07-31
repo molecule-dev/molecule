@@ -27,7 +27,7 @@
     "generic",
     "authorization"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-oauth-client": "^1.0.0"
   },

@@ -28,7 +28,7 @@
     "chromadb",
     "embedding"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "chromadb": "3.5.0"
   },

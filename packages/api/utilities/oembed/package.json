@@ -24,7 +24,7 @@
     "oembed",
     "embed"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "undici": "7.29.0"
   },

@@ -24,7 +24,7 @@
     "search",
     "typesense"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "typesense": "3.0.6"
   },

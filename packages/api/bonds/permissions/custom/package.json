@@ -30,7 +30,7 @@
     "in-memory",
     "provider"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-permissions": "^1.0.0"
   },

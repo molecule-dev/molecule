@@ -28,7 +28,7 @@
     "ffmpeg",
     "transcode"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-media-streaming": "^1.0.0"
   },

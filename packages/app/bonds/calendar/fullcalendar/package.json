@@ -24,7 +24,7 @@
     "calendar",
     "fullcalendar"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-calendar": ">=1.0.0"
   },

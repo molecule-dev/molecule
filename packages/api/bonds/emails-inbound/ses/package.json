@@ -28,7 +28,7 @@
     "sns",
     "webhook"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "mailparser": "3.9.14"
   },

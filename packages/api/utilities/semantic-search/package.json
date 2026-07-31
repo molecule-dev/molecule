@@ -27,7 +27,7 @@
     "embeddings",
     "vector"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-ai-embeddings": "1.0.0",
     "@molecule/api-ai-vector-store": "1.0.0",

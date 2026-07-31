@@ -25,7 +25,7 @@
     "summarization",
     "llm"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-ai": "^1.0.0",
     "@molecule/api-bond": "^1.0.0",

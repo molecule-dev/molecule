@@ -25,7 +25,7 @@
     "store",
     "state-management"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-bond": "^1.0.0",
     "@molecule/app-logger": "^1.0.0"

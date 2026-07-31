@@ -25,7 +25,7 @@
     "tanstack",
     "virtualization"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@tanstack/virtual-core": "3.17.7"
   },

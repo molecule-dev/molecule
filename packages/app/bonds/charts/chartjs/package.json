@@ -25,7 +25,7 @@
     "chart.js",
     "visualization"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "directory": "packages/app/bonds/charts/chartjs"

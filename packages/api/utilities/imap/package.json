@@ -25,7 +25,7 @@
     "email",
     "mailbox"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "imapflow": "1.6.5"
   },

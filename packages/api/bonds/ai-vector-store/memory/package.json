@@ -27,7 +27,7 @@
     "memory",
     "in-memory"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-ai-vector-store": ">=1.0.0"
   },

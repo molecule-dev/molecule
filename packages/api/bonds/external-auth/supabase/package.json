@@ -26,7 +26,7 @@
     "auth",
     "provider"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@supabase/supabase-js": "2.111.0"
   },

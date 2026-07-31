@@ -25,7 +25,7 @@
     "mysql",
     "mariadb"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "mysql2": "3.23.2"
   },

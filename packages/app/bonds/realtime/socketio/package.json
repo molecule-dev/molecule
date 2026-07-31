@@ -25,7 +25,7 @@
     "socketio",
     "websocket"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "molecule": {
     "viteOptimizeInclude": [
       "socket.io-client"

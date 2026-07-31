@@ -28,7 +28,7 @@
     "coins",
     "market"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-crypto-prices": "^1.0.0",
     "@molecule/api-secrets": "^1.0.0"

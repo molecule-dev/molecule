@@ -24,7 +24,7 @@
     "email",
     "sendgrid"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@sendgrid/mail": "8.1.6"
   },

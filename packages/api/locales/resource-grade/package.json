@@ -24,7 +24,7 @@
     "resource-grade",
     "i18n"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-i18n": "^1.0.0"
   },

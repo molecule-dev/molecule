@@ -28,7 +28,7 @@
     "zxing",
     "react"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@zxing/library": "0.23.0"
   },

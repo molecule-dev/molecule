@@ -25,7 +25,7 @@
     "appstate",
     "react-native"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/app-i18n": "1.0.0",
     "@molecule/app-lifecycle": "1.0.0",

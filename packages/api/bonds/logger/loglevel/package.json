@@ -24,7 +24,7 @@
     "logger",
     "loglevel"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "loglevel": "1.9.2"
   },

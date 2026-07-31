@@ -25,7 +25,7 @@
     "embeddings",
     "openai"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-ai-embeddings": ">=1.0.0",
     "@molecule/api-secrets": "^1.0.0"

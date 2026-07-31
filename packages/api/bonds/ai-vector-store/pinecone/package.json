@@ -27,7 +27,7 @@
     "pinecone",
     "serverless"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@pinecone-database/pinecone": "8.1.0"
   },

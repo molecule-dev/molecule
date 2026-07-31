@@ -24,7 +24,7 @@
     "kanban",
     "default"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-kanban": ">=1.0.0"
   },

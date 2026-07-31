@@ -25,7 +25,7 @@
     "export",
     "csv"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-database": "^1.0.0",
     "@molecule/api-import-export": "^1.0.0"

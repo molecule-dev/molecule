@@ -27,7 +27,7 @@
     "webrtc",
     "self-hosted"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-secrets": "^1.0.0",
     "@molecule/api-video-rooms": "1.0.0"

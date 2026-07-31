@@ -25,7 +25,7 @@
     "iframe",
     "live"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/app-live-preview": "1.0.0",
     "@types/node": "26.1.2",

@@ -26,8 +26,8 @@
     "capture",
     "dev"
   ],
-  "author": "Molecule",
-  "license": "MIT",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.0"
   },

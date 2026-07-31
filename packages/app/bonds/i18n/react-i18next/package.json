@@ -26,7 +26,7 @@
     "translations",
     "localization"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@molecule/app-i18n-i18next": "1.0.0",
     "i18next": "26.3.6",

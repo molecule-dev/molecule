@@ -25,7 +25,7 @@
     "chat",
     "sse"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/app-ai-chat": "1.0.0",
     "@molecule/app-i18n": "1.0.0",

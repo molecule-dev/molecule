@@ -27,7 +27,7 @@
     "content-policy",
     "resource"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-logger": "1.0.0",
     "@types/node": "26.1.2",

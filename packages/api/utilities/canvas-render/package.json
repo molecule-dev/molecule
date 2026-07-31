@@ -27,7 +27,7 @@
     "svg",
     "pdf"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@napi-rs/canvas": "1.0.3"
   },

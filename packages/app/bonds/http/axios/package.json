@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "author": "molecule.dev",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=20"
