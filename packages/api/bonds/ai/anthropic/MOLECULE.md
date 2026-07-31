@@ -22,7 +22,7 @@ Configuration for anthropic.
 interface AnthropicConfig {
   /** API key. Defaults to ANTHROPIC_API_KEY env var. */
   apiKey?: string
-  /** Default model. Defaults to 'claude-sonnet-5'. */
+  /** Default model. Defaults to 'claude-opus-5'. */
   defaultModel?: string
   /** Maximum tokens for completions. */
   maxTokens?: number
