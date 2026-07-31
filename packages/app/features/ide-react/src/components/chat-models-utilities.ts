@@ -20,10 +20,17 @@ import type { AppModelDefinition } from '@molecule/app-ai-models'
  * a real, factual axis that is genuinely independent of price, context, and
  * output size.
  */
-export type ModelSortColumn = 'name' | 'context' | 'cost' | 'cutoff' | 'free'
+export type ModelSortColumn = 'name' | 'context' | 'cost' | 'cutoff' | 'free' | 'region'
 
 /** Sort direction. */
 export type SortDirection = 'asc' | 'desc'
+
+/**
+ * Processing region of a model, as an arbitrary region code (`'us'`, `'cn'`,
+ * potentially `'eu'` etc. later). `'us'` is the platform default; deliberately
+ * NOT a closed union so adding a region never changes this contract.
+ */
+export type ModelProcessingRegion = string
 
 /**
  * Combined input + output price per million tokens, used as the table's
@@ -66,12 +73,17 @@ export function modelUsageRate(
  * @param a - First model.
  * @param b - Second model.
  * @param column - Column to compare by.
+ * @param regionOf - Resolves a model's effective processing region (only used
+ *   by the `'region'` column; omitting it treats every model as `'us'`). The
+ *   caller supplies this because the effective region depends on per-project
+ *   settings the pure helper cannot know.
  * @returns Negative if `a` sorts before `b`, positive if after, zero if equal.
  */
 export function compareModels(
   a: AppModelDefinition,
   b: AppModelDefinition,
   column: ModelSortColumn,
+  regionOf?: (model: AppModelDefinition) => ModelProcessingRegion,
 ): number {
   let primary: number
   switch (column) {
@@ -94,6 +106,14 @@ export function compareModels(
       // Free-tier models sort first in ascending order.
       primary = (b.freeTier ? 1 : 0) - (a.freeTier ? 1 : 0)
       break
+    case 'region': {
+      // US-processed (platform-default) models sort first ascending; other
+      // regions follow alphabetically by region code.
+      const ra = regionOf?.(a) ?? 'us'
+      const rb = regionOf?.(b) ?? 'us'
+      primary = ra === rb ? 0 : ra === 'us' ? -1 : rb === 'us' ? 1 : ra.localeCompare(rb)
+      break
+    }
   }
   if (primary !== 0) return primary
   // Stable tiebreak by label so equal rows keep a deterministic order.
@@ -107,16 +127,21 @@ export function compareModels(
  * @param models - Models to sort.
  * @param column - Column to sort by.
  * @param direction - `'asc'` or `'desc'`.
+ * @param regionOf - Resolves a model's effective processing region (only used
+ *   by the `'region'` column). See {@link compareModels}.
  * @returns A new, sorted array.
  */
 export function sortModels(
   models: readonly AppModelDefinition[],
   column: ModelSortColumn,
   direction: SortDirection,
+  regionOf?: (model: AppModelDefinition) => ModelProcessingRegion,
 ): AppModelDefinition[] {
   // Swapping the comparator arguments for `'desc'` fully reverses the order
   // (including the label tiebreak) without relying on Array#sort stability.
   return [...models].sort((a, b) =>
-    direction === 'desc' ? compareModels(b, a, column) : compareModels(a, b, column),
+    direction === 'desc'
+      ? compareModels(b, a, column, regionOf)
+      : compareModels(a, b, column, regionOf),
   )
 }

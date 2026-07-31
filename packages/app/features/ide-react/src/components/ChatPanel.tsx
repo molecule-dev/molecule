@@ -148,11 +148,22 @@ import { UserAvatar } from './UserAvatar.js'
 
 const logger = getLogger('chat-panel')
 
-// Processing region for Chinese-origin models. Default 'us' (routed through a
-// US endpoint); 'cn' routes to the model's native-China endpoint. The server
-// reads `project.settings.modelRegions` (a Record<modelId, 'us'|'cn'>).
-type ModelRegion = 'us' | 'cn'
-// Providers whose models get a US/China region toggle.
+// Processing region for a model, as an arbitrary region code ('us', 'cn',
+// potentially 'eu' etc. later — deliberately NOT a closed union). The server
+// reads `project.settings.modelRegions` (a Record<modelId, regionCode>) and
+// dispatches to the provider it registered for that region; unknown codes fall
+// back to the model's default region.
+type ModelRegion = string
+// Every region the picker can offer: flag glyph + the English fallback for its
+// i18n label (`ide.chat.model.region.<code>`). Adding a region here (plus a
+// server-side provider registration) is ALL the UI needs — the flag pill's
+// menu lists whatever `availableModelRegions` returns.
+const MODEL_REGION_META: Record<string, { flag: string; defaultLabel: string }> = {
+  us: { flag: '🇺🇸', defaultLabel: 'US' },
+  cn: { flag: '🇨🇳', defaultLabel: 'China' },
+}
+// Providers whose models are natively hosted in China (and re-hosted on US
+// infrastructure by default), giving them a region choice in the picker.
 const CHINESE_MODEL_PROVIDERS: ReadonlySet<string> = new Set([
   'deepseek',
   'moonshot',
@@ -160,9 +171,24 @@ const CHINESE_MODEL_PROVIDERS: ReadonlySet<string> = new Set([
   'alibaba',
   'zhipu',
 ])
-// CN-only models: the server forces China regardless of the setting, so the
-// toggle is shown fixed/disabled to match.
+// CN-only models: no US re-host exists, so the server forces China regardless
+// of the setting and the picker shows a fixed (non-interactive) flag to match.
 const CN_ONLY_MODEL_IDS: ReadonlySet<string> = new Set(['kimi-k3', 'minimax-m2.5'])
+
+/**
+ * Regions a model can be processed in, first entry = its default. Today:
+ * CN-only models → `['cn']`; other Chinese-origin models → `['us', 'cn']`;
+ * everything else → `['us']`. The pill/menu UI renders whatever this returns,
+ * so future regions only extend this function + `MODEL_REGION_META`.
+ * @param model - The model to resolve regions for.
+ * @returns Available region codes, default first.
+ */
+const availableModelRegions = (model: AppModelDefinition): ModelRegion[] =>
+  CN_ONLY_MODEL_IDS.has(model.id)
+    ? ['cn']
+    : CHINESE_MODEL_PROVIDERS.has(model.provider)
+      ? ['us', 'cn']
+      : ['us']
 
 // ---------------------------------------------------------------------------
 // Types
@@ -3603,7 +3629,7 @@ function ChatInner({
           }
           setEffortByMode(next)
         }
-        // Per-model processing region map — accept each 'us'|'cn' entry
+        // Per-model processing region map — accept each known-region entry
         // (untrusted JSON bag), mirroring effortByMode above.
         if (
           s?.modelRegions &&
@@ -3612,7 +3638,7 @@ function ChatInner({
         ) {
           const nextRegions: Record<string, ModelRegion> = {}
           for (const [id, raw] of Object.entries(s.modelRegions as Record<string, unknown>)) {
-            if (raw === 'us' || raw === 'cn') nextRegions[id] = raw
+            if (typeof raw === 'string' && raw in MODEL_REGION_META) nextRegions[id] = raw
           }
           setModelRegions(nextRegions)
         }
@@ -5647,15 +5673,52 @@ function ChatInner({
       setShowDeprecated(true)
     }
   }, [deprecatedModels, currentModels, currentModel])
+  // Effective processing region for any model: the per-model choice when it's
+  // one of the model's available regions, else the model's default (first
+  // available region). Drives the picker's flag pill AND the `region` sort
+  // column.
+  const effectiveModelRegion = useCallback(
+    (m: AppModelDefinition): ModelRegion => {
+      const available = availableModelRegions(m)
+      const chosen = modelRegions[m.id]
+      return chosen && available.includes(chosen) ? chosen : available[0]
+    },
+    [modelRegions],
+  )
+  // Which model's region menu (the flag pill's dropdown) is open, if any.
+  const [regionMenuModelId, setRegionMenuModelId] = useState<string | null>(null)
+  // Any click outside the open region menu closes it. The opening click never
+  // self-closes: this listener attaches AFTER that click (post-render), and
+  // the pill/menu handlers stopPropagation so their clicks never reach it.
+  useEffect(() => {
+    if (!regionMenuModelId) return
+    const close = () => setRegionMenuModelId(null)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [regionMenuModelId])
+  // Closing the model picker closes any open region menu with it.
+  useEffect(() => {
+    if (!modelPicker) setRegionMenuModelId(null)
+  }, [modelPicker])
   const visibleModels = useMemo(() => {
     // Sort WITHIN each partition so the current/deprecated split (and the
     // `idx >= currentModels.length` divider logic below) is preserved while the
     // chosen sort orders the rows the user actually sees.
-    const sortedCurrent = sortModels(currentModels, modelSort.column, modelSort.direction)
+    const sortedCurrent = sortModels(
+      currentModels,
+      modelSort.column,
+      modelSort.direction,
+      effectiveModelRegion,
+    )
     if (!showDeprecated) return sortedCurrent
-    const sortedDeprecated = sortModels(deprecatedModels, modelSort.column, modelSort.direction)
+    const sortedDeprecated = sortModels(
+      deprecatedModels,
+      modelSort.column,
+      modelSort.direction,
+      effectiveModelRegion,
+    )
     return [...sortedCurrent, ...sortedDeprecated]
-  }, [showDeprecated, currentModels, deprecatedModels, modelSort])
+  }, [showDeprecated, currentModels, deprecatedModels, modelSort, effectiveModelRegion])
 
   // ── Fast mode (⚡) availability ──────────────────────────────────────────────
   // The composer toggle renders only when the model that will serve the CURRENT
@@ -7020,26 +7083,44 @@ function ChatInner({
                 maxHeight: popupMaxHeight,
               }}
             >
+              {/* Picker header — Mode + Sort controls. Layout rules (the old
+                  version was visibly ragged: content-width selects at different
+                  heights, ragged wrap on narrow panes):
+                  - every control is exactly 24px tall (boxSizing border-box);
+                  - each label+control group is a flex item that GROWS, so on
+                    one row the two selects split the width proportionally and
+                    line up edge-to-edge, and when the header wraps (~390px
+                    pane) each group fills its own row instead of leaving a
+                    ragged short select;
+                  - labels never shrink, selects take all remaining group width. */}
               <div
                 className={cm.cn(cm.textSize('xs'), cm.textMuted)}
                 style={{
-                  padding: '5px 12px',
+                  padding: '6px 12px',
                   borderBottom: '1px solid rgba(128,128,128,0.12)',
                   display: 'flex',
-                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  gap: 8,
+                  gap: 10,
                   flexShrink: 0,
-                  // Engages only when Mode + Sort can't share one row (a ~390px
-                  // pane); on desktop widths the single row is unchanged.
                   flexWrap: 'wrap',
                 }}
               >
                 {/* Mode dropdown — re-scopes the OPEN picker in place. Each
                     option shows the mode's currently active model. The /model
-                    --plan etc. flags merely preselect it. */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                  <span>{t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}</span>
+                    --plan etc. flags merely preselect it. Wider flex-basis than
+                    Sort because its option labels carry model names. */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    flex: '1 1 190px',
+                    minWidth: 0,
+                  }}
+                >
+                  <span style={{ flexShrink: 0 }}>
+                    {t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}
+                  </span>
                   <select
                     data-mol-id="chat-model-mode-select"
                     aria-label={t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}
@@ -7061,13 +7142,15 @@ function ChatInner({
                     className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
                     style={{
                       borderRadius: 4,
-                      padding: '1px 4px',
+                      padding: '2px 6px',
                       color: 'inherit',
                       cursor: 'pointer',
-                      maxWidth: 220,
-                      // Let the select shrink below its option text inside the
-                      // min-width:0 flex group so a long mode label can't push
-                      // the header past a 390px pane (the browser clips natively).
+                      height: 24,
+                      boxSizing: 'border-box',
+                      // Fill the group; min-width 0 lets the select shrink below
+                      // its option text (the browser clips natively) so a long
+                      // mode label can't push the header past a narrow pane.
+                      flex: 1,
                       minWidth: 0,
                     }}
                   >
@@ -7083,8 +7166,18 @@ function ChatInner({
                   model is now shown by the right-aligned per-row "current" pill
                   below). Reuses the removed `/models` table's sortModels helper.
                 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>{t('ide.chat.modelSortLabel', undefined, { defaultValue: 'Sort' })}</span>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    flex: '1 1 150px',
+                    minWidth: 0,
+                  }}
+                >
+                  <span style={{ flexShrink: 0 }}>
+                    {t('ide.chat.modelSortLabel', undefined, { defaultValue: 'Sort' })}
+                  </span>
                   <select
                     data-mol-id="model-sort-column"
                     aria-label={t('ide.chat.modelSortLabel', undefined, { defaultValue: 'Sort' })}
@@ -7095,9 +7188,13 @@ function ChatInner({
                     className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
                     style={{
                       borderRadius: 4,
-                      padding: '1px 4px',
+                      padding: '2px 6px',
                       color: 'inherit',
                       cursor: 'pointer',
+                      height: 24,
+                      boxSizing: 'border-box',
+                      flex: 1,
+                      minWidth: 0,
                     }}
                   >
                     <option value="name">
@@ -7114,6 +7211,9 @@ function ChatInner({
                     </option>
                     <option value="free">
                       {t('ide.chat.models.colFree', undefined, { defaultValue: 'Free' })}
+                    </option>
+                    <option value="region">
+                      {t('ide.chat.models.colRegion', undefined, { defaultValue: 'Region' })}
                     </option>
                   </select>
                   <Tooltip
@@ -7140,12 +7240,13 @@ function ChatInner({
                         alignItems: 'center',
                         justifyContent: 'center',
                         borderRadius: 4,
-                        padding: '2px 4px',
+                        padding: 0,
                         color: 'inherit',
                         cursor: 'pointer',
-                        // Match the sort <select>'s height exactly (P3-18): stretch to
-                        // the flex row's height instead of sizing to the 12px icon.
-                        alignSelf: 'stretch',
+                        // Square button matching the selects' 24px height exactly.
+                        height: 24,
+                        width: 24,
+                        flexShrink: 0,
                         boxSizing: 'border-box',
                       }}
                     >
@@ -7206,6 +7307,11 @@ function ChatInner({
                         bg: isLight ? 'rgba(217,119,6,0.12)' : 'rgba(217,119,6,0.18)',
                         fg: isLight ? 'rgb(180,83,9)' : 'rgb(251,191,36)',
                       })
+                    // Region flag pill: shown when the model has a region CHOICE,
+                    // or runs outside the default US region (a fixed flag).
+                    const modelRegionOptions = availableModelRegions(model)
+                    const modelRegion = effectiveModelRegion(model)
+                    const showRegionPill = modelRegionOptions.length > 1 || modelRegion !== 'us'
                     const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
                     // Free tier is clamped per mode (plan → deepseek-v4-pro,
                     // execute → deepseek-v4-flash); the unscoped picker keeps
@@ -7482,12 +7588,13 @@ function ChatInner({
                             {/* Custom models synthesize an empty cutoff — skip the segment. */}
                             {model.knowledgeCutoff ? <> · {model.knowledgeCutoff}</> : null}
                           </span>
-                          {badges.length > 0 && (
+                          {(badges.length > 0 || showRegionPill) && (
                             <span
                               style={{
                                 display: 'flex',
                                 gap: '4px',
                                 flexWrap: 'wrap',
+                                alignItems: 'center',
                                 marginTop: '1px',
                               }}
                             >
@@ -7505,92 +7612,169 @@ function ChatInner({
                                   {b.label}
                                 </span>
                               ))}
+                              {/* Processing-region flag pill, flowing after the
+                                  capability pills. Click opens a menu of the
+                                  model's available regions (arbitrary count —
+                                  today US/China, but nothing here assumes two).
+                                  Single-region models (e.g. kimi-k3, China-only)
+                                  get a fixed, non-interactive flag. Rendered as
+                                  role=button/menu spans, not <button>, because
+                                  the whole model row is itself a <button> and
+                                  nesting buttons is invalid; stopPropagation
+                                  keeps pill/menu clicks from selecting the row. */}
+                              {showRegionPill &&
+                                (() => {
+                                  const interactive = modelRegionOptions.length > 1
+                                  const meta = MODEL_REGION_META[modelRegion]
+                                  const regionLabel = t(
+                                    `ide.chat.model.region.${modelRegion}`,
+                                    undefined,
+                                    {
+                                      defaultValue: meta?.defaultLabel ?? modelRegion.toUpperCase(),
+                                    },
+                                  )
+                                  const hint = interactive
+                                    ? t(
+                                        'ide.chat.model.regionHint',
+                                        { region: regionLabel },
+                                        {
+                                          defaultValue:
+                                            'Processed in: {{region}} — click to change',
+                                        },
+                                      )
+                                    : t(
+                                        'ide.chat.model.regionOnlyHint',
+                                        { region: regionLabel },
+                                        { defaultValue: 'Only hosted in: {{region}}' },
+                                      )
+                                  const menuOpen = regionMenuModelId === model.id
+                                  return (
+                                    <span style={{ position: 'relative', display: 'inline-flex' }}>
+                                      <Tooltip content={hint} placement="top">
+                                        <span
+                                          role={interactive ? 'button' : undefined}
+                                          tabIndex={interactive ? 0 : undefined}
+                                          aria-label={hint}
+                                          aria-haspopup={interactive ? 'menu' : undefined}
+                                          aria-expanded={interactive ? menuOpen : undefined}
+                                          data-mol-id={`model-region-${model.id}`}
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            if (!interactive) return
+                                            setRegionMenuModelId(menuOpen ? null : model.id)
+                                          }}
+                                          onKeyDown={(e) => {
+                                            if (!interactive) return
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                              e.stopPropagation()
+                                              e.preventDefault()
+                                              setRegionMenuModelId(menuOpen ? null : model.id)
+                                            } else if (e.key === 'Escape' && menuOpen) {
+                                              e.stopPropagation()
+                                              setRegionMenuModelId(null)
+                                            }
+                                          }}
+                                          style={{
+                                            // Same pill geometry as the capability
+                                            // badges; neutral background because
+                                            // the flag supplies the color.
+                                            fontSize: '10px',
+                                            lineHeight: '14px',
+                                            padding: '1px 5px',
+                                            borderRadius: '3px',
+                                            background: 'rgba(128,128,128,0.12)',
+                                            cursor: interactive ? 'pointer' : 'default',
+                                          }}
+                                        >
+                                          {meta?.flag ?? modelRegion.toUpperCase()}
+                                        </span>
+                                      </Tooltip>
+                                      {menuOpen && (
+                                        <span
+                                          role="menu"
+                                          aria-label={t(
+                                            'ide.chat.model.regionMenuLabel',
+                                            undefined,
+                                            { defaultValue: 'Processing region' },
+                                          )}
+                                          className={cm.cn(cm.surface, cm.borderAll)}
+                                          style={{
+                                            position: 'absolute',
+                                            bottom: '100%',
+                                            right: 0,
+                                            marginBottom: 4,
+                                            borderRadius: 6,
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                                            zIndex: 20,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            minWidth: 112,
+                                            padding: 2,
+                                          }}
+                                        >
+                                          {modelRegionOptions.map((r) => {
+                                            const rMeta = MODEL_REGION_META[r]
+                                            const rLabel = t(
+                                              `ide.chat.model.region.${r}`,
+                                              undefined,
+                                              {
+                                                defaultValue:
+                                                  rMeta?.defaultLabel ?? r.toUpperCase(),
+                                              },
+                                            )
+                                            const active = r === modelRegion
+                                            return (
+                                              <span
+                                                key={r}
+                                                role="menuitemradio"
+                                                aria-checked={active}
+                                                tabIndex={0}
+                                                data-mol-id={`model-region-${model.id}-${r}`}
+                                                onClick={(e) => {
+                                                  e.stopPropagation()
+                                                  setRegionMenuModelId(null)
+                                                  if (!active) void setModelRegion(model.id, r)
+                                                }}
+                                                onKeyDown={(e) => {
+                                                  if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.stopPropagation()
+                                                    e.preventDefault()
+                                                    setRegionMenuModelId(null)
+                                                    if (!active) void setModelRegion(model.id, r)
+                                                  }
+                                                }}
+                                                className={
+                                                  active ? cm.fontWeight('medium') : undefined
+                                                }
+                                                style={{
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                  gap: 6,
+                                                  padding: '4px 8px',
+                                                  borderRadius: 4,
+                                                  cursor: active ? 'default' : 'pointer',
+                                                  fontSize: '11px',
+                                                  whiteSpace: 'nowrap',
+                                                  background: active
+                                                    ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)'
+                                                    : 'transparent',
+                                                  color: active
+                                                    ? 'var(--mol-color-primary, #6366f1)'
+                                                    : 'inherit',
+                                                }}
+                                              >
+                                                <span aria-hidden="true">{rMeta?.flag}</span>
+                                                <span>{rLabel}</span>
+                                              </span>
+                                            )
+                                          })}
+                                        </span>
+                                      )}
+                                    </span>
+                                  )
+                                })()}
                             </span>
                           )}
-                          {/* Processing-region toggle for Chinese-origin models.
-                              CN-only models (kimi-k3, minimax-m2.5) are forced to
-                              China server-side, so the chip is fixed + disabled to
-                              match. stopPropagation keeps a region click from
-                              selecting the model row (the button's onClick). */}
-                          {CHINESE_MODEL_PROVIDERS.has(model.provider) &&
-                            (() => {
-                              const cnOnly = CN_ONLY_MODEL_IDS.has(model.id)
-                              const region: ModelRegion = cnOnly
-                                ? 'cn'
-                                : (modelRegions[model.id] ?? 'us')
-                              const options: Array<{ value: ModelRegion; label: string }> = [
-                                {
-                                  value: 'us',
-                                  label: t('ide.chat.model.region.us', undefined, {
-                                    defaultValue: 'US',
-                                  }),
-                                },
-                                {
-                                  value: 'cn',
-                                  label: t('ide.chat.model.region.cn', undefined, {
-                                    defaultValue: '中国',
-                                  }),
-                                },
-                              ]
-                              return (
-                                <span
-                                  data-mol-id={`model-region-${model.id}`}
-                                  style={{
-                                    display: 'inline-flex',
-                                    marginTop: '2px',
-                                    borderRadius: '4px',
-                                    overflow: 'hidden',
-                                    border: '1px solid rgba(128,128,128,0.28)',
-                                  }}
-                                >
-                                  {/* Rendered as role=button spans, not <button>,
-                                      because the whole model row is itself a
-                                      <button> and nesting buttons is invalid. */}
-                                  {options.map((opt) => {
-                                    const active = region === opt.value
-                                    const disabled = cnOnly
-                                    return (
-                                      <span
-                                        key={opt.value}
-                                        role="button"
-                                        tabIndex={disabled ? -1 : 0}
-                                        aria-disabled={disabled}
-                                        aria-pressed={active}
-                                        data-mol-id={`model-region-${model.id}-${opt.value}`}
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          if (disabled) return
-                                          void setModelRegion(model.id, opt.value)
-                                        }}
-                                        onKeyDown={(e) => {
-                                          if (disabled) return
-                                          if (e.key === 'Enter' || e.key === ' ') {
-                                            e.stopPropagation()
-                                            e.preventDefault()
-                                            void setModelRegion(model.id, opt.value)
-                                          }
-                                        }}
-                                        className={cm.fontWeight('medium')}
-                                        style={{
-                                          fontSize: '10px',
-                                          padding: '1px 6px',
-                                          background: active
-                                            ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 20%, transparent)'
-                                            : 'transparent',
-                                          color: active
-                                            ? 'var(--mol-color-primary, #6366f1)'
-                                            : 'inherit',
-                                          opacity: active ? 1 : 0.6,
-                                          cursor: disabled || active ? 'default' : 'pointer',
-                                        }}
-                                      >
-                                        {opt.label}
-                                      </span>
-                                    )
-                                  })}
-                                </span>
-                              )
-                            })()}
                         </button>
                       </Fragment>
                     )

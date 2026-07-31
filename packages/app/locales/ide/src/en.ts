@@ -3,7 +3,11 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for en. */
 export const en: IdeTranslations = {
   'ide.chat.model.region.us': 'US',
-  'ide.chat.model.region.cn': '中国',
+  'ide.chat.model.region.cn': 'China',
+  'ide.chat.model.regionHint': 'Processed in: {{region}} — click to change',
+  'ide.chat.model.regionOnlyHint': 'Only hosted in: {{region}}',
+  'ide.chat.model.regionMenuLabel': 'Processing region',
+  'ide.chat.models.colRegion': 'Region',
   'ide.chat.thoughtBriefly': 'Thought briefly',
   // Thinking duration. Singular/plural split (count supplied by the call site);
   // the plural form interpolates {{count}} so the bond value never overrides a

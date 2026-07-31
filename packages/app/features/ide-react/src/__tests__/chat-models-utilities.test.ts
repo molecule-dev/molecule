@@ -132,6 +132,28 @@ describe('compareModels', () => {
     expect(compareModels(mid, cheapFree, 'free')).toBeGreaterThan(0)
   })
 
+  it('orders US-processed models first ascending for the region column', () => {
+    const us = model({ id: 'us-model', label: 'Us Model' })
+    const cn = model({ id: 'cn-model', label: 'Cn Model', provider: 'deepseek' })
+    const regionOf = (m: AppModelDefinition) => (m.id === 'cn-model' ? 'cn' : 'us')
+    expect(compareModels(us, cn, 'region', regionOf)).toBeLessThan(0)
+    expect(compareModels(cn, us, 'region', regionOf)).toBeGreaterThan(0)
+    // Without a resolver every model is treated as US → label tiebreak decides.
+    expect(compareModels(us, cn, 'region')).toBeGreaterThan(0)
+  })
+
+  it('orders arbitrary non-US regions alphabetically after US', () => {
+    const us = model({ id: 'a-us', label: 'A Us' })
+    const cn = model({ id: 'b-cn', label: 'B Cn' })
+    const eu = model({ id: 'c-eu', label: 'C Eu' })
+    const regions: Record<string, string> = { 'a-us': 'us', 'b-cn': 'cn', 'c-eu': 'eu' }
+    const regionOf = (m: AppModelDefinition) => regions[m.id]
+    // us first, then cn < eu alphabetically — no assumption of exactly two regions.
+    expect(compareModels(us, eu, 'region', regionOf)).toBeLessThan(0)
+    expect(compareModels(cn, eu, 'region', regionOf)).toBeLessThan(0)
+    expect(compareModels(eu, cn, 'region', regionOf)).toBeGreaterThan(0)
+  })
+
   it('is deterministic for equal primaries via the label tiebreak', () => {
     const a = model({ id: 'a', label: 'Alpha', contextWindow: 1000 })
     const b = model({ id: 'b', label: 'Beta', contextWindow: 1000 })
@@ -159,5 +181,15 @@ describe('sortModels', () => {
   it('sorts free-tier models to the top ascending', () => {
     expect(sortModels(all, 'free', 'asc')[0].freeTier).toBe(true)
     expect(sortModels(all, 'free', 'desc').at(-1)?.freeTier).toBe(true)
+  })
+
+  it('sorts by effective region via the resolver, label-tiebroken within a region', () => {
+    const regionOf = (m: AppModelDefinition) => (m.id === 'mid' ? ('cn' as const) : 'us')
+    expect(sortModels(all, 'region', 'asc', regionOf).map((m) => m.id)).toEqual([
+      'pricey',
+      'cheap',
+      'mid',
+    ])
+    expect(sortModels(all, 'region', 'desc', regionOf)[0].id).toBe('mid')
   })
 })
