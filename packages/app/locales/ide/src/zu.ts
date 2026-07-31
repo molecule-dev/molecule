@@ -520,4 +520,9 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Imodi esheshayo ivuliwe — izimpendulo ezisheshayo ngesivinini esiphezulu',
+  'ide.chat.fastModeOff': 'Imodi esheshayo ivaliwe',
+  'ide.chat.fastModeEnable':
+    'Imodi esheshayo — kufika ku-2.5× okukhipha okusheshayo ngesilinganiso sethokheni esiphezulu',
+  'ide.chat.fastModeDisable': 'Vala imodi esheshayo',
 }

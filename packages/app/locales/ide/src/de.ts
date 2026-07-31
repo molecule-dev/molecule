@@ -537,4 +537,9 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Laufende Summe – beinhaltet die derzeit gestreamte Antwort.',
   'ide.toolCall.packageCount': '{{count}} Pakete',
   'ide.toolCall.openPackageDoc': 'Paketdokumentation öffnen',
+  'ide.chat.fastModeOn': 'Schnellmodus aktiviert – schnellere Reaktionen bei höherer Frequenz',
+  'ide.chat.fastModeOff': 'Schnellmodus aus',
+  'ide.chat.fastModeEnable':
+    'Schnellmodus – bis zu 2,5-mal schnellere Ausgabe bei einer höheren Token-Rate',
+  'ide.chat.fastModeDisable': 'Schnellmodus deaktivieren',
 }

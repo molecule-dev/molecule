@@ -515,4 +515,9 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Mód tapa ar siúl — freagraí níos tapúla ag ráta níos airde',
+  'ide.chat.fastModeOff': 'Mód tapa múchta',
+  'ide.chat.fastModeEnable':
+    'Mód tapa — aschur suas le 2.5× níos tapúla ag ráta comharthaí níos airde',
+  'ide.chat.fastModeDisable': 'Múch an mód tapa',
 }

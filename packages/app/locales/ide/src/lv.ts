@@ -523,4 +523,9 @@ export const lv: Partial<IdeTranslations> = {
     'Kopējais skaits — ietver arī atbildi, kas pašlaik tiek pārraidīta.',
   'ide.toolCall.packageCount': '{{count}} iepakojumi',
   'ide.toolCall.openPackageDoc': 'Atvērt dokumentāciju par pakotni',
+  'ide.chat.fastModeOn': 'Ieslēgts ātrdarbības režīms — ātrākas atbildes ar lielāku frekvenci',
+  'ide.chat.fastModeOff': 'Ātrā režīma izslēgšana',
+  'ide.chat.fastModeEnable':
+    'Ātrs režīms — līdz pat 2,5 reizes ātrāka izvade ar augstāku žetonu apmaiņas ātrumu',
+  'ide.chat.fastModeDisable': 'Izslēdziet ātrdarbības režīmu',
 }

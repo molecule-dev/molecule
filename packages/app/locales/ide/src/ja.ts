@@ -525,4 +525,8 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': '累計 — 現在ストリーミング中のレスポンスを含みます。',
   'ide.toolCall.packageCount': '{{count}} パッケージ',
   'ide.toolCall.openPackageDoc': 'パッケージのドキュメントを開く',
+  'ide.chat.fastModeOn': '高速モードオン — より高いレートで応答が速くなります',
+  'ide.chat.fastModeOff': '高速モードをオフにする',
+  'ide.chat.fastModeEnable': '高速モード — トークンレートが上昇し、出力速度が最大2.5倍に',
+  'ide.chat.fastModeDisable': '高速モードをオフにする',
 }

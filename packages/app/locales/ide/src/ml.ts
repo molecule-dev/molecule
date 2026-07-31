@@ -518,4 +518,9 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'ഫാസ്റ്റ് മോഡ് ഓണാണ് — ഉയർന്ന നിരക്കിൽ വേഗത്തിലുള്ള പ്രതികരണങ്ങൾ',
+  'ide.chat.fastModeOff': 'ഫാസ്റ്റ് മോഡ് ഓഫാണ്',
+  'ide.chat.fastModeEnable':
+    'ഫാസ്റ്റ് മോഡ് — ഉയർന്ന ടോക്കൺ നിരക്കിൽ 2.5× വരെ വേഗതയുള്ള ഔട്ട്‌പുട്ട്',
+  'ide.chat.fastModeDisable': 'ഫാസ്റ്റ് മോഡ് ഓഫാക്കുക',
 }

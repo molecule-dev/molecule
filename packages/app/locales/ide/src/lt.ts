@@ -527,4 +527,9 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Bendras skaičius — įskaitant šiuo metu transliuojamą atsakymą.',
   'ide.toolCall.packageCount': '{{count}} pakuotės',
   'ide.toolCall.openPackageDoc': 'Atidaryti paketo dokumentaciją',
+  'ide.chat.fastModeOn': 'Įjungtas greitasis režimas — greitesni atsakymai didesniu dažniu',
+  'ide.chat.fastModeOff': 'Greitasis režimas išjungtas',
+  'ide.chat.fastModeEnable':
+    'Greitasis režimas — iki 2,5 kartų spartesnis duomenų išvedimas esant didesniam žetonų dažniui',
+  'ide.chat.fastModeDisable': 'Išjunkite greitojo režimo funkciją',
 }

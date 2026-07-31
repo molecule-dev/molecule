@@ -524,4 +524,9 @@ export const fi: Partial<IdeTranslations> = {
     'Kertynyt kokonaismäärä — sisältää parhaillaan lähetettävän vastauksen.',
   'ide.toolCall.packageCount': '{{count}} paketit',
   'ide.toolCall.openPackageDoc': 'Avaa paketin dokumentaatio',
+  'ide.chat.fastModeOn': 'Nopea tila päällä — nopeammat vastaukset suuremmalla taajuudella',
+  'ide.chat.fastModeOff': 'Pikatila pois päältä',
+  'ide.chat.fastModeEnable':
+    'Nopea tila — jopa 2,5-kertainen tulostusnopeus suuremmalla merkkitaajuudella',
+  'ide.chat.fastModeDisable': 'Sammuta pikamoodi',
 }

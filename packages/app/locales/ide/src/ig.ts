@@ -514,4 +514,8 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Agbanyere ọnọdụ ngwa ngwa — nzaghachi ngwa ngwa na ọnụego dị elu',
+  'ide.chat.fastModeOff': 'Agbanyụrụ ọnọdụ ngwa ngwa',
+  'ide.chat.fastModeEnable': 'Ụdị ngwa ngwa — ruo 2.5× mmepụta ngwa ngwa na ọnụego akara dị elu',
+  'ide.chat.fastModeDisable': 'Gbanyụọ ọnọdụ ngwa ngwa',
 }

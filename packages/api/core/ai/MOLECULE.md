@@ -164,6 +164,19 @@ interface ChatParams {
    * thinking + effort is the only control.
    */
   thinking?: { type: 'enabled'; budgetTokens: number; effort?: string }
+  /**
+   * Request the provider's fast/priority speed tier for this call (e.g.
+   * Anthropic's `speed: "fast"` — same model, faster output, premium pricing).
+   *
+   * Callers should only set `'fast'` for models whose catalog entry declares
+   * `fastPricing` (that field is the capability flag). Bonds whose provider has
+   * no speed tier ignore it. Bonds that support it MUST report the speed the
+   * provider says the request actually ran at in `TokenUsage.speed`, so
+   * metering prices the served tier, not the requested one. No automatic
+   * fallback is performed here: a fast-tier rate limit surfaces as a normal
+   * error/retry, and the caller decides whether to drop back to standard.
+   */
+  speed?: 'standard' | 'fast'
   /** Enable prompt caching. Providers that support it will cache system prompts and tools. */
   cacheControl?: { type: 'ephemeral' }
   /** Abort signal to cancel in-flight API requests when the client disconnects. */
@@ -251,6 +264,13 @@ interface TokenUsage {
   cacheCreationInputTokens?: number
   /** Number of input tokens read from the prompt cache. */
   cacheReadInputTokens?: number
+  /**
+   * The speed tier the provider REPORTS the request ran at (e.g. Anthropic's
+   * `usage.speed`). Only set by bonds whose provider has a fast/priority tier
+   * — absent means standard. Metering keys fast-tier pricing off THIS field,
+   * never off the requested `ChatParams.speed`.
+   */
+  speed?: 'standard' | 'fast'
 }
 ```
 

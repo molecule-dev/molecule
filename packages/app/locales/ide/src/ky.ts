@@ -516,4 +516,9 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Тез режим күйүк — жогорку ылдамдыкта тез жооптор',
+  'ide.chat.fastModeOff': 'Тез режим өчүрүлгөн',
+  'ide.chat.fastModeEnable':
+    'Тез режим — жогорку токен ылдамдыгында 2,5 эсеге чейин тезирээк чыгаруу',
+  'ide.chat.fastModeDisable': 'Тез режимди өчүрүү',
 }

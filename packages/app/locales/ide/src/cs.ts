@@ -520,4 +520,8 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Průběžný součet — zahrnuje odpověď, která se právě přenáší.',
   'ide.toolCall.packageCount': '{{count}} balíčky',
   'ide.toolCall.openPackageDoc': 'Otevřít dokumentaci k balíčku',
+  'ide.chat.fastModeOn': 'Zapnutý rychlý režim – rychlejší odezvy při vyšší frekvenci',
+  'ide.chat.fastModeOff': 'Rychlý režim vypnutý',
+  'ide.chat.fastModeEnable': 'Rychlý režim – až 2,5× rychlejší výstup při vyšší frekvenci tokenů',
+  'ide.chat.fastModeDisable': 'Vypněte rychlý režim',
 }

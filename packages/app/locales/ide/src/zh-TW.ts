@@ -503,4 +503,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': '累計總數 — 包含目前正在串流的回應。',
   'ide.toolCall.packageCount': '{{count}} 套件',
   'ide.toolCall.openPackageDoc': '開啟套件文件',
+  'ide.chat.fastModeOn': '開啟快速模式 — 以更高頻率獲得更快的回應',
+  'ide.chat.fastModeOff': '關閉快速模式',
+  'ide.chat.fastModeEnable': '快速模式 — 以更高的代幣速率，輸出速度最高可提升 2.5 倍',
+  'ide.chat.fastModeDisable': '關閉快速模式',
 }

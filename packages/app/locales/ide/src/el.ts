@@ -531,4 +531,10 @@ export const el: Partial<IdeTranslations> = {
     'Συνολικό άθροισμα — περιλαμβάνει την απάντηση που μεταδίδεται αυτή τη στιγμή.',
   'ide.toolCall.packageCount': '{{count}} πακέτα',
   'ide.toolCall.openPackageDoc': 'Άνοιγμα εγγράφων πακέτου',
+  'ide.chat.fastModeOn':
+    'Ενεργοποίηση της λειτουργίας «Fast» — ταχύτερες απαντήσεις με υψηλότερο ρυθμό',
+  'ide.chat.fastModeOff': 'Η γρήγορη λειτουργία είναι απενεργοποιημένη',
+  'ide.chat.fastModeEnable':
+    'Γρήγορη λειτουργία — έως και 2,5 φορές ταχύτερη παραγωγή με υψηλότερο ρυθμό έκδοσης token',
+  'ide.chat.fastModeDisable': 'Απενεργοποίηση της γρήγορης λειτουργίας',
 }

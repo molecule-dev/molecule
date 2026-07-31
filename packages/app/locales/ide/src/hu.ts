@@ -524,4 +524,9 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Futó összeg — tartalmazza a jelenleg streamelt választ is.',
   'ide.toolCall.packageCount': '{{count}} csomagok',
   'ide.toolCall.openPackageDoc': 'A csomag dokumentációjának megnyitása',
+  'ide.chat.fastModeOn': 'Gyors üzemmód bekapcsolva — gyorsabb válaszok magasabb frekvencián',
+  'ide.chat.fastModeOff': 'Gyors üzemmód kikapcsolva',
+  'ide.chat.fastModeEnable':
+    'Gyors üzemmód — akár 2,5-szer gyorsabb kimenet magasabb token-frekvencián',
+  'ide.chat.fastModeDisable': 'A gyors üzemmód kikapcsolása',
 }

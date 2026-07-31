@@ -524,4 +524,9 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Tekoči seštevek — vključuje odgovor, ki se trenutno prenaša.',
   'ide.toolCall.packageCount': '{{count}} paketi',
   'ide.toolCall.openPackageDoc': 'Odpri dokumentacijo paketa',
+  'ide.chat.fastModeOn': 'Vklopljen hitri način — hitrejši odzivi pri višji frekvenci',
+  'ide.chat.fastModeOff': 'Hitri način izklopljen',
+  'ide.chat.fastModeEnable':
+    'Hiter način — do 2,5-krat hitrejši izhod pri višji hitrosti izdajanja žetonov',
+  'ide.chat.fastModeDisable': 'Izklopite hitri način',
 }

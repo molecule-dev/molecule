@@ -270,6 +270,36 @@ describe('pricing integrity (spend accounting)', () => {
     }
   })
 
+  it('fastPricing (when declared) is finite, premium-or-equal, and internally consistent', () => {
+    // Fast mode bills at a PREMIUM (Anthropic fast is 2× standard) — a
+    // fastPricing block cheaper than base rates, or with swapped cache fields,
+    // would under-meter every fast-served turn.
+    for (const model of MODELS) {
+      if (!model.fastPricing) continue
+      const fp = model.fastPricing
+      for (const [field, value] of Object.entries(fp)) {
+        expect(Number.isFinite(value), `${model.id} fastPricing.${field} must be finite`).toBe(true)
+        expect(value, `${model.id} fastPricing.${field} must be >= 0`).toBeGreaterThanOrEqual(0)
+      }
+      expect(
+        fp.inputPricePerMTok,
+        `${model.id} fast input must be >= standard input`,
+      ).toBeGreaterThanOrEqual(model.inputPricePerMTok)
+      expect(
+        fp.outputPricePerMTok,
+        `${model.id} fast output must be >= standard output`,
+      ).toBeGreaterThanOrEqual(model.outputPricePerMTok)
+      expect(
+        fp.cacheReadPricePerMTok,
+        `${model.id} fast cache read must be <= fast input price`,
+      ).toBeLessThanOrEqual(fp.inputPricePerMTok)
+      expect(
+        fp.cacheWritePricePerMTok,
+        `${model.id} fast cache write must be >= fast input price`,
+      ).toBeGreaterThanOrEqual(fp.inputPricePerMTok)
+    }
+  })
+
   it('every model has a non-empty id and label', () => {
     for (const model of MODELS) {
       expect(typeof model.id === 'string' && model.id.length > 0).toBe(true)

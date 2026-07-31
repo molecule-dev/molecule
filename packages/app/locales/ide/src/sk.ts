@@ -523,4 +523,9 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Bežný súčet — zahŕňa odpoveď, ktorá sa práve prenáša.',
   'ide.toolCall.packageCount': '{{count}} balíčky',
   'ide.toolCall.openPackageDoc': 'Otvoriť dokumentáciu k balíku',
+  'ide.chat.fastModeOn': 'Zapnutý rýchly režim — rýchlejšie reakcie pri vyššej frekvencii',
+  'ide.chat.fastModeOff': 'Rýchly režim vypnutý',
+  'ide.chat.fastModeEnable':
+    'Rýchly režim — až 2,5× rýchlejší výstup pri vyššej frekvencii tokenov',
+  'ide.chat.fastModeDisable': 'Vypnúť rýchly režim',
 }

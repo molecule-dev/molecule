@@ -119,6 +119,17 @@ export const MODELS: readonly ModelDefinition[] = [
     provider: 'anthropic',
     label: 'Claude Opus 5',
     description: 'Anthropic Opus flagship — step-change agentic coding at 4.8 pricing',
+    // Fast mode (research preview, Claude API only): same model at up to 2.5×
+    // output speed, $10/$50 per MTok (2× standard; platform.claude.com fast-mode
+    // docs, verified 2026-07-31). Cache rates follow Anthropic's standard
+    // ratios (read 0.1× input, write 1.25× input) applied to the fast input
+    // rate. Separate upstream rate limits from standard Opus.
+    fastPricing: {
+      inputPricePerMTok: 10,
+      outputPricePerMTok: 50,
+      cacheReadPricePerMTok: 1,
+      cacheWritePricePerMTok: 12.5,
+    },
     contextWindow: 1_000_000,
     maxOutputTokens: 128_000,
     supportsThinking: true,

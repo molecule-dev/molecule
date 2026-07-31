@@ -516,4 +516,8 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'ಫಾಸ್ಟ್ ಮೋಡ್ ಆನ್ ಆಗಿದೆ — ಹೆಚ್ಚಿನ ದರದಲ್ಲಿ ವೇಗವಾದ ಪ್ರತಿಕ್ರಿಯೆಗಳು',
+  'ide.chat.fastModeOff': 'ಫಾಸ್ಟ್ ಮೋಡ್ ಆಫ್ ಆಗಿದೆ',
+  'ide.chat.fastModeEnable': 'ವೇಗದ ಮೋಡ್ — ಹೆಚ್ಚಿನ ಟೋಕನ್ ದರದಲ್ಲಿ 2.5× ವೇಗದ ಔಟ್‌ಪುಟ್',
+  'ide.chat.fastModeDisable': 'ವೇಗದ ಮೋಡ್ ಅನ್ನು ಆಫ್ ಮಾಡಿ',
 }

@@ -545,6 +545,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
     attempt: number
   } | null>(null)
   const [mode, setMode] = useState<'plan' | 'execute'>('execute')
+  // Fast/priority speed tier — server-persisted per conversation, hydrated from
+  // the history load's `fastMode` meta field (same channel as `mode`).
+  const [fastMode, setFastMode] = useState<boolean>(false)
   // Transient label for a background phase (e.g. the verification pass) surfaced
   // by `status` stream events. Shown in place of the spinner's rotating messages
   // so the user sees the current step; cleared (null) by the server's status
@@ -967,6 +970,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
           setMode(serverMode)
           onModeChange?.(serverMode)
         }
+        // Restore the conversation's fast-mode flag the same way (servers
+        // without the field leave the default `false`).
+        const serverFastMode = (provider as { lastMeta?: Record<string, unknown> }).lastMeta
+          ?.fastMode
+        if (typeof serverFastMode === 'boolean') setFastMode(serverFastMode)
 
         // Multi-conversation handling: the switch itself was detected + applied
         // SYNCHRONOUSLY at effect start (see above) — here we only hydrate.
@@ -1814,9 +1822,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
     error,
     errorMeta,
     mode,
+    fastMode,
     streamingStatus,
     retryCountdown,
     setMode: exposedSetMode,
+    setFastMode,
     sendMessage,
     abort,
     cancelRetry,

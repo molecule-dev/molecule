@@ -531,4 +531,10 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Totale parziale — include la risposta attualmente in streaming.',
   'ide.toolCall.packageCount': '{{count}} pacchetti',
   'ide.toolCall.openPackageDoc': 'Apri la documentazione del pacchetto',
+  'ide.chat.fastModeOn':
+    'Modalità veloce attivata — risposte più rapide a una frequenza più elevata',
+  'ide.chat.fastModeOff': 'Modalità veloce disattivata',
+  'ide.chat.fastModeEnable':
+    'Modalità veloce — velocità di output fino a 2,5 volte superiore con una frequenza di token più elevata',
+  'ide.chat.fastModeDisable': 'Disattiva la modalità veloce',
 }

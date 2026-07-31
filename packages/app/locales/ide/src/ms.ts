@@ -515,4 +515,10 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn':
+    'Mod pantas dihidupkan — respons lebih pantas pada kadar yang lebih tinggi',
+  'ide.chat.fastModeOff': 'Mod pantas dimatikan',
+  'ide.chat.fastModeEnable':
+    'Mod pantas — output sehingga 2.5× lebih pantas pada kadar token yang lebih tinggi',
+  'ide.chat.fastModeDisable': 'Matikan mod pantas',
 }

@@ -552,6 +552,46 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
   })
 
   // =========================================================================
+  // Fast mode (speed: 'fast')
+  // =========================================================================
+
+  describe('fast mode', () => {
+    const emptyStreamResponse = () => ({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+          releaseLock: vi.fn(),
+        }),
+      },
+    })
+
+    it("sends speed: 'fast' + the fast-mode beta flag when requested", async () => {
+      mockFetch.mockResolvedValue(emptyStreamResponse())
+      await collectEvents(provider.chat({ ...minimalParams, speed: 'fast' }))
+      const [, init] = mockFetch.mock.calls[0] as [string, RequestInit]
+      const body = JSON.parse(init.body as string)
+      expect(body.speed).toBe('fast')
+      expect((init.headers as Record<string, string>)['anthropic-beta']).toContain(
+        'fast-mode-2026-02-01',
+      )
+    })
+
+    it('sends neither the param nor the beta flag by default', async () => {
+      mockFetch.mockResolvedValue(emptyStreamResponse())
+      await collectEvents(provider.chat({ ...minimalParams }))
+      const [, init] = mockFetch.mock.calls[0] as [string, RequestInit]
+      const body = JSON.parse(init.body as string)
+      expect(body.speed).toBeUndefined()
+      expect((init.headers as Record<string, string>)['anthropic-beta'] ?? '').not.toContain(
+        'fast-mode',
+      )
+    })
+  })
+
+  // =========================================================================
   // tool_choice mapping
   // =========================================================================
 
@@ -1029,5 +1069,40 @@ describe('AnthropicAIProvider — non-streaming response (stream: false)', () =>
     const iThinking = events.findIndex((e) => e.type === 'thinking')
     const iText = events.findIndex((e) => e.type === 'text')
     expect(iThinking).toBeLessThan(iText)
+  })
+
+  it('passes the provider-reported usage.speed through to done.usage (fast-mode metering)', async () => {
+    // Metering prices the SERVED tier — a fast-served turn must carry
+    // speed: 'fast' on its usage, and a standard turn must carry nothing.
+    mockFetch.mockResolvedValue(
+      jsonResponse({
+        content: [{ type: 'text', text: 'ok' }],
+        usage: { input_tokens: 10, output_tokens: 5, speed: 'fast' },
+      }),
+    )
+    const events = await collectEvents(
+      provider.chat({
+        messages: [{ role: 'user' as const, content: 'hi' }],
+        stream: false,
+        speed: 'fast',
+      }),
+    )
+    expect(events.find((e) => e.type === 'done')).toMatchObject({
+      usage: { inputTokens: 10, outputTokens: 5, speed: 'fast' },
+    })
+  })
+
+  it('omits usage.speed when the provider does not report one', async () => {
+    mockFetch.mockResolvedValue(
+      jsonResponse({
+        content: [{ type: 'text', text: 'ok' }],
+        usage: { input_tokens: 10, output_tokens: 5 },
+      }),
+    )
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'hi' }], stream: false }),
+    )
+    const done = events.find((e) => e.type === 'done') as { usage?: { speed?: string } }
+    expect(done.usage?.speed).toBeUndefined()
   })
 })

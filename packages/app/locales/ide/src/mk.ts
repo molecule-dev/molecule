@@ -517,4 +517,8 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Брз режим вклучен — побрзи одговори со поголема брзина',
+  'ide.chat.fastModeOff': 'Брзиот режим е исклучен',
+  'ide.chat.fastModeEnable': 'Брз режим — до 2,5 пати побрз излез со поголема брзина на токени',
+  'ide.chat.fastModeDisable': 'Исклучи го брзиот режим',
 }

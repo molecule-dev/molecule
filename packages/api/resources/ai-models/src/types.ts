@@ -206,6 +206,27 @@ export interface ModelDefinition {
     windows: { startMinuteUtc: number; endMinuteUtc: number }[]
     multiplier: number
   }
+  /**
+   * Fast-mode ("priority speed") pricing — the per-MTok rates billed when a
+   * request runs with the provider's fast/priority tier (e.g. Anthropic's
+   * `speed: "fast"` research preview: same model, up to ~2.5× output speed, at
+   * premium pricing). PRESENCE of this field is the capability flag: a model
+   * without it does not support fast mode, and metering/UI/dispatch all key off
+   * that. All four fields are required for the same never-under-meter reasons
+   * as the base rates. Metering MUST price a turn by the speed the provider
+   * REPORTS it ran at (`TokenUsage.speed`), not the speed requested — a
+   * fast-mode 429 that falls back to standard must not bill 2×.
+   */
+  fastPricing?: {
+    /** Fast-mode input price per million uncached tokens in USD. */
+    inputPricePerMTok: number
+    /** Fast-mode output price per million tokens in USD. */
+    outputPricePerMTok: number
+    /** Fast-mode prompt-cache read price per million tokens in USD. */
+    cacheReadPricePerMTok: number
+    /** Fast-mode prompt-cache write price per million tokens in USD. */
+    cacheWritePricePerMTok: number
+  }
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
   /**

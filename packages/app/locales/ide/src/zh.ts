@@ -505,4 +505,8 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': '累计总数——包括当前正在流式传输的响应。',
   'ide.toolCall.packageCount': '{{count}} 软件包',
   'ide.toolCall.openPackageDoc': '打开包文档',
+  'ide.chat.fastModeOn': '快速模式开启——以更高的速率实现更快的响应',
+  'ide.chat.fastModeOff': '快速模式已关闭',
+  'ide.chat.fastModeEnable': '快速模式——在更高的令牌速率下，输出速度最高可达2.5倍',
+  'ide.chat.fastModeDisable': '关闭快速模式',
 }

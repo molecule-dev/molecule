@@ -516,4 +516,8 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Жылдам режим қосулы — жоғары жылдамдықпен жылдам жауаптар',
+  'ide.chat.fastModeOff': 'Жылдам режим өшірулі',
+  'ide.chat.fastModeEnable': 'Жылдам режим — жоғары токен жылдамдығымен 2,5 есе жылдамырақ шығыс',
+  'ide.chat.fastModeDisable': 'Жылдам режимді өшіру',
 }

@@ -518,4 +518,8 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Tezkor rejim yoqilgan — yuqori tezlikda tezroq javoblar',
+  'ide.chat.fastModeOff': "Tez rejim o'chirilgan",
+  'ide.chat.fastModeEnable': 'Tezkor rejim — yuqori token tezligida 2,5 baravar tezroq chiqish',
+  'ide.chat.fastModeDisable': "Tez rejimni o'chirib qo'ying",
 }

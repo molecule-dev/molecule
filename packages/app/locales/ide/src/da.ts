@@ -520,4 +520,9 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Løbende total — inkluderer det svar, der lige nu streames.',
   'ide.toolCall.packageCount': '{{count}} pakker',
   'ide.toolCall.openPackageDoc': 'Åbn dokumentationen til pakken',
+  'ide.chat.fastModeOn': 'Hurtig tilstand aktiveret — hurtigere svar med højere frekvens',
+  'ide.chat.fastModeOff': 'Hurtig tilstand slået fra',
+  'ide.chat.fastModeEnable':
+    'Hurtig tilstand — op til 2,5 gange hurtigere output ved en højere token-hastighed',
+  'ide.chat.fastModeDisable': 'Deaktiver hurtigtilstand',
 }

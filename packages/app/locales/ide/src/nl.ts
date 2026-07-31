@@ -530,4 +530,9 @@ export const nl: Partial<IdeTranslations> = {
     'Lopend totaal — inclusief het antwoord dat momenteel wordt gestreamd.',
   'ide.toolCall.packageCount': '{{count}} pakketten',
   'ide.toolCall.openPackageDoc': 'Documentatie van het pakket openen',
+  'ide.chat.fastModeOn': 'Snelle modus ingeschakeld — snellere reacties bij een hogere snelheid',
+  'ide.chat.fastModeOff': 'Snelle modus uitgeschakeld',
+  'ide.chat.fastModeEnable':
+    'Snelle modus — tot 2,5× snellere uitvoer bij een hogere tokenfrequentie',
+  'ide.chat.fastModeDisable': 'Schakel de snelle modus uit',
 }

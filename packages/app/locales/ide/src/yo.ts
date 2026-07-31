@@ -550,4 +550,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Ipò kíákíá ń ṣiṣẹ́ — àwọn ìdáhùn kíákíá ní ìwọ̀n gíga',
+  'ide.chat.fastModeOff': 'Ipò kíákíá ti pa',
+  'ide.chat.fastModeEnable': 'Ipo Yara — titi de 2.5× iṣẹjade yiyara ni oṣuwọn ami ti o ga julọ',
+  'ide.chat.fastModeDisable': 'Pa ipo iyara',
 }

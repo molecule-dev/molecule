@@ -509,4 +509,8 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'ፈጣን ሁነታ በርቷል — በከፍተኛ ፍጥነት ፈጣን ምላሾች',
+  'ide.chat.fastModeOff': 'ፈጣን ሁነታ ጠፍቷል',
+  'ide.chat.fastModeEnable': 'ፈጣን ሁነታ - እስከ 2.5× ፈጣን ውጤት በከፍተኛ የቶከን ፍጥነት',
+  'ide.chat.fastModeDisable': 'ፈጣን ሁነታን ያጥፉ',
 }

@@ -514,4 +514,9 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Sürətli rejim aktivdir — daha yüksək sürətlə daha sürətli cavablar',
+  'ide.chat.fastModeOff': 'Sürətli rejim söndürülüb',
+  'ide.chat.fastModeEnable':
+    'Sürətli rejim — daha yüksək token sürətində 2,5 dəfəyə qədər daha sürətli çıxış',
+  'ide.chat.fastModeDisable': 'Sürətli rejimi söndürün',
 }

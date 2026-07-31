@@ -527,4 +527,9 @@ export const pl: Partial<IdeTranslations> = {
     'Suma bieżąca — obejmuje odpowiedź przesyłaną obecnie w trybie strumieniowym.',
   'ide.toolCall.packageCount': '{{count}} pakiety',
   'ide.toolCall.openPackageDoc': 'Otwórz dokumentację pakietu',
+  'ide.chat.fastModeOn': 'Włączony tryb szybki — szybsze reakcje przy wyższej częstotliwości',
+  'ide.chat.fastModeOff': 'Tryb szybki wyłączony',
+  'ide.chat.fastModeEnable':
+    'Tryb szybki — nawet 2,5-krotnie szybsze generowanie wyników przy wyższej częstotliwości tokenów',
+  'ide.chat.fastModeDisable': 'Wyłącz tryb szybki',
 }

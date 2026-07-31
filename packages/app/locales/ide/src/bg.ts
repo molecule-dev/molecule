@@ -529,4 +529,9 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Текуща обща сума — включва отговора, който се предава в момента.',
   'ide.toolCall.packageCount': '{{count}} пакети',
   'ide.toolCall.openPackageDoc': 'Отвори документацията на пакета',
+  'ide.chat.fastModeOn': 'Активиран е бързият режим — по-бързи отговори с по-висока честота',
+  'ide.chat.fastModeOff': 'Бързият режим е изключен',
+  'ide.chat.fastModeEnable':
+    'Бърз режим — до 2,5 пъти по-бързо генериране при по-висока честота на токените',
+  'ide.chat.fastModeDisable': 'Изключете режима за бързо действие',
 }

@@ -520,4 +520,9 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'မြန်ဆန်သောမုဒ်ဖွင့်ထားသည် — ပိုမိုမြန်ဆန်သောနှုန်းဖြင့် တုံ့ပြန်မှုများ',
+  'ide.chat.fastModeOff': 'အမြန်မုဒ် ပိတ်ထားသည်',
+  'ide.chat.fastModeEnable':
+    'မြန်ဆန်သောမုဒ် — တိုကင်နှုန်းမြင့်မားစွာဖြင့် ၂.၅ ဆအထိ ပိုမြန်သော အထွက်',
+  'ide.chat.fastModeDisable': 'မြန်ဆန်သောမုဒ်ကို ပိတ်ပါ',
 }

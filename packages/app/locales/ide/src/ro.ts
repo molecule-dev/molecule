@@ -526,4 +526,9 @@ export const ro: Partial<IdeTranslations> = {
     'Total cumulativ — include răspunsul care se transmite în acest moment.',
   'ide.toolCall.packageCount': '{{count}} pachete',
   'ide.toolCall.openPackageDoc': 'Deschide documentația pachetului',
+  'ide.chat.fastModeOn': 'Modul rapid activat — răspunsuri mai rapide la o frecvență mai mare',
+  'ide.chat.fastModeOff': 'Modul rapid dezactivat',
+  'ide.chat.fastModeEnable':
+    'Modul rapid — viteză de ieșire de până la 2,5 ori mai mare, la o rată de token mai ridicată',
+  'ide.chat.fastModeDisable': 'Dezactivează modul rapid',
 }

@@ -36,6 +36,8 @@ interface AnthropicStreamState {
   outputTokens: number
   cacheCreationInputTokens: number
   cacheReadInputTokens: number
+  /** Speed tier the provider reported for this request (fast-mode metering). */
+  speed: 'standard' | 'fast' | null
   pendingTool: { id: string; name: string; inputJson: string } | null
   pendingThinking: string | null
 }
@@ -56,7 +58,18 @@ function snapshotUsage(state: AnthropicStreamState): TokenUsage {
       ? { cacheCreationInputTokens: state.cacheCreationInputTokens }
       : {}),
     ...(state.cacheReadInputTokens ? { cacheReadInputTokens: state.cacheReadInputTokens } : {}),
+    ...(state.speed ? { speed: state.speed } : {}),
   }
+}
+
+/**
+ * Narrows a provider-reported `usage.speed` value to the TokenUsage union.
+ *
+ * @param value - The raw `speed` field from an Anthropic usage object.
+ * @returns The narrowed speed, or null when absent/unrecognized.
+ */
+function parseSpeed(value: unknown): 'standard' | 'fast' | null {
+  return value === 'fast' || value === 'standard' ? value : null
 }
 
 /**
@@ -151,6 +164,14 @@ class AnthropicAIProvider implements AIProvider {
     // The value is the caller's opaque hash; this bond never derives or logs it.
     if (params.endUserId) body.metadata = { user_id: params.endUserId }
 
+    // Fast mode (research preview): `speed: "fast"` as a top-level body param +
+    // the fast-mode beta flag (added to the anthropic-beta header below). The
+    // response's `usage.speed` reports what actually ran and is passed through
+    // to TokenUsage.speed so metering prices the served tier. NOTE: switching
+    // speed invalidates the prompt cache, so callers should keep speed stable
+    // within a conversation.
+    if (params.speed === 'fast') body.speed = 'fast'
+
     // Thinking requires temperature=1 (default); skip any explicit temperature override.
     //
     // Two thinking paths, keyed off the caller-resolved native effort value:
@@ -182,6 +203,7 @@ class AnthropicAIProvider implements AIProvider {
     // thinking interleaves automatically.
     const betaFeatures: string[] = []
     if (params.thinking && !nativeEffort) betaFeatures.push('interleaved-thinking-2025-05-14')
+    if (params.speed === 'fast') betaFeatures.push('fast-mode-2026-02-01')
     if (betaFeatures.length > 0) {
       headers['anthropic-beta'] = betaFeatures.join(',')
     }
@@ -413,8 +435,10 @@ class AnthropicAIProvider implements AIProvider {
           output_tokens?: number
           cache_creation_input_tokens?: number | null
           cache_read_input_tokens?: number | null
+          speed?: string
         }
       | undefined
+    const servedSpeed = parseSpeed(usage?.speed)
     yield {
       type: 'done',
       usage: {
@@ -426,6 +450,7 @@ class AnthropicAIProvider implements AIProvider {
         ...(usage?.cache_read_input_tokens
           ? { cacheReadInputTokens: usage.cache_read_input_tokens }
           : {}),
+        ...(servedSpeed ? { speed: servedSpeed } : {}),
       },
     }
   }
@@ -454,6 +479,7 @@ class AnthropicAIProvider implements AIProvider {
       outputTokens: 0,
       cacheCreationInputTokens: 0,
       cacheReadInputTokens: 0,
+      speed: null,
       pendingTool: null,
       pendingThinking: null,
     }
@@ -615,8 +641,11 @@ class AnthropicAIProvider implements AIProvider {
                 input_tokens?: number
                 cache_creation_input_tokens?: number | null
                 cache_read_input_tokens?: number | null
+                speed?: string
               }
             | undefined
+          const servedSpeed = parseSpeed(usage?.speed)
+          if (servedSpeed) state.speed = servedSpeed
           if (usage?.input_tokens) state.inputTokens = usage.input_tokens
           if (usage?.cache_creation_input_tokens)
             state.cacheCreationInputTokens = usage.cache_creation_input_tokens

@@ -4,7 +4,7 @@ Translations for molecule IDE components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-ide` package which has 472 translation keys.
+Provides translations for the `@molecule/app-ide` package which has 476 translation keys.
 
 ## Languages
 
@@ -86,6 +86,10 @@ registerLocaleModule(locales)
 | `ide.chat.compactError` | Failed to compact conversation. |
 | `ide.chat.switchedToPlan` | Switched to plan mode |
 | `ide.chat.switchedToExecute` | Switched to execute mode |
+| `ide.chat.fastModeOn` | Fast mode on — faster responses at a higher rate |
+| `ide.chat.fastModeOff` | Fast mode off |
+| `ide.chat.fastModeEnable` | Fast mode — up to 2.5× faster output at a higher token rate |
+| `ide.chat.fastModeDisable` | Turn off fast mode |
 | `ide.chat.costError` | Unable to fetch usage data. |
 | `ide.chat.usageAllowanceTodayLine` | You |
 | `ide.chat.usageAllowanceUsedUpLine` | Today |

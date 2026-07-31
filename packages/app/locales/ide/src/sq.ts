@@ -519,4 +519,10 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn':
+    'Modaliteti i shpejtë aktiv — përgjigje më të shpejta me një shpejtësi më të lartë',
+  'ide.chat.fastModeOff': 'Modaliteti i shpejtë është çaktivizuar',
+  'ide.chat.fastModeEnable':
+    'Modaliteti i shpejtë — deri në 2.5 herë prodhim më i shpejtë me një shpejtësi më të lartë të token-eve',
+  'ide.chat.fastModeDisable': 'Çaktivizo modalitetin e shpejtë',
 }

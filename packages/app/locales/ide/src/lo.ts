@@ -513,4 +513,8 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'ໂໝດໄວເປີດຢູ່ — ການຕອບສະໜອງໄວຂຶ້ນໃນອັດຕາທີ່ສູງກວ່າ',
+  'ide.chat.fastModeOff': 'ປິດໂໝດໄວແລ້ວ',
+  'ide.chat.fastModeEnable': 'ໂໝດໄວ — ຜົນຜະລິດໄວຂຶ້ນເຖິງ 2.5 ເທົ່າໃນອັດຕາໂທເຄັນທີ່ສູງຂຶ້ນ',
+  'ide.chat.fastModeDisable': 'ປິດໂໝດໄວ',
 }

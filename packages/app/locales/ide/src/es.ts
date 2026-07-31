@@ -531,4 +531,9 @@ export const es: Partial<IdeTranslations> = {
     'Total acumulado: incluye la respuesta que se está transmitiendo en este momento.',
   'ide.toolCall.packageCount': '{{count}} paquetes',
   'ide.toolCall.openPackageDoc': 'Abrir la documentación del paquete',
+  'ide.chat.fastModeOn': 'Modo rápido activado: respuestas más rápidas a una frecuencia más alta',
+  'ide.chat.fastModeOff': 'Modo rápido desactivado',
+  'ide.chat.fastModeEnable':
+    'Modo rápido: salida hasta 2,5 veces más rápida con una tasa de tokens más alta',
+  'ide.chat.fastModeDisable': 'Desactivar el modo rápido',
 }

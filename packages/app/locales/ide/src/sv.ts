@@ -523,4 +523,9 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Löpande summa — inkluderar det svar som just nu strömmas.',
   'ide.toolCall.packageCount': '{{count}} paket',
   'ide.toolCall.openPackageDoc': 'Öppna dokumentationen för paketet',
+  'ide.chat.fastModeOn': 'Snabbläge aktiverat – snabbare svar med högre frekvens',
+  'ide.chat.fastModeOff': 'Snabbläge avstängt',
+  'ide.chat.fastModeEnable':
+    'Snabbläge — upp till 2,5 gånger snabbare utmatning vid högre tokenfrekvens',
+  'ide.chat.fastModeDisable': 'Stäng av snabbläget',
 }

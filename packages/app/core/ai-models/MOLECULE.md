@@ -107,6 +107,21 @@ interface AppModelDefinition {
   cacheReadPricePerMTok: number
   /** Price per million prompt-cache *write* (cache-creation) input tokens in USD. */
   cacheWritePricePerMTok: number
+  /**
+   * Fast-mode ("priority speed") pricing. PRESENCE marks the model as
+   * fast-mode capable — the ⚡ composer toggle and the picker's `fast` badge
+   * key off this field. Mirrors the server-side `ModelDefinition.fastPricing`.
+   */
+  fastPricing?: {
+    /** Fast-mode input price per million uncached tokens in USD. */
+    inputPricePerMTok: number
+    /** Fast-mode output price per million tokens in USD. */
+    outputPricePerMTok: number
+    /** Fast-mode prompt-cache read price per million tokens in USD. */
+    cacheReadPricePerMTok: number
+    /** Fast-mode prompt-cache write price per million tokens in USD. */
+    cacheWritePricePerMTok: number
+  }
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
   /**

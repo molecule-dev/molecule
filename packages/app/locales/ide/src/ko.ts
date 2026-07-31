@@ -517,4 +517,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': '누적 합계 — 현재 스트리밍 중인 응답을 포함합니다.',
   'ide.toolCall.packageCount': '{{count}} 패키지',
   'ide.toolCall.openPackageDoc': '패키지 문서 열기',
+  'ide.chat.fastModeOn': '빠른 모드 켜기 — 더 높은 속도로 더 빠른 응답',
+  'ide.chat.fastModeOff': '빠른 모드 끄기',
+  'ide.chat.fastModeEnable': '고속 모드 — 더 높은 토큰 처리 속도로 최대 2.5배 더 빠른 출력',
+  'ide.chat.fastModeDisable': '빠른 모드 끄기',
 }

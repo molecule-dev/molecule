@@ -515,4 +515,9 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Hali ya haraka imewashwa — majibu ya haraka zaidi kwa kiwango cha juu',
+  'ide.chat.fastModeOff': 'Hali ya haraka imezimwa',
+  'ide.chat.fastModeEnable':
+    'Hali ya haraka — hadi 2.5× utoaji wa haraka zaidi kwa kiwango cha juu cha tokeni',
+  'ide.chat.fastModeDisable': 'Zima hali ya haraka',
 }

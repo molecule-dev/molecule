@@ -524,4 +524,9 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Toplam sayı — şu anda akış halinde olan yanıtı da içerir.',
   'ide.toolCall.packageCount': '{{count}} paketler',
   'ide.toolCall.openPackageDoc': 'Paket belgelerini aç',
+  'ide.chat.fastModeOn': 'Hızlı mod açık — daha yüksek hızda daha hızlı yanıtlar',
+  'ide.chat.fastModeOff': 'Hızlı mod kapalı',
+  'ide.chat.fastModeEnable':
+    'Hızlı mod — daha yüksek token oranıyla 2,5 kata kadar daha hızlı çıktı',
+  'ide.chat.fastModeDisable': 'Hızlı modu kapatın',
 }

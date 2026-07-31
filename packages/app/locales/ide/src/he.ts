@@ -511,4 +511,8 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'מצב מהיר מופעל - תגובות מהירות יותר בקצב גבוה יותר',
+  'ide.chat.fastModeOff': 'מצב מהיר כבוי',
+  'ide.chat.fastModeEnable': 'מצב מהיר - פלט מהיר יותר עד פי 2.5 בקצב אסימונים גבוה יותר',
+  'ide.chat.fastModeDisable': 'כבה את מצב המהיר',
 }

@@ -517,4 +517,9 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Chế độ nhanh được bật — phản hồi nhanh hơn với tốc độ cao hơn',
+  'ide.chat.fastModeOff': 'Chế độ nhanh tắt',
+  'ide.chat.fastModeEnable':
+    'Chế độ nhanh — tốc độ xuất dữ liệu nhanh hơn tới 2,5 lần với tốc độ xử lý token cao hơn.',
+  'ide.chat.fastModeDisable': 'Tắt chế độ nhanh',
 }

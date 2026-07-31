@@ -517,4 +517,9 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Yanayi mai sauri yana kunne - amsoshi masu sauri a mafi girma',
+  'ide.chat.fastModeOff': 'Yanayin sauri ya kashe',
+  'ide.chat.fastModeEnable':
+    'Yanayin sauri - har zuwa fitarwa mafi sauri 2.5× a ƙimar alama mafi girma',
+  'ide.chat.fastModeDisable': 'Kashe yanayin sauri',
 }

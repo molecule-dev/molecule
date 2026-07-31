@@ -516,4 +516,9 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'වේගවත් ප්‍රකාරය ක්‍රියාත්මකයි — ඉහළ අනුපාතයකින් වේගවත් ප්‍රතිචාර',
+  'ide.chat.fastModeOff': 'වේගවත් ප්‍රකාරය අක්‍රියයි',
+  'ide.chat.fastModeEnable':
+    'වේගවත් මාදිලිය — ඉහළ ටෝකන් අනුපාතයකින් 2.5× දක්වා වේගවත් ප්‍රතිදානයක්',
+  'ide.chat.fastModeDisable': 'වේගවත් ප්‍රකාරය ක්‍රියාවිරහිත කරන්න',
 }

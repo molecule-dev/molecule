@@ -515,4 +515,8 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': "Vinnige modus aan — vinniger reaksies teen 'n hoër tempo",
+  'ide.chat.fastModeOff': 'Vinnige modus af',
+  'ide.chat.fastModeEnable': "Vinnige modus — tot 2.5× vinniger uitvoer teen 'n hoër tokenkoers",
+  'ide.chat.fastModeDisable': 'Skakel vinnige modus af',
 }

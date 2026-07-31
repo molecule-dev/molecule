@@ -207,6 +207,27 @@ interface ModelDefinition {
     windows: { startMinuteUtc: number; endMinuteUtc: number }[]
     multiplier: number
   }
+  /**
+   * Fast-mode ("priority speed") pricing — the per-MTok rates billed when a
+   * request runs with the provider's fast/priority tier (e.g. Anthropic's
+   * `speed: "fast"` research preview: same model, up to ~2.5× output speed, at
+   * premium pricing). PRESENCE of this field is the capability flag: a model
+   * without it does not support fast mode, and metering/UI/dispatch all key off
+   * that. All four fields are required for the same never-under-meter reasons
+   * as the base rates. Metering MUST price a turn by the speed the provider
+   * REPORTS it ran at (`TokenUsage.speed`), not the speed requested — a
+   * fast-mode 429 that falls back to standard must not bill 2×.
+   */
+  fastPricing?: {
+    /** Fast-mode input price per million uncached tokens in USD. */
+    inputPricePerMTok: number
+    /** Fast-mode output price per million tokens in USD. */
+    outputPricePerMTok: number
+    /** Fast-mode prompt-cache read price per million tokens in USD. */
+    cacheReadPricePerMTok: number
+    /** Fast-mode prompt-cache write price per million tokens in USD. */
+    cacheWritePricePerMTok: number
+  }
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
   /**
@@ -425,16 +446,20 @@ Effort is each model's OWN native value — there is no abstract scale (see
   control) carries `thinkingConfigurable: false` and OMITS both fields —
   there is nothing to tune.
 
-Sources (verified 2026-07-28):
+Sources (verified 2026-07-28; OpenAI re-verified 2026-07-31 after the
+2026-07-30 GPT-5.6 repricing — cross-check prices against models.dev with
+`npm run check:model-freshness` from the workspace root):
 - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
   + /docs/en/build-with-claude/effort (fable-5 / opus-5 / sonnet-5 current;
   opus-4-8 superseded by opus-5 at identical pricing but still served — it is
   the recommended refusal-fallback model; effort ladder on all three current
   models is low|medium|high|xhigh|max; budget_tokens 400s on 4.7+)
 - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
-  2026-07-09: gpt-5.6-sol $5/$30, -terra $2.50/$15, -luna $1/$6, cache read
-  0.1× input; gpt-5.5/gpt-5.4 still listed as current; long-context 2×
-  variants exist upstream — not modeled, same as the Gemini/Grok tiers)
+  2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
+  20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
+  gpt-5.4 still listed as current; long-context 2× variants exist upstream —
+  not modeled, same as the Gemini/Grok tiers; Sol "Fast mode" 2.5× speed at
+  2× price announced 2026-07-30 — not yet modeled)
 - Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
   2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
   gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as

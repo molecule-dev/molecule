@@ -515,4 +515,8 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Modd cyflym ymlaen — ymatebion cyflymach ar gyfradd uwch',
+  'ide.chat.fastModeOff': 'Modd cyflym i ffwrdd',
+  'ide.chat.fastModeEnable': 'Modd cyflym — allbwn hyd at 2.5× cyflymach ar gyfradd tocynnau uwch',
+  'ide.chat.fastModeDisable': 'Diffoddwch y modd cyflym',
 }

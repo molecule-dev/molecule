@@ -526,4 +526,9 @@ export const ru: Partial<IdeTranslations> = {
     'Накопленное значение — включает ответ, передаваемый в данный момент.',
   'ide.toolCall.packageCount': '{{count}} пакеты',
   'ide.toolCall.openPackageDoc': 'Открыть документацию по пакету',
+  'ide.chat.fastModeOn': 'Включен быстрый режим — более быстрые отклики с более высокой частотой',
+  'ide.chat.fastModeOff': 'Режим «Быстрый» выключен',
+  'ide.chat.fastModeEnable':
+    'Быстрый режим — скорость вывода данных до 2,5× выше при более высокой частоте токенов',
+  'ide.chat.fastModeDisable': 'Отключить быстрый режим',
 }

@@ -517,4 +517,9 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Արագ ռեժիմը միացված է՝ ավելի արագ արձագանքներ՝ ավելի բարձր արագությամբ',
+  'ide.chat.fastModeOff': 'Արագ ռեժիմն անջատված է',
+  'ide.chat.fastModeEnable':
+    'Արագ ռեժիմ՝ մինչև 2.5 անգամ ավելի արագ արդյունք՝ ավելի բարձր տոկենների արագությամբ',
+  'ide.chat.fastModeDisable': 'Անջատեք արագ ռեժիմը',
 }

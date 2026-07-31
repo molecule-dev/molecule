@@ -522,4 +522,9 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Kogusumma — sisaldab hetkel edastatavat vastust.',
   'ide.toolCall.packageCount': '{{count}} paketid',
   'ide.toolCall.openPackageDoc': 'Ava paketi dokumentatsioon',
+  'ide.chat.fastModeOn': 'Kiirrežiim sisse lülitatud — kiiremad vastused suurema sagedusega',
+  'ide.chat.fastModeOff': 'Kiirrežiim välja lülitatud',
+  'ide.chat.fastModeEnable':
+    'Kiirrežiim — kuni 2,5 korda kiirem väljund suurema märkide sageduse juures',
+  'ide.chat.fastModeDisable': 'Lülita kiirrežiim välja',
 }

@@ -516,4 +516,8 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'ఫాస్ట్ మోడ్ ఆన్‌లో ఉంది — అధిక వేగంతో వేగవంతమైన ప్రతిస్పందనలు',
+  'ide.chat.fastModeOff': 'ఫాస్ట్ మోడ్ ఆఫ్',
+  'ide.chat.fastModeEnable': 'ఫాస్ట్ మోడ్ — అధిక టోకెన్ రేటుతో 2.5 రెట్ల వరకు వేగవంతమైన అవుట్‌పుట్',
+  'ide.chat.fastModeDisable': 'ఫాస్ట్ మోడ్‌ను ఆఫ్ చేయండి',
 }

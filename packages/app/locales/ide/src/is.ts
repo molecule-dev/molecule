@@ -515,4 +515,8 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Hraðvirk stilling kveikt — hraðari svör og hærri tíðni',
+  'ide.chat.fastModeOff': 'Slökkt á hraðstillingu',
+  'ide.chat.fastModeEnable': 'Hraðvirk stilling — allt að 2,5x hraðari úttak með hærri táknhraða',
+  'ide.chat.fastModeDisable': 'Slökkva á hraðstillingu',
 }

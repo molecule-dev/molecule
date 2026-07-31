@@ -305,6 +305,13 @@ export interface UseChatResult {
   /** Current agent mode — plan (read-only research) or execute (full access). */
   mode: 'plan' | 'execute'
   /**
+   * Whether the conversation runs at the provider's fast/priority speed tier
+   * (server-persisted per conversation; hydrated from the history load's
+   * `fastMode` meta field, when the server provides one). Only meaningful for
+   * models that support a fast tier — the server ignores it otherwise.
+   */
+  fastMode: boolean
+  /**
    * Transient label for a background phase (e.g. the post-response verification
    * pass — "Type-checking the API", "Linting"), set by `status` stream events.
    * The UI shows it in place of the spinner's generic rotating messages; `null`
@@ -322,6 +329,8 @@ export interface UseChatResult {
   retryCountdown: { secondsRemaining: number; attempt: number } | null
   /** Update the local mode state (for instant mode toggle without an AI turn). */
   setMode: (mode: 'plan' | 'execute') => void
+  /** Update the local fast-mode state (for instant toggle without an AI turn). */
+  setFastMode: (fastMode: boolean) => void
   sendMessage: (
     message: string,
     attachments?: ChatAttachment[],

@@ -2801,8 +2801,10 @@ function ChatInner({
     error,
     errorMeta,
     mode,
+    fastMode,
     streamingStatus,
     setMode,
+    setFastMode,
     sendMessage,
     abort,
     clearHistory,
@@ -5604,6 +5606,16 @@ function ChatInner({
     return [...sortedCurrent, ...sortedDeprecated]
   }, [showDeprecated, currentModels, deprecatedModels, modelSort])
 
+  // ── Fast mode (⚡) availability ──────────────────────────────────────────────
+  // The composer toggle renders only when the model that will serve the CURRENT
+  // mode declares fast-tier pricing (`fastPricing` — e.g. Claude Opus 5). The
+  // server re-checks per iteration, so this is presentation-only gating.
+  const activeModeModelId =
+    (mode === 'plan' ? planModel : executeModel) || currentModel || DEFAULT_MODEL
+  const fastModeAvailable = Boolean(
+    AVAILABLE_MODELS.find((m) => m.id === activeModeModelId)?.fastPricing,
+  )
+
   // ── Model-picker mode dropdown ──────────────────────────────────────────────
   // Options for the picker's mode selector; each shows the model currently
   // active for that mode (persisted value, else its fallback labeling) so
@@ -7131,6 +7143,12 @@ function ChatInner({
                         bg: isLight ? 'rgba(202,138,4,0.12)' : 'rgba(234,179,8,0.18)',
                         fg: isLight ? 'rgb(161,98,7)' : 'rgb(250,204,21)',
                       })
+                    if (model.fastPricing)
+                      badges.push({
+                        label: 'fast mode',
+                        bg: isLight ? 'rgba(234,88,12,0.12)' : 'rgba(249,115,22,0.18)',
+                        fg: isLight ? 'rgb(194,65,12)' : 'rgb(251,146,60)',
+                      })
                     if (isDeprecated(model))
                       badges.push({
                         label: `deprecated ${model.deprecatedAt}`,
@@ -8346,6 +8364,72 @@ function ChatInner({
                 <path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z" />
               </svg>
             </button>
+            {/* Fast mode (⚡) toggle — rendered only when the current mode's model
+                supports the provider's fast/priority speed tier. Persisted
+                per-CONVERSATION (aiContext.fastMode): switching speed invalidates
+                the provider prompt cache, so it's a conversation-level choice,
+                not a per-message one. */}
+            {fastModeAvailable && (
+              <button
+                type="button"
+                data-mol-id="chat-fast-mode-toggle"
+                onClick={() => {
+                  const next = !fastMode
+                  setFastMode(next)
+                  http
+                    .patch(`/projects/${projectId}/chat-mode`, { fastMode: next, conversationId })
+                    .catch(() => setFastMode(fastMode))
+                  addSystemCard(
+                    next
+                      ? t('ide.chat.fastModeOn', undefined, {
+                          defaultValue: 'Fast mode on — faster responses at a higher rate',
+                        })
+                      : t('ide.chat.fastModeOff', undefined, { defaultValue: 'Fast mode off' }),
+                  )
+                }}
+                title={
+                  fastMode
+                    ? t('ide.chat.fastModeDisable', undefined, {
+                        defaultValue: 'Turn off fast mode',
+                      })
+                    : t('ide.chat.fastModeEnable', undefined, {
+                        defaultValue: 'Fast mode — up to 2.5× faster output at a higher token rate',
+                      })
+                }
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: isCoarse ? 40 : 24,
+                  height: isCoarse ? 32 : 24,
+                  background: fastMode
+                    ? isLight
+                      ? 'rgba(217,119,6,0.14)'
+                      : 'rgba(234,179,8,0.13)'
+                    : 'none',
+                  border: fastMode
+                    ? `1px solid ${isLight ? 'rgba(217,119,6,0.55)' : 'rgba(234,179,8,0.5)'}`
+                    : 'none',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                  color: fastMode ? (isLight ? '#d97706' : '#eab308') : 'inherit',
+                  opacity: fastMode ? 1 : 0.4,
+                  padding: 0,
+                  transition: 'opacity 100ms, color 100ms',
+                }}
+                onMouseEnter={(e) => {
+                  if (!fastMode) e.currentTarget.style.opacity = '0.85'
+                }}
+                onMouseLeave={(e) => {
+                  if (!fastMode) e.currentTarget.style.opacity = '0.4'
+                }}
+              >
+                {/* Zap icon (Primer Octicons) for fast mode */}
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M9.504.43a.75.75 0 0 1 .584.859l-.828 4.211h4.49a.75.75 0 0 1 .573 1.234l-7.25 8.5a.75.75 0 0 1-1.32-.658l.828-4.211H2.09a.75.75 0 0 1-.573-1.234l7.25-8.5a.75.75 0 0 1 .737-.201Z" />
+                </svg>
+              </button>
+            )}
             {/* Voice input button — only rendered when Web Speech API is available */}
             {hasSpeechRecognition && (
               <button

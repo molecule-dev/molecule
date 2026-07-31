@@ -518,4 +518,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'المجموع التراكمي — يشمل الرد الذي يتم بثه حالياً.',
   'ide.toolCall.packageCount': '{{count}} الحزم',
   'ide.toolCall.openPackageDoc': 'فتح مستندات الحزمة',
+  'ide.chat.fastModeOn': 'تشغيل الوضع السريع — استجابات أسرع بمعدل أعلى',
+  'ide.chat.fastModeOff': 'الوضع السريع معطل',
+  'ide.chat.fastModeEnable': 'الوضع السريع — إنتاج أسرع بما يصل إلى 2.5× بمعدل إصدار توكنات أعلى',
+  'ide.chat.fastModeDisable': 'إيقاف تشغيل الوضع السريع',
 }

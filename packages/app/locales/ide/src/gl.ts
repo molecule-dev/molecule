@@ -518,4 +518,9 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Modo rápido activado: respostas máis rápidas a unha velocidade maior',
+  'ide.chat.fastModeOff': 'Modo rápido desactivado',
+  'ide.chat.fastModeEnable':
+    'Modo rápido: saída ata 2,5 veces máis rápida a unha taxa de tokens máis alta',
+  'ide.chat.fastModeDisable': 'Desactivar o modo rápido',
 }

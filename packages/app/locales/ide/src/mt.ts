@@ -516,4 +516,9 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': "Modalità veloċi mixgħula — risposti aktar mgħaġġla b'rata ogħla",
+  'ide.chat.fastModeOff': 'Modalità veloċi mitfija',
+  'ide.chat.fastModeEnable':
+    "Modalità veloċi — output sa 2.5× aktar mgħaġġel b'rata ogħla ta' tokens",
+  'ide.chat.fastModeDisable': 'Itfi l-modalità veloċi',
 }

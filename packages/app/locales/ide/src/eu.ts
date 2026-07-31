@@ -517,4 +517,8 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'Modu azkarra aktibatuta — erantzun azkarragoak abiadura handiagoan',
+  'ide.chat.fastModeOff': 'Modu azkarra desaktibatuta',
+  'ide.chat.fastModeEnable': 'Modu azkarra — irteera 2,5 aldiz azkarragoa token-tasa handiagoan',
+  'ide.chat.fastModeDisable': 'Desaktibatu modu azkarra',
 }

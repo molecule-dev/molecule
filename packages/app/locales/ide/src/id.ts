@@ -525,4 +525,10 @@ export const id: Partial<IdeTranslations> = {
     'Jumlah kumulatif — termasuk respons yang sedang ditayangkan saat ini.',
   'ide.toolCall.packageCount': '{{count}} paket',
   'ide.toolCall.openPackageDoc': 'Buka dokumen paket',
+  'ide.chat.fastModeOn':
+    'Mode cepat aktif — respons lebih cepat dengan frekuensi yang lebih tinggi',
+  'ide.chat.fastModeOff': 'Mode cepat dinonaktifkan',
+  'ide.chat.fastModeEnable':
+    'Mode Cepat — kecepatan keluaran hingga 2,5 kali lebih cepat dengan tingkat token yang lebih tinggi',
+  'ide.chat.fastModeDisable': 'Nonaktifkan mode cepat',
 }

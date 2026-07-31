@@ -514,4 +514,8 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
+  'ide.chat.fastModeOn': 'ઝડપી મોડ ચાલુ — ઊંચા દરે ઝડપી પ્રતિભાવો',
+  'ide.chat.fastModeOff': 'ફાસ્ટ મોડ બંધ',
+  'ide.chat.fastModeEnable': 'ફાસ્ટ મોડ — ઊંચા ટોકન દરે 2.5× સુધી ઝડપી આઉટપુટ',
+  'ide.chat.fastModeDisable': 'ફાસ્ટ મોડ બંધ કરો',
 }

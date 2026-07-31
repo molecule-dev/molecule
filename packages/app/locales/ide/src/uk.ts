@@ -529,4 +529,8 @@ export const uk: Partial<IdeTranslations> = {
     'Поточний підсумок — включає відповідь, яка зараз передається у режимі потокової передачі.',
   'ide.toolCall.packageCount': '{{count}} пакети',
   'ide.toolCall.openPackageDoc': 'Відкрити документацію до пакета',
+  'ide.chat.fastModeOn': 'Увімкнено швидкий режим — швидші відповіді з більшою частотою',
+  'ide.chat.fastModeOff': 'Швидкий режим вимкнено',
+  'ide.chat.fastModeEnable': 'Швидкий режим — до 2,5× швидша обробка при вищій частоті токенів',
+  'ide.chat.fastModeDisable': 'Вимкнути швидкий режим',
 }
