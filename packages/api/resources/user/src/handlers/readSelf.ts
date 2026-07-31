@@ -5,6 +5,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import type * as types from '../types.js'
 import { getPlan } from '../utilities/getPlan.js'
+import { stripSensitiveUserColumns } from '../utilities/stripSensitiveUserColumns.js'
 
 const logger = getLogger()
 
@@ -53,7 +54,7 @@ export const readSelf = ({ tableName }: types.Resource) => {
       }
 
       const plan = await getPlan(user)
-      const body: Record<string, unknown> = { props: user }
+      const body: Record<string, unknown> = { props: stripSensitiveUserColumns(user) }
       if (plan) {
         body.plan = plan
       }
