@@ -564,11 +564,25 @@ export function PreviewPanel({
   // the same patience.
   useEffect(() => {
     if (!wakeAt || Date.now() - wakeAt >= WAKE_PATIENCE_MS) return
+    // FIRST-BOOT RELOAD. The load-target-change wake signal can never fire on
+    // a first boot: the URL is set once — before the server answers — and
+    // never changes, so the iframe keeps the stale pre-wake document (behind
+    // the preview proxy that is its "target unavailable" error page, which has
+    // no bridge and can never self-heal). If nothing has EVER rendered on this
+    // load target, a wake means "the app is up now — the current document is
+    // provably stale": reload it cache-busted immediately. Patience alone left
+    // that error page up until the slow stuck-retry cycle (observed live:
+    // served at 13:17:36, painted at 13:19:57). An already-rendered app keeps
+    // the old behavior — patience without a disruptive reload.
+    const neverRendered = !hasEverRenderedRef.current
     hasEverRenderedRef.current = false
     loadRecoverCountRef.current = 0
     setBlankPostBuild(false)
     setPreviewGaveUp(false)
     setStuckRetryCount(0)
+    if (neverRendered && urlRef.current) {
+      setIframeSrc(withCacheBuster(urlRef.current))
+    }
   }, [wakeAt])
 
   // --- Heartbeat tracking ---
