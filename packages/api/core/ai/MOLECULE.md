@@ -265,10 +265,14 @@ interface TokenUsage {
   /** Number of input tokens read from the prompt cache. */
   cacheReadInputTokens?: number
   /**
-   * The speed tier the provider REPORTS the request ran at (e.g. Anthropic's
-   * `usage.speed`). Only set by bonds whose provider has a fast/priority tier
-   * — absent means standard. Metering keys fast-tier pricing off THIS field,
-   * never off the requested `ChatParams.speed`.
+   * The speed tier the provider REPORTS the request ran at (Anthropic wires it
+   * as `usage.speed` per the fast-mode docs, and as `usage.service_tier` on
+   * observed live responses — bonds read both). Only set by bonds whose
+   * provider has a fast/priority tier — absent means unreported. Metering
+   * prefers THIS field over the requested `ChatParams.speed`; when a
+   * fast-requested turn succeeds with no report, callers may conservatively
+   * bill the requested tier (Anthropic enforces fast-mode entitlement with a
+   * hard 429, so a successful fast request was served fast).
    */
   speed?: 'standard' | 'fast'
 }

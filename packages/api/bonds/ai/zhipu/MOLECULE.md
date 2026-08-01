@@ -21,8 +21,10 @@ Process Env interface.
 ```typescript
 interface ProcessEnv {
   ZHIPU_API_KEY: string
-  /** Base URL override (for credential brokers / gateways). */
+  /** Base URL override (for credential brokers / gateways / US OpenAI-compatible hosts). */
   ZHIPU_BASE_URL?: string
+  /** Chat-completions path override (see {@link ZhipuConfig.completionsPath}). */
+  ZHIPU_COMPLETIONS_PATH?: string
 }
 ```
 
@@ -42,6 +44,19 @@ interface ZhipuConfig {
   maxTokens?: number
   /** Base URL override (for proxies). Defaults to 'https://open.bigmodel.cn/api/paas'. */
   baseUrl?: string
+  /**
+   * Chat-completions path appended to {@link baseUrl}. Defaults to
+   * `/v4/chat/completions` (Zhipu-native). Set to `/chat/completions` when the
+   * GLM open weights are served from a US OpenAI-compatible host (DeepInfra:
+   * baseUrl='https://api.deepinfra.com/v1/openai').
+   */
+  completionsPath?: string
+  /**
+   * Catalog-id → upstream-model-id map, applied to the outbound request only, so
+   * a US host (DeepInfra) receives its namespaced id (`zai-org/GLM-5.2`) while
+   * pricing/cost/display keep the canonical catalog id (`glm-5.2`).
+   */
+  modelMap?: Record<string, string>
 }
 ```
 

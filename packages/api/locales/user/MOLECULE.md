@@ -67,6 +67,7 @@ registerLocaleModule(locales)
 | `user.error.failedToUpdateSubscription` | Failed to update subscription. |
 | `user.error.failedToUpdatePlan` | Failed to update plan. |
 | `user.error.twoFactorNotAvailable` | Two-factor authentication is not available. |
+| `user.error.twoFactorRequiresPassword` | Two-factor authentication is enabled on this account. Sign in with your email and password to continue. |
 | `user.error.tokenRequired` | Token is required. |
 | `user.error.noPendingTwoFactorSetup` | No pending two-factor setup. Call with action  |
 | `user.error.invalidToken` | Invalid token. |
