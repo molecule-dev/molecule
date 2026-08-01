@@ -43,6 +43,7 @@ export const en: CommonTranslations = {
   'auth.modal.needAccount': "Don't have an account? Sign up",
   'auth.modal.signedUp': 'Signed up!',
   'auth.modal.loggedIn': 'Logged in!',
+  'auth.modal.loggedInAs': 'Logged in as {{who}}',
   // `{{appName}}` / `{{tagline}}` are interpolation passthroughs — the
   // component passes the per-app appName/tagline prop as the value, so the
   // brand name renders through instead of being overridden by a fixed string.

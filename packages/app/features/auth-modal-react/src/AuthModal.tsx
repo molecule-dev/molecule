@@ -25,7 +25,7 @@ import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-react'
 import { useAuth, useAuthClient, useI18nError, useLogin, useSignup } from '@molecule/app-react'
 import { useOAuth } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-import { Alert, Button, Modal } from '@molecule/app-ui-react'
+import { Button, Icon, Modal } from '@molecule/app-ui-react'
 
 import type { AuthModalMode } from './cta-intercept.js'
 
@@ -209,11 +209,41 @@ export function AuthModal({
     >
       <div data-mol-id="auth-modal-body" style={{ display: 'flex', flexDirection: 'column' }}>
         {succeeded ? (
-          <Alert status="success" data-mol-id="auth-modal-success">
-            {isSignup
-              ? t('auth.modal.signedUp', undefined, { defaultValue: 'Signed up!' })
-              : t('auth.modal.loggedIn', undefined, { defaultValue: 'Logged in!' })}
-          </Alert>
+          (() => {
+            // Who just authenticated — shown under the headline so the
+            // confirmation names the account, not just the outcome.
+            const profile = authClient.getUser() as {
+              name?: string | null
+              email?: string | null
+              username?: string | null
+            } | null
+            const who = profile?.name || profile?.email || profile?.username || ''
+            return (
+              <div
+                data-mol-id="auth-modal-success"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '26px 0 18px',
+                  textAlign: 'center',
+                }}
+              >
+                <Icon name="check-circle" size={44} className={cm.textSuccess} aria-hidden="true" />
+                <div style={{ fontSize: 17, fontWeight: 600 }}>
+                  {isSignup
+                    ? t('auth.modal.signedUp', undefined, { defaultValue: 'Signed up!' })
+                    : t('auth.modal.loggedIn', undefined, { defaultValue: 'Logged in!' })}
+                </div>
+                {who && (
+                  <div className={cm.textMuted} style={{ fontSize: 13 }}>
+                    {t('auth.modal.loggedInAs', { who }, { defaultValue: `Logged in as ${who}` })}
+                  </div>
+                )}
+              </div>
+            )
+          })()
         ) : (
           <>
             <div

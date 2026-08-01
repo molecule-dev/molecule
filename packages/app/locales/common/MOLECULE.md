@@ -74,6 +74,7 @@ registerLocaleModule(locales)
 | `auth.modal.needAccount` | Don |
 | `auth.modal.signedUp` | Signed up! |
 | `auth.modal.loggedIn` | Logged in! |
+| `auth.modal.loggedInAs` | Logged in as {{who}} |
 | `authBrandHeader.appName` | {{appName}} |
 | `authBrandHeader.tagline` | {{tagline}} |
 | `codeSandbox.docker.error.apiError` | Docker API {{method}} {{path}}: {{status}} {{error}} |

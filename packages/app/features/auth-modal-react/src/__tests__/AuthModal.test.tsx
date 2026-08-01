@@ -19,7 +19,10 @@ const signupMock = vi.fn()
 
 vi.mock('@molecule/app-react', () => ({
   useAuth: () => ({ refresh: refreshMock }),
-  useAuthClient: () => ({ isAuthenticated: isAuthenticatedMock }),
+  useAuthClient: () => ({
+    isAuthenticated: isAuthenticatedMock,
+    getUser: () => ({ email: 'new@example.com' }),
+  }),
   useLogin: () => ({ status: 'idle', error: null, login: vi.fn() }),
   useSignup: () => ({ status: 'idle', error: null, signup: signupMock }),
   useI18nError: (error: unknown) => (error ? String(error) : null),
@@ -50,6 +53,7 @@ vi.mock('@molecule/app-ui-react', () => ({
   Modal: ({ open, children }: { open: boolean; children?: React.ReactNode }) =>
     open ? <div>{children}</div> : null,
   Alert: ({ children }: { children?: React.ReactNode }) => <div role="alert">{children}</div>,
+  Icon: () => null,
   Button: ({
     children,
     type,
@@ -116,8 +120,10 @@ describe('AuthModal finishAuth', () => {
 
     const { onClose, onAuthenticated } = renderAndSubmit()
 
-    // The confirmation replaces the form BEFORE the modal closes.
+    // The confirmation replaces the form BEFORE the modal closes, and names
+    // the account that just authenticated.
     await waitFor(() => expect(screen.getByText('Signed up!')).toBeTruthy())
+    expect(screen.getByText('Logged in as new@example.com')).toBeTruthy()
     expect(onClose).not.toHaveBeenCalled()
 
     await waitFor(() => expect(onClose).toHaveBeenCalled(), { timeout: 3000 })
