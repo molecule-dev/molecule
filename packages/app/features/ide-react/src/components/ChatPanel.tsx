@@ -3104,6 +3104,7 @@ function ChatInner({
     start(): void
     stop(): void
     abort(): void
+    onstart: (() => void) | null
     onresult: ((e: unknown) => void) | null
     onend: (() => void) | null
     onerror: ((e: unknown) => void) | null
@@ -3113,11 +3114,30 @@ function ChatInner({
   }
   const recognitionRef = useRef<SpeechRec | null>(null)
   const [isListening, setIsListening] = useState(false)
+  // Set when the speech service is proven broken — some browsers (Brave,
+  // Chromium builds without Google API keys) expose the SpeechRecognition
+  // constructor with no working speech backend behind it: sessions either fire
+  // no events at all or fail every time with a 'network' error. Once proven,
+  // the mic button is hidden for the rest of the session.
+  const [voiceDead, setVoiceDead] = useState(false)
+  const [voiceError, setVoiceError] = useState<string | null>(null)
+  const voiceErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const voiceIntentRef = useRef(false)
   const voiceRestartTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Detects the dead-service case where start() succeeds but no event ever fires
+  const voiceWatchdogTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Count rapid consecutive failures to bail out of restart loops
   const voiceFailCount = useRef(0)
   const voiceLastStart = useRef(0)
+
+  const showVoiceError = useCallback((message: string) => {
+    setVoiceError(message)
+    if (voiceErrorTimer.current) clearTimeout(voiceErrorTimer.current)
+    voiceErrorTimer.current = setTimeout(() => {
+      voiceErrorTimer.current = null
+      setVoiceError(null)
+    }, 8000)
+  }, [])
 
   const startRecognition = useCallback(() => {
     const Ctor = speechCtorRef.current as (new () => SpeechRec) | undefined
@@ -3129,6 +3149,38 @@ function ChatInner({
     recognition.lang = navigator.language || 'en-US'
 
     let gotResult = false
+
+    const clearWatchdog = () => {
+      if (voiceWatchdogTimer.current) {
+        clearTimeout(voiceWatchdogTimer.current)
+        voiceWatchdogTimer.current = null
+      }
+    }
+
+    // The speech service itself is broken (not just this session): stop for
+    // good, hide the button, and say so — instead of flicker-restarting forever.
+    const giveUp = () => {
+      clearWatchdog()
+      voiceIntentRef.current = false
+      voiceFailCount.current = 0
+      recognitionRef.current = null
+      setIsListening(false)
+      setVoiceDead(true)
+      showVoiceError(
+        t('ide.chat.voiceUnavailable', undefined, {
+          defaultValue: 'Dictation is not available in this browser.',
+        }),
+      )
+      try {
+        recognition.abort()
+      } catch (_error) {
+        // abort() on a never-started/already-ended session throws harmlessly
+      }
+    }
+
+    recognition.onstart = () => {
+      clearWatchdog()
+    }
 
     recognition.onresult = (e: unknown) => {
       gotResult = true
@@ -3151,6 +3203,7 @@ function ChatInner({
     }
 
     recognition.onend = () => {
+      clearWatchdog()
       recognitionRef.current = null
       if (!voiceIntentRef.current) {
         setIsListening(false)
@@ -3169,11 +3222,9 @@ function ChatInner({
       } else {
         voiceFailCount.current = 0
       }
-      // Too many rapid failures — give up
+      // Too many rapid no-result failures — the service is not working
       if (voiceFailCount.current >= 3) {
-        voiceIntentRef.current = false
-        voiceFailCount.current = 0
-        setIsListening(false)
+        giveUp()
         return
       }
       // Restart after a short delay so we don't spin
@@ -3185,22 +3236,44 @@ function ChatInner({
 
     recognition.onerror = (e: unknown) => {
       const error = (e as { error?: string }).error
-      if (
-        error === 'not-allowed' ||
-        error === 'service-not-allowed' ||
-        error === 'language-not-supported'
-      ) {
+      // In the Chromium family a 'network' error means the browser has no
+      // reachable speech backend (Brave, ungoogled builds) — it will fail
+      // identically every session, so retrying just flickers.
+      if (error === 'network' || error === 'language-not-supported') {
+        giveUp()
+        return
+      }
+      if (error === 'not-allowed' || error === 'service-not-allowed') {
+        clearWatchdog()
         voiceIntentRef.current = false
         recognitionRef.current = null
         setIsListening(false)
+        showVoiceError(
+          t('ide.chat.voiceMicBlocked', undefined, {
+            defaultValue: 'Microphone access is blocked.',
+          }),
+        )
       }
-      // Other errors (no-speech, audio-capture, network, aborted) — onend will handle restart
+      // Other errors (no-speech, audio-capture, aborted) — onend will handle restart
     }
 
     recognitionRef.current = recognition
     voiceLastStart.current = Date.now()
-    recognition.start()
-  }, [setInputValue, autoResize])
+    try {
+      recognition.start()
+    } catch (_error) {
+      // start() throws InvalidStateError if a previous session is still tearing
+      // down — treat it like any other dead session rather than crash the click
+      giveUp()
+      return
+    }
+    // Watchdog: some broken implementations accept start() and then never fire a
+    // single event (verified in Brave: no onstart, no onerror, no onend).
+    voiceWatchdogTimer.current = setTimeout(() => {
+      voiceWatchdogTimer.current = null
+      giveUp()
+    }, 5000)
+  }, [setInputValue, autoResize, showVoiceError])
 
   const toggleVoice = useCallback(() => {
     if (isListening) {
@@ -3209,11 +3282,22 @@ function ChatInner({
         clearTimeout(voiceRestartTimer.current)
         voiceRestartTimer.current = null
       }
+      if (voiceWatchdogTimer.current) {
+        clearTimeout(voiceWatchdogTimer.current)
+        voiceWatchdogTimer.current = null
+      }
+      // Don't wait for onend — a hung session (dead service) never fires it
+      setIsListening(false)
       recognitionRef.current?.stop()
       return
     }
     voiceIntentRef.current = true
     voiceFailCount.current = 0
+    setVoiceError(null)
+    if (voiceErrorTimer.current) {
+      clearTimeout(voiceErrorTimer.current)
+      voiceErrorTimer.current = null
+    }
     setIsListening(true)
     handleAutoFixPauseOnInput()
     startRecognition()
@@ -3226,6 +3310,14 @@ function ChatInner({
       if (voiceRestartTimer.current) {
         clearTimeout(voiceRestartTimer.current)
         voiceRestartTimer.current = null
+      }
+      if (voiceWatchdogTimer.current) {
+        clearTimeout(voiceWatchdogTimer.current)
+        voiceWatchdogTimer.current = null
+      }
+      if (voiceErrorTimer.current) {
+        clearTimeout(voiceErrorTimer.current)
+        voiceErrorTimer.current = null
       }
       recognitionRef.current?.abort()
     },
@@ -5156,6 +5248,11 @@ function ChatInner({
   const handleSubmit = useCallback(async () => {
     // Stop voice recognition on submit
     voiceIntentRef.current = false
+    if (voiceWatchdogTimer.current) {
+      clearTimeout(voiceWatchdogTimer.current)
+      voiceWatchdogTimer.current = null
+    }
+    setIsListening(false)
     recognitionRef.current?.stop()
 
     const trimmed = (inputRef.current as string).trim()
@@ -6874,6 +6971,13 @@ function ChatInner({
         {attachmentError && (
           <div className={cm.cn(cm.textSize('xs'), cm.textError)} style={{ padding: '4px 10px' }}>
             {attachmentError}
+          </div>
+        )}
+
+        {/* Dictation error (dead speech service / blocked microphone) */}
+        {voiceError && (
+          <div className={cm.cn(cm.textSize('xs'), cm.textError)} style={{ padding: '4px 10px' }}>
+            {voiceError}
           </div>
         )}
 
@@ -8917,8 +9021,9 @@ function ChatInner({
                 </svg>
               </button>
             )}
-            {/* Voice input button — only rendered when Web Speech API is available */}
-            {hasSpeechRecognition && (
+            {/* Voice input button — only rendered when Web Speech API is available
+                and the speech service hasn't been proven dead (see voiceDead) */}
+            {hasSpeechRecognition && !voiceDead && (
               <button
                 type="button"
                 onClick={toggleVoice}
