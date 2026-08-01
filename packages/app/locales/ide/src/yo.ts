@@ -119,6 +119,15 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.preview_error':
     '\\u00C0w\\u00F2\\u1E63e al\\u00E1\\u00E0y\\u00E8 b\\u00E1 \\u00E0\\u1E63\\u00ECse kan p\\u00E0d\\u00E9',
   'ide.chat.voice': 'Oh\\u00F9n',
+  'ide.chat.voiceUnavailable': 'Ìkọ̀rọ̀sílẹ̀ ohùn kò sí lórí aṣàwákiri yìí.',
+  'ide.chat.voiceMicBlocked': 'A ti dí ìwọlé gbohùngbohùn.',
+  'ide.chat.model.region.us': 'US',
+  'ide.chat.model.region.cn': 'CN',
+  'ide.chat.model.regionHint': 'Ń ṣiṣẹ́ ní: {{region}} — tẹ láti yí padà',
+  'ide.chat.model.regionOnlyHint': 'Gbé kalẹ̀ ní {{region}} nìkan',
+  'ide.chat.model.regionMenuLabel': 'Àgbègbè ìṣiṣẹ́',
+  'ide.chat.models.colRegion': 'Àgbègbè',
+  'ide.chat.modelInUseRegion': 'Ń lo {{model}} ({{region}}) báyìí',
   'ide.editor.title': 'Ol\\u00F3\\u00F2t\\u00FA',
   'ide.editor.emptyState':
     '\\u1E62\\u00ED f\\u00E1\\u00ECl\\u00EC kan l\\u00E1ti b\\u1EB9\\u0300r\\u1EB9\\u0300 \\u00E0t\\u00FAn\\u1E63e',

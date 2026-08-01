@@ -94,6 +94,8 @@ export type IdeTranslationKey =
   | 'ide.chat.soundEventDesc.verification_result'
   | 'ide.chat.soundEventDesc.preview_error'
   | 'ide.chat.voice'
+  | 'ide.chat.voiceUnavailable'
+  | 'ide.chat.voiceMicBlocked'
   | 'ide.editor.title'
   | 'ide.editor.emptyState'
   | 'ide.files.empty'

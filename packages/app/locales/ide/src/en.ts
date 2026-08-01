@@ -232,6 +232,8 @@ export const en: IdeTranslations = {
   'ide.chat.soundEventDesc.verification_result': 'Lint or type-check finished running',
   'ide.chat.soundEventDesc.preview_error': 'The live preview encountered an error',
   'ide.chat.voice': 'Voice',
+  'ide.chat.voiceUnavailable': 'Dictation is not available in this browser.',
+  'ide.chat.voiceMicBlocked': 'Microphone access is blocked.',
   'ide.editor.title': 'Editor',
   'ide.editor.emptyState': 'Open a file to start editing',
   'ide.files.empty': 'No files',
