@@ -186,25 +186,25 @@ export const radio = cva(
  * differently-named CVA variants.
  */
 export const switchBase = cva(
-  // The unchecked track gets a visible border: surface-secondary alone is
-  // near-invisible against panel backgrounds, leaving an OFF switch looking
-  // like a floating dot. Checked tracks are solid color, so theirs stays
-  // transparent.
-  'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent data-[state=unchecked]:border-border/60 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+  // Unchecked track: `foreground/20` — a mid-alpha gray that stays visible on
+  // ANY theme background. The old surface-secondary track matched the panel
+  // background in light theme, collapsing an OFF switch (white thumb on a
+  // same-color track) into one solid shape.
+  'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       color: {
         primary:
-          'data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-secondary focus-visible:ring-primary',
+          'data-[state=checked]:bg-primary data-[state=unchecked]:bg-foreground/20 focus-visible:ring-primary',
         secondary:
-          'data-[state=checked]:bg-secondary data-[state=unchecked]:bg-surface-secondary focus-visible:ring-secondary',
+          'data-[state=checked]:bg-secondary data-[state=unchecked]:bg-foreground/20 focus-visible:ring-secondary',
         success:
-          'data-[state=checked]:bg-success data-[state=unchecked]:bg-surface-secondary focus-visible:ring-success',
+          'data-[state=checked]:bg-success data-[state=unchecked]:bg-foreground/20 focus-visible:ring-success',
         warning:
-          'data-[state=checked]:bg-warning data-[state=unchecked]:bg-surface-secondary focus-visible:ring-warning',
+          'data-[state=checked]:bg-warning data-[state=unchecked]:bg-foreground/20 focus-visible:ring-warning',
         error:
-          'data-[state=checked]:bg-error data-[state=unchecked]:bg-surface-secondary focus-visible:ring-error',
-        info: 'data-[state=checked]:bg-info data-[state=unchecked]:bg-surface-secondary focus-visible:ring-info',
+          'data-[state=checked]:bg-error data-[state=unchecked]:bg-foreground/20 focus-visible:ring-error',
+        info: 'data-[state=checked]:bg-info data-[state=unchecked]:bg-foreground/20 focus-visible:ring-info',
       },
       size: {
         sm: 'h-5 w-9',
@@ -221,7 +221,10 @@ export const switchBase = cva(
 
 /** Switch thumb (the sliding circle) classes. */
 export const switchThumb = cva(
-  'pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform',
+  // Always-white knob (the classic switch look): `bg-background` made the
+  // thumb white-on-pale in light theme and near-black in dark — low contrast
+  // against both track states. White + shadow reads on every track color.
+  'pointer-events-none block rounded-full bg-white shadow-lg ring-0 transition-transform',
   {
     variants: {
       size: {

@@ -174,11 +174,11 @@ describe('classMap', () => {
     })
 
     it('defaults to the primary color, reproducing the exact expected classes', () => {
-      // The unchecked-track border (data-[state=unchecked]:border-border/60) is a
-      // deliberate 2026-08 addition: surface-secondary alone was near-invisible
-      // against panel backgrounds, so an OFF switch read as a floating dot.
+      // The unchecked track is foreground/20 (2026-08): the old
+      // surface-secondary matched panel backgrounds in light theme, collapsing
+      // an OFF switch into one solid shape.
       const EXPECTED_SWITCH_BASE =
-        'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent data-[state=unchecked]:border-border/60 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-secondary focus-visible:ring-primary h-6 w-11'
+        'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-foreground/20 focus-visible:ring-primary h-6 w-11'
       const tokens = (s: string): string[] => s.split(/\s+/).filter(Boolean).sort()
       expect(tokens(classMap.switchBase())).toEqual(tokens(EXPECTED_SWITCH_BASE))
     })
