@@ -238,6 +238,21 @@
 }
 
 @layer base {
+  /* Tell the browser which widget scheme matches the ACTIVE theme (the theme
+     bond stamps data-mol-mode on <html>). Without this, native UI the page
+     can't style — <select> option popups, UA scrollbars — renders in the
+     BROWSER's preferred scheme: a dark-mode browser shows dark option lists
+     under a light-themed app, making them unreadable. */
+  :root {
+    color-scheme: light dark;
+  }
+  [data-mol-mode='light'] {
+    color-scheme: light;
+  }
+  [data-mol-mode='dark'] {
+    color-scheme: dark;
+  }
+
   html,
   body,
   #root {
