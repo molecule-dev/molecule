@@ -46,6 +46,8 @@ export interface CommonTranslations {
   'auth.modal.working': string
   'auth.modal.haveAccount': string
   'auth.modal.needAccount': string
+  'auth.modal.signedUp': string
+  'auth.modal.loggedIn': string
   // Brand-name / tagline passthroughs for @molecule/app-auth-brand-header-react.
   // Values are `{{…}}` interpolation placeholders so the per-app appName/tagline
   // prop renders through (see AuthBrandHeader.tsx); a fixed string here would

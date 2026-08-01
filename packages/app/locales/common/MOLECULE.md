@@ -72,6 +72,8 @@ registerLocaleModule(locales)
 | `auth.modal.working` | Just a moment… |
 | `auth.modal.haveAccount` | Already have an account? Log in |
 | `auth.modal.needAccount` | Don |
+| `auth.modal.signedUp` | Signed up! |
+| `auth.modal.loggedIn` | Logged in! |
 | `authBrandHeader.appName` | {{appName}} |
 | `authBrandHeader.tagline` | {{tagline}} |
 | `codeSandbox.docker.error.apiError` | Docker API {{method}} {{path}}: {{status}} {{error}} |

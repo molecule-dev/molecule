@@ -25,7 +25,7 @@ import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-react'
 import { useAuth, useAuthClient, useI18nError, useLogin, useSignup } from '@molecule/app-react'
 import { useOAuth } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-import { Button, Modal } from '@molecule/app-ui-react'
+import { Alert, Button, Modal } from '@molecule/app-ui-react'
 
 import type { AuthModalMode } from './cta-intercept.js'
 
@@ -35,6 +35,14 @@ import type { AuthModalMode } from './cta-intercept.js'
  * the whole page on focus.
  */
 const TOUCH_FIRST_QUERY = '(max-width: 767px), (pointer: coarse)'
+
+/**
+ * How long the "Signed up!" / "Logged in!" confirmation stays visible before
+ * the modal closes. Long enough to register, short enough not to feel like a
+ * wait — and the app's `onAuthenticated` work (claiming guest projects etc.)
+ * runs concurrently, so the real delay is `max(this, onAuthenticated)`.
+ */
+const SUCCESS_DISPLAY_MS = 1000
 
 /**
  * Whether {@link TOUCH_FIRST_QUERY} currently matches. SSR-safe (reports
@@ -113,13 +121,18 @@ export function AuthModal({
   const [name, setName] = useState('')
   const [twoFactorToken, setTwoFactorToken] = useState('')
   const [oauthError, setOauthError] = useState<string | null>(null)
+  // Post-auth confirmation ("Signed up!" / "Logged in!") shown briefly before
+  // the modal closes — without it the modal just vanished, which read as
+  // "nothing happened".
+  const [succeeded, setSucceeded] = useState(false)
 
   const isSignup = mode === 'signup'
   const busy = isSignup ? signupStatus === 'pending' : loginStatus === 'pending'
   const errorMessage = useI18nError(isSignup ? signupError : loginError)
 
-  // Universal post-auth: refresh the session (guards + plan current), run the app's
-  // hook, then close — all in place, no navigation.
+  // Universal post-auth: refresh the session (guards + plan current), show a
+  // brief confirmation, run the app's hook, then close — all in place, no
+  // navigation.
   const finishAuth = async (): Promise<void> => {
     try {
       await refresh()
@@ -132,7 +145,12 @@ export function AuthModal({
       // absent session is a real failure.
       if (!authClient.isAuthenticated()) throw error
     }
+    setSucceeded(true)
+    // Hold the confirmation on screen while the app hook runs; whichever
+    // finishes last gates the close.
+    const minDisplay = new Promise((resolve) => setTimeout(resolve, SUCCESS_DISPLAY_MS))
     await onAuthenticated?.()
+    await minDisplay
     onClose()
   }
 
@@ -190,111 +208,126 @@ export function AuthModal({
       data-mol-id="auth-modal"
     >
       <div data-mol-id="auth-modal-body" style={{ display: 'flex', flexDirection: 'column' }}>
-        <div className={cm.textMuted} style={{ marginBottom: 12, fontSize: 13, lineHeight: 1.45 }}>
-          {isSignup
-            ? t('auth.modal.signupBlurb', undefined, {
-                defaultValue: 'Sign up to keep your work.',
-              })
-            : t('auth.modal.loginBlurb', undefined, {
-                defaultValue: 'Log in to keep your work.',
-              })}
-        </div>
-        <form onSubmit={(e) => void handleSubmit(e)} style={{ display: 'grid', gap: 10 }}>
-          {isSignup && (
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoComplete="name"
-              data-mol-id="auth-modal-name"
-              placeholder={t('auth.signup.name', undefined, { defaultValue: 'Name (optional)' })}
-              style={fieldStyle}
-            />
-          )}
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setField('email', e.target.value)}
-            autoComplete="email"
-            autoFocus
-            required
-            data-mol-id="auth-modal-email"
-            placeholder={t('auth.login.email', undefined, { defaultValue: 'Email' })}
-            style={fieldStyle}
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete={isSignup ? 'new-password' : 'current-password'}
-            required
-            data-mol-id="auth-modal-password"
-            placeholder={t('auth.login.password', undefined, { defaultValue: 'Password' })}
-            style={fieldStyle}
-          />
-          {!isSignup && (
-            <input
-              type="text"
-              inputMode="numeric"
-              value={twoFactorToken}
-              onChange={(e) => setTwoFactorToken(e.target.value)}
-              autoComplete="one-time-code"
-              data-mol-id="auth-modal-2fa"
-              placeholder={t('auth.login.twoFactor', undefined, {
-                defaultValue: '2FA code (if enabled)',
-              })}
-              style={fieldStyle}
-            />
-          )}
-          <Button
-            type="submit"
-            size="lg"
-            color="success"
-            disabled={busy}
-            data-mol-id="auth-modal-submit"
-            style={{ width: '100%', marginTop: 2 }}
-          >
-            {busy
-              ? t('auth.modal.working', undefined, { defaultValue: 'Just a moment…' })
-              : isSignup
-                ? t('auth.login.signUp', undefined, { defaultValue: 'Sign up' })
-                : t('auth.login.logIn', undefined, { defaultValue: 'Log in' })}
-          </Button>
-          {(errorMessage || oauthError) && (
-            <div className={cm.authFormError}>{errorMessage || oauthError}</div>
-          )}
-        </form>
+        {succeeded ? (
+          <Alert status="success" data-mol-id="auth-modal-success">
+            {isSignup
+              ? t('auth.modal.signedUp', undefined, { defaultValue: 'Signed up!' })
+              : t('auth.modal.loggedIn', undefined, { defaultValue: 'Logged in!' })}
+          </Alert>
+        ) : (
+          <>
+            <div
+              className={cm.textMuted}
+              style={{ marginBottom: 12, fontSize: 13, lineHeight: 1.45 }}
+            >
+              {isSignup
+                ? t('auth.modal.signupBlurb', undefined, {
+                    defaultValue: 'Sign up to keep your work.',
+                  })
+                : t('auth.modal.loginBlurb', undefined, {
+                    defaultValue: 'Log in to keep your work.',
+                  })}
+            </div>
+            <form onSubmit={(e) => void handleSubmit(e)} style={{ display: 'grid', gap: 10 }}>
+              {isSignup && (
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="name"
+                  data-mol-id="auth-modal-name"
+                  placeholder={t('auth.signup.name', undefined, {
+                    defaultValue: 'Name (optional)',
+                  })}
+                  style={fieldStyle}
+                />
+              )}
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setField('email', e.target.value)}
+                autoComplete="email"
+                autoFocus
+                required
+                data-mol-id="auth-modal-email"
+                placeholder={t('auth.login.email', undefined, { defaultValue: 'Email' })}
+                style={fieldStyle}
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete={isSignup ? 'new-password' : 'current-password'}
+                required
+                data-mol-id="auth-modal-password"
+                placeholder={t('auth.login.password', undefined, { defaultValue: 'Password' })}
+                style={fieldStyle}
+              />
+              {!isSignup && (
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={twoFactorToken}
+                  onChange={(e) => setTwoFactorToken(e.target.value)}
+                  autoComplete="one-time-code"
+                  data-mol-id="auth-modal-2fa"
+                  placeholder={t('auth.login.twoFactor', undefined, {
+                    defaultValue: '2FA code (if enabled)',
+                  })}
+                  style={fieldStyle}
+                />
+              )}
+              <Button
+                type="submit"
+                size="lg"
+                color="success"
+                disabled={busy}
+                data-mol-id="auth-modal-submit"
+                style={{ width: '100%', marginTop: 2 }}
+              >
+                {busy
+                  ? t('auth.modal.working', undefined, { defaultValue: 'Just a moment…' })
+                  : isSignup
+                    ? t('auth.login.signUp', undefined, { defaultValue: 'Sign up' })
+                    : t('auth.login.logIn', undefined, { defaultValue: 'Log in' })}
+              </Button>
+              {(errorMessage || oauthError) && (
+                <div className={cm.authFormError}>{errorMessage || oauthError}</div>
+              )}
+            </form>
 
-        {providers.length > 0 && (
-          <div style={{ marginTop: 4 }}>
-            <OAuthDivider />
-            {/* Popup OAuth — never navigates the host. */}
-            <OAuthButtons
-              providers={providers}
-              onSelect={(provider) => {
-                setOauthError(null)
-                onBeforeAuth?.()
-                loginViaPopup(provider)
-              }}
-            />
-          </div>
+            {providers.length > 0 && (
+              <div style={{ marginTop: 4 }}>
+                <OAuthDivider />
+                {/* Popup OAuth — never navigates the host. */}
+                <OAuthButtons
+                  providers={providers}
+                  onSelect={(provider) => {
+                    setOauthError(null)
+                    onBeforeAuth?.()
+                    loginViaPopup(provider)
+                  }}
+                />
+              </div>
+            )}
+
+            <button
+              type="button"
+              data-mol-id="auth-modal-switch"
+              onClick={() => setMode(isSignup ? 'login' : 'signup')}
+              className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
+              style={{ marginTop: 12, alignSelf: 'center' }}
+            >
+              {isSignup
+                ? t('auth.modal.haveAccount', undefined, {
+                    defaultValue: 'Already have an account? Log in',
+                  })
+                : t('auth.modal.needAccount', undefined, {
+                    defaultValue: "Don't have an account? Sign up",
+                  })}
+            </button>
+          </>
         )}
-
-        <button
-          type="button"
-          data-mol-id="auth-modal-switch"
-          onClick={() => setMode(isSignup ? 'login' : 'signup')}
-          className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
-          style={{ marginTop: 12, alignSelf: 'center' }}
-        >
-          {isSignup
-            ? t('auth.modal.haveAccount', undefined, {
-                defaultValue: 'Already have an account? Log in',
-              })
-            : t('auth.modal.needAccount', undefined, {
-                defaultValue: "Don't have an account? Sign up",
-              })}
-        </button>
       </div>
     </Modal>
   )

@@ -8,7 +8,7 @@
  * genuinely no session.
  */
 
-import { cleanup, render, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { AuthModal } from '../AuthModal.js'
@@ -49,6 +49,7 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-ui-react', () => ({
   Modal: ({ open, children }: { open: boolean; children?: React.ReactNode }) =>
     open ? <div>{children}</div> : null,
+  Alert: ({ children }: { children?: React.ReactNode }) => <div role="alert">{children}</div>,
   Button: ({
     children,
     type,
@@ -103,19 +104,23 @@ describe('AuthModal finishAuth', () => {
 
     const { onClose, onAuthenticated } = renderAndSubmit()
 
-    await waitFor(() => expect(onClose).toHaveBeenCalled())
+    await waitFor(() => expect(onClose).toHaveBeenCalled(), { timeout: 3000 })
     expect(signupMock).toHaveBeenCalled()
     expect(onAuthenticated).toHaveBeenCalled()
   })
 
-  it('completes normally when refresh() resolves', async () => {
+  it('shows a brief "Signed up!" confirmation, then closes', async () => {
     signupMock.mockResolvedValue({ user: { id: 'u1' } })
     refreshMock.mockResolvedValue({ user: { id: 'u1' } })
     isAuthenticatedMock.mockReturnValue(true)
 
     const { onClose, onAuthenticated } = renderAndSubmit()
 
-    await waitFor(() => expect(onClose).toHaveBeenCalled())
+    // The confirmation replaces the form BEFORE the modal closes.
+    await waitFor(() => expect(screen.getByText('Signed up!')).toBeTruthy())
+    expect(onClose).not.toHaveBeenCalled()
+
+    await waitFor(() => expect(onClose).toHaveBeenCalled(), { timeout: 3000 })
     expect(onAuthenticated).toHaveBeenCalled()
   })
 
