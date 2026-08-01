@@ -1013,6 +1013,59 @@ describe('JWT Auth Client', () => {
       expect((error as I18nError).i18nKey).toBe('auth.error.noRefreshToken')
     })
 
+    it('falls back to cookie-session restore when no refresh token but the mol_auth hint is set', async () => {
+      // Cookie-session APIs (the @molecule/api-resource-user model) never issue
+      // a refresh token — login/register return only { accessToken, user } and
+      // the durable credential is the httpOnly cookie. refresh() must re-derive
+      // the session from that cookie instead of throwing: the auth modal's
+      // post-signup finishAuth() relies on it (throwing here silently stranded
+      // a just-registered user in the modal, looking not-logged-in).
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      mockFetch.mockImplementation(() => createMockResponse({ user: mockUser }))
+      const client = createJWTAuthClient({ autoRefresh: false })
+      try {
+        const result = await client.refresh()
+
+        expect(result.user).toEqual(mockUser)
+        expect(client.isAuthenticated()).toBe(true)
+        expect(client.getUser()).toEqual(mockUser)
+        // The restore probe hits the current-user endpoint with credentials.
+        const call = mockFetch.mock.calls.find((c) => String(c[0]).includes('/users/me'))
+        expect(call, 'refresh() should GET the current-user endpoint').toBeTruthy()
+        expect((call?.[1] as RequestInit | undefined)?.credentials).toBe('include')
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
+
+    it('emits a refresh event when the cookie-session fallback restores a session', async () => {
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      mockFetch.mockImplementation(() => createMockResponse({ user: mockUser }))
+      const client = createJWTAuthClient({ autoRefresh: false })
+      const eventHandler = vi.fn()
+      client.addEventListener(eventHandler)
+      try {
+        await client.refresh()
+        expect(eventHandler).toHaveBeenCalledWith({ type: 'refresh' })
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
+
+    it('still throws when no refresh token and the cookie-restore probe 401s (stale hint)', async () => {
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      mockFetch.mockImplementation(() => createMockResponse({ error: 'Unauthorized' }, 401))
+      const client = createJWTAuthClient({ autoRefresh: false })
+      try {
+        const error = await client.refresh().catch((e: unknown) => e)
+        expect(error).toBeInstanceOf(I18nError)
+        expect((error as I18nError).i18nKey).toBe('auth.error.noRefreshToken')
+        expect(client.isAuthenticated()).toBe(false)
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
+
     it('should emit refresh event on success', async () => {
       // Login first
       mockFetch.mockImplementation(() =>

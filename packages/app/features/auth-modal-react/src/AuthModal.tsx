@@ -22,7 +22,7 @@ import { type JSX, useEffect, useState } from 'react'
 import { useAuthFormState } from '@molecule/app-auth-shell-react'
 import { t } from '@molecule/app-i18n'
 import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-react'
-import { useAuth, useI18nError, useLogin, useSignup } from '@molecule/app-react'
+import { useAuth, useAuthClient, useI18nError, useLogin, useSignup } from '@molecule/app-react'
 import { useOAuth } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Modal } from '@molecule/app-ui-react'
@@ -104,6 +104,7 @@ export function AuthModal({
   const isTouchFirst = useTouchFirstViewport()
   const [mode, setMode] = useState<AuthModalMode>(initialMode)
   const { refresh } = useAuth()
+  const authClient = useAuthClient()
   const { status: loginStatus, error: loginError, login } = useLogin()
   const { status: signupStatus, error: signupError, signup } = useSignup()
   const { fields, setField, clear } = useAuthFormState()
@@ -120,7 +121,17 @@ export function AuthModal({
   // Universal post-auth: refresh the session (guards + plan current), run the app's
   // hook, then close — all in place, no navigation.
   const finishAuth = async (): Promise<void> => {
-    await refresh()
+    try {
+      await refresh()
+    } catch (error) {
+      // Every path into finishAuth (password login/signup response, OAuth popup
+      // relay) has already established the session client-side, so the refresh
+      // is a freshness pass — a failure here (e.g. an API with neither a
+      // refresh endpoint nor cookie restore) must NOT strand an authenticated
+      // user in the modal with their account already created. Only a genuinely
+      // absent session is a real failure.
+      if (!authClient.isAuthenticated()) throw error
+    }
     await onAuthenticated?.()
     onClose()
   }
@@ -128,7 +139,13 @@ export function AuthModal({
   // OAuth (popup): success/error land back on THIS page; wire them into the hook.
   const { providers, loginViaPopup } = useOAuth({
     ...oauthConfig,
-    onSuccess: () => void finishAuth(),
+    onSuccess: () => {
+      // Surface a finishAuth failure (no session established) in the modal
+      // instead of dying as an unhandled rejection.
+      finishAuth().catch((error: unknown) => {
+        setOauthError(error instanceof Error ? error.message : String(error))
+      })
+    },
     onError: (message: string) => setOauthError(message),
   })
 

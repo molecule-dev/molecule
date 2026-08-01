@@ -90,7 +90,11 @@ export function AuthModalMount({
     const onFocus = (): void => {
       if (!upgradeTabOpenedRef.current) return
       upgradeTabOpenedRef.current = false
-      void refresh()
+      refresh().catch((_error: unknown) => {
+        // Best-effort freshness pass: the user may have returned without a
+        // session to refresh (never logged in, or the API has no refresh
+        // path) — not an error worth surfacing on a simple tab focus.
+      })
       onUpgradeReturn?.()
     }
     window.addEventListener('focus', onFocus)

@@ -173,6 +173,43 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     return data
   }
 
+  // [M1-1] Session restore from the httpOnly cookie. The bearer token is held
+  // in memory (a localStorage copy is XSS-exfiltratable, so it is forbidden)
+  // and is therefore lost on a full page load — but the httpOnly session cookie
+  // persists. Probe the current-user endpoint with credentials; if the cookie
+  // is still valid the server returns the user, and we re-establish the
+  // authenticated session WITHOUT the token ever being exposed to JavaScript.
+  //
+  // GATE on the non-httpOnly `mol_auth` presence hint (set by the server
+  // alongside the httpOnly token): only probe when a session plausibly exists.
+  // Without this gate, every anonymous caller would fire a guaranteed-401
+  // request (extra API call + console error). A forged hint only costs one
+  // harmless 401.
+  //
+  // Shared by initialize() (reload/deep-link restore) and refresh() (see the
+  // no-refresh-token fallback there).
+  const restoreFromSessionCookie = async (): Promise<T | null> => {
+    const hasSessionHint =
+      typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie)
+    if (!hasSessionHint) return null
+    try {
+      const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, {
+        method: 'GET',
+        credentials: 'include',
+      })
+      const restoredUser = (result?.user ?? null) as T | null
+      if (restoredUser) {
+        tokenStorage.setUser(restoredUser)
+        setState({ authenticated: true, user: restoredUser })
+        return restoredUser
+      }
+    } catch (_error) {
+      // No valid session cookie (401) or no current-user endpoint — remain
+      // logged out. This is an expected path for anonymous visitors.
+    }
+    return null
+  }
+
   const client: AuthClient<T> = {
     getState: () => state,
 
@@ -320,6 +357,19 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     async refresh(): Promise<AuthResult<T>> {
       const refreshToken = tokenStorage.getRefreshToken()
       if (!refreshToken) {
+        // Cookie-session APIs (the @molecule/api-resource-user model) issue NO
+        // refresh token at all — login/register return only { accessToken, user }
+        // and the durable credential is the httpOnly session cookie. For them,
+        // "refresh" means re-deriving the session from that cookie, exactly like
+        // initialize()'s restore. Without this fallback every post-auth refresh
+        // (the auth modal's finishAuth, the upgrade-tab focus-return) threw
+        // 'No refresh token available' — which silently aborted the modal's
+        // signup/login flow right after the account was created.
+        const restoredUser = await restoreFromSessionCookie()
+        if (restoredUser) {
+          emitEvent({ type: 'refresh' })
+          return { user: restoredUser }
+        }
         throw new I18nError('auth.error.noRefreshToken', undefined, 'No refresh token available')
       }
 
@@ -411,42 +461,9 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
         }
       }
 
-      // [M1-1] Session restore from the httpOnly cookie. The bearer token is
-      // held in memory (a localStorage copy is XSS-exfiltratable, so it is
-      // forbidden) and is therefore lost on a full page load — but the httpOnly
-      // session cookie persists. Probe the current-user endpoint with
-      // credentials; if the cookie is still valid the server returns the user,
-      // and we re-establish the authenticated session WITHOUT the token ever
-      // being exposed to JavaScript. This is what keeps a refresh / deep-link
-      // logged in under the in-memory-token model.
-      //
-      // GATE on the non-httpOnly `mol_auth` presence hint (set by the server
-      // alongside the httpOnly token): only probe when a session plausibly
-      // exists. Without this gate, EVERY page load — including anonymous/public
-      // pages — would fire a guaranteed-401 /users/me request (extra API call +
-      // console error). A forged hint only costs one harmless 401.
-      const hasSessionHint =
-        typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie)
-      if (!hasSessionHint) {
-        setState({ initialized: true })
-        return
-      }
-      try {
-        const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, {
-          method: 'GET',
-          credentials: 'include',
-        })
-        const restoredUser = (result?.user ?? null) as T | null
-        if (restoredUser) {
-          tokenStorage.setUser(restoredUser)
-          setState({ initialized: true, authenticated: true, user: restoredUser })
-          return
-        }
-      } catch (_error) {
-        // No valid session cookie (401) or no current-user endpoint — remain
-        // logged out. This is an expected path for anonymous visitors.
-      }
-
+      // [M1-1] Cookie-restore — this is what keeps a refresh / deep-link logged
+      // in under the in-memory-token model. See restoreFromSessionCookie above.
+      await restoreFromSessionCookie()
       setState({ initialized: true })
     },
 
