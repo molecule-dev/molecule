@@ -1365,8 +1365,17 @@ export function PreviewPanel({
       // both — matching the intent: accuse only when we're certain nothing ever rendered
       // (COLD_BOOT_PATIENCE_MS elapsed while alive-but-unmounted). The stale-document
       // auto-reloads still recover a genuinely dead doc in the meantime.
+      // Inside the wake window: NEVER accuse. The old in-window ceiling used
+      // `sinceLoad >= COLD_BOOT_PATIENCE_MS`, but on a wake `lastLoadAt` is the
+      // PRE-HIBERNATION load — minutes-to-hours old — so the "generous ceiling"
+      // tripped the instant the sleeping screen lifted and only cleared when the
+      // wake reload reset the anchor (the observed blank-notice flash over a
+      // 13-second relaunch). The window itself (WAKE_PATIENCE_MS) is shorter
+      // than the ceiling anyway, so an in-window `sinceLoad` accusation could
+      // ONLY ever fire off that stale anchor; a wake that genuinely never comes
+      // up is accused by the normal branches the moment the window expires.
       const introuble = inWakeWindow()
-        ? sinceLoad >= COLD_BOOT_PATIENCE_MS
+        ? false
         : hasEverRenderedRef.current
           ? sinceLoad >= BLANK_CONFIRM_MS
           : (!aliveRecently && sinceLoad >= BLANK_DEAD_MS) || sinceLoad >= COLD_BOOT_PATIENCE_MS
