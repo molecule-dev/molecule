@@ -83,17 +83,29 @@ export const input = cva(
  * Textarea component classes.
  */
 export const textarea = cva(
-  'flex min-h-[150px] w-full border border-transparent border-b-border-secondary bg-transparent rounded-[1px] px-[3px] py-[5px] text-[17px] leading-[1.25] font-inherit text-foreground transition-all duration-250 ease-in-out placeholder:opacity-0 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+  // hover/focus backgrounds use the same `input-background` token as the input
+  // CVA above, so a textarea next to an input reads as the same control family
+  // (background-tertiary here made the pair visibly mismatch on hover/focus).
+  'flex min-h-[150px] w-full border border-transparent border-b-border-secondary bg-transparent rounded-[1px] px-[3px] py-[5px] leading-[1.25] font-inherit text-foreground transition-all duration-250 ease-in-out placeholder:opacity-0 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'hover:border-b-foreground-secondary/75 hover:bg-background-tertiary hover:shadow-[0_0_1.5px_1.5px_rgba(0,0,0,0.025)] focus-visible:border-b-primary focus-visible:bg-background-tertiary focus-visible:shadow-[0_0_1.5px_1.5px_rgba(0,0,0,0.025)]',
+          'hover:border-b-foreground-secondary/75 hover:bg-input-background hover:shadow-[0_0_1.5px_1.5px_rgba(0,0,0,0.025)] focus-visible:border-b-primary focus-visible:bg-input-background focus-visible:shadow-[0_0_1.5px_1.5px_rgba(0,0,0,0.025)]',
         error: 'border-b-error focus-visible:border-b-error',
+      },
+      // Font sizes match the input CVA's tiers so a same-`size` input +
+      // textarea pair renders identical text. `md` keeps the historic 17px
+      // default (no fleet-wide change without opting in).
+      size: {
+        sm: 'text-[15px]',
+        md: 'text-[17px]',
+        lg: 'text-xl',
       },
     },
     defaultVariants: {
       variant: 'default',
+      size: 'md',
     },
   },
 )

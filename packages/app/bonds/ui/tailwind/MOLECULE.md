@@ -1833,7 +1833,7 @@ const tabTriggerIcon: "mr-2"
 Textarea component classes.
 
 ```typescript
-const textarea: (props?: ({ variant?: "default" | "error" | undefined; } & { class?: string; }) | undefined) => string
+const textarea: (props?: ({ variant?: "default" | "error" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `textOnPrimaryContainer`

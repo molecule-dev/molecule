@@ -15,6 +15,7 @@ import { getClassMap } from '@molecule/app-ui'
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {
+      size,
       label,
       error,
       hint,
@@ -88,7 +89,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       return () => element.removeEventListener('input', resize)
     }, [autoResize, resize])
 
-    const textareaClasses = cm.cn(cm.textarea({ error: !!error }), className)
+    const textareaClasses = cm.cn(cm.textarea({ error: !!error, size }), className)
 
     return (
       <div className={cm.inputWrapper}>

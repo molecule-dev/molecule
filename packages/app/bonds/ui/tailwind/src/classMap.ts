@@ -530,7 +530,10 @@ export const classMap: UIClassMap = {
   },
 
   textarea(opts?: TextareaClassOptions): string {
-    return textarea({ variant: opts?.error ? 'error' : 'default' })
+    return textarea({
+      variant: opts?.error ? 'error' : 'default',
+      size: opts?.size ? size3Map[opts.size] : 'md',
+    })
   },
 
   select(opts?: SelectClassOptions): string {

@@ -1701,6 +1701,12 @@ Options for textarea class resolution.
 ```typescript
 interface TextareaClassOptions {
   error?: boolean
+  /**
+   * Text size tier, matching {@link InputClassOptions.size} — a same-`size`
+   * input + textarea pair renders identical font sizes. Bonds default to
+   * their historic textarea size when omitted.
+   */
+  size?: Size
 }
 ```
 
@@ -1733,6 +1739,12 @@ Props for the Textarea component.
 
 ```typescript
 interface TextareaProps extends TextareaElementProps {
+  /**
+   * Text size tier (see {@link TextareaClassOptions.size}) — pass the same
+   * `size` as a neighboring Input for identical font sizes.
+   */
+  size?: Size
+
   /**
    * Label text.
    */

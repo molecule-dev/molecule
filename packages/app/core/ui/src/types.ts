@@ -367,6 +367,12 @@ export interface InputProps extends InputElementProps {
  */
 export interface TextareaProps extends TextareaElementProps {
   /**
+   * Text size tier (see {@link TextareaClassOptions.size}) — pass the same
+   * `size` as a neighboring Input for identical font sizes.
+   */
+  size?: Size
+
+  /**
    * Label text.
    */
   label?: string
@@ -1767,6 +1773,12 @@ export interface InputClassOptions {
  */
 export interface TextareaClassOptions {
   error?: boolean
+  /**
+   * Text size tier, matching {@link InputClassOptions.size} — a same-`size`
+   * input + textarea pair renders identical font sizes. Bonds default to
+   * their historic textarea size when omitted.
+   */
+  size?: Size
 }
 
 /**
