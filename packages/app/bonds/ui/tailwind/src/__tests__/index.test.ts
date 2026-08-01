@@ -345,7 +345,9 @@ describe('textarea component', () => {
     const result = textarea()
     expect(result).toContain('min-h-[150px]')
     expect(result).toContain('rounded-[1px]')
-    expect(result).toContain('border-b-border-secondary')
+    // Same resting underline as the input CVA — inputs/textareas/selects share
+    // one control-family treatment (2026-08 unification).
+    expect(result).toContain('border-b-[rgba(170,170,170,0.33)]')
   })
 
   it('should apply error variant', () => {

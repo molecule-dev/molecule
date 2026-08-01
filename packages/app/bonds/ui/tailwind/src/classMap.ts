@@ -945,7 +945,10 @@ export const classMap: UIClassMap = {
   surfaceSecondary,
   headerBar: 'bg-surface shadow-[0_0_3px_3px_rgba(0,0,0,0.05)]',
   drawer:
-    '!fixed !inset-y-0 !right-0 !left-auto !w-full !max-w-sm !h-full !rounded-none !translate-x-0 !translate-y-0 overflow-y-auto bg-surface z-50 shadow-xl',
+    // !p-0 kills dialogContent's p-2: the drawer itself is the scroll
+    // container, and any padding on it insets the scrollbar from the right
+    // edge (the panel content brings its own padding).
+    '!fixed !inset-y-0 !right-0 !left-auto !w-full !max-w-sm !h-full !rounded-none !translate-x-0 !translate-y-0 !p-0 overflow-y-auto bg-surface z-50 shadow-xl',
 
   // ---- Text color tokens ----
 
