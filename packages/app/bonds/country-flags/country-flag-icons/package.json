@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/app-country-flags-country-flag-icons",
+  "version": "1.0.0",
+  "description": "country-flag-icons flag set for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "flags",
+    "country",
+    "country-flag-icons"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "country-flag-icons": "1.6.20"
+  },
+  "peerDependencies": {
+    "@molecule/app-country-flags": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-country-flags": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/country-flags/country-flag-icons"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/country-flags/country-flag-icons",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

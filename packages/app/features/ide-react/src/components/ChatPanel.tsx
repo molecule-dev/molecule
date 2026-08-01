@@ -36,6 +36,7 @@ import {
   partitionByDeprecation,
   PROVIDER_BRAND_COLORS,
 } from '@molecule/app-ai-models'
+import { getCountryFlag } from '@molecule/app-country-flags'
 import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import { getLogger } from '@molecule/app-logger'
@@ -154,104 +155,55 @@ const logger = getLogger('chat-panel')
 // dispatches to the provider it registered for that region; unknown codes fall
 // back to the model's default region.
 type ModelRegion = string
-/**
- * Unit five-pointed star path (outer radius 1, centered at the origin, point
- * up) — positioned/scaled per use via `transform`.
- */
-const STAR_PATH =
-  'M0,-1 L0.225,-0.309 L0.951,-0.309 L0.363,0.118 L0.588,0.809 L0,0.382 ' +
-  'L-0.588,0.809 L-0.363,0.118 L-0.951,-0.309 L-0.225,-0.309 Z'
 
-/** Hairline outline so light flag edges don't bleed into a light surface. */
-function FlagOutline(): JSX.Element {
+// Every region the picker can offer: the flag's country code (resolved via the
+// bonded @molecule/app-country-flags set) + the English fallback for its i18n
+// label (`ide.chat.model.region.<code>`). Adding a region here (plus a
+// server-side provider registration) is ALL the UI needs — the region
+// control's menu lists whatever `availableModelRegions` returns.
+const MODEL_REGION_META: Record<string, { flagCode: string; defaultLabel: string }> = {
+  us: { flagCode: 'US', defaultLabel: 'US' },
+  cn: { flagCode: 'CN', defaultLabel: 'China' },
+}
+
+/**
+ * Renders a region's rectangular flag from the bonded country-flag set at the
+ * given total height, falling back to the uppercase code as text when no flag
+ * set is bonded or the code has no flag. The SVG markup ships with
+ * viewBox-only sizing, so the inner dimensions are injected here; the hairline
+ * border keeps light flag edges (e.g. the US stripes) from blending into a
+ * light surface.
+ *
+ * @param props - `code` (ISO/pseudo country code) and total `height` in px
+ *   (border included).
+ * @returns The flag element, or the textual fallback.
+ */
+function RegionFlag({ code, height }: { code: string; height: number }): JSX.Element {
+  const flag = getCountryFlag(code)
+  if (!flag) {
+    return <span style={{ fontSize: '10px', lineHeight: `${height}px` }}>{code.toUpperCase()}</span>
+  }
+  const innerHeight = height - 2
+  const innerWidth = Math.round(innerHeight * flag.aspectRatio)
   return (
-    <rect
-      x="0.25"
-      y="0.25"
-      width="20.5"
-      height="13.5"
-      fill="none"
-      stroke="rgba(128,128,128,0.4)"
-      strokeWidth="0.5"
+    <span
+      aria-hidden="true"
+      style={{
+        display: 'inline-flex',
+        border: '1px solid rgba(128,128,128,0.4)',
+        borderRadius: 1,
+        overflow: 'hidden',
+      }}
+      // The bonded set's markup is trusted static artwork (a build-time
+      // dependency, never user input), so injecting it verbatim is safe.
+      dangerouslySetInnerHTML={{
+        __html: flag.svg.replace(
+          '<svg',
+          `<svg width="${innerWidth}" height="${innerHeight}" style="display:block"`,
+        ),
+      }}
     />
   )
-}
-
-/**
- * Rectangular US flag, simplified for icon size (the star field reads as a dot
- * grid). Inline SVG instead of the 🇺🇸 emoji because emoji fonts render flags
- * inconsistently (Noto's are wavy); an SVG is identical and crisp everywhere.
- * @param props - `height` in px; width is 1.5× (3:2 icon ratio).
- * @returns The flag SVG.
- */
-function UsFlag({ height = 14 }: { height?: number }): JSX.Element {
-  return (
-    <svg
-      viewBox="0 0 21 14"
-      width={height * 1.5}
-      height={height}
-      aria-hidden="true"
-      style={{ display: 'block' }}
-    >
-      <rect width="21" height="14" fill="#fff" />
-      {[0, 2, 4, 6, 8, 10, 12].map((i) => (
-        <rect key={i} y={(i * 14) / 13} width="21" height={14 / 13} fill="#B22234" />
-      ))}
-      <rect width="8.4" height={(7 * 14) / 13} fill="#3C3B6E" />
-      {[1, 2.7, 4.4, 6.1].flatMap((y) =>
-        [1.2, 2.8, 4.4, 6, 7.6].map((x) => (
-          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.38" fill="#fff" />
-        )),
-      )}
-      <FlagOutline />
-    </svg>
-  )
-}
-
-/**
- * Rectangular China flag (official layout scaled to the 3:2 icon box).
- * @param props - `height` in px; width is 1.5× (3:2 icon ratio).
- * @returns The flag SVG.
- */
-function CnFlag({ height = 14 }: { height?: number }): JSX.Element {
-  return (
-    <svg
-      viewBox="0 0 21 14"
-      width={height * 1.5}
-      height={height}
-      aria-hidden="true"
-      style={{ display: 'block' }}
-    >
-      <rect width="21" height="14" fill="#EE1C25" />
-      <path d={STAR_PATH} transform="translate(3.5,3.5) scale(2.1)" fill="#FFDE00" />
-      {[
-        [7, 1.4],
-        [8.4, 2.8],
-        [8.4, 4.9],
-        [7, 6.3],
-      ].map(([x, y]) => (
-        <path
-          key={`${x}-${y}`}
-          d={STAR_PATH}
-          transform={`translate(${x},${y}) scale(0.7)`}
-          fill="#FFDE00"
-        />
-      ))}
-      <FlagOutline />
-    </svg>
-  )
-}
-
-// Every region the picker can offer: rectangular flag component + the English
-// fallback for its i18n label (`ide.chat.model.region.<code>`). Adding a
-// region here (plus a server-side provider registration) is ALL the UI needs —
-// the region control's menu lists whatever `availableModelRegions` returns.
-const MODEL_REGION_META: Record<
-  string,
-  { Flag: (props: { height?: number }) => JSX.Element; defaultLabel: string }
-> = {
-  us: { Flag: UsFlag, defaultLabel: 'US' },
-  cn: { Flag: CnFlag, defaultLabel: 'China' },
 }
 // Providers whose models are natively hosted in China (and re-hosted on US
 // infrastructure by default), giving them a region choice in the picker.
@@ -5776,20 +5728,44 @@ function ChatInner({
     },
     [modelRegions],
   )
-  // Which model's region menu (the flag pill's dropdown) is open, if any.
-  const [regionMenuModelId, setRegionMenuModelId] = useState<string | null>(null)
+  // Which model's region menu (the region control's dropdown) is open, if any,
+  // plus the viewport coords it opens at. The menu renders position:fixed just
+  // BELOW the control (top = trigger bottom, right edges aligned) so the
+  // picker's scroll container can't clip it and it never collides with the
+  // control's tooltip (which sits above and is hidden while the menu is open).
+  const [regionMenu, setRegionMenu] = useState<{
+    modelId: string
+    top: number
+    right: number
+  } | null>(null)
+  /** Opens (or toggles closed) a model's region menu anchored to `trigger`. */
+  const toggleRegionMenu = useCallback((modelId: string, trigger: HTMLElement) => {
+    setRegionMenu((open) => {
+      if (open?.modelId === modelId) return null
+      const rect = trigger.getBoundingClientRect()
+      return { modelId, top: rect.bottom + 2, right: window.innerWidth - rect.right }
+    })
+  }, [])
   // Any click outside the open region menu closes it. The opening click never
   // self-closes: this listener attaches AFTER that click (post-render), and
-  // the pill/menu handlers stopPropagation so their clicks never reach it.
+  // the control/menu handlers stopPropagation so their clicks never reach it.
+  // Scroll/resize also close it — the menu is fixed-positioned, so its anchor
+  // would drift away from it otherwise.
   useEffect(() => {
-    if (!regionMenuModelId) return
-    const close = () => setRegionMenuModelId(null)
+    if (!regionMenu) return
+    const close = () => setRegionMenu(null)
     document.addEventListener('click', close)
-    return () => document.removeEventListener('click', close)
-  }, [regionMenuModelId])
+    document.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    return () => {
+      document.removeEventListener('click', close)
+      document.removeEventListener('scroll', close, true)
+      window.removeEventListener('resize', close)
+    }
+  }, [regionMenu])
   // Closing the model picker closes any open region menu with it.
   useEffect(() => {
-    if (!modelPicker) setRegionMenuModelId(null)
+    if (!modelPicker) setRegionMenu(null)
   }, [modelPicker])
   const visibleModels = useMemo(() => {
     // Sort WITHIN each partition so the current/deprecated split (and the
@@ -7761,102 +7737,103 @@ function ChatInner({
                                         { region: regionLabel },
                                         { defaultValue: 'Only hosted in: {{region}}' },
                                       )
-                                  const menuOpen = regionMenuModelId === model.id
+                                  const menuOpen = regionMenu?.modelId === model.id
+                                  // Trigger built once so the Tooltip wrap can
+                                  // be dropped while the menu is open (the
+                                  // menu replaces it — stacking a hover
+                                  // tooltip on an open menu is noise).
+                                  const trigger = (
+                                    <span
+                                      role={interactive ? 'button' : undefined}
+                                      tabIndex={interactive ? 0 : undefined}
+                                      aria-label={hint}
+                                      aria-haspopup={interactive ? 'menu' : undefined}
+                                      aria-expanded={interactive ? menuOpen : undefined}
+                                      data-mol-id={`model-region-${model.id}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        if (!interactive) return
+                                        toggleRegionMenu(model.id, e.currentTarget as HTMLElement)
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (!interactive) return
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                          e.stopPropagation()
+                                          e.preventDefault()
+                                          toggleRegionMenu(model.id, e.currentTarget as HTMLElement)
+                                        } else if (e.key === 'Escape' && menuOpen) {
+                                          e.stopPropagation()
+                                          setRegionMenu(null)
+                                        }
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        // Hover affordance beyond the tooltip
+                                        // (same imperative idiom as the row
+                                        // button's own hover background).
+                                        if (interactive)
+                                          (e.currentTarget as HTMLElement).style.background =
+                                            'rgba(128,128,128,0.25)'
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        ;(e.currentTarget as HTMLElement).style.background =
+                                          menuOpen ? 'rgba(128,128,128,0.25)' : 'transparent'
+                                      }}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '1px 4px',
+                                        borderRadius: 4,
+                                        background: menuOpen
+                                          ? 'rgba(128,128,128,0.25)'
+                                          : 'transparent',
+                                        cursor: interactive ? 'pointer' : 'default',
+                                      }}
+                                    >
+                                      {interactive && (
+                                        <Icon
+                                          name="chevron-down"
+                                          size={10}
+                                          aria-hidden="true"
+                                          className={cm.textMuted}
+                                        />
+                                      )}
+                                      <span
+                                        className={cm.textMuted}
+                                        style={{ fontSize: '10px', lineHeight: '14px' }}
+                                      >
+                                        {regionLabel}
+                                      </span>
+                                      {/* Rectangular flag from the bonded flag
+                                          set, sized to the capability pills'
+                                          14px height. */}
+                                      <RegionFlag
+                                        code={meta?.flagCode ?? modelRegion}
+                                        height={14}
+                                      />
+                                    </span>
+                                  )
                                   return (
                                     <span
                                       style={{
-                                        position: 'relative',
                                         display: 'inline-flex',
                                         marginLeft: 'auto',
                                         alignSelf: 'flex-end',
                                       }}
                                     >
-                                      <Tooltip content={hint} placement="top">
-                                        <span
-                                          role={interactive ? 'button' : undefined}
-                                          tabIndex={interactive ? 0 : undefined}
-                                          aria-label={hint}
-                                          aria-haspopup={interactive ? 'menu' : undefined}
-                                          aria-expanded={interactive ? menuOpen : undefined}
-                                          data-mol-id={`model-region-${model.id}`}
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            if (!interactive) return
-                                            setRegionMenuModelId(menuOpen ? null : model.id)
-                                          }}
-                                          onKeyDown={(e) => {
-                                            if (!interactive) return
-                                            if (e.key === 'Enter' || e.key === ' ') {
-                                              e.stopPropagation()
-                                              e.preventDefault()
-                                              setRegionMenuModelId(menuOpen ? null : model.id)
-                                            } else if (e.key === 'Escape' && menuOpen) {
-                                              e.stopPropagation()
-                                              setRegionMenuModelId(null)
-                                            }
-                                          }}
-                                          onMouseEnter={(e) => {
-                                            // Hover affordance beyond the tooltip
-                                            // (same imperative idiom as the row
-                                            // button's own hover background).
-                                            if (interactive)
-                                              (e.currentTarget as HTMLElement).style.background =
-                                                'rgba(128,128,128,0.25)'
-                                          }}
-                                          onMouseLeave={(e) => {
-                                            ;(e.currentTarget as HTMLElement).style.background =
-                                              menuOpen ? 'rgba(128,128,128,0.25)' : 'transparent'
-                                          }}
-                                          style={{
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            padding: '1px 4px',
-                                            borderRadius: 4,
-                                            background: menuOpen
-                                              ? 'rgba(128,128,128,0.25)'
-                                              : 'transparent',
-                                            cursor: interactive ? 'pointer' : 'default',
-                                          }}
-                                        >
-                                          {interactive && (
-                                            <Icon
-                                              name="chevron-down"
-                                              size={10}
-                                              aria-hidden="true"
-                                              className={cm.textMuted}
-                                            />
-                                          )}
-                                          <span
-                                            className={cm.textMuted}
-                                            style={{ fontSize: '10px', lineHeight: '14px' }}
-                                          >
-                                            {regionLabel}
-                                          </span>
-                                          {/* Bare rectangular flag — no border/
-                                              padding/pill chrome; sized to the
-                                              capability pills' 14px height. */}
-                                          <span
-                                            aria-hidden="true"
-                                            style={{
-                                              display: 'inline-flex',
-                                              alignItems: 'center',
-                                              height: 14,
-                                            }}
-                                          >
-                                            {meta ? (
-                                              <meta.Flag height={14} />
-                                            ) : (
-                                              <span
-                                                style={{ fontSize: '10px', lineHeight: '14px' }}
-                                              >
-                                                {modelRegion.toUpperCase()}
-                                              </span>
-                                            )}
-                                          </span>
-                                        </span>
-                                      </Tooltip>
-                                      {menuOpen && (
+                                      {menuOpen ? (
+                                        trigger
+                                      ) : (
+                                        <Tooltip content={hint} placement="top">
+                                          {trigger}
+                                        </Tooltip>
+                                      )}
+                                      {/* The menu opens BELOW the trigger at
+                                          fixed viewport coords (right edges
+                                          aligned) so the picker's scroll
+                                          container can't clip it; scroll/
+                                          resize close it (see the effect). */}
+                                      {menuOpen && regionMenu && (
                                         <span
                                           role="menu"
                                           aria-label={t(
@@ -7866,13 +7843,12 @@ function ChatInner({
                                           )}
                                           className={cm.cn(cm.surface, cm.borderAll)}
                                           style={{
-                                            position: 'absolute',
-                                            bottom: '100%',
-                                            right: 0,
-                                            marginBottom: 4,
+                                            position: 'fixed',
+                                            top: regionMenu.top,
+                                            right: regionMenu.right,
                                             borderRadius: 6,
                                             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                                            zIndex: 20,
+                                            zIndex: 130,
                                             display: 'flex',
                                             flexDirection: 'column',
                                             minWidth: 112,
@@ -7899,14 +7875,14 @@ function ChatInner({
                                                 data-mol-id={`model-region-${model.id}-${r}`}
                                                 onClick={(e) => {
                                                   e.stopPropagation()
-                                                  setRegionMenuModelId(null)
+                                                  setRegionMenu(null)
                                                   if (!active) void setModelRegion(model.id, r)
                                                 }}
                                                 onKeyDown={(e) => {
                                                   if (e.key === 'Enter' || e.key === ' ') {
                                                     e.stopPropagation()
                                                     e.preventDefault()
-                                                    setRegionMenuModelId(null)
+                                                    setRegionMenu(null)
                                                     if (!active) void setModelRegion(model.id, r)
                                                   }
                                                 }}
@@ -7943,19 +7919,10 @@ function ChatInner({
                                                     : 'inherit',
                                                 }}
                                               >
-                                                <span
-                                                  aria-hidden="true"
-                                                  style={{
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                  }}
-                                                >
-                                                  {rMeta ? (
-                                                    <rMeta.Flag height={12} />
-                                                  ) : (
-                                                    r.toUpperCase()
-                                                  )}
-                                                </span>
+                                                <RegionFlag
+                                                  code={rMeta?.flagCode ?? r}
+                                                  height={12}
+                                                />
                                                 <span>{rLabel}</span>
                                               </span>
                                             )

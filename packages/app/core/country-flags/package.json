@@ -1,0 +1,48 @@
+{
+  "name": "@molecule/app-country-flags",
+  "version": "1.0.0",
+  "description": "Country/region flag interfaces for molecule.dev",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "flags",
+    "country",
+    "interfaces"
+  ],
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/app-bond": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-bond": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/core/country-flags"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/core/country-flags",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
