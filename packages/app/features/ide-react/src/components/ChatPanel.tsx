@@ -154,13 +154,104 @@ const logger = getLogger('chat-panel')
 // dispatches to the provider it registered for that region; unknown codes fall
 // back to the model's default region.
 type ModelRegion = string
-// Every region the picker can offer: flag glyph + the English fallback for its
-// i18n label (`ide.chat.model.region.<code>`). Adding a region here (plus a
-// server-side provider registration) is ALL the UI needs — the flag pill's
-// menu lists whatever `availableModelRegions` returns.
-const MODEL_REGION_META: Record<string, { flag: string; defaultLabel: string }> = {
-  us: { flag: '🇺🇸', defaultLabel: 'US' },
-  cn: { flag: '🇨🇳', defaultLabel: 'China' },
+/**
+ * Unit five-pointed star path (outer radius 1, centered at the origin, point
+ * up) — positioned/scaled per use via `transform`.
+ */
+const STAR_PATH =
+  'M0,-1 L0.225,-0.309 L0.951,-0.309 L0.363,0.118 L0.588,0.809 L0,0.382 ' +
+  'L-0.588,0.809 L-0.363,0.118 L-0.951,-0.309 L-0.225,-0.309 Z'
+
+/** Hairline outline so light flag edges don't bleed into a light surface. */
+function FlagOutline(): JSX.Element {
+  return (
+    <rect
+      x="0.25"
+      y="0.25"
+      width="20.5"
+      height="13.5"
+      fill="none"
+      stroke="rgba(128,128,128,0.4)"
+      strokeWidth="0.5"
+    />
+  )
+}
+
+/**
+ * Rectangular US flag, simplified for icon size (the star field reads as a dot
+ * grid). Inline SVG instead of the 🇺🇸 emoji because emoji fonts render flags
+ * inconsistently (Noto's are wavy); an SVG is identical and crisp everywhere.
+ * @param props - `height` in px; width is 1.5× (3:2 icon ratio).
+ * @returns The flag SVG.
+ */
+function UsFlag({ height = 14 }: { height?: number }): JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 21 14"
+      width={height * 1.5}
+      height={height}
+      aria-hidden="true"
+      style={{ display: 'block' }}
+    >
+      <rect width="21" height="14" fill="#fff" />
+      {[0, 2, 4, 6, 8, 10, 12].map((i) => (
+        <rect key={i} y={(i * 14) / 13} width="21" height={14 / 13} fill="#B22234" />
+      ))}
+      <rect width="8.4" height={(7 * 14) / 13} fill="#3C3B6E" />
+      {[1, 2.7, 4.4, 6.1].flatMap((y) =>
+        [1.2, 2.8, 4.4, 6, 7.6].map((x) => (
+          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.38" fill="#fff" />
+        )),
+      )}
+      <FlagOutline />
+    </svg>
+  )
+}
+
+/**
+ * Rectangular China flag (official layout scaled to the 3:2 icon box).
+ * @param props - `height` in px; width is 1.5× (3:2 icon ratio).
+ * @returns The flag SVG.
+ */
+function CnFlag({ height = 14 }: { height?: number }): JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 21 14"
+      width={height * 1.5}
+      height={height}
+      aria-hidden="true"
+      style={{ display: 'block' }}
+    >
+      <rect width="21" height="14" fill="#EE1C25" />
+      <path d={STAR_PATH} transform="translate(3.5,3.5) scale(2.1)" fill="#FFDE00" />
+      {[
+        [7, 1.4],
+        [8.4, 2.8],
+        [8.4, 4.9],
+        [7, 6.3],
+      ].map(([x, y]) => (
+        <path
+          key={`${x}-${y}`}
+          d={STAR_PATH}
+          transform={`translate(${x},${y}) scale(0.7)`}
+          fill="#FFDE00"
+        />
+      ))}
+      <FlagOutline />
+    </svg>
+  )
+}
+
+// Every region the picker can offer: rectangular flag component + the English
+// fallback for its i18n label (`ide.chat.model.region.<code>`). Adding a
+// region here (plus a server-side provider registration) is ALL the UI needs —
+// the region control's menu lists whatever `availableModelRegions` returns.
+const MODEL_REGION_META: Record<
+  string,
+  { Flag: (props: { height?: number }) => JSX.Element; defaultLabel: string }
+> = {
+  us: { Flag: UsFlag, defaultLabel: 'US' },
+  cn: { Flag: CnFlag, defaultLabel: 'China' },
 }
 // Providers whose models are natively hosted in China (and re-hosted on US
 // infrastructure by default), giving them a region choice in the picker.
@@ -7704,10 +7795,27 @@ function ChatInner({
                                               setRegionMenuModelId(null)
                                             }
                                           }}
+                                          onMouseEnter={(e) => {
+                                            // Hover affordance beyond the tooltip
+                                            // (same imperative idiom as the row
+                                            // button's own hover background).
+                                            if (interactive)
+                                              (e.currentTarget as HTMLElement).style.background =
+                                                'rgba(128,128,128,0.25)'
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            ;(e.currentTarget as HTMLElement).style.background =
+                                              menuOpen ? 'rgba(128,128,128,0.25)' : 'transparent'
+                                          }}
                                           style={{
                                             display: 'inline-flex',
                                             alignItems: 'center',
                                             gap: '4px',
+                                            padding: '1px 4px',
+                                            borderRadius: 4,
+                                            background: menuOpen
+                                              ? 'rgba(128,128,128,0.25)'
+                                              : 'transparent',
                                             cursor: interactive ? 'pointer' : 'default',
                                           }}
                                         >
@@ -7725,20 +7833,26 @@ function ChatInner({
                                           >
                                             {regionLabel}
                                           </span>
-                                          {/* Bare flag — no border/padding/pill
-                                              chrome; sized to the capability
-                                              pills' 14px height. */}
+                                          {/* Bare rectangular flag — no border/
+                                              padding/pill chrome; sized to the
+                                              capability pills' 14px height. */}
                                           <span
                                             aria-hidden="true"
                                             style={{
                                               display: 'inline-flex',
                                               alignItems: 'center',
-                                              fontSize: '13px',
-                                              lineHeight: '14px',
                                               height: 14,
                                             }}
                                           >
-                                            {meta?.flag ?? modelRegion.toUpperCase()}
+                                            {meta ? (
+                                              <meta.Flag height={14} />
+                                            ) : (
+                                              <span
+                                                style={{ fontSize: '10px', lineHeight: '14px' }}
+                                              >
+                                                {modelRegion.toUpperCase()}
+                                              </span>
+                                            )}
                                           </span>
                                         </span>
                                       </Tooltip>
@@ -7796,6 +7910,19 @@ function ChatInner({
                                                     if (!active) void setModelRegion(model.id, r)
                                                   }
                                                 }}
+                                                onMouseEnter={(e) => {
+                                                  if (!active)
+                                                    (
+                                                      e.currentTarget as HTMLElement
+                                                    ).style.background = 'rgba(128,128,128,0.15)'
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                  ;(
+                                                    e.currentTarget as HTMLElement
+                                                  ).style.background = active
+                                                    ? 'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)'
+                                                    : 'transparent'
+                                                }}
                                                 className={
                                                   active ? cm.fontWeight('medium') : undefined
                                                 }
@@ -7816,7 +7943,19 @@ function ChatInner({
                                                     : 'inherit',
                                                 }}
                                               >
-                                                <span aria-hidden="true">{rMeta?.flag}</span>
+                                                <span
+                                                  aria-hidden="true"
+                                                  style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                  }}
+                                                >
+                                                  {rMeta ? (
+                                                    <rMeta.Flag height={12} />
+                                                  ) : (
+                                                    r.toUpperCase()
+                                                  )}
+                                                </span>
                                                 <span>{rLabel}</span>
                                               </span>
                                             )
