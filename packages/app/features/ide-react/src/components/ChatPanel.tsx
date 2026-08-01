@@ -7607,6 +7607,12 @@ function ChatInner({
                                 flexWrap: 'wrap',
                                 alignItems: 'center',
                                 marginTop: '1px',
+                                // Full row width — the button column is
+                                // alignItems:flex-start, so without this the
+                                // line shrinks to content and the region
+                                // control's marginLeft:auto has no space to
+                                // push it to the right edge.
+                                width: '100%',
                               }}
                             >
                               {badges.map((b) => (
