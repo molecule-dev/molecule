@@ -1897,6 +1897,105 @@ describe('update handler — avatar + bio profile fields', () => {
     expect(passedProps.emailVerified).not.toBe(true)
   })
 
+  // Password re-auth gate for email changes: `mockCurrentEmail` above returns
+  // NO passwordHash from the secrets lookup, so this variant additionally
+  // serves a hash for the `${table}Secrets` id-equals load.
+  const mockCurrentEmailWithPassword = (email: string | null): void => {
+    mockFindOne.mockImplementation(
+      async (table: string, conditions: Array<{ field: string; operator: string }>) => {
+        const isIdLoad = conditions.some((c) => c.field === 'id' && c.operator === '=')
+        if (!isIdLoad) return null
+        if (table.endsWith('Secrets')) return { id: 'user-1', passwordHash: 'stored-hash' }
+        return { id: 'user-1', email }
+      },
+    )
+  }
+
+  it('requires the current password to CHANGE the email on a password account', async () => {
+    mockCurrentEmailWithPassword('old@example.com')
+    const req = makeReq({ params: { id: 'user-1' }, body: { email: 'new@example.com' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    // The email is the account-recovery anchor: without re-auth, a hijacked
+    // session could silently point password reset at an attacker's address.
+    expect(result?.statusCode).toBe(400)
+    expect(result?.body).toEqual(
+      expect.objectContaining({ errorKey: 'user.error.currentPasswordRequired' }),
+    )
+    expect(mockResourceUpdate).not.toHaveBeenCalled()
+  })
+
+  it('rejects an INCORRECT current password on an email change', async () => {
+    mockCurrentEmailWithPassword('old@example.com')
+    mockCompare.mockResolvedValue(false)
+    const req = makeReq({
+      params: { id: 'user-1' },
+      body: { email: 'new@example.com', currentPassword: 'wrong' },
+    })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(403)
+    expect(result?.body).toEqual(
+      expect.objectContaining({ errorKey: 'user.error.currentPasswordIncorrect' }),
+    )
+    expect(mockResourceUpdate).not.toHaveBeenCalled()
+  })
+
+  it('changes the email with the correct current password', async () => {
+    mockCurrentEmailWithPassword('old@example.com')
+    mockCompare.mockResolvedValue(true)
+    const req = makeReq({
+      params: { id: 'user-1' },
+      body: { email: 'new@example.com', currentPassword: 'right' },
+    })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockCompare).toHaveBeenCalledWith('right', 'stored-hash')
+    const passedProps = mockResourceUpdate.mock.calls[0]?.[0]?.props ?? {}
+    expect(passedProps.email).toBe('new@example.com')
+    expect(passedProps.emailVerified).toBe(false)
+  })
+
+  it('also gates CLEARING the email behind the current password', async () => {
+    mockCurrentEmailWithPassword('old@example.com')
+    const req = makeReq({ params: { id: 'user-1' }, body: { email: '' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    // Removing the address also severs account recovery — same re-auth bar.
+    expect(result?.statusCode).toBe(400)
+    expect(result?.body).toEqual(
+      expect.objectContaining({ errorKey: 'user.error.currentPasswordRequired' }),
+    )
+  })
+
+  it('does NOT require a password for an UNCHANGED email (plain profile save)', async () => {
+    mockCurrentEmailWithPassword('same@example.com')
+    const req = makeReq({ params: { id: 'user-1' }, body: { email: 'same@example.com' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockResourceUpdate).toHaveBeenCalled()
+  })
+
+  it('does NOT require a password for OAuth-only accounts (no hash on file)', async () => {
+    mockCurrentEmail('old@example.com')
+    const req = makeReq({ params: { id: 'user-1' }, body: { email: 'new@example.com' } })
+
+    const result = await handler(req as MoleculeRequest)
+
+    // No password to present — the provider-backed session is the credential.
+    expect(result?.statusCode).toBe(200)
+    const passedProps = mockResourceUpdate.mock.calls[0]?.[0]?.props ?? {}
+    expect(passedProps.email).toBe('new@example.com')
+    expect(passedProps.emailVerified).toBe(false)
+  })
+
   it('should reject an avatar larger than the cap (and not persist)', async () => {
     const req = makeReq({
       params: { id: 'user-1' },

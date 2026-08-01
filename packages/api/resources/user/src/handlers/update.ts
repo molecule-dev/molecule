@@ -3,6 +3,7 @@ import { findOne } from '@molecule/api-database'
 const logger = getLogger()
 const analytics = getAnalytics()
 import { t } from '@molecule/api-i18n'
+import { compare } from '@molecule/api-password'
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
@@ -96,17 +97,16 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
       }
 
       if (req.body.email !== undefined) {
+        let nextEmail: string | null
         if (req.body.email === '' || req.body.email === null) {
-          props.email = null as unknown as string
-          // No address on file → it cannot be verified.
-          props.emailVerified = false
+          nextEmail = null
         } else {
           // Normalize (lowercase) on store to match signup + the login/reset
           // lookups — otherwise a profile email change stores a mixed-case value
           // that those normalized lookups can't find, and lets a case-variant
           // duplicate slip past the uniqueness check below.
-          props.email = (normalizeEmail(String(req.body.email)) ?? '').substring(0, 1023)
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email)) {
+          nextEmail = (normalizeEmail(String(req.body.email)) ?? '').substring(0, 1023)
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
             return {
               statusCode: 400,
               body: { error: t('user.error.emailInvalid'), errorKey: 'user.error.emailInvalid' },
@@ -115,7 +115,7 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
 
           // Check if email is taken by another user.
           const existing = await findOne<{ id: string }>(tableName, [
-            { field: 'email', operator: '=', value: props.email },
+            { field: 'email', operator: '=', value: nextEmail },
             { field: 'id', operator: '!=', value: id },
           ])
 
@@ -128,19 +128,55 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
               },
             }
           }
+        }
+
+        const current = await findOne<{ email?: string | null }>(tableName, [
+          { field: 'id', operator: '=', value: id },
+        ])
+        const changingEmail = !current || (current.email ?? null) !== nextEmail
+
+        if (changingEmail) {
+          // Re-authentication gate: the email is the account-recovery anchor
+          // (password reset goes to it), so changing OR clearing it with a
+          // hijacked session must not be silent. Accounts WITH a password must
+          // present it (same contract + i18n keys as updatePassword); OAuth-only
+          // accounts have no password to present, so their (provider-backed)
+          // session remains the credential.
+          const secrets = await findOne<{ passwordHash?: string | null }>(`${tableName}Secrets`, [
+            { field: 'id', operator: '=', value: id },
+          ])
+          if (secrets?.passwordHash) {
+            const currentPassword =
+              typeof req.body.currentPassword === 'string' ? req.body.currentPassword : ''
+            if (!currentPassword) {
+              return {
+                statusCode: 400,
+                body: {
+                  error: t('user.error.currentPasswordRequired'),
+                  errorKey: 'user.error.currentPasswordRequired',
+                },
+              }
+            }
+            if (!(await compare(currentPassword, secrets.passwordHash))) {
+              return {
+                statusCode: 403,
+                body: {
+                  error: t('user.error.currentPasswordIncorrect'),
+                  errorKey: 'user.error.currentPasswordIncorrect',
+                },
+              }
+            }
+          }
 
           // Changing the address invalidates the verified flag — the new email is
           // unproven, and leaving emailVerified=true would let a caller point a
           // "verified" email anywhere (poisoning password-reset and email-gated
           // access). Reset ONLY on a real change so an unchanged profile save does
           // not needlessly un-verify. Server-set — never read from req.body.
-          const current = await findOne<{ email?: string | null }>(tableName, [
-            { field: 'id', operator: '=', value: id },
-          ])
-          if (!current || current.email !== props.email) {
-            props.emailVerified = false
-          }
+          props.emailVerified = false
         }
+
+        props.email = nextEmail as unknown as string
       }
 
       if (req.body.avatar !== undefined) {
