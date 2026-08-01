@@ -7142,16 +7142,22 @@ function ChatInner({
                     className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
                     style={{
                       borderRadius: 4,
-                      padding: '2px 6px',
+                      // Extra right padding clears the native dropdown arrow so
+                      // the selected label never runs underneath it.
+                      padding: '2px 18px 2px 6px',
                       color: 'inherit',
                       cursor: 'pointer',
                       height: 24,
                       boxSizing: 'border-box',
                       // Fill the group; min-width 0 lets the select shrink below
-                      // its option text (the browser clips natively) so a long
-                      // mode label can't push the header past a narrow pane.
+                      // its option text, and ellipsis (honored by Chromium for
+                      // selects) trims a long mode label gracefully instead of
+                      // hard-clipping mid-glyph.
                       flex: 1,
                       minWidth: 0,
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
                     }}
                   >
                     {pickerModeOptions.map((o) => (
@@ -7188,13 +7194,18 @@ function ChatInner({
                     className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
                     style={{
                       borderRadius: 4,
-                      padding: '2px 6px',
+                      // Extra right padding clears the native dropdown arrow so
+                      // the selected label never runs underneath it.
+                      padding: '2px 18px 2px 6px',
                       color: 'inherit',
                       cursor: 'pointer',
                       height: 24,
                       boxSizing: 'border-box',
                       flex: 1,
                       minWidth: 0,
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
                     }}
                   >
                     <option value="name">
@@ -7612,16 +7623,22 @@ function ChatInner({
                                   {b.label}
                                 </span>
                               ))}
-                              {/* Processing-region flag pill, flowing after the
-                                  capability pills. Click opens a menu of the
-                                  model's available regions (arbitrary count —
-                                  today US/China, but nothing here assumes two).
-                                  Single-region models (e.g. kimi-k3, China-only)
-                                  get a fixed, non-interactive flag. Rendered as
-                                  role=button/menu spans, not <button>, because
-                                  the whole model row is itself a <button> and
-                                  nesting buttons is invalid; stopPropagation
-                                  keeps pill/menu clicks from selecting the row. */}
+                              {/* Processing-region dropdown, anchored to the
+                                  BOTTOM-RIGHT of the row (marginLeft auto +
+                                  alignSelf flex-end on the badge line). Reads
+                                  right-to-left: bare flag (pill-height, no
+                                  chrome) on the far right, region name to its
+                                  left, and a chevron-down to the left of THAT
+                                  only when the region is changeable — click
+                                  opens a menu of the model's available regions
+                                  (arbitrary count — today US/China, but nothing
+                                  here assumes two). Single-region models (e.g.
+                                  kimi-k3, China-only) show name + flag only,
+                                  non-interactive. Rendered as role=button/menu
+                                  spans, not <button>, because the whole model
+                                  row is itself a <button> and nesting buttons
+                                  is invalid; stopPropagation keeps clicks from
+                                  selecting the row. */}
                               {showRegionPill &&
                                 (() => {
                                   const interactive = modelRegionOptions.length > 1
@@ -7649,7 +7666,14 @@ function ChatInner({
                                       )
                                   const menuOpen = regionMenuModelId === model.id
                                   return (
-                                    <span style={{ position: 'relative', display: 'inline-flex' }}>
+                                    <span
+                                      style={{
+                                        position: 'relative',
+                                        display: 'inline-flex',
+                                        marginLeft: 'auto',
+                                        alignSelf: 'flex-end',
+                                      }}
+                                    >
                                       <Tooltip content={hint} placement="top">
                                         <span
                                           role={interactive ? 'button' : undefined}
@@ -7675,18 +7699,41 @@ function ChatInner({
                                             }
                                           }}
                                           style={{
-                                            // Same pill geometry as the capability
-                                            // badges; neutral background because
-                                            // the flag supplies the color.
-                                            fontSize: '10px',
-                                            lineHeight: '14px',
-                                            padding: '1px 5px',
-                                            borderRadius: '3px',
-                                            background: 'rgba(128,128,128,0.12)',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
                                             cursor: interactive ? 'pointer' : 'default',
                                           }}
                                         >
-                                          {meta?.flag ?? modelRegion.toUpperCase()}
+                                          {interactive && (
+                                            <Icon
+                                              name="chevron-down"
+                                              size={10}
+                                              aria-hidden="true"
+                                              className={cm.textMuted}
+                                            />
+                                          )}
+                                          <span
+                                            className={cm.textMuted}
+                                            style={{ fontSize: '10px', lineHeight: '14px' }}
+                                          >
+                                            {regionLabel}
+                                          </span>
+                                          {/* Bare flag — no border/padding/pill
+                                              chrome; sized to the capability
+                                              pills' 14px height. */}
+                                          <span
+                                            aria-hidden="true"
+                                            style={{
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              fontSize: '13px',
+                                              lineHeight: '14px',
+                                              height: 14,
+                                            }}
+                                          >
+                                            {meta?.flag ?? modelRegion.toUpperCase()}
+                                          </span>
                                         </span>
                                       </Tooltip>
                                       {menuOpen && (
