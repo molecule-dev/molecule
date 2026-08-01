@@ -51,7 +51,7 @@ export const button = cva(
  * Input component classes.
  */
 export const input = cva(
-  'flex w-full border border-transparent border-b-[rgba(170,170,170,0.33)] bg-transparent rounded-[1px] px-[3px] leading-none text-center text-foreground transition-all duration-250 ease-in-out file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:opacity-0 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+  'flex w-full border border-transparent border-b-[rgba(170,170,170,0.33)] bg-transparent rounded-[1px] px-[3px] leading-none text-foreground transition-all duration-250 ease-in-out file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:opacity-0 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
@@ -64,10 +64,17 @@ export const input = cva(
         md: 'h-[45px] pt-[22px] pb-[5px] text-[18px]',
         lg: 'h-[55px] pt-[28px] pb-[5px] text-xl',
       },
+      // Centered is this bond's floating-label aesthetic (the default);
+      // `left` opts a field out, e.g. one sitting next to left-aligned textareas.
+      align: {
+        left: 'text-left',
+        center: 'text-center',
+      },
     },
     defaultVariants: {
       variant: 'default',
       size: 'md',
+      align: 'center',
     },
   },
 )

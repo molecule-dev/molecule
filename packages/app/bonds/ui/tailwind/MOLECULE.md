@@ -848,7 +848,7 @@ const emptyStateTitle: "text-lg font-semibold text-gray-900 dark:text-gray-100 m
 Flex layout classes.
 
 ```typescript
-const flex: (props?: ({ direction?: "row" | "row-reverse" | "col" | "col-reverse" | undefined; align?: "start" | "center" | "end" | "stretch" | "baseline" | undefined; justify?: "start" | "center" | "end" | "between" | "around" | "evenly" | undefined; wrap?: "wrap" | "nowrap" | "wrap-reverse" | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
+const flex: (props?: ({ direction?: "row" | "row-reverse" | "col" | "col-reverse" | undefined; align?: "center" | "start" | "end" | "stretch" | "baseline" | undefined; justify?: "center" | "start" | "end" | "between" | "around" | "evenly" | undefined; wrap?: "wrap" | "nowrap" | "wrap-reverse" | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `flex1`
@@ -1018,7 +1018,7 @@ const headerInner: "w-full max-w-[1280px] mx-auto h-10 p-[5px]"
 HStack layout classes (horizontal flexbox).
 
 ```typescript
-const hstack: (props?: ({ justify?: "start" | "center" | "end" | "between" | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
+const hstack: (props?: ({ justify?: "center" | "start" | "end" | "between" | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `iconMd`
@@ -1050,7 +1050,7 @@ const iconXs: "h-3 w-3"
 Input component classes.
 
 ```typescript
-const input: (props?: ({ variant?: "default" | "error" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const input: (props?: ({ variant?: "default" | "error" | undefined; size?: "sm" | "md" | "lg" | undefined; align?: "left" | "center" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `inputClearButton`
@@ -1582,7 +1582,7 @@ const srOnly: "sr-only"
 Stack layout classes (vertical flexbox).
 
 ```typescript
-const stack: (props?: ({ align?: "start" | "center" | "end" | "stretch" | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
+const stack: (props?: ({ align?: "center" | "start" | "end" | "stretch" | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
 ```
 
 #### `surfaceSecondary`

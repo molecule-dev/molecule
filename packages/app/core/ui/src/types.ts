@@ -311,6 +311,12 @@ export interface InputProps extends InputElementProps {
   size?: Size
 
   /**
+   * Horizontal text alignment inside the input (see
+   * {@link InputClassOptions.align}). Defaults to the bond's own style.
+   */
+  align?: 'left' | 'center'
+
+  /**
    * Label text.
    */
   label?: string
@@ -792,14 +798,7 @@ export interface BadgeProps extends HTMLElementProps {
  * Position where a tooltip renders relative to its trigger element (top, bottom, left, right, and corner variants).
  */
 export type TooltipPlacement =
-  | 'top'
-  | 'bottom'
-  | 'left'
-  | 'right'
-  | 'top-start'
-  | 'top-end'
-  | 'bottom-start'
-  | 'bottom-end'
+  'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end'
 
 /**
  * Props for the Tooltip component (hover/focus popover with informational text).
@@ -1557,14 +1556,7 @@ export interface DropdownProps<T = string> extends BaseProps {
    * Dropdown placement.
    */
   placement?:
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end'
-    | 'left'
-    | 'right'
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'right'
 
   /**
    * Whether the dropdown is open (controlled).
@@ -1673,20 +1665,7 @@ export type TailwindArbitraryBracket = `[${string}]`
  * CSS spacing property shorthand (padding/margin with direction).
  */
 export type SpacingProperty =
-  | 'p'
-  | 'px'
-  | 'py'
-  | 'pt'
-  | 'pb'
-  | 'pl'
-  | 'pr'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
+  'p' | 'px' | 'py' | 'pt' | 'pb' | 'pl' | 'pr' | 'm' | 'mx' | 'my' | 'mt' | 'mb' | 'ml' | 'mr'
 
 /**
  * Compound spacing specification for conflict-free overrides.
@@ -1756,15 +1735,7 @@ export type WidthValue =
  * Height value — fractional, keyword, or numeric (mapped to spacing scale).
  */
 export type HeightValue =
-  | 'full'
-  | 'screen'
-  | 'auto'
-  | '1/2'
-  | '1/3'
-  | '2/3'
-  | '1/4'
-  | '3/4'
-  | TailwindArbitraryBracket
+  'full' | 'screen' | 'auto' | '1/2' | '1/3' | '2/3' | '1/4' | '3/4' | TailwindArbitraryBracket
 
 /**
  * Options for resolving button CSS classes via UIClassMap.
@@ -1782,6 +1753,13 @@ export interface ButtonClassOptions {
 export interface InputClassOptions {
   error?: boolean
   size?: Size
+  /**
+   * Horizontal text alignment inside the input. Bonds may default to a
+   * centered aesthetic (e.g. the Tailwind bond's floating-label style);
+   * `'left'` opts a specific field out — e.g. a form field sitting next to
+   * left-aligned textareas.
+   */
+  align?: 'left' | 'center'
 }
 
 /**
@@ -1963,12 +1941,7 @@ export interface GridClassOptions {
  * Toast position values for screen placement.
  */
 export type ToastPosition =
-  | 'top'
-  | 'top-right'
-  | 'top-left'
-  | 'bottom'
-  | 'bottom-right'
-  | 'bottom-left'
+  'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
 
 /**
  * UIClassMap interface — the contract for styling-agnostic class resolution.

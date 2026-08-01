@@ -570,14 +570,7 @@ interface DropdownProps<T = string> extends BaseProps {
    * Dropdown placement.
    */
   placement?:
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end'
-    | 'left'
-    | 'right'
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'right'
 
   /**
    * Whether the dropdown is open (controlled).
@@ -853,6 +846,13 @@ Options for resolving input CSS classes via UIClassMap.
 interface InputClassOptions {
   error?: boolean
   size?: Size
+  /**
+   * Horizontal text alignment inside the input. Bonds may default to a
+   * centered aesthetic (e.g. the Tailwind bond's floating-label style);
+   * `'left'` opts a specific field out — e.g. a form field sitting next to
+   * left-aligned textareas.
+   */
+  align?: 'left' | 'center'
 }
 ```
 
@@ -893,6 +893,12 @@ interface InputProps extends InputElementProps {
    * Input size.
    */
   size?: Size
+
+  /**
+   * Horizontal text alignment inside the input (see
+   * {@link InputClassOptions.align}). Defaults to the bond's own style.
+   */
+  align?: 'left' | 'center'
 
   /**
    * Label text.
@@ -2680,15 +2686,7 @@ Height value — fractional, keyword, or numeric (mapped to spacing scale).
 
 ```typescript
 type HeightValue =
-  | 'full'
-  | 'screen'
-  | 'auto'
-  | '1/2'
-  | '1/3'
-  | '2/3'
-  | '1/4'
-  | '3/4'
-  | TailwindArbitraryBracket
+  'full' | 'screen' | 'auto' | '1/2' | '1/3' | '2/3' | '1/4' | '3/4' | TailwindArbitraryBracket
 ```
 
 #### `InputType`
@@ -2785,20 +2783,7 @@ CSS spacing property shorthand (padding/margin with direction).
 
 ```typescript
 type SpacingProperty =
-  | 'p'
-  | 'px'
-  | 'py'
-  | 'pt'
-  | 'pb'
-  | 'pl'
-  | 'pr'
-  | 'm'
-  | 'mx'
-  | 'my'
-  | 'mt'
-  | 'mb'
-  | 'ml'
-  | 'mr'
+  'p' | 'px' | 'py' | 'pt' | 'pb' | 'pl' | 'pr' | 'm' | 'mx' | 'my' | 'mt' | 'mb' | 'ml' | 'mr'
 ```
 
 #### `SpacingScale`
@@ -2832,12 +2817,7 @@ Toast position values for screen placement.
 
 ```typescript
 type ToastPosition =
-  | 'top'
-  | 'top-right'
-  | 'top-left'
-  | 'bottom'
-  | 'bottom-right'
-  | 'bottom-left'
+  'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
 ```
 
 #### `TooltipPlacement`
@@ -2846,14 +2826,7 @@ Position where a tooltip renders relative to its trigger element (top, bottom, l
 
 ```typescript
 type TooltipPlacement =
-  | 'top'
-  | 'bottom'
-  | 'left'
-  | 'right'
-  | 'top-start'
-  | 'top-end'
-  | 'bottom-start'
-  | 'bottom-end'
+  'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end'
 ```
 
 #### `WidthValue`

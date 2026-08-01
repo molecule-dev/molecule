@@ -847,6 +847,11 @@ interface InputProps extends InputElementProps {
      */
     size?: Size;
     /**
+     * Horizontal text alignment inside the input (see
+     * {@link InputClassOptions.align}). Defaults to the bond's own style.
+     */
+    align?: 'left' | 'center';
+    /**
      * Label text.
      */
     label?: string;

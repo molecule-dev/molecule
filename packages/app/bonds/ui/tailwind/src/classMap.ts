@@ -514,14 +514,8 @@ export const classMap: UIClassMap = {
     const c = opts?.color
     const s = opts?.size
     let variant:
-      | 'default'
-      | 'secondary'
-      | 'success'
-      | 'warning'
-      | 'outline'
-      | 'ghost'
-      | 'link'
-      | 'danger' = 'default'
+      'default' | 'secondary' | 'success' | 'warning' | 'outline' | 'ghost' | 'link' | 'danger' =
+      'default'
     if (c) variant = buttonColorMap[c]
     else if (v) variant = buttonVariantMap[v]
     const size = s === 'icon' ? ('icon' as const) : s ? size3Map[s] : 'md'
@@ -532,7 +526,7 @@ export const classMap: UIClassMap = {
   input(opts?: InputClassOptions): string {
     const variant = opts?.error ? 'error' : 'default'
     const size = opts?.size ? size3Map[opts.size] : 'md'
-    return input({ variant, size })
+    return input({ variant, size, align: opts?.align ?? 'center' })
   },
 
   textarea(opts?: TextareaClassOptions): string {

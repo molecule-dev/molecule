@@ -20,6 +20,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     {
       type = 'text',
       size = 'md',
+      align,
       label,
       error,
       hint,
@@ -53,7 +54,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || name || generatedId
 
     const inputClasses = cm.cn(
-      cm.input({ error: !!error, size }),
+      cm.input({ error: !!error, size, align }),
       !!leftElement && cm.inputPadLeft,
       !!(rightElement || clearable) && cm.inputPadRight,
       className,
