@@ -51,7 +51,7 @@ export class OpenaiAIProvider implements AIProvider {
 
   constructor(config: OpenaiConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.OPENAI_API_KEY ?? ''
-    this.defaultModel = config.defaultModel ?? 'gpt-5.4-mini'
+    this.defaultModel = config.defaultModel ?? 'gpt-5.6-luna'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.OPENAI_BASE_URL ?? 'https://api.openai.com'
     this.onRateLimit = config.onRateLimit

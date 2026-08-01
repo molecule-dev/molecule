@@ -488,6 +488,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.075,
     cacheWritePricePerMTok: 0.75,
     knowledgeCutoff: '2025-08-31',
+    // OpenAI still lists gpt-5.4-mini as current, but like gpt-5.4 above it's
+    // superseded in our lineup (cheap/fast tier is better served by the newer
+    // models) — moved to "Older models" (deprecatedAt is OUR picker taxonomy,
+    // not OpenAI's deprecations page).
+    deprecatedAt: '2026-08-01',
   },
 
   // ---------------------------------------------------------------------------
