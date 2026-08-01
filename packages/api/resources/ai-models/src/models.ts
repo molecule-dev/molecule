@@ -799,6 +799,17 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepSeek automatic context cache: absolute cache-hit price ($/M).
     cacheReadPricePerMTok: 0.003625,
     cacheWritePricePerMTok: 0.435,
+    // Native-China DEFAULT (owner decision 2026-08-01): the US re-host
+    // (DeepInfra) bills ~3× list and ~28× cache reads, and agentic input is
+    // ~94% cache hits, so US processing ran ~5.7× native on real traffic.
+    // Users opt into US per model via the picker's region control.
+    regions: ['cn', 'us'],
+    // US = DeepInfra, verified 2026-08-01 via api.deepinfra.com/models/
+    // deepseek-ai/DeepSeek-V4-Pro. No cache-write premium (omitted → region
+    // input rate).
+    regionPricing: {
+      us: { inputPricePerMTok: 1.3, outputPricePerMTok: 2.6, cacheReadPricePerMTok: 0.1 },
+    },
     // The announced peak-hour 2× surcharge (Beijing business hours) is STILL
     // NOT ACTIVE as of 2026-07-28 — the official rate card lists a single flat
     // rate, and no switch-over date is published. The pre-wired windows were
@@ -833,6 +844,14 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepSeek automatic context cache: absolute cache-hit price ($/M).
     cacheReadPricePerMTok: 0.0028,
     cacheWritePricePerMTok: 0.14,
+    // Native-China default, matching deepseek-v4-pro (see its note) — even
+    // though Flash's US list price is BELOW native, its cache reads are 6.4×,
+    // and the plan/execute pair defaults to one region deliberately.
+    regions: ['cn', 'us'],
+    // US = DeepInfra, verified 2026-08-01 (api.deepinfra.com/models/…V4-Flash).
+    regionPricing: {
+      us: { inputPricePerMTok: 0.09, outputPricePerMTok: 0.18, cacheReadPricePerMTok: 0.018 },
+    },
     // Peak-hour surcharge NOT active (see deepseek-v4-pro) — windows removed.
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
@@ -875,6 +894,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // Automatic context cache: absolute cache-hit price ($0.30/M = 0.1× input).
     cacheReadPricePerMTok: 0.3,
     cacheWritePricePerMTok: 3,
+    // No US re-host exists (not on DeepInfra) — pinned to native China.
+    regions: ['cn'],
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-01-01',
   },
@@ -899,6 +920,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // Automatic context cache: absolute cache-hit price ($0.19/M = 0.2× input).
     cacheReadPricePerMTok: 0.19,
     cacheWritePricePerMTok: 0.95,
+    // US default (DeepInfra bills below native here). Verified 2026-08-01.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.74, outputPricePerMTok: 3.5, cacheReadPricePerMTok: 0.15 },
+    },
     // Not published — best-effort estimate.
     knowledgeCutoff: '2025-10-01',
     // kimi-k3 is the Moonshot pick; the coding specialist stays selectable
@@ -928,6 +954,11 @@ export const MODELS: readonly ModelDefinition[] = [
     outputPricePerMTok: 4,
     cacheReadPricePerMTok: 0.16,
     cacheWritePricePerMTok: 0.95,
+    // US default (DeepInfra bills below native here). Verified 2026-08-01.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.75, outputPricePerMTok: 3.5, cacheReadPricePerMTok: 0.15 },
+    },
     knowledgeCutoff: '2025-04-01',
     // Superseded by kimi-k3; moved to "Older models".
     deprecatedAt: '2026-07-28',
@@ -951,6 +982,11 @@ export const MODELS: readonly ModelDefinition[] = [
     outputPricePerMTok: 3,
     cacheReadPricePerMTok: 0.1,
     cacheWritePricePerMTok: 0.6,
+    // US default (DeepInfra bills below native here). Verified 2026-08-01.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.45, outputPricePerMTok: 2.25, cacheReadPricePerMTok: 0.07 },
+    },
     knowledgeCutoff: '2024-04-01',
     // Superseded by kimi-k2.6 (still served upstream, no announced retirement);
     // kept selectable (Older models) + priceable.
@@ -989,6 +1025,12 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.06,
     // M3 cache-write price not published — M2.7's rate (≥ input as required).
     cacheWritePricePerMTok: 0.375,
+    // US default. DeepInfra list matches native; only the cache write differs
+    // (no premium → region input rate). Verified 2026-08-01.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.3, outputPricePerMTok: 1.2, cacheReadPricePerMTok: 0.06 },
+    },
     // From the official HF chat template ("Knowledge cutoff: January 2026").
     knowledgeCutoff: '2026-01-01',
   },
@@ -1011,6 +1053,12 @@ export const MODELS: readonly ModelDefinition[] = [
     outputPricePerMTok: 1.2,
     cacheReadPricePerMTok: 0.06,
     cacheWritePricePerMTok: 0.375,
+    // US default (DeepInfra still bills the pre-reprice rate). Verified
+    // 2026-08-01.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.25, outputPricePerMTok: 1, cacheReadPricePerMTok: 0.05 },
+    },
     knowledgeCutoff: '2025-09-01',
     // Superseded by minimax-m3 (same price, 1M ctx, multimodal); moved to
     // "Older models".
@@ -1034,6 +1082,8 @@ export const MODELS: readonly ModelDefinition[] = [
     outputPricePerMTok: 1.2,
     cacheReadPricePerMTok: 0.03,
     cacheWritePricePerMTok: 0.375,
+    // No US re-host exists (not on DeepInfra) — pinned to native China.
+    regions: ['cn'],
     knowledgeCutoff: '2025-01-01',
     // Superseded by minimax-m3 (legacy upstream, still served); kept selectable
     // (Older models) + priceable.
@@ -1076,6 +1126,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // Implicit context cache: read ≈0.2× input, no write premium.
     cacheReadPricePerMTok: 0.5,
     cacheWritePricePerMTok: 2.5,
+    // US default. DeepInfra bills identical rates (no regionPricing needed).
+    // Verified 2026-08-01.
+    regions: ['us', 'cn'],
     // Not published by Alibaba — best-effort estimate.
     knowledgeCutoff: '2026-01-01',
   },
@@ -1101,6 +1154,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // Implicit context cache: read 0.2× input, no write premium.
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 1,
+    // US default (DeepInfra bills well below native). Verified 2026-08-01.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.3, outputPricePerMTok: 1, cacheReadPricePerMTok: 0.1 },
+    },
     knowledgeCutoff: '2025-06-01',
     // Alibaba itself recommends the general-purpose models over Qwen-Coder;
     // qwen3.7-max is the pick — moved to "Older models".
@@ -1140,6 +1198,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // GLM context cache: read ≈0.19× input, no write premium.
     cacheReadPricePerMTok: 0.26,
     cacheWritePricePerMTok: 1.4,
+    // US default (DeepInfra bills ~half native). Verified 2026-08-01.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.75, outputPricePerMTok: 2.4, cacheReadPricePerMTok: 0.14 },
+    },
     // Not published by Z.ai — best-effort estimate.
     knowledgeCutoff: '2025-06-01',
   },
@@ -1165,6 +1228,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // GLM context cache: read 0.2× input, no write premium.
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 1,
+    // US default (DeepInfra bills below native). Verified 2026-08-01.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.6, outputPricePerMTok: 2.08, cacheReadPricePerMTok: 0.12 },
+    },
     knowledgeCutoff: '2025-01-01',
     // Superseded by glm-5.2; moved to "Older models".
     deprecatedAt: '2026-07-28',

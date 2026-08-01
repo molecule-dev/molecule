@@ -163,6 +163,37 @@ interface ModelDefinition {
   webFetchToolType?: string
   /** Whether this model is available on the free tier (only one model should be true). */
   freeTier?: boolean
+  /**
+   * Processing regions this model can run in, as arbitrary region codes; the
+   * FIRST entry is the model's default region. Omit for `['us']` (the platform
+   * default — a single-region US model). A single-entry list pins the model to
+   * that region regardless of the user's per-model choice (e.g. `['cn']` for a
+   * model with no US re-host). Dispatch resolves a region to the
+   * `<provider>-<region>` named bond (`'us'` → the bare `<provider>` bond).
+   */
+  regions?: string[]
+  /**
+   * Per-region price overrides in USD per MTok, keyed by region code, for
+   * regions whose host bills differently from the base rates (e.g. a US
+   * re-host of a Chinese-origin model). The BASE `*PricePerMTok` fields always
+   * carry the native provider's list prices (what models.dev / the freshness
+   * gate verify); a region with no entry here bills at the base rates. Omitted
+   * cache fields fall back to the region's `inputPricePerMTok` (hosts with no
+   * cache discount / no write premium).
+   */
+  regionPricing?: Record<
+    string,
+    {
+      /** Region input price per million uncached tokens in USD. */
+      inputPricePerMTok: number
+      /** Region output price per million tokens in USD. */
+      outputPricePerMTok: number
+      /** Region prompt-cache read price per million tokens in USD. */
+      cacheReadPricePerMTok?: number
+      /** Region prompt-cache write price per million tokens in USD. */
+      cacheWritePricePerMTok?: number
+    }
+  >
   /** Input price per million *uncached* (fresh) input tokens in USD. */
   inputPricePerMTok: number
   /** Output price per million tokens in USD. */
@@ -260,6 +291,23 @@ interface ModelDefinition {
 }
 ```
 
+#### `ModelTokenRates`
+
+The four per-MTok token rates a turn bills at (USD).
+
+```typescript
+interface ModelTokenRates {
+  /** Input price per million uncached tokens in USD. */
+  inputPricePerMTok: number
+  /** Output price per million tokens in USD. */
+  outputPricePerMTok: number
+  /** Prompt-cache read price per million tokens in USD. */
+  cacheReadPricePerMTok: number
+  /** Prompt-cache write price per million tokens in USD. */
+  cacheWritePricePerMTok: number
+}
+```
+
 #### `ModeModelDefaults`
 
 The model ids the SERVER falls back to per mode/job when the user hasn't
@@ -332,6 +380,23 @@ type EffortLevel = string
 
 ### Functions
 
+#### `effectiveModelRegion(modelDef, requested)`
+
+Resolve a model's effective processing region: the requested region when the
+model's {@link ModelDefinition.regions} list offers it, else the model's
+DEFAULT region (the first listed; `'us'` when the catalog omits regions,
+which also covers unknown model ids). A single-entry `regions` list pins the
+model regardless of the request (e.g. a model with no US re-host).
+
+```typescript
+function effectiveModelRegion(modelDef: ModelDefinition | undefined, requested?: string): string
+```
+
+- `modelDef` — The model definition (or undefined for unknown ids).
+- `requested` — The user's per-model region choice, if any.
+
+**Returns:** The effective region code.
+
 #### `getAvailableModels(availableProviders)`
 
 Get models that are currently usable — filtered to only providers that are available.
@@ -392,6 +457,24 @@ function list(_req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 - `_req` — The request object (unused).
 - `res` — The response object.
+
+#### `modelRegionRates(modelDef, requested)`
+
+The token rates for a model in a given processing region: the model's
+{@link ModelDefinition.regionPricing} override for the region when one
+exists, else the base rates (the native provider's list prices). Omitted
+cache fields in an override fall back to the override's input price (hosts
+with no cache discount / no write premium). The region is resolved via
+{@link effectiveModelRegion}, so callers may pass the raw user choice.
+
+```typescript
+function modelRegionRates(modelDef: ModelDefinition, requested?: string): ModelTokenRates
+```
+
+- `modelDef` — The model definition.
+- `requested` — The user's per-model region choice, if any.
+
+**Returns:** The region-effective rates.
 
 #### `priceMultiplierAt(modelDef, at)`
 

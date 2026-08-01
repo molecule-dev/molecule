@@ -33,14 +33,39 @@ export type SortDirection = 'asc' | 'desc'
 export type ModelProcessingRegion = string
 
 /**
- * Combined input + output price per million tokens, used as the table's
- * single "cost/1M tokens" figure.
+ * Resolve a model's effective processing region: the requested region when the
+ * model's `regions` list offers it, else the model's DEFAULT region (the first
+ * listed; `'us'` when the catalog omits regions). A single-entry list pins the
+ * model regardless of the request. Mirrors the server-side
+ * `effectiveModelRegion` in `@molecule/api-resource-ai-models`.
  *
  * @param model - The model metadata.
+ * @param requested - The user's per-model region choice, if any.
+ * @returns The effective region code.
+ */
+export function effectiveModelRegion(
+  model: AppModelDefinition,
+  requested?: string,
+): ModelProcessingRegion {
+  const regions = model.regions ?? ['us']
+  return requested && regions.includes(requested) ? requested : regions[0]
+}
+
+/**
+ * Combined input + output price per million tokens, used as the single
+ * "cost/1M tokens" figure — at the rates of the model's effective region
+ * (`regionPricing` override when the region has one, else the base rates).
+ *
+ * @param model - The model metadata.
+ * @param region - The user's per-model region choice, if any (omitted → the
+ *   model's default region).
  * @returns Sum of input and output price per million tokens in USD.
  */
-export function modelTotalCost(model: AppModelDefinition): number {
-  return model.inputPricePerMTok + model.outputPricePerMTok
+export function modelTotalCost(model: AppModelDefinition, region?: string): number {
+  const override = model.regionPricing?.[effectiveModelRegion(model, region)]
+  return override
+    ? override.inputPricePerMTok + override.outputPricePerMTok
+    : model.inputPricePerMTok + model.outputPricePerMTok
 }
 
 /**
@@ -50,18 +75,25 @@ export function modelTotalCost(model: AppModelDefinition): number {
  * is the ONLY per-model "cost" figure user-facing surfaces show — AI usage is
  * never presented as currency.
  *
+ * The base is every model's DEFAULT-region cost (stable regardless of the
+ * user's per-model region choices); the rated model itself is priced at the
+ * given region so the figure tracks what a region switch actually changes.
+ *
  * @param model - The model to rate.
  * @param models - The full available-model list (supplies the cheapest base).
+ * @param region - The rated model's region choice, if any (omitted → its
+ *   default region).
  * @returns The multiplier, rounded to 1 decimal below 10 and whole above.
  */
 export function modelUsageRate(
   model: AppModelDefinition,
   models: readonly AppModelDefinition[],
+  region?: string,
 ): number {
-  const costs = models.map(modelTotalCost).filter((c) => c > 0)
+  const costs = models.map((m) => modelTotalCost(m)).filter((c) => c > 0)
   const base = costs.length > 0 ? Math.min(...costs) : 0
   if (!Number.isFinite(base) || base <= 0) return 1
-  const rate = modelTotalCost(model) / base
+  const rate = modelTotalCost(model, region) / base
   return rate >= 10 ? Math.round(rate) : Math.max(1, Math.round(rate * 10) / 10)
 }
 
@@ -73,10 +105,10 @@ export function modelUsageRate(
  * @param a - First model.
  * @param b - Second model.
  * @param column - Column to compare by.
- * @param regionOf - Resolves a model's effective processing region (only used
- *   by the `'region'` column; omitting it treats every model as `'us'`). The
- *   caller supplies this because the effective region depends on per-project
- *   settings the pure helper cannot know.
+ * @param regionOf - Resolves a model's effective processing region (used by
+ *   the `'region'` and `'cost'` columns; omitting it treats every model as its
+ *   default region). The caller supplies this because the effective region
+ *   depends on per-project settings the pure helper cannot know.
  * @returns Negative if `a` sorts before `b`, positive if after, zero if equal.
  */
 export function compareModels(
@@ -94,7 +126,9 @@ export function compareModels(
       primary = a.contextWindow - b.contextWindow
       break
     case 'cost':
-      primary = modelTotalCost(a) - modelTotalCost(b)
+      // Region-aware: a model flipped to a differently-priced region sorts by
+      // the cost it actually bills at.
+      primary = modelTotalCost(a, regionOf?.(a)) - modelTotalCost(b, regionOf?.(b))
       break
     case 'cutoff':
       // Knowledge-cutoff dates are YYYY-MM-DD strings, which sort
@@ -127,8 +161,8 @@ export function compareModels(
  * @param models - Models to sort.
  * @param column - Column to sort by.
  * @param direction - `'asc'` or `'desc'`.
- * @param regionOf - Resolves a model's effective processing region (only used
- *   by the `'region'` column). See {@link compareModels}.
+ * @param regionOf - Resolves a model's effective processing region (used by
+ *   the `'region'` and `'cost'` columns). See {@link compareModels}.
  * @returns A new, sorted array.
  */
 export function sortModels(

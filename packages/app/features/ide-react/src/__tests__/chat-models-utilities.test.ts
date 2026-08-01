@@ -10,6 +10,7 @@ import type { AppModelDefinition } from '@molecule/app-ai-models'
 
 import {
   compareModels,
+  effectiveModelRegion,
   modelTotalCost,
   modelUsageRate,
   sortModels,
@@ -101,6 +102,45 @@ describe('modelUsageRate', () => {
     expect(modelUsageRate(expensive, [...all, custom])).toBe(36)
     // A catalog of only zero-price models also degrades safely.
     expect(modelUsageRate(custom, [custom])).toBe(1)
+  })
+})
+
+describe('effectiveModelRegion + region pricing', () => {
+  const cnDefault = model({
+    id: 'cn-default',
+    label: 'Cn Default',
+    provider: 'deepseek',
+    regions: ['cn', 'us'],
+    inputPricePerMTok: 0.435,
+    outputPricePerMTok: 0.87,
+    regionPricing: { us: { inputPricePerMTok: 1.3, outputPricePerMTok: 2.6 } },
+  })
+
+  it('defaults to the first listed region and honors only offered choices', () => {
+    expect(effectiveModelRegion(cnDefault)).toBe('cn')
+    expect(effectiveModelRegion(cnDefault, 'us')).toBe('us')
+    // A region the model does not offer falls back to its default.
+    expect(effectiveModelRegion(cnDefault, 'eu')).toBe('cn')
+    // No regions declared → the US platform default.
+    expect(effectiveModelRegion(model({ id: 'plain' }))).toBe('us')
+  })
+
+  it('prices totals at the effective region', () => {
+    // CN default bills the base (native) rates; US bills the override.
+    expect(modelTotalCost(cnDefault)).toBeCloseTo(1.305)
+    expect(modelTotalCost(cnDefault, 'us')).toBeCloseTo(3.9)
+  })
+
+  it('rates a model at the given region against a default-region base', () => {
+    const cheapest = model({
+      id: 'cheapest',
+      label: 'Cheapest',
+      inputPricePerMTok: 0.14,
+      outputPricePerMTok: 0.28,
+    })
+    const models = [cnDefault, cheapest]
+    expect(modelUsageRate(cnDefault, models)).toBeCloseTo(3.1)
+    expect(modelUsageRate(cnDefault, models, 'us')).toBeCloseTo(9.3)
   })
 })
 

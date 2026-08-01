@@ -162,6 +162,37 @@ export interface ModelDefinition {
   webFetchToolType?: string
   /** Whether this model is available on the free tier (only one model should be true). */
   freeTier?: boolean
+  /**
+   * Processing regions this model can run in, as arbitrary region codes; the
+   * FIRST entry is the model's default region. Omit for `['us']` (the platform
+   * default — a single-region US model). A single-entry list pins the model to
+   * that region regardless of the user's per-model choice (e.g. `['cn']` for a
+   * model with no US re-host). Dispatch resolves a region to the
+   * `<provider>-<region>` named bond (`'us'` → the bare `<provider>` bond).
+   */
+  regions?: string[]
+  /**
+   * Per-region price overrides in USD per MTok, keyed by region code, for
+   * regions whose host bills differently from the base rates (e.g. a US
+   * re-host of a Chinese-origin model). The BASE `*PricePerMTok` fields always
+   * carry the native provider's list prices (what models.dev / the freshness
+   * gate verify); a region with no entry here bills at the base rates. Omitted
+   * cache fields fall back to the region's `inputPricePerMTok` (hosts with no
+   * cache discount / no write premium).
+   */
+  regionPricing?: Record<
+    string,
+    {
+      /** Region input price per million uncached tokens in USD. */
+      inputPricePerMTok: number
+      /** Region output price per million tokens in USD. */
+      outputPricePerMTok: number
+      /** Region prompt-cache read price per million tokens in USD. */
+      cacheReadPricePerMTok?: number
+      /** Region prompt-cache write price per million tokens in USD. */
+      cacheWritePricePerMTok?: number
+    }
+  >
   /** Input price per million *uncached* (fresh) input tokens in USD. */
   inputPricePerMTok: number
   /** Output price per million tokens in USD. */

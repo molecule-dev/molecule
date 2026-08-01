@@ -4,7 +4,7 @@ Translations for molecule IDE components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-ide` package which has 482 translation keys.
+Provides translations for the `@molecule/app-ide` package which has 483 translation keys.
 
 ## Languages
 
@@ -37,7 +37,7 @@ registerLocaleModule(locales)
 | Key | English |
 |-----|---------|
 | `ide.chat.model.region.us` | US |
-| `ide.chat.model.region.cn` | China |
+| `ide.chat.model.region.cn` | CN |
 | `ide.chat.model.regionHint` | Processed in: {{region}} — click to change |
 | `ide.chat.model.regionOnlyHint` | Only hosted in: {{region}} |
 | `ide.chat.model.regionMenuLabel` | Processing region |
@@ -357,6 +357,7 @@ registerLocaleModule(locales)
 | `ide.chat.modelsLoading` | Loading models… |
 | `ide.chat.modelsNone` | No models are available yet — ask your admin to wire an AI provider. |
 | `ide.chat.modelInUse` | Now using {{model}} |
+| `ide.chat.modelInUseRegion` | Now using {{model}} ({{region}}) |
 | `ide.chat.previewLinkTitle` | Open {{path}} in the preview |
 | `ide.chat.modelRemoved` | Your selected model  |
 | `ide.chat.modelRemovedNoFallback` | Your selected model  |

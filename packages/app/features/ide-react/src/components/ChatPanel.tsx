@@ -163,7 +163,7 @@ type ModelRegion = string
 // control's menu lists whatever `availableModelRegions` returns.
 const MODEL_REGION_META: Record<string, { flagCode: string; defaultLabel: string }> = {
   us: { flagCode: 'US', defaultLabel: 'US' },
-  cn: { flagCode: 'CN', defaultLabel: 'China' },
+  cn: { flagCode: 'CN', defaultLabel: 'CN' },
 }
 
 /**
@@ -205,33 +205,17 @@ function RegionFlag({ code, height }: { code: string; height: number }): JSX.Ele
     />
   )
 }
-// Providers whose models are natively hosted in China (and re-hosted on US
-// infrastructure by default), giving them a region choice in the picker.
-const CHINESE_MODEL_PROVIDERS: ReadonlySet<string> = new Set([
-  'deepseek',
-  'moonshot',
-  'minimax',
-  'alibaba',
-  'zhipu',
-])
-// CN-only models: no US re-host exists, so the server forces China regardless
-// of the setting and the picker shows a fixed (non-interactive) flag to match.
-const CN_ONLY_MODEL_IDS: ReadonlySet<string> = new Set(['kimi-k3', 'minimax-m2.5'])
-
 /**
- * Regions a model can be processed in, first entry = its default. Today:
- * CN-only models → `['cn']`; other Chinese-origin models → `['us', 'cn']`;
- * everything else → `['us']`. The pill/menu UI renders whatever this returns,
- * so future regions only extend this function + `MODEL_REGION_META`.
+ * Regions a model can be processed in, first entry = its default — straight
+ * from the catalog (`AppModelDefinition.regions`; the server enforces the same
+ * list). A single-entry list is a pinned model (fixed, non-interactive flag);
+ * omission means the US-only platform default. The control/menu UI renders
+ * whatever this returns, so new regions only need catalog data + a
+ * `MODEL_REGION_META` entry.
  * @param model - The model to resolve regions for.
  * @returns Available region codes, default first.
  */
-const availableModelRegions = (model: AppModelDefinition): ModelRegion[] =>
-  CN_ONLY_MODEL_IDS.has(model.id)
-    ? ['cn']
-    : CHINESE_MODEL_PROVIDERS.has(model.provider)
-      ? ['us', 'cn']
-      : ['us']
+const availableModelRegions = (model: AppModelDefinition): ModelRegion[] => model.regions ?? ['us']
 
 // ---------------------------------------------------------------------------
 // Types
@@ -6098,13 +6082,19 @@ function ChatInner({
       switch (cardEvent.kind) {
         case 'model': {
           const label = cardEvent.label || cardEvent.model
+          // Append the model's effective processing-region code — catalog
+          // models only (a custom/BYO endpoint's region is unknowable here).
+          const def = AVAILABLE_MODELS.find((m) => m.id === cardEvent.model)
+          const regionCode = def ? effectiveModelRegion(def).toUpperCase() : null
           return {
             id,
-            text: t(
-              'ide.chat.modelInUse',
-              { model: label },
-              { defaultValue: 'Now using {{model}}' },
-            ),
+            text: regionCode
+              ? t(
+                  'ide.chat.modelInUseRegion',
+                  { model: label, region: regionCode },
+                  { defaultValue: 'Now using {{model}} ({{region}})' },
+                )
+              : t('ide.chat.modelInUse', { model: label }, { defaultValue: 'Now using {{model}}' }),
             timestamp,
           }
         }
@@ -6149,7 +6139,7 @@ function ChatInner({
           return null
       }
     },
-    [t],
+    [t, AVAILABLE_MODELS, effectiveModelRegion],
   )
 
   // Build a unified timeline so commit cards appear at the correct position
@@ -7434,7 +7424,10 @@ function ChatInner({
                     // list prices and consume no allowance, so they show a
                     // neutral "your key" instead of a misleading ×1.
                     const isCustom = model.provider === 'custom'
-                    const usageRate = modelUsageRate(model, AVAILABLE_MODELS)
+                    // Priced at the model's EFFECTIVE region so flipping a
+                    // region immediately re-rates the row (e.g. DeepSeek V4
+                    // Pro: ×3 native-CN vs ×9 US-rehosted).
+                    const usageRate = modelUsageRate(model, AVAILABLE_MODELS, modelRegion)
                     const priceColor =
                       usageRate <= 5
                         ? isLight
@@ -7865,6 +7858,10 @@ function ChatInner({
                                                   rMeta?.defaultLabel ?? r.toUpperCase(),
                                               },
                                             )
+                                            // Each option carries ITS region's
+                                            // usage multiplier so the cost of a
+                                            // switch is visible before making it.
+                                            const rRate = modelUsageRate(model, AVAILABLE_MODELS, r)
                                             const active = r === modelRegion
                                             return (
                                               <span
@@ -7924,6 +7921,18 @@ function ChatInner({
                                                   height={12}
                                                 />
                                                 <span>{rLabel}</span>
+                                                <span
+                                                  className={active ? undefined : cm.textMuted}
+                                                  style={{ fontSize: '10px' }}
+                                                >
+                                                  (
+                                                  {t(
+                                                    'ide.chat.models.usageRateValue',
+                                                    { rate: rRate },
+                                                    { defaultValue: '×{{rate}}' },
+                                                  )}
+                                                  )
+                                                </span>
                                               </span>
                                             )
                                           })}

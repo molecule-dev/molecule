@@ -95,6 +95,33 @@ export interface AppModelDefinition {
   webFetchToolType?: string
   /** Whether this model is available on the free tier. */
   freeTier?: boolean
+  /**
+   * Processing regions this model can run in (arbitrary region codes; FIRST
+   * entry is the model's default region). Omit for `['us']`. A single-entry
+   * list pins the model to that region. Mirrors the server-side
+   * `ModelDefinition.regions`.
+   */
+  regions?: string[]
+  /**
+   * Per-region price overrides in USD per MTok for regions billed differently
+   * from the base rates (the native provider's list prices). A region with no
+   * entry bills at the base rates; omitted cache fields fall back to the
+   * region's `inputPricePerMTok`. Mirrors the server-side
+   * `ModelDefinition.regionPricing`.
+   */
+  regionPricing?: Record<
+    string,
+    {
+      /** Region input price per million uncached tokens in USD. */
+      inputPricePerMTok: number
+      /** Region output price per million tokens in USD. */
+      outputPricePerMTok: number
+      /** Region prompt-cache read price per million tokens in USD. */
+      cacheReadPricePerMTok?: number
+      /** Region prompt-cache write price per million tokens in USD. */
+      cacheWritePricePerMTok?: number
+    }
+  >
   /** Input price per million *uncached* (fresh) input tokens in USD. */
   inputPricePerMTok: number
   /** Output price per million tokens in USD. */

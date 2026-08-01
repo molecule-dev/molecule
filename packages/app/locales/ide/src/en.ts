@@ -3,7 +3,7 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for en. */
 export const en: IdeTranslations = {
   'ide.chat.model.region.us': 'US',
-  'ide.chat.model.region.cn': 'China',
+  'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Processed in: {{region}} — click to change',
   'ide.chat.model.regionOnlyHint': 'Only hosted in: {{region}}',
   'ide.chat.model.regionMenuLabel': 'Processing region',
@@ -368,6 +368,7 @@ export const en: IdeTranslations = {
   'ide.chat.modelsLoading': 'Loading models…',
   'ide.chat.modelsNone': 'No models are available yet — ask your admin to wire an AI provider.',
   'ide.chat.modelInUse': 'Now using {{model}}',
+  'ide.chat.modelInUseRegion': 'Now using {{model}} ({{region}})',
   'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
   'ide.chat.modelRemoved':
     'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
