@@ -90,3 +90,36 @@ if [ -n "$IDX_CHANGED" ] && [ -f ../scripts/verify-doc-examples.mjs ]; then
   IDX_DIRS=$(echo "$IDX_CHANGED" | while IFS= read -r f; do echo "${f%%/src/*}"; done | sort -u)
   ( cd .. && node scripts/verify-doc-examples.mjs $IDX_DIRS )
 fi
+
+# MOLECULE.md auto-regen (cross-repo, same skip semantics as the checks above).
+# MOLECULE.md is 100% generated — never hand-edited — so a commit that changes a
+# package's src/ or package.json must carry the regenerated doc, or the docs the
+# executor reads via read_molecule_doc drift from the source being committed.
+# Regenerates ONLY the staged packages (plus cross-doc dependents: a core's
+# providers inherit its @e2e, a provider's core lists its providers, a new
+# locale's feature gains a companion-locale section) — ~0.4s/package via tsx
+# against mlcl source, no build needed — then auto-stages the refreshed
+# MOLECULE.md files into THIS commit (script prints changed paths on stdout).
+# Generation reads the WORKTREE source, same as the gates above, so a partially
+# staged package produces a doc reflecting the worktree state. Uses its own
+# diff-filter (incl. D): a deleted src file changes the public API and thus the
+# doc, which --diff-filter=AM would miss.
+DOC_STAGED=$(git diff --cached --name-only --diff-filter=ACMRD |
+  grep -E '^packages/.+/(src/|package\.json$)' || true)
+if [ -n "$DOC_STAGED" ]; then
+  if [ -x ../mlcl/node_modules/.bin/tsx ]; then
+    DOC_DIRS=$(echo "$DOC_STAGED" | while IFS= read -r f; do
+      d="${f%%/src/*}"
+      d="${d%/package.json}"
+      echo "$d"
+    done | sort -u)
+    REGENERATED=$( cd ../mlcl && node_modules/.bin/tsx scripts/regen-molecule-docs.mjs $DOC_DIRS )
+    if [ -n "$REGENERATED" ]; then
+      echo "$REGENERATED" | while IFS= read -r md; do git add "$md"; done
+      echo "✎ MOLECULE.md regenerated + staged into this commit:"
+      echo "$REGENERATED" | while IFS= read -r md; do echo "    $md"; done
+    fi
+  else
+    echo "ℹ MOLECULE.md regen skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'cd mlcl && npm run sync-docs:changed'"
+  fi
+fi
