@@ -17,7 +17,12 @@ const createMockProvider = (tFn?: I18nProvider['t']): I18nProvider => ({
   addLocale: vi.fn(),
   removeLocale: vi.fn().mockReturnValue(true),
   addTranslations: vi.fn(),
-  t: tFn ?? ((key: string) => key),
+  // Like a real provider: an unknown key resolves to the caller's defaultValue
+  // (when given) before falling back to the key itself.
+  t:
+    tFn ??
+    ((key: string, _values?: InterpolationValues, options?: { defaultValue?: string }) =>
+      options?.defaultValue ?? key),
   exists: () => true,
   formatNumber: (v: number) => String(v),
   formatDate: (v: Date | number | string) => String(v),
@@ -61,7 +66,9 @@ describe('useI18nError', () => {
     const { result } = renderHook(() => useI18nError(error), {
       wrapper: createWrapper(createMockProvider(tFn)),
     })
-    expect(tFn).toHaveBeenCalledWith('some.error.key', undefined, undefined)
+    expect(tFn).toHaveBeenCalledWith('some.error.key', undefined, {
+      defaultValue: 'English fallback',
+    })
     expect(result.current).toBe('Translated message')
   })
 
@@ -72,17 +79,32 @@ describe('useI18nError', () => {
     const { result } = renderHook(() => useI18nError(error), {
       wrapper: createWrapper(createMockProvider(tFn)),
     })
-    expect(tFn).toHaveBeenCalledWith('greeting.key', values, undefined)
+    expect(tFn).toHaveBeenCalledWith('greeting.key', values, {
+      defaultValue: 'Hello fallback',
+    })
     expect(result.current).toBe('Hello Alice')
   })
 
-  it('uses the i18nKey as fallback when provider returns the key unchanged', () => {
-    // Default mock t: returns key as-is (no translations loaded)
-    const error = new I18nError('auth.error.invalidCredentials', undefined, 'Invalid credentials')
+  it("falls back to the error's own message — NEVER the raw key — when the dictionary lacks the key", () => {
+    // The regression this guards: a server errorKey the client dictionary
+    // doesn't carry once rendered literally ("user.error.passwordTooShort")
+    // because the hook translated without a defaultValue. The I18nError's
+    // message (the throw site's fallback — for server errors, the server's
+    // own translated text) must surface instead.
+    const error = new I18nError('user.error.passwordTooShort', undefined, 'Password is too short')
     const { result } = renderHook(() => useI18nError(error), {
       wrapper: createWrapper(createMockProvider()),
     })
-    // Default tFn returns the key, so result is the key string
-    expect(result.current).toBe('auth.error.invalidCredentials')
+    expect(result.current).toBe('Password is too short')
+  })
+
+  it('still shows the key for an I18nError thrown with no fallback text (worst case)', () => {
+    // I18nError's message defaults to the key when no fallback is given —
+    // nothing better exists to show. Throw sites should always pass fallback.
+    const error = new I18nError('some.error.key')
+    const { result } = renderHook(() => useI18nError(error), {
+      wrapper: createWrapper(createMockProvider()),
+    })
+    expect(result.current).toBe('some.error.key')
   })
 })

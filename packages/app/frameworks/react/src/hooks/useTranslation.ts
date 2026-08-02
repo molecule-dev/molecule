@@ -164,6 +164,12 @@ export function useDirection(): 'ltr' | 'rtl' {
 export function useI18nError(error: Error | null | undefined): string | null {
   const { t } = useTranslation()
   if (!error) return null
-  if (error instanceof I18nError) return t(error.i18nKey, error.i18nValues)
+  // defaultValue is the I18nError's own message — the fallback text its throw
+  // site provided (for a server error: the server's already-translated
+  // message). Without it, a key the CLIENT dictionary happens to lack renders
+  // as the raw key ("user.error.passwordTooShort") instead of a message.
+  if (error instanceof I18nError) {
+    return t(error.i18nKey, error.i18nValues, { defaultValue: error.message })
+  }
   return error.message
 }
