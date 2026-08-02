@@ -4,7 +4,7 @@ Translations for molecule IDE components in 79 languages
 
 ## Purpose
 
-Provides translations for the `@molecule/app-ide` package which has 487 translation keys.
+Provides translations for the `@molecule/app-ide` package which has 500 translation keys.
 
 ## Languages
 
@@ -261,6 +261,19 @@ registerLocaleModule(locales)
 | `ide.chat.voiceMicBlocked` | Microphone access is blocked. |
 | `ide.chat.voicePreparing` | Preparing dictation — this can take a moment on first use. |
 | `ide.chat.voiceTranscribeFailed` | Transcription failed. |
+| `ide.chat.voiceEngineTitle` | Dictation engine |
+| `ide.chat.voiceEnginePrivacy` | Every option runs on your device — audio never leaves your browser. |
+| `ide.chat.voiceEngineNoDownload` | no download |
+| `ide.chat.voiceEngineDownload` | ~{{mb}} MB download, then cached |
+| `ide.chat.voiceEngineDownloadRange` | ~{{min}}–{{max}} MB download, then cached |
+| `ide.chat.voiceAccuracyBest` | best accuracy |
+| `ide.chat.voiceAccuracyGood` | good accuracy |
+| `ide.chat.voiceAccuracyBasic` | basic accuracy |
+| `ide.chat.voiceEngineNative` | browser native |
+| `ide.chat.voiceEngineOnDevice` | on-device |
+| `ide.chat.voiceEngineNoBrowserSupport` | not available in this browser |
+| `ide.chat.voiceEngineNoLanguageSupport` | not available for your language |
+| `ide.chat.voiceEngineCurrent` | current |
 | `ide.editor.title` | Editor |
 | `ide.editor.emptyState` | Open a file to start editing |
 | `ide.files.empty` | No files |

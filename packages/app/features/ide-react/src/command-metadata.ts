@@ -19,12 +19,7 @@
 
 /** Category keys used to group commands in the menu and in `/help`. */
 export type CommandCategoryKey =
-  | 'context'
-  | 'code'
-  | 'collaborate'
-  | 'model'
-  | 'settings'
-  | 'support'
+  'context' | 'code' | 'collaborate' | 'model' | 'settings' | 'support'
 
 /** A command category with its display label. */
 export interface CommandCategory {
@@ -199,6 +194,18 @@ export const COMMANDS: readonly CommandDef[] = [
     category: 'settings',
   },
   { id: 'sounds', label: '/sounds', description: 'Notification sounds', category: 'settings' },
+  {
+    id: 'mic',
+    label: '/mic',
+    description: 'Choose the dictation engine (on-device / browser native)',
+    category: 'settings',
+  },
+  {
+    id: 'dictate',
+    label: '/dictate',
+    description: 'Choose the dictation engine (alias for /mic)',
+    category: 'settings',
+  },
 
   // Support
   { id: 'help', label: '/help', description: 'Workflow guide & tips', category: 'support' },

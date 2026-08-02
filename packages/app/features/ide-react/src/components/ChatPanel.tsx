@@ -40,7 +40,11 @@ import { getCountryFlag } from '@molecule/app-country-flags'
 import {
   getProvider as getVoiceProvider,
   hasProvider as hasVoiceProvider,
+  listVoiceEngines,
+  selectVoiceEngine,
+  voiceEngineCoversLanguage,
 } from '@molecule/app-ai-voice'
+import type { VoiceEngineDef } from '@molecule/app-ai-voice'
 import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import { getLogger } from '@molecule/app-logger'
@@ -3168,6 +3172,45 @@ function ChatInner({
   // into the freshly-cleared composer.
   const voiceDiscardRef = useRef(false)
 
+  // ── Dictation engine picker (/mic) ─────────────────────────────────────────
+  // When the app registers a voice-engine catalog, the USER chooses which
+  // engine to use (and download) — on the first mic click, or anytime via
+  // /mic. Without a catalog the legacy automatic behavior stands.
+  const [voiceEngines] = useState<readonly VoiceEngineDef[]>(() => listVoiceEngines())
+  const voiceEngineRef = useRef<VoiceEngineDef | null>(null)
+  // autoStart: opened from a mic click (start dictating right after choosing)
+  // vs from /mic (just a settings change).
+  const [micPicker, setMicPicker] = useState<{ autoStart: boolean } | null>(null)
+  const MIC_ENGINE_KEY = 'molecule.ide.voiceEngine'
+  useEffect(() => {
+    if (voiceEngines.length === 0) return
+    try {
+      const savedId = localStorage.getItem(MIC_ENGINE_KEY)
+      if (savedId) {
+        const def = selectVoiceEngine(savedId)
+        if (def) voiceEngineRef.current = def
+      }
+    } catch (_error) {
+      // localStorage unavailable — the picker simply reopens on first use
+    }
+  }, [voiceEngines])
+
+  /**
+   * Why an engine can't be used here, or null when it can: 'browser' = the
+   * native speech service is missing/proven dead in this browser; 'language'
+   * = the engine doesn't cover the UI language.
+   */
+  const voiceEngineDisabledReason = useCallback(
+    (def: VoiceEngineDef): 'browser' | 'language' | null => {
+      if (def.kind === 'native' && (!hasSpeechRecognition || webSpeechDeadRef.current)) {
+        return 'browser'
+      }
+      if (!voiceEngineCoversLanguage(def, navigator.language || 'en-US')) return 'language'
+      return null
+    },
+    [hasSpeechRecognition],
+  )
+
   const showVoiceError = useCallback((message: string) => {
     setVoiceError(message)
     if (voiceErrorTimer.current) clearTimeout(voiceErrorTimer.current)
@@ -3282,6 +3325,21 @@ function ChatInner({
       } catch (_error) {
         // abort() on a never-started/already-ended session throws harmlessly
       }
+      // With an engine catalog, the native engine just proved dead: clear the
+      // user's (native) choice and reopen the picker so THEY pick a fallback —
+      // the native row now shows as disabled with the reason.
+      if (voiceEngines.length > 0) {
+        voiceEngineRef.current = null
+        try {
+          localStorage.removeItem(MIC_ENGINE_KEY)
+        } catch (_error) {
+          // localStorage unavailable — the stale choice re-fails harmlessly
+        }
+        voiceIntentRef.current = false
+        setIsListening(false)
+        setMicPicker({ autoStart: true })
+        return
+      }
       if (voiceIntentRef.current && startLocalVoice()) {
         return
       }
@@ -3390,7 +3448,75 @@ function ChatInner({
       voiceWatchdogTimer.current = null
       giveUp()
     }, 5000)
-  }, [setInputValue, autoResize, showVoiceError, startLocalVoice])
+  }, [setInputValue, autoResize, showVoiceError, startLocalVoice, voiceEngines])
+
+  /** Begins a dictation session on whatever engine/path is active. */
+  const beginDictation = useCallback(() => {
+    voiceIntentRef.current = true
+    voiceDiscardRef.current = false
+    voiceFailCount.current = 0
+    setVoiceError(null)
+    if (voiceErrorTimer.current) {
+      clearTimeout(voiceErrorTimer.current)
+      voiceErrorTimer.current = null
+    }
+    setIsListening(true)
+    handleAutoFixPauseOnInput()
+    if (voiceEngines.length > 0) {
+      // Catalog mode: the chosen engine decides the path
+      if (voiceEngineRef.current?.kind === 'native') {
+        startRecognition()
+      } else {
+        useLocalVoiceRef.current = true
+        if (!startLocalVoice()) {
+          voiceIntentRef.current = false
+          setIsListening(false)
+          setVoiceDead(true)
+          showVoiceError(
+            t('ide.chat.voiceUnavailable', undefined, {
+              defaultValue: 'Dictation is not available in this browser.',
+            }),
+          )
+        }
+      }
+      return
+    }
+    // Legacy (no catalog): Web Speech first, on-device fallback automatic
+    if (!hasSpeechRecognition || webSpeechDeadRef.current || useLocalVoiceRef.current) {
+      if (startLocalVoice()) return
+      voiceIntentRef.current = false
+      setIsListening(false)
+      setVoiceDead(true)
+      showVoiceError(
+        t('ide.chat.voiceUnavailable', undefined, {
+          defaultValue: 'Dictation is not available in this browser.',
+        }),
+      )
+      return
+    }
+    startRecognition()
+  }, [startRecognition, startLocalVoice, hasSpeechRecognition, showVoiceError, voiceEngines])
+
+  /**
+   * Applies a picker choice: wires the engine, persists it, and (for a
+   * mic-click-initiated pick) starts dictating immediately.
+   */
+  const chooseVoiceEngine = useCallback(
+    (def: VoiceEngineDef, autoStart: boolean) => {
+      setMicPicker(null)
+      const selected = selectVoiceEngine(def.id)
+      if (!selected) return
+      voiceEngineRef.current = selected
+      useLocalVoiceRef.current = selected.kind !== 'native'
+      try {
+        localStorage.setItem(MIC_ENGINE_KEY, selected.id)
+      } catch (_error) {
+        // localStorage unavailable — the picker reopens next session
+      }
+      if (autoStart) beginDictation()
+    },
+    [beginDictation],
+  )
 
   const toggleVoice = useCallback(() => {
     if (isListening) {
@@ -3414,32 +3540,14 @@ function ChatInner({
       }
       return
     }
-    voiceIntentRef.current = true
-    voiceDiscardRef.current = false
-    voiceFailCount.current = 0
-    setVoiceError(null)
-    if (voiceErrorTimer.current) {
-      clearTimeout(voiceErrorTimer.current)
-      voiceErrorTimer.current = null
-    }
-    setIsListening(true)
-    handleAutoFixPauseOnInput()
-    // Route straight to the on-device provider when Web Speech is absent or
-    // already proven dead — otherwise try Web Speech first (no model download).
-    if (!hasSpeechRecognition || webSpeechDeadRef.current || useLocalVoiceRef.current) {
-      if (startLocalVoice()) return
-      voiceIntentRef.current = false
-      setIsListening(false)
-      setVoiceDead(true)
-      showVoiceError(
-        t('ide.chat.voiceUnavailable', undefined, {
-          defaultValue: 'Dictation is not available in this browser.',
-        }),
-      )
+    // With an engine catalog and no choice made yet, the first mic click asks
+    // the user which engine to use (and download) instead of picking for them.
+    if (voiceEngines.length > 0 && !voiceEngineRef.current) {
+      setMicPicker({ autoStart: true })
       return
     }
-    startRecognition()
-  }, [isListening, startRecognition, startLocalVoice, hasSpeechRecognition, showVoiceError])
+    beginDictation()
+  }, [isListening, beginDictation, voiceEngines])
 
   // Stop recognition on unmount
   useEffect(
@@ -4978,6 +5086,9 @@ function ChatInner({
       } else if (id === 'model') {
         setInputAndCursorEnd('/model ')
         setModelPicker({ selectedIdx: -1 })
+      } else if (id === 'mic' || id === 'dictate') {
+        setInputValue('')
+        setMicPicker({ autoStart: false })
       } else if (id === 'maxloops') {
         setInputAndCursorEnd('/maxloops ')
       } else if (id === 'effort') {
@@ -5545,6 +5656,14 @@ function ChatInner({
       // Model picker owns the popup region exclusively — close any open overlay.
       setPanelOverlay(null)
       setModelPicker({ selectedIdx: -1, mode: modelModeMatch.mode })
+      return
+    }
+
+    // Handle /mic (alias /dictate) locally — opens the dictation engine picker
+    if (/^\/(mic|dictate)$/i.test(trimmed)) {
+      setInputValue('')
+      setPanelOverlay(null)
+      setMicPicker({ autoStart: false })
       return
     }
 
@@ -6158,6 +6277,10 @@ function ChatInner({
     if (e.key === 'Escape') {
       if (soundsPicker) {
         setSoundsPicker(null)
+        return
+      }
+      if (micPicker) {
+        setMicPicker(null)
         return
       }
       if (modelPicker) {
@@ -7385,6 +7508,182 @@ function ChatInner({
           })()}
 
         {/* Model picker popup */}
+        {/* Dictation engine picker (/mic) — user chooses which engine to use
+            (and download); unsupported engines render disabled with the reason,
+            mirroring locked models in the /model picker. */}
+        {micPicker && voiceEngines.length > 0 && (
+          <div
+            className={cm.cn(cm.surface, cm.borderAll)}
+            style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: 0,
+              right: 0,
+              marginBottom: 0,
+              borderRadius: '6px 6px 0 0',
+              zIndex: 100,
+              boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: popupMaxHeight,
+              overflowY: 'auto',
+            }}
+          >
+            <div
+              style={{
+                padding: '8px 12px',
+                borderBottom: '1px solid rgba(128,128,128,0.12)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+              }}
+            >
+              <span className={cm.fontWeight('medium')} style={{ fontSize: '13px' }}>
+                {t('ide.chat.voiceEngineTitle', undefined, { defaultValue: 'Dictation engine' })}
+              </span>
+              <span className={cm.textMuted} style={{ fontSize: '11px' }}>
+                {t('ide.chat.voiceEnginePrivacy', undefined, {
+                  defaultValue:
+                    'Every option runs on your device — audio never leaves your browser.',
+                })}
+              </span>
+            </div>
+            {voiceEngines.map((def) => {
+              const reason = voiceEngineDisabledReason(def)
+              const disabled = reason !== null
+              const isCurrent = voiceEngineRef.current?.id === def.id
+              const download = def.downloadMB
+              const sizeLabel =
+                download === undefined
+                  ? t('ide.chat.voiceEngineNoDownload', undefined, { defaultValue: 'no download' })
+                  : typeof download === 'number'
+                    ? t(
+                        'ide.chat.voiceEngineDownload',
+                        { mb: download },
+                        { defaultValue: '~{{mb}} MB download, then cached' },
+                      )
+                    : t(
+                        'ide.chat.voiceEngineDownloadRange',
+                        { min: download[0], max: download[1] },
+                        { defaultValue: '~{{min}}–{{max}} MB download, then cached' },
+                      )
+              const accuracyLabel =
+                def.accuracy === 3
+                  ? t('ide.chat.voiceAccuracyBest', undefined, { defaultValue: 'best accuracy' })
+                  : def.accuracy === 2
+                    ? t('ide.chat.voiceAccuracyGood', undefined, { defaultValue: 'good accuracy' })
+                    : t('ide.chat.voiceAccuracyBasic', undefined, {
+                        defaultValue: 'basic accuracy',
+                      })
+              const kindLabel =
+                def.kind === 'native'
+                  ? t('ide.chat.voiceEngineNative', undefined, { defaultValue: 'browser native' })
+                  : t('ide.chat.voiceEngineOnDevice', undefined, { defaultValue: 'on-device' })
+              const reasonLabel =
+                reason === 'browser'
+                  ? t('ide.chat.voiceEngineNoBrowserSupport', undefined, {
+                      defaultValue: 'not available in this browser',
+                    })
+                  : reason === 'language'
+                    ? t('ide.chat.voiceEngineNoLanguageSupport', undefined, {
+                        defaultValue: 'not available for your language',
+                      })
+                    : null
+              return (
+                <button
+                  key={def.id}
+                  type="button"
+                  data-mol-id={`chat-mic-engine-${def.id}`}
+                  onClick={() => {
+                    if (!disabled) chooseVoiceEngine(def, micPicker.autoStart)
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!disabled)
+                      (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
+                  }}
+                  onMouseLeave={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                  }}
+                  className={cm.w('full')}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: '2px',
+                    padding: '8px 12px',
+                    border: 'none',
+                    borderTop: '1px solid rgba(128,128,128,0.12)',
+                    cursor: disabled ? 'default' : 'pointer',
+                    color: 'inherit',
+                    textAlign: 'left',
+                    fontSize: '13px',
+                    opacity: disabled ? 0.45 : 1,
+                    background: 'transparent',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}>
+                    <span
+                      className={cm.fontWeight('medium')}
+                      style={{
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {def.label}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '10px',
+                        padding: '1px 5px',
+                        borderRadius: 3,
+                        flexShrink: 0,
+                        background: isLight ? 'rgba(22,163,74,0.12)' : 'rgba(34,197,94,0.18)',
+                        color: isLight ? 'rgb(22,163,74)' : 'rgb(74,222,128)',
+                      }}
+                    >
+                      {kindLabel}
+                    </span>
+                    <span style={{ flex: 1 }} />
+                    {isCurrent && (
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          padding: '1px 5px',
+                          borderRadius: 3,
+                          flexShrink: 0,
+                          background: isLight ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.18)',
+                          color: isLight ? 'rgb(37,99,235)' : 'rgb(96,165,250)',
+                        }}
+                      >
+                        {t('ide.chat.voiceEngineCurrent', undefined, { defaultValue: 'current' })}
+                      </span>
+                    )}
+                    {reasonLabel && (
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          padding: '1px 5px',
+                          borderRadius: 3,
+                          flexShrink: 0,
+                          background: isLight ? 'rgba(220,38,38,0.10)' : 'rgba(248,113,113,0.15)',
+                          color: isLight ? 'rgb(220,38,38)' : 'rgb(248,113,113)',
+                        }}
+                      >
+                        {reasonLabel}
+                      </span>
+                    )}
+                  </div>
+                  <span className={cm.textMuted} style={{ fontSize: '11px' }}>
+                    {sizeLabel} · {accuracyLabel}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
         {modelPicker &&
           (modelsLoading || visibleModels.length > 0 || deprecatedModels.length > 0) && (
             <div
@@ -9180,12 +9479,14 @@ function ChatInner({
                 </svg>
               </button>
             )}
-            {/* Voice input button — rendered when Web Speech OR a bonded
-                on-device provider can do dictation, until both are proven
-                dead (see voiceDead) */}
-            {(hasSpeechRecognition || hasLocalVoice) && !voiceDead && (
+            {/* Voice input button — rendered when an engine catalog exists
+                (the /mic picker handles per-engine availability), or when Web
+                Speech OR a bonded on-device provider can do dictation, until
+                both are proven dead (see voiceDead) */}
+            {(voiceEngines.length > 0 || hasSpeechRecognition || hasLocalVoice) && !voiceDead && (
               <button
                 type="button"
+                data-mol-id="chat-mic-button"
                 onClick={toggleVoice}
                 title={t('ide.chat.voice', undefined, {
                   defaultValue: isListening ? 'Stop dictation' : 'Dictate',

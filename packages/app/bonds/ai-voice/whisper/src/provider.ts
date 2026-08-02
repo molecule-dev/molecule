@@ -171,6 +171,14 @@ export class WhisperVoiceProvider implements AIVoiceProvider {
           : (await hasUsableWebGpu())
             ? 'webgpu'
             : 'wasm'
+      if (device === 'wasm' && env.backends.onnx.wasm) {
+        // ORT proxy mode runs the WASM engine in its own worker. Without it,
+        // model load + every transcription run ON THE MAIN THREAD and freeze
+        // the whole page for seconds at a time (measured: a 54s UI stall on
+        // moonshine-base fp32 load). Not set for WebGPU, where the JSEP EP
+        // needs the main thread and does its heavy work on the GPU anyway.
+        env.backends.onnx.wasm.proxy = true
+      }
 
       const options: Record<string, unknown> = {
         device,

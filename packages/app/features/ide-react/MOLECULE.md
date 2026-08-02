@@ -1202,12 +1202,7 @@ Category keys used to group commands in the menu and in `/help`.
 
 ```typescript
 type CommandCategoryKey =
-  | 'context'
-  | 'code'
-  | 'collaborate'
-  | 'model'
-  | 'settings'
-  | 'support'
+  'context' | 'code' | 'collaborate' | 'model' | 'settings' | 'support'
 ```
 
 #### `CommandId`
