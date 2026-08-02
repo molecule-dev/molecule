@@ -7587,6 +7587,37 @@ function ChatInner({
                     : t('ide.chat.voiceAccuracyBasic', undefined, {
                         defaultValue: 'basic accuracy',
                       })
+              // Language coverage — names localized for free via the
+              // browser's Intl.DisplayNames, so only the surrounding
+              // templates need bond translations.
+              let languageNames: string[] = []
+              if (def.languages !== 'all') {
+                try {
+                  const displayNames = new Intl.DisplayNames([navigator.language || 'en'], {
+                    type: 'language',
+                  })
+                  languageNames = def.languages.map((c) => displayNames.of(c) ?? c)
+                } catch (_error) {
+                  // Intl.DisplayNames unavailable/odd locale — fall back to codes
+                  languageNames = [...def.languages]
+                }
+              }
+              const languagesLabel =
+                def.languages === 'all'
+                  ? t('ide.chat.voiceLangsAll', undefined, { defaultValue: 'all languages' })
+                  : languageNames.length === 1
+                    ? t(
+                        'ide.chat.voiceLangOnly',
+                        { language: languageNames[0] },
+                        { defaultValue: '{{language}} only' },
+                      )
+                    : t(
+                        'ide.chat.voiceLangsCount',
+                        { count: languageNames.length },
+                        { defaultValue: '{{count}} languages' },
+                      )
+              // Full list on hover for the multi-language engines
+              const languagesTitle = languageNames.length > 1 ? languageNames.join(', ') : undefined
               const kindLabel =
                 def.kind === 'native'
                   ? t('ide.chat.voiceEngineNative', undefined, { defaultValue: 'browser native' })
@@ -7687,8 +7718,12 @@ function ChatInner({
                       </span>
                     )}
                   </div>
-                  <span className={cm.textMuted} style={{ fontSize: '11px' }}>
-                    {sizeLabel} · {accuracyLabel}
+                  <span
+                    className={cm.textMuted}
+                    style={{ fontSize: '11px' }}
+                    title={languagesTitle}
+                  >
+                    {sizeLabel} · {accuracyLabel} · {languagesLabel}
                   </span>
                 </button>
               )
