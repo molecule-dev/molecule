@@ -3131,12 +3131,9 @@ function ChatInner({
   }
   const recognitionRef = useRef<SpeechRec | null>(null)
   const [isListening, setIsListening] = useState(false)
-  // Set when the speech service is proven broken — some browsers (Brave,
-  // Chromium builds without Google API keys) expose the SpeechRecognition
-  // constructor with no working speech backend behind it: sessions either fire
-  // no events at all or fail every time with a 'network' error. Once proven,
-  // the mic button is hidden for the rest of the session.
-  const [voiceDead, setVoiceDead] = useState(false)
+  // The mic button NEVER hides — when dictation can't work (e.g. Brave's
+  // Web Speech stub with nothing wired to fall back to), clicking it shows
+  // the reason via voiceError instead of the button silently vanishing.
   const [voiceError, setVoiceError] = useState<string | null>(null)
   const voiceErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const voiceIntentRef = useRef(false)
@@ -3276,7 +3273,6 @@ function ChatInner({
           voiceIntentRef.current = false
           setIsListening(false)
           setVoiceNotice(null)
-          setVoiceDead(true)
           showVoiceError(
             t('ide.chat.voiceUnavailable', undefined, {
               defaultValue: 'Dictation is not available in this browser.',
@@ -3345,7 +3341,6 @@ function ChatInner({
       }
       voiceIntentRef.current = false
       setIsListening(false)
-      setVoiceDead(true)
       showVoiceError(
         t('ide.chat.voiceUnavailable', undefined, {
           defaultValue: 'Dictation is not available in this browser.',
@@ -3471,7 +3466,6 @@ function ChatInner({
         if (!startLocalVoice()) {
           voiceIntentRef.current = false
           setIsListening(false)
-          setVoiceDead(true)
           showVoiceError(
             t('ide.chat.voiceUnavailable', undefined, {
               defaultValue: 'Dictation is not available in this browser.',
@@ -3486,7 +3480,6 @@ function ChatInner({
       if (startLocalVoice()) return
       voiceIntentRef.current = false
       setIsListening(false)
-      setVoiceDead(true)
       showVoiceError(
         t('ide.chat.voiceUnavailable', undefined, {
           defaultValue: 'Dictation is not available in this browser.',
@@ -9479,11 +9472,10 @@ function ChatInner({
                 </svg>
               </button>
             )}
-            {/* Voice input button — rendered when an engine catalog exists
-                (the /mic picker handles per-engine availability), or when Web
-                Speech OR a bonded on-device provider can do dictation, until
-                both are proven dead (see voiceDead) */}
-            {(voiceEngines.length > 0 || hasSpeechRecognition || hasLocalVoice) && !voiceDead && (
+            {/* Voice input button — ALWAYS rendered. When dictation can't work
+                here, clicking shows the reason (voiceError) or opens the /mic
+                picker with unusable engines disabled — it never just vanishes. */}
+            {
               <button
                 type="button"
                 data-mol-id="chat-mic-button"
@@ -9557,7 +9549,7 @@ function ChatInner({
                   />
                 </svg>
               </button>
-            )}
+            }
             {/* Attachment button */}
             <button
               type="button"
@@ -9626,14 +9618,25 @@ function ChatInner({
                     defaultValue: 'Slash commands',
                   }),
                   onClick: () => {
-                    if (!(inputRef.current as string)) {
-                      setInputValue('/')
+                    const cur = inputRef.current as string
+                    if (cur === '/') {
+                      // Toggle off — remove the slash this button added
+                      setInputValue('')
                       autoResize()
+                      setCommandMenu(null)
+                      setTimeout(() => {
+                        textareaRef.current?.focus()
+                      }, 0)
+                    } else if (!cur) {
+                      // Cursor lands AFTER the slash so the user can type the
+                      // command immediately (or backspace to remove it)
+                      setInputAndCursorEnd('/')
                       setCommandMenu({ selectedIdx: -1 })
+                    } else {
+                      setTimeout(() => {
+                        textareaRef.current?.focus()
+                      }, 0)
                     }
-                    setTimeout(() => {
-                      textareaRef.current?.focus()
-                    }, 0)
                   },
                 },
               ] as const
