@@ -15,9 +15,12 @@
  * independent of the missing recognition backend.
  *
  * @remarks
- * - The FIRST use downloads the model (hundreds of MB at int8 for the 0.6B
- *   models, cached by the browser afterwards). Wire `onModelProgress` to a
- *   UI indicator or the user will stare at a silent mic button.
+ * - The FIRST use downloads the model (v3: ~1.24 GB fp16 encoder on WebGPU,
+ *   ~650 MB int8 on WASM — int8 is NOT supported by the WebGPU execution
+ *   provider and would be force-upgraded to a 2.4 GB fp32; the defaults
+ *   already avoid that). Cached by the browser afterwards. Wire
+ *   `onModelProgress` to a UI indicator or the user will stare at a silent
+ *   mic button.
  * - The default `parakeet-tdt-0.6b-v3` model handles en, fr, de, es, it,
  *   pt, nl, pl, ru, uk, ja, ko and zh with automatic language detection —
  *   `VoiceRecognitionOptions.language` is used only for support checks, not
@@ -171,7 +174,13 @@ export class ParakeetVoiceProvider implements AIVoiceProvider {
 
       const options = {
         backend: backend as 'webgpu' | 'wasm',
-        encoderQuant: this.config.encoderQuant ?? ('int8' as const),
+        // int8 encoders are rejected by the WebGPU execution provider —
+        // parakeet.js silently force-upgrades them to fp32, a 2.4 GB download
+        // (verified live). fp16 (1.24 GB) is the WebGPU sweet spot; int8
+        // (652 MB) works on the WASM path.
+        encoderQuant:
+          this.config.encoderQuant ??
+          (backend === 'webgpu' ? ('fp16' as const) : ('int8' as const)),
         decoderQuant: this.config.decoderQuant ?? ('int8' as const),
         progress: (p: { loaded: number; total: number; file: string }) => {
           progress({
@@ -189,7 +198,9 @@ export class ParakeetVoiceProvider implements AIVoiceProvider {
       } catch (error) {
         if (options.backend === 'webgpu') {
           // WebGPU exists but initialization failed (driver/adapter issues
-          // are common) — fall back to WASM before giving up.
+          // are common) — fall back to WASM before giving up, and drop the
+          // WebGPU-only fp16 default back to int8 for the smaller download.
+          if (!this.config.encoderQuant) options.encoderQuant = 'int8'
           parakeet = (await fromHub(model, {
             ...options,
             backend: 'wasm',
