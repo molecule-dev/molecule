@@ -3333,6 +3333,11 @@ function ChatInner({
         }
         voiceIntentRef.current = false
         setIsListening(false)
+        setCommandMenu(null)
+        setModelPicker(null)
+        setSoundsPicker(null)
+        setFilePicker(null)
+        setPanelOverlay(null)
         setMicPicker({ autoStart: true })
         return
       }
@@ -3536,6 +3541,12 @@ function ChatInner({
     // With an engine catalog and no choice made yet, the first mic click asks
     // the user which engine to use (and download) instead of picking for them.
     if (voiceEngines.length > 0 && !voiceEngineRef.current) {
+      // Popups are one-at-a-time — close any sibling before opening the picker
+      setCommandMenu(null)
+      setModelPicker(null)
+      setSoundsPicker(null)
+      setFilePicker(null)
+      setPanelOverlay(null)
       setMicPicker({ autoStart: true })
       return
     }
@@ -4925,8 +4936,10 @@ function ChatInner({
       const cursor = e.target.selectionStart ?? val.length
       const before = val.slice(0, cursor)
 
-      // Close sounds picker when user starts typing
+      // Close button-driven pickers when user starts typing — popups are
+      // one-at-a-time, and these aren't managed by the input-parsing below
       setSoundsPicker(null)
+      setMicPicker(null)
 
       const atMatch = before.match(/@(\S*)$/)
       if (atMatch) {
@@ -5065,10 +5078,13 @@ function ChatInner({
   const executeCommand = useCallback(
     async (id: CommandId) => {
       setCommandMenu(null)
-      // Any command closes a stray panel overlay (skills/scripts/settings) so a
-      // sibling popup like /model or /sounds never stacks on top of it. The
-      // skills/scripts/settings branches below re-open it via openPanelOverlay.
+      // Any command closes every sibling popup (panel overlay, model/sounds/mic
+      // pickers) so popups are strictly one-at-a-time — the branches below
+      // re-open their own.
       setPanelOverlay(null)
+      setModelPicker(null)
+      setSoundsPicker(null)
+      setMicPicker(null)
       if (id === 'clear') {
         setInputValue('')
         await clearHistory()
@@ -5656,6 +5672,9 @@ function ChatInner({
     if (/^\/(mic|dictate)$/i.test(trimmed)) {
       setInputValue('')
       setPanelOverlay(null)
+      setCommandMenu(null)
+      setModelPicker(null)
+      setSoundsPicker(null)
       setMicPicker({ autoStart: false })
       return
     }
@@ -9629,7 +9648,11 @@ function ChatInner({
                       }, 0)
                     } else if (!cur) {
                       // Cursor lands AFTER the slash so the user can type the
-                      // command immediately (or backspace to remove it)
+                      // command immediately (or backspace to remove it).
+                      // Popups are one-at-a-time — close siblings first.
+                      setMicPicker(null)
+                      setModelPicker(null)
+                      setSoundsPicker(null)
                       setInputAndCursorEnd('/')
                       setCommandMenu({ selectedIdx: -1 })
                     } else {
