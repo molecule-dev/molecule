@@ -118,7 +118,11 @@ export const textarea = cva(
 export const select = cva(
   // Same underline + hover/focus treatment as the input/textarea CVAs above —
   // selects share forms with them and must read as the same control family.
-  'flex w-full border border-transparent border-b-[rgba(170,170,170,0.33)] bg-transparent rounded-[1px] px-[3px] py-2 text-foreground transition-all duration-250 ease-in-out focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+  // NO vertical padding: every size fixes the height, and the browser centers
+  // a native select's value vertically on its own — a py here only shrinks the
+  // content box below the text's line box (sm: 35px − 2px border − 16px py =
+  // 17px for 15px text) and clips descenders ("p", "g").
+  'flex w-full border border-transparent border-b-[rgba(170,170,170,0.33)] bg-transparent rounded-[1px] px-[3px] text-foreground transition-all duration-250 ease-in-out focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
