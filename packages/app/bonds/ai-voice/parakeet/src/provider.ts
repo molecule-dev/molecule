@@ -99,7 +99,10 @@ export async function supportsRecognitionLanguage(
   language: string,
   model: string = DEFAULT_MODEL,
 ): Promise<boolean> {
-  const { supportsLanguage } = await import('parakeet.js')
+  // Import the standalone models registry, NOT the root barrel — the barrel
+  // drags in onnxruntime-web, which callers checking coverage at app startup
+  // (before any dictation happens) should never pay for.
+  const { supportsLanguage } = await import('parakeet.js/models')
   return supportsLanguage(model, language.split('-')[0].toLowerCase())
 }
 

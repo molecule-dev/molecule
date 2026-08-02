@@ -26,6 +26,11 @@ vi.mock('parakeet.js', () => ({
   get fromHub() {
     return mockFromHub
   },
+}))
+
+// supportsRecognitionLanguage deliberately imports the standalone models
+// subpath (no onnxruntime-web) — mock it separately to keep that contract.
+vi.mock('parakeet.js/models', () => ({
   get supportsLanguage() {
     return mockSupportsLanguage
   },
