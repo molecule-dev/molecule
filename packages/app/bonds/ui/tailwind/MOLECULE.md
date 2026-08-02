@@ -685,10 +685,16 @@ const dialogHeader: "flex-shrink-0 flex items-center justify-between px-6 py-2"
 
 #### `dialogOverlay`
 
-Modal/Dialog overlay classes.
+Modal/Dialog overlay classes — the TINT only. The backdrop blur lives on
+{@link dialogWrapper} (the dialog's PARENT), never here: a backdrop-filter
+on a same-z sibling relies on DOM paint order, and browser-extension DOM
+injection (e.g. Bitwarden's autofill overlay) can trigger a Chromium
+recomposite that momentarily sorts the filter layer above the dialog —
+blurring the dialog itself. A parent's backdrop-filter can never affect its
+children, by spec.
 
 ```typescript
-const dialogOverlay: "fixed inset-0 z-[1300] bg-overlay backdrop-blur-[2px] pointer-events-none"
+const dialogOverlay: "fixed inset-0 z-[1300] bg-overlay pointer-events-none"
 ```
 
 #### `dialogTitle`
@@ -701,10 +707,12 @@ const dialogTitle: "text-xl font-semibold leading-tight tracking-tight"
 
 #### `dialogWrapper`
 
-The dialog wrapper.
+The dialog wrapper. Carries the backdrop blur (see {@link dialogOverlay} for
+why it must be on the dialog's parent, not a sibling) and sits one z above
+the tint overlay so the dialog's stacking never depends on DOM order.
 
 ```typescript
-const dialogWrapper: "fixed inset-0 z-[1300] flex items-center justify-center px-4 py-10"
+const dialogWrapper: "fixed inset-0 z-[1301] flex items-center justify-center px-4 py-10 backdrop-blur-[2px]"
 ```
 
 #### `displayBlock`

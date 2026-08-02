@@ -382,9 +382,16 @@ export const avatarImage = 'aspect-square h-full w-full object-cover'
 export const avatarFallback =
   'flex h-full w-full items-center justify-center rounded-full bg-surface-secondary text-foreground-secondary'
 
-/** Modal/Dialog overlay classes. */
-export const dialogOverlay =
-  'fixed inset-0 z-[1300] bg-overlay backdrop-blur-[2px] pointer-events-none'
+/**
+ * Modal/Dialog overlay classes — the TINT only. The backdrop blur lives on
+ * {@link dialogWrapper} (the dialog's PARENT), never here: a backdrop-filter
+ * on a same-z sibling relies on DOM paint order, and browser-extension DOM
+ * injection (e.g. Bitwarden's autofill overlay) can trigger a Chromium
+ * recomposite that momentarily sorts the filter layer above the dialog —
+ * blurring the dialog itself. A parent's backdrop-filter can never affect its
+ * children, by spec.
+ */
+export const dialogOverlay = 'fixed inset-0 z-[1300] bg-overlay pointer-events-none'
 
 /**
  * The dialog content.
@@ -433,9 +440,12 @@ export const dialogClose =
 export const dialogCloseFloating =
   'absolute right-3 top-3 z-10 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none'
 /**
- * The dialog wrapper.
+ * The dialog wrapper. Carries the backdrop blur (see {@link dialogOverlay} for
+ * why it must be on the dialog's parent, not a sibling) and sits one z above
+ * the tint overlay so the dialog's stacking never depends on DOM order.
  */
-export const dialogWrapper = 'fixed inset-0 z-[1300] flex items-center justify-center px-4 py-10'
+export const dialogWrapper =
+  'fixed inset-0 z-[1301] flex items-center justify-center px-4 py-10 backdrop-blur-[2px]'
 /**
  * The dialog body.
  */
