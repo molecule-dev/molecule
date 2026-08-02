@@ -66,6 +66,16 @@ interface ParakeetVoiceConfig {
    * falls back to WASM.
    */
   backend?: 'auto' | 'webgpu' | 'wasm'
+  /**
+   * URL prefix (directory) the ONNX Runtime WASM/JS runtime files are served
+   * from — e.g. '/ort/'. Without it, parakeet.js loads the runtime from the
+   * jsdelivr CDN, which any app with a `script-src 'self'` CSP (correctly)
+   * blocks. Serve the `ort-wasm-simd-threaded*` files from parakeet.js's own
+   * onnxruntime-web dependency (version must match). Applied through the
+   * lib's global ort instance with one retry, because parakeet.js's own
+   * wasmPaths option is ignored upstream.
+   */
+  wasmPaths?: string
   /** Encoder weight quantization. Default 'int8' (smallest download). */
   encoderQuant?: 'int8' | 'fp16' | 'fp32'
   /** Decoder weight quantization. Default 'int8'. */

@@ -172,43 +172,52 @@ export class ParakeetVoiceProvider implements AIVoiceProvider {
             ? 'webgpu'
             : 'wasm'
 
-      const options = {
-        backend: backend as 'webgpu' | 'wasm',
-        // int8 encoders are rejected by the WebGPU execution provider —
-        // parakeet.js silently force-upgrades them to fp32, a 2.4 GB download
-        // (verified live). fp16 (1.24 GB) is the WebGPU sweet spot; int8
-        // (652 MB) works on the WASM path.
-        encoderQuant:
-          this.config.encoderQuant ??
-          (backend === 'webgpu' ? ('fp16' as const) : ('int8' as const)),
-        decoderQuant: this.config.decoderQuant ?? ('int8' as const),
-        progress: (p: { loaded: number; total: number; file: string }) => {
-          progress({
-            status: 'downloading',
-            progress: p.total > 0 ? Math.round((p.loaded / p.total) * 100) : undefined,
-            file: p.file,
-          })
-        },
-      }
-
       const model = this.config.model ?? DEFAULT_MODEL
-      let parakeet: ParakeetModelLike
-      try {
-        parakeet = (await fromHub(model, options)) as unknown as ParakeetModelLike
-      } catch (error) {
-        if (options.backend === 'webgpu') {
-          // WebGPU exists but initialization failed (driver/adapter issues
-          // are common) — fall back to WASM before giving up, and drop the
-          // WebGPU-only fp16 default back to int8 for the smaller download.
-          if (!this.config.encoderQuant) options.encoderQuant = 'int8'
-          parakeet = (await fromHub(model, {
-            ...options,
-            backend: 'wasm',
-          })) as unknown as ParakeetModelLike
-        } else {
-          progress({ status: 'error' })
-          throw error
+      const progressCallback = (p: { loaded: number; total: number; file: string }): void => {
+        progress({
+          status: 'downloading',
+          progress: p.total > 0 ? Math.round((p.loaded / p.total) * 100) : undefined,
+          file: p.file,
+        })
+      }
+      // int8 encoders are rejected by the WebGPU execution provider —
+      // parakeet.js silently force-upgrades them to fp32, a 2.4 GB download
+      // (verified live). fp16 (1.24 GB) is the WebGPU sweet spot; int8
+      // (652 MB) works on the WASM path.
+      const encoderQuantFor = (b: 'webgpu' | 'wasm'): 'int8' | 'fp16' | 'fp32' =>
+        this.config.encoderQuant ?? (b === 'webgpu' ? 'fp16' : 'int8')
+      // WebGPU init failures (driver/adapter issues) fall back to WASM.
+      const backends: Array<'webgpu' | 'wasm'> =
+        backend === 'webgpu' ? ['webgpu', 'wasm'] : ['wasm']
+
+      let parakeet: ParakeetModelLike | null = null
+      let lastError: unknown = null
+      for (const b of backends) {
+        const options = {
+          backend: b,
+          encoderQuant: encoderQuantFor(b),
+          decoderQuant: this.config.decoderQuant ?? ('int8' as const),
+          ...(this.config.wasmPaths ? { wasmPaths: this.config.wasmPaths } : {}),
+          progress: progressCallback,
         }
+        // Up to two tries per backend: parakeet.js's initOrt IGNORES its
+        // wasmPaths option (upstream bug) and defaults the ORT runtime to the
+        // jsdelivr CDN, which any `script-src 'self'` CSP blocks. The failed
+        // first try exposes the lib's ort instance on globalThis — point its
+        // env at our same-origin files there and retry.
+        for (let attempt = 0; attempt < 2 && !parakeet; attempt++) {
+          try {
+            parakeet = (await fromHub(model, options)) as unknown as ParakeetModelLike
+          } catch (error) {
+            lastError = error
+            if (!this.applyGlobalWasmPaths()) break
+          }
+        }
+        if (parakeet) break
+      }
+      if (!parakeet) {
+        progress({ status: 'error' })
+        throw lastError
       }
       progress({ status: 'ready' })
       return parakeet
@@ -221,6 +230,21 @@ export class ParakeetVoiceProvider implements AIVoiceProvider {
     })
 
     return this.modelPromise
+  }
+
+  /**
+   * Points parakeet.js's own ONNX Runtime instance (exposed on
+   * `globalThis.ort` after its first init) at the configured same-origin
+   * wasmPaths. Needed because parakeet.js's initOrt ignores the wasmPaths
+   * option and we cannot import its NESTED onnxruntime-web copy directly.
+   * @returns True when the path was applied (a retry is worthwhile).
+   */
+  private applyGlobalWasmPaths(): boolean {
+    if (!this.config.wasmPaths) return false
+    const ort = (globalThis as { ort?: { env?: { wasm?: { wasmPaths?: string } } } }).ort
+    if (!ort?.env?.wasm) return false
+    ort.env.wasm.wasmPaths = this.config.wasmPaths
+    return true
   }
 
   /**

@@ -144,7 +144,10 @@ export class WhisperVoiceProvider implements AIVoiceProvider {
 
     this.pipelinePromise = (async () => {
       progress({ status: 'loading' })
-      const { pipeline } = await import('@huggingface/transformers')
+      const { pipeline, env } = await import('@huggingface/transformers')
+      if (this.config.wasmPaths && env.backends.onnx.wasm) {
+        env.backends.onnx.wasm.wasmPaths = this.config.wasmPaths
+      }
       const device =
         this.config.device && this.config.device !== 'auto'
           ? this.config.device

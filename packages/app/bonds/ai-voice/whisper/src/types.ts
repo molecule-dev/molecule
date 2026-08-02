@@ -38,6 +38,15 @@ export interface WhisperVoiceConfig {
    */
   dtype?: string | Record<string, string>
   /**
+   * URL prefix (directory) the ONNX Runtime WASM/JS runtime files are served
+   * from — e.g. '/transformers-ort/'. Without it, transformers.js falls back
+   * to loading the runtime from the jsdelivr CDN, which any app with a
+   * `script-src 'self'` CSP (correctly) blocks. Serve the
+   * `ort-wasm-simd-threaded*` files from transformers.js's own
+   * onnxruntime-web dependency (version must match).
+   */
+  wasmPaths?: string
+  /**
    * Called with model download/initialization progress — wire this to a UI
    * indicator, since the first use downloads tens of MB (cached afterwards).
    */

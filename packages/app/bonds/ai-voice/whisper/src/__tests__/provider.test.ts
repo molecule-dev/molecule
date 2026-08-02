@@ -11,9 +11,14 @@ const mockAsr = vi.fn(async (_audio: Float32Array, _options?: Record<string, unk
 }))
 const mockPipeline = vi.fn(async () => mockAsr)
 
+const mockEnv = { backends: { onnx: { wasm: {} as { wasmPaths?: string } } } }
+
 vi.mock('@huggingface/transformers', () => ({
   get pipeline() {
     return mockPipeline
+  },
+  get env() {
+    return mockEnv
   },
 }))
 

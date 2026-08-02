@@ -250,6 +250,29 @@ describe('ParakeetVoiceProvider', () => {
     provider.dispose()
   })
 
+  it('retries with same-origin wasmPaths after a CSP-blocked CDN runtime load', async () => {
+    // parakeet.js exposes its ort instance on globalThis after the first
+    // (failed) init; the provider must point it at wasmPaths and retry.
+    const fakeOrt = { env: { wasm: {} as { wasmPaths?: string } } }
+    vi.stubGlobal('ort', fakeOrt)
+    mockFromHub.mockRejectedValueOnce(
+      new Error('no available backend found. ERR: [wasm] TypeError: Failed to fetch'),
+    )
+    const provider = createProvider({ wasmPaths: '/ort/' })
+    const transcripts: VoiceTranscriptEvent[] = []
+    await startAndWaitForCapture(provider, { onTranscript: (e) => transcripts.push(e) })
+    for (let i = 0; i < 3; i++) emitFrame(0.1)
+    for (let i = 0; i < 4; i++) emitFrame(0)
+    await vi.waitFor(() => expect(transcripts).toHaveLength(1))
+    expect(fakeOrt.env.wasm.wasmPaths).toBe('/ort/')
+    expect(mockFromHub).toHaveBeenCalledTimes(2)
+    // Same backend retried — not a premature WASM fallback
+    expect((mockFromHub.mock.calls[0][1] as { backend: string }).backend).toBe(
+      (mockFromHub.mock.calls[1][1] as { backend: string }).backend,
+    )
+    provider.dispose()
+  })
+
   it('dispose releases the microphone and ignores later frames', async () => {
     const provider = createProvider()
     const onTranscript = vi.fn()
