@@ -284,6 +284,7 @@ function setProvider(provider: AIVoiceProvider): void
 | Provider | Package |
 |----------|---------|
 | Ai Voice | `@molecule/app-ai-voice-default` |
+| Ai Voice | `@molecule/app-ai-voice-parakeet` |
 | Ai Voice | `@molecule/app-ai-voice-whisper` |
 
 ## Injection Notes
