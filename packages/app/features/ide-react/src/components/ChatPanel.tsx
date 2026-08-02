@@ -3057,6 +3057,15 @@ function ChatInner({
     }
   }, [autoResize])
 
+  // Focus the input whenever a chat mounts (initial load, "New chat", or a
+  // conversation switch — each remounts ChatInner via chatKey) so the user can
+  // type immediately. Skipped on coarse pointers: focus there pops the
+  // on-screen keyboard over half the workspace uninvited.
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches) return
+    textareaRef.current?.focus()
+  }, [])
+
   /** Update the ref, the DOM element, and the hasInput flag without re-rendering the parent. */
   const setInputValue = useCallback(
     (val: string) => {
