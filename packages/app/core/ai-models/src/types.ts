@@ -96,6 +96,13 @@ export interface AppModelDefinition {
   /** Whether this model is available on the free tier. */
   freeTier?: boolean
   /**
+   * Regions in which this model is free-tier selectable even though the model
+   * as a whole is not `freeTier` (regional hosts can price very differently).
+   * Ignored when `freeTier` is true; omitted → no per-region free access.
+   * Mirrors the API catalog's `ModelDefinition.freeTierRegions`.
+   */
+  freeTierRegions?: string[]
+  /**
    * Processing regions this model can run in (arbitrary region codes; FIRST
    * entry is the model's default region). Omit for `['us']`. A single-entry
    * list pins the model to that region. Mirrors the server-side

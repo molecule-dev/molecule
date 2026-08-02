@@ -164,6 +164,14 @@ interface ModelDefinition {
   /** Whether this model is available on the free tier (only one model should be true). */
   freeTier?: boolean
   /**
+   * Regions in which this model is free-tier selectable even though the model
+   * as a whole is not `freeTier` — for models whose regional hosts price very
+   * differently (e.g. a cheap native host powering the free planner while its
+   * ~3× re-host stays paid-only). Ignored when `freeTier` is true (all regions
+   * free); omitted → no free-tier access outside `freeTier`.
+   */
+  freeTierRegions?: string[]
+  /**
    * Processing regions this model can run in, as arbitrary region codes; the
    * FIRST entry is the model's default region. Omit for `['us']` (the platform
    * default — a single-region US model). A single-entry list pins the model to

@@ -804,6 +804,10 @@ export const MODELS: readonly ModelDefinition[] = [
     // ~94% cache hits, so US processing ran ~5.7× native on real traffic.
     // Users opt into US per model via the picker's region control.
     regions: ['cn', 'us'],
+    // The free tier PLANS with this model on the cheap native host (it is the
+    // molecule-dev FREE_TIER_MODELS.plan), so CN is free-tier selectable; the
+    // ~3× US re-host stays paid-only (free users switch to Flash for US).
+    freeTierRegions: ['cn'],
     // US = DeepInfra, verified 2026-08-01 via api.deepinfra.com/models/
     // deepseek-ai/DeepSeek-V4-Pro. No cache-write premium (omitted → region
     // input rate).
