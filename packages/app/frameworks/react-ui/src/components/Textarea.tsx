@@ -114,7 +114,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           aria-invalid={!!error}
           aria-describedby={error ? `${textareaId}-error` : hint ? `${textareaId}-hint` : undefined}
           className={textareaClasses}
-          style={style}
+          // autoResize sizes the box to its content via inline height, but the
+          // bond's min-h class would floor it — neutralize it and let resize()
+          // enforce `minRows` instead. Caller style still wins.
+          style={autoResize ? { minHeight: 0, resize: 'none', ...style } : style}
           data-testid={testId}
           onChange={onChange as unknown as React.ChangeEventHandler<HTMLTextAreaElement>}
           onFocus={onFocus as unknown as React.FocusEventHandler<HTMLTextAreaElement>}
