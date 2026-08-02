@@ -25,7 +25,8 @@ import { registerSecrets } from '@molecule/api-secrets'
 export const cacheMemcachedSecretDefinitions: SecretDefinition[] = [
   {
     key: 'MEMCACHED_SERVERS',
-    description: 'Memcached servers — Comma-separated host:port list of memcached servers.',
+    description:
+      "Memcached servers — Comma-separated host:port list of memcached servers. molecule.dev runs a Memcached inside your app's container automatically (dev and production) — set this only to use an external/managed instance. Provisioned automatically in molecule.dev sandboxes.",
     required: false,
     example: 'localhost:11211',
     default: 'localhost:11211',

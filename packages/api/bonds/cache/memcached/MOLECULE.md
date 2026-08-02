@@ -193,7 +193,8 @@ Peer dependencies:
 ### Environment Variables
 
 - `MEMCACHED_SERVERS` *(optional)* — Memcached servers — default: `localhost:11211`
-  - Setup: Comma-separated host:port list of memcached servers.
+  - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
+  - Setup: Comma-separated host:port list of memcached servers. molecule.dev runs a Memcached inside your app's container automatically (dev and production) — set this only to use an external/managed instance.
   - Example: `localhost:11211`
 
 ### Runtime Dependencies
