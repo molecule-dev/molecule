@@ -146,6 +146,40 @@ interface VoiceDescriptor {
 }
 ```
 
+#### `VoiceEngineDef`
+
+A dictation engine option an app can offer its users.
+
+```typescript
+interface VoiceEngineDef {
+  /** Stable engine id (persisted as the user's choice). */
+  id: string
+  /** Display name (e.g. 'Moonshine', 'Parakeet'). */
+  label: string
+  /**
+   * How the engine runs: 'native' uses the browser's built-in speech
+   * service; 'on-device' runs a local model in the page (no audio leaves
+   * the device in either case, but 'native' availability depends on the
+   * browser shipping a speech backend).
+   */
+  kind: 'native' | 'on-device'
+  /**
+   * Approximate one-time model download in MB (a [min, max] range when it
+   * depends on the device). Omit when nothing is downloaded.
+   */
+  downloadMB?: number | readonly [number, number]
+  /** Relative transcription accuracy: 1 = basic, 2 = good, 3 = best. */
+  accuracy: 1 | 2 | 3
+  /**
+   * Language coverage: 'all', or the ISO 639-1 codes the engine can
+   * transcribe (e.g. ['en']).
+   */
+  languages: 'all' | readonly string[]
+  /** Creates the engine's provider (called when the engine is selected). */
+  create: () => AIVoiceProvider
+}
+```
+
 #### `VoiceErrorEvent`
 
 A voice error event with a code and human-readable message.
@@ -249,6 +283,16 @@ function getProvider(): AIVoiceProvider | null
 
 **Returns:** The active provider, or `null`.
 
+#### `getSelectedVoiceEngineId()`
+
+Returns the currently selected engine id, or null when none was selected.
+
+```typescript
+function getSelectedVoiceEngineId(): string | null
+```
+
+**Returns:** The selected engine id.
+
 #### `hasProvider()`
 
 Returns whether an AI voice provider has been registered.
@@ -258,6 +302,27 @@ function hasProvider(): boolean
 ```
 
 **Returns:** `true` if a provider is bonded.
+
+#### `listVoiceEngines()`
+
+Returns the registered dictation engine catalog (empty when the app
+offers no choice).
+
+```typescript
+function listVoiceEngines(): readonly VoiceEngineDef[]
+```
+
+**Returns:** The engines in display order.
+
+#### `registerVoiceEngines(defs)`
+
+Registers the app's dictation engine catalog (replaces any previous one).
+
+```typescript
+function registerVoiceEngines(defs: readonly VoiceEngineDef[]): void
+```
+
+- `defs` — The engines to offer, in display order.
 
 #### `requireProvider()`
 
@@ -269,6 +334,19 @@ function requireProvider(): AIVoiceProvider
 
 **Returns:** The active provider.
 
+#### `selectVoiceEngine(id)`
+
+Selects an engine by id: bonds its provider (via `setProvider`) and
+remembers the selection.
+
+```typescript
+function selectVoiceEngine(id: string): VoiceEngineDef | null
+```
+
+- `id` — The engine id to select.
+
+**Returns:** The selected engine, or null when the id is not registered.
+
 #### `setProvider(provider)`
 
 Registers the AI voice provider singleton.
@@ -278,6 +356,19 @@ function setProvider(provider: AIVoiceProvider): void
 ```
 
 - `provider` — The AI voice provider implementation to register.
+
+#### `voiceEngineCoversLanguage(def, language)`
+
+Checks whether an engine covers a BCP-47 language tag.
+
+```typescript
+function voiceEngineCoversLanguage(def: VoiceEngineDef, language: string): boolean
+```
+
+- `def` — The engine to check.
+- `language` — BCP-47 tag (e.g. 'en-US').
+
+**Returns:** True when the engine can transcribe the language.
 
 ## Available Providers
 
