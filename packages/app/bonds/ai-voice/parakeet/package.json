@@ -1,0 +1,44 @@
+{
+  "name": "@molecule/app-ai-voice-parakeet",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "voice",
+    "parakeet",
+    "speech-to-text",
+    "on-device",
+    "nvidia"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "parakeet.js": "1.4.4"
+  },
+  "devDependencies": {
+    "@molecule/app-ai-voice": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  },
+  "peerDependencies": {
+    "@molecule/app-ai-voice": "^1.0.0"
+  }
+}
