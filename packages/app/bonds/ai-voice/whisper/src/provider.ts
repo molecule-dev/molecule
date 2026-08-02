@@ -78,6 +78,23 @@ function getSpeechSynthesis(): SpeechSynthesis | null {
 }
 
 /**
+ * Checks whether WebGPU is actually usable — `navigator.gpu` EXISTING is not
+ * enough (Linux Chromium-family browsers expose the API with no adapter
+ * behind it unless a flag is enabled).
+ * @returns True when a GPU adapter can really be acquired.
+ */
+async function hasUsableWebGpu(): Promise<boolean> {
+  const gpu = (navigator as { gpu?: { requestAdapter?: () => Promise<unknown> } }).gpu
+  if (!gpu?.requestAdapter) return false
+  try {
+    return (await gpu.requestAdapter()) !== null
+  } catch (_error) {
+    // Adapter probing throws on some drivers — treat as unavailable
+    return false
+  }
+}
+
+/**
  * Maps a BCP-47 tag (e.g. 'en-US') to the bare ISO language code Whisper
  * expects (e.g. 'en').
  * @param language - BCP-47 language tag.
@@ -151,7 +168,7 @@ export class WhisperVoiceProvider implements AIVoiceProvider {
       const device =
         this.config.device && this.config.device !== 'auto'
           ? this.config.device
-          : (navigator as { gpu?: unknown }).gpu
+          : (await hasUsableWebGpu())
             ? 'webgpu'
             : 'wasm'
 

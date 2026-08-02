@@ -90,6 +90,23 @@ function getSpeechSynthesis(): SpeechSynthesis | null {
 }
 
 /**
+ * Checks whether WebGPU is actually usable — `navigator.gpu` EXISTING is not
+ * enough (Linux Chromium-family browsers expose the API with no adapter
+ * behind it unless a flag is enabled).
+ * @returns True when a GPU adapter can really be acquired.
+ */
+async function hasUsableWebGpu(): Promise<boolean> {
+  const gpu = (navigator as { gpu?: { requestAdapter?: () => Promise<unknown> } }).gpu
+  if (!gpu?.requestAdapter) return false
+  try {
+    return (await gpu.requestAdapter()) !== null
+  } catch (_error) {
+    // Adapter probing throws on some drivers — treat as unavailable
+    return false
+  }
+}
+
+/**
  * Checks whether a Parakeet model can transcribe the given BCP-47 language.
  * Use this at wiring time to decide between this provider and a
  * multilingual Whisper provider.
@@ -168,7 +185,7 @@ export class ParakeetVoiceProvider implements AIVoiceProvider {
       const backend =
         this.config.backend && this.config.backend !== 'auto'
           ? this.config.backend
-          : (navigator as { gpu?: unknown }).gpu
+          : (await hasUsableWebGpu())
             ? 'webgpu'
             : 'wasm'
 
