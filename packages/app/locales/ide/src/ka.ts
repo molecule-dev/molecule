@@ -201,6 +201,8 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.voice': 'ხმა',
   'ide.chat.voiceUnavailable': 'კარნახი ამ ბრაუზერში მიუწვდომელია.',
   'ide.chat.voiceMicBlocked': 'მიკროფონზე წვდომა დაბლოკილია.',
+  'ide.chat.voicePreparing': 'კარნახის მომზადება — პირველ ჯერზე შეიძლება ცოტა ხანი დასჭირდეს.',
+  'ide.chat.voiceTranscribeFailed': 'ტრანსკრიფცია ვერ მოხერხდა.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'მუშავდება: {{region}} — შესაცვლელად დააწკაპუნეთ',

@@ -208,6 +208,8 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Tiếng nói',
   'ide.chat.voiceUnavailable': 'Tính năng đọc chính tả không khả dụng trên trình duyệt này.',
   'ide.chat.voiceMicBlocked': 'Quyền truy cập micrô đã bị chặn.',
+  'ide.chat.voicePreparing': 'Đang chuẩn bị đọc chính tả — lần đầu có thể mất một lúc.',
+  'ide.chat.voiceTranscribeFailed': 'Phiên âm thất bại.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Xử lý tại: {{region}} — nhấp để thay đổi',

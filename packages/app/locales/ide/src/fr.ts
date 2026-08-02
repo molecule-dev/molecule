@@ -212,6 +212,9 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Voix',
   'ide.chat.voiceUnavailable': "La dictée n'est pas disponible dans ce navigateur.",
   'ide.chat.voiceMicBlocked': "L'accès au microphone est bloqué.",
+  'ide.chat.voicePreparing':
+    'Préparation de la dictée — cela peut prendre un moment la première fois.',
+  'ide.chat.voiceTranscribeFailed': 'Échec de la transcription.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Traité en : {{region}} — cliquez pour changer',

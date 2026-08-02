@@ -209,6 +209,9 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Voce',
   'ide.chat.voiceUnavailable': 'La dettatura non è disponibile in questo browser.',
   'ide.chat.voiceMicBlocked': "L'accesso al microfono è bloccato.",
+  'ide.chat.voicePreparing':
+    'Preparazione della dettatura — la prima volta può richiedere qualche istante.',
+  'ide.chat.voiceTranscribeFailed': 'Trascrizione non riuscita.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Elaborato in: {{region}} — fai clic per cambiare',

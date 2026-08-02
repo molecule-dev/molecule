@@ -94,6 +94,9 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Үн',
   'ide.chat.voiceUnavailable': 'Диктовка бул браузерде жеткиликтүү эмес.',
   'ide.chat.voiceMicBlocked': 'Микрофонго кирүү бөгөттөлгөн.',
+  'ide.chat.voicePreparing':
+    'Диктовка даярдалууда — биринчи жолу колдонгондо бир аз убакыт кетиши мүмкүн.',
+  'ide.chat.voiceTranscribeFailed': 'Транскрипция ишке ашкан жок.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Иштетилет: {{region}} — өзгөртүү үчүн басыңыз',

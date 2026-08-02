@@ -203,6 +203,8 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Ovoz',
   'ide.chat.voiceUnavailable': 'Diktovka bu brauzerda mavjud emas.',
   'ide.chat.voiceMicBlocked': 'Mikrofonga kirish bloklangan.',
+  'ide.chat.voicePreparing': 'Diktovka tayyorlanmoqda — birinchi marta biroz vaqt olishi mumkin.',
+  'ide.chat.voiceTranscribeFailed': 'Transkripsiya amalga oshmadi.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': "Qayta ishlanadi: {{region}} — o'zgartirish uchun bosing",

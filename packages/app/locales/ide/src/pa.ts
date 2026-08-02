@@ -200,6 +200,9 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.voice': 'ਆਵਾਜ਼',
   'ide.chat.voiceUnavailable': 'ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਡਿਕਟੇਸ਼ਨ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।',
   'ide.chat.voiceMicBlocked': 'ਮਾਈਕ੍ਰੋਫ਼ੋਨ ਪਹੁੰਚ ਬਲਾਕ ਕੀਤੀ ਗਈ ਹੈ।',
+  'ide.chat.voicePreparing':
+    'ਡਿਕਟੇਸ਼ਨ ਤਿਆਰ ਹੋ ਰਹੀ ਹੈ — ਪਹਿਲੀ ਵਾਰ ਵਰਤੋਂ ਵਿੱਚ ਥੋੜ੍ਹਾ ਸਮਾਂ ਲੱਗ ਸਕਦਾ ਹੈ।',
+  'ide.chat.voiceTranscribeFailed': 'ਟ੍ਰਾਂਸਕ੍ਰਿਪਸ਼ਨ ਅਸਫਲ ਰਹੀ।',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'ਪ੍ਰੋਸੈਸਿੰਗ: {{region}} ਵਿੱਚ — ਬਦਲਣ ਲਈ ਕਲਿੱਕ ਕਰੋ',

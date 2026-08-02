@@ -200,6 +200,8 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.voice': 'અવાજ',
   'ide.chat.voiceUnavailable': 'આ બ્રાઉઝરમાં ડિક્ટેશન ઉપલબ્ધ નથી.',
   'ide.chat.voiceMicBlocked': 'માઇક્રોફોન ઍક્સેસ અવરોધિત છે.',
+  'ide.chat.voicePreparing': 'ડિક્ટેશન તૈયાર થઈ રહ્યું છે — પ્રથમ ઉપયોગમાં થોડો સમય લાગી શકે છે.',
+  'ide.chat.voiceTranscribeFailed': 'ટ્રાન્સક્રિપ્શન નિષ્ફળ થયું.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'પ્રક્રિયા થાય છે: {{region}} — બદલવા માટે ક્લિક કરો',

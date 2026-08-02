@@ -205,6 +205,9 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.voice': 'အသံ',
   'ide.chat.voiceUnavailable': 'ဤဘရောက်ဆာတွင် အသံဖြင့်စာရိုက်ခြင်း မရနိုင်ပါ။',
   'ide.chat.voiceMicBlocked': 'မိုက်ခရိုဖုန်း အသုံးပြုခွင့် ပိတ်ထားသည်။',
+  'ide.chat.voicePreparing':
+    'အသံဖြင့်စာရိုက်ခြင်းကို ပြင်ဆင်နေသည် — ပထမဆုံးအသုံးပြုချိန်တွင် အချိန်အနည်းငယ်ကြာနိုင်သည်။',
+  'ide.chat.voiceTranscribeFailed': 'စာသားပြောင်းခြင်း မအောင်မြင်ပါ။',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'လုပ်ဆောင်သည့်နေရာ: {{region}} — ပြောင်းရန် နှိပ်ပါ',

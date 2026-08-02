@@ -209,6 +209,8 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Stem',
   'ide.chat.voiceUnavailable': 'Dicteren is niet beschikbaar in deze browser.',
   'ide.chat.voiceMicBlocked': 'Toegang tot de microfoon is geblokkeerd.',
+  'ide.chat.voicePreparing': 'Dicteren wordt voorbereid — de eerste keer kan dit even duren.',
+  'ide.chat.voiceTranscribeFailed': 'Transcriptie mislukt.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Verwerkt in: {{region}} — klik om te wijzigen',

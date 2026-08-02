@@ -200,6 +200,8 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Guth',
   'ide.chat.voiceUnavailable': 'Níl deachtú ar fáil sa bhrabhsálaí seo.',
   'ide.chat.voiceMicBlocked': 'Tá rochtain ar an micreafón blocáilte.',
+  'ide.chat.voicePreparing': "Deachtú á ullmhú — d'fhéadfadh sé nóiméad a thógáil an chéad uair.",
+  'ide.chat.voiceTranscribeFailed': 'Theip ar an trascríobh.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Á phróiseáil i: {{region}} — cliceáil le hathrú',

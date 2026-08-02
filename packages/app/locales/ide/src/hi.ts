@@ -205,6 +205,8 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.voice': 'आवाज़',
   'ide.chat.voiceUnavailable': 'इस ब्राउज़र में डिक्टेशन उपलब्ध नहीं है।',
   'ide.chat.voiceMicBlocked': 'माइक्रोफ़ोन एक्सेस अवरुद्ध है।',
+  'ide.chat.voicePreparing': 'डिक्टेशन तैयार हो रहा है — पहली बार में थोड़ा समय लग सकता है।',
+  'ide.chat.voiceTranscribeFailed': 'ट्रांसक्रिप्शन विफल रहा।',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'प्रोसेसिंग: {{region}} में — बदलने के लिए क्लिक करें',

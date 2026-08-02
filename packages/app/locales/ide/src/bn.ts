@@ -201,6 +201,8 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.voice': 'কণ্ঠস্বর',
   'ide.chat.voiceUnavailable': 'এই ব্রাউজারে ডিক্টেশন উপলব্ধ নয়।',
   'ide.chat.voiceMicBlocked': 'মাইক্রোফোন অ্যাক্সেস অবরুদ্ধ।',
+  'ide.chat.voicePreparing': 'ডিক্টেশন প্রস্তুত হচ্ছে — প্রথমবার ব্যবহারে কিছুটা সময় লাগতে পারে।',
+  'ide.chat.voiceTranscribeFailed': 'ট্রান্সক্রিপশন ব্যর্থ হয়েছে।',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'প্রক্রিয়াকরণ হয়: {{region}} — পরিবর্তন করতে ক্লিক করুন',

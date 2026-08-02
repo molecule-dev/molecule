@@ -36,6 +36,7 @@
   "peerDependencies": {
     "@molecule/app-ai-chat": "^1.0.0",
     "@molecule/app-ai-models": "^1.0.0",
+    "@molecule/app-ai-voice": "^1.0.0",
     "@molecule/app-code-editor": "^1.0.0",
     "@molecule/app-country-flags": "^1.0.0",
     "@molecule/app-i18n": "^1.0.0",
@@ -55,6 +56,7 @@
   },
   "devDependencies": {
     "@molecule/app-ai-models": "1.0.0",
+    "@molecule/app-ai-voice": "1.0.0",
     "@molecule/app-country-flags": "1.0.0",
     "@molecule/app-i18n": "1.0.0",
     "@molecule/app-icons": "1.0.0",

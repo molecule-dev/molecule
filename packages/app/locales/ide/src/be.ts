@@ -94,6 +94,9 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Голас',
   'ide.chat.voiceUnavailable': 'Дыктоўка недаступная ў гэтым браўзеры.',
   'ide.chat.voiceMicBlocked': 'Доступ да мікрафона заблакаваны.',
+  'ide.chat.voicePreparing':
+    'Падрыхтоўка дыктоўкі — пры першым выкарыстанні гэта можа заняць некаторы час.',
+  'ide.chat.voiceTranscribeFailed': 'Не ўдалося расшыфраваць.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Апрацоўваецца ў: {{region}} — націсніце, каб змяніць',

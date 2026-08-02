@@ -207,6 +207,9 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Φωνή',
   'ide.chat.voiceUnavailable': 'Η υπαγόρευση δεν είναι διαθέσιμη σε αυτό το πρόγραμμα περιήγησης.',
   'ide.chat.voiceMicBlocked': 'Η πρόσβαση στο μικρόφωνο έχει αποκλειστεί.',
+  'ide.chat.voicePreparing':
+    'Προετοιμασία υπαγόρευσης — την πρώτη φορά μπορεί να πάρει λίγο χρόνο.',
+  'ide.chat.voiceTranscribeFailed': 'Η μεταγραφή απέτυχε.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Επεξεργασία σε: {{region}} — κάντε κλικ για αλλαγή',

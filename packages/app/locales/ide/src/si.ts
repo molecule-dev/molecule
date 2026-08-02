@@ -201,6 +201,8 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.voice': 'හඬ',
   'ide.chat.voiceUnavailable': 'මෙම බ්‍රවුසරයේ කථන ඇතුළත් කිරීම නොමැත.',
   'ide.chat.voiceMicBlocked': 'මයික්‍රෆෝන ප්‍රවේශය අවහිර කර ඇත.',
+  'ide.chat.voicePreparing': 'කථන ඇතුළත් කිරීම සූදානම් වෙමින් — පළමු වතාවේදී මොහොතක් ගත විය හැක.',
+  'ide.chat.voiceTranscribeFailed': 'පිටපත් කිරීම අසාර්ථක විය.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'සැකසෙන්නේ: {{region}} — වෙනස් කිරීමට ක්ලික් කරන්න',

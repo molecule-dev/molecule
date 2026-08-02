@@ -207,6 +207,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Voce',
   'ide.chat.voiceUnavailable': 'Dictarea nu este disponibilă în acest browser.',
   'ide.chat.voiceMicBlocked': 'Accesul la microfon este blocat.',
+  'ide.chat.voicePreparing': 'Se pregătește dictarea — prima dată poate dura un moment.',
+  'ide.chat.voiceTranscribeFailed': 'Transcrierea a eșuat.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Procesat în: {{region}} — dați clic pentru a schimba',

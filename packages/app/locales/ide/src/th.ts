@@ -202,6 +202,8 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.voice': 'เสียง',
   'ide.chat.voiceUnavailable': 'การป้อนตามคำบอกไม่พร้อมใช้งานในเบราว์เซอร์นี้',
   'ide.chat.voiceMicBlocked': 'การเข้าถึงไมโครโฟนถูกบล็อก',
+  'ide.chat.voicePreparing': 'กำลังเตรียมการป้อนตามคำบอก — ครั้งแรกอาจใช้เวลาสักครู่',
+  'ide.chat.voiceTranscribeFailed': 'การถอดความล้มเหลว',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'ประมวลผลใน: {{region}} — คลิกเพื่อเปลี่ยน',

@@ -202,6 +202,8 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.voice': 'សំឡេង',
   'ide.chat.voiceUnavailable': 'ការសរសេរតាមសំឡេងមិនអាចប្រើបានក្នុងកម្មវិធីរុករកនេះទេ។',
   'ide.chat.voiceMicBlocked': 'ការចូលប្រើមីក្រូហ្វូនត្រូវបានទប់ស្កាត់។',
+  'ide.chat.voicePreparing': 'កំពុងរៀបចំការសរសេរតាមសំឡេង — អាចចំណាយពេលបន្តិចនៅពេលប្រើលើកដំបូង។',
+  'ide.chat.voiceTranscribeFailed': 'ការសរសេរតាមសំឡេងបានបរាជ័យ។',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'ដំណើរការនៅ៖ {{region}} — ចុចដើម្បីផ្លាស់ប្តូរ',

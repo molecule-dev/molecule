@@ -94,6 +94,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Murya',
   'ide.chat.voiceUnavailable': 'Rubutu ta murya ba ya samuwa a wannan burauza.',
   'ide.chat.voiceMicBlocked': 'An toshe damar amfani da makirufo.',
+  'ide.chat.voicePreparing': 'Ana shirya rubutu ta murya — na farko na iya ɗaukar ɗan lokaci.',
+  'ide.chat.voiceTranscribeFailed': 'Rubutawa ta gaza.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Ana sarrafawa a: {{region}} — danna don canzawa',

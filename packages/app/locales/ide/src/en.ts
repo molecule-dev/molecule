@@ -234,6 +234,8 @@ export const en: IdeTranslations = {
   'ide.chat.voice': 'Voice',
   'ide.chat.voiceUnavailable': 'Dictation is not available in this browser.',
   'ide.chat.voiceMicBlocked': 'Microphone access is blocked.',
+  'ide.chat.voicePreparing': 'Preparing dictation — this can take a moment on first use.',
+  'ide.chat.voiceTranscribeFailed': 'Transcription failed.',
   'ide.editor.title': 'Editor',
   'ide.editor.emptyState': 'Open a file to start editing',
   'ide.files.empty': 'No files',

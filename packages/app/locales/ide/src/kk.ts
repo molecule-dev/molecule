@@ -201,6 +201,8 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Дауыс',
   'ide.chat.voiceUnavailable': 'Диктовка бұл браузерде қолжетімді емес.',
   'ide.chat.voiceMicBlocked': 'Микрофонға қатынас бұғатталған.',
+  'ide.chat.voicePreparing': 'Диктовка дайындалуда — алғашқы қолданғанда біраз уақыт алуы мүмкін.',
+  'ide.chat.voiceTranscribeFailed': 'Транскрипция сәтсіз аяқталды.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Өңделеді: {{region}} — өзгерту үшін басыңыз',

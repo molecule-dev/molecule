@@ -33,7 +33,7 @@ import { ChatPanel, EditorPanel, PreviewPanel, WorkspaceLayout } from '@molecule
 
 ## Installation
 ```bash
-npm install @molecule/app-ide-react @molecule/app-ai-chat @molecule/app-ai-models @molecule/app-code-editor @molecule/app-country-flags @molecule/app-i18n @molecule/app-icons @molecule/app-ide @molecule/app-live-preview @molecule/app-logger @molecule/app-react @molecule/app-storage @molecule/app-ui @molecule/app-ui-react material-file-icons react react-dom
+npm install @molecule/app-ide-react @molecule/app-ai-chat @molecule/app-ai-models @molecule/app-ai-voice @molecule/app-code-editor @molecule/app-country-flags @molecule/app-i18n @molecule/app-icons @molecule/app-ide @molecule/app-live-preview @molecule/app-logger @molecule/app-react @molecule/app-storage @molecule/app-ui @molecule/app-ui-react material-file-icons react react-dom
 npm install -D @types/react
 ```
 
@@ -2277,6 +2277,7 @@ const ToolCallCard: MemoExoticComponent<({ id, name, input, output, status, file
 Peer dependencies:
 - `@molecule/app-ai-chat` ^1.0.0
 - `@molecule/app-ai-models` ^1.0.0
+- `@molecule/app-ai-voice` ^1.0.0
 - `@molecule/app-code-editor` ^1.0.0
 - `@molecule/app-country-flags` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
@@ -2295,6 +2296,7 @@ Peer dependencies:
 
 - `@molecule/app-ai-chat`
 - `@molecule/app-ai-models`
+- `@molecule/app-ai-voice`
 - `@molecule/app-code-editor`
 - `@molecule/app-country-flags`
 - `@molecule/app-i18n`

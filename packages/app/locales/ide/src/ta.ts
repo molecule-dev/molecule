@@ -204,6 +204,8 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.voice': 'குரல்',
   'ide.chat.voiceUnavailable': 'இந்த உலாவியில் சொல்வதெழுதல் கிடைக்கவில்லை.',
   'ide.chat.voiceMicBlocked': 'மைக்ரோஃபோன் அணுகல் தடுக்கப்பட்டுள்ளது.',
+  'ide.chat.voicePreparing': 'சொல்வதெழுதல் தயாராகிறது — முதல் முறையில் சிறிது நேரம் ஆகலாம்.',
+  'ide.chat.voiceTranscribeFailed': 'படியெடுத்தல் தோல்வியடைந்தது.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'செயலாக்கம்: {{region}} — மாற்ற கிளிக் செய்யவும்',

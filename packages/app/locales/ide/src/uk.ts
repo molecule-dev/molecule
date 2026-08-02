@@ -208,6 +208,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Голос',
   'ide.chat.voiceUnavailable': 'Диктування недоступне в цьому браузері.',
   'ide.chat.voiceMicBlocked': 'Доступ до мікрофона заблоковано.',
+  'ide.chat.voicePreparing': 'Підготовка диктування — першого разу це може зайняти трохи часу.',
+  'ide.chat.voiceTranscribeFailed': 'Не вдалося розшифрувати.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Обробляється в: {{region}} — натисніть, щоб змінити',

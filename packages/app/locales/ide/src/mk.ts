@@ -202,6 +202,8 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Глас',
   'ide.chat.voiceUnavailable': 'Диктирањето не е достапно во овој прелистувач.',
   'ide.chat.voiceMicBlocked': 'Пристапот до микрофонот е блокиран.',
+  'ide.chat.voicePreparing': 'Подготовка на диктирањето — првиот пат може да потрае момент.',
+  'ide.chat.voiceTranscribeFailed': 'Транскрипцијата не успеа.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Се обработува во: {{region}} — кликнете за промена',

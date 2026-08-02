@@ -205,6 +205,8 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Röst',
   'ide.chat.voiceUnavailable': 'Diktering är inte tillgänglig i den här webbläsaren.',
   'ide.chat.voiceMicBlocked': 'Åtkomst till mikrofonen är blockerad.',
+  'ide.chat.voicePreparing': 'Förbereder diktering — det kan ta en stund första gången.',
+  'ide.chat.voiceTranscribeFailed': 'Transkriptionen misslyckades.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Bearbetas i: {{region}} — klicka för att ändra',

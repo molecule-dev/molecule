@@ -197,6 +197,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.voice': '嗓音',
   'ide.chat.voiceUnavailable': '此瀏覽器不支援語音輸入。',
   'ide.chat.voiceMicBlocked': '麥克風存取已被封鎖。',
+  'ide.chat.voicePreparing': '正在準備語音輸入 — 首次使用可能需要片刻。',
+  'ide.chat.voiceTranscribeFailed': '轉寫失敗。',
   'ide.chat.model.region.us': '美國',
   'ide.chat.model.region.cn': '中國',
   'ide.chat.model.regionHint': '處理位置：{{region}} — 點擊變更',

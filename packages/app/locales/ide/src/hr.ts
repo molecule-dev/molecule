@@ -201,6 +201,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Glas',
   'ide.chat.voiceUnavailable': 'Diktiranje nije dostupno u ovom pregledniku.',
   'ide.chat.voiceMicBlocked': 'Pristup mikrofonu je blokiran.',
+  'ide.chat.voicePreparing': 'Priprema diktiranja — pri prvoj upotrebi može potrajati.',
+  'ide.chat.voiceTranscribeFailed': 'Transkripcija nije uspjela.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Obrađuje se u: {{region}} — kliknite za promjenu',

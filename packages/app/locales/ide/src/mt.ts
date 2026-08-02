@@ -202,6 +202,8 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Vuċi',
   'ide.chat.voiceUnavailable': "Id-dettatura mhijiex disponibbli f'dan il-browser.",
   'ide.chat.voiceMicBlocked': 'L-aċċess għall-mikrofonu huwa mblukkat.',
+  'ide.chat.voicePreparing': "Qed titħejja d-dettatura — l-ewwel darba tista' tieħu ftit ħin.",
+  'ide.chat.voiceTranscribeFailed': 'It-traskrizzjoni falliet.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Ipproċessat fi: {{region}} — ikklikkja biex tibdel',

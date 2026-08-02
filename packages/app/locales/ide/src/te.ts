@@ -201,6 +201,8 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.voice': 'స్వరం',
   'ide.chat.voiceUnavailable': 'ఈ బ్రౌజర్‌లో డిక్టేషన్ అందుబాటులో లేదు.',
   'ide.chat.voiceMicBlocked': 'మైక్రోఫోన్ యాక్సెస్ బ్లాక్ చేయబడింది.',
+  'ide.chat.voicePreparing': 'డిక్టేషన్ సిద్ధమవుతోంది — మొదటిసారి కొంత సమయం పట్టవచ్చు.',
+  'ide.chat.voiceTranscribeFailed': 'ట్రాన్స్‌క్రిప్షన్ విఫలమైంది.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'ప్రాసెస్ అవుతుంది: {{region}} — మార్చడానికి క్లిక్ చేయండి',

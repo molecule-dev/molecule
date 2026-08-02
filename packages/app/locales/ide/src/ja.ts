@@ -207,6 +207,8 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.voice': '声',
   'ide.chat.voiceUnavailable': 'このブラウザでは音声入力を利用できません。',
   'ide.chat.voiceMicBlocked': 'マイクへのアクセスがブロックされています。',
+  'ide.chat.voicePreparing': '音声入力を準備中 — 初回は少し時間がかかることがあります。',
+  'ide.chat.voiceTranscribeFailed': '文字起こしに失敗しました。',
   'ide.chat.model.region.us': '米国',
   'ide.chat.model.region.cn': '中国',
   'ide.chat.model.regionHint': '処理場所: {{region}} — クリックして変更',

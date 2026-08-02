@@ -205,6 +205,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Hang',
   'ide.chat.voiceUnavailable': 'A diktálás nem érhető el ebben a böngészőben.',
   'ide.chat.voiceMicBlocked': 'A mikrofonhoz való hozzáférés le van tiltva.',
+  'ide.chat.voicePreparing': 'Diktálás előkészítése — első alkalommal eltarthat egy pillanatig.',
+  'ide.chat.voiceTranscribeFailed': 'Az átírás nem sikerült.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Feldolgozás helye: {{region}} — kattintson a módosításhoz',

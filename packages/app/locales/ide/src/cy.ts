@@ -201,6 +201,8 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Llais',
   'ide.chat.voiceUnavailable': 'Nid yw arddweud ar gael yn y porwr hwn.',
   'ide.chat.voiceMicBlocked': "Mae mynediad i'r meicroffon wedi'i rwystro.",
+  'ide.chat.voicePreparing': "Wrthi'n paratoi arddweud — gall gymryd eiliad y tro cyntaf.",
+  'ide.chat.voiceTranscribeFailed': 'Methodd y trawsgrifiad.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Yn cael ei brosesu yn: {{region}} — cliciwch i newid',

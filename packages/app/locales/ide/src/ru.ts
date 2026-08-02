@@ -202,6 +202,9 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Голос',
   'ide.chat.voiceUnavailable': 'Диктовка недоступна в этом браузере.',
   'ide.chat.voiceMicBlocked': 'Доступ к микрофону заблокирован.',
+  'ide.chat.voicePreparing':
+    'Подготовка диктовки — при первом использовании это может занять время.',
+  'ide.chat.voiceTranscribeFailed': 'Не удалось расшифровать запись.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Обрабатывается в: {{region}} — нажмите, чтобы изменить',

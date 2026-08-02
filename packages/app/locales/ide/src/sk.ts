@@ -202,6 +202,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Hlas',
   'ide.chat.voiceUnavailable': 'Diktovanie nie je v tomto prehliadači k dispozícii.',
   'ide.chat.voiceMicBlocked': 'Prístup k mikrofónu je zablokovaný.',
+  'ide.chat.voicePreparing': 'Príprava diktovania — pri prvom použití to môže chvíľu trvať.',
+  'ide.chat.voiceTranscribeFailed': 'Prepis zlyhal.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Spracováva sa v: {{region}} — kliknutím zmeníte',

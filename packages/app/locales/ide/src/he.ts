@@ -198,6 +198,8 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.voice': 'קוֹל',
   'ide.chat.voiceUnavailable': 'הכתבה אינה זמינה בדפדפן זה.',
   'ide.chat.voiceMicBlocked': 'הגישה למיקרופון חסומה.',
+  'ide.chat.voicePreparing': 'מכין הכתבה — בפעם הראשונה זה עשוי לקחת רגע.',
+  'ide.chat.voiceTranscribeFailed': 'התמלול נכשל.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'מעובד ב: {{region}} — לחצו לשינוי',

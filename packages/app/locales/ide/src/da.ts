@@ -202,6 +202,8 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Stemme',
   'ide.chat.voiceUnavailable': 'Diktering er ikke tilgængelig i denne browser.',
   'ide.chat.voiceMicBlocked': 'Adgang til mikrofonen er blokeret.',
+  'ide.chat.voicePreparing': 'Forbereder diktering — det kan tage et øjeblik første gang.',
+  'ide.chat.voiceTranscribeFailed': 'Transskription mislykkedes.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Behandles i: {{region}} — klik for at ændre',

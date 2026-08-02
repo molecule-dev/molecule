@@ -201,6 +201,9 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.voice': 'ಧ್ವನಿ',
   'ide.chat.voiceUnavailable': 'ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಡಿಕ್ಟೇಶನ್ ಲಭ್ಯವಿಲ್ಲ.',
   'ide.chat.voiceMicBlocked': 'ಮೈಕ್ರೊಫೋನ್ ಪ್ರವೇಶವನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ.',
+  'ide.chat.voicePreparing':
+    'ಡಿಕ್ಟೇಶನ್ ಸಿದ್ಧಪಡಿಸಲಾಗುತ್ತಿದೆ — ಮೊದಲ ಬಳಕೆಯಲ್ಲಿ ಸ್ವಲ್ಪ ಸಮಯ ತೆಗೆದುಕೊಳ್ಳಬಹುದು.',
+  'ide.chat.voiceTranscribeFailed': 'ಟ್ರಾನ್ಸ್‌ಕ್ರಿಪ್ಶನ್ ವಿಫಲವಾಗಿದೆ.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'ಸಂಸ್ಕರಣೆ: {{region}} — ಬದಲಾಯಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ',

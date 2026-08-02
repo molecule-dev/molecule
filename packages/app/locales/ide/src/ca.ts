@@ -202,6 +202,8 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Veu',
   'ide.chat.voiceUnavailable': 'El dictat no està disponible en aquest navegador.',
   'ide.chat.voiceMicBlocked': "L'accés al micròfon està bloquejat.",
+  'ide.chat.voicePreparing': "S'està preparant el dictat — pot trigar una mica el primer cop.",
+  'ide.chat.voiceTranscribeFailed': 'La transcripció ha fallat.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Es processa a: {{region}} — feu clic per canviar',

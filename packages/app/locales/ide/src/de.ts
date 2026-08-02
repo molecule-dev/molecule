@@ -211,6 +211,9 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Stimme',
   'ide.chat.voiceUnavailable': 'Diktieren ist in diesem Browser nicht verfügbar.',
   'ide.chat.voiceMicBlocked': 'Der Mikrofonzugriff ist blockiert.',
+  'ide.chat.voicePreparing':
+    'Diktieren wird vorbereitet — beim ersten Mal kann das einen Moment dauern.',
+  'ide.chat.voiceTranscribeFailed': 'Transkription fehlgeschlagen.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Verarbeitet in: {{region}} — zum Ändern klicken',

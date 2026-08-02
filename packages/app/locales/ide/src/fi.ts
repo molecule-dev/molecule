@@ -205,6 +205,9 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Ääni',
   'ide.chat.voiceUnavailable': 'Sanelu ei ole käytettävissä tässä selaimessa.',
   'ide.chat.voiceMicBlocked': 'Mikrofonin käyttö on estetty.',
+  'ide.chat.voicePreparing':
+    'Valmistellaan sanelua — ensimmäisellä kerralla tämä voi kestää hetken.',
+  'ide.chat.voiceTranscribeFailed': 'Litterointi epäonnistui.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Käsitellään alueella: {{region}} — vaihda napsauttamalla',

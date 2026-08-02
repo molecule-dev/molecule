@@ -203,6 +203,8 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.voice': 'ശബ്ദം',
   'ide.chat.voiceUnavailable': 'ഈ ബ്രൗസറിൽ ഡിക്റ്റേഷൻ ലഭ്യമല്ല.',
   'ide.chat.voiceMicBlocked': 'മൈക്രോഫോൺ ആക്സസ് തടഞ്ഞിരിക്കുന്നു.',
+  'ide.chat.voicePreparing': 'ഡിക്റ്റേഷൻ തയ്യാറാക്കുന്നു — ആദ്യ ഉപയോഗത്തിൽ അൽപ്പസമയം എടുത്തേക്കാം.',
+  'ide.chat.voiceTranscribeFailed': 'ട്രാൻസ്ക്രിപ്ഷൻ പരാജയപ്പെട്ടു.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'പ്രോസസ്സ് ചെയ്യുന്നത്: {{region}} — മാറ്റാൻ ക്ലിക്ക് ചെയ്യുക',

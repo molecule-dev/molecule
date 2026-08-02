@@ -88,6 +88,8 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Olu',
   'ide.chat.voiceUnavailable': "Ide okwu site n'olu adịghị na nchọgharị a.",
   'ide.chat.voiceMicBlocked': 'Egbochiri ohere maịkrofon.',
+  'ide.chat.voicePreparing': 'Na-akwadebe ide okwu — nke mbụ nwere ike were obere oge.',
+  'ide.chat.voiceTranscribeFailed': 'Ntụgharị edemede dara ada.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'A na-edozi ya na: {{region}} — pịa iji gbanwee',

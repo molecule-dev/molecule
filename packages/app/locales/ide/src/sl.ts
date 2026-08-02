@@ -202,6 +202,8 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Glas',
   'ide.chat.voiceUnavailable': 'Narekovanje v tem brskalniku ni na voljo.',
   'ide.chat.voiceMicBlocked': 'Dostop do mikrofona je blokiran.',
+  'ide.chat.voicePreparing': 'Priprava narekovanja — prvič lahko traja trenutek.',
+  'ide.chat.voiceTranscribeFailed': 'Prepis ni uspel.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Obdelava v: {{region}} — kliknite za spremembo',

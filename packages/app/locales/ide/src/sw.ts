@@ -201,6 +201,9 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Sauti',
   'ide.chat.voiceUnavailable': 'Kuandika kwa sauti hakupatikani katika kivinjari hiki.',
   'ide.chat.voiceMicBlocked': 'Ufikiaji wa maikrofoni umezuiwa.',
+  'ide.chat.voicePreparing':
+    'Inaandaa kuandika kwa sauti — mara ya kwanza inaweza kuchukua muda kidogo.',
+  'ide.chat.voiceTranscribeFailed': 'Unukuzi umeshindikana.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Inachakatwa katika: {{region}} — bofya kubadilisha',

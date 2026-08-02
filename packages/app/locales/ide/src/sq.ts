@@ -204,6 +204,8 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Zëri',
   'ide.chat.voiceUnavailable': 'Diktimi nuk është i disponueshëm në këtë shfletues.',
   'ide.chat.voiceMicBlocked': 'Qasja në mikrofon është e bllokuar.',
+  'ide.chat.voicePreparing': 'Po përgatitet diktimi — herën e parë mund të zgjasë pak.',
+  'ide.chat.voiceTranscribeFailed': 'Transkriptimi dështoi.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Përpunohet në: {{region}} — klikoni për të ndryshuar',

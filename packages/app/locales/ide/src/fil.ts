@@ -203,6 +203,9 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Boses',
   'ide.chat.voiceUnavailable': 'Hindi available ang diktasyon sa browser na ito.',
   'ide.chat.voiceMicBlocked': 'Naka-block ang access sa mikropono.',
+  'ide.chat.voicePreparing':
+    'Inihahanda ang diktasyon — maaaring magtagal nang kaunti sa unang paggamit.',
+  'ide.chat.voiceTranscribeFailed': 'Nabigo ang transkripsyon.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Pinoproseso sa: {{region}} — i-click para baguhin',

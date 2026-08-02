@@ -37,6 +37,10 @@ import {
   PROVIDER_BRAND_COLORS,
 } from '@molecule/app-ai-models'
 import { getCountryFlag } from '@molecule/app-country-flags'
+import {
+  getProvider as getVoiceProvider,
+  hasProvider as hasVoiceProvider,
+} from '@molecule/app-ai-voice'
 import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import { getLogger } from '@molecule/app-logger'
@@ -3139,6 +3143,31 @@ function ChatInner({
   const voiceFailCount = useRef(0)
   const voiceLastStart = useRef(0)
 
+  // ── Local (on-device) dictation fallback via the ai-voice bond ────────────
+  // When the browser's Web Speech API is missing or proven dead, dictation
+  // falls back to a bonded AIVoiceProvider (e.g. @molecule/app-ai-voice-whisper,
+  // which runs Whisper on-device). Wire one at app startup with setProvider().
+  const [hasLocalVoice] = useState(
+    () => hasVoiceProvider() && (getVoiceProvider()?.isRecognitionSupported() ?? false),
+  )
+  // Once true, all dictation goes through the bonded provider.
+  const useLocalVoiceRef = useRef(false)
+  // Web Speech proven dead earlier this tab-session — skip its 5s watchdog.
+  const webSpeechDeadRef = useRef(false)
+  const WEB_SPEECH_DEAD_KEY = 'molecule.ide.webSpeechDead'
+  useEffect(() => {
+    try {
+      webSpeechDeadRef.current = sessionStorage.getItem(WEB_SPEECH_DEAD_KEY) === '1'
+    } catch (_error) {
+      // sessionStorage unavailable — the watchdog re-detects within one session
+    }
+  }, [])
+  // Secondary (non-error) notice: "preparing dictation" while the model loads
+  const [voiceNotice, setVoiceNotice] = useState<string | null>(null)
+  // Set on submit so a trailing transcript from the provider is not inserted
+  // into the freshly-cleared composer.
+  const voiceDiscardRef = useRef(false)
+
   const showVoiceError = useCallback((message: string) => {
     setVoiceError(message)
     if (voiceErrorTimer.current) clearTimeout(voiceErrorTimer.current)
@@ -3147,6 +3176,74 @@ function ChatInner({
       setVoiceError(null)
     }, 8000)
   }, [])
+
+  /**
+   * Starts dictation through the bonded on-device provider. Returns false when
+   * no usable provider is wired, so the caller can fall through to the
+   * "dictation unavailable" path.
+   */
+  const startLocalVoice = useCallback((): boolean => {
+    const localVoice = getVoiceProvider()
+    if (!localVoice || !localVoice.isRecognitionSupported()) return false
+    useLocalVoiceRef.current = true
+    // Shown until the provider reaches 'listening' (model may need a download)
+    setVoiceNotice(
+      t('ide.chat.voicePreparing', undefined, {
+        defaultValue: 'Preparing dictation — this can take a moment on first use.',
+      }),
+    )
+    localVoice.startListening(
+      {
+        language: navigator.language || 'en-US',
+        continuous: true,
+        interimResults: false,
+      },
+      {
+        onTranscript: (event) => {
+          if (voiceDiscardRef.current || !event.isFinal || !event.transcript) return
+          const prev = inputRef.current as string
+          setInputValue(prev ? `${prev} ${event.transcript}` : event.transcript)
+          autoResize()
+        },
+        onStateChange: (state) => {
+          if (state === 'listening') setVoiceNotice(null)
+        },
+        onError: (event) => {
+          if (event.code === 'not-allowed') {
+            voiceIntentRef.current = false
+            setIsListening(false)
+            setVoiceNotice(null)
+            showVoiceError(
+              t('ide.chat.voiceMicBlocked', undefined, {
+                defaultValue: 'Microphone access is blocked.',
+              }),
+            )
+            return
+          }
+          if (event.code === 'transcription-failed') {
+            // One chunk failed; the session keeps listening
+            showVoiceError(
+              t('ide.chat.voiceTranscribeFailed', undefined, {
+                defaultValue: 'Transcription failed.',
+              }),
+            )
+            return
+          }
+          // not-supported / start-failed — the fallback itself is unusable
+          voiceIntentRef.current = false
+          setIsListening(false)
+          setVoiceNotice(null)
+          setVoiceDead(true)
+          showVoiceError(
+            t('ide.chat.voiceUnavailable', undefined, {
+              defaultValue: 'Dictation is not available in this browser.',
+            }),
+          )
+        },
+      },
+    )
+    return true
+  }, [setInputValue, autoResize, showVoiceError])
 
   const startRecognition = useCallback(() => {
     const Ctor = speechCtorRef.current as (new () => SpeechRec) | undefined
@@ -3166,13 +3263,29 @@ function ChatInner({
       }
     }
 
-    // The speech service itself is broken (not just this session): stop for
-    // good, hide the button, and say so — instead of flicker-restarting forever.
+    // The Web Speech service itself is broken (not just this session): stop
+    // retrying it for good — instead of flicker-restarting forever. If an
+    // on-device provider is bonded, hand the same gesture over to it
+    // seamlessly; otherwise turn the button off and say so.
     const giveUp = () => {
       clearWatchdog()
-      voiceIntentRef.current = false
       voiceFailCount.current = 0
       recognitionRef.current = null
+      webSpeechDeadRef.current = true
+      try {
+        sessionStorage.setItem(WEB_SPEECH_DEAD_KEY, '1')
+      } catch (_error) {
+        // sessionStorage unavailable — the watchdog re-detects next time
+      }
+      try {
+        recognition.abort()
+      } catch (_error) {
+        // abort() on a never-started/already-ended session throws harmlessly
+      }
+      if (voiceIntentRef.current && startLocalVoice()) {
+        return
+      }
+      voiceIntentRef.current = false
       setIsListening(false)
       setVoiceDead(true)
       showVoiceError(
@@ -3180,11 +3293,6 @@ function ChatInner({
           defaultValue: 'Dictation is not available in this browser.',
         }),
       )
-      try {
-        recognition.abort()
-      } catch (_error) {
-        // abort() on a never-started/already-ended session throws harmlessly
-      }
     }
 
     recognition.onstart = () => {
@@ -3282,7 +3390,7 @@ function ChatInner({
       voiceWatchdogTimer.current = null
       giveUp()
     }, 5000)
-  }, [setInputValue, autoResize, showVoiceError])
+  }, [setInputValue, autoResize, showVoiceError, startLocalVoice])
 
   const toggleVoice = useCallback(() => {
     if (isListening) {
@@ -3297,10 +3405,17 @@ function ChatInner({
       }
       // Don't wait for onend — a hung session (dead service) never fires it
       setIsListening(false)
-      recognitionRef.current?.stop()
+      setVoiceNotice(null)
+      if (useLocalVoiceRef.current) {
+        // On-device provider: trailing speech is still transcribed + inserted
+        getVoiceProvider()?.stopListening()
+      } else {
+        recognitionRef.current?.stop()
+      }
       return
     }
     voiceIntentRef.current = true
+    voiceDiscardRef.current = false
     voiceFailCount.current = 0
     setVoiceError(null)
     if (voiceErrorTimer.current) {
@@ -3309,8 +3424,22 @@ function ChatInner({
     }
     setIsListening(true)
     handleAutoFixPauseOnInput()
+    // Route straight to the on-device provider when Web Speech is absent or
+    // already proven dead — otherwise try Web Speech first (no model download).
+    if (!hasSpeechRecognition || webSpeechDeadRef.current || useLocalVoiceRef.current) {
+      if (startLocalVoice()) return
+      voiceIntentRef.current = false
+      setIsListening(false)
+      setVoiceDead(true)
+      showVoiceError(
+        t('ide.chat.voiceUnavailable', undefined, {
+          defaultValue: 'Dictation is not available in this browser.',
+        }),
+      )
+      return
+    }
     startRecognition()
-  }, [isListening, startRecognition])
+  }, [isListening, startRecognition, startLocalVoice, hasSpeechRecognition, showVoiceError])
 
   // Stop recognition on unmount
   useEffect(
@@ -3329,6 +3458,12 @@ function ChatInner({
         voiceErrorTimer.current = null
       }
       recognitionRef.current?.abort()
+      if (useLocalVoiceRef.current) {
+        // stopListening, not dispose — the bonded provider is an app-wide
+        // singleton other consumers may use after this panel unmounts
+        voiceDiscardRef.current = true
+        getVoiceProvider()?.stopListening()
+      }
     },
     [],
   )
@@ -5262,7 +5397,15 @@ function ChatInner({
       voiceWatchdogTimer.current = null
     }
     setIsListening(false)
-    recognitionRef.current?.stop()
+    setVoiceNotice(null)
+    if (useLocalVoiceRef.current) {
+      // Discard any trailing transcript — it belongs to the message just sent,
+      // not the freshly-cleared composer
+      voiceDiscardRef.current = true
+      getVoiceProvider()?.stopListening()
+    } else {
+      recognitionRef.current?.stop()
+    }
 
     const trimmed = (inputRef.current as string).trim()
     if (!trimmed && attachedFiles.length === 0) return
@@ -6987,6 +7130,13 @@ function ChatInner({
         {voiceError && (
           <div className={cm.cn(cm.textSize('xs'), cm.textError)} style={{ padding: '4px 10px' }}>
             {voiceError}
+          </div>
+        )}
+
+        {/* Dictation notice (on-device model preparing on first use) */}
+        {voiceNotice && (
+          <div className={cm.cn(cm.textSize('xs'), cm.textMuted)} style={{ padding: '4px 10px' }}>
+            {voiceNotice}
           </div>
         )}
 
@@ -9030,9 +9180,10 @@ function ChatInner({
                 </svg>
               </button>
             )}
-            {/* Voice input button — only rendered when Web Speech API is available
-                and the speech service hasn't been proven dead (see voiceDead) */}
-            {hasSpeechRecognition && !voiceDead && (
+            {/* Voice input button — rendered when Web Speech OR a bonded
+                on-device provider can do dictation, until both are proven
+                dead (see voiceDead) */}
+            {(hasSpeechRecognition || hasLocalVoice) && !voiceDead && (
               <button
                 type="button"
                 onClick={toggleVoice}

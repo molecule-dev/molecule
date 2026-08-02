@@ -202,6 +202,8 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Ahotsa',
   'ide.chat.voiceUnavailable': 'Diktaketa ez dago erabilgarri nabigatzaile honetan.',
   'ide.chat.voiceMicBlocked': 'Mikrofonorako sarbidea blokeatuta dago.',
+  'ide.chat.voicePreparing': 'Diktaketa prestatzen — lehen aldian une bat behar izan dezake.',
+  'ide.chat.voiceTranscribeFailed': 'Transkripzioak huts egin du.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Hemen prozesatzen da: {{region}} — egin klik aldatzeko',

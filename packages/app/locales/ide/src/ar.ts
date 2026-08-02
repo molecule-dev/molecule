@@ -207,6 +207,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.voice': 'صوت',
   'ide.chat.voiceUnavailable': 'الإملاء غير متاح في هذا المتصفح.',
   'ide.chat.voiceMicBlocked': 'تم حظر الوصول إلى الميكروفون.',
+  'ide.chat.voicePreparing': 'جارٍ تجهيز الإملاء — قد يستغرق ذلك لحظات عند أول استخدام.',
+  'ide.chat.voiceTranscribeFailed': 'فشل النسخ.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'تتم المعالجة في: {{region}} — انقر للتغيير',

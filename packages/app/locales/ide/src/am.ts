@@ -197,6 +197,8 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.voice': 'ድምጽ',
   'ide.chat.voiceUnavailable': 'በዚህ አሳሽ ውስጥ በንግግር መጻፍ አይገኝም።',
   'ide.chat.voiceMicBlocked': 'የማይክሮፎን መዳረሻ ታግዷል።',
+  'ide.chat.voicePreparing': 'በንግግር መጻፍን በማዘጋጀት ላይ — በመጀመሪያ አጠቃቀም ትንሽ ጊዜ ሊወስድ ይችላል።',
+  'ide.chat.voiceTranscribeFailed': 'መገልበጥ አልተሳካም።',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'የሚሰራው በ: {{region}} — ለመቀየር ጠቅ ያድርጉ',

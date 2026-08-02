@@ -200,6 +200,8 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.voice': 'صدا',
   'ide.chat.voiceUnavailable': 'دیکته در این مرورگر در دسترس نیست.',
   'ide.chat.voiceMicBlocked': 'دسترسی به میکروفون مسدود شده است.',
+  'ide.chat.voicePreparing': 'در حال آماده‌سازی دیکته — بار اول ممکن است کمی طول بکشد.',
+  'ide.chat.voiceTranscribeFailed': 'رونویسی ناموفق بود.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'پردازش در: {{region}} — برای تغییر کلیک کنید',

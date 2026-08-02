@@ -202,6 +202,8 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Ձայն',
   'ide.chat.voiceUnavailable': 'Թելադրումը հասանելի չէ այս դիտարկիչում։',
   'ide.chat.voiceMicBlocked': 'Խոսափողի հասանելիությունն արգելափակված է։',
+  'ide.chat.voicePreparing': 'Թելադրման նախապատրաստում — առաջին անգամ դա կարող է պահ տևել։',
+  'ide.chat.voiceTranscribeFailed': 'Տառադարձումը ձախողվեց։',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Մշակվում է՝ {{region}} — սեղմեք փոխելու համար',

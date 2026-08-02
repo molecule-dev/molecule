@@ -206,6 +206,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Ses',
   'ide.chat.voiceUnavailable': 'Dikte bu tarayıcıda kullanılamıyor.',
   'ide.chat.voiceMicBlocked': 'Mikrofon erişimi engellendi.',
+  'ide.chat.voicePreparing': 'Dikte hazırlanıyor — ilk kullanımda biraz zaman alabilir.',
+  'ide.chat.voiceTranscribeFailed': 'Transkripsiyon başarısız oldu.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Şurada işlenir: {{region}} — değiştirmek için tıklayın',

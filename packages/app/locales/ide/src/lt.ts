@@ -202,6 +202,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Balsas',
   'ide.chat.voiceUnavailable': 'Diktavimas šioje naršyklėje negalimas.',
   'ide.chat.voiceMicBlocked': 'Prieiga prie mikrofono užblokuota.',
+  'ide.chat.voicePreparing': 'Ruošiamas diktavimas — pirmą kartą tai gali šiek tiek užtrukti.',
+  'ide.chat.voiceTranscribeFailed': 'Transkripcija nepavyko.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Apdorojama: {{region}} — spustelėkite, kad pakeistumėte',

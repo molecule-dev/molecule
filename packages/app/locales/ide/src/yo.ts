@@ -121,6 +121,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Oh\\u00F9n',
   'ide.chat.voiceUnavailable': 'Ìkọ̀rọ̀sílẹ̀ ohùn kò sí lórí aṣàwákiri yìí.',
   'ide.chat.voiceMicBlocked': 'A ti dí ìwọlé gbohùngbohùn.',
+  'ide.chat.voicePreparing': 'Ń múra ìkọ̀rọ̀sílẹ̀ ohùn — ó lè gba ìṣẹ́jú díẹ̀ nígbà àkọ́kọ́.',
+  'ide.chat.voiceTranscribeFailed': 'Ìkọsílẹ̀ kùnà.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Ń ṣiṣẹ́ ní: {{region}} — tẹ láti yí padà',

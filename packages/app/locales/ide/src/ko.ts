@@ -204,6 +204,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.voice': '목소리',
   'ide.chat.voiceUnavailable': '이 브라우저에서는 받아쓰기를 사용할 수 없습니다.',
   'ide.chat.voiceMicBlocked': '마이크 접근이 차단되었습니다.',
+  'ide.chat.voicePreparing': '받아쓰기 준비 중 — 처음 사용할 때는 시간이 걸릴 수 있습니다.',
+  'ide.chat.voiceTranscribeFailed': '전사에 실패했습니다.',
   'ide.chat.model.region.us': '미국',
   'ide.chat.model.region.cn': '중국',
   'ide.chat.model.regionHint': '처리 위치: {{region}} — 클릭하여 변경',

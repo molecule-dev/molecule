@@ -200,6 +200,8 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Səs',
   'ide.chat.voiceUnavailable': 'Diktə bu brauzerdə mövcud deyil.',
   'ide.chat.voiceMicBlocked': 'Mikrofona giriş bloklanıb.',
+  'ide.chat.voicePreparing': 'Diktə hazırlanır — ilk istifadədə bir az vaxt apara bilər.',
+  'ide.chat.voiceTranscribeFailed': 'Transkripsiya alınmadı.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Emal olunur: {{region}} — dəyişmək üçün klikləyin',

@@ -203,6 +203,9 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Suara',
   'ide.chat.voiceUnavailable': 'Imlak tidak tersedia dalam pelayar ini.',
   'ide.chat.voiceMicBlocked': 'Akses mikrofon disekat.',
+  'ide.chat.voicePreparing':
+    'Menyediakan imlak — mungkin mengambil sedikit masa pada kali pertama.',
+  'ide.chat.voiceTranscribeFailed': 'Transkripsi gagal.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Diproses di: {{region}} — klik untuk menukar',

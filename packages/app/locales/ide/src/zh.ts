@@ -203,6 +203,8 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.voice': '嗓音',
   'ide.chat.voiceUnavailable': '此浏览器不支持语音输入。',
   'ide.chat.voiceMicBlocked': '麦克风访问已被阻止。',
+  'ide.chat.voicePreparing': '正在准备语音输入 — 首次使用可能需要片刻。',
+  'ide.chat.voiceTranscribeFailed': '转写失败。',
   'ide.chat.model.region.us': '美国',
   'ide.chat.model.region.cn': '中国',
   'ide.chat.model.regionHint': '处理位置：{{region}} — 点击更改',

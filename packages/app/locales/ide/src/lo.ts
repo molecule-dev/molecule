@@ -199,6 +199,8 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.voice': 'ສຽງ',
   'ide.chat.voiceUnavailable': 'ການຂຽນຕາມສຽງບໍ່ສາມາດໃຊ້ໄດ້ໃນບຣາວເຊີນີ້.',
   'ide.chat.voiceMicBlocked': 'ການເຂົ້າເຖິງໄມໂຄຣໂຟນຖືກບລັອກ.',
+  'ide.chat.voicePreparing': 'ກຳລັງກຽມການຂຽນຕາມສຽງ — ອາດໃຊ້ເວລາໜ້ອຍໜຶ່ງໃນຄັ້ງທຳອິດ.',
+  'ide.chat.voiceTranscribeFailed': 'ການຖອດຄວາມລົ້ມເຫຼວ.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'ປະມວນຜົນຢູ່: {{region}} — ຄລິກເພື່ອປ່ຽນ',

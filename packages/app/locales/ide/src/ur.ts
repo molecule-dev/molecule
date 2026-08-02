@@ -201,6 +201,8 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.voice': 'آواز',
   'ide.chat.voiceUnavailable': 'اس براؤزر میں ڈکٹیشن دستیاب نہیں ہے۔',
   'ide.chat.voiceMicBlocked': 'مائیکروفون تک رسائی مسدود ہے۔',
+  'ide.chat.voicePreparing': 'ڈکٹیشن تیار ہو رہی ہے — پہلی بار استعمال میں کچھ وقت لگ سکتا ہے۔',
+  'ide.chat.voiceTranscribeFailed': 'نقل ناکام ہو گئی۔',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'پروسیسنگ: {{region}} میں — تبدیل کرنے کے لیے کلک کریں',

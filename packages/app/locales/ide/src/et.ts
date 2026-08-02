@@ -202,6 +202,9 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Hääl',
   'ide.chat.voiceUnavailable': 'Dikteerimine pole selles brauseris saadaval.',
   'ide.chat.voiceMicBlocked': 'Juurdepääs mikrofonile on blokeeritud.',
+  'ide.chat.voicePreparing':
+    'Dikteerimise ettevalmistamine — esimesel korral võib see hetke võtta.',
+  'ide.chat.voiceTranscribeFailed': 'Transkriptsioon ebaõnnestus.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Töödeldakse: {{region}} — muutmiseks klõpsa',

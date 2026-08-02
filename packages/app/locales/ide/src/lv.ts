@@ -201,6 +201,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Balss',
   'ide.chat.voiceUnavailable': 'Diktēšana šajā pārlūkprogrammā nav pieejama.',
   'ide.chat.voiceMicBlocked': 'Piekļuve mikrofonam ir bloķēta.',
+  'ide.chat.voicePreparing': 'Gatavo diktēšanu — pirmajā reizē tas var aizņemt brīdi.',
+  'ide.chat.voiceTranscribeFailed': 'Transkripcija neizdevās.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Apstrādā: {{region}} — noklikšķiniet, lai mainītu',

@@ -200,6 +200,8 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Rödd',
   'ide.chat.voiceUnavailable': 'Innlestur er ekki í boði í þessum vafra.',
   'ide.chat.voiceMicBlocked': 'Lokað er fyrir aðgang að hljóðnemanum.',
+  'ide.chat.voicePreparing': 'Undirbý innlestur — það getur tekið smástund í fyrsta skipti.',
+  'ide.chat.voiceTranscribeFailed': 'Umritun mistókst.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Unnið í: {{region}} — smelltu til að breyta',

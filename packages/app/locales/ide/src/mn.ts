@@ -202,6 +202,9 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Дуу хоолой',
   'ide.chat.voiceUnavailable': 'Энэ хөтчид дуугаар бичих боломжгүй.',
   'ide.chat.voiceMicBlocked': 'Микрофоны хандалт хаагдсан байна.',
+  'ide.chat.voicePreparing':
+    'Дуугаар бичихийг бэлдэж байна — анх удаад хэсэг хугацаа шаардагдаж болно.',
+  'ide.chat.voiceTranscribeFailed': 'Хөрвүүлэлт амжилтгүй боллоо.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Боловсруулах байршил: {{region}} — өөрчлөхийн тулд дарна уу',

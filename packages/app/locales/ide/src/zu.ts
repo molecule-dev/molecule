@@ -205,6 +205,8 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Izwi',
   'ide.chat.voiceUnavailable': 'Ukubhala ngezwi akutholakali kule bhrawuza.',
   'ide.chat.voiceMicBlocked': 'Ukufinyelela kwemakrofoni kuvinjiwe.',
+  'ide.chat.voicePreparing': 'Ilungiselela ukubhala ngezwi — kungathatha isikhashana okokuqala.',
+  'ide.chat.voiceTranscribeFailed': 'Ukuloba kuhlulekile.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Icutshungulwa e-: {{region}} — chofoza ukuze ushintshe',

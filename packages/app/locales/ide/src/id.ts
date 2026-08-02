@@ -204,6 +204,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Suara',
   'ide.chat.voiceUnavailable': 'Dikte tidak tersedia di browser ini.',
   'ide.chat.voiceMicBlocked': 'Akses mikrofon diblokir.',
+  'ide.chat.voicePreparing': 'Menyiapkan dikte — mungkin butuh waktu sebentar saat pertama kali.',
+  'ide.chat.voiceTranscribeFailed': 'Transkripsi gagal.',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'Diproses di: {{region}} — klik untuk mengubah',
