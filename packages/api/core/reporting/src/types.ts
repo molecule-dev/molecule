@@ -27,16 +27,7 @@ export interface Measure {
  * Filter operator for WHERE and HAVING clauses.
  */
 export type FilterOperator =
-  | 'eq'
-  | 'neq'
-  | 'gt'
-  | 'gte'
-  | 'lt'
-  | 'lte'
-  | 'in'
-  | 'notIn'
-  | 'between'
-  | 'like'
+  'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn' | 'between' | 'like'
 
 /**
  * A filter condition for queries.

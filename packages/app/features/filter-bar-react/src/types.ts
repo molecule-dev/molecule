@@ -43,10 +43,7 @@ export interface FilterFieldDateRange extends FilterFieldBase {
 
 /** Discriminated union of all supported filter field types. */
 export type FilterField =
-  | FilterFieldText
-  | FilterFieldSelect
-  | FilterFieldMulti
-  | FilterFieldDateRange
+  FilterFieldText | FilterFieldSelect | FilterFieldMulti | FilterFieldDateRange
 
 /** Flat value map keyed by field id. */
 export type FilterValues = Record<

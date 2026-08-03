@@ -106,12 +106,7 @@ export interface WriteOptions {
  * Bluetooth state
  */
 export type BluetoothState =
-  | 'poweredOn'
-  | 'poweredOff'
-  | 'resetting'
-  | 'unauthorized'
-  | 'unsupported'
-  | 'unknown'
+  'poweredOn' | 'poweredOff' | 'resetting' | 'unauthorized' | 'unsupported' | 'unknown'
 
 /**
  * Connection state

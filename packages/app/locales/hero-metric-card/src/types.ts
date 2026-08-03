@@ -5,9 +5,7 @@
  * `t('hero-metric-card.<key>', …, { defaultValue })`.
  */
 export type HeroMetricCardTranslationKey =
-  | 'hero-metric-card.loading'
-  | 'hero-metric-card.trend.up'
-  | 'hero-metric-card.trend.down'
+  'hero-metric-card.loading' | 'hero-metric-card.trend.up' | 'hero-metric-card.trend.down'
 
 /** Translation record mapping hero-metric-card keys to translated strings. */
 export type HeroMetricCardTranslations = Record<HeroMetricCardTranslationKey, string>

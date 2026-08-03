@@ -13,13 +13,7 @@
 
 /** Possible states of a file during the upload lifecycle. */
 export type FileUploadStatus =
-  | 'idle'
-  | 'preparing'
-  | 'uploading'
-  | 'processing'
-  | 'complete'
-  | 'error'
-  | 'cancelled'
+  'idle' | 'preparing' | 'uploading' | 'processing' | 'complete' | 'error' | 'cancelled'
 
 // ---------------------------------------------------------------------------
 // File Validation

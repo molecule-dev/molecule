@@ -39,8 +39,7 @@ export const provider: JwtProvider = {
     // Force expiration/notBefore checks — never allow callers to bypass token expiry
     const safeOptions = { ...options, ignoreExpiration: false, ignoreNotBefore: false }
     return jsonwebtoken.verify(token, publicKey, safeOptions as jsonwebtoken.VerifyOptions) as
-      | string
-      | JwtPayload
+      string | JwtPayload
   },
 
   decode(token: string, options?: JwtDecodeOptions): string | JwtPayload | null {

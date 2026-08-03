@@ -156,13 +156,7 @@ export interface GroupLayer extends Transform {
  * Discriminated union of every layer kind.
  */
 export type Layer =
-  | RectLayer
-  | EllipseLayer
-  | LineLayer
-  | PathLayer
-  | TextLayer
-  | ImageLayer
-  | GroupLayer
+  RectLayer | EllipseLayer | LineLayer | PathLayer | TextLayer | ImageLayer | GroupLayer
 
 /**
  * Top-level canvas document consumed by {@link renderCanvasDocument}.

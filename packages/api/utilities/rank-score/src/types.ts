@@ -32,9 +32,4 @@ export interface RankContext {
 
 /** Identifier for the supported ranking algorithms. */
 export type RankAlgorithm =
-  | 'hn'
-  | 'reddit-hot'
-  | 'reddit-best'
-  | 'reddit-controversial'
-  | 'recency'
-  | 'score'
+  'hn' | 'reddit-hot' | 'reddit-best' | 'reddit-controversial' | 'recency' | 'score'

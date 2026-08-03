@@ -8,16 +8,7 @@
  * Filter operators for export queries.
  */
 export type FilterOperator =
-  | 'eq'
-  | 'neq'
-  | 'gt'
-  | 'gte'
-  | 'lt'
-  | 'lte'
-  | 'in'
-  | 'notIn'
-  | 'between'
-  | 'like'
+  'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn' | 'between' | 'like'
 
 /**
  * A single filter condition for export queries.

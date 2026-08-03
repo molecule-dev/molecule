@@ -12,9 +12,7 @@ export interface AsyncStateStore<T> extends Writable<T> {
   setState: (value: T | ((prev: T) => T) | Promise<T | ((prev: T) => T)>) => void
   extendState: (
     partial:
-      | Partial<T>
-      | ((prev: T) => Partial<T>)
-      | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
+      Partial<T> | ((prev: T) => Partial<T>) | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
   ) => void
 }
 
@@ -76,9 +74,7 @@ export const createAsyncState = <T>(initialValue: T): AsyncStateStore<T> => {
 
   const extendState = (
     partial:
-      | Partial<T>
-      | ((prev: T) => Partial<T>)
-      | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
+      Partial<T> | ((prev: T) => Partial<T>) | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
   ): void => {
     if (partial instanceof Promise) {
       partial.then(

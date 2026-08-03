@@ -285,8 +285,7 @@ export function createReactNativePushProvider(config: ReactNativePushConfig = {}
                   title: response.notification.request.content.title ?? '',
                   body: response.notification.request.content.body ?? undefined,
                   data: response.notification.request.content.data as
-                    | Record<string, unknown>
-                    | undefined,
+                    Record<string, unknown> | undefined,
                 },
                 actionId: response.actionIdentifier,
               }

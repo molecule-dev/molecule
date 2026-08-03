@@ -126,8 +126,7 @@ export const getAccessToken = async (): Promise<string> => {
   })
   if (!res.ok) {
     const body = (await res.json().catch(() => undefined)) as
-      | { error?: string; error_description?: string }
-      | undefined
+      { error?: string; error_description?: string } | undefined
     throw new PayPalApiError(
       res.status,
       `PayPal OAuth token request failed (${res.status}): ${body?.error_description ?? body?.error ?? res.statusText}`,

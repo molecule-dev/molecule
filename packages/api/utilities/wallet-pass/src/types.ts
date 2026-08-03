@@ -19,10 +19,7 @@
  * - `'PKBarcodeFormatCode128'` — Code-128 1D barcode.
  */
 export type ApplePassBarcodeFormat =
-  | 'PKBarcodeFormatQR'
-  | 'PKBarcodeFormatPDF417'
-  | 'PKBarcodeFormatAztec'
-  | 'PKBarcodeFormatCode128'
+  'PKBarcodeFormatQR' | 'PKBarcodeFormatPDF417' | 'PKBarcodeFormatAztec' | 'PKBarcodeFormatCode128'
 
 /**
  * Apple Wallet barcode entry, used for both the legacy `barcode` field and
@@ -214,14 +211,7 @@ export interface CreateApplePassOptions {
  * @see https://developers.google.com/wallet/generic/rest/v1
  */
 export type GoogleWalletPassType =
-  | 'eventTicket'
-  | 'offer'
-  | 'coupon'
-  | 'loyalty'
-  | 'giftCard'
-  | 'flight'
-  | 'transit'
-  | 'generic'
+  'eventTicket' | 'offer' | 'coupon' | 'loyalty' | 'giftCard' | 'flight' | 'transit' | 'generic'
 
 /**
  * Google Wallet "pass class" — the shared template all matching pass

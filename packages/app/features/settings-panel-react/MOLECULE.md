@@ -138,10 +138,7 @@ Why an enable/disable attempt failed (mapped to i18n by the component).
 
 ```typescript
 type PushToggleFailureReason =
-  | 'permission-denied'
-  | 'server-unconfigured'
-  | 'register-failed'
-  | 'persist-failed'
+  'permission-denied' | 'server-unconfigured' | 'register-failed' | 'persist-failed'
 ```
 
 #### `PushToggleResult`
@@ -150,8 +147,7 @@ Result of an enable/disable attempt.
 
 ```typescript
 type PushToggleResult =
-  | { ok: true }
-  | { ok: false; reason: PushToggleFailureReason; message?: string }
+  { ok: true } | { ok: false; reason: PushToggleFailureReason; message?: string }
 ```
 
 ### Functions

@@ -82,12 +82,7 @@ export interface JwtPayload {
  * Recursive JSON value type representing any valid JSON primitive, array, or object.
  */
 export type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JSONValue[]
-  | { [key: string]: JSONValue }
+  string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue }
 
 /**
  * A plain JSON object whose values are `JSONValue`s. Used as the payload

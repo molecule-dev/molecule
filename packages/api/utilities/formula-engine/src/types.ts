@@ -10,13 +10,7 @@
  * left-most error unchanged (Excel-compatible semantics).
  */
 export type FormulaErrorCode =
-  | '#DIV/0!'
-  | '#VALUE!'
-  | '#REF!'
-  | '#NAME?'
-  | '#NUM!'
-  | '#N/A'
-  | '#CIRC!'
+  '#DIV/0!' | '#VALUE!' | '#REF!' | '#NAME?' | '#NUM!' | '#N/A' | '#CIRC!'
 
 /**
  * Spreadsheet error value. Returned (never thrown) by `evaluate`/`getValue`
@@ -122,18 +116,7 @@ export interface UnaryOpNode {
  * `=`/`<>` = equality, `<`/`<=`/`>`/`>=` = ordering.
  */
 export type BinaryOperator =
-  | '+'
-  | '-'
-  | '*'
-  | '/'
-  | '^'
-  | '&'
-  | '='
-  | '<>'
-  | '<'
-  | '<='
-  | '>'
-  | '>='
+  '+' | '-' | '*' | '/' | '^' | '&' | '=' | '<>' | '<' | '<=' | '>' | '>='
 
 /** AST: binary operation. */
 export interface BinaryOpNode {

@@ -250,14 +250,7 @@ Property type categorising the kind of real estate.
 
 ```typescript
 type PropertyType =
-  | 'apartment'
-  | 'house'
-  | 'condo'
-  | 'townhouse'
-  | 'hotel'
-  | 'commercial'
-  | 'land'
-  | 'other'
+  'apartment' | 'house' | 'condo' | 'townhouse' | 'hotel' | 'commercial' | 'land' | 'other'
 ```
 
 #### `UpdatePropertyInput`

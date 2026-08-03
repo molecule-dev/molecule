@@ -393,11 +393,7 @@ through to the standard subscription webhook handler if needed.
 
 ```typescript
 type ConnectWebhookEventType =
-  | 'account.updated'
-  | 'payout.created'
-  | 'transfer.created'
-  | 'application_fee.refunded'
-  | 'unknown'
+  'account.updated' | 'payout.created' | 'transfer.created' | 'application_fee.refunded' | 'unknown'
 ```
 
 #### `PaymentProvider`

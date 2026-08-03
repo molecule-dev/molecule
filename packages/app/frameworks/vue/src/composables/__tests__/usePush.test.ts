@@ -158,8 +158,7 @@ describe('usePush', () => {
     const scope = effectScope()
     let result!: UsePushReturn
     let tokenChangeCallback:
-      | ((token: { value: string; platform: string; timestamp: number }) => void)
-      | null = null
+      ((token: { value: string; platform: string; timestamp: number }) => void) | null = null
 
     mockProvider.onTokenChange.mockImplementation((cb: typeof tokenChangeCallback) => {
       tokenChangeCallback = cb

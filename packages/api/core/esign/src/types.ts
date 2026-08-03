@@ -24,11 +24,7 @@ export type SignerStatus = 'pending' | 'signed' | 'declined' | 'expired'
  * - `expired` — request window elapsed before completion
  */
 export type SignatureRequestStatus =
-  | 'awaiting_signatures'
-  | 'signed'
-  | 'declined'
-  | 'cancelled'
-  | 'expired'
+  'awaiting_signatures' | 'signed' | 'declined' | 'cancelled' | 'expired'
 
 /**
  * A signer participating in a signature request.

@@ -100,9 +100,7 @@ export async function dumpToFile(
           return fail(new Error(`${command} exited ${code}: ${stderr.trim() || 'no output'}`))
         }
         if (written === 0) {
-          return fail(
-            new Error(`${command} produced 0 bytes — refusing to archive an empty dump.`),
-          )
+          return fail(new Error(`${command} produced 0 bytes — refusing to archive an empty dump.`))
         }
         settled = true
         resolve(written)

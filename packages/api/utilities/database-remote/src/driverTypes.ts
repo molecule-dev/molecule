@@ -64,8 +64,7 @@ export interface MysqlOkPacket {
 
 /** mysql2 query result tuple — `[rows, fields]`. */
 export type MysqlQueryResult =
-  | [MysqlRow[], MysqlField[]]
-  | [MysqlOkPacket, MysqlField[] | undefined]
+  [MysqlRow[], MysqlField[]] | [MysqlOkPacket, MysqlField[] | undefined]
 
 /** Subset of `mysql2/promise.Pool` we use. */
 export interface MysqlPoolLike {

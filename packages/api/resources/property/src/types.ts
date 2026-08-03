@@ -9,14 +9,7 @@ export type PropertyStatus = 'draft' | 'active' | 'inactive' | 'archived'
 
 /** Property type categorising the kind of real estate. */
 export type PropertyType =
-  | 'apartment'
-  | 'house'
-  | 'condo'
-  | 'townhouse'
-  | 'hotel'
-  | 'commercial'
-  | 'land'
-  | 'other'
+  'apartment' | 'house' | 'condo' | 'townhouse' | 'hotel' | 'commercial' | 'land' | 'other'
 
 /**
  * A property record (apartment building, house, hotel, etc.).

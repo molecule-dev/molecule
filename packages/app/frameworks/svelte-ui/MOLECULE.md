@@ -1804,14 +1804,7 @@ Dropdown placement type.
 
 ```typescript
 type DropdownPlacement =
-  | 'top'
-  | 'top-start'
-  | 'top-end'
-  | 'bottom'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left'
-  | 'right'
+  'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'right'
 ```
 
 #### `EventHandler`
@@ -1884,12 +1877,7 @@ Toast position type.
 
 ```typescript
 type ToastPosition =
-  | 'top'
-  | 'top-right'
-  | 'top-left'
-  | 'bottom'
-  | 'bottom-right'
-  | 'bottom-left'
+  'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
 ```
 
 #### `TooltipPlacement`

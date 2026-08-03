@@ -12,15 +12,7 @@ export interface ValidationRule {
    * Rule type.
    */
   type:
-    | 'required'
-    | 'min'
-    | 'max'
-    | 'minLength'
-    | 'maxLength'
-    | 'pattern'
-    | 'email'
-    | 'url'
-    | 'custom'
+    'required' | 'min' | 'max' | 'minLength' | 'maxLength' | 'pattern' | 'email' | 'url' | 'custom'
 
   /**
    * Rule value (for rules like min, max, pattern).

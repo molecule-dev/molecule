@@ -42,14 +42,12 @@ const buildProvider = (
     deliveredAt: new Date('2024-01-15T00:00:00Z'),
   })),
   verifyWebhookSignature: vi.fn(() => true),
-  parseInbound: vi.fn(
-    (): InboundMessage => ({
-      from: 'U_TEST',
-      channel: name,
-      text: 'hi',
-      receivedAt: new Date('2024-01-15T00:00:00Z'),
-    }),
-  ),
+  parseInbound: vi.fn((): InboundMessage => ({
+    from: 'U_TEST',
+    channel: name,
+    text: 'hi',
+    receivedAt: new Date('2024-01-15T00:00:00Z'),
+  })),
   listSupportedFeatures: vi.fn(() => buildFeatures()),
   ...overrides,
 })

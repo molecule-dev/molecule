@@ -66,8 +66,7 @@ interface PinoLoggerOptions {
   name?: string
   /** Worker-thread transport configuration (ignored when `destination` is set). */
   transport?:
-    | { target: string; options?: Record<string, unknown> }
-    | { targets: PinoTransportTarget[] }
+    { target: string; options?: Record<string, unknown> } | { targets: PinoTransportTarget[] }
   /**
    * In-process destination stream (anything with a `write(msg: string)` —
    * e.g. `pino.destination(...)`, a file stream, or a test sink). Takes

@@ -166,7 +166,12 @@ describe('Sentry error tracking provider', () => {
       expect(eventId).toBe('sentry-event-1')
       expect(mockCaptureException).toHaveBeenCalledWith(error, {
         tags: { source: 'express' },
-        user: { id: 'user-1', email: 'a@example.com', username: 'alice', ip_address: '203.0.113.7' },
+        user: {
+          id: 'user-1',
+          email: 'a@example.com',
+          username: 'alice',
+          ip_address: '203.0.113.7',
+        },
         extra: {
           orderId: 'order-1',
           request: { method: 'POST', url: '/api/orders?draft=true' },

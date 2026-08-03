@@ -120,9 +120,7 @@ export type KycWebhookHeaders = Record<string, string | string[] | undefined>
  * so callers needing extra detail can opt in.
  */
 export type KycWebhookEventType =
-  | 'verification.verified'
-  | 'verification.requires_input'
-  | 'verification.canceled'
+  'verification.verified' | 'verification.requires_input' | 'verification.canceled'
 
 /**
  * A normalized webhook event. Returned by {@link KycProvider.processWebhook}

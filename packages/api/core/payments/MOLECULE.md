@@ -565,14 +565,7 @@ Subscription status across providers.
 
 ```typescript
 type SubscriptionStatus =
-  | 'active'
-  | 'canceled'
-  | 'expired'
-  | 'past_due'
-  | 'trialing'
-  | 'paused'
-  | 'pending'
-  | 'unknown'
+  'active' | 'canceled' | 'expired' | 'past_due' | 'trialing' | 'paused' | 'pending' | 'unknown'
 ```
 
 ### Functions

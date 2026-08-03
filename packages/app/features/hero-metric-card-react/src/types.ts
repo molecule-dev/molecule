@@ -29,12 +29,7 @@ export interface HeroMetricTrend {
  * matching token for: `'danger'` → `error` and `'neutral'` → `secondary`.
  */
 export type HeroMetricSemanticAccent =
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info'
-  | 'neutral'
+  'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral'
 
 /**
  * Optional accent color for the hero card's top edge.

@@ -40,15 +40,11 @@ export interface PushToggleToken {
 
 /** Why an enable/disable attempt failed (mapped to i18n by the component). */
 export type PushToggleFailureReason =
-  | 'permission-denied'
-  | 'server-unconfigured'
-  | 'register-failed'
-  | 'persist-failed'
+  'permission-denied' | 'server-unconfigured' | 'register-failed' | 'persist-failed'
 
 /** Result of an enable/disable attempt. */
 export type PushToggleResult =
-  | { ok: true }
-  | { ok: false; reason: PushToggleFailureReason; message?: string }
+  { ok: true } | { ok: false; reason: PushToggleFailureReason; message?: string }
 
 /**
  * Picks the caller's own device row: the api flags the session device

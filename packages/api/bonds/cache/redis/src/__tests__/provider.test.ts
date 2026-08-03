@@ -175,9 +175,9 @@ describe('@molecule/api-cache-redis', () => {
 
       createProvider()
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       expect(mockClient.on).toHaveBeenCalledWith('error', expect.any(Function))
       expect(mockClient.on).toHaveBeenCalledWith('connect', expect.any(Function))
     })
@@ -188,9 +188,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.get).mockResolvedValueOnce(null)
 
       const provider = createProvider()
@@ -203,9 +203,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.get).mockResolvedValueOnce(JSON.stringify({ name: 'test' }))
 
       const provider = createProvider()
@@ -218,9 +218,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.get).mockResolvedValueOnce('plain string')
 
       const provider = createProvider()
@@ -238,9 +238,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.get).mockRejectedValueOnce(new Error('ECONNREFUSED'))
 
       const provider = createProvider()
@@ -253,9 +253,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.exists).mockResolvedValueOnce(1)
 
       const provider = createProvider()
@@ -268,9 +268,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.exists).mockResolvedValueOnce(0)
 
       const provider = createProvider()
@@ -283,9 +283,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.exists).mockRejectedValueOnce(new Error('ECONNREFUSED'))
 
       const provider = createProvider()
@@ -298,9 +298,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
 
       const provider = createProvider()
@@ -313,9 +313,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
 
       const provider = createProvider()
@@ -328,9 +328,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
 
       const provider = createProvider()
@@ -349,9 +349,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.get).mockImplementation(async (key: string) =>
         key === '_tags:key' ? JSON.stringify(['stale-tag']) : null,
       )
@@ -371,9 +371,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.get).mockImplementation(async (key: string) =>
         key === '_tags:key' ? JSON.stringify(['old-tag']) : null,
       )
@@ -394,9 +394,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
       vi.mocked(mockClient.del).mockResolvedValueOnce(1)
 
@@ -410,9 +410,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
       vi.mocked(mockClient.del).mockResolvedValueOnce(0)
 
@@ -426,9 +426,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.get).mockImplementation(async (key: string) =>
         key === '_tags:key' ? JSON.stringify(['tag1']) : null,
       )
@@ -458,9 +458,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.mget).mockResolvedValueOnce([
         JSON.stringify({ a: 1 }),
         null,
@@ -479,9 +479,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.mget).mockResolvedValueOnce(['plain string'])
 
       const provider = createProvider()
@@ -494,9 +494,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.mget).mockRejectedValueOnce(new Error('ECONNREFUSED'))
 
       const provider = createProvider()
@@ -509,9 +509,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
 
       const provider = createProvider()
       await provider.setMany([])
@@ -523,9 +523,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
       const mockPipeline = mockClient.pipeline()
 
@@ -543,9 +543,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
       const mockPipeline = mockClient.pipeline()
 
@@ -559,9 +559,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
       const mockPipeline = mockClient.pipeline()
 
@@ -587,9 +587,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
       vi.mocked(mockClient.del).mockResolvedValueOnce(2)
 
@@ -606,9 +606,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.smembers).mockResolvedValueOnce(['key1', 'key2'])
       stubNoReverseIndex(mockClient)
 
@@ -624,9 +624,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.smembers).mockResolvedValueOnce([])
 
       const provider = createProvider()
@@ -640,9 +640,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.smembers).mockResolvedValueOnce(['key1'])
       vi.mocked(mockClient.get).mockImplementation(async (key: string) =>
         key === '_tags:key1' ? JSON.stringify(['tag1', 'other-tag']) : null,
@@ -663,9 +663,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.scan).mockResolvedValueOnce(['0', []])
 
       const provider = createProvider()
@@ -678,9 +678,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.scan).mockResolvedValueOnce([
         '0',
         ['molecule:key1', 'molecule:_tag:tag1'],
@@ -700,9 +700,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.scan)
         .mockResolvedValueOnce(['17', ['molecule:key1']])
         .mockResolvedValueOnce(['0', ['molecule:key2']])
@@ -719,9 +719,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.scan).mockResolvedValueOnce(['0', []])
 
       const provider = createProvider()
@@ -736,9 +736,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
 
       const provider = createProvider()
       await provider.close()
@@ -752,9 +752,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       vi.mocked(mockClient.get).mockResolvedValueOnce(JSON.stringify({ cached: true }))
 
       const factory = vi.fn().mockResolvedValue({ fresh: true })
@@ -770,9 +770,9 @@ describe('@molecule/api-cache-redis', () => {
       const { Redis } = await import('ioredis')
       const { createProvider } = await import('../provider.js')
 
-      const mockClient = new (Redis as unknown as new (
-        ...args: unknown[]
-      ) => Record<string, Mock>)()
+      const mockClient = new (
+        Redis as unknown as new (...args: unknown[]) => Record<string, Mock>
+      )()
       stubNoReverseIndex(mockClient)
       vi.mocked(mockClient.get).mockResolvedValueOnce(null)
 

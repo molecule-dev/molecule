@@ -299,13 +299,7 @@ Change frequency hint for search engines.
 
 ```typescript
 type ChangeFrequency =
-  | 'always'
-  | 'hourly'
-  | 'daily'
-  | 'weekly'
-  | 'monthly'
-  | 'yearly'
-  | 'never'
+  'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
 ```
 
 ### Functions

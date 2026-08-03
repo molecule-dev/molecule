@@ -146,8 +146,7 @@ export async function chat(req: MoleculeRequest, res: MoleculeResponse): Promise
           break
         case 'done': {
           const usage = (event as Record<string, unknown>).usage as
-            | { inputTokens?: number; outputTokens?: number }
-            | undefined
+            { inputTokens?: number; outputTokens?: number } | undefined
           if (usage) {
             inputTokens = usage.inputTokens ?? 0
             outputTokens = usage.outputTokens ?? 0

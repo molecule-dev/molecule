@@ -73,10 +73,7 @@ export function parseConnection(url: string): Connection {
  * @returns The validated URLs.
  * @throws {Error} If the resolver returned anything else.
  */
-async function resolveUrls(
-  config: MysqlExternalStateConfig,
-  projectId: string,
-): Promise<string[]> {
+async function resolveUrls(config: MysqlExternalStateConfig, projectId: string): Promise<string[]> {
   const urls = await config.databaseUrls(projectId)
   if (!Array.isArray(urls) || urls.some((url) => typeof url !== 'string' || url === '')) {
     throw new Error(

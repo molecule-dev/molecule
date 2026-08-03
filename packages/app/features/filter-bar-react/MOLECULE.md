@@ -136,10 +136,7 @@ Discriminated union of all supported filter field types.
 
 ```typescript
 type FilterField =
-  | FilterFieldText
-  | FilterFieldSelect
-  | FilterFieldMulti
-  | FilterFieldDateRange
+  FilterFieldText | FilterFieldSelect | FilterFieldMulti | FilterFieldDateRange
 ```
 
 #### `FilterValues`

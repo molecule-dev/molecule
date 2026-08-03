@@ -248,8 +248,7 @@ describe('chat() — streaming', () => {
       .join('')
     expect(text).toBe('Hello')
     const toolUse = events.find((e) => e.type === 'tool_use') as
-      | { name: string; input: { path: string } }
-      | undefined
+      { name: string; input: { path: string } } | undefined
     expect(toolUse?.name).toBe('write_file')
     expect(toolUse?.input.path).toBe('a.ts')
     const done = events.find((e) => e.type === 'done') as
@@ -280,8 +279,7 @@ describe('chat() — streaming', () => {
       .join('')
     expect(text).toBe('partial')
     const err = events.find((e) => e.type === 'error') as
-      | { message: string; errorKey: string }
-      | undefined
+      { message: string; errorKey: string } | undefined
     expect(err).toBeDefined()
     expect(err?.message).toBe('AI rate limit exceeded. Please try again shortly.')
     expect(err?.errorKey).toBe('ai.error.apiError')

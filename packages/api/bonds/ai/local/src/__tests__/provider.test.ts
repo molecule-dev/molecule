@@ -388,8 +388,7 @@ describe('chat() — streaming response parsing', () => {
     expect(thrown).toBeUndefined()
     expect(events).toContainEqual({ type: 'text', content: 'partial' })
     const err = events.find((e) => e.type === 'error') as
-      | { type: 'error'; message: string; errorKey?: string }
-      | undefined
+      { type: 'error'; message: string; errorKey?: string } | undefined
     expect(err?.message).toBe('AI rate limit exceeded. Please try again shortly.')
     expect(err?.errorKey).toBe('ai.error.apiError')
     expect(events.some((e) => e.type === 'done')).toBe(false)
@@ -405,8 +404,7 @@ describe('chat() — HTTP error handling (emits error EVENT + returns gracefully
     )
     expect(thrown).toBeUndefined()
     const err = events.find((e) => e.type === 'error') as
-      | { message: string; errorKey?: string }
-      | undefined
+      { message: string; errorKey?: string } | undefined
     expect(err?.message).toMatch(/service error/i)
     expect(err?.errorKey).toBe('ai.error.apiError')
   })
@@ -418,8 +416,7 @@ describe('chat() — HTTP error handling (emits error EVENT + returns gracefully
     )
     expect(thrown).toBeUndefined()
     const err = events.find((e) => e.type === 'error') as
-      | { message: string; errorKey?: string }
-      | undefined
+      { message: string; errorKey?: string } | undefined
     expect(err?.message).toMatch(/not found/i)
     expect(err?.errorKey).toBe('ai.error.apiError')
   })
@@ -433,8 +430,7 @@ describe('chat() — HTTP error handling (emits error EVENT + returns gracefully
     )
     expect(thrown).toBeUndefined()
     const err = events.find((e) => e.type === 'error') as
-      | { message: string; errorKey?: string }
-      | undefined
+      { message: string; errorKey?: string } | undefined
     expect(err?.message).toMatch(/configuration error/i)
     expect(err?.message).not.toContain('sk-xxx')
     expect(err?.errorKey).toBe('ai.error.apiError')
@@ -452,8 +448,7 @@ describe('chat() — HTTP error handling (emits error EVENT + returns gracefully
     )
     expect(thrown).toBeUndefined()
     const err = events.find((e) => e.type === 'error') as
-      | { message: string; errorKey?: string }
-      | undefined
+      { message: string; errorKey?: string } | undefined
     expect(err?.message).toBe('AI request was invalid — check the model and request parameters.')
     expect(err?.message).not.toBe('AI service error. Please try again.')
   })
@@ -514,8 +509,7 @@ describe('chat() — HTTP error handling (emits error EVENT + returns gracefully
     )
     expect(thrown).toBeUndefined()
     const err = events.find((e) => e.type === 'error') as
-      | { message: string; errorKey?: string }
-      | undefined
+      { message: string; errorKey?: string } | undefined
     expect(err).toBeDefined()
     expect(err?.errorKey).toBe('ai.error.apiError')
   })

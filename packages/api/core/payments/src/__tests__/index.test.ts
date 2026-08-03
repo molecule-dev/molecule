@@ -188,16 +188,14 @@ describe('@molecule/api-payments', () => {
     it('works with all provider types', () => {
       const providers: PaymentProviderName[] = ['stripe', 'apple', 'google']
 
-      const subscriptions = providers.map(
-        (provider): NormalizedSubscription => ({
-          provider,
-          subscriptionId: `sub_${provider}`,
-          productId: `prod_${provider}`,
-          status: 'active',
-          isActive: true,
-          rawData: {},
-        }),
-      )
+      const subscriptions = providers.map((provider): NormalizedSubscription => ({
+        provider,
+        subscriptionId: `sub_${provider}`,
+        productId: `prod_${provider}`,
+        status: 'active',
+        isActive: true,
+        rawData: {},
+      }))
 
       expect(subscriptions).toHaveLength(3)
       expect(subscriptions.map((s) => s.provider)).toEqual(providers)
@@ -215,16 +213,14 @@ describe('@molecule/api-payments', () => {
         'unknown',
       ]
 
-      const subscriptions = statuses.map(
-        (status): NormalizedSubscription => ({
-          provider: 'stripe',
-          subscriptionId: `sub_${status}`,
-          productId: 'prod_1',
-          status,
-          isActive: isActiveStatus(status),
-          rawData: {},
-        }),
-      )
+      const subscriptions = statuses.map((status): NormalizedSubscription => ({
+        provider: 'stripe',
+        subscriptionId: `sub_${status}`,
+        productId: 'prod_1',
+        status,
+        isActive: isActiveStatus(status),
+        rawData: {},
+      }))
 
       expect(subscriptions).toHaveLength(8)
       expect(subscriptions.filter((s) => s.isActive)).toHaveLength(2)
@@ -266,16 +262,14 @@ describe('@molecule/api-payments', () => {
     it('works with all provider types', () => {
       const providers: PaymentProviderName[] = ['stripe', 'apple', 'google']
 
-      const purchases = providers.map(
-        (provider): NormalizedPurchase => ({
-          provider,
-          purchaseId: `purchase_${provider}`,
-          productId: `prod_${provider}`,
-          isValid: true,
-          purchaseDate: Date.now(),
-          rawData: {},
-        }),
-      )
+      const purchases = providers.map((provider): NormalizedPurchase => ({
+        provider,
+        purchaseId: `purchase_${provider}`,
+        productId: `prod_${provider}`,
+        isValid: true,
+        purchaseDate: Date.now(),
+        rawData: {},
+      }))
 
       expect(purchases).toHaveLength(3)
       expect(purchases.map((p) => p.provider)).toEqual(providers)

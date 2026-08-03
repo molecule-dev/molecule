@@ -47,8 +47,7 @@ export const requireWebhookAuthenticity = (): MoleculeRequestHandler => (req, re
   try {
     const rawProvider = req.params.provider
     const providerName = (Array.isArray(rawProvider) ? rawProvider[0] : rawProvider) as
-      | string
-      | undefined
+      string | undefined
     const provider = providerName ? get<PaymentProvider>('payments', providerName) : null
 
     // Self-verifying webhook providers (Stripe) verify the signature in the

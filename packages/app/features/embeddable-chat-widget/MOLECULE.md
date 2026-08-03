@@ -177,9 +177,7 @@ non-JSON payload is appended to the in-flight assistant message verbatim.
 
 ```typescript
 type EmbeddableChatStreamEvent =
-  | { type: 'content'; delta: string }
-  | { type: 'done' }
-  | { type: 'error'; message: string }
+  { type: 'content'; delta: string } | { type: 'done' } | { type: 'error'; message: string }
 ```
 
 #### `EmbeddableChatWidgetPosition`

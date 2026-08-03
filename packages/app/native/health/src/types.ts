@@ -176,11 +176,7 @@ export interface HealthQueryOptions {
  * Health authorization status
  */
 export type HealthAuthStatus =
-  | 'authorized'
-  | 'denied'
-  | 'notDetermined'
-  | 'sharingDenied'
-  | 'unsupported'
+  'authorized' | 'denied' | 'notDetermined' | 'sharingDenied' | 'unsupported'
 
 /**
  * Health capabilities

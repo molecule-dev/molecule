@@ -205,24 +205,20 @@ class OpenaiSpeechProvider implements AISpeechProvider {
     if (data.duration !== undefined) result.duration = data.duration
 
     if (data.segments) {
-      result.segments = data.segments.map(
-        (seg): TranscriptionSegment => ({
-          id: seg.id,
-          start: seg.start,
-          end: seg.end,
-          text: seg.text,
-        }),
-      )
+      result.segments = data.segments.map((seg): TranscriptionSegment => ({
+        id: seg.id,
+        start: seg.start,
+        end: seg.end,
+        text: seg.text,
+      }))
     }
 
     if (data.words) {
-      result.words = data.words.map(
-        (w): TranscriptionWord => ({
-          word: w.word,
-          start: w.start,
-          end: w.end,
-        }),
-      )
+      result.words = data.words.map((w): TranscriptionWord => ({
+        word: w.word,
+        start: w.start,
+        end: w.end,
+      }))
     }
 
     return result
@@ -277,14 +273,12 @@ class OpenaiSpeechProvider implements AISpeechProvider {
     if (data.duration !== undefined) result.duration = data.duration
 
     if (data.segments) {
-      result.segments = data.segments.map(
-        (seg): TranscriptionSegment => ({
-          id: seg.id,
-          start: seg.start,
-          end: seg.end,
-          text: seg.text,
-        }),
-      )
+      result.segments = data.segments.map((seg): TranscriptionSegment => ({
+        id: seg.id,
+        start: seg.start,
+        end: seg.end,
+        text: seg.text,
+      }))
     }
 
     return result

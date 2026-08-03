@@ -261,16 +261,7 @@ Filter operators for export queries.
 
 ```typescript
 type FilterOperator =
-  | 'eq'
-  | 'neq'
-  | 'gt'
-  | 'gte'
-  | 'lt'
-  | 'lte'
-  | 'in'
-  | 'notIn'
-  | 'between'
-  | 'like'
+  'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn' | 'between' | 'like'
 ```
 
 #### `ImportJobStatus`

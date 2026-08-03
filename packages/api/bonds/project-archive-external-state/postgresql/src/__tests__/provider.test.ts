@@ -38,9 +38,9 @@ describe('dumpToFile — the truncation defence', () => {
 
     // Emits some output, then kills itself. A wrapper process would report 0 here;
     // reporting this as a complete dump is the exact bug that lost a database.
-    await expect(
-      dumpToFile('sh', ['-c', 'printf padding; kill -TERM $$'], dest),
-    ).rejects.toThrow(/killed by SIGTERM/)
+    await expect(dumpToFile('sh', ['-c', 'printf padding; kill -TERM $$'], dest)).rejects.toThrow(
+      /killed by SIGTERM/,
+    )
   })
 
   it('FAILS a non-zero exit and surfaces the tool stderr', async () => {
@@ -56,9 +56,9 @@ describe('dumpToFile — the truncation defence', () => {
   })
 
   it('names the tool when it is not installed', async () => {
-    await expect(
-      dumpToFile('mol-no-such-tool', [], join(dir, 'x.dump')),
-    ).rejects.toThrow(/could not run mol-no-such-tool/)
+    await expect(dumpToFile('mol-no-such-tool', [], join(dir, 'x.dump'))).rejects.toThrow(
+      /could not run mol-no-such-tool/,
+    )
   })
 
   it('keeps credentials out of argv by passing them in the environment', async () => {
@@ -139,9 +139,9 @@ describe('the provider declares absence, never infers it', () => {
     it(`REFUSES ${label} instead of reading it as "owns no database"`, async () => {
       // Each of these is a deployment bug. Read as absence, it destroys a live
       // database and reports success.
-      await expect(
-        provider(value).capture({ projectId: 'p1', workDir: dir }),
-      ).rejects.toThrow(/must return an array of connection URLs/)
+      await expect(provider(value).capture({ projectId: 'p1', workDir: dir })).rejects.toThrow(
+        /must return an array of connection URLs/,
+      )
     })
   }
 

@@ -105,13 +105,4 @@ export interface WhiteboardSnapshot {
  * consumers can build their own selection / move logic on top.
  */
 export type WhiteboardTool =
-  | 'pen'
-  | 'marker'
-  | 'eraser'
-  | 'sticky'
-  | 'line'
-  | 'arrow'
-  | 'rect'
-  | 'ellipse'
-  | 'text'
-  | 'select'
+  'pen' | 'marker' | 'eraser' | 'sticky' | 'line' | 'arrow' | 'rect' | 'ellipse' | 'text' | 'select'

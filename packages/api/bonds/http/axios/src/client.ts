@@ -63,11 +63,7 @@ export const createClient = (options?: AxiosClientOptions): HttpClient => {
           baseURL: requestOptions.baseURL,
           signal: requestOptions.signal,
           responseType: requestOptions.responseType as
-            | 'json'
-            | 'text'
-            | 'blob'
-            | 'arraybuffer'
-            | undefined,
+            'json' | 'text' | 'blob' | 'arraybuffer' | undefined,
           withCredentials: requestOptions.credentials === 'include',
         })
 

@@ -84,12 +84,7 @@ Tone preset controlling the voice and register of the generated email.
 
 ```typescript
 type EmailTone =
-  | 'professional'
-  | 'friendly'
-  | 'concise'
-  | 'persuasive'
-  | 'apologetic'
-  | 'enthusiastic'
+  'professional' | 'friendly' | 'concise' | 'persuasive' | 'apologetic' | 'enthusiastic'
 ```
 
 ### Functions

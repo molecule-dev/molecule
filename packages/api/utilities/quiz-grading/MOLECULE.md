@@ -338,12 +338,7 @@ Discriminator for the supported question kinds.
 
 ```typescript
 type QuestionKind =
-  | 'multi-choice'
-  | 'true-false'
-  | 'type-answer'
-  | 'fill-blank'
-  | 'numeric'
-  | 'matching'
+  'multi-choice' | 'true-false' | 'type-answer' | 'fill-blank' | 'numeric' | 'matching'
 ```
 
 ### Functions

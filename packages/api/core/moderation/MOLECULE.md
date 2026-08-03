@@ -268,14 +268,7 @@ Category of content violation detected during moderation.
 
 ```typescript
 type ModerationCategory =
-  | 'hate'
-  | 'violence'
-  | 'sexual'
-  | 'self-harm'
-  | 'harassment'
-  | 'dangerous'
-  | 'spam'
-  | 'custom'
+  'hate' | 'violence' | 'sexual' | 'self-harm' | 'harassment' | 'dangerous' | 'spam' | 'custom'
 ```
 
 #### `ReportStatus`

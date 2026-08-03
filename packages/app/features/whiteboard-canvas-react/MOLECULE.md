@@ -260,16 +260,7 @@ consumers can build their own selection / move logic on top.
 
 ```typescript
 type WhiteboardTool =
-  | 'pen'
-  | 'marker'
-  | 'eraser'
-  | 'sticky'
-  | 'line'
-  | 'arrow'
-  | 'rect'
-  | 'ellipse'
-  | 'text'
-  | 'select'
+  'pen' | 'marker' | 'eraser' | 'sticky' | 'line' | 'arrow' | 'rect' | 'ellipse' | 'text' | 'select'
 ```
 
 ### Functions

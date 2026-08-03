@@ -363,13 +363,7 @@ Possible states of an order throughout its lifecycle.
 
 ```typescript
 type OrderStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'processing'
-  | 'shipped'
-  | 'delivered'
-  | 'cancelled'
-  | 'refunded'
+  'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'
 ```
 
 ### Functions

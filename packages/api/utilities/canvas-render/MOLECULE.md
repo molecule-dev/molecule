@@ -413,13 +413,7 @@ Discriminated union of every layer kind.
 
 ```typescript
 type Layer =
-  | RectLayer
-  | EllipseLayer
-  | LineLayer
-  | PathLayer
-  | TextLayer
-  | ImageLayer
-  | GroupLayer
+  RectLayer | EllipseLayer | LineLayer | PathLayer | TextLayer | ImageLayer | GroupLayer
 ```
 
 ### Functions

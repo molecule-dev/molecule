@@ -171,12 +171,7 @@ export interface VectorGroup extends VectorElementBase {
 
 /** Discriminated union of every supported element kind. */
 export type VectorElement =
-  | VectorRect
-  | VectorEllipse
-  | VectorLine
-  | VectorPath
-  | VectorText
-  | VectorGroup
+  VectorRect | VectorEllipse | VectorLine | VectorPath | VectorText | VectorGroup
 
 /**
  * Canvas document — the value model the engine renders. Pure data; no

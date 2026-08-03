@@ -80,12 +80,7 @@ Identifier for the supported ranking algorithms.
 
 ```typescript
 type RankAlgorithm =
-  | 'hn'
-  | 'reddit-hot'
-  | 'reddit-best'
-  | 'reddit-controversial'
-  | 'recency'
-  | 'score'
+  'hn' | 'reddit-hot' | 'reddit-best' | 'reddit-controversial' | 'recency' | 'score'
 ```
 
 ### Functions

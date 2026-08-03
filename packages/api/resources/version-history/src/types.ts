@@ -14,12 +14,7 @@
  * `JSONB` column can accept.
  */
 export type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JSONValue[]
-  | { [key: string]: JSONValue }
+  string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue }
 
 /**
  * A point-in-time snapshot of a resource.

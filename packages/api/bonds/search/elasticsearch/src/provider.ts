@@ -303,8 +303,7 @@ export const createProvider = (options?: ElasticsearchOptions): SearchProvider =
       if (query.facets?.length && response.aggregations) {
         for (const facetName of query.facets) {
           const agg = response.aggregations[facetName] as
-            | { buckets?: Array<{ key: string; doc_count: number }> }
-            | undefined
+            { buckets?: Array<{ key: string; doc_count: number }> } | undefined
           if (agg?.buckets) {
             facets[facetName] = agg.buckets.map((b) => ({
               value: String(b.key),

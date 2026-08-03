@@ -233,9 +233,7 @@ so callers needing extra detail can opt in.
 
 ```typescript
 type KycWebhookEventType =
-  | 'verification.verified'
-  | 'verification.requires_input'
-  | 'verification.canceled'
+  'verification.verified' | 'verification.requires_input' | 'verification.canceled'
 ```
 
 #### `KycWebhookHeaders`

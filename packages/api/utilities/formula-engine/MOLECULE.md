@@ -287,18 +287,7 @@ Binary operators. `^` = power, `&` = string concat,
 
 ```typescript
 type BinaryOperator =
-  | '+'
-  | '-'
-  | '*'
-  | '/'
-  | '^'
-  | '&'
-  | '='
-  | '<>'
-  | '<'
-  | '<='
-  | '>'
-  | '>='
+  '+' | '-' | '*' | '/' | '^' | '&' | '=' | '<>' | '<' | '<=' | '>' | '>='
 ```
 
 #### `CellValue`
@@ -319,13 +308,7 @@ left-most error unchanged (Excel-compatible semantics).
 
 ```typescript
 type FormulaErrorCode =
-  | '#DIV/0!'
-  | '#VALUE!'
-  | '#REF!'
-  | '#NAME?'
-  | '#NUM!'
-  | '#N/A'
-  | '#CIRC!'
+  '#DIV/0!' | '#VALUE!' | '#REF!' | '#NAME?' | '#NUM!' | '#N/A' | '#CIRC!'
 ```
 
 #### `FormulaFunction`

@@ -13,9 +13,7 @@ export interface CreateAsyncStateReturn<T> {
   setState: (value: T | ((prev: T) => T) | Promise<T | ((prev: T) => T)>) => void
   extendState: (
     partial:
-      | Partial<T>
-      | ((prev: T) => Partial<T>)
-      | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
+      Partial<T> | ((prev: T) => Partial<T>) | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
   ) => void
 }
 
@@ -79,9 +77,7 @@ export function createAsyncState<T>(initialState: T): CreateAsyncStateReturn<T> 
 
   const extendState = async (
     partial:
-      | Partial<T>
-      | ((prev: T) => Partial<T>)
-      | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
+      Partial<T> | ((prev: T) => Partial<T>) | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
   ): Promise<void> => {
     try {
       if (partial instanceof Promise) {

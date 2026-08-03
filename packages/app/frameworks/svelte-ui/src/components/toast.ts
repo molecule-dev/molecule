@@ -26,12 +26,7 @@ const statusVariantMap: Record<ColorVariant, 'default' | 'success' | 'warning' |
  * Toast position type.
  */
 export type ToastPosition =
-  | 'top'
-  | 'top-right'
-  | 'top-left'
-  | 'bottom'
-  | 'bottom-right'
-  | 'bottom-left'
+  'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
 
 /**
  * Toast data interface for programmatic toast management.

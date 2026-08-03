@@ -10,14 +10,7 @@ import { getClassMap } from '@molecule/app-ui'
  * Dropdown placement type.
  */
 export type DropdownPlacement =
-  | 'top'
-  | 'top-start'
-  | 'top-end'
-  | 'bottom'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left'
-  | 'right'
+  'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'right'
 
 /**
  * Dropdown alignment type.

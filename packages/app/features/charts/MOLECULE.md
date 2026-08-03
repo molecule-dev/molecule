@@ -163,15 +163,7 @@ interface AxisConfig {
    */
   time?: {
     unit?:
-      | 'millisecond'
-      | 'second'
-      | 'minute'
-      | 'hour'
-      | 'day'
-      | 'week'
-      | 'month'
-      | 'quarter'
-      | 'year'
+      'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
     displayFormats?: Record<string, string>
     tooltipFormat?: string
   }

@@ -37,10 +37,7 @@ export function createReadingsRouter(): Router {
     if (!userId) return
     const q = req.query as Record<string, unknown>
     const granularity = (typeof q.granularity === 'string' ? q.granularity : 'raw') as
-      | 'raw'
-      | '5min'
-      | 'hour'
-      | 'day'
+      'raw' | '5min' | 'hour' | 'day'
     if (granularity === 'raw') {
       res.json(
         await listRawReadings(userId, {

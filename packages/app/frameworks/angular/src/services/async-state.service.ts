@@ -14,9 +14,7 @@ export interface AsyncStateManager<T> {
   setState: (value: T | ((prev: T) => T) | Promise<T | ((prev: T) => T)>) => void
   extendState: (
     partial:
-      | Partial<T>
-      | ((prev: T) => Partial<T>)
-      | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
+      Partial<T> | ((prev: T) => Partial<T>) | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
   ) => void
   destroy: () => void
 }
@@ -89,9 +87,7 @@ export const createAsyncState = <T>(initialState: T): AsyncStateManager<T> => {
 
   const extendState = (
     partial:
-      | Partial<T>
-      | ((prev: T) => Partial<T>)
-      | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
+      Partial<T> | ((prev: T) => Partial<T>) | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
   ): void => {
     if (partial instanceof Promise) {
       partial.then(

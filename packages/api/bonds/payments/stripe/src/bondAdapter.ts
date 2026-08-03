@@ -142,8 +142,7 @@ export const paymentProvider: PaymentProvider = {
       // subscription reports the parent PRODUCT id — surface both so plan
       // resolution can match either.
       const rawItems = (normalized.rawData as Record<string, unknown>)?.items as
-        | { data?: Array<{ price?: { id?: string } }> }
-        | undefined
+        { data?: Array<{ price?: { id?: string } }> } | undefined
       const verifiedPriceId = rawItems?.data?.[0]?.price?.id
 
       return {

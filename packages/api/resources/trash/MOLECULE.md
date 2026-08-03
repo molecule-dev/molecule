@@ -183,12 +183,7 @@ A JSON-serializable snapshot value. Constrained by what the underlying
 
 ```typescript
 type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JSONValue[]
-  | { [key: string]: JSONValue }
+  string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue }
 ```
 
 #### `RestoreCallback`

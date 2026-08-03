@@ -271,13 +271,7 @@ Possible states of a file during the upload lifecycle.
 
 ```typescript
 type FileUploadStatus =
-  | 'idle'
-  | 'preparing'
-  | 'uploading'
-  | 'processing'
-  | 'complete'
-  | 'error'
-  | 'cancelled'
+  'idle' | 'preparing' | 'uploading' | 'processing' | 'complete' | 'error' | 'cancelled'
 ```
 
 ### Functions

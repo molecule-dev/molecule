@@ -42,12 +42,7 @@ export * from './browser-guard.js'
 
 /** Tone preset controlling the voice and register of the generated email. */
 export type EmailTone =
-  | 'professional'
-  | 'friendly'
-  | 'concise'
-  | 'persuasive'
-  | 'apologetic'
-  | 'enthusiastic'
+  'professional' | 'friendly' | 'concise' | 'persuasive' | 'apologetic' | 'enthusiastic'
 /** Length preset controlling how many sentences / paragraphs the draft contains. */
 export type EmailLength = 'short' | 'medium' | 'long'
 

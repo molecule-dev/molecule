@@ -27,8 +27,7 @@ function getSpeechRecognitionCtor(): (new () => SpeechRecognition) | null {
   if (typeof globalThis === 'undefined') return null
   const g = globalThis as Record<string, unknown>
   return (g.SpeechRecognition ?? g.webkitSpeechRecognition ?? null) as
-    | (new () => SpeechRecognition)
-    | null
+    (new () => SpeechRecognition) | null
 }
 
 /**
@@ -50,8 +49,7 @@ function getUtteranceCtor(): (new (text: string) => SpeechSynthesisUtterance) | 
   if (typeof globalThis === 'undefined') return null
   return (
     ((globalThis as Record<string, unknown>).SpeechSynthesisUtterance as
-      | (new (text: string) => SpeechSynthesisUtterance)
-      | undefined) ?? null
+      (new (text: string) => SpeechSynthesisUtterance) | undefined) ?? null
   )
 }
 

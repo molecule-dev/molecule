@@ -378,9 +378,7 @@ interface ChatPanelProps {
    * to append nothing.
    */
   buildHelpUpgradeSection?: () =>
-    | { lines: string[]; action?: ChatEventCardAction | ChatEventCardAction[] }
-    | null
-    | undefined
+    { lines: string[]; action?: ChatEventCardAction | ChatEventCardAction[] } | null | undefined
   /**
    * The signed-in user's profile avatar (SOC1) — an inline `data:image/*` URI or
    * an `http(s)` URL — rendered beside their own messages in the chat timeline.

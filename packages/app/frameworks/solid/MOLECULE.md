@@ -225,9 +225,7 @@ interface CreateAsyncStateReturn<T> {
   setState: (value: T | ((prev: T) => T) | Promise<T | ((prev: T) => T)>) => void
   extendState: (
     partial:
-      | Partial<T>
-      | ((prev: T) => Partial<T>)
-      | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
+      Partial<T> | ((prev: T) => Partial<T>) | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
   ) => void
 }
 ```

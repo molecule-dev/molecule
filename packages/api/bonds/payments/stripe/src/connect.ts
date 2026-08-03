@@ -201,11 +201,7 @@ export interface AccountStatus {
  * through to the standard subscription webhook handler if needed.
  */
 export type ConnectWebhookEventType =
-  | 'account.updated'
-  | 'payout.created'
-  | 'transfer.created'
-  | 'application_fee.refunded'
-  | 'unknown'
+  'account.updated' | 'payout.created' | 'transfer.created' | 'application_fee.refunded' | 'unknown'
 
 /**
  * Normalized Connect webhook event.

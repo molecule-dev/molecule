@@ -19,12 +19,7 @@
  * - `matching`       — match items in column A to items in column B.
  */
 export type QuestionKind =
-  | 'multi-choice'
-  | 'true-false'
-  | 'type-answer'
-  | 'fill-blank'
-  | 'numeric'
-  | 'matching'
+  'multi-choice' | 'true-false' | 'type-answer' | 'fill-blank' | 'numeric' | 'matching'
 
 /**
  * String-comparison normalisation flags used by text-based graders.

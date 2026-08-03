@@ -426,12 +426,7 @@ Discriminated union of every supported element kind.
 
 ```typescript
 type VectorElement =
-  | VectorRect
-  | VectorEllipse
-  | VectorLine
-  | VectorPath
-  | VectorText
-  | VectorGroup
+  VectorRect | VectorEllipse | VectorLine | VectorPath | VectorText | VectorGroup
 ```
 
 #### `VectorElementId`

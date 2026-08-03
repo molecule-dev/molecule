@@ -400,10 +400,7 @@ rendered on the back of the pass.
 
 ```typescript
 type ApplePassBarcodeFormat =
-  | 'PKBarcodeFormatQR'
-  | 'PKBarcodeFormatPDF417'
-  | 'PKBarcodeFormatAztec'
-  | 'PKBarcodeFormatCode128'
+  'PKBarcodeFormatQR' | 'PKBarcodeFormatPDF417' | 'PKBarcodeFormatAztec' | 'PKBarcodeFormatCode128'
 ```
 
 #### `ApplePassResolver`
@@ -472,14 +469,7 @@ these keys, so the type MUST match the schema of `passClass`/`passObject`.
 
 ```typescript
 type GoogleWalletPassType =
-  | 'eventTicket'
-  | 'offer'
-  | 'coupon'
-  | 'loyalty'
-  | 'giftCard'
-  | 'flight'
-  | 'transit'
-  | 'generic'
+  'eventTicket' | 'offer' | 'coupon' | 'loyalty' | 'giftCard' | 'flight' | 'transit' | 'generic'
 ```
 
 ### Functions

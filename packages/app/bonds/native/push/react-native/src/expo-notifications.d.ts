@@ -82,9 +82,7 @@ declare module 'expo-notifications' {
    * channel; a date trigger may also carry a `channelId` (Android).
    */
   export type NotificationTriggerInput =
-    | { date: Date; channelId?: string }
-    | { channelId: string }
-    | null
+    { date: Date; channelId?: string } | { channelId: string } | null
 
   /** Subscription handle returned by add*Listener calls. */
   export interface Subscription {

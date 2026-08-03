@@ -128,12 +128,7 @@ matching token for: `'danger'` → `error` and `'neutral'` → `secondary`.
 
 ```typescript
 type HeroMetricSemanticAccent =
-  | 'primary'
-  | 'success'
-  | 'warning'
-  | 'danger'
-  | 'info'
-  | 'neutral'
+  'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral'
 ```
 
 #### `HeroMetricTrendDirection`

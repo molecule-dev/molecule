@@ -54,12 +54,7 @@ export interface I18nextProviderConfig {
    */
   detectionOptions?: {
     order?: (
-      | 'querystring'
-      | 'cookie'
-      | 'localStorage'
-      | 'sessionStorage'
-      | 'navigator'
-      | 'htmlTag'
+      'querystring' | 'cookie' | 'localStorage' | 'sessionStorage' | 'navigator' | 'htmlTag'
     )[]
     lookupQuerystring?: string
     lookupCookie?: string

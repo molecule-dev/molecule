@@ -21,14 +21,7 @@ export type PaymentProviderType = PaymentProviderName
  * Subscription status across providers.
  */
 export type SubscriptionStatus =
-  | 'active'
-  | 'canceled'
-  | 'expired'
-  | 'past_due'
-  | 'trialing'
-  | 'paused'
-  | 'pending'
-  | 'unknown'
+  'active' | 'canceled' | 'expired' | 'past_due' | 'trialing' | 'paused' | 'pending' | 'unknown'
 
 /**
  * Normalized subscription information.

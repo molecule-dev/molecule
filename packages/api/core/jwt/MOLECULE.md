@@ -142,12 +142,7 @@ Recursive JSON value type representing any valid JSON primitive, array, or objec
 
 ```typescript
 type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JSONValue[]
-  | { [key: string]: JSONValue }
+  string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue }
 ```
 
 #### `JwtAlgorithm`

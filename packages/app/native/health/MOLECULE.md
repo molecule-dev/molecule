@@ -266,11 +266,7 @@ Health authorization status
 
 ```typescript
 type HealthAuthStatus =
-  | 'authorized'
-  | 'denied'
-  | 'notDetermined'
-  | 'sharingDenied'
-  | 'unsupported'
+  'authorized' | 'denied' | 'notDetermined' | 'sharingDenied' | 'unsupported'
 ```
 
 #### `HealthDataType`

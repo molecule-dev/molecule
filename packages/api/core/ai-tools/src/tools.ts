@@ -259,8 +259,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const path = resolve(input.path as string)
       // Support both formats: { replacements: [...] } (batch) and { old_string, new_string } (single, backwards-compatible)
       let replacements = input.replacements as
-        | Array<{ old_string: string; new_string: string }>
-        | undefined
+        Array<{ old_string: string; new_string: string }> | undefined
       // Accept the single format when BOTH are strings — `typeof` (not truthy) so
       // a deletion (new_string: "") is honoured rather than falling through to
       // "No replacements provided".

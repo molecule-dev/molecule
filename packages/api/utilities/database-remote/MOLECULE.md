@@ -468,8 +468,7 @@ mysql2 query result tuple — `[rows, fields]`.
 
 ```typescript
 type MysqlQueryResult =
-  | [MysqlRow[], MysqlField[]]
-  | [MysqlOkPacket, MysqlField[] | undefined]
+  [MysqlRow[], MysqlField[]] | [MysqlOkPacket, MysqlField[] | undefined]
 ```
 
 #### `MysqlRow`

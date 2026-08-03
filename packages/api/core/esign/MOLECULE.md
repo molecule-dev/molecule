@@ -234,11 +234,7 @@ Aggregate status for a signature request as a whole.
 
 ```typescript
 type SignatureRequestStatus =
-  | 'awaiting_signatures'
-  | 'signed'
-  | 'declined'
-  | 'cancelled'
-  | 'expired'
+  'awaiting_signatures' | 'signed' | 'declined' | 'cancelled' | 'expired'
 ```
 
 #### `SignerStatus`
