@@ -1,0 +1,37 @@
+# gitleaks configuration for the molecule monorepo.
+#
+# The CI `security` job runs gitleaks over the WORKING TREE (`--no-git`) so a
+# credential is caught even before it is committed. It found 21 "leaks", every
+# one of them a deliberately-fake fixture in a test file — `key-test-1234567890`,
+# `secret-xyz-123`, `EZTKtest_abcdef0123456789`, and PEM headers in assertions
+# about runtime-generated keys. Verified 2026-08-03: no real credential is
+# committed anywhere in this repo (the only real PEMs on disk are the generated
+# dev/test JWT keys under `.keys/`, which are gitignored and untracked).
+#
+# Why allowlist rather than leave it red: a gate that cries wolf on every run is
+# a gate people learn to click through, which is exactly how a real key
+# eventually walks past it. That lesson is already recorded twice in this
+# workspace's AGENTS.md (the deleted command-string egress hook, and the
+# secret-scanner copies that drifted into three versions). A permanently-failing
+# scan is worth strictly less than a sharp one.
+#
+# Scope is deliberately narrow — test files and the generated key directory only.
+# Application and package source is still fully scanned, and a real credential in
+# any non-test file still fails the build. Every commit ALSO passes through
+# `scripts/precommit-secret-scan.mjs` (the workspace canonical), which carries its
+# own tuned false-positive exemptions and covers staged lines regardless of path.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test fixtures and generated dev keys — verified non-secret"
+paths = [
+  # Test suites: fake keys/tokens are the point of the fixture.
+  '''(^|/)__tests__/''',
+  '''\.test\.(ts|tsx|js|jsx|mjs|cjs)$''',
+  '''\.spec\.(ts|tsx|js|jsx|mjs|cjs)$''',
+  # Generated dev/test JWT key pairs. Gitignored and untracked (so CI never sees
+  # them); listed so a LOCAL run is clean too and nobody learns to ignore output.
+  '''(^|/)\.keys/''',
+]
