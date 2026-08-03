@@ -20,22 +20,32 @@ jobs:
           node-version: 22
           cache: npm
           registry-url: https://registry.npmjs.org
+      # Trusted publishing (OIDC) needs npm >= 11.5.1; Node 22 still bundles npm
+      # 10.x, and without this the CLI silently falls back to looking for a token
+      # instead of exchanging the OIDC id-token — which fails as a confusing auth
+      # error rather than as "your npm is too old".
+      - run: npm install -g npm@latest
+      - run: npm --version
       - run: npm ci
       - run: npm run build
       - uses: changesets/action@v1
         with:
-          # Hand changesets a publish command ONLY when a token actually exists.
-          # With `publish` empty it still opens/updates the "Version Packages" PR
-          # but never contacts the registry.
+          # Publish only when an auth path actually exists, via EITHER route:
+          #   - vars.NPM_TRUSTED_PUBLISHING == 'true'  → OIDC, no stored secret
+          #   - secrets.NPM_TOKEN != ''                → legacy token fallback
+          # With `publish` empty changesets still opens/updates the "Version
+          # Packages" PR but never contacts the registry.
           #
-          # This was unconditional, and the comment below claimed that without the
+          # This was once unconditional, and the comment claimed that without a
           # secret the publish step was "a no-op auth failure, so nothing ships".
-          # Nothing shipped — but the step exited 1 ("Publish command exited with
-          # code 1"), so EVERY push to main failed this workflow. A red job that is
-          # expected to be red is indistinguishable from a real regression, which
-          # is how it sat unnoticed. Setting NPM_TOKEN (decision D1) activates the
-          # publish path on its own, with no edit here.
-          publish: ${{ secrets.NPM_TOKEN != '' && 'npm run release' || '' }}
+          # Nothing shipped — but the step exited 1, so EVERY push to main failed
+          # this workflow. A job that is expected to be red is indistinguishable
+          # from a real regression, which is how it sat unnoticed.
+          #
+          # Trusted publishing is the target state: set the NPM_TRUSTED_PUBLISHING
+          # repo VARIABLE (not a secret) once `npm trust` is configured for the
+          # packages, then delete NPM_TOKEN. Nothing long-lived stays at rest.
+          publish: ${{ (vars.NPM_TRUSTED_PUBLISHING == 'true' || secrets.NPM_TOKEN != '') && 'npm run release' || '' }}
           title: 'chore: version packages'
           commit: 'chore: version packages'
         env:
