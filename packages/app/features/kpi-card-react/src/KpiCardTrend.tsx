@@ -4,6 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { KpiTrendDirection } from './KpiCard.js'
 
+/** Props for {@link KpiCardTrend}. */
 export interface KpiCardTrendProps {
   /** Numeric delta to display (e.g. 12.3 for +12.3%). Sign drives direction when `direction` omitted. */
   delta: number

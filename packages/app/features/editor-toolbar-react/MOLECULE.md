@@ -36,6 +36,8 @@ npm install -D @types/react
 
 #### `EditorToolbarProps`
 
+Props for {@link EditorToolbar}.
+
 ```typescript
 interface EditorToolbarProps {
   /** Document title. */

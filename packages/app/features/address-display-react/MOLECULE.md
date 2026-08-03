@@ -60,6 +60,8 @@ interface Address {
 
 #### `AddressDisplayProps`
 
+Props for {@link AddressDisplay}.
+
 ```typescript
 interface AddressDisplayProps {
   /** Address fields. */

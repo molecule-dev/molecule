@@ -4,6 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { NavItem } from './types.js'
 
+/** Props for {@link AppShellTopNav}. */
 export interface AppShellTopNavProps {
   /** Left-side brand / logo slot. */
   logo?: ReactNode

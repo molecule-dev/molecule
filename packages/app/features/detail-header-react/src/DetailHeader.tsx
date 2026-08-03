@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link DetailHeader}. */
 export interface DetailHeaderProps {
   /** Primary heading. */
   title: ReactNode

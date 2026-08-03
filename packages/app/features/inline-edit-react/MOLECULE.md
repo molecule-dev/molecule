@@ -34,6 +34,8 @@ npm install -D @types/react
 
 #### `InlineEditProps`
 
+Props for {@link InlineEdit}.
+
 ```typescript
 interface InlineEditProps {
   /** Current value. */

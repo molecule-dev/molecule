@@ -5,6 +5,7 @@ import type { SpacingScale } from '@molecule/app-ui'
 
 import { LegalPageLayout } from './LegalPageLayout.js'
 
+/** Props for {@link PrivacyPage}. */
 export interface PrivacyPageProps {
   /** i18n key for the page heading. Defaults to `privacy.title`. */
   titleKey?: string

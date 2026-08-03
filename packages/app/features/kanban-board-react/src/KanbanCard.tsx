@@ -5,6 +5,7 @@ import { Card } from '@molecule/app-ui-react'
 
 import type { KanbanCardData } from './types.js'
 
+/** Props for {@link KanbanCard}. */
 export interface KanbanCardProps {
   card: KanbanCardData
   /** Called when the card is clicked (e.g. open detail modal). */

@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as KeysModule from '../keys.js'
 import { generateKeyPairSync, writeKeys } from '../keys.js'
 
 /** This test file's own directory, used to compute the real legacy keys path. */
@@ -95,7 +96,7 @@ describe('env key resolution (half-configured env must never produce a MISMATCHE
   const originalPublic = process.env.JWT_PUBLIC_KEY
 
   /** Re-import keys.js fresh so its module-load resolution sees the current env. */
-  const importKeys = async (): Promise<typeof import('../keys.js')> => {
+  const importKeys = async (): Promise<typeof KeysModule> => {
     vi.resetModules()
     return import('../keys.js')
   }
@@ -166,7 +167,7 @@ describe('default keys directory (JWT_KEYS_DIR override + legacy node_modules mi
   let cwdSpy: ReturnType<typeof vi.spyOn> | undefined
   let tmpCwd: string
 
-  const importKeys = async (): Promise<typeof import('../keys.js')> => {
+  const importKeys = async (): Promise<typeof KeysModule> => {
     vi.resetModules()
     return import('../keys.js')
   }

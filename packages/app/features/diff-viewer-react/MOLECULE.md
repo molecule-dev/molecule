@@ -35,6 +35,8 @@ npm install -D @types/react
 
 #### `DiffViewerProps`
 
+Props for {@link DiffViewer}.
+
 ```typescript
 interface DiffViewerProps {
   /** Original text. */

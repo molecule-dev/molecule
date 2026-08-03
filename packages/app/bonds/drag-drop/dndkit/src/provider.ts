@@ -2,7 +2,7 @@
  * dnd-kit implementation of the molecule DragDropProvider.
  *
  * Provides the imperative order-store layer for drag-and-drop. Reorders are
- * computed with @dnd-kit's own `arrayMove`, so the imperative store and the
+ * computed with `@dnd-kit`'s own `arrayMove`, so the imperative store and the
  * React binding (see `./react.tsx`) agree on move semantics. The React binding
  * (`SortableList` + `useSortableItem`) is the shipped DOM-event bridge that
  * drives a real drag → `onReorder`; framework bindings may also drive the

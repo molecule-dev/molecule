@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Textarea } from '@molecule/app-ui-react'
 
+/** Props for {@link MessageComposer}. */
 export interface MessageComposerProps {
   /** Called when the user submits. */
   onSubmit: (value: string) => void

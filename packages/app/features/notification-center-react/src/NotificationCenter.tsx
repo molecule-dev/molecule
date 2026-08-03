@@ -19,6 +19,7 @@ export interface NotificationItem {
   onClick?: () => void
 }
 
+/** Props for {@link NotificationCenter}. */
 export interface NotificationCenterProps {
   /** Items to render. */
   items: NotificationItem[]

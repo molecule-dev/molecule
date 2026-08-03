@@ -57,6 +57,8 @@ interface BreadcrumbItem {
 
 #### `BreadcrumbProps`
 
+Props for {@link Breadcrumb}.
+
 ```typescript
 interface BreadcrumbProps {
   /** Ordered list of crumbs, last one usually the current page. */

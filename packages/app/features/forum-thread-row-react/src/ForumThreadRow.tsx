@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link ForumThreadRow}. */
 export interface ForumThreadRowProps {
   title: ReactNode
   /** Optional snippet of the OP body. */

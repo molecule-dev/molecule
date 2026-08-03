@@ -48,7 +48,9 @@ const wrapperFor =
     <ChatContext.Provider value={provider}>{children}</ChatContext.Provider>
   )
 
-const renderChat = (provider: ChatProvider) =>
+const renderChat = (
+  provider: ChatProvider,
+): ReturnType<typeof renderHook<ReturnType<typeof useChat>, unknown>> =>
   renderHook(() => useChat({ endpoint: '/chat', projectId: 'proj-1', loadOnMount: false }), {
     wrapper: wrapperFor(provider),
   })

@@ -48,6 +48,8 @@ npm install -D @types/react
 
 #### `ChatbotTesterInputProps`
 
+Props for {@link ChatbotTesterInput}.
+
 ```typescript
 interface ChatbotTesterInputProps {
   value: string
@@ -61,6 +63,8 @@ interface ChatbotTesterInputProps {
 
 #### `ChatbotTesterMessagesProps`
 
+Props for {@link ChatbotTesterMessages}.
+
 ```typescript
 interface ChatbotTesterMessagesProps {
   messages: TesterMessage[]
@@ -70,6 +74,8 @@ interface ChatbotTesterMessagesProps {
 ```
 
 #### `ChatbotTesterProps`
+
+Props for {@link ChatbotTester}.
 
 ```typescript
 interface ChatbotTesterProps {

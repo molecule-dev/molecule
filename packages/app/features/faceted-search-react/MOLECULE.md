@@ -53,6 +53,8 @@ npm install -D @types/react
 
 #### `FacetedSearchBarProps`
 
+Props for {@link FacetedSearchBar}.
+
 ```typescript
 interface FacetedSearchBarProps {
   children: ReactNode
@@ -63,6 +65,8 @@ interface FacetedSearchBarProps {
 ```
 
 #### `FilterPillProps`
+
+Props for {@link FilterPill}.
 
 ```typescript
 interface FilterPillProps {
@@ -82,6 +86,8 @@ interface FilterPillProps {
 ```
 
 #### `SegmentedControlProps`
+
+Props for {@link SegmentedControl}.
 
 ```typescript
 interface SegmentedControlProps<T extends string> {

@@ -16,6 +16,7 @@ export interface BentoItem {
   area?: string
 }
 
+/** Props for {@link BentoGrid}. */
 export interface BentoGridProps {
   /** Items to render. */
   items: BentoItem[]

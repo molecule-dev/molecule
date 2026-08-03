@@ -3,6 +3,7 @@ import type { CSSProperties, JSX } from 'react'
 import type { EmbeddableChatWidgetPosition, EmbeddableChatWidgetTheme } from './types.js'
 import { useSafeTranslation } from './useSafeTranslation.js'
 
+/** Props for {@link EmbeddableChatLauncher}. */
 export interface EmbeddableChatLauncherProps {
   /** Whether the launcher should render. Hidden while the panel is expanded. */
   visible: boolean

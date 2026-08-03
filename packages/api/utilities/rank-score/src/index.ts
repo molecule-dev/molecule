@@ -33,8 +33,8 @@
  * @module
  */
 
-export * from './browser-guard.js'
 export * from './algorithms.js'
+export * from './browser-guard.js'
 export * from './dispatch.js'
 export * from './types.js'
 export * from './utilities.js'

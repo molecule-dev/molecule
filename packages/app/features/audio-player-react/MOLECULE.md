@@ -33,6 +33,8 @@ npm install -D @types/react
 
 #### `AudioPlayerProps`
 
+Props for {@link AudioPlayer}.
+
 ```typescript
 interface AudioPlayerProps {
   src: string

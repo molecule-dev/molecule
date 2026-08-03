@@ -12,6 +12,7 @@ export interface DefinitionField {
   icon?: ReactNode
 }
 
+/** Props for {@link DefinitionList}. */
 export interface DefinitionListProps {
   /** Fields to render. */
   fields: DefinitionField[]

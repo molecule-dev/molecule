@@ -36,6 +36,8 @@ npm install -D @types/react
 
 #### `NoteCardProps`
 
+Props for {@link NoteCard}.
+
 ```typescript
 interface NoteCardProps {
   /** Note title. */

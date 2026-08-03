@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Card } from '@molecule/app-ui-react'
 
+/** Props for {@link DangerZoneSection}. */
 export interface DangerZoneSectionProps {
   /** Section title. */
   title: ReactNode

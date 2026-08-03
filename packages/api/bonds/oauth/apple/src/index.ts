@@ -35,8 +35,8 @@
  * @module
  */
 
-export * from './browser-guard.js'
 export * from './authorize.js'
+export * from './browser-guard.js'
 export * from './client-secret.js'
 export * from './jwks.js'
 export * from './secrets.js'

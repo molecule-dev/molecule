@@ -4,6 +4,7 @@ import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
+/** Props for {@link AchievementCard}. */
 export interface AchievementCardProps {
   /** Achievement name. */
   name: ReactNode

@@ -40,6 +40,8 @@ npm install -D @types/react
 
 #### `AmountInputProps`
 
+Props for {@link AmountInput}.
+
 ```typescript
 interface AmountInputProps {
   /** Current numeric amount (major units). */

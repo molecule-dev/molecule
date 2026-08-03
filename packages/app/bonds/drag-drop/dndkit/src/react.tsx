@@ -1,11 +1,11 @@
 /**
- * Real @dnd-kit React binding for the molecule drag-drop bond.
+ * Real `@dnd-kit` React binding for the molecule drag-drop bond.
  *
  * This is the shipped framework binding that bridges DOM drag events to the
  * `@molecule/app-drag-drop` contract — the piece the headless order store on
- * its own cannot provide. `<SortableList>` wraps @dnd-kit's `DndContext` +
+ * its own cannot provide. `<SortableList>` wraps `@dnd-kit`'s `DndContext` +
  * `SortableContext` with pointer **and** keyboard sensors; on drop it reorders
- * with @dnd-kit's `arrayMove` and invokes the core `onReorder` callback with
+ * with `@dnd-kit`'s `arrayMove` and invokes the core `onReorder` callback with
  * the new item order. `useSortableItem` wraps `useSortable` for rendering the
  * individual draggable rows (spread `listeners` on the row body for
  * whole-item dragging, or on a handle via `setActivatorNodeRef`).
@@ -47,28 +47,28 @@
  * @module
  */
 
-import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensors } from '@dnd-kit/core'
 import type {
   DragEndEvent as DndKitDragEndEvent,
-  DragOverEvent as DndKitDragOverEvent,
-  DragStartEvent as DndKitDragStartEvent,
   DraggableAttributes,
   DraggableSyntheticListeners,
+  DragOverEvent as DndKitDragOverEvent,
+  DragStartEvent as DndKitDragStartEvent,
   KeyboardSensorOptions,
   PointerActivationConstraint,
   PointerSensorOptions,
   SensorDescriptor,
 } from '@dnd-kit/core'
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensors } from '@dnd-kit/core'
+import type { SortingStrategy } from '@dnd-kit/sortable'
 import {
-  SortableContext,
   arrayMove,
   horizontalListSortingStrategy,
   rectSortingStrategy,
+  SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import type { SortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { CSSProperties, JSX, ReactNode } from 'react'
 import { useMemo } from 'react'
@@ -88,7 +88,7 @@ import type { DndKitConfig } from './types.js'
 // ---------------------------------------------------------------------------
 
 /**
- * Builds a @dnd-kit pointer activation constraint from the provider config.
+ * Builds a `@dnd-kit` pointer activation constraint from the provider config.
  * A positive `activationDelay` produces a delay+tolerance constraint (useful
  * for touch, so a tap still registers as a click); otherwise a positive
  * `activationDistance` produces a distance constraint. `undefined` means the
@@ -138,12 +138,12 @@ export function createSortableSensors(
 
 /**
  * Maps a molecule {@link SortableAxis}/{@link SortableStrategy} to a concrete
- * @dnd-kit sorting strategy. An explicit `strategy` wins; otherwise the axis
+ * `@dnd-kit` sorting strategy. An explicit `strategy` wins; otherwise the axis
  * selects it (`horizontal` → horizontal list, `both` → grid, else vertical).
  *
  * @param axis - The sort axis. Defaults to `'vertical'`.
  * @param strategy - An explicit strategy override.
- * @returns The @dnd-kit sorting strategy to pass to `SortableContext`.
+ * @returns The `@dnd-kit` sorting strategy to pass to `SortableContext`.
  */
 export function resolveSortingStrategy(
   axis: SortableAxis = 'vertical',
@@ -183,15 +183,15 @@ export interface SortableDragEndContext<T extends { id: string }> {
 }
 
 /**
- * Bridges a @dnd-kit drag-end to the core drag-drop contract. Emits the core
+ * Bridges a `@dnd-kit` drag-end to the core drag-drop contract. Emits the core
  * `onDragEnd` event, then — unless sorting is disabled, the drop landed nowhere,
- * or the item was dropped in place — reorders `items` with @dnd-kit's
+ * or the item was dropped in place — reorders `items` with `@dnd-kit`'s
  * `arrayMove` and invokes `onReorder` with the new order. This is the exact
  * handler {@link SortableList} passes to `DndContext.onDragEnd`, so a real drop
  * runs this code and `onReorder` fires with the reordered array.
  *
  * @template T - The item type.
- * @param event - The @dnd-kit drag-end event (`active` / `over`).
+ * @param event - The `@dnd-kit` drag-end event (`active` / `over`).
  * @param context - Items, callbacks, and disabled flag.
  */
 export function handleSortableDragEnd<T extends { id: string }>(
@@ -258,7 +258,7 @@ export interface SortableListProps<T extends { id: string }> {
 }
 
 /**
- * A real @dnd-kit sortable list. Wraps `DndContext` + `SortableContext` with a
+ * A real `@dnd-kit` sortable list. Wraps `DndContext` + `SortableContext` with a
  * pointer and a keyboard sensor and, on drop, reorders `items` and calls
  * `onReorder` with the new order (via {@link handleSortableDragEnd}). Render
  * the list itself as `children`, using {@link useSortableItem} for each row.
@@ -286,10 +286,21 @@ export function SortableList<T extends { id: string }>(props: SortableListProps<
   const sortingStrategy = useMemo(() => resolveSortingStrategy(axis, strategy), [axis, strategy])
   const itemIds = useMemo(() => items.map((item) => item.id), [items])
 
+  /**
+   * Normalizes dnd-kit's drag-start event into the bond's own shape.
+   *
+   * @param event - The dnd-kit drag-start event.
+   */
   function handleDragStart(event: DndKitDragStartEvent): void {
     onDragStart?.({ id: String(event.active.id), data: event.active.data.current })
   }
 
+  /**
+   * Normalizes dnd-kit's drag-over event into the bond's own shape. A drag that
+   * is over nothing reports no event at all.
+   *
+   * @param event - The dnd-kit drag-over event.
+   */
   function handleDragOver(event: DndKitDragOverEvent): void {
     const { active, over } = event
     if (!over) {
@@ -298,6 +309,12 @@ export function SortableList<T extends { id: string }>(props: SortableListProps<
     onDragOver?.({ id: String(active.id), overId: String(over.id), data: active.data.current })
   }
 
+  /**
+   * Applies the drop: reorders the items and reports the move, unless the list
+   * is disabled or the item did not actually move.
+   *
+   * @param event - The dnd-kit drag-end event.
+   */
   function handleDragEnd(event: DndKitDragEndEvent): void {
     handleSortableDragEnd(event, { items, onReorder, disabled, onDragEnd })
   }
@@ -354,7 +371,7 @@ export interface SortableItemState {
 }
 
 /**
- * Wraps @dnd-kit's `useSortable` for a single row inside a {@link SortableList}.
+ * Wraps `@dnd-kit`'s `useSortable` for a single row inside a {@link SortableList}.
  * Spread `attributes` + `listeners` onto the row (or `listeners` onto a handle
  * bound with `setActivatorNodeRef`), attach `setNodeRef`, and apply `style`.
  *

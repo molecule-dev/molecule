@@ -59,6 +59,8 @@ interface AvatarStackPerson {
 
 #### `AvatarStackProps`
 
+Props for {@link AvatarStack}.
+
 ```typescript
 interface AvatarStackProps {
   /** People to render. */
@@ -73,6 +75,8 @@ interface AvatarStackProps {
 ```
 
 #### `UserChipProps`
+
+Props for {@link UserChip}.
 
 ```typescript
 interface UserChipProps {

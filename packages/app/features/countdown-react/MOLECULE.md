@@ -36,6 +36,8 @@ npm install -D @types/react
 
 #### `CountdownProps`
 
+Props for {@link Countdown}.
+
 ```typescript
 interface CountdownProps {
   /** Target date / ISO string / epoch ms. */

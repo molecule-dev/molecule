@@ -33,6 +33,8 @@ npm install -D @types/react
 
 #### `ComparisonRowProps`
 
+Props for {@link ComparisonRow}.
+
 ```typescript
 interface ComparisonRowProps {
   /** Label for the metric (e.g. "Revenue"). */

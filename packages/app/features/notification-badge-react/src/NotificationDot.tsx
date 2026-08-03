@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link NotificationDot}. */
 export interface NotificationDotProps {
   /** When false, nothing is rendered. */
   visible?: boolean

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link CollapsibleSection}. */
 export interface CollapsibleSectionProps {
   /** Section heading — rendered as an expand-toggle button. */
   title: ReactNode
@@ -82,6 +83,7 @@ export function CollapsibleSection({
   )
 }
 
+/** Props for {@link ShowMore}. */
 export interface ShowMoreProps {
   /** Items before truncation. */
   children: ReactNode[]

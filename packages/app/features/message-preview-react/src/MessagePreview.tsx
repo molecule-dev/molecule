@@ -6,6 +6,7 @@ import { getClassMap } from '@molecule/app-ui'
 /** Presence state of the contact shown in the avatar dot. */
 export type MessagePreviewPresence = 'online' | 'away' | 'offline'
 
+/** Props for {@link MessagePreview}. */
 export interface MessagePreviewProps {
   name: ReactNode
   preview: ReactNode

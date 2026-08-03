@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link TableFooter}. */
 export interface TableFooterProps {
   /** Left slot — typically a summary line ("5 rows selected"). */
   left?: ReactNode

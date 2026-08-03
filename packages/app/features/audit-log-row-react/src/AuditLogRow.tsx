@@ -22,6 +22,7 @@ export interface AuditLogEntry {
   traceId?: ReactNode
 }
 
+/** Props for {@link AuditLogRow}. */
 export interface AuditLogRowProps {
   entry: AuditLogEntry
   /** Called when the row is clicked. */

@@ -11,6 +11,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { NodeEditorSection } from './NodeEditorSection.js'
 
+/** Props for {@link NodeEditorSlider}. */
 export interface NodeEditorSliderProps {
   label: ReactNode
   value: number

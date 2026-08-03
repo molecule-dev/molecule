@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link TableToolbar}. */
 export interface TableToolbarProps {
   /** Left-aligned content — usually a title or a results count. */
   left?: ReactNode

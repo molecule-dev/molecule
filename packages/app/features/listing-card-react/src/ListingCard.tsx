@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
+/** Props for {@link ListingCard}. */
 export interface ListingCardProps {
   /** Slots — usually `<ListingCardMedia>` + `<ListingCardBody>` + `<ListingCardActions>`. */
   children: ReactNode

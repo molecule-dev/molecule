@@ -52,6 +52,8 @@ interface ChecklistItem {
 
 #### `ChecklistProps`
 
+Props for {@link Checklist}.
+
 ```typescript
 interface ChecklistProps {
   items: ChecklistItem[]

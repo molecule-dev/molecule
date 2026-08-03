@@ -45,6 +45,8 @@ npm install -D @types/react
 
 #### `FilterBarProps`
 
+Props for {@link FilterBar}.
+
 ```typescript
 interface FilterBarProps {
   /** Field definitions. */

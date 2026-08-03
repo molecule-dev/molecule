@@ -15,8 +15,8 @@
 import { getI18n } from 'react-i18next'
 import { describe, expect, it } from 'vitest'
 
-import type { LocaleConfig } from '../types.js'
 import { createReactI18nextProvider, provider as defaultProvider } from '../provider.js'
+import type { LocaleConfig } from '../types.js'
 
 const LOCALES: LocaleConfig[] = [
   {

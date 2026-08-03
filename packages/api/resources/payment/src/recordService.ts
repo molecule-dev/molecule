@@ -24,6 +24,9 @@ export class PaymentRecordConflictError extends Error {
   readonly transactionId: string
 
   /**
+   * Builds the conflict error, naming the platform + transaction already bound
+   * so the caller can report which record it collided with.
+   *
    * @param platformKey - The platform key of the conflicting record.
    * @param transactionId - The transaction id that is already bound.
    * @param options - Standard error options (e.g. `{ cause }`).
@@ -45,9 +48,7 @@ export class PaymentRecordConflictError extends Error {
  */
 const isUniqueConstraintViolation = (error: unknown): boolean => {
   const e = error as
-    | { code?: string | number; errno?: number; message?: unknown }
-    | null
-    | undefined
+    { code?: string | number; errno?: number; message?: unknown } | null | undefined
   if (!e) return false
   if (e.code === '23505' || e.code === 'ER_DUP_ENTRY' || e.code === 'SQLITE_CONSTRAINT') return true
   if (typeof e.code === 'string' && e.code.startsWith('SQLITE_CONSTRAINT')) return true

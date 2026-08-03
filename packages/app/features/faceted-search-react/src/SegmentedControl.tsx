@@ -15,6 +15,7 @@ interface SegmentedControlOption<T extends string> {
   dataMolId?: string
 }
 
+/** Props for {@link SegmentedControl}. */
 export interface SegmentedControlProps<T extends string> {
   options: SegmentedControlOption<T>[]
   value: T

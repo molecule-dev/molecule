@@ -16,6 +16,7 @@ export interface CookieCategory {
   defaultEnabled?: boolean
 }
 
+/** Props for {@link CookieBanner}. */
 export interface CookieBannerProps {
   /** Cookie categories to offer (omit for a simple accept/reject banner). */
   categories?: CookieCategory[]

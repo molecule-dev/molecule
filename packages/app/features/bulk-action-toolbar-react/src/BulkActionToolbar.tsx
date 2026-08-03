@@ -14,6 +14,7 @@ export interface BulkAction {
   disabled?: boolean
 }
 
+/** Props for {@link BulkActionToolbar}. */
 export interface BulkActionToolbarProps {
   /** Selection count — toolbar hides when 0. */
   count: number

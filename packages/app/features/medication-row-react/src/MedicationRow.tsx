@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
+/** Props for {@link MedicationRow}. */
 export interface MedicationRowProps {
   /** Drug name. */
   name: ReactNode

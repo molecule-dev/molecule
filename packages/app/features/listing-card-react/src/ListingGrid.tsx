@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link ListingGrid}. */
 export interface ListingGridProps {
   children: ReactNode
   /** Column count, fixed at every viewport width. Defaults to 3. */

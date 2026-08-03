@@ -20,11 +20,11 @@
 import { execFileSync } from 'node:child_process'
 import { createECDH, randomBytes } from 'node:crypto'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createServer as createHttpsServer, type Server } from 'node:https'
 import type { AddressInfo } from 'node:net'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 

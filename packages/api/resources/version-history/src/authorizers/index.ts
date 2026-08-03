@@ -13,9 +13,9 @@
  * another tenant's snapshots.
  *
  * Cross-tenant inspection/restore (an admin/compliance console) is **opt-in**:
- * compose {@link versionHistoryAdmin} onto a route to widen an authenticated
- * *admin* to all users' versions. Apps with a finer-grained access model may
- * instead supply their own widening middleware that sets
+ * compose {@link versionHistoryAdmin} onto a route to widen an
+ * authenticated *admin* to all users' versions. Apps with a finer-grained
+ * access model may instead supply their own widening middleware that sets
  * `res.locals.versionHistoryAdmin` after its own check.
  *
  * @module

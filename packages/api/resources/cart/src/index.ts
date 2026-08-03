@@ -61,8 +61,8 @@
  *   nor mutable (update/remove return not-found) — no path to someone else's cart.
  */
 
-export * from './browser-guard.js'
 export * from './authorizers/index.js'
+export * from './browser-guard.js'
 export * from './handlers/index.js'
 export * from './i18n.js'
 export * from './requestHandlerMap.js'

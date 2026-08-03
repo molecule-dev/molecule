@@ -5,6 +5,7 @@ import { Avatar } from '@molecule/app-ui-react'
 
 import type { ActivityFeedItemData } from './types.js'
 
+/** Props for {@link ActivityFeedItem}. */
 export interface ActivityFeedItemProps {
   item: ActivityFeedItemData
   /** Extra classes on the row wrapper. */

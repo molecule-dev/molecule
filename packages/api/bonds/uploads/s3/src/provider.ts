@@ -12,8 +12,8 @@ import { PassThrough } from 'stream'
 import { v4 as uuid } from 'uuid'
 
 import { getLogger } from '@molecule/api-bond'
-import { UploadAbortedError } from '@molecule/api-uploads'
 import type { FileInfo, UploadProvider } from '@molecule/api-uploads'
+import { UploadAbortedError } from '@molecule/api-uploads'
 const logger = getLogger()
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly

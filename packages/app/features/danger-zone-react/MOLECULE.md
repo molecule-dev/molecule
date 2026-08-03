@@ -43,6 +43,8 @@ npm install -D @types/react
 
 #### `ConfirmDialogProps`
 
+Props for {@link ConfirmDialog}.
+
 ```typescript
 interface ConfirmDialogProps {
   /** Whether the dialog is open. */
@@ -69,6 +71,8 @@ interface ConfirmDialogProps {
 ```
 
 #### `DangerZoneSectionProps`
+
+Props for {@link DangerZoneSection}.
 
 ```typescript
 interface DangerZoneSectionProps {

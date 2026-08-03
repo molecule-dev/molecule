@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link FileDropzone}. */
 export interface FileDropzoneProps {
   /** Called with the File[] the user selected or dropped. */
   onFiles: (files: File[]) => void

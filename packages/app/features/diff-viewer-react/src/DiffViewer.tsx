@@ -2,6 +2,7 @@ import { type JSX, useMemo } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link DiffViewer}. */
 export interface DiffViewerProps {
   /** Original text. */
   before: string

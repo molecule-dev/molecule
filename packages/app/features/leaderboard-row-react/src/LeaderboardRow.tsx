@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
+/** Props for {@link LeaderboardRow}. */
 export interface LeaderboardRowProps {
   /** 1-based rank. */
   rank: number

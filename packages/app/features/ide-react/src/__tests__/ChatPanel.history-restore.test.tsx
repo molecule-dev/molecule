@@ -49,6 +49,12 @@ import { ChatPanel } from '../components/ChatPanel.js'
 
 // ── Stubs (mirrors ChatPanel.automatic-message.test.tsx) ────────────────────
 
+/**
+ * A stub {@link ChatProvider} whose `loadHistory` replays a fixed transcript.
+ *
+ * @param history - The messages to restore.
+ * @returns The stub provider.
+ */
 function buildChatProvider(history: ChatMessage[]): ChatProvider {
   return {
     name: 'stub',
@@ -59,6 +65,12 @@ function buildChatProvider(history: ChatMessage[]): ChatProvider {
   }
 }
 
+/**
+ * A no-op {@link HttpClient} — this suite never exercises a network path, so
+ * every method rejects loudly rather than silently returning empty data.
+ *
+ * @returns The stub HTTP client.
+ */
 function buildHttpClient(): HttpClient {
   const reject = (): Promise<never> => Promise.reject(new Error('http disabled in test'))
   return {
@@ -79,6 +91,12 @@ function buildHttpClient(): HttpClient {
   }
 }
 
+/**
+ * A working in-memory {@link Storage} — Node ships an experimental web-storage
+ * global that shadows jsdom's with a non-functional one.
+ *
+ * @returns A fresh, empty storage.
+ */
 function makeStorage(): Storage {
   const store = new Map<string, string>()
   return {
@@ -104,6 +122,11 @@ function makeStorage(): Storage {
   }
 }
 
+/**
+ * A minimal light theme provider so the panel's `useThemeMode` resolves.
+ *
+ * @returns The stub theme provider.
+ */
 function buildThemeProvider(): ThemeProviderType {
   const theme: Theme = {
     name: 'light',

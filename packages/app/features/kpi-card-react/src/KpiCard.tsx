@@ -16,6 +16,7 @@ export type KpiTrendDirection = 'up' | 'down' | 'flat'
  */
 export type KpiCardAccentSide = 'left' | 'top' | 'none'
 
+/** Props for {@link KpiCard}. */
 export interface KpiCardProps {
   /** Label describing the metric (usually `t('...')`). */
   title: ReactNode

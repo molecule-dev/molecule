@@ -50,6 +50,8 @@ npm install -D @types/react
 
 #### `DataTableCardProps`
 
+Props for {@link DataTableCard}.
+
 ```typescript
 interface DataTableCardProps<Row> {
   /** Optional title above the table chrome. */
@@ -95,6 +97,8 @@ interface DataTableColumn<Row> {
 
 #### `RowWithActionsProps`
 
+Props for {@link RowWithActions}.
+
 ```typescript
 interface RowWithActionsProps {
   /** Row cells (each wrapped in `<td>`). */
@@ -112,6 +116,8 @@ interface RowWithActionsProps {
 
 #### `TableEmptyProps`
 
+Props for {@link TableEmpty}.
+
 ```typescript
 interface TableEmptyProps {
   /** Number of columns to span (for colspan on the td). */
@@ -125,6 +131,8 @@ interface TableEmptyProps {
 
 #### `TableFooterProps`
 
+Props for {@link TableFooter}.
+
 ```typescript
 interface TableFooterProps {
   /** Left slot — typically a summary line ("5 rows selected"). */
@@ -137,6 +145,8 @@ interface TableFooterProps {
 ```
 
 #### `TableToolbarProps`
+
+Props for {@link TableToolbar}.
 
 ```typescript
 interface TableToolbarProps {

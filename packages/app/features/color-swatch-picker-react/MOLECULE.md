@@ -53,6 +53,8 @@ interface ColorSwatch {
 
 #### `ColorSwatchPickerProps`
 
+Props for {@link ColorSwatchPicker}.
+
 ```typescript
 interface ColorSwatchPickerProps {
   /** Swatch definitions. */

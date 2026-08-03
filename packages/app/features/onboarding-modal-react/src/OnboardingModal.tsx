@@ -14,6 +14,7 @@ export interface OnboardingStep {
   media?: ReactNode
 }
 
+/** Props for {@link OnboardingModal}. */
 export interface OnboardingModalProps {
   /** Whether the modal is open. */
   open: boolean

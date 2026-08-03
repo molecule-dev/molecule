@@ -37,6 +37,8 @@ npm install -D @types/react
 
 #### `ContactDisplayProps`
 
+Props for {@link ContactDisplay}.
+
 ```typescript
 interface ContactDisplayProps {
   contact: ContactFields

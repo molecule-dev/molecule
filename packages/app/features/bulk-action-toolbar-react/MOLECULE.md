@@ -49,6 +49,8 @@ interface BulkAction {
 
 #### `BulkActionToolbarProps`
 
+Props for {@link BulkActionToolbar}.
+
 ```typescript
 interface BulkActionToolbarProps {
   /** Selection count — toolbar hides when 0. */

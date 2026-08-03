@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link EmptyState}. */
 export interface EmptyStateProps {
   /** Visual — typically an `<Icon>` or `<img>`. Rendered in a circular badge above the heading. */
   icon?: ReactNode

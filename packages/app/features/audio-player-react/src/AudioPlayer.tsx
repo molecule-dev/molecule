@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
+/** Props for {@link AudioPlayer}. */
 export interface AudioPlayerProps {
   src: string
   /** Optional title / track name. */

@@ -77,6 +77,8 @@ interface OAuthLogoProps {
 
 #### `OAuthProviderLogoProps`
 
+Props for {@link OAuthProviderLogo}.
+
 ```typescript
 interface OAuthProviderLogoProps extends OAuthLogoProps {
   provider: OAuthProviderId | string

@@ -12,6 +12,11 @@
  * @module
  */
 
+// Side-effect import: registers the `stream`/`cacheControl` module
+// augmentation on `AgentRunInput` (see types.ts) so `input.stream` and
+// `input.cacheControl` below are typed, not `any`.
+import './types.js'
+
 import type { ChatEvent, ContentBlock, TokenUsage } from '@molecule/api-ai'
 import {
   getProviderByName as getAiProviderByName,
@@ -27,10 +32,6 @@ import type {
 import { t } from '@molecule/api-i18n'
 
 import { AgentRunError } from './errors.js'
-// Side-effect import: registers the `stream`/`cacheControl` module
-// augmentation on `AgentRunInput` (see types.ts) so `input.stream` and
-// `input.cacheControl` below are typed, not `any`.
-import './types.js'
 
 /** One drained chat stream: accumulated text, tool calls, and token usage. */
 interface DrainedStream {

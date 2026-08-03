@@ -141,6 +141,8 @@ interface LegalModalsApi {
 
 #### `LegalPageLayoutProps`
 
+Props for {@link LegalPageLayout}.
+
 ```typescript
 interface LegalPageLayoutProps {
   /** `data-mol-id` for AI agent selectors. */
@@ -162,6 +164,8 @@ interface LegalPageLayoutProps {
 
 #### `LegalPageSectionProps`
 
+Props for {@link LegalPageSection}.
+
 ```typescript
 interface LegalPageSectionProps {
   /** Rendered heading text. */
@@ -174,6 +178,8 @@ interface LegalPageSectionProps {
 ```
 
 #### `PlanUpdatedPageProps`
+
+Props for {@link PlanUpdatedPage}.
 
 ```typescript
 interface PlanUpdatedPageProps {
@@ -196,6 +202,8 @@ interface PlanUpdatedPageProps {
 
 #### `PrivacyPageProps`
 
+Props for {@link PrivacyPage}.
+
 ```typescript
 interface PrivacyPageProps {
   /** i18n key for the page heading. Defaults to `privacy.title`. */
@@ -214,6 +222,8 @@ interface PrivacyPageProps {
 ```
 
 #### `TermsPageProps`
+
+Props for {@link TermsPage}.
 
 ```typescript
 interface TermsPageProps {

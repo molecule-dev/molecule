@@ -5,6 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { KanbanColumn } from './KanbanColumn.js'
 import type { KanbanCardData, KanbanColumnData } from './types.js'
 
+/** Props for {@link KanbanBoard}. */
 export interface KanbanBoardProps {
   columns: KanbanColumnData[]
   /** Called when a card moves from one column to another. */

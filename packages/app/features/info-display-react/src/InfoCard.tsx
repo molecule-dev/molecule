@@ -5,6 +5,7 @@ import { Card } from '@molecule/app-ui-react'
 
 import { type DefinitionField, DefinitionList } from './DefinitionList.js'
 
+/** Props for {@link InfoCard}. */
 export interface InfoCardProps {
   /** Card heading. */
   title: ReactNode

@@ -4,6 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { formatCurrency, formatCurrencyCompact } from './formatCurrency.js'
 
+/** Props for {@link CurrencyDisplay}. */
 export interface CurrencyDisplayProps {
   /** Current amount in major units. */
   amount: number

@@ -53,6 +53,8 @@ interface HttpHeader {
 
 #### `HttpInspectorProps`
 
+Props for {@link HttpInspector}.
+
 ```typescript
 interface HttpInspectorProps {
   method: HttpMethod

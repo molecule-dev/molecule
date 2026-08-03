@@ -76,8 +76,8 @@
  *   create/edit/delete another property's room types.
  */
 
-export * from './browser-guard.js'
 export * from './authorizers/index.js'
+export * from './browser-guard.js'
 export * from './handlers/index.js'
 export * from './i18n.js'
 export * from './requestHandlerMap.js'

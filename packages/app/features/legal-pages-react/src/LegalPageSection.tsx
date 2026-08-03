@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import type { SpacingScale } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link LegalPageSection}. */
 export interface LegalPageSectionProps {
   /** Rendered heading text. */
   title: ReactNode

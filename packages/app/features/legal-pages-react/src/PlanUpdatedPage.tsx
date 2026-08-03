@@ -5,6 +5,7 @@ import { useAuth, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Spinner } from '@molecule/app-ui-react'
 
+/** Props for {@link PlanUpdatedPage}. */
 export interface PlanUpdatedPageProps {
   /** i18n key for the primary message heading. */
   messageKey?: string

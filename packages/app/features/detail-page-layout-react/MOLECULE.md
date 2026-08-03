@@ -38,6 +38,8 @@ npm install -D @types/react
 
 #### `DetailPageLayoutProps`
 
+Props for {@link DetailPageLayout}.
+
 ```typescript
 interface DetailPageLayoutProps {
   /** Breadcrumb rendered above everything. */

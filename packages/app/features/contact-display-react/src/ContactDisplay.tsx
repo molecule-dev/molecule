@@ -14,6 +14,7 @@ export interface ContactFields {
   company?: ReactNode
 }
 
+/** Props for {@link ContactDisplay}. */
 export interface ContactDisplayProps {
   contact: ContactFields
   /** Layout preset. */

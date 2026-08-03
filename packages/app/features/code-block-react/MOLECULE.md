@@ -33,6 +33,8 @@ npm install -D @types/react
 
 #### `CodeBlockProps`
 
+Props for {@link CodeBlock}.
+
 ```typescript
 interface CodeBlockProps {
   /** Source code to display. */

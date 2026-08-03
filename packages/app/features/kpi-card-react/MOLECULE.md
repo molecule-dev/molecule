@@ -48,6 +48,8 @@ npm install -D @types/react
 
 #### `KpiCardGridProps`
 
+Props for {@link KpiCardGrid}.
+
 ```typescript
 interface KpiCardGridProps {
   /** KPI cards. */
@@ -62,6 +64,8 @@ interface KpiCardGridProps {
 ```
 
 #### `KpiCardProps`
+
+Props for {@link KpiCard}.
 
 ```typescript
 interface KpiCardProps {
@@ -114,6 +118,8 @@ interface KpiCardProps {
 ```
 
 #### `KpiCardTrendProps`
+
+Props for {@link KpiCardTrend}.
 
 ```typescript
 interface KpiCardTrendProps {

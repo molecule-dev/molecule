@@ -107,10 +107,10 @@
  *   item returns to its original owner, never the caller.
  */
 
-export * from './browser-guard.js'
-export * from './i18n.js'
 export * from './authorizers/index.js'
+export * from './browser-guard.js'
 export * from './handlers/index.js'
+export * from './i18n.js'
 export * from './registry.js'
 export * from './requestHandlerMap.js'
 export * from './routes.js'

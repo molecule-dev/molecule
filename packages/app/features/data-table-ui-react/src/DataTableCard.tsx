@@ -15,6 +15,7 @@ export interface DataTableColumn<Row> {
   headerClassName?: string
 }
 
+/** Props for {@link DataTableCard}. */
 export interface DataTableCardProps<Row> {
   /** Optional title above the table chrome. */
   title?: ReactNode

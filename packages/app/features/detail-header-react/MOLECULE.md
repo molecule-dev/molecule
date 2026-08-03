@@ -40,6 +40,8 @@ npm install -D @types/react
 
 #### `DetailHeaderProps`
 
+Props for {@link DetailHeader}.
+
 ```typescript
 interface DetailHeaderProps {
   /** Primary heading. */

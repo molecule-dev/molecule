@@ -40,6 +40,8 @@ npm install -D @types/react
 
 #### `JobListingRowProps`
 
+Props for {@link JobListingRow}.
+
 ```typescript
 interface JobListingRowProps {
   title: ReactNode

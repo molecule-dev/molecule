@@ -1,5 +1,5 @@
-import { KeyboardSensor, PointerSensor } from '@dnd-kit/core'
 import type { DragEndEvent as DndKitDragEndEvent } from '@dnd-kit/core'
+import { KeyboardSensor, PointerSensor } from '@dnd-kit/core'
 import {
   horizontalListSortingStrategy,
   rectSortingStrategy,
@@ -12,10 +12,10 @@ import { describe, expect, it, vi } from 'vitest'
 import type { DragEndEvent } from '@molecule/app-drag-drop'
 
 import {
-  SortableList,
   createSortableSensors,
   handleSortableDragEnd,
   resolveSortingStrategy,
+  SortableList,
   useSortableItem,
 } from '../react.js'
 
@@ -28,6 +28,12 @@ interface TestItem {
   label: string
 }
 
+/**
+ * Builds a list of sortable test items with sequential ids/labels.
+ *
+ * @param count - How many items to build.
+ * @returns The items, ids `'1'`…`String(count)`.
+ */
 function items(count: number): TestItem[] {
   return Array.from({ length: count }, (_, i) => ({
     id: String(i + 1),
@@ -36,7 +42,7 @@ function items(count: number): TestItem[] {
 }
 
 /**
- * Build a minimal @dnd-kit drag-end event. Only `active`/`over` (and
+ * Build a minimal `@dnd-kit` drag-end event. Only `active`/`over` (and
  * `active.data.current`) are read by the handler, so the rest of the real
  * event shape is intentionally omitted — this is a deliberately-minimal test
  * fixture.

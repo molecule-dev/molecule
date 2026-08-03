@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link ListingCardMedia}. */
 export interface ListingCardMediaProps {
   /** Image URL or ReactNode. */
   src?: string

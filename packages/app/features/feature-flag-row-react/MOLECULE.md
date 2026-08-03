@@ -78,6 +78,8 @@ interface FeatureFlagEnvironment {
 
 #### `FeatureFlagRowProps`
 
+Props for {@link FeatureFlagRow}.
+
 ```typescript
 interface FeatureFlagRowProps {
   flag: FeatureFlag

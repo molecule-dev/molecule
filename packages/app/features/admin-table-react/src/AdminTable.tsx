@@ -13,6 +13,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { AdminTableRowActions } from './AdminTableRowActions.js'
 import type { AdminTableColumn, AdminTableRowAction } from './types.js'
 
+/** Props for {@link AdminTable}. */
 export interface AdminTableProps<T> {
   rows: T[]
   columns: AdminTableColumn<T>[]

@@ -51,7 +51,7 @@ export const replacements: Record<string, string> = {
  *
  * @param client - The PostgreSQL client instance to execute the query on.
  * @param sqlFilename - The path to the SQL file to execute.
- * @throws Re-throws the underlying query error after logging it — a broken
+ * @throws {Error} Re-throws the underlying query error after logging it — a broken
  *   setup file must fail the run, not silently leave the database
  *   half-provisioned while `setup()` reports success.
  */
@@ -77,7 +77,7 @@ export const runSQL = async (client: pg.Client, sqlFilename: string): Promise<vo
  *
  * @param sqlPattern - Glob pattern to find SQL files (default: `**\/__setup__/*.sql`)
  * @param basePath - Base path for finding SQL files
- * @throws When any `*.sql` file fails to execute — every file is still attempted
+ * @throws {Error} When any `*.sql` file fails to execute — every file is still attempted
  *   (so the thrown message can list every failure at once), but the run exits
  *   non-zero instead of "succeeding" having applied only some of the files.
  */

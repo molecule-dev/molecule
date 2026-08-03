@@ -11,6 +11,7 @@ export interface DrawingTool {
   icon?: ReactNode
 }
 
+/** Props for {@link DrawingToolbar}. */
 export interface DrawingToolbarProps {
   /** Tools to render. */
   tools: DrawingTool[]

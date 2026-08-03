@@ -19,6 +19,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { PassThrough } from 'node:stream'
 import { setTimeout as delay } from 'node:timers/promises'
+
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import type * as ProviderModule from '../provider.js'

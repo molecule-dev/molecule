@@ -15,6 +15,7 @@ export interface BreadcrumbItem {
   icon?: ReactNode
 }
 
+/** Props for {@link Breadcrumb}. */
 export interface BreadcrumbProps {
   /** Ordered list of crumbs, last one usually the current page. */
   items: BreadcrumbItem[]

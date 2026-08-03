@@ -9,11 +9,13 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** One selectable option in a {@link NodeEditorRadioGroup}. */
 export interface NodeEditorRadioOption<T extends string> {
   value: T
   label: ReactNode
 }
 
+/** Props for {@link NodeEditorRadioGroup}. */
 export interface NodeEditorRadioGroupProps<T extends string> {
   options: NodeEditorRadioOption<T>[]
   value: T

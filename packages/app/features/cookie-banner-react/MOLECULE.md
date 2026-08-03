@@ -38,6 +38,8 @@ npm install -D @types/react
 
 #### `CookieBannerProps`
 
+Props for {@link CookieBanner}.
+
 ```typescript
 interface CookieBannerProps {
   /** Cookie categories to offer (omit for a simple accept/reject banner). */

@@ -4,6 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
+/** Props for {@link CodeBlock}. */
 export interface CodeBlockProps {
   /** Source code to display. */
   code: string

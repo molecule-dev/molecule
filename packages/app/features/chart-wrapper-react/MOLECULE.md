@@ -67,6 +67,8 @@ npm install -D @types/react
 
 #### `ChartCardProps`
 
+Props for {@link ChartCard}.
+
 ```typescript
 interface ChartCardProps {
   /** Card heading. */
@@ -108,6 +110,8 @@ interface ChartLegendItem {
 ```
 
 #### `ChartLegendProps`
+
+Props for {@link ChartLegend}.
 
 ```typescript
 interface ChartLegendProps {

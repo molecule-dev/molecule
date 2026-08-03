@@ -40,6 +40,8 @@ npm install -D @types/react
 
 #### `BentoGridProps`
 
+Props for {@link BentoGrid}.
+
 ```typescript
 interface BentoGridProps {
   /** Items to render. */
@@ -78,6 +80,8 @@ interface BentoItem {
 ```
 
 #### `CardGridProps`
+
+Props for {@link CardGrid}.
 
 ```typescript
 interface CardGridProps {

@@ -65,6 +65,8 @@ npm install -D @types/react
 
 #### `NodeEditorPanelProps`
 
+Props for {@link NodeEditorPanel}.
+
 ```typescript
 interface NodeEditorPanelProps {
   title: ReactNode
@@ -81,6 +83,8 @@ interface NodeEditorPanelProps {
 
 #### `NodeEditorRadioGroupProps`
 
+Props for {@link NodeEditorRadioGroup}.
+
 ```typescript
 interface NodeEditorRadioGroupProps<T extends string> {
   options: NodeEditorRadioOption<T>[]
@@ -91,6 +95,8 @@ interface NodeEditorRadioGroupProps<T extends string> {
 
 #### `NodeEditorRadioOption`
 
+One selectable option in a {@link NodeEditorRadioGroup}.
+
 ```typescript
 interface NodeEditorRadioOption<T extends string> {
   value: T
@@ -99,6 +105,8 @@ interface NodeEditorRadioOption<T extends string> {
 ```
 
 #### `NodeEditorSectionProps`
+
+Props for {@link NodeEditorSection}.
 
 ```typescript
 interface NodeEditorSectionProps {
@@ -112,6 +120,8 @@ interface NodeEditorSectionProps {
 ```
 
 #### `NodeEditorSliderProps`
+
+Props for {@link NodeEditorSlider}.
 
 ```typescript
 interface NodeEditorSliderProps {
@@ -127,6 +137,8 @@ interface NodeEditorSliderProps {
 ```
 
 #### `NodeEditorToggleProps`
+
+Props for {@link NodeEditorToggle}.
 
 ```typescript
 interface NodeEditorToggleProps {

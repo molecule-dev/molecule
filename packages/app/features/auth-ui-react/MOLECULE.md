@@ -43,6 +43,8 @@ npm install -D @types/react
 
 #### `OAuthButtonsProps`
 
+Props for {@link OAuthButtons}.
+
 ```typescript
 interface OAuthButtonsProps {
   /**

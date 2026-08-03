@@ -14,8 +14,9 @@
 
 import { readFileSync } from 'node:fs'
 
-import { getLogger } from '@molecule/api-bond'
 import type pg from 'pg'
+
+import { getLogger } from '@molecule/api-bond'
 
 /**
  * Returns `true` when the connection URL points at a local / explicitly

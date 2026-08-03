@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link ListingCardActions}. */
 export interface ListingCardActionsProps {
   /** Action content — buttons, favorite toggle, etc. */
   children: ReactNode

@@ -34,6 +34,8 @@ npm install -D @types/react
 
 #### `EditorLayoutProps`
 
+Props for {@link EditorLayout}.
+
 ```typescript
 interface EditorLayoutProps {
   /** Sticky top bar — typically title + save/publish buttons + status indicator. */

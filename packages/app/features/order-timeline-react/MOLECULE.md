@@ -52,6 +52,8 @@ interface OrderMilestone {
 
 #### `OrderTimelineProps`
 
+Props for {@link OrderTimeline}.
+
 ```typescript
 interface OrderTimelineProps {
   milestones: OrderMilestone[]

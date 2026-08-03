@@ -39,6 +39,8 @@ npm install -D @types/react
 
 #### `FlashcardCardProps`
 
+Props for {@link FlashcardCard}.
+
 ```typescript
 interface FlashcardCardProps {
   /** Front content (prompt). */

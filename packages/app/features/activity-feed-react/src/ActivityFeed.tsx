@@ -5,6 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { ActivityFeedItem } from './ActivityFeedItem.js'
 import type { ActivityFeedItemData } from './types.js'
 
+/** Props for {@link ActivityFeed}. */
 export interface ActivityFeedProps {
   /** Items in display order (usually most-recent first). */
   items: ActivityFeedItemData[]

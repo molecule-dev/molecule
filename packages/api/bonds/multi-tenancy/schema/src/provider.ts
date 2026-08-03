@@ -11,10 +11,10 @@
  * scopes no queries — it only tracks *which* tenant the current request belongs
  * to. Enforcing per-tenant DATA isolation is the application's responsibility:
  * read `getTenant()` in your data layer and filter every query by it (e.g. a
- * `tenant_id` column). The package name refers to the intended schema-per-tenant
- * *strategy*; the actual schema DDL / `search_path` scoping is not implemented
- * here — it would require a Postgres-only, request-pinned connection that the
- * DB-agnostic `DataStore` contract does not currently expose.
+ * `tenant_id` column). The package name refers to the intended
+ * schema-per-tenant *strategy*; the actual schema DDL / `search_path` scoping is
+ * not implemented here — it would require a Postgres-only, request-pinned
+ * connection that the DB-agnostic `DataStore` contract does not currently expose.
  *
  * @remarks
  * **Tenant context is request-scoped, never a module global.** The active

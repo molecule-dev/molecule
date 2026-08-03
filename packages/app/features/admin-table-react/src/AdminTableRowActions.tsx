@@ -12,6 +12,7 @@ import { Button } from '@molecule/app-ui-react'
 
 import type { AdminTableRowAction } from './types.js'
 
+/** Props for {@link AdminTableRowActions}. */
 export interface AdminTableRowActionsProps<T> {
   row: T
   actions: AdminTableRowAction<T>[]

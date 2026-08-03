@@ -80,8 +80,8 @@
  * @module
  */
 
-export * from './browser-guard.js'
 export * from './blend.js'
+export * from './browser-guard.js'
 export * from './color.js'
 export * from './compositeImage.js'
 export * from './compositeRgba.js'

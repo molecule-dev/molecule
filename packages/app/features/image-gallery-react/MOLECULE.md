@@ -38,6 +38,8 @@ npm install -D @types/react
 
 #### `ImageGalleryProps`
 
+Props for {@link ImageGallery}.
+
 ```typescript
 interface ImageGalleryProps {
   /** Image URLs in display order. */

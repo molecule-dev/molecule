@@ -4,6 +4,7 @@ import { OAuthButtons as OAuthButtonRow, OAuthDivider } from '@molecule/app-oaut
 import { useOAuth } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link OAuthButtons}. */
 export interface OAuthButtonsProps {
   /**
    * OAuth config object consumed by `useOAuth()`. Typed as `any` here

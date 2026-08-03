@@ -25,7 +25,7 @@ export function basename(path: string | undefined): string {
 }
 
 /**
- * Path of a @molecule/* package's MOLECULE.md inside the sandbox, where every
+ * Path of a `@molecule/*` package's MOLECULE.md inside the sandbox, where every
  * package is pre-installed. Used by the find_package / read_molecule_doc cards
  * so clicking a package opens its docs in the editor.
  * @param packageName - The package name, with or without the `@molecule/` prefix.
@@ -366,8 +366,7 @@ export function fileDiffStats(
   }
   if (name === 'write_file') {
     const diff = (output as Inp)?.diff as
-      | { type: string; linesAdded: number; linesRemoved: number }
-      | undefined
+      { type: string; linesAdded: number; linesRemoved: number } | undefined
     if (!diff || diff.type === 'unchanged') return null
     if (diff.type === 'new') return { added: diff.linesAdded, removed: 0 }
     return { added: diff.linesAdded, removed: diff.linesRemoved }

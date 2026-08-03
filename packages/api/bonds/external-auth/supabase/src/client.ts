@@ -25,7 +25,7 @@ const SERVER_CLIENT_OPTIONS = {
  * by Row Level Security. Use it for `verifyUserToken()` and for PostgREST
  * reads/writes that RLS already permits.
  *
- * @throws When neither `configureSupabase()` nor the environment provides a
+ * @throws {Error} When neither `configureSupabase()` nor the environment provides a
  *   URL + anon key — the error names exactly which env keys are missing.
  */
 export const getAnonClient = (): SupabaseClient => {
@@ -61,7 +61,7 @@ export const hasServiceRole = (): boolean => Boolean(resolveSettings().serviceRo
  * Row Level Security — server-only, for admin operations the anon client
  * cannot perform.
  *
- * @throws When no service-role key is connected (guard with
+ * @throws {Error} When no service-role key is connected (guard with
  *   `hasServiceRole()`), or when no project URL is configured.
  */
 export const getServiceClient = (): SupabaseClient => {

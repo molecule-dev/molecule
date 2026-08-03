@@ -40,6 +40,8 @@ npm install -D @types/react
 
 #### `IntegrationCardProps`
 
+Props for {@link IntegrationCard}.
+
 ```typescript
 interface IntegrationCardProps {
   /** Leading icon / logo for the integration. */

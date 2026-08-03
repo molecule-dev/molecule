@@ -6,6 +6,7 @@ import { Avatar } from '@molecule/app-ui-react'
 import { MessageMeta } from './MessageMeta.js'
 import type { MessageData } from './types.js'
 
+/** Props for {@link MessageBubble}. */
 export interface MessageBubbleProps {
   message: MessageData
   /** Whether the current viewer is the message author (affects alignment + accent). */

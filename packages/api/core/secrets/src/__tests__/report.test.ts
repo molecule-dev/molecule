@@ -10,8 +10,8 @@ vi.mock('@molecule/api-bond', () => ({
   getLogger: () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }),
 }))
 
-import { buildConfigReport, configNotConfiguredError, logConfigReport } from '../report.js'
 import { registerSecrets } from '../registry.js'
+import { buildConfigReport, configNotConfiguredError, logConfigReport } from '../report.js'
 
 const TEST_KEYS = [
   'REPORT_TEST_SET',

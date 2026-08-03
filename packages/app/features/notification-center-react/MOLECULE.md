@@ -53,6 +53,8 @@ npm install -D @types/react
 
 #### `NotificationCenterProps`
 
+Props for {@link NotificationCenter}.
+
 ```typescript
 interface NotificationCenterProps {
   /** Items to render. */

@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link JobListingRow}. */
 export interface JobListingRowProps {
   title: ReactNode
   /** Company / employer display. */

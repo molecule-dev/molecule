@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link RowWithActions}. */
 export interface RowWithActionsProps {
   /** Row cells (each wrapped in `<td>`). */
   children: ReactNode

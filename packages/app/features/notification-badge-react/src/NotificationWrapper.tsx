@@ -4,6 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { NotificationBadge } from './NotificationBadge.js'
 
+/** Props for {@link NotificationWrapper}. */
 export interface NotificationWrapperProps {
   /** The child that should receive the badge (icon button, avatar, nav item). */
   children: ReactNode

@@ -12,6 +12,7 @@ export interface MessageReaction {
   reactedByMe?: boolean
 }
 
+/** Props for {@link MessageReactions}. */
 export interface MessageReactionsProps {
   reactions: MessageReaction[]
   /** Called when a reaction chip is toggled. */

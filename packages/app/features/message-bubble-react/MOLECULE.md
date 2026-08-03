@@ -64,6 +64,8 @@ interface MessageAttachment {
 
 #### `MessageAttachmentsProps`
 
+Props for {@link MessageAttachments}.
+
 ```typescript
 interface MessageAttachmentsProps {
   attachments: MessageAttachment[]
@@ -89,6 +91,8 @@ interface MessageAuthor {
 
 #### `MessageBubbleProps`
 
+Props for {@link MessageBubble}.
+
 ```typescript
 interface MessageBubbleProps {
   message: MessageData
@@ -102,6 +106,8 @@ interface MessageBubbleProps {
 ```
 
 #### `MessageComposerProps`
+
+Props for {@link MessageComposer}.
 
 ```typescript
 interface MessageComposerProps {
@@ -145,6 +151,8 @@ interface MessageData {
 
 #### `MessageListProps`
 
+Props for {@link MessageList}.
+
 ```typescript
 interface MessageListProps {
   messages: MessageData[]
@@ -160,6 +168,8 @@ interface MessageListProps {
 ```
 
 #### `MessageMetaProps`
+
+Props for {@link MessageMeta}.
 
 ```typescript
 interface MessageMetaProps {
@@ -189,6 +199,8 @@ interface MessageReaction {
 
 #### `MessageReactionsProps`
 
+Props for {@link MessageReactions}.
+
 ```typescript
 interface MessageReactionsProps {
   reactions: MessageReaction[]
@@ -202,6 +214,8 @@ interface MessageReactionsProps {
 ```
 
 #### `ThreadIndicatorProps`
+
+Props for {@link ThreadIndicator}.
 
 ```typescript
 interface ThreadIndicatorProps {

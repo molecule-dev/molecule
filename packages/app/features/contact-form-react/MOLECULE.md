@@ -34,6 +34,8 @@ npm install -D @types/react
 
 #### `ContactFormProps`
 
+Props for {@link ContactForm}.
+
 ```typescript
 interface ContactFormProps {
   /** Called with the form values on submit. Return a Promise to block double-submit. */

@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link CardGrid}. */
 export interface CardGridProps {
   /** Cards. */
   children: ReactNode

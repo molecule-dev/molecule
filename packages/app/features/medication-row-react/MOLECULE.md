@@ -42,6 +42,8 @@ npm install -D @types/react
 
 #### `MedicationRowProps`
 
+Props for {@link MedicationRow}.
+
 ```typescript
 interface MedicationRowProps {
   /** Drug name. */

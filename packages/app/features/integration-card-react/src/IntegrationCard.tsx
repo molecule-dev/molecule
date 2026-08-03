@@ -7,6 +7,7 @@ import { Button, Card } from '@molecule/app-ui-react'
 /** Connection status for an integration. */
 export type IntegrationStatus = 'connected' | 'disconnected' | 'pending' | 'error'
 
+/** Props for {@link IntegrationCard}. */
 export interface IntegrationCardProps {
   /** Leading icon / logo for the integration. */
   icon?: ReactNode

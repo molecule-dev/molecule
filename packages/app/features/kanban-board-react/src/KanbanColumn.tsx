@@ -6,6 +6,7 @@ import { KanbanCard } from './KanbanCard.js'
 import { KanbanColumnHeader } from './KanbanColumnHeader.js'
 import type { KanbanCardData, KanbanColumnData } from './types.js'
 
+/** Props for {@link KanbanColumn}. */
 export interface KanbanColumnProps {
   column: KanbanColumnData
   /** Called when a card is clicked. */

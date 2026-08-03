@@ -40,6 +40,8 @@ npm install -D @types/react
 
 #### `ListItemRowProps`
 
+Props for {@link ListItemRow}.
+
 ```typescript
 interface ListItemRowProps {
   /** Title — first line. */

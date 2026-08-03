@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
+/** Props for {@link InboxRow}. */
 export interface InboxRowProps {
   /** Sender display. */
   sender: ReactNode

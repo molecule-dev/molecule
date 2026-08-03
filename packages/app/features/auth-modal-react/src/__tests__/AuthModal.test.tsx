@@ -1,7 +1,7 @@
 /**
  * finishAuth resilience — the post-signup "didn't log me in" regression.
  *
- * Cookie-session APIs (the @molecule/api-resource-user model) issue no refresh
+ * Cookie-session APIs (the `@molecule/api-resource-user` model) issue no refresh
  * token, so `refresh()` could reject right after a SUCCESSFUL signup/login.
  * finishAuth must still run `onAuthenticated` + close when the client session
  * is already established, and only treat the failure as fatal when there is

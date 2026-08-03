@@ -15,6 +15,7 @@ export interface OrderMilestone {
   current?: boolean
 }
 
+/** Props for {@link OrderTimeline}. */
 export interface OrderTimelineProps {
   milestones: OrderMilestone[]
   /** Optional ETA / summary line. */

@@ -32,7 +32,7 @@ const SAFE_COMPONENT = /^[A-Za-z0-9._-]+$/
  * @param value - The caller-supplied component (e.g. a stream id or profile name).
  * @param label - Human-readable name of the field, used in the error message.
  * @returns The validated component, unchanged.
- * @throws If the value is not a safe single path component.
+ * @throws {Error} If the value is not a safe single path component.
  */
 export const assertSafePathComponent = (value: string, label: string): string => {
   if (
@@ -55,7 +55,7 @@ export const assertSafePathComponent = (value: string, label: string): string =>
  *
  * @param index - The caller-supplied segment index.
  * @returns The validated index, unchanged.
- * @throws If the value is not a non-negative integer.
+ * @throws {Error} If the value is not a non-negative integer.
  */
 export const assertSegmentIndex = (index: number): number => {
   if (typeof index !== 'number' || !Number.isInteger(index) || index < 0) {
@@ -76,7 +76,7 @@ export const assertSegmentIndex = (index: number): number => {
  * @param base - The intended base directory.
  * @param parts - Path segments to append.
  * @returns The resolved absolute path, guaranteed to be inside `base`.
- * @throws If the resolved path escapes `base`.
+ * @throws {Error} If the resolved path escapes `base`.
  */
 export const resolveWithinBase = (base: string, ...parts: string[]): string => {
   const resolvedBase = resolve(base)

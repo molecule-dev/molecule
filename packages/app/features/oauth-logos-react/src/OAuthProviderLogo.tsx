@@ -11,6 +11,7 @@ import { MicrosoftLogo } from './MicrosoftLogo.js'
 import { TwitterLogo } from './TwitterLogo.js'
 import type { OAuthLogoProps, OAuthProviderId } from './types.js'
 
+/** Props for {@link OAuthProviderLogo}. */
 export interface OAuthProviderLogoProps extends OAuthLogoProps {
   provider: OAuthProviderId | string
   /** Rendered when `provider` has no registered logo (default: `null`). */

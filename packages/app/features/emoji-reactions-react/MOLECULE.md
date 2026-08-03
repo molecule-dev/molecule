@@ -50,6 +50,8 @@ interface EmojiReaction {
 
 #### `EmojiReactionsProps`
 
+Props for {@link EmojiReactions}.
+
 ```typescript
 interface EmojiReactionsProps {
   reactions: EmojiReaction[]

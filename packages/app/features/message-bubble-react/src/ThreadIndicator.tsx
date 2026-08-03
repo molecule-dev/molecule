@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link ThreadIndicator}. */
 export interface ThreadIndicatorProps {
   /** Number of replies. */
   replyCount: number

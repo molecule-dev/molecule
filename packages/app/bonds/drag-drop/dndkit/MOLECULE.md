@@ -1,12 +1,18 @@
 # @molecule/app-drag-drop-dndkit
 
-Real @dnd-kit drag-drop provider for molecule.dev.
+Real `@dnd-kit` drag-drop provider for molecule.dev.
 
 Implements `DragDropProvider` from `@molecule/app-drag-drop` against
 `@dnd-kit/*`. Two layers ship here:
 
 1. An imperative order store ({@link provider} / {@link createDndKitProvider})
    — `createSortable`/`createDraggable`/`createDroppable` — whose reorders use
+   `@dnd-kit`'s own `arrayMove`.
+2. A **real React binding** — {@link SortableList} + {@link useSortableItem} —
+   that wraps `DndContext` / `SortableContext` / `useSortable` with pointer and
+   keyboard sensors and, on drop, reorders and invokes the core `onReorder`
+   with the new order. This is the shipped DOM-event bridge; a drag actually
+   reorders the list (mouse, touch, or keyboard).
 
 ## Quick Start
 
@@ -63,7 +69,7 @@ interface DndKitConfig {
   activationDistance?: number
 
   /**
-   * Whether Escape cancels a drag. @dnd-kit's keyboard sensor cancels on Escape
+   * Whether Escape cancels a drag. `@dnd-kit`'s keyboard sensor cancels on Escape
    * by default, so this is effectively `true`. Defaults to `true`.
    */
   cancelOnEscape?: boolean
@@ -288,18 +294,25 @@ function createSortableSensors(config?: DndKitConfig): (SensorDescriptor<Pointer
 
 #### `handleSortableDragEnd(event, context)`
 
-Bridges a
+Bridges a `@dnd-kit` drag-end to the core drag-drop contract. Emits the core
+`onDragEnd` event, then — unless sorting is disabled, the drop landed nowhere,
+or the item was dropped in place — reorders `items` with `@dnd-kit`'s
+`arrayMove` and invokes `onReorder` with the new order. This is the exact
+handler {@link SortableList} passes to `DndContext.onDragEnd`, so a real drop
+runs this code and `onReorder` fires with the reordered array.
 
 ```typescript
 function handleSortableDragEnd(event: DndKitDragEndEvent, context: SortableDragEndContext<T>): void
 ```
 
-- `event` — The
+- `event` — The `@dnd-kit` drag-end event (`active` / `over`).
 - `context` — Items, callbacks, and disabled flag.
 
 #### `resolveSortingStrategy(axis, strategy)`
 
 Maps a molecule {@link SortableAxis}/{@link SortableStrategy} to a concrete
+`@dnd-kit` sorting strategy. An explicit `strategy` wins; otherwise the axis
+selects it (`horizontal` → horizontal list, `both` → grid, else vertical).
 
 ```typescript
 function resolveSortingStrategy(axis?: SortableAxis, strategy?: SortableStrategy): SortingStrategy
@@ -308,11 +321,14 @@ function resolveSortingStrategy(axis?: SortableAxis, strategy?: SortableStrategy
 - `axis` — The sort axis. Defaults to `'vertical'`.
 - `strategy` — An explicit strategy override.
 
-**Returns:** The
+**Returns:** The `@dnd-kit` sorting strategy to pass to `SortableContext`.
 
 #### `SortableList(props)`
 
-A real
+A real `@dnd-kit` sortable list. Wraps `DndContext` + `SortableContext` with a
+pointer and a keyboard sensor and, on drop, reorders `items` and calls
+`onReorder` with the new order (via {@link handleSortableDragEnd}). Render
+the list itself as `children`, using {@link useSortableItem} for each row.
 
 ```typescript
 function SortableList(props: SortableListProps<T>): JSX.Element
@@ -324,7 +340,9 @@ function SortableList(props: SortableListProps<T>): JSX.Element
 
 #### `useSortableItem(options)`
 
-Wraps
+Wraps `@dnd-kit`'s `useSortable` for a single row inside a {@link SortableList}.
+Spread `attributes` + `listeners` onto the row (or `listeners` onto a handle
+bound with `setActivatorNodeRef`), attach `setNodeRef`, and apply `style`.
 
 ```typescript
 function useSortableItem(options: UseSortableItemOptions): SortableItemState
@@ -379,6 +397,10 @@ Peer dependencies:
 - `react-dom`
 
 The React binding requires `react` / `react-dom` (peer dependencies) since
+`@dnd-kit` is React-only. The imperative store's extended instance types
+(`_`-prefixed methods) remain available for consumers wiring their own
+(non-@dnd-kit) drag events. `DndKitConfig.activationDelay` /
+`activationDistance` are honored by the React binding's pointer sensor.
 
 ## E2E Tests
 

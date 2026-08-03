@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
+/** Props for {@link UserChip}. */
 export interface UserChipProps {
   /** Display name. */
   name: string

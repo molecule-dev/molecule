@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link HelpButton}. */
 export interface HelpButtonProps {
   /** Optional icon — defaults to "?". */
   icon?: ReactNode

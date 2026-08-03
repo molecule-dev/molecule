@@ -1,5 +1,6 @@
-import { bond, get, reset } from '@molecule/app-bond'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { bond, get, reset } from '@molecule/app-bond'
 
 import {
   createExternalRecord,

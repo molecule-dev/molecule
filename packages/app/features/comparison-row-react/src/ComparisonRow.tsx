@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link ComparisonRow}. */
 export interface ComparisonRowProps {
   /** Label for the metric (e.g. "Revenue"). */
   label: ReactNode

@@ -1,5 +1,5 @@
 /**
- * REAL-DEPENDENCY integration tests — no mocks, the actual @molecule/app-bond
+ * REAL-DEPENDENCY integration tests — no mocks, the actual `@molecule/app-bond`
  * registry this package rides on.
  *
  * The unit suites mock `@molecule/app-bond` (with `isBonded` pinned to `true`),
@@ -12,8 +12,9 @@
  * @module
  */
 
-import { unbond } from '@molecule/app-bond'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { unbond } from '@molecule/app-bond'
 
 import { setupAutoTracking } from '../auto-tracking.js'
 import {

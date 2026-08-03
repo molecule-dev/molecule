@@ -24,6 +24,7 @@ export interface AvatarStackPerson {
   alt?: string
 }
 
+/** Props for {@link AvatarStack}. */
 export interface AvatarStackProps {
   /** People to render. */
   people: AvatarStackPerson[]

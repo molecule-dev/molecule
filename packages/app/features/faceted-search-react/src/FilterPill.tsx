@@ -11,6 +11,7 @@ import { type JSX, type ReactNode, useEffect, useRef, useState } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link FilterPill}. */
 export interface FilterPillProps {
   label: ReactNode
   /** Highlight pill when a filter value is applied. */

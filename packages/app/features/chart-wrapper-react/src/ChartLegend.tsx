@@ -14,6 +14,7 @@ export interface ChartLegendItem {
   hidden?: boolean
 }
 
+/** Props for {@link ChartLegend}. */
 export interface ChartLegendProps {
   items: ChartLegendItem[]
   /** Called when an item is toggled. */

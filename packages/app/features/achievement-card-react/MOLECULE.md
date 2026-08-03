@@ -34,6 +34,8 @@ npm install -D @types/react
 
 #### `AchievementCardProps`
 
+Props for {@link AchievementCard}.
+
 ```typescript
 interface AchievementCardProps {
   /** Achievement name. */

@@ -47,6 +47,8 @@ npm install -D @types/react
 
 #### `AppShellBottomNavProps`
 
+Props for {@link AppShellBottomNav}.
+
 ```typescript
 interface AppShellBottomNavProps {
   items: NavItem[]
@@ -58,6 +60,8 @@ interface AppShellBottomNavProps {
 ```
 
 #### `AppShellFooterProps`
+
+Props for {@link AppShellFooter}.
 
 ```typescript
 interface AppShellFooterProps {
@@ -75,6 +79,8 @@ interface AppShellFooterProps {
 ```
 
 #### `AppShellSideNavProps`
+
+Props for {@link AppShellSideNav}.
 
 ```typescript
 interface AppShellSideNavProps {
@@ -95,6 +101,8 @@ interface AppShellSideNavProps {
 ```
 
 #### `AppShellTopNavProps`
+
+Props for {@link AppShellTopNav}.
 
 ```typescript
 interface AppShellTopNavProps {

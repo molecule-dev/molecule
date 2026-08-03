@@ -33,6 +33,8 @@ npm install -D @types/react
 
 #### `MiniCalendarProps`
 
+Props for {@link MiniCalendar}.
+
 ```typescript
 interface MiniCalendarProps {
   /** Controlled selected date (ISO yyyy-mm-dd or Date). */

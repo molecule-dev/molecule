@@ -38,6 +38,8 @@ npm install -D @types/react
 
 #### `InboxRowProps`
 
+Props for {@link InboxRow}.
+
 ```typescript
 interface InboxRowProps {
   /** Sender display. */

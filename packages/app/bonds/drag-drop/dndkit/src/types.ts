@@ -35,7 +35,7 @@ export interface DndKitConfig {
   activationDistance?: number
 
   /**
-   * Whether Escape cancels a drag. @dnd-kit's keyboard sensor cancels on Escape
+   * Whether Escape cancels a drag. `@dnd-kit`'s keyboard sensor cancels on Escape
    * by default, so this is effectively `true`. Defaults to `true`.
    */
   cancelOnEscape?: boolean

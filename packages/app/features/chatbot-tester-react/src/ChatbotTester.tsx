@@ -18,6 +18,7 @@ import { ChatbotTesterInput } from './ChatbotTesterInput.js'
 import { ChatbotTesterMessages } from './ChatbotTesterMessages.js'
 import type { TesterBotOption, TesterMessage } from './types.js'
 
+/** Props for {@link ChatbotTester}. */
 export interface ChatbotTesterProps {
   messages: TesterMessage[]
   loading?: boolean

@@ -47,6 +47,8 @@ npm install -D @types/react
 
 #### `ListingCardActionsProps`
 
+Props for {@link ListingCardActions}.
+
 ```typescript
 interface ListingCardActionsProps {
   /** Action content — buttons, favorite toggle, etc. */
@@ -59,6 +61,8 @@ interface ListingCardActionsProps {
 ```
 
 #### `ListingCardBodyProps`
+
+Props for {@link ListingCardBody}.
 
 ```typescript
 interface ListingCardBodyProps {
@@ -76,6 +80,8 @@ interface ListingCardBodyProps {
 ```
 
 #### `ListingCardMediaProps`
+
+Props for {@link ListingCardMedia}.
 
 ```typescript
 interface ListingCardMediaProps {
@@ -95,6 +101,8 @@ interface ListingCardMediaProps {
 
 #### `ListingCardProps`
 
+Props for {@link ListingCard}.
+
 ```typescript
 interface ListingCardProps {
   /** Slots — usually `<ListingCardMedia>` + `<ListingCardBody>` + `<ListingCardActions>`. */
@@ -113,6 +121,8 @@ interface ListingCardProps {
 ```
 
 #### `ListingGridProps`
+
+Props for {@link ListingGrid}.
 
 ```typescript
 interface ListingGridProps {

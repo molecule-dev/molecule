@@ -52,8 +52,8 @@
  * creates them.
  */
 
-export * from './browser-guard.js'
 export * from './authorizers/index.js'
+export * from './browser-guard.js'
 export * from './handlers/index.js'
 export * from './requestHandlerMap.js'
 export * from './routes.js'

@@ -4,6 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { useCountdown } from './useCountdown.js'
 
+/** Props for {@link Countdown}. */
 export interface CountdownProps {
   /** Target date / ISO string / epoch ms. */
   target: Date | string | number

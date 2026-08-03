@@ -4,6 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { NavItem } from './types.js'
 
+/** Props for {@link AppShellBottomNav}. */
 export interface AppShellBottomNavProps {
   items: NavItem[]
   activeId?: string

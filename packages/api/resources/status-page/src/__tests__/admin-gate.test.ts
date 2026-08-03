@@ -36,6 +36,8 @@ vi.mock('@molecule/api-locales-status-page', () => ({}))
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { MoleculeResponse } from '@molecule/api-resource'
+
 import { isStatusAdmin, requireAdmin, STATUS_ADMIN_PERMISSION } from '../authorizers/index.js'
 import { createIncident } from '../handlers/createIncident.js'
 import { createService } from '../handlers/createService.js'
@@ -43,11 +45,18 @@ import { deleteService } from '../handlers/deleteService.js'
 import { updateIncident } from '../handlers/updateIncident.js'
 import { updateService } from '../handlers/updateService.js'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/**
+ * A deliberately-minimal response double: the admin gate reads only
+ * `res.locals`. Cast (not `any`) so every call site is still checked against the
+ * real `MoleculeResponse` the handlers take.
+ *
+ * @param locals - The `res.locals` to expose; defaults to an admin session.
+ * @returns The stand-in response.
+ */
 function mockRes(
   locals: Record<string, unknown> = { session: { userId: 'u1', isAdmin: true } },
-): any {
-  return { locals }
+): MoleculeResponse {
+  return { locals } as unknown as MoleculeResponse
 }
 
 const VALID_UUID = '11111111-1111-4111-8111-111111111111'

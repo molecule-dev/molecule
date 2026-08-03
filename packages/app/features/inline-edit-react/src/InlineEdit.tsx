@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input, Textarea } from '@molecule/app-ui-react'
 
+/** Props for {@link InlineEdit}. */
 export interface InlineEditProps {
   /** Current value. */
   value: string

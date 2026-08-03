@@ -11,6 +11,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { TesterMessage } from './types.js'
 
+/** Props for {@link ChatbotTesterMessages}. */
 export interface ChatbotTesterMessagesProps {
   messages: TesterMessage[]
   loading?: boolean

@@ -7,6 +7,7 @@ import { getClassMap } from '@molecule/app-ui'
 /** Semantic kind, exposed as a `data-kind` attribute for per-kind styling (no built-in style change). */
 export type AnnouncementKind = 'info' | 'success' | 'warning' | 'error' | 'promo'
 
+/** Props for {@link AnnouncementBar}. */
 export interface AnnouncementBarProps {
   /** Primary message. */
   children: ReactNode

@@ -6,6 +6,7 @@ import { Button, Input, Select } from '@molecule/app-ui-react'
 
 import type { FilterField, FilterValues } from './types.js'
 
+/** Props for {@link FilterBar}. */
 export interface FilterBarProps {
   /** Field definitions. */
   fields: FilterField[]

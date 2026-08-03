@@ -12,6 +12,7 @@ export interface ColorSwatch {
   label?: string
 }
 
+/** Props for {@link ColorSwatchPicker}. */
 export interface ColorSwatchPickerProps {
   /** Swatch definitions. */
   swatches: ColorSwatch[]

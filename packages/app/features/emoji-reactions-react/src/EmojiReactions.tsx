@@ -12,6 +12,7 @@ export interface EmojiReaction {
   reactedByMe?: boolean
 }
 
+/** Props for {@link EmojiReactions}. */
 export interface EmojiReactionsProps {
   reactions: EmojiReaction[]
   /** Called when a reaction chip is toggled by the current user. */

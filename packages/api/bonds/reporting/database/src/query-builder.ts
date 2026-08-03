@@ -54,7 +54,7 @@ const ALLOWED_TIME_INTERVALS: ReadonlySet<string> = new Set([
  *
  * @param interval - The caller-supplied interval.
  * @returns The validated interval, unchanged.
- * @throws When `interval` is not an allowed bucket.
+ * @throws {Error} When `interval` is not an allowed bucket.
  */
 export const assertSafeInterval = (interval: string): string => {
   if (!ALLOWED_TIME_INTERVALS.has(interval)) {

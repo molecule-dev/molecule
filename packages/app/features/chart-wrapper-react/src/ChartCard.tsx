@@ -3,6 +3,7 @@ import type { JSX, ReactNode } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Card } from '@molecule/app-ui-react'
 
+/** Props for {@link ChartCard}. */
 export interface ChartCardProps {
   /** Card heading. */
   title: ReactNode

@@ -18,6 +18,7 @@ export interface Address {
   country?: string
 }
 
+/** Props for {@link AddressDisplay}. */
 export interface AddressDisplayProps {
   /** Address fields. */
   address: Address

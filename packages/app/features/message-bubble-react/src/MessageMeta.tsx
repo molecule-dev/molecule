@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link MessageMeta}. */
 export interface MessageMetaProps {
   /** Author display name. */
   author: ReactNode

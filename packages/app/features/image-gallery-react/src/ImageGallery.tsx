@@ -28,6 +28,7 @@ function toGridCols(desired: number): number {
   return best
 }
 
+/** Props for {@link ImageGallery}. */
 export interface ImageGalleryProps {
   /** Image URLs in display order. */
   images: string[]

@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link ListingCardBody}. */
 export interface ListingCardBodyProps {
   /** Primary title / name. */
   title: ReactNode

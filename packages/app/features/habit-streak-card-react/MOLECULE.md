@@ -40,6 +40,8 @@ npm install -D @types/react
 
 #### `HabitStreakCardProps`
 
+Props for {@link HabitStreakCard}.
+
 ```typescript
 interface HabitStreakCardProps {
   /** Habit name. */

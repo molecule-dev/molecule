@@ -16,6 +16,7 @@ export interface ChecklistItem {
   disabled?: boolean
 }
 
+/** Props for {@link Checklist}. */
 export interface ChecklistProps {
   items: ChecklistItem[]
   /** Called when an item is toggled. */

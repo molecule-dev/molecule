@@ -15,6 +15,7 @@ import { Button } from '@molecule/app-ui-react'
 const arrowLeftStyle: CSSProperties = { left: 8, top: '50%', transform: 'translateY(-50%)' }
 const arrowRightStyle: CSSProperties = { right: 8, top: '50%', transform: 'translateY(-50%)' }
 
+/** Props for {@link Carousel}. */
 export interface CarouselProps {
   /** Slides — each child is one frame. */
   children: ReactNode[]

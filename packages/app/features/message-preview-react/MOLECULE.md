@@ -47,6 +47,8 @@ npm install -D @types/react
 
 #### `MessagePreviewProps`
 
+Props for {@link MessagePreview}.
+
 ```typescript
 interface MessagePreviewProps {
   name: ReactNode

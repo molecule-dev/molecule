@@ -49,6 +49,8 @@ npm install -D @types/react
 
 #### `CtaCardProps`
 
+Props for {@link CtaCard}.
+
 ```typescript
 interface CtaCardProps {
   /** Optional small eyebrow line above the title. */
@@ -71,6 +73,8 @@ interface CtaCardProps {
 ```
 
 #### `EmptyStateProps`
+
+Props for {@link EmptyState}.
 
 ```typescript
 interface EmptyStateProps {

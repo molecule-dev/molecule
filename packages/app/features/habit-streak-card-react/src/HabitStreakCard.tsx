@@ -12,6 +12,7 @@ export interface StreakDay {
   count: number
 }
 
+/** Props for {@link HabitStreakCard}. */
 export interface HabitStreakCardProps {
   /** Habit name. */
   name: ReactNode

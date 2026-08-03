@@ -38,6 +38,8 @@ npm install -D @types/react
 
 #### `AnnouncementBarProps`
 
+Props for {@link AnnouncementBar}.
+
 ```typescript
 interface AnnouncementBarProps {
   /** Primary message. */

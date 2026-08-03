@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link TableEmpty}. */
 export interface TableEmptyProps {
   /** Number of columns to span (for colspan on the td). */
   colSpan: number

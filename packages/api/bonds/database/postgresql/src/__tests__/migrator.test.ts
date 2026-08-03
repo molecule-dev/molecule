@@ -7,15 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock pg (the same pattern index.test.ts uses). Real file I/O is kept — the
 // migrator reads .sql files in order and feeds each whole file to
 // client.query(); the driver itself is mocked.
-const {
-  mockClientClass,
-  adminQuery,
-  adminConnect,
-  adminEnd,
-  migrateQuery,
-  migrateConnect,
-  migrateEnd,
-} = vi.hoisted(() => {
+const { mockClientClass, adminQuery, adminConnect, migrateQuery, migrateEnd } = vi.hoisted(() => {
   const adminQuery = vi.fn().mockResolvedValue({ rows: [] })
   const adminConnect = vi.fn().mockResolvedValue(undefined)
   const adminEnd = vi.fn().mockResolvedValue(undefined)

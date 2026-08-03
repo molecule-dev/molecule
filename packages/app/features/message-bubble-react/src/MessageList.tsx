@@ -5,6 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { MessageBubble } from './MessageBubble.js'
 import type { MessageData } from './types.js'
 
+/** Props for {@link MessageList}. */
 export interface MessageListProps {
   messages: MessageData[]
   /** When provided, viewer-authored messages flip alignment to the right. */

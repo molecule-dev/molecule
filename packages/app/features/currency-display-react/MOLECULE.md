@@ -40,6 +40,8 @@ npm install -D @types/react
 
 #### `CurrencyDisplayProps`
 
+Props for {@link CurrencyDisplay}.
+
 ```typescript
 interface CurrencyDisplayProps {
   /** Current amount in major units. */

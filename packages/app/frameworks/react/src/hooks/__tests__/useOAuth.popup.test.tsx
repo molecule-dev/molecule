@@ -47,6 +47,13 @@ describe('useOAuth.loginViaPopup — postMessage relay security', () => {
   })
   afterEach(() => openSpy.mockRestore())
 
+  /**
+   * Mounts `useOAuth` and kicks off a popup login, so each test can drive the
+   * `message` handling that follows.
+   *
+   * @param onSuccess - Success callback passed to the hook.
+   * @param onError - Error callback passed to the hook.
+   */
   function startPopup(onSuccess?: () => void, onError?: (m: string) => void): void {
     const { result } = renderHook(() =>
       useOAuth({ oauthProviders: ['github'], onSuccess, onError }),

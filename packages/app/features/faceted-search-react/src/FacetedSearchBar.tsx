@@ -10,6 +10,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link FacetedSearchBar}. */
 export interface FacetedSearchBarProps {
   children: ReactNode
   /** Sticky top offset (px). Defaults to 64 (i.e. below a 16-unit top nav). */

@@ -36,15 +36,14 @@ import {
   partitionByDeprecation,
   PROVIDER_BRAND_COLORS,
 } from '@molecule/app-ai-models'
-import { getCountryFlag } from '@molecule/app-country-flags'
+import type { VoiceEngineDef } from '@molecule/app-ai-voice'
 import {
   getProvider as getVoiceProvider,
-  hasProvider as hasVoiceProvider,
   listVoiceEngines,
   selectVoiceEngine,
   voiceEngineCoversLanguage,
 } from '@molecule/app-ai-voice'
-import type { VoiceEngineDef } from '@molecule/app-ai-voice'
+import { getCountryFlag } from '@molecule/app-country-flags'
 import { t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import { getLogger } from '@molecule/app-logger'
@@ -3146,11 +3145,11 @@ function ChatInner({
 
   // ── Local (on-device) dictation fallback via the ai-voice bond ────────────
   // When the browser's Web Speech API is missing or proven dead, dictation
-  // falls back to a bonded AIVoiceProvider (e.g. @molecule/app-ai-voice-whisper,
+  // falls back to a bonded AIVoiceProvider (e.g. `@molecule/app-ai-voice-whisper`,
   // which runs Whisper on-device). Wire one at app startup with setProvider().
-  const [hasLocalVoice] = useState(
-    () => hasVoiceProvider() && (getVoiceProvider()?.isRecognitionSupported() ?? false),
-  )
+  // Availability is NOT snapshotted at mount — `startLocalVoice()` re-checks
+  // `getVoiceProvider()?.isRecognitionSupported()` at the moment of use, so a
+  // provider bonded (or a model loaded) after mount still works.
   // Once true, all dictation goes through the bonded provider.
   const useLocalVoiceRef = useRef(false)
   // Web Speech proven dead earlier this tab-session — skip its 5s watchdog.
@@ -3295,7 +3294,7 @@ function ChatInner({
 
     let gotResult = false
 
-    const clearWatchdog = () => {
+    const clearWatchdog = (): void => {
       if (voiceWatchdogTimer.current) {
         clearTimeout(voiceWatchdogTimer.current)
         voiceWatchdogTimer.current = null
@@ -3306,7 +3305,7 @@ function ChatInner({
     // retrying it for good — instead of flicker-restarting forever. If an
     // on-device provider is bonded, hand the same gesture over to it
     // seamlessly; otherwise turn the button off and say so.
-    const giveUp = () => {
+    const giveUp = (): void => {
       clearWatchdog()
       voiceFailCount.current = 0
       recognitionRef.current = null
@@ -6117,7 +6116,7 @@ function ChatInner({
   // would drift away from it otherwise.
   useEffect(() => {
     if (!regionMenu) return
-    const close = () => setRegionMenu(null)
+    const close = (): void => setRegionMenu(null)
     document.addEventListener('click', close)
     document.addEventListener('scroll', close, true)
     window.addEventListener('resize', close)

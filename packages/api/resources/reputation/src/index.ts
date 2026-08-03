@@ -79,8 +79,8 @@
  *   the only thing that changes it is a real earning action the server scored.
  */
 
-export * from './browser-guard.js'
 export * from './authorizers/index.js'
+export * from './browser-guard.js'
 export * from './engine.js'
 export * from './handlers/index.js'
 export * from './requestHandlerMap.js'

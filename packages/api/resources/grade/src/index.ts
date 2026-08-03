@@ -85,9 +85,9 @@
  *   endpoint — a student can never write or alter a grade, only read their own.
  */
 
-export * from './browser-guard.js'
 export * from './aggregate.js'
 export * from './authorizers/index.js'
+export * from './browser-guard.js'
 export * from './handlers/index.js'
 export * from './i18n.js'
 export * from './requestHandlerMap.js'

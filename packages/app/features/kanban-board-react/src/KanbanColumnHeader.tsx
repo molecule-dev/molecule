@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link KanbanColumnHeader}. */
 export interface KanbanColumnHeaderProps {
   title: ReactNode
   /** Card count shown in parentheses. */

@@ -45,6 +45,8 @@ npm install -D @types/react @types/react-dom
 
 #### `EmbeddableChatLauncherProps`
 
+Props for {@link EmbeddableChatLauncher}.
+
 ```typescript
 interface EmbeddableChatLauncherProps {
   /** Whether the launcher should render. Hidden while the panel is expanded. */
@@ -78,6 +80,8 @@ interface EmbeddableChatMessage {
 ```
 
 #### `EmbeddableChatPanelProps`
+
+Props for {@link EmbeddableChatPanel}.
 
 ```typescript
 interface EmbeddableChatPanelProps {
@@ -117,6 +121,8 @@ interface EmbeddableChatWidgetConfig {
 
 #### `EmbeddableChatWidgetProps`
 
+Props for {@link EmbeddableChatWidget}.
+
 ```typescript
 interface EmbeddableChatWidgetProps {
   /** Widget configuration. */
@@ -151,6 +157,8 @@ interface MountEmbeddableChatWidgetOptions {
 ```
 
 #### `PanelMessageProps`
+
+Props for the panel's internal message bubble.
 
 ```typescript
 interface PanelMessageProps {

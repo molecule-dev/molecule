@@ -3,6 +3,7 @@ import { type JSX, useState } from 'react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button } from '@molecule/app-ui-react'
 
+/** Props for {@link MiniCalendar}. */
 export interface MiniCalendarProps {
   /** Controlled selected date (ISO yyyy-mm-dd or Date). */
   selected?: Date | string

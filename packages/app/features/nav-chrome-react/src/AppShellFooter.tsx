@@ -8,6 +8,7 @@ export interface FooterLink {
   to?: string
 }
 
+/** Props for {@link AppShellFooter}. */
 export interface AppShellFooterProps {
   /** Optional brand / logo. */
   logo?: ReactNode

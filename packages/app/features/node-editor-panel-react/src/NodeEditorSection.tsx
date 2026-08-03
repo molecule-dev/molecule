@@ -10,6 +10,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link NodeEditorSection}. */
 export interface NodeEditorSectionProps {
   label: ReactNode
   children?: ReactNode

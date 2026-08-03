@@ -72,6 +72,8 @@ interface AdminTableColumn<T> {
 
 #### `AdminTableProps`
 
+Props for {@link AdminTable}.
+
 ```typescript
 interface AdminTableProps<T> {
   rows: T[]
@@ -121,6 +123,8 @@ interface AdminTableRowAction<T> {
 ```
 
 #### `AdminTableRowActionsProps`
+
+Props for {@link AdminTableRowActions}.
 
 ```typescript
 interface AdminTableRowActionsProps<T> {

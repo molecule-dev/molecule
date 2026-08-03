@@ -53,6 +53,8 @@ interface DrawingTool {
 
 #### `DrawingToolbarProps`
 
+Props for {@link DrawingToolbar}.
+
 ```typescript
 interface DrawingToolbarProps {
   /** Tools to render. */

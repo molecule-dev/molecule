@@ -54,6 +54,8 @@ interface DefinitionField {
 
 #### `DefinitionListProps`
 
+Props for {@link DefinitionList}.
+
 ```typescript
 interface DefinitionListProps {
   /** Fields to render. */
@@ -66,6 +68,8 @@ interface DefinitionListProps {
 ```
 
 #### `InfoCardProps`
+
+Props for {@link InfoCard}.
 
 ```typescript
 interface InfoCardProps {

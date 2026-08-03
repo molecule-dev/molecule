@@ -35,6 +35,8 @@ npm install -D @types/react
 
 #### `CollapsibleSectionProps`
 
+Props for {@link CollapsibleSection}.
+
 ```typescript
 interface CollapsibleSectionProps {
   /** Section heading — rendered as an expand-toggle button. */
@@ -59,6 +61,8 @@ interface CollapsibleSectionProps {
 ```
 
 #### `ShowMoreProps`
+
+Props for {@link ShowMore}.
 
 ```typescript
 interface ShowMoreProps {

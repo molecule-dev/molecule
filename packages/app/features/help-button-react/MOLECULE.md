@@ -36,6 +36,8 @@ npm install -D @types/react
 
 #### `HelpButtonProps`
 
+Props for {@link HelpButton}.
+
 ```typescript
 interface HelpButtonProps {
   /** Optional icon — defaults to "?". */

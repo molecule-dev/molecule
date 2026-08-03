@@ -28,6 +28,7 @@ export interface FeatureFlag {
   environments: FeatureFlagEnvironment[]
 }
 
+/** Props for {@link FeatureFlagRow}. */
 export interface FeatureFlagRowProps {
   flag: FeatureFlag
   /** Called when an environment toggles. */

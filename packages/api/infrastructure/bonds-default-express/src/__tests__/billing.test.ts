@@ -2,7 +2,7 @@
  * createBillingRouter — plan-catalogue registration.
  *
  * The router must derive the app's Stripe plan catalogue from its pricing
- * tiers and register it with @molecule/api-resource-payment, so payment
+ * tiers and register it with `@molecule/api-resource-payment`, so payment
  * verification / webhooks can resolve grants. Without this every successful
  * payment fails plan resolution ("unknown plan"): charged, never upgraded.
  */

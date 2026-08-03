@@ -39,6 +39,8 @@ npm install -D @types/react
 
 #### `FileDropzoneProps`
 
+Props for {@link FileDropzone}.
+
 ```typescript
 interface FileDropzoneProps {
   /** Called with the File[] the user selected or dropped. */

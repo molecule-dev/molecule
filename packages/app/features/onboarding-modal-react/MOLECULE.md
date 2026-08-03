@@ -45,6 +45,8 @@ npm install -D @types/react
 
 #### `OnboardingModalProps`
 
+Props for {@link OnboardingModal}.
+
 ```typescript
 interface OnboardingModalProps {
   /** Whether the modal is open. */

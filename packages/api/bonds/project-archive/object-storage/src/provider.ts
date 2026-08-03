@@ -61,14 +61,7 @@ import {
   validateArtifact,
   verifyArtifactBytes,
 } from './artifact.js'
-import {
-  assertSafePartPath,
-  createTar,
-  gzipBytes,
-  normalizePartPath,
-  pathCollisionKey,
-  type TarEntry,
-} from './tar.js'
+import { assertSafePartPath, createTar, gzipBytes, pathCollisionKey, type TarEntry } from './tar.js'
 
 /** Form fieldname reported to the uploads provider. */
 const UPLOAD_FIELDNAME = 'archive'

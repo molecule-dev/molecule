@@ -9,8 +9,8 @@
  *
  * **Secure by default.** Snapshots can hold any tenant's data, so EVERY route
  * requires an authenticated session (`authenticate`) AND its handler re-derives
- * the caller from `res.locals.session.userId` and authorizes access to the
- * *parent* resource via the pluggable, fail-closed ownership resolver
+ * the caller from `res.locals.session.userId` and authorizes access to
+ * the *parent* resource via the pluggable, fail-closed ownership resolver
  * (`registerOwnershipResolver`). The in-handler gate holds even if the injector
  * drops a middleware string (defense-in-depth, mirroring
  * `@molecule/api-resource-trash`); with no registered resolver every read/list/

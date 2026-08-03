@@ -12,6 +12,7 @@ export interface MessageAttachment {
   icon?: React.ReactNode
 }
 
+/** Props for {@link MessageAttachments}. */
 export interface MessageAttachmentsProps {
   attachments: MessageAttachment[]
   /** Extra classes on the outer wrapper. */

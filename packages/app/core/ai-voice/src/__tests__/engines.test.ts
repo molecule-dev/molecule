@@ -7,8 +7,8 @@ import {
   selectVoiceEngine,
   voiceEngineCoversLanguage,
 } from '../engines.js'
-import { getProvider } from '../provider.js'
 import type { AIVoiceProvider, VoiceEngineDef } from '../index.js'
+import { getProvider } from '../provider.js'
 
 function fakeProvider(name: string): AIVoiceProvider {
   return {

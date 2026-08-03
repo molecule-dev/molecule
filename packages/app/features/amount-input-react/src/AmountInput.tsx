@@ -9,6 +9,7 @@ import { formatCurrency } from './utils.js'
 /** Transaction type used to categorise an amount entry. */
 export type AmountType = 'income' | 'expense' | 'transfer' | 'other'
 
+/** Props for {@link AmountInput}. */
 export interface AmountInputProps {
   /** Current numeric amount (major units). */
   amount: number | ''

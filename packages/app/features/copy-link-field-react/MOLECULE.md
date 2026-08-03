@@ -32,6 +32,8 @@ npm install -D @types/react
 
 #### `CopyLinkFieldProps`
 
+Props for {@link CopyLinkField}.
+
 ```typescript
 interface CopyLinkFieldProps {
   /** Value to display (and copy on click). */

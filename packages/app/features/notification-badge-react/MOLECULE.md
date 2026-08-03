@@ -36,6 +36,8 @@ npm install -D @types/react
 
 #### `NotificationBadgeProps`
 
+Props for {@link NotificationBadge}.
+
 ```typescript
 interface NotificationBadgeProps {
   /** Numeric count — renders as a pill. When 0 and `hideOnZero` is true, the badge isn't rendered. */
@@ -53,6 +55,8 @@ interface NotificationBadgeProps {
 
 #### `NotificationDotProps`
 
+Props for {@link NotificationDot}.
+
 ```typescript
 interface NotificationDotProps {
   /** When false, nothing is rendered. */
@@ -69,6 +73,8 @@ interface NotificationDotProps {
 ```
 
 #### `NotificationWrapperProps`
+
+Props for {@link NotificationWrapper}.
 
 ```typescript
 interface NotificationWrapperProps {

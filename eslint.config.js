@@ -79,7 +79,15 @@ export default tseslint.config(
       'jsdoc/require-param-description': 'off',
       'jsdoc/require-returns': 'off',
       'jsdoc/require-returns-description': 'off',
-      'jsdoc/check-tag-names': ['warn', { definedTags: ['module', 'remarks', 'defaultValue'] }],
+      // `e2e` is a first-class project tag, not a typo: `mlcl`'s api-extractor
+      // slices the module-level `@e2e` block and the doc generator renders it as
+      // MOLECULE.md's "E2E Tests" section (provider bonds inherit their core's).
+      // It was simply never declared here, so 142 deliberate blocks read as
+      // invalid tags.
+      'jsdoc/check-tag-names': [
+        'warn',
+        { definedTags: ['module', 'remarks', 'defaultValue', 'e2e'] },
+      ],
       'jsdoc/check-param-names': 'off',
       'jsdoc/tag-lines': 'off',
       'jsdoc/require-throws-type': 'warn',
@@ -202,6 +210,22 @@ export default tseslint.config(
     files: ['packages/app/bonds/icons/molecule/src/icons/**/*.ts'],
     rules: {
       'jsdoc/require-description': 'off',
+    },
+  },
+  {
+    // Svelte UI docs show real Svelte template snippets, and `{@html …}` is
+    // Svelte syntax, not a JSDoc inline tag. Declaring it here beats mangling
+    // the snippet — an escaped `{\@html}` would document syntax that does not
+    // work. Scoped to this package so `{@html}` stays invalid everywhere else.
+    files: ['packages/app/frameworks/svelte-ui/**/*.ts'],
+    rules: {
+      'jsdoc/check-tag-names': [
+        'warn',
+        {
+          definedTags: ['module', 'remarks', 'defaultValue', 'e2e'],
+          inlineTags: ['link', 'linkcode', 'linkplain', 'tutorial', 'html'],
+        },
+      ],
     },
   },
   {

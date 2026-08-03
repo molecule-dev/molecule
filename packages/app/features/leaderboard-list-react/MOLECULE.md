@@ -41,6 +41,8 @@ npm install -D @types/react
 
 #### `LeaderboardListProps`
 
+Props for {@link LeaderboardList}.
+
 ```typescript
 interface LeaderboardListProps {
   /** Pre-rendered leaderboard rows. */

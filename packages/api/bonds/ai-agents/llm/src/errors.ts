@@ -48,6 +48,9 @@ export class AgentRunError extends Error {
   readonly steps: AgentStep[]
 
   /**
+   * Builds the error, carrying the partial run alongside the failure so a
+   * caller can report what the agent had already spent and done.
+   *
    * @param message - The error message (same text a plain `Error` would carry).
    * @param usage - Token usage accumulated across turns completed before the failure.
    * @param steps - Steps recorded before the failure.

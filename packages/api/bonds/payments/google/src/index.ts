@@ -30,8 +30,8 @@
  * @module
  */
 
-export * from './browser-guard.js'
 export * from './bondAdapter.js'
+export * from './browser-guard.js'
 export * from './secrets.js'
 export * from './types.js'
 export * from './verification.js'

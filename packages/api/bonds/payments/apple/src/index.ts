@@ -45,9 +45,9 @@
  * @module
  */
 
-export * from './browser-guard.js'
 export * from './appleRootCertificate.js'
 export * from './bondAdapter.js'
+export * from './browser-guard.js'
 export * from './jws.js'
 export * from './notificationV2.js'
 export * from './provider.js'

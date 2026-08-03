@@ -5,6 +5,7 @@ import type { SpacingScale } from '@molecule/app-ui'
 
 import { LegalPageLayout } from './LegalPageLayout.js'
 
+/** Props for {@link TermsPage}. */
 export interface TermsPageProps {
   /** i18n key for the page heading. Defaults to `terms.title`. */
   titleKey?: string

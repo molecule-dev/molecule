@@ -11,7 +11,6 @@
 import { type JSX, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
-import { getClassMap } from '@molecule/app-ui'
 
 import { Icon } from './Icon.js'
 import { resolveUserAvatar } from './user-avatar-utilities.js'
@@ -48,7 +47,6 @@ export interface UserAvatarProps {
  * @returns The avatar image or icon fallback, optionally wrapped in a button.
  */
 export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps): JSX.Element {
-  const cm = getClassMap()
   const [hover, setHover] = useState(false)
   const src = resolveUserAvatar(userAvatar)
   // The user's own avatar identifies their messages — "You" is the accurate,

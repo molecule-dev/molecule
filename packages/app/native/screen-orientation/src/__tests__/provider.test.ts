@@ -1,5 +1,6 @@
-import { bond, get, reset } from '@molecule/app-bond'
 import { beforeEach, describe, expect, it } from 'vitest'
+
+import { bond, get, reset } from '@molecule/app-bond'
 
 import { getProvider, hasProvider, setProvider } from '../provider.js'
 import type { OrientationLock, OrientationType, ScreenOrientationProvider } from '../types.js'

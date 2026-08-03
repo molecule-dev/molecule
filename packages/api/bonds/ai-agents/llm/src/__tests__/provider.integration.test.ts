@@ -23,11 +23,12 @@
  * @module
  */
 
+import { beforeEach, describe, expect, it } from 'vitest'
+
 import type { AIProvider, AITool, ChatEvent, ChatParams, ContentBlock } from '@molecule/api-ai'
 import { setProvider as setAiProvider } from '@molecule/api-ai'
 import { requireProvider, setProvider as setAgentsProvider } from '@molecule/api-ai-agents'
 import { configure, reset } from '@molecule/api-bond'
-import { beforeEach, describe, expect, it } from 'vitest'
 
 import { AgentRunError } from '../errors.js'
 import { provider as agents } from '../provider.js'

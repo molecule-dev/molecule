@@ -2,6 +2,7 @@ import type { ReactElement } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link NotificationBadge}. */
 export interface NotificationBadgeProps {
   /** Numeric count — renders as a pill. When 0 and `hideOnZero` is true, the badge isn't rendered. */
   count: number

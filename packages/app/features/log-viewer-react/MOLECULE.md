@@ -61,6 +61,8 @@ interface LogEntry {
 
 #### `LogViewerProps`
 
+Props for {@link LogViewer}.
+
 ```typescript
 interface LogViewerProps {
   entries: LogEntry[]

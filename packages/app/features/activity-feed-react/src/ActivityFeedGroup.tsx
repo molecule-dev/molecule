@@ -5,6 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 import { ActivityFeedItem } from './ActivityFeedItem.js'
 import type { ActivityFeedItemData } from './types.js'
 
+/** Props for {@link ActivityFeedGroup}. */
 export interface ActivityFeedGroupProps {
   /** Group heading — typically a formatted date ("Today", "Yesterday", "Mar 12"). */
   heading: ReactNode

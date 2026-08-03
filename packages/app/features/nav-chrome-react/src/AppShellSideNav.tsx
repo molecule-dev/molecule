@@ -4,6 +4,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { NavGroup, NavItem } from './types.js'
 
+/** Props for {@link AppShellSideNav}. */
 export interface AppShellSideNavProps {
   /** Nav content: either a flat list of items or grouped sections. */
   items?: NavItem[]

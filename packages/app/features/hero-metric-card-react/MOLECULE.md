@@ -91,6 +91,8 @@ interface HeroMetricTrend {
 
 #### `HeroMetricTrendChipProps`
 
+Props for {@link HeroMetricTrendChip}.
+
 ```typescript
 interface HeroMetricTrendChipProps {
   /** Direction + pre-formatted delta string. */

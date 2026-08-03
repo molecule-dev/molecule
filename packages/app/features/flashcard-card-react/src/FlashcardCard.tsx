@@ -8,6 +8,7 @@ import { Button, Card } from '@molecule/app-ui-react'
 /** SM-2-compatible grade values the caller uses to schedule the next review. */
 export type SrsGrade = 'again' | 'hard' | 'good' | 'easy'
 
+/** Props for {@link FlashcardCard}. */
 export interface FlashcardCardProps {
   /** Front content (prompt). */
   front: ReactNode

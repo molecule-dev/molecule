@@ -4,6 +4,7 @@ import { EmbeddableChatLauncher } from './EmbeddableChatLauncher.js'
 import { EmbeddableChatPanel } from './EmbeddableChatPanel.js'
 import type { EmbeddableChatWidgetConfig } from './types.js'
 
+/** Props for {@link EmbeddableChatWidget}. */
 export interface EmbeddableChatWidgetProps {
   /** Widget configuration. */
   config: EmbeddableChatWidgetConfig

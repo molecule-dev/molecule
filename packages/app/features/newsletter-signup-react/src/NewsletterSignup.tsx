@@ -5,6 +5,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Input } from '@molecule/app-ui-react'
 
+/** Props for {@link NewsletterSignup}. */
 export interface NewsletterSignupProps {
   /** Called with the email on submit. Return a Promise to block double-submit. */
   onSubscribe: (email: string) => void | Promise<void>

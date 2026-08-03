@@ -38,6 +38,8 @@ npm install -D @types/react
 
 #### `ForumThreadRowProps`
 
+Props for {@link ForumThreadRow}.
+
 ```typescript
 interface ForumThreadRowProps {
   title: ReactNode

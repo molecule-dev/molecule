@@ -14,6 +14,7 @@ export interface ContactFormValues {
   [key: string]: string
 }
 
+/** Props for {@link ContactForm}. */
 export interface ContactFormProps {
   /** Called with the form values on submit. Return a Promise to block double-submit. */
   onSubmit: (values: ContactFormValues) => void | Promise<void>

@@ -9,6 +9,7 @@ import type {
 } from './types.js'
 import { useSafeTranslation } from './useSafeTranslation.js'
 
+/** Props for {@link EmbeddableChatPanel}. */
 export interface EmbeddableChatPanelProps {
   /** Whether the panel is expanded (visible) or collapsed (hidden). */
   visible: boolean
@@ -286,6 +287,7 @@ export function EmbeddableChatPanel({
   )
 }
 
+/** Props for the panel's internal message bubble. */
 export interface PanelMessageProps {
   message: EmbeddableChatMessage
   theme: EmbeddableChatWidgetConfig['theme']

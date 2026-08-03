@@ -9,6 +9,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link NodeEditorToggle}. */
 export interface NodeEditorToggleProps {
   title: ReactNode
   subtitle?: ReactNode

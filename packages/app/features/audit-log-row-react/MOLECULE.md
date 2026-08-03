@@ -63,6 +63,8 @@ interface AuditLogEntry {
 
 #### `AuditLogRowProps`
 
+Props for {@link AuditLogRow}.
+
 ```typescript
 interface AuditLogRowProps {
   entry: AuditLogEntry

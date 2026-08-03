@@ -40,6 +40,8 @@ npm install -D @types/react
 
 #### `ActivityFeedGroupProps`
 
+Props for {@link ActivityFeedGroup}.
+
 ```typescript
 interface ActivityFeedGroupProps {
   /** Group heading — typically a formatted date ("Today", "Yesterday", "Mar 12"). */
@@ -78,6 +80,8 @@ interface ActivityFeedItemData {
 
 #### `ActivityFeedItemProps`
 
+Props for {@link ActivityFeedItem}.
+
 ```typescript
 interface ActivityFeedItemProps {
   item: ActivityFeedItemData
@@ -87,6 +91,8 @@ interface ActivityFeedItemProps {
 ```
 
 #### `ActivityFeedProps`
+
+Props for {@link ActivityFeed}.
 
 ```typescript
 interface ActivityFeedProps {

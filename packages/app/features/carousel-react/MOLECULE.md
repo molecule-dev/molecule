@@ -31,6 +31,8 @@ npm install -D @types/react
 
 #### `CarouselProps`
 
+Props for {@link Carousel}.
+
 ```typescript
 interface CarouselProps {
   /** Slides — each child is one frame. */

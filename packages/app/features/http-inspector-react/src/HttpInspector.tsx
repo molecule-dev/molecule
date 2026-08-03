@@ -20,6 +20,7 @@ export interface HttpResponse {
   headers?: HttpHeader[]
 }
 
+/** Props for {@link HttpInspector}. */
 export interface HttpInspectorProps {
   method: HttpMethod
   onMethodChange: (m: HttpMethod) => void

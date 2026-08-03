@@ -49,6 +49,8 @@ npm install -D @types/react
 
 #### `KanbanBoardProps`
 
+Props for {@link KanbanBoard}.
+
 ```typescript
 interface KanbanBoardProps {
   columns: KanbanColumnData[]
@@ -84,6 +86,8 @@ interface KanbanCardData {
 
 #### `KanbanCardProps`
 
+Props for {@link KanbanCard}.
+
 ```typescript
 interface KanbanCardProps {
   card: KanbanCardData
@@ -115,6 +119,8 @@ interface KanbanColumnData {
 
 #### `KanbanColumnHeaderProps`
 
+Props for {@link KanbanColumnHeader}.
+
 ```typescript
 interface KanbanColumnHeaderProps {
   title: ReactNode
@@ -128,6 +134,8 @@ interface KanbanColumnHeaderProps {
 ```
 
 #### `KanbanColumnProps`
+
+Props for {@link KanbanColumn}.
 
 ```typescript
 interface KanbanColumnProps {

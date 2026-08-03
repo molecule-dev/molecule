@@ -37,6 +37,8 @@ npm install -D @types/react
 
 #### `NewsletterSignupProps`
 
+Props for {@link NewsletterSignup}.
+
 ```typescript
 interface NewsletterSignupProps {
   /** Called with the email on submit. Return a Promise to block double-submit. */

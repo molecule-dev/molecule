@@ -2,6 +2,7 @@ import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
+/** Props for {@link DetailPageLayout}. */
 export interface DetailPageLayoutProps {
   /** Breadcrumb rendered above everything. */
   breadcrumb?: ReactNode

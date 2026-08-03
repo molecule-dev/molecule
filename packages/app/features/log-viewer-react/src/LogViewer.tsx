@@ -23,6 +23,7 @@ export interface LogEntry {
   data?: unknown
 }
 
+/** Props for {@link LogViewer}. */
 export interface LogViewerProps {
   entries: LogEntry[]
   /** Called when an entry expands/collapses. */

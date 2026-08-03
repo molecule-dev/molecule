@@ -17,6 +17,7 @@ export interface ToolbarAction {
   color?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info'
 }
 
+/** Props for {@link EditorToolbar}. */
 export interface EditorToolbarProps {
   /** Document title. */
   title: ReactNode

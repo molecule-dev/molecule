@@ -1,7 +1,7 @@
 import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
-import { configure, consume, hasProvider } from '@molecule/api-rate-limit'
 import type { RateLimitResult } from '@molecule/api-rate-limit'
+import { configure, consume, hasProvider } from '@molecule/api-rate-limit'
 import type { MoleculeRequest, MoleculeRequestHandler } from '@molecule/api-resource'
 
 const logger = getLogger()

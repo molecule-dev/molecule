@@ -39,6 +39,8 @@ npm install -D @types/react
 
 #### `LeaderboardRowProps`
 
+Props for {@link LeaderboardRow}.
+
 ```typescript
 interface LeaderboardRowProps {
   /** 1-based rank. */
