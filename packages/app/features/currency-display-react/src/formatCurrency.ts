@@ -27,6 +27,14 @@ export function formatCurrencyCompact(
       style: 'currency',
       currency,
       notation: 'compact',
+      // minimumFractionDigits is NOT redundant next to the maximum. Without it,
+      // ICU versions before ~Node 24 pad compact output to the maximum, so a
+      // whole amount rendered as "$99.0" / "$0.0" there and "$99" / "$0" on
+      // newer runtimes — a visible difference for anyone on Node 22 or an older
+      // browser, and a test that passed locally while failing in CI. Pinning the
+      // minimum to 0 makes the output identical across ICU versions ("$12.3K" is
+      // unaffected either way). Verified on Node 22.23.2 and 25.9.0.
+      minimumFractionDigits: 0,
       maximumFractionDigits: 1,
     }).format(amount)
   } catch (_error) {

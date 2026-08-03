@@ -39,6 +39,15 @@ jobs:
       # paid down without turning the gate red today.
       - run: npm run check:i18n-parity
       - run: npm run build
+      # @molecule/app-e2e-fixtures-default ships a REAL-DEPENDENCY integration
+      # test that drives headless Chromium through the actual Playwright runner
+      # — it is the gate proving a blank React mount cannot pass e2e green. Its
+      # own docstring notes it needs Chromium installed; the runner has the npm
+      # package but no browser binary, so the test failed here while passing
+      # locally. Install the browser rather than skip the test: skipping would
+      # mean that guard only ever runs on a developer's machine.
+      - run: npx --yes playwright install --with-deps chromium
+        working-directory: packages/app/features/e2e-fixtures-default
       - run: npm test
 
   lint:
